@@ -1,0 +1,35 @@
+run_name: exp1_uncond_smoke
+seed: 0
+device: auto
+data:
+  d: 2
+  k: 1
+  N: 32
+  sigma_obs: 0.1
+  prior_std: 1.0
+  source_std: 1.0
+  A_kind: random
+model:
+  conditional: false
+  width: 128
+  depth: 4
+  time_embed_dim: 64
+  activation: silu
+train:
+  max_iters: 300
+  batch_size: 256
+  lr: 0.001
+  interpolant_sigma: 0.0
+  y_noise_h: 0.0
+  checkpoints:
+  - 50
+  - 150
+  - 300
+eval:
+  n_eval_train: 4
+  n_heldout: 2
+  M: 128
+  n_steps: 20
+  ode_method: rk4
+  ode_eps: 0.001
+  vel_points: 256

@@ -1,0 +1,37 @@
+# EXP-1 default: Linear-Gaussian posterior collapse (spec Section 3.3 / 10.A).
+run_name: exp1_default
+seed: 0
+device: auto            # auto | cpu | cuda
+
+data:
+  d: 2                  # data dimension
+  k: 1                  # observation dimension
+  N: 200                # training set size
+  sigma_obs: 0.1        # observation noise std
+  prior_std: 1.0        # prior x ~ N(0, prior_std^2 I)
+  source_std: 1.0       # source pi_0 = N(0, source_std^2 I)
+  A_kind: random        # random | projection
+
+model:
+  conditional: true     # set false for the P4 unconditional baseline
+  width: 128
+  depth: 4
+  time_embed_dim: 64
+  activation: silu
+
+train:
+  max_iters: 200000     # overtraining is the OBJECT of study (no early stopping)
+  batch_size: 256
+  lr: 0.001
+  interpolant_sigma: 0.0   # 0 = deterministic interpolant (exact EXP-1 case)
+  y_noise_h: 0.0           # P7 remedy bandwidth on the condition y (0 = off)
+  checkpoints: [100, 300, 1000, 3000, 10000, 30000, 100000, 200000]
+
+eval:
+  n_eval_train: 20      # representative training conditions y^i
+  n_heldout: 8          # held-out conditions (generalization check)
+  M: 1000               # samples generated per condition
+  n_steps: 100          # ODE integration steps
+  ode_method: rk4       # rk4 | euler
+  ode_eps: 0.001        # stop integration at t = 1 - eps (t=1 singularity guard)
+  vel_points: 2000      # (x,t) points for the velocity-error metric [P2]

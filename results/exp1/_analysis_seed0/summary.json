@@ -1,0 +1,41 @@
+{
+  "n_seeds_cond": 1,
+  "trace_post": 1.0040473220529973,
+  "final_cond_trace_cov": {
+    "iter": 200000,
+    "mean": 0.4066363313290347,
+    "std": 0.0
+  },
+  "final_cond_vel_rel_err": {
+    "iter": 200000,
+    "mean": 0.4000329107046127,
+    "std": 0.0
+  },
+  "final_cond_mean_err_train_point": {
+    "iter": 200000,
+    "mean": 0.3443285729049337,
+    "std": 0.0
+  },
+  "final_cond_mean_err_post": {
+    "iter": 200000,
+    "mean": 0.8509849452577267,
+    "std": 0.0
+  },
+  "n_seeds_uncond": 1,
+  "final_uncond_trace_cov": {
+    "iter": 200000,
+    "mean": 2.1604531593774974,
+    "std": 0.0
+  },
+  "trace_data": 2.1711854007749167,
+  "final_heldout_trace_cov": {
+    "iter": 200000,
+    "mean": 301977.854144139,
+    "std": 0.0
+  },
+  "final_heldout_mean_err_post": {
+    "iter": 200000,
+    "mean": 17.799741953382657,
+    "std": 0.0
+  }
+}

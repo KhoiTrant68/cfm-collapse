@@ -1,0 +1,35 @@
+[project]
+name = "cfm-collapse"
+version = "0.1.0"
+description = "Numerical verification of posterior variance collapse in conditional flow matching"
+readme = "README.md"
+requires-python = ">=3.10,<3.13"
+dependencies = [
+    "torch>=2.2",
+    "numpy>=1.26",
+    "matplotlib>=3.8",
+    "pyyaml>=6.0",
+    "pandas>=2.0",
+    "torchvision>=0.19",
+]
+
+# geomloss/pykeops are hard to build on Windows (need a C++ toolchain + KeOps).
+# EXP-1 / EXP-2 use a self-contained torch implementation of MMD / Sinkhorn
+# (src/metrics/distances.py). Install the extra only if you specifically want
+# the geomloss reference implementation.
+[project.optional-dependencies]
+geomloss = ["geomloss>=0.2.6"]
+
+# This is a research script collection, not a distributable library.
+# Do not try to build/install the project itself; just manage the venv.
+[tool.uv]
+package = false
+
+[tool.uv.sources]
+torch = [{ index = "pytorch-cpu" }]
+torchvision = [{ index = "pytorch-cpu" }]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true

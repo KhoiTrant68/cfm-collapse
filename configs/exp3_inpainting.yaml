@@ -1,0 +1,28 @@
+# EXP-3: MNIST inpainting (bottom-half mask), qualitative collapse demo.
+run_name: exp3_default
+seed: 0
+device: auto
+
+data:
+  N: 500                # small data => collapse clearer (spec 5.2)
+  mask_kind: bottom_half
+  source_std: 1.0
+  data_root: data
+
+model:
+  base: 32
+  temb_dim: 128
+
+train:
+  max_iters: 30000      # enough to overtrain on N=500 with a small U-Net
+  batch_size: 64
+  lr: 0.0002
+  checkpoints: [200, 1000, 5000, 15000, 30000]
+
+eval:
+  n_conditions: 6       # conditions measured for pixel variance / NN distance
+  M: 16                 # completions generated per condition
+  n_steps: 50           # Euler steps (straight collapsed flow)
+  ode_eps: 0.001
+  grid_conditions: 4    # rows in the saved sample grid
+  grid_M: 6             # sample columns in the grid

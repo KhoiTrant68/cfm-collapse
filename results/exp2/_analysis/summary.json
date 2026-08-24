@@ -1,0 +1,27 @@
+{
+  "n_seeds": 2,
+  "final_mode_coverage": {
+    "iter": 300000,
+    "mean": 0.71875,
+    "std": 0.03125
+  },
+  "final_mmd": {
+    "iter": 300000,
+    "mean": 0.23877555666814654,
+    "std": 0.014288588873317833
+  },
+  "final_occupancy_tv": {
+    "iter": 300000,
+    "mean": 0.3353906257309563,
+    "std": 0.01585937550049088
+  },
+  "final_dist_to_nearest_train": {
+    "iter": 300000,
+    "mean": 0.30472091865160217,
+    "std": 0.11499877862353415
+  },
+  "early_mode_coverage": {
+    "iter": 100,
+    "mean": 1.0
+  }
+}

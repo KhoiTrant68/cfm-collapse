@@ -216,3 +216,13 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# --- cfm-collapse project ---
+# Large model checkpoints (regenerable); keep raw CSVs and figures tracked.
+results/**/checkpoints/
+*.pt
+# Local temp / scratch
+scratch/
+
+# Downloaded datasets (MNIST etc. — auto-fetched by torchvision)
+data/
