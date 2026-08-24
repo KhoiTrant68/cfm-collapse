@@ -1,21 +1,21 @@
 """Interpolants x_t between source x0 ~ pi_0 and target x1.
 
-Deterministic linear interpolant (spec Section 2.1):
+Deterministic linear interpolant (docs/THEORY.md Section 0):
 
     x_t = (1 - t) x0 + t x1,     v_target = x1 - x0
 
-Stochastic interpolant variant (spec Section 3.7, to contrast the two remedies
-against 2510.18118):
+Stochastic interpolant variant (docs/THEORY.md Part C, eq. C.1/C.2):
 
-    x_t = (1 - t) x0 + t x1 + sigma * sqrt(t (1 - t)) * Z,   Z ~ N(0, I)
+    x_t   = (1 - t) x0 + t x1 + gamma(t) Z,    gamma(t) = sigma * sqrt(t (1 - t))
+    U     = d/dt x_t = x1 - x0 + gamma_dot(t) Z
 
-For the stochastic case the conditional target velocity is still ``x1 - x0``
-plus the drift of the added noise bridge; we use the standard result that the
-regression target for E[dx_t/dt | x_t] is unchanged in expectation when the
-noise is a Brownian-bridge-like term with the ``sqrt(t(1-t))`` schedule, so we
-keep ``x1 - x0`` as the target for the network (this matches torchcfm's
-``VariancePreserving``-style targets closely enough for our qualitative
-comparison; the point of EXP-1 is the *deterministic* case which is exact).
+The pathwise-derivative target is x1 - x0 + gamma_dot(t) Z, using the **same**
+Z that generated x_t. Regressing on x1 - x0 alone is a *different* objective and
+does not recover the marginal velocity field of the path (C.1) -- see the note
+in THEORY Part C. gamma_dot(t) = sigma (1 - 2t) / (2 sqrt(t(1-t))) is integrable
+but blows up like |t(1-t)|^{-1/2} at the endpoints; we clamp t into [eps, 1-eps]
+with eps = 1e-4. This is a deliberate treatment of an integrable singularity,
+not an approximation of convenience.
 """
 from __future__ import annotations
 
@@ -32,10 +32,19 @@ class InterpolantBatch:
 
 
 class LinearInterpolant:
-    """Deterministic linear interpolant. ``sigma=0`` is the exact EXP-1 case."""
+    """Linear interpolant. ``sigma=0`` is the exact deterministic EXP-1 case.
 
-    def __init__(self, sigma: float = 0.0):
+    For ``sigma>0`` (Part C) both x_t and the regression target use the same Z:
+
+        gamma(t)     = sigma * sqrt(t(1-t))
+        gamma_dot(t) = sigma * (1 - 2t) / (2 sqrt(t(1-t)))
+        x_t    = (1-t) x0 + t x1 + gamma(t) Z
+        target = x1 - x0 + gamma_dot(t) Z          # eq. (C.2)
+    """
+
+    def __init__(self, sigma: float = 0.0, t_eps: float = 1e-4):
         self.sigma = float(sigma)
+        self.t_eps = float(t_eps)
 
     def sample(
         self,
@@ -44,13 +53,23 @@ class LinearInterpolant:
         t: torch.Tensor,
         generator: torch.Generator | None = None,
     ) -> InterpolantBatch:
-        t_col = t.reshape(-1, 1)
-        x_t = (1.0 - t_col) * x0 + t_col * x1
         target = x1 - x0
-        if self.sigma > 0.0:
-            std = self.sigma * torch.sqrt(torch.clamp(t_col * (1.0 - t_col), min=0.0))
-            z = torch.randn(x_t.shape, generator=generator, device=x_t.device, dtype=x_t.dtype)
-            x_t = x_t + std * z
+        if self.sigma <= 0.0:
+            t_col = t.reshape(-1, 1)
+            x_t = (1.0 - t_col) * x0 + t_col * x1
+            return InterpolantBatch(x_t=x_t, target=target, t=t)
+
+        # Stochastic interpolant: clamp t away from the endpoints so gamma_dot,
+        # which diverges like |t(1-t)|^{-1/2}, stays finite. This is a deliberate
+        # treatment of an integrable singularity (THEORY Part C), not a fudge.
+        t = t.clamp(self.t_eps, 1.0 - self.t_eps)
+        t_col = t.reshape(-1, 1)
+        s = torch.sqrt(t_col * (1.0 - t_col))
+        gamma = self.sigma * s
+        gamma_dot = self.sigma * (1.0 - 2.0 * t_col) / (2.0 * s)
+        z = torch.randn(x0.shape, generator=generator, device=x0.device, dtype=x0.dtype)
+        x_t = (1.0 - t_col) * x0 + t_col * x1 + gamma * z
+        target = target + gamma_dot * z            # (C.2): same Z as x_t
         return InterpolantBatch(x_t=x_t, target=target, t=t)
 
 

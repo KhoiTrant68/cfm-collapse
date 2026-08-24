@@ -2,8 +2,10 @@
 
 Numerical verification of a theorem about **posterior variance collapse** in
 conditional flow matching (CFM). This is a *theory-verification* project, not a
-benchmark chase — see `PROJECT_SPEC_conditional_fm_collapse.md` for the full
-specification and `results/RESULTS.md` for the findings.
+benchmark chase — see `docs/THEORY.md` for the complete, self-contained proofs
+(every proposition proved, no hanging assumptions), `WORK_ORDER.md` for the task
+plan, `PROJECT_SPEC_conditional_fm_collapse.md` for the original specification,
+and `results/RESULTS.md` for the findings.
 
 **Central claim.** In conditional CFM with a deterministic linear interpolant,
 the "resample `x0` every step" mechanism that protects *unconditional* CFM from
