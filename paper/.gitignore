@@ -1,0 +1,10 @@
+# LaTeX build artifacts (regenerable via the compile chain in README.md)
+*.aux
+*.log
+*.bbl
+*.blg
+*.out
+*.toc
+*.fls
+*.fdb_latexmk
+*.synctex.gz
