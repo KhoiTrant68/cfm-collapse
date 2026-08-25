@@ -33,6 +33,7 @@ if _nt:
 from .flows.cfm import CFMTrainer
 from .flows.interpolants import LinearInterpolant
 from .flows.ode_solver import generate_samples
+from .metrics.kernel_theory import cov_expansion, kernel_moments
 from .metrics.posterior_stats import posterior_sample_stats, sample_covariance_trace
 from .metrics.velocity_error import velocity_error_vs_closed_form
 from .models.mlp_velocity import build_model
@@ -81,6 +82,7 @@ def evaluate_conditional(model, problem, X, Y, cfg, device, gen) -> list[dict]:
     method = ev.get("ode_method", "rk4")
     eps = ev.get("ode_eps", 1e-3)
     source_std = cfg["data"].get("source_std", 1.0)
+    h = float(cfg["train"].get("y_noise_h", 0.0))
     d = problem.d
 
     rows: list[dict] = []
@@ -100,7 +102,20 @@ def evaluate_conditional(model, problem, X, Y, cfg, device, gen) -> list[dict]:
                     model, X[local], y_i, n_points=ev["vel_points"],
                     source_std=source_std, generator=gen, device=device,
                 )
-                recs.append({**st.as_dict(), **vel})
+                # Exact kernel-regression reference (Thm 10 / Prop 13). These
+                # depend only on (X, Y, h); ratio_to_kernel is the primary P7
+                # metric measuring how close the model gets to the *population*
+                # optimum, superseding ratio_to_post (WORK_ORDER T1/T4).
+                x_bar_h, cov_h, neff = kernel_moments(y_i, X, Y, h)
+                trace_kernel = float(torch.trace(cov_h))
+                mean = samples.to(torch.float64).mean(0)
+                recs.append({
+                    **st.as_dict(), **vel,
+                    "trace_cov_kernel": trace_kernel,
+                    "n_eff": neff,
+                    "ratio_to_kernel": st.trace_cov / trace_kernel if trace_kernel > 0 else float("nan"),
+                    "mean_err_kernel": float(torch.linalg.norm(mean - x_bar_h)),
+                })
             else:
                 # Held-out: no specific x^i; measure variance, posterior-mean
                 # error, and distance of the sample mean to the nearest train pt.
