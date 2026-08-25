@@ -213,12 +213,11 @@ Nhiễu interpolant `x_t += σ√(t(1−t))·Z` (target đã sửa đúng thành
 
 | interp σ | 0.1 | 0.3 |
 |----------|-----|-----|
-| trace(Cov) | 0.37 | 0.43 |
-| bias | 0.68 | 0.66 |
+| trace(Cov), target **cũ** `x₁−x₀` | 0.37 | 0.43 |
+| trace(Cov), target **đã sửa** C.2 (`_c2`, 3 seed) | **0.41 ± 0.12** | **0.43 ± 0.11** |
+| bias (target cũ) | 0.68 | 0.66 |
 
-*(Bảng trên từ các run p7i target **cũ** `x₁−x₀`. Đang chạy lại bộ `p7i_sig{0.1,0.3}_seed{0,1,2}_c2` với target đã sửa (C.2), 3 seed — cập nhật khi xong. Prop 17c bảo đảm kết luận định tính bất biến theo target: endpoint là `δ_{x⁽ⁱ⁾}` ∀σ.)*
-
-**KHÔNG khôi phục phương sai** — và đây là **xác nhận Prop 17c**, không phải thất bại. Prop 17 chứng minh (nghiệm đóng `x_t = t·x⁽ⁱ⁾ + s_t·x₀`) rằng endpoint law là `δ_{x⁽ⁱ⁾}` **với mọi σ ≥ 0**: nhiễu interpolant co giãn factor spatial **đồng nhất cho mọi atom** nên không đổi posterior trên chỉ số `I` (Prop 19). Chỉ nhãn nhoè `y` — tác động lên factor **label** `K_h(y−y⁽ʲ⁾)` — mới đổi được `p₁`. Hai remedy **không** hoán đổi được; đây là điểm tách bạch sạch với 2510.18118 (vốn cho unconditional, hoạt động qua *attainability* chứ không qua population optimum).
+**KHÔNG khôi phục phương sai** — và đây là **xác nhận Prop 17c**, không phải thất bại. Đáng chú ý: sau khi **sửa target đúng thành (C.2)** (`x₁−x₀+γ̇(t)Z`, cùng Z; `verify_prop17.py` pass 4/4), kết quả **không đổi** (0.41/0.43 ≈ 0.37/0.43 của target cũ) — đúng như Prop 17 chứng minh: endpoint law là `δ_{x⁽ⁱ⁾}` **với mọi σ**, độc lập cả với việc target có đúng hay không. Tính bất biến này là bằng chứng mạnh cho cơ chế: nhiễu interpolant co giãn factor spatial đồng nhất mọi atom nên không đổi posterior trên chỉ số `I` (Prop 19). Prop 17 chứng minh (nghiệm đóng `x_t = t·x⁽ⁱ⁾ + s_t·x₀`) rằng endpoint law là `δ_{x⁽ⁱ⁾}` **với mọi σ ≥ 0**: nhiễu interpolant co giãn factor spatial **đồng nhất cho mọi atom** nên không đổi posterior trên chỉ số `I` (Prop 19). Chỉ nhãn nhoè `y` — tác động lên factor **label** `K_h(y−y⁽ʲ⁾)` — mới đổi được `p₁`. Hai remedy **không** hoán đổi được; đây là điểm tách bạch sạch với 2510.18118 (vốn cho unconditional, hoạt động qua *attainability* chứ không qua population optimum).
 
 ---
 
@@ -237,11 +236,29 @@ Nhiễu interpolant `x_t += σ√(t(1−t))·Z` (target đã sửa đúng thành
 
 ### T5 — Khoảng cách tới population optimum `L(v_θ) − L(v_h⋆)` (Question B)
 
-`scripts/measure_optimality_gap.py`: `L(v_h⋆) = E[Var(U|X_t,t,Ỹ)]` tính bằng `kernel_field` (minimizer chính xác). *(Kết quả điền sau khi chạy — `gap ≥ 0` là điều kiện đúng đắn; với h=0 thì `L(v_h⋆)=0` nên `gap = L(v_θ)`.)*
+`scripts/measure_optimality_gap.py` (seed 0, MC batch 200k): `L(v_h⋆) = E[Var(U|X_t,t,Ỹ)]` tính bằng minimizer chính xác `kernel_field`. **Mọi gap ≥ 0** (điều kiện đúng đắn — nếu âm là bug). Gap tại checkpoint cuối 200k và đầu:
 
-### T7 — Khoảng cách tới posterior THẬT cho EXP-1 (kiểm chứng Prop 14)
+| run (h) | `L(v_h⋆)` (bất khả giảm) | gap @100 | gap @30k | gap @200k |
+|---|---|---|---|---|
+| exp1_cond (h=0) | 0.000 | 2.50 | 1.31 | **0.442** |
+| p7y h=0.01 | 0.523 | 1.97 | 0.79 | **0.257** |
+| p7y h=0.05 | 1.166 | 1.33 | 0.29 | **0.126** |
+| p7y h=0.1  | 1.366 | 1.14 | 0.22 | **0.102** |
+| p7y h=0.5  | 1.881 | 0.86 | 0.18 | **0.091** |
 
-`scripts/analyze_posterior_distance_exp1.py`: MMD/Sinkhorn giữa mẫu sinh và mẫu posterior giải tích `N(μ_post, Σ_post)`. *(Kết quả điền sau khi chạy — kỳ vọng theo Prop 14: khoảng cách **không** về 0 ở bất kỳ h nào, kể cả h tối ưu cho trace covariance, vì `p_h^gen` atomic còn posterior liên tục.)*
+Hai điều đọc được: (1) `gap` **giảm đơn điệu về 0** theo iteration ở mọi h — model tiến dần tới population optimum (khớp `ratio_to_kernel → 1`). (2) `L(v_h⋆)` (sai số bất khả giảm) **tăng theo h** (0 → 1.88): nhãn nhoè càng mạnh, phần ngẫu nhiên còn lại trong `U | X_t,t,Ỹ` càng lớn — chính là cái giá của việc làm mượt. Với h=0, `L(v_h⋆)=0` (Prop 4b) nên `gap = L(v_θ)` — trùng đại lượng loss đã log.
+
+### T7 — Khoảng cách tới posterior THẬT cho EXP-1 (kiểm chứng Prop 14) ✅
+
+`scripts/analyze_posterior_distance_exp1.py` (seed 0, 8 điều kiện, M=1000): MMD/Sinkhorn giữa mẫu sinh và mẫu posterior giải tích `N(μ_post, Σ_post)`:
+
+| h | 0 (hard) | 0.01 | 0.05 | 0.1 | 0.5 |
+|---|---|---|---|---|---|
+| MMD → posterior thật | 0.256 | 0.137 | 0.053 | 0.024 | **0.012** |
+| Sinkhorn → posterior thật | 22.9 | 8.78 | 3.13 | 3.54 | **2.74** |
+| (`Cov_h` để đối chiếu) | 0 | 0.41 | 1.04 | 1.00 | 1.07 |
+
+**Kiểm chứng trực tiếp Prop 14 (atomicity).** MMD giảm theo h (0.256 → 0.012) nhưng **không** về 0 ở **bất kỳ** h nào — kể cả h=0.1 (nơi trace covariance khớp `Σ_post` nhất) lẫn h=0.5. Sinkhorn cũng chững ở ~2.7, tách hẳn khỏi 0. Đây là bằng chứng số cho cận dưới `W₂` độc-lập-h: `p_h^gen` là atomic (spread trên nhiều atom hơn khi h tăng ⇒ MMD nhỏ hơn, nhưng vẫn atomic ⇒ sàn > 0), còn posterior thật liên tục. **"Khôi phục variance" ≠ "khôi phục posterior"** — được xác nhận định lượng.
 
 ---
 
@@ -325,8 +342,8 @@ Giả thuyết trung tâm **được xác nhận vững chắc**: trong conditio
 ### Lý thuyết & tiến độ WORK_ORDER
 
 - **`docs/THEORY.md`**: population theory hoàn chỉnh, mọi mệnh đề có chứng minh, không còn "assume the flow is well defined" (Lemma 3 lo well-posedness). Part E quy định chặt cái gì được/không được gọi là "dự đoán lý thuyết".
-- **Đã xong (T1–T4):** module `src/metrics/kernel_theory.py` (tái hiện bảng tham chiếu <0.05%), metric `ratio_to_kernel` là chuẩn P7 chính; target stochastic interpolant đã sửa (C.2) + `verify_prop17.py` pass 4/4; số verify kernel (†)/(‡) đưa vào manuscript; các claim P4–P7 viết lại theo Part E.
-- **Còn lại (T5–T10):** đo optimality gap `L(v_θ)−L(v_h⋆)` (T5), ước lượng Lipschitz để tách representation/optimisation (T6), Sinkhorn/MMD tới posterior thật cho EXP-1 (T7), nâng lên ≥5 seed + error bar toàn bộ sweep (T8), trích dẫn literature memorization (T9), và các mục tuỳ chọn (T10).
+- **Đã xong (T1–T7, T9):** module `src/metrics/kernel_theory.py` (tái hiện bảng tham chiếu <0.05%), metric `ratio_to_kernel` là chuẩn P7 chính (T1); target stochastic interpolant đã sửa (C.2) + `verify_prop17.py` pass 4/4, p7i chạy lại 3 seed xác nhận Prop 17c (T2); số verify kernel (†)/(‡) vào manuscript (T3); claim P4–P7 viết lại theo Part E (T4); optimality gap `L(v_θ)−L(v_h⋆)≥0` giảm về 0 (T5); Lipschitz ⇒ plateau optimisation-limited (T6); MMD/Sinkhorn tới posterior thật xác nhận atomicity Prop 14 (T7); trích dẫn literature memorization (T9).
+- **Còn lại (T8, T10):** nâng toàn bộ sweep P5/P6/P7 lên ≥5 seed + error bar (T8 — khối lượng train lớn); các mục tuỳ chọn T10 (lr-decay cho collapse sâu, held-out median, EXP-3 quét N, `n_eff` cho EXP-2/3). Đã ghi rõ ở "Hạn chế & hướng mở rộng".
 
 ## Hạn chế & hướng mở rộng
 
