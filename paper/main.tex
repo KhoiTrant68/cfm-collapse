@@ -800,11 +800,13 @@ continuous posterior (T7).}
 \label{sec:exp23}
 
 \paragraph{EXP-2 (Gaussian mixture).} A 4-mode GMM prior with a rank-deflating linear
-observation gives a genuinely \emph{bimodal} analytic posterior. As the loss descends,
-mode coverage falls $1.00\to0.72$ (toward $0.5$, i.e.\ one of the two modes) and the
-MMD to the true posterior grows $\sim40\times$; samples that initially cover both modes
-collapse onto $x^i$ in a single mode and abandon the other---selective memorisation
-(Fig.~\ref{fig:exp23}, left).
+observation gives a genuinely \emph{bimodal} analytic posterior. As the loss descends
+(Fig.~\ref{fig:exp2curves}, 2 seeds), mode coverage falls $1.00\to0.72$ (toward $0.5$,
+i.e.\ one of the two modes) and the MMD to the true posterior grows from $\sim0.04$ to
+$\sim0.25$; up to $\sim\!10^4$ iterations coverage is a full $1.0$ and the MMD is near
+zero---the model is a calibrated posterior sampler---before overtraining drives it onto
+$x^i$ in a single mode and abandons the other. This is selective memorisation, and its
+onset at $\sim\!10^4$ iterations mirrors EXP-1.
 
 \paragraph{EXP-3 (MNIST inpainting).} Masking the lower half of $32\times32$ MNIST
 ($N{=}500$) with a small U-Net, we draw 16 completions per condition. The inpainted-region
@@ -817,14 +819,22 @@ earlier because the loss converges deeper here.
 
 \begin{figure}[t]
 \centering
-\begin{subfigure}{0.40\textwidth}\includegraphics[width=\linewidth]{fig_exp2_coverage.png}
-\caption{EXP-2: mode coverage $\to$ single mode.}\end{subfigure}\hfill
-\begin{subfigure}{0.56\textwidth}\includegraphics[width=\linewidth]{fig_exp3_curve.png}
-\caption{EXP-3: inpainting variance / NN-distance collapse.}\end{subfigure}
-\caption{Selective memorisation beyond the linear-Gaussian model: a bimodal GMM
-posterior (left) and MNIST inpainting (right) both collapse onto memorised training
-content as the loss descends.}
-\label{fig:exp23}
+\includegraphics[width=0.92\textwidth]{fig_exp2_curves.png}
+\caption{EXP-2 (GMM), mean of 2 seeds with per-seed traces and a $\pm$std band.
+\textbf{(a)} Mode coverage holds at $1.0$ (both posterior modes) until $\sim\!10^4$
+iterations, then falls toward the single-mode line $0.5$. \textbf{(b)} The MMD to the
+true bimodal posterior is near zero in the calibrated phase and grows as overtraining
+concentrates the samples on one mode. Onset matches EXP-1.}
+\label{fig:exp2curves}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.62\textwidth]{fig_exp3_curve.png}
+\caption{EXP-3 (MNIST inpainting), quantitative collapse: the inpaint-region pixel
+variance and the distance to the nearest training image both fall by orders of magnitude
+as the loss descends, while the observed-region reconstruction stays exact.}
+\label{fig:exp3curve}
 \end{figure}
 
 \begin{figure}[t]

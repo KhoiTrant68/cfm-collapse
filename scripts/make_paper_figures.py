@@ -180,9 +180,67 @@ def fig_p7_summary():
     print("wrote fig_p7_summary.png")
 
 
+def fig_exp2_curves():
+    seeds = [0, 1]
+    dfs = []
+    for s in seeds:
+        p = Path(f"results/exp2/exp2b_gmm_seed{s}/raw/metrics.csv")
+        if not p.exists():
+            print(f"  skip exp2 (missing): {p}"); return
+        d = pd.read_csv(p)
+        d = d[d["group"] == "train"].sort_values("iter")
+        dfs.append(d)
+    iters = dfs[0]["iter"].to_numpy()
+
+    def stack(col):
+        M = np.vstack([d[col].to_numpy() for d in dfs])
+        return M.mean(0), M.std(0), M
+
+    cov_m, cov_s, cov_all = stack("mode_coverage_mean")
+    mmd_m, mmd_s, mmd_all = stack("mmd_mean")
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 4.2))
+
+    # (a) mode coverage
+    for j, s in enumerate(seeds):
+        ax1.plot(iters, cov_all[j], color="#bbbbbb", lw=1.0, marker=".",
+                 markersize=5, zorder=1, label="individual seeds" if j == 0 else None)
+    ax1.plot(iters, cov_m, color=OI["blue"], marker="o", zorder=3,
+             label="mean (2 seeds)")
+    ax1.fill_between(iters, cov_m - cov_s, cov_m + cov_s, color=OI["blue"],
+                     alpha=0.15, zorder=2)
+    ax1.axhline(1.0, color=OI["green"], ls=":", lw=1.3)
+    ax1.axhline(0.5, color=OI["vermillion"], ls="--", lw=1.3)
+    ax1.annotate("both modes (1.0)", (iters[0], 1.0), textcoords="offset points",
+                 xytext=(4, -12), fontsize=8.5, color="#555555")
+    ax1.annotate("single mode (0.5)", (iters[0], 0.5), textcoords="offset points",
+                 xytext=(4, 4), fontsize=8.5, color="#555555")
+    ax1.set_xscale("log"); ax1.set_ylim(0.4, 1.05)
+    ax1.set_xlabel("iteration"); ax1.set_ylabel("mode coverage")
+    ax1.set_title("(a) coverage falls toward a single mode")
+    ax1.legend(fontsize=9, loc="lower left"); style(ax1)
+
+    # (b) MMD to true posterior
+    for j, s in enumerate(seeds):
+        ax2.plot(iters, mmd_all[j], color="#bbbbbb", lw=1.0, marker=".",
+                 markersize=5, zorder=1, label="individual seeds" if j == 0 else None)
+    ax2.plot(iters, mmd_m, color=OI["purple"], marker="s", zorder=3,
+             label="mean (2 seeds)")
+    ax2.fill_between(iters, mmd_m - mmd_s, mmd_m + mmd_s, color=OI["purple"],
+                     alpha=0.15, zorder=2)
+    ax2.set_xscale("log")
+    ax2.set_xlabel("iteration"); ax2.set_ylabel("MMD to true posterior")
+    ax2.set_title("(b) MMD to posterior grows with overtraining")
+    ax2.legend(fontsize=9, loc="upper left"); style(ax2)
+
+    fig.tight_layout(); fig.savefig(OUT / "fig_exp2_curves.png"); plt.close(fig)
+    print("wrote fig_exp2_curves.png")
+
+
 if __name__ == "__main__":
     fig_optimality_gap()
     fig_posterior_distance()
     fig_lipschitz()
     fig_p7_summary()
+    fig_exp2_curves()
     print("done")
