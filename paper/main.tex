@@ -810,10 +810,10 @@ collapse onto $x^i$ in a single mode and abandon the other---selective memorisat
 ($N{=}500$) with a small U-Net, we draw 16 completions per condition. The inpainted-region
 pixel variance drops $\sim100\times$ ($0.140\to0.0013$) while the distance to the nearest
 training image falls to $0.0005$ and the observed-region reconstruction stays exact
-($2\times10^{-5}$). Qualitatively, diverse completions at iteration 200 become identical
-by iteration 15000 and coincide with the nearest training image
-(Fig.~\ref{fig:exp23}, right)---the same collapse on real image data, reached earlier
-because the loss converges deeper here.
+($2\times10^{-5}$). Qualitatively, diverse completions at iteration 200 sharpen
+progressively and become identical by iteration 15000, coinciding with the nearest
+training image (Fig.~\ref{fig:exp3prog})---the same collapse on real image data, reached
+earlier because the loss converges deeper here.
 
 \begin{figure}[t]
 \centering
@@ -829,18 +829,33 @@ content as the loss descends.}
 
 \begin{figure}[t]
 \centering
-\begin{subfigure}{0.32\textwidth}\includegraphics[width=\linewidth]{fig_exp2_2d.png}
-\caption{EXP-2: samples abandon one posterior mode.}\end{subfigure}\hfill
-\begin{subfigure}{0.32\textwidth}\includegraphics[width=\linewidth]{fig_exp3_grid200.png}
-\caption{EXP-3, iter 200: diverse completions.}\end{subfigure}\hfill
-\begin{subfigure}{0.32\textwidth}\includegraphics[width=\linewidth]{fig_exp3_grid15k.png}
-\caption{EXP-3, iter 15000: identical, memorised.}\end{subfigure}
-\caption{Qualitative collapse. In EXP-2 the generated samples (a) concentrate on the
+\includegraphics[width=0.5\textwidth]{fig_exp2_2d.png}
+\caption{EXP-2 qualitative collapse. Generated samples concentrate on the posterior
 mode containing the memorised $x^i$ and abandon the other, even though the analytic
-posterior is bimodal. In EXP-3, completions of a fixed masked digit are diverse early
-(b) but become identical and equal to the nearest training image once the loss has
-converged (c).}
+posterior for this observation is bimodal.}
 \label{fig:exp23qual}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\begin{subfigure}{0.19\textwidth}\includegraphics[width=\linewidth]{fig_exp3_grid200.png}
+\caption{iter 200}\end{subfigure}\hfill
+\begin{subfigure}{0.19\textwidth}\includegraphics[width=\linewidth]{fig_exp3_grid1000.png}
+\caption{iter 1000}\end{subfigure}\hfill
+\begin{subfigure}{0.19\textwidth}\includegraphics[width=\linewidth]{fig_exp3_grid3000.png}
+\caption{iter 3000}\end{subfigure}\hfill
+\begin{subfigure}{0.19\textwidth}\includegraphics[width=\linewidth]{fig_exp3_grid7000.png}
+\caption{iter 7000}\end{subfigure}\hfill
+\begin{subfigure}{0.19\textwidth}\includegraphics[width=\linewidth]{fig_exp3_grid15k.png}
+\caption{iter 15000}\end{subfigure}
+\caption{EXP-3 collapse trajectory (MNIST inpainting). Each grid shows completions of a
+fixed masked digit from different source samples $x_0$. Early in training (iter 200) the
+completions are diverse---a calibrated conditional sampler; as the loss descends they
+sharpen progressively (iter 1000--7000) and, by iter 15000, are identical to one another
+and equal to the nearest training image (inpaint-region pixel variance
+$0.140\!\to\!0.0013$, a $\sim\!100\times$ drop). This is the same
+$\text{loss}\!\to\!0$-paced collapse as EXP-1, on real image data.}
+\label{fig:exp3prog}
 \end{figure}
 
 % ==========================================================================
