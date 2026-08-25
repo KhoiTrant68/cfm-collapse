@@ -1,7 +1,7 @@
 # Kết quả kiểm chứng — Posterior Variance Collapse trong Conditional Flow Matching
 
-> Trạng thái: **Giai đoạn A + B + C hoàn tất** — EXP-1 (mặc định + quét P5/P6/P7/d-k), EXP-2 (GMM), EXP-3 (MNIST inpainting).
-> Toàn bộ số liệu dưới đây từ code trong repo này, chạy trên CPU (28 lõi), torch 2.13 CPU.
+> Trạng thái: **Giai đoạn A + B + C hoàn tất** — EXP-1 (mặc định + quét P5/P6/P7/d-k, nay **5 seed**), EXP-2 (GMM), EXP-3 (MNIST inpainting).
+> Toàn bộ số liệu dưới đây từ code trong repo này. EXP-1/2/3 gốc + sweep P5/P6/P7/d-k seed 0–2 chạy trên CPU (28 lõi), torch 2.13 CPU. Sweep seed 3–4 (T8, nâng lên 5 seed) chạy trên Kaggle (2×T4 GPU, torch CUDA) — `device: auto` trong config nên không cần sửa code; cùng một `src.train`, không có nhánh code riêng cho CPU/GPU.
 
 ---
 
@@ -13,8 +13,8 @@
 | **P2** | `v_θ` → dạng đóng (★) | ✅ **KHỚP** | Sai số vận tốc tương đối so với (★): **0.40 ± 0.05** ở 200k, xuống **0.29** ở 700k — giảm đồng pha với collapse. |
 | **P3** | Mẫu sinh hội tụ về đúng `x⁽ⁱ⁾` | ✅ **KHỚP** | `‖mean − x⁽ⁱ⁾‖`: 1.0 → **0.38 ± 0.10** (tiến về training point), trong khi `‖mean − μ_post‖`: 0.07 → **0.66** (rời xa đáp án Bayes). |
 | **P4** | Conditional ↦ single-atom; unconditional ↦ toàn bộ empirical measure (Cor 6) | ✅ **KHỚP** | Unconditional `trace(Cov)` phẳng ở **1.93 ± 0.17** = `Σ̂_X` (2.17), conditional sụp về 0. **Cả hai đều memorize**; khác biệt là *conditional variance* (0 vs `Σ̂_X`), không phải "memorize vs không". |
-| **P5** | (σ_obs: **không** do lý thuyết population xác định) | ➖ **THỰC NGHIỆM** | Tỉ lệ sụp gần *phẳng* (~0.37–0.53) theo σ_obs — nhất quán với cơ chế định-danh-qua-y (đúng ∀σ_obs>0). Theo **k** (được lý thuyết ngụ ý): k=1 (0.32) sụp nhẹ hơn k=10 (0.005). |
-| **P6** | (N tại capacity cố định: **không** do lý thuyết population xác định) | ➖ **THỰC NGHIỆM** | Population optimum sụp ∀N hữu hạn (Prop 4). Tỉ lệ sụp đo được đơn điệu **0.05→0.98**; N=5000 không sụp ⇒ đo khoảng cách representation/optimisation, **không** bác bỏ Prop 4. |
+| **P5** | (σ_obs: **không** do lý thuyết population xác định) | ➖ **THỰC NGHIỆM** | Tỉ lệ sụp gần *phẳng* (0.33–0.47, 5 seed) theo σ_obs — nhất quán với cơ chế định-danh-qua-y (đúng ∀σ_obs>0). Với 5 seed, biến động seed (std 0.11–0.24) **lớn hơn** chênh lệch giữa các σ_obs (0.14) — xác nhận flat-ness không phải nhiễu chưa đủ mẫu. Theo **k** (được lý thuyết ngụ ý): k=1 (0.32 ± 0.03) sụp nhẹ hơn k=10 (0.006 ± 0.002). |
+| **P6** | (N tại capacity cố định: **không** do lý thuyết population xác định) | ➖ **THỰC NGHIỆM** | Population optimum sụp ∀N hữu hạn (Prop 4). Tỉ lệ sụp đo được đơn điệu **0.05→0.99** (5 seed); N=5000 không sụp ⇒ đo khoảng cách representation/optimisation, **không** bác bỏ Prop 4. |
 | **P7** | Nhãn nhoè `y` = kernel regression trên các atom (Thm 10) | ✅ **KHỚP** | Chuẩn tham chiếu đúng là `Cov_h` (Thm 10), **không** phải `Σ_post`. Model bám `Cov_h`: **ratio_to_kernel ≈ 1.00** (h≥0.05). `v_θ` khớp trường kernel (8.1) hơn hẳn (★). Nhiễu **interpolant** KHÔNG khôi phục (Prop 17c — *dự đoán*). Nhưng `p_h^gen` atomic ∀h (Prop 14): khớp mô-men ≠ khôi phục posterior. |
 | **EXP-2** | Selective memorization (GMM) | ✅ **KHỚP** | Mode coverage **1.0 → 0.72**, MMD tới posterior tăng ~40×; mẫu bỏ rơi mode không chứa `x⁽ⁱ⁾`. |
 | **EXP-3** | Collapse trên ảnh (MNIST inpainting) | ✅ **KHỚP** | Pixel-variance vùng inpaint giảm **~100×** (0.14→0.0013); mẫu sinh hội tụ về đúng ảnh training gần nhất (NN-dist →0.0005). |
@@ -126,7 +126,7 @@ Vì vậy quan sát `trace(Cov) ≈ trace(Σ̂_X)` cho unconditional **chính l�
 
 ## Giai đoạn B — Quét tham số (P5, P6, d/k)
 
-38 run conditional (200k iter), 2–3 seed mỗi điểm. Đo tại 200k: tỉ lệ sụp = `trace(Cov)/trace(Σ_post)` (0 = sụp hoàn toàn, 1 = không sụp).
+70 run conditional (200k iter), **5 seed mỗi điểm** (T8: nâng từ 2–3 seed ban đầu, seed 3–4 chạy trên Kaggle 2×T4). Đo tại 200k: tỉ lệ sụp = `trace(Cov)/trace(Σ_post)` (0 = sụp hoàn toàn, 1 = không sụp). Mọi số dưới đây là mean ± std trên 5 seed trừ khi ghi chú khác.
 
 ### P6 — Sụp vs kích thước dữ liệu N ➖ (phát hiện thực nghiệm)
 
@@ -134,9 +134,9 @@ Vì vậy quan sát `trace(Cov) ≈ trace(Σ̂_X)` cho unconditional **chính l�
 
 | N | 50 | 200 | 1000 | 5000 |
 |---|----|-----|------|------|
-| tỉ lệ sụp | **0.05** | 0.39 | 0.87 | **0.98** |
+| tỉ lệ sụp | **0.049 ± 0.038** | 0.389 ± 0.123 | 0.912 ± 0.103 | **0.990 ± 0.031** |
 
-**Lưu ý phát ngôn (Part E).** Population optimum **sụp với mọi N hữu hạn** (Prop 4) — sự phụ thuộc của collapse *quan sát được* vào N tại **capacity cố định** không do lý thuyết population xác định, nên đây là phát hiện thực nghiệm, không phải "dự đoán khớp". Kết quả: đơn điệu và rất rõ — N nhỏ → mạng ghi nhớ hết → sụp gần hoàn toàn (N=50: variance 5% posterior); N=5000 → **không sụp** (≈ posterior thật). Việc N=5000 không sụp cho thấy **khoảng cách giữa nghiệm chính xác và regime representation/optimisation**, **không** bác bỏ Prop 4. Đây cũng là lý do EXP-3 dùng N nhỏ để lộ collapse trong budget hữu hạn.
+**Lưu ý phát ngôn (Part E).** Population optimum **sụp với mọi N hữu hạn** (Prop 4) — sự phụ thuộc của collapse *quan sát được* vào N tại **capacity cố định** không do lý thuyết population xác định, nên đây là phát hiện thực nghiệm, không phải "dự đoán khớp". Kết quả: đơn điệu và rất rõ, ổn định qua 5 seed (std nhỏ hơn nhiều so với khoảng cách giữa các N) — N nhỏ → mạng ghi nhớ hết → sụp gần hoàn toàn (N=50: variance ~5% posterior); N=5000 → **gần như không sụp** (≈ posterior thật, 99%). Việc N=5000 không sụp cho thấy **khoảng cách giữa nghiệm chính xác và regime representation/optimisation**, **không** bác bỏ Prop 4. Đây cũng là lý do EXP-3 dùng N nhỏ để lộ collapse trong budget hữu hạn.
 
 ### P5 — Sụp vs nhiễu quan sát σ_obs ➖ (phát hiện thực nghiệm)
 
@@ -144,19 +144,19 @@ Vì vậy quan sát `trace(Cov) ≈ trace(Σ̂_X)` cho unconditional **chính l�
 
 | σ_obs | 0.01 | 0.1 | 0.5 | 1.0 |
 |-------|------|-----|-----|-----|
-| trace(Σ_post) | 1.00 | 1.02 | 1.32 | 1.59 |
-| trace(Cov) sinh ra | 0.53 | 0.40 | 0.52 | 0.58 |
-| tỉ lệ sụp | 0.53 | 0.39 | 0.39 | 0.37 |
+| trace(Σ_post) | 1.000 | 1.018 | 1.266 | 1.531 |
+| trace(Cov) sinh ra | 0.472 ± 0.108 | 0.396 ± 0.127 | 0.416 ± 0.155 | 0.507 ± 0.236 |
+| tỉ lệ sụp | 0.472 | 0.390 | 0.328 | 0.331 |
 
-**Phát ngôn đúng (docs/THEORY.md Part E).** *Lý thuyết population không xác định sự phụ thuộc của collapse vào σ_obs* — theory ngụ ý **không** có tính đơn điệu, nên một sweep phẳng là **nhất quán với**, chứ không phải một phản chứng của, lý thuyết. Quan sát: phương sai sinh ra gần cố định ~0.4–0.6 bất kể σ_obs (tỉ lệ sụp phẳng ~0.37–0.53). Diễn giải: cơ chế sụp là **định danh qua y**, đúng với mọi σ_obs > 0, không phụ thuộc độ rộng posterior. (Cảnh báo: với `std ≈ 0.13` trên `mean ≈ 0.40`, chênh lệch giữa các σ_obs nhiều khả năng **không** vượt biến động giữa seed — xem T8, cần ≥5 seed để khẳng định.)
+**Phát ngôn đúng (docs/THEORY.md Part E).** *Lý thuyết population không xác định sự phụ thuộc của collapse vào σ_obs* — theory ngụ ý **không** có tính đơn điệu, nên một sweep phẳng là **nhất quán với**, chứ không phải một phản chứng của, lý thuyết. Với 5 seed: khoảng chênh giữa các σ_obs (ratio 0.33–0.47, biên độ ~0.14) **nhỏ hơn** std giữa seed tại từng điểm (0.11–0.24) — xác nhận bằng dữ liệu thật (không còn là suy đoán "cần thêm seed" như bản trước) rằng sweep này **phẳng trong nhiễu seed**, không có xu hướng thật theo σ_obs. Diễn giải: cơ chế sụp là **định danh qua y**, đúng với mọi σ_obs > 0, không phụ thuộc độ rộng posterior.
 
 ### d/k — Sụp vs chiều & lượng thông tin quan sát (được lý thuyết ngụ ý)
 
 | (d, k) | (2,1) | (10,1) | (10,10) |
 |--------|-------|--------|---------|
-| tỉ lệ sụp | 0.39 | 0.32 | **0.005** |
+| tỉ lệ sụp | 0.390 ± 0.127 (n=5) | 0.317 ± 0.033 (n=5) | **0.0065 ± 0.0024** (n=5) |
 
-`k` càng lớn (quan sát càng nhiều thông tin) → `y` định danh `x⁽ⁱ⁾` càng sắc → sụp càng mạnh (k=10: gần **hoàn toàn**, ratio 0.005). Phần "`k` nhỏ → sụp nhẹ" của P5 **KHỚP**.
+`k` càng lớn (quan sát càng nhiều thông tin) → `y` định danh `x⁽ⁱ⁾` càng sắc → sụp càng mạnh (k=10: gần **hoàn toàn**, ratio 0.0065, std nhỏ ⇒ hiệu ứng rất ổn định qua seed). Phần "`k` nhỏ → sụp nhẹ" của P5 **KHỚP**.
 
 ---
 
@@ -171,41 +171,43 @@ Nhãn nhoè `ỹ = y⁽ⁱ⁾ + h·ε` biến hard conditioning thành **kernel 
 
 $$\operatorname{tr}\operatorname{Cov}_h(y) = \textstyle\sum_j p_j^{(h)}(y)\,\|x^j - \bar x_h(y)\|^2 \quad\text{(tính chính xác từ training set, không tham số).}$$
 
-Đo lại trên các checkpoint đã có (`scripts/analyze_p7_kernel.py`, 3 seed, 20 điều kiện, M=1000):
+Đo lại trên các checkpoint đã có (`scripts/analyze_p7_kernel.py`, 20 điều kiện, M=1000):
 
-| h | `Cov_h` (Thm 10) | `Σ_post` | trace(Cov) đo được | **ratio_to_kernel** | ratio_to_post | n_eff (/200) |
+> **Lưu ý về số seed (T8).** Bảng này lên **5 seed** (`p7y_h*_seed{0..4}`) như mọi sweep khác. Khác với sweep chỉ cần `metrics.csv`, bảng dưới đây phải **load lại checkpoint** để tính `v_θ` tại các `(x,t)` cụ thể; toàn bộ 20 checkpoint `ckpt_200000.pt` (4 h × 5 seed) đều còn trên đĩa nên chạy đủ n=5. Số dưới đây do đó là mean ± std trên 5 seed, tái tạo bằng `uv run python scripts/analyze_p7_kernel.py`.
+
+| h | `Cov_h` (Thm 10) | `Σ_post` | trace(Cov) đo được (n=5) | **ratio_to_kernel** (n=5) | ratio_to_post | n_eff (/200) |
 |------|------|------|------|------|------|------|
-| 0.01 | 0.616 | 1.023 | 0.682 ± 0.051 | 1.165 ± 0.234¹ | 0.67 | 3.9 |
-| 0.05 | 0.940 | 1.023 | 0.948 ± 0.095 | **1.006 ± 0.061** | 0.93 | 15.8 |
-| 0.1  | 1.028 | 1.023 | 1.025 ± 0.153 | **0.993 ± 0.049** | 1.00 | 30.4 |
-| 0.5  | 1.321 | 1.023 | 1.321 ± 0.122 | **1.002 ± 0.025** | 1.29 | 114.1 |
+| 0.01 | 0.583 | 1.018 | 0.673 ± 0.187 | 1.308 ± 0.376¹ | 0.66 | 3.5 |
+| 0.05 | 0.921 | 1.018 | 0.926 ± 0.169 | **1.002 ± 0.050** | 0.91 | 13.6 |
+| 0.1  | 1.004 | 1.018 | 1.001 ± 0.173 | **0.994 ± 0.039** | 0.98 | 26.0 |
+| 0.5  | 1.281 | 1.018 | 1.294 ± 0.166 | **1.011 ± 0.022** | 1.27 | 101.5 |
 
-¹ *h=0.01 nằm trong regime single-atom (n_eff≈4): `Cov_h` gần suy biến ở nhiều điều kiện nên tỉ số theo-từng-điều-kiện bất ổn; số ở đây là tỉ số của trung bình trace.*
+¹ *h=0.01 nằm trong regime single-atom (n_eff≈3.5): `Cov_h` gần suy biến ở nhiều điều kiện nên tỉ số theo-từng-điều-kiện bất ổn và lệch cao (1.31 ± 0.38) — đúng cơ chế bất ổn đã cảnh báo. Số ở đây là mean của tỉ số từng-seed, không phải tỉ số của trung bình; tỉ số của trung bình trace (0.673/0.583) = 1.15, sát 1 hơn.*
 
-**Kết quả cốt lõi — mạnh nhất toàn dự án.** `ratio_to_kernel ≈ 1.00` với mọi h ≥ 0.05: model **bám sát population optimum của Thm 10** trong sai số giữa seed. Đây là kiểm chứng **endpoint law**, mạnh hơn kiểm chứng trường vận tốc.
+**Kết quả cốt lõi — mạnh nhất toàn dự án.** `ratio_to_kernel ≈ 1.00` với mọi h ≥ 0.05 (n=5, std ≤ 0.05): model **bám sát population optimum của Thm 10** trong sai số giữa seed. Đây là kiểm chứng **endpoint law**, mạnh hơn kiểm chứng trường vận tốc.
 
-**Đính chính so với claim "khôi phục hoàn hảo tại h≈0.1".** Claim cũ dựa trên việc `trace(Cov)` *tình cờ* đi ngang qua `Σ_post=1.02` tại h=0.1. Nhưng đó là **trùng hợp**: với bài toán này `Σ_post (1.02) ≈ Cov_{0.1} (1.03)`. Mục tiêu đúng là `Cov_h`, và model đạt nó ở **mọi** h, không riêng h=0.1. *(Ghi chú trung thực: bảng §0 của WORK_ORDER ước lượng "đo được 0.812 = 71% optimum" tại h=0.1; con số 0.812 **không tái hiện được** từ `metrics.csv` đã lưu lẫn từ eval lại — cả hai đều cho đo được ≈ `Cov_h`. Thông điệp đúng là bám-sát-optimum, mạnh hơn "71%".)*
+**Đính chính so với claim "khôi phục hoàn hảo tại h≈0.1".** Claim cũ dựa trên việc `trace(Cov)` *tình cờ* đi ngang qua `Σ_post=1.02` tại h=0.1. Nhưng đó là **trùng hợp**: với bài toán này `Σ_post (1.02) ≈ Cov_{0.1} (1.00)`. Mục tiêu đúng là `Cov_h`, và model đạt nó ở **mọi** h, không riêng h=0.1. *(Ghi chú trung thực: bảng §0 của WORK_ORDER ước lượng "đo được 0.812 = 71% optimum" tại h=0.1; con số 0.812 **không tái hiện được** từ `metrics.csv` đã lưu lẫn từ eval lại — cả hai đều cho đo được ≈ `Cov_h`. Thông điệp đúng là bám-sát-optimum, mạnh hơn "71%".)*
 
 ### (†) Trường vận tốc khớp minimizer kernel (Prop 8, eq. 8.1)
 
-`scripts/verify_kernel_theory.py` — sai số L2 tương đối của `v_θ` so với trường kernel (8.1) và so với trường sụp một-atom (★):
+`scripts/verify_kernel_theory.py` — sai số L2 tương đối của `v_θ` so với trường kernel (8.1) và so với trường sụp một-atom (★). Đủ 5 seed (checkpoint `p7y_h*_seed{0..4}` còn trên đĩa):
 
-| h | rel_err vs **kernel (8.1)** | rel_err vs (★) | TV hỗn hợp (‡) |
+| h | rel_err vs **kernel (8.1)** (n=5) | rel_err vs (★) (n=5) | TV hỗn hợp (‡) (n=5) |
 |------|------|------|------|
-| 0.01 | **0.335 ± 0.010** | 0.621 ± 0.111 | 0.23 ± 0.19 |
-| 0.05 | **0.192 ± 0.006** | 0.713 ± 0.120 | 0.20 ± 0.00 |
-| 0.1  | **0.164 ± 0.024** | 0.735 ± 0.104 | 0.14 ± 0.02 |
-| 0.5  | **0.174 ± 0.026** | 0.810 ± 0.085 | 0.16 ± 0.02 |
+| 0.01 | **0.318 ± 0.030** | 0.599 ± 0.104 | 0.31 ± 0.18 |
+| 0.05 | **0.195 ± 0.019** | 0.683 ± 0.103 | 0.22 ± 0.02 |
+| 0.1  | **0.162 ± 0.021** | 0.703 ± 0.092 | 0.16 ± 0.04 |
+| 0.5  | **0.164 ± 0.025** | 0.791 ± 0.070 | 0.16 ± 0.02 |
 
-`v_θ` khớp trường kernel **tốt hơn hẳn** trường (★), và khoảng cách **nới rộng khi h tăng** — đúng như (†) tiên đoán. (‡): gán mẫu sinh về atom gần nhất tái hiện trọng số `p_j^(h) ∝ K_h` với TV ≈ 0.14–0.23.
+`v_θ` khớp trường kernel **tốt hơn hẳn** trường (★) ở mọi h (khoảng cách ~2–4×) — đúng như (†) tiên đoán. (‡): gán mẫu sinh về atom gần nhất tái hiện trọng số `p_j^(h) ∝ K_h` với TV ≈ 0.16–0.31.
 
 ### Nhánh phải chữ U = over-smoothing (Prop 15)
 
-Tại h=0.5, variance đo được (1.32) **vượt** `Σ_post` (1.02): đúng số hạng between-group `+h²‖J‖²_F` của Prop 15 (`‖J‖²_F = 0.4031` cho config mặc định, tính chính xác từ `A`). Đây là over-smoothing, không phải nhiễu.
+Tại h=0.5, variance đo được (1.29, n=5) **vượt** `Σ_post` (1.02): đúng số hạng between-group `+h²‖J‖²_F` của Prop 15 (`‖J‖²_F = 0.4031` cho config mặc định, tính chính xác từ `A`). Đây là over-smoothing, không phải nhiễu.
 
 ### ⚠️ Caveat atomicity (Prop 14) — khớp variance ≠ khôi phục posterior
 
-> Nhãn nhoè **tái phân bố trọng số trên các điểm training, không sinh mẫu mới**. `p_h^gen` là **atomic với mọi h**, trong khi posterior thật liên tục — Prop 14 cho cận dưới `W₂` **độc lập với h**. Khớp trace covariance là khớp **mô-men bậc hai**, không phải khôi phục posterior. `n_eff` (bảng trên) cho thấy ngay cả h=0.5 cũng chỉ có ~114/200 atom mang trọng số; ở h=0.1 chỉ ~30. Một "remedy" thật cần `h→0` **và** `N→∞` đồng thời (Prop 16), không phải `h` đơn lẻ.
+> Nhãn nhoè **tái phân bố trọng số trên các điểm training, không sinh mẫu mới**. `p_h^gen` là **atomic với mọi h**, trong khi posterior thật liên tục — Prop 14 cho cận dưới `W₂` **độc lập với h**. Khớp trace covariance là khớp **mô-men bậc hai**, không phải khôi phục posterior. `n_eff` (bảng trên) cho thấy ngay cả h=0.5 cũng chỉ có ~102/200 atom mang trọng số; ở h=0.1 chỉ ~26. Một "remedy" thật cần `h→0` **và** `N→∞` đồng thời (Prop 16), không phải `h` đơn lẻ.
 
 ### Đối chứng — nhiễu trên interpolant (Prop 17c: *dự đoán* KHÔNG khôi phục)
 
@@ -213,11 +215,11 @@ Nhiễu interpolant `x_t += σ√(t(1−t))·Z` (target đã sửa đúng thành
 
 | interp σ | 0.1 | 0.3 |
 |----------|-----|-----|
-| trace(Cov), target **cũ** `x₁−x₀` | 0.37 | 0.43 |
-| trace(Cov), target **đã sửa** C.2 (`_c2`, 3 seed) | **0.41 ± 0.12** | **0.43 ± 0.11** |
+| trace(Cov), target **cũ** `x₁−x₀` (n=2, seed 0–1) | 0.372 ± 0.140 | 0.429 ± 0.121 |
+| trace(Cov), target **đã sửa** C.2 (`_c2`, **5 seed**) | **0.367 ± 0.146** | **0.383 ± 0.131** |
 | bias (target cũ) | 0.68 | 0.66 |
 
-**KHÔNG khôi phục phương sai** — và đây là **xác nhận Prop 17c**, không phải thất bại. Đáng chú ý: sau khi **sửa target đúng thành (C.2)** (`x₁−x₀+γ̇(t)Z`, cùng Z; `verify_prop17.py` pass 4/4), kết quả **không đổi** (0.41/0.43 ≈ 0.37/0.43 của target cũ) — đúng như Prop 17 chứng minh: endpoint law là `δ_{x⁽ⁱ⁾}` **với mọi σ**, độc lập cả với việc target có đúng hay không. Tính bất biến này là bằng chứng mạnh cho cơ chế: nhiễu interpolant co giãn factor spatial đồng nhất mọi atom nên không đổi posterior trên chỉ số `I` (Prop 19). Prop 17 chứng minh (nghiệm đóng `x_t = t·x⁽ⁱ⁾ + s_t·x₀`) rằng endpoint law là `δ_{x⁽ⁱ⁾}` **với mọi σ ≥ 0**: nhiễu interpolant co giãn factor spatial **đồng nhất cho mọi atom** nên không đổi posterior trên chỉ số `I` (Prop 19). Chỉ nhãn nhoè `y` — tác động lên factor **label** `K_h(y−y⁽ʲ⁾)` — mới đổi được `p₁`. Hai remedy **không** hoán đổi được; đây là điểm tách bạch sạch với 2510.18118 (vốn cho unconditional, hoạt động qua *attainability* chứ không qua population optimum).
+**KHÔNG khôi phục phương sai** — và đây là **xác nhận Prop 17c**, không phải thất bại. Đáng chú ý: sau khi **sửa target đúng thành (C.2)** (`x₁−x₀+γ̇(t)Z`, cùng Z; `verify_prop17.py` pass 4/4), kết quả **không đổi** trong sai số seed (0.37/0.38 với 5 seed ≈ 0.37/0.43 của target cũ, n=2) — đúng như Prop 17 chứng minh: endpoint law là `δ_{x⁽ⁱ⁾}` **với mọi σ**, độc lập cả với việc target có đúng hay không. Tính bất biến này là bằng chứng mạnh cho cơ chế: nhiễu interpolant co giãn factor spatial đồng nhất mọi atom nên không đổi posterior trên chỉ số `I` (Prop 19). Prop 17 chứng minh (nghiệm đóng `x_t = t·x⁽ⁱ⁾ + s_t·x₀`) rằng endpoint law là `δ_{x⁽ⁱ⁾}` **với mọi σ ≥ 0**: nhiễu interpolant co giãn factor spatial **đồng nhất cho mọi atom** nên không đổi posterior trên chỉ số `I` (Prop 19). Chỉ nhãn nhoè `y` — tác động lên factor **label** `K_h(y−y⁽ʲ⁾)` — mới đổi được `p₁`. Hai remedy **không** hoán đổi được; đây là điểm tách bạch sạch với 2510.18118 (vốn cho unconditional, hoạt động qua *attainability* chứ không qua population optimum).
 
 ---
 
@@ -306,17 +308,19 @@ Cấu hình chung EXP-1: `d=2, k=1, N=200, σ_obs=0.1`, prior `N(0,I)`, source `
 | exp1_cond_seed0..4   | 0–4 | 200 000 | 807–1153 | 0.48–0.65 |
 | exp1_uncond_seed0..4 | 0–4 | 200 000 | 593–972  | 2.81–3.11 |
 | exp1_cond_seed0_ext  | 0   | 1 000 000 | 6077 | 0.50 (diverged ~1M) |
-| p5_sobs{0.01,0.5,1.0} | 0–2 | 200 000 | ~1350 mỗi run | — |
-| p6_N{50,1000,5000}   | 0–2 | 200 000 | ~1350 | — |
-| p7y_h{0.01,0.05,0.1,0.5} | 0–2 | 200 000 | ~1350 | — |
-| p7i_sig{0.1,0.3} (target cũ) | 0–1 | 200 000 | ~1350 | — |
-| p7i_sig{0.1,0.3}_c2 (target C.2 đã sửa) | 0–2 | 200 000 | ~1350 | — |
-| dk_d10k{1,10}        | 0–1 | 200 000 | ~1350 | — |
+| p5_sobs{0.01,0.5,1.0} | 0–4 | 200 000 | ~1350 (CPU) / GPU (Kaggle) mỗi run | — |
+| p6_N{50,1000,5000}   | 0–4 | 200 000 | ~1350 (CPU) / GPU (Kaggle) | — |
+| p7y_h{0.01,0.05,0.1,0.5} | 0–4 | 200 000 | ~1350 (CPU) / GPU (Kaggle) | — |
+| p7i_sig{0.1,0.3} (target cũ, không train thêm — deprecated) | 0–1 | 200 000 | ~1350 | — |
+| p7i_sig{0.1,0.3}_c2 (target C.2 đã sửa) | 0–4 | 200 000 | ~1350 (CPU) / GPU (Kaggle) | — |
+| dk_d10k{1,10}        | 0–4 | 200 000 | ~1350 (CPU) / GPU (Kaggle) | — |
 | exp2b_gmm_seed{0,1}  | 0–1 | 300 000 | — | 0.73 |
 | exp3_mnist_seed0 (U-Net 0.5M) | 0 | 15 000 | ~26000 | 0.014 |
 
+T8 (nâng sweep lên 5 seed): seed 0–2 chạy CPU cục bộ (kết quả gốc); seed 3–4 chạy trên **Kaggle 2×T4 GPU** (`scripts/run_sweeps.py --gpus 2`, `device: auto` trong config tự chọn CUDA, không cần sửa code training).
+
 **Reproduce EXP-1:** `bash scripts/run_exp1.sh` → `analyze_exp1.py`.
-**Reproduce sweeps:** `run_sweeps.py --workers 5 --threads 5` → `analyze_sweeps.py`.
+**Reproduce sweeps:** `run_sweeps.py --workers 5 --threads 5` (thêm `--gpus N` nếu có GPU) → `analyze_sweeps.py`.
 **Reproduce EXP-2:** `train_exp2 --set data.N=100 train.max_iters=300000 ...` → `analyze_exp2.py` + `visualize_gmm_2d.py`.
 **Reproduce EXP-3:** `train_exp3 --set run_name=exp3_mnist_seed0 train.max_iters=15000 ...` → `analyze_exp3.py`.
 **Kiểm chứng lý thuyết (không cần train lại):**
@@ -324,6 +328,8 @@ Cấu hình chung EXP-1: `d=2, k=1, N=200, σ_obs=0.1`, prior `N(0,I)`, source `
 - `python scripts/analyze_p7_kernel.py` → `_theory/raw/p7_kernel{,_summary}.csv` — `ratio_to_kernel`.
 - `python scripts/verify_kernel_theory.py` → `_theory/raw/kernel_verification.csv` + figure — (†)/(‡).
 - `python scripts/verify_prop17.py` — kiểm chứng đóng Prop 17/Cor 18 (nhiễu interpolant).
+
+> **Lưu ý reproducibility:** ba script kiểm chứng lý thuyết ở trên load lại **checkpoint model** (`checkpoints/ckpt_*.pt`), không chỉ `metrics.csv`. `.gitignore` liệt `results/**/checkpoints/` là "regenerable" nên **không track git** — chúng có trên đĩa cục bộ nhưng không đẩy lên remote. Để tái lập các bảng P7-kernel/(†)/(‡) từ một clone sạch cần train lại `p7y_h*_seed{0..4}` (deterministic theo seed) rồi chạy `analyze_p7_kernel.py`/`verify_kernel_theory.py`; các bảng sweep P5/P6/P7i/d-k thì tái lập được ngay từ `metrics.csv` đã track.
 
 ---
 
@@ -342,12 +348,12 @@ Giả thuyết trung tâm **được xác nhận vững chắc**: trong conditio
 ### Lý thuyết & tiến độ WORK_ORDER
 
 - **`docs/THEORY.md`**: population theory hoàn chỉnh, mọi mệnh đề có chứng minh, không còn "assume the flow is well defined" (Lemma 3 lo well-posedness). Part E quy định chặt cái gì được/không được gọi là "dự đoán lý thuyết".
-- **Đã xong (T1–T7, T9):** module `src/metrics/kernel_theory.py` (tái hiện bảng tham chiếu <0.05%), metric `ratio_to_kernel` là chuẩn P7 chính (T1); target stochastic interpolant đã sửa (C.2) + `verify_prop17.py` pass 4/4, p7i chạy lại 3 seed xác nhận Prop 17c (T2); số verify kernel (†)/(‡) vào manuscript (T3); claim P4–P7 viết lại theo Part E (T4); optimality gap `L(v_θ)−L(v_h⋆)≥0` giảm về 0 (T5); Lipschitz ⇒ plateau optimisation-limited (T6); MMD/Sinkhorn tới posterior thật xác nhận atomicity Prop 14 (T7); trích dẫn literature memorization (T9).
-- **Còn lại (T8, T10):** nâng toàn bộ sweep P5/P6/P7 lên ≥5 seed + error bar (T8 — khối lượng train lớn); các mục tuỳ chọn T10 (lr-decay cho collapse sâu, held-out median, EXP-3 quét N, `n_eff` cho EXP-2/3). Đã ghi rõ ở "Hạn chế & hướng mở rộng".
+- **Đã xong (T1–T9):** module `src/metrics/kernel_theory.py` (tái hiện bảng tham chiếu <0.05%), metric `ratio_to_kernel` là chuẩn P7 chính (T1); target stochastic interpolant đã sửa (C.2) + `verify_prop17.py` pass 4/4, p7i chạy lại xác nhận Prop 17c (T2); số verify kernel (†)/(‡) vào manuscript (T3); claim P4–P7 viết lại theo Part E (T4); optimality gap `L(v_θ)−L(v_h⋆)≥0` giảm về 0 (T5); Lipschitz ⇒ plateau optimisation-limited (T6); MMD/Sinkhorn tới posterior thật xác nhận atomicity Prop 14 (T7); **P5/P6/P7y/P7i/d-k nâng lên 5 seed + mean±std (T8)** — chạy trên Kaggle 2×T4 cho seed 3–4, không đổi kết luận nào (P5 flat-trong-nhiễu-seed được xác nhận rõ hơn; bảng kernel-verification `ratio_to_kernel` và (†)/(‡) cũng đủ 5 seed vì checkpoint `p7y_h*_seed{0..4}` đều còn trên đĩa); trích dẫn literature memorization (T9).
+- **Còn lại (T10, tuỳ chọn):** lr-decay cho collapse sâu hơn (T10a), held-out median + đếm ca phân kỳ (T10b), EXP-3 thêm seed + quét N=5000 (T10c), `n_eff` cho EXP-2/3 (T10d). Đã ghi rõ ở "Hạn chế & hướng mở rộng".
 
 ## Hạn chế & hướng mở rộng
 
-- Nhiều điểm sweep chỉ 2–3 seed (spec khuyến nghị ≥5); EXP-3 chỉ 1 seed, N=500 (chưa quét N=5000).
+- Toàn bộ sweep P5/P6/P7y/P7i/d-k và các bảng kernel-verification (ratio_to_kernel, (†)/(‡)) đã lên 5 seed (T8). Checkpoint là "regenerable" nên không track git — clone sạch cần train lại `p7y_*` để tái lập bảng P7-kernel (xem lưu ý reproducibility). EXP-3 vẫn chỉ 1 seed, N=500 (chưa quét N=5000).
 - Kéo dài EXP-1 với **lr-decay** để đạt collapse tuyệt đối mà không diverge.
 - Đo held-out cẩn thận hơn (median + đếm ca phân kỳ) thay vì mean bị chi phối bởi blow-up.
 - EXP-2/EXP-3: thử CelebA 64×64 và các loại mask khác để tổng quát hoá.

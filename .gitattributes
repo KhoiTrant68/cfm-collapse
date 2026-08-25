@@ -1,0 +1,8 @@
+# Normalize line endings to LF for all text so Windows <-> Kaggle(Linux) round
+# trips don't churn the tree. Binary/model artifacts are left untouched.
+* text=auto eol=lf
+
+*.png binary
+*.pt binary
+*.npy binary
+*.npz binary

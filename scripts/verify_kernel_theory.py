@@ -124,6 +124,7 @@ def main():
     print("\n=== summary (mean +/- std over seeds) ===")
     print(f"{'h':>5} | {'rel_err vs kernel':>18} | {'rel_err vs star':>18} | {'TV mixture':>14}")
     summ = []
+    
     for h, gdf in df.groupby("h"):
         rk_m, rk_s = gdf["rel_err_vs_kernel"].mean(), gdf["rel_err_vs_kernel"].std(ddof=0)
         rs_m, rs_s = gdf["rel_err_vs_star"].mean(), gdf["rel_err_vs_star"].std(ddof=0)
@@ -132,7 +133,7 @@ def main():
         print(f"{h:>5} | {rk_m:>8.3f} +/-{rk_s:>6.3f} | {rs_m:>8.3f} +/-{rs_s:>6.3f} | "
               f"{tv_m:>6.3f} +/-{tv_s:>5.3f}")
 
-    # ---- figure: use the largest-h seed0 run (clearest multi-atom mixture) ----
+    # ---- figure: use the largest-h, lowest-seed run that actually ran (clearest multi-atom mixture) ----
     out = ROOT / "_theory" / "figures"; out.mkdir(parents=True, exist_ok=True)
     fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(15, 4.4))
 
@@ -145,7 +146,8 @@ def main():
     ax1.set_title("(8.1) learned field matches kernel minimiser")
     ax1.legend(); ax1.grid(alpha=0.3)
 
-    samples, q, p, X, cond, tv = cache[(0.5, 0)]
+    fig_seed = next(s for s in SEEDS if (0.5, s) in cache)
+    samples, q, p, X, cond, tv = cache[(0.5, fig_seed)]
     topk = torch.topk(p, k=min(10, len(p))).indices
     xpos = range(len(topk))
     ax2.bar([i - 0.2 for i in xpos], p[topk], width=0.4, label="predicted p_j ∝ K_h", color="C0")

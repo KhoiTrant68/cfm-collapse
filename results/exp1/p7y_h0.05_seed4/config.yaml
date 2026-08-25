@@ -1,0 +1,40 @@
+run_name: p7y_h0.05_seed4
+seed: 4
+device: auto
+data:
+  d: 2
+  k: 1
+  N: 200
+  sigma_obs: 0.1
+  prior_std: 1.0
+  source_std: 1.0
+  A_kind: random
+model:
+  conditional: true
+  width: 128
+  depth: 4
+  time_embed_dim: 64
+  activation: silu
+train:
+  max_iters: 200000
+  batch_size: 256
+  lr: 0.001
+  interpolant_sigma: 0.0
+  y_noise_h: 0.05
+  checkpoints:
+  - 100
+  - 300
+  - 1000
+  - 3000
+  - 10000
+  - 30000
+  - 100000
+  - 200000
+eval:
+  n_eval_train: 20
+  n_heldout: 8
+  M: 1000
+  n_steps: 100
+  ode_method: rk4
+  ode_eps: 0.001
+  vel_points: 2000
