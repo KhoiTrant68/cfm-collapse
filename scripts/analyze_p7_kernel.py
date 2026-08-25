@@ -36,7 +36,7 @@ from src.utils import load_yaml  # noqa: E402
 
 ROOT = Path("results/exp1")
 HS = [0.01, 0.05, 0.1, 0.5]
-SEEDS = [0, 1, 2]
+SEEDS = [0, 1, 2, 3, 4]
 N_COND = 20
 M = 1000
 N_STEPS = 100

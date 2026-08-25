@@ -92,7 +92,9 @@ def main():
         fig.tight_layout(); fig.savefig(out / "figures" / "P5_sigma_obs.png", dpi=140); plt.close(fig)
         a_tc = agg(p5, "trace_cov_mean"); a_tp = agg(p5, "trace_post")
         summary["P5"] = {"sigma_obs": a_tc["_value"].tolist(),
-                          "trace_cov": a_tc["mean"].tolist(),
+                          "trace_cov_mean": a_tc["mean"].tolist(),
+                          "trace_cov_std": a_tc["std"].tolist(),
+                          "n": a_tc["n"].tolist(),
                           "trace_post": a_tp["mean"].tolist(),
                           "ratio": (a_tc["mean"].values / a_tp["mean"].values).tolist()}
 
@@ -111,13 +113,18 @@ def main():
         ax.legend(); ax.grid(True, which="both", alpha=0.3)
         fig.tight_layout(); fig.savefig(out / "figures" / "P6_N.png", dpi=140); plt.close(fig)
         a = agg(p6, "ratio")
-        summary["P6"] = {"N": a["_value"].tolist(), "collapse_ratio": a["mean"].tolist()}
+        summary["P6"] = {"N": a["_value"].tolist(), "collapse_ratio_mean": a["mean"].tolist(),
+                          "collapse_ratio_std": a["std"].tolist(), "n": a["n"].tolist()}
 
     # ---------------- P7: remedies -----------------------------------------
     p7y = collect(root, "p7y_h*_seed*", r"h([0-9.]+)_")
     if not ref.empty:
         r = ref.copy(); r["_value"] = 0.0; p7y = pd.concat([p7y, r], ignore_index=True)
-    p7i = collect(root, "p7i_sig*_seed*", r"sig([0-9.]+)_")
+    # "_c2" runs use the corrected stochastic-interpolant target (eq. C.2, T2);
+    # the un-suffixed runs used the pre-fix (buggy) target x1-x0 and are kept
+    # only as the historical "bias" comparison -- never mix the two.
+    p7i = collect(root, "p7i_sig*_seed*_c2", r"sig([0-9.]+)_")
+    p7i_old = collect(root, "p7i_sig*_seed[0-9]", r"sig([0-9.]+)_")
     if not p7y.empty:
         fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(11, 4.2))
         errbar(ax1, agg(p7y, "trace_cov_mean"), "y-noise (P7): trace(Cov)", "C3")
@@ -130,13 +137,22 @@ def main():
         ax2.set_title("P7 — bias introduced by the remedy"); ax2.legend(); ax2.grid(alpha=0.3)
         fig.tight_layout(); fig.savefig(out / "figures" / "P7_y_noise.png", dpi=140); plt.close(fig)
         ay = agg(p7y, "trace_cov_mean"); ab = agg(p7y, "mean_err_post_mean")
-        summary["P7y"] = {"h": ay["_value"].tolist(), "trace_cov": ay["mean"].tolist(),
+        summary["P7y"] = {"h": ay["_value"].tolist(), "trace_cov_mean": ay["mean"].tolist(),
+                           "trace_cov_std": ay["std"].tolist(), "n": ay["n"].tolist(),
                            "mean_err_post": ab["mean"].tolist()}
     if not p7i.empty:
         ai = agg(p7i, "trace_cov_mean"); ab = agg(p7i, "mean_err_post_mean")
         summary["P7i"] = {"interp_sigma": ai["_value"].tolist(),
-                           "trace_cov": ai["mean"].tolist(),
+                           "trace_cov_mean": ai["mean"].tolist(),
+                           "trace_cov_std": ai["std"].tolist(),
+                           "n": ai["n"].tolist(),
                            "mean_err_post": ab["mean"].tolist()}
+    if not p7i_old.empty:
+        ai_o = agg(p7i_old, "trace_cov_mean")
+        summary["P7i_old_target_buggy"] = {"interp_sigma": ai_o["_value"].tolist(),
+                                            "trace_cov_mean": ai_o["mean"].tolist(),
+                                            "trace_cov_std": ai_o["std"].tolist(),
+                                            "n": ai_o["n"].tolist()}
 
     # ---------------- d/k ---------------------------------------------------
     dk_rows = []
@@ -152,7 +168,8 @@ def main():
     if dk_rows:
         dfdk = pd.DataFrame(dk_rows)
         dfdk["ratio"] = dfdk["trace_cov_mean"] / dfdk["trace_post"]
-        g = dfdk.groupby(["d", "k"])["ratio"].mean().reset_index()
+        g = dfdk.groupby(["d", "k"])["ratio"].agg(mean="mean", std=lambda s: s.std(ddof=0),
+                                                    n="count").reset_index()
         summary["dk"] = g.to_dict(orient="records")
 
     with open(out / "summary.json", "w", encoding="utf-8") as f:

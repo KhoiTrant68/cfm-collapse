@@ -28,21 +28,24 @@ import sys
 import time
 from pathlib import Path
 
-UV = "C:/Users/khoit/.local/bin/uv.exe"
 CFG = "configs/exp1_linear_gaussian.yaml"
 OUT = "results/exp1"
+# Override for environments without `uv` (e.g. a Kaggle GPU notebook: torch
+# there is already CUDA-enabled, and re-resolving deps via uv's pinned
+# pytorch-cpu index would downgrade it back to CPU-only).
+PYTHON_CMD = os.environ.get("CFM_PYTHON_CMD", "uv run python").split()
 
 
 def build_specs(iters: int) -> dict[str, list[tuple[str, list[str]]]]:
-    seeds3 = [0, 1, 2]
-    seeds2 = [0, 1]
+    # T8: all sweeps raised to 5 seeds for mean +/- std (WORK_ORDER.md T8).
+    seeds5 = [0, 1, 2, 3, 4]
     common = [f"train.max_iters={iters}", "model.conditional=true"]
     groups: dict[str, list[tuple[str, list[str]]]] = {}
 
     # P5 sigma_obs
     p5 = []
     for so in [0.01, 0.5, 1.0]:
-        for s in seeds3:
+        for s in seeds5:
             name = f"p5_sobs{so}_seed{s}"
             p5.append((name, common + [f"seed={s}", f"data.sigma_obs={so}", f"run_name={name}"]))
     groups["p5"] = p5
@@ -50,7 +53,7 @@ def build_specs(iters: int) -> dict[str, list[tuple[str, list[str]]]]:
     # P6 N
     p6 = []
     for N in [50, 1000, 5000]:
-        for s in seeds3:
+        for s in seeds5:
             name = f"p6_N{N}_seed{s}"
             p6.append((name, common + [f"seed={s}", f"data.N={N}", f"run_name={name}"]))
     groups["p6"] = p6
@@ -58,23 +61,25 @@ def build_specs(iters: int) -> dict[str, list[tuple[str, list[str]]]]:
     # P7 y-noise (remedy on the condition)
     p7y = []
     for h in [0.01, 0.05, 0.1, 0.5]:
-        for s in seeds3:
+        for s in seeds5:
             name = f"p7y_h{h}_seed{s}"
             p7y.append((name, common + [f"seed={s}", f"train.y_noise_h={h}", f"run_name={name}"]))
     groups["p7y"] = p7y
 
-    # P7 interpolant-noise (remedy a la 2510.18118)
+    # P7 interpolant-noise (remedy a la 2510.18118). "_c2" = corrected target
+    # (eq. C.2, T2) -- the only target implemented now; suffix kept for
+    # continuity with the pre-existing 3-seed corrected runs.
     p7i = []
     for sig in [0.1, 0.3]:
-        for s in seeds2:
-            name = f"p7i_sig{sig}_seed{s}"
+        for s in seeds5:
+            name = f"p7i_sig{sig}_seed{s}_c2"
             p7i.append((name, common + [f"seed={s}", f"train.interpolant_sigma={sig}", f"run_name={name}"]))
     groups["p7i"] = p7i
 
     # d/k sweep
     dk = []
     for (d, k) in [(10, 1), (10, 10)]:
-        for s in seeds2:
+        for s in seeds5:
             name = f"dk_d{d}k{k}_seed{s}"
             dk.append((name, common + [f"seed={s}", f"data.d={d}", f"data.k={k}", f"run_name={name}"]))
     groups["dk"] = dk
@@ -86,10 +91,12 @@ def already_done(name: str) -> bool:
     return Path(OUT, name, "raw", "metrics.csv").exists()
 
 
-def run_one(name: str, overrides: list[str], threads: int) -> tuple[str, int, float]:
+def run_one(name: str, overrides: list[str], threads: int, gpu: int | None) -> tuple[str, int, float]:
     env = dict(os.environ)
     env["CFM_NUM_THREADS"] = str(threads)
-    cmd = [UV, "run", "python", "-m", "src.train", "--config", CFG, "--out", OUT, "--set", *overrides]
+    if gpu is not None:
+        env["CUDA_VISIBLE_DEVICES"] = str(gpu)
+    cmd = [*PYTHON_CMD, "-m", "src.train", "--config", CFG, "--out", OUT, "--set", *overrides]
     t0 = time.time()
     proc = subprocess.run(cmd, env=env, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
     return name, proc.returncode, time.time() - t0
@@ -102,6 +109,9 @@ def main():
     ap.add_argument("--iters", type=int, default=200000)
     ap.add_argument("--only", nargs="*", default=None,
                     help="subset of groups: p5 p6 p7y p7i dk")
+    ap.add_argument("--gpus", type=int, default=0,
+                    help="round-robin CUDA_VISIBLE_DEVICES over 0..gpus-1 per worker "
+                         "(e.g. 2 for a dual-T4 notebook). 0 = leave device selection alone.")
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
 
@@ -124,7 +134,8 @@ def main():
     t0 = time.time()
     done = 0
     with cf.ThreadPoolExecutor(max_workers=args.workers) as ex:
-        futs = {ex.submit(run_one, n, ov, args.threads): n for (n, ov) in todo}
+        futs = {ex.submit(run_one, n, ov, args.threads, (i % args.gpus) if args.gpus > 0 else None): n
+                for i, (n, ov) in enumerate(todo)}
         for fut in cf.as_completed(futs):
             name, rc, dt = fut.result()
             done += 1
