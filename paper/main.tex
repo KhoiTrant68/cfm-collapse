@@ -528,6 +528,21 @@ reaches $\tr\Cov=0.16$ at $7\times10^5$ and is still decreasing.}
 \label{tab:exp1}
 \end{table}
 
+\begin{figure}[t]
+\centering
+\begin{subfigure}{0.32\textwidth}\includegraphics[width=\linewidth]{fig_p2_velocity.png}
+\caption{P2: velocity $\to(\star)$.}\end{subfigure}\hfill
+\begin{subfigure}{0.32\textwidth}\includegraphics[width=\linewidth]{fig_p3_meanshift.png}
+\caption{P3: mean $\to x^i$, away from $\mu_{\mathrm{post}}$.}\end{subfigure}\hfill
+\begin{subfigure}{0.32\textwidth}\includegraphics[width=\linewidth]{fig_collapse2d.png}
+\caption{Qualitative $d{=}2$ collapse (seed 0, $7{\times}10^5$).}\end{subfigure}
+\caption{The remaining EXP-1 observables. The learned velocity approaches the collapsed
+closed form $(\star)$ (a) and the generated mean migrates from the Bayes posterior mean
+to the memorised training point (b); in two dimensions the sample cloud that initially
+fills the posterior ellipse contracts to a point (c). All descend in lockstep with P1.}
+\label{fig:exp1extra}
+\end{figure}
+
 The variance tracks the true posterior up to $\sim\!10^4$ iterations---the model is a
 correct Bayesian sampler in this phase, which is exactly why early stopping works
 \citep{physicscfm2026}---and then collapses. At $2\times10^5$ the variance has not yet
@@ -607,13 +622,43 @@ falsification.}
 \label{tab:p5}
 \end{table}
 
+\begin{figure}[t]
+\centering
+\begin{subfigure}{0.48\textwidth}\includegraphics[width=\linewidth]{fig_p6_n.png}
+\caption{P6: collapse ratio vs.\ dataset size $N$.}\end{subfigure}\hfill
+\begin{subfigure}{0.48\textwidth}\includegraphics[width=\linewidth]{fig_p5_sigma.png}
+\caption{P5: collapse ratio vs.\ observation noise $\sigma_{\mathrm{obs}}$.}\end{subfigure}
+\caption{Scope-marked sweeps (5 seeds, error bars over seeds). Collapse deepens
+monotonically as $N$ shrinks (a); it is flat within seed noise across
+$\sigma_{\mathrm{obs}}$ (b). Neither is determined by the population theory; both are
+reported as empirical findings (Section~\ref{sec:scope}).}
+\label{fig:sweeps}
+\end{figure}
+
 \subsection{Label smoothing tracks the kernel reference (P7)}
 \label{sec:p7}
 
 This is the strongest confirmation in the project. The correct reference is
 $\Covh$ (Theorem~\ref{thm:endpoint}, Proposition~\ref{prop:moments}), \emph{not}
-$\Sigmapost$. Table~\ref{tab:p7kernel} evaluates the trained checkpoints against the
-exact kernel moments over 20 conditions ($M{=}1000$), across five seeds.
+$\Sigmapost$. Figure~\ref{fig:p7summary} is the headline: the generated variance
+tracks the exact kernel target $\Covh$ across every bandwidth (panel a), the
+ratio-to-kernel sits in a tight band around $1$ for $h\ge0.05$ (panel b), and yet the
+effective number of atoms $n_{\mathrm{eff}}$ stays far below $N{=}200$ (panel c), so the
+law remains atomic even where the second moment matches. Table~\ref{tab:p7kernel}
+evaluates the trained checkpoints against the exact kernel moments over 20 conditions
+($M{=}1000$), across five seeds.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{fig_p7_summary.png}
+\caption{P7 headline (5 seeds, error bars over seeds). \textbf{(a)} The generated
+$\tr\Cov$ follows the kernel target $\tr\Covh$ (dashed) and crosses
+$\tr\Sigmapost$ (dotted, flat) only incidentally near $h{=}0.1$. \textbf{(b)} The
+ratio-to-kernel lies within the shaded $[0.95,1.05]$ band for $h\ge0.05$. \textbf{(c)}
+$n_{\mathrm{eff}}\ll N$: the endpoint law is a sparse mixture of training atoms
+(Proposition~\ref{prop:atomicity}), not a continuous posterior.}
+\label{fig:p7summary}
+\end{figure}
 
 \begin{table}[t]
 \centering\small
@@ -727,7 +772,29 @@ is optimisation-limited, exactly as anticipated.
 (iii)~\emph{Posterior distance.} The MMD to the analytic posterior $\N(\mu_{\mathrm{post}},
 \Sigmapost)$ falls with $h$ ($0.256\to0.012$) but never reaches $0$, and the Sinkhorn
 distance plateaus near $2.7$---a direct numerical witness of the $h$-independent floor
-\eqref{eq:w2floor}.
+\eqref{eq:w2floor}. All three checks are visualised in Figure~\ref{fig:auxviz}.
+
+\begin{figure}[p]
+\centering
+\begin{subfigure}{0.92\textwidth}\includegraphics[width=\linewidth]{fig_optgap.png}
+\caption{Optimality gap $L(v_\theta)-L(v_h^\star)$ decays monotonically to $0$ at every
+$h$ (left); smoothing raises the irreducible error $L(v_h^\star)$ (right).}
+\end{subfigure}\\[6pt]
+\begin{subfigure}{0.92\textwidth}\includegraphics[width=\linewidth]{fig_lipschitz.png}
+\caption{The empirical Lipschitz constant of $v_\theta$ blows up as $t\to1$ (left); the
+representation floor $d/(3L)$ is $\sim50\times$ below the observed loss plateau (right),
+so the plateau is optimisation-limited.}
+\end{subfigure}\\[6pt]
+\begin{subfigure}{0.92\textwidth}\includegraphics[width=\linewidth]{fig_posterior_distance.png}
+\caption{MMD (left) and Sinkhorn (right) to the analytic posterior fall with $h$ but
+never reach $0$---the $h$-independent atomicity floor of
+Proposition~\ref{prop:atomicity}.}
+\end{subfigure}
+\caption{Checkpoint-only theory verification. Top: gap to the population optimum (T5).
+Middle: the finite-capacity Lipschitz floor (T6). Bottom: distance to the true
+continuous posterior (T7).}
+\label{fig:auxviz}
+\end{figure}
 
 \subsection{EXP-2 and EXP-3: selective memorisation beyond the Gaussian case}
 \label{sec:exp23}
@@ -758,6 +825,22 @@ because the loss converges deeper here.
 posterior (left) and MNIST inpainting (right) both collapse onto memorised training
 content as the loss descends.}
 \label{fig:exp23}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\begin{subfigure}{0.32\textwidth}\includegraphics[width=\linewidth]{fig_exp2_2d.png}
+\caption{EXP-2: samples abandon one posterior mode.}\end{subfigure}\hfill
+\begin{subfigure}{0.32\textwidth}\includegraphics[width=\linewidth]{fig_exp3_grid200.png}
+\caption{EXP-3, iter 200: diverse completions.}\end{subfigure}\hfill
+\begin{subfigure}{0.32\textwidth}\includegraphics[width=\linewidth]{fig_exp3_grid15k.png}
+\caption{EXP-3, iter 15000: identical, memorised.}\end{subfigure}
+\caption{Qualitative collapse. In EXP-2 the generated samples (a) concentrate on the
+mode containing the memorised $x^i$ and abandon the other, even though the analytic
+posterior is bimodal. In EXP-3, completions of a fixed masked digit are diverse early
+(b) but become identical and equal to the nearest training image once the loss has
+converged (c).}
+\label{fig:exp23qual}
 \end{figure}
 
 % ==========================================================================
