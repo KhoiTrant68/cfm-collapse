@@ -527,6 +527,140 @@ Two warnings:
 
 ---
 
+## Part D2 — Finite-sample memorization and exact non-representability
+
+*(This part closes two gaps exposed by comparing against the finite-sample and
+representability arguments of the unconditional gradient-variance/ReFlow literature
+— see the note on 2510.18118 at the end of Part E. Both results are new; neither
+appears in Parts A–D.)*
+
+### Lemma 22 (generic non-intersection of finite interpolant segments)
+
+Let $x_0^1,\dots,x_0^N \stackrel{\text{iid}}{\sim}\pi_0$ and, independently,
+$x^1,\dots,x^N\stackrel{\text{iid}}{\sim}\rho_1$, both absolutely continuous on
+$\mathbb{R}^d$, paired as $N$ **unconditional** source–target pairs (no labels).
+Define the segments $\ell_i(t) = (1-t)x_0^i + t\,x^i$, $t\in[0,1]$. Then:
+
+**(a)** If $d\ge 2$: for any fixed $i\ne j$, $\Pr\big[\exists\, t\in(0,1): \ell_i(t)=\ell_j(t)\big]=0$.
+
+**(b)** If $d> 2$: for any fixed $i\ne j$, $\Pr\big[\exists\, t_i,t_j\in(0,1),\ t_i\ne t_j: \ell_i(t_i)=\ell_j(t_j)\big]=0$.
+
+**Proof.** (a) Fix $\hat t\in(0,1)$ and suppose $\ell_i(\hat t)=\ell_j(\hat t)$. Solving,
+
+$$x^j = \frac{1-\hat t}{\hat t}\big(x_0^i - x_0^j\big) + x^i,$$
+
+which pins $x^j$ to a specific one-dimensional affine subspace of $\mathbb{R}^d$
+determined by $(x_0^i,x_0^j,x^i,\hat t)$. A one-dimensional affine subspace is
+Lebesgue-null whenever $d\ge2$, and $\rho_1$ is absolutely continuous, so
+conditionally on $(x_0^i,x_0^j,x^i)$ this event has probability $0$; integrating
+over $(x_0^i,x_0^j,x^i)$ preserves probability $0$. Since $\hat t$ ranges over an
+interval and the argument is uniform in $\hat t$, the same conclusion holds for
+"some $t=\hat t$" (a union over $\hat t$ of null events under the joint law, made
+rigorous exactly as in the source argument: the constraint is on $x^j$ alone, so
+the null set does not depend on which $\hat t$ occurs). Finitely many pairs
+$(i,j)$: union bound. (b) With $t_i\ne t_j$ both free, solving for $x^j$ pins it to
+a two-dimensional affine subspace, Lebesgue-null when $d>2$; the rest of the
+argument is identical. $\blacksquare$
+
+*(This is the same generic-position mechanism used in the source material's
+Proposition 3; it is reproduced here in the repo's own notation because Part A
+never needs it — Lemma 2 gets injectivity for free from the affine invertibility
+$X_0\mapsto X_t$ given $I=i$, valid for **any** $\pi_0$, no genericity argument
+required. Lemma 22 is the tool needed once labels are removed and the source
+points are also finite and fixed, i.e. Proposition 23 below.)*
+
+### Proposition 23 (a memorizing field always exists on a fixed finite unconditional batch)
+
+Fix $N$ unconditional pairs $\{(x_0^i,x^i)\}_{i=1}^N$ as in Lemma 22 (with $d>2$,
+$x^i$ pairwise distinct a.s.), and sample $m$ time points $t^{(i,j)}\in(0,1)$,
+$j=1,\dots,m$, independently across $(i,j)$ (e.g. uniformly). Let
+
+$$X_t^{(i,j)} = (1-t^{(i,j)})x_0^i + t^{(i,j)}x^i, \qquad
+L_{\mathrm{MC}}^{\mathrm{unc}}(v) = \frac1{Nm}\sum_{i=1}^N\sum_{j=1}^m
+\big\|(x^i - x_0^i) - v\big(X_t^{(i,j)}, t^{(i,j)}\big)\big\|^2.$$
+
+Then, almost surely over the draw of $\{(x_0^i,x^i)\}$ and $\{t^{(i,j)}\}$, there
+exists a (deterministic, non-parametric) $v$ with $L_{\mathrm{MC}}^{\mathrm{unc}}(v) = 0$
+— **even though** $\inf_v L_{\mathrm{unc}}(v) > 0$ at the population level whenever the
+$x^i$ are not all equal (Proposition 7).
+
+**Proof.** By Lemma 22(a)–(b) applied to every pair $i\ne j$ and union-bounded over
+the $\binom N2$ pairs, almost surely no two of the $N$ full segments
+$\{\ell_i(t):t\in(0,1)\}$ intersect at all, hence in particular the finitely many
+sampled points $(X_t^{(i,j)}, t^{(i,j)})$ never collide across different $i$. On
+this full-measure event, the map $(z,t)\mapsto i$ is well defined on
+$\{(X_t^{(i,j)},t^{(i,j)})\}_{i,j}$, so
+
+$$v(z,t) := x^{i(z,t)} - x_0^{i(z,t)} \quad\text{on the sample},\qquad v(z,t):=0 \text{ elsewhere},$$
+
+is a well-defined function, and by construction
+$v\big(X_t^{(i,j)},t^{(i,j)}\big) = x^i - x_0^i$ exactly for every sampled $(i,j)$, making
+every summand of $L_{\mathrm{MC}}^{\mathrm{unc}}$ vanish. $\blacksquare$
+
+### Remark 24 (why SGD does not land here — reconciling with Corollary 6)
+
+Proposition 23 shows the *finite-batch* unconditional objective always has an
+exact zero-loss "lookup" solution, in apparent tension with Proposition 5–7's
+positive population loss. There is no contradiction: the standard CFM training
+loop **resamples $x_0^i$ (and typically the time samples) independently every
+epoch**. Proposition 23's construction is only valid for a *fixed* finite sample —
+across resampled epochs, the lookup table for epoch $k$ is checked against fresh
+points $(X_t^{(i,j)})$ from epoch $k+1$ for which it was never fit, and no single
+lookup table stays consistent with the growing stream of $(x_0,t)$ draws. This is
+the rigorous form of the informal claim (repeated throughout the unconditional
+memorization literature, e.g. in the source material's discussion of "why doesn't
+CFM memorize random pairings") that *independent resampling of $x_0$*, not mere
+continuity of $\pi_0$, is what forces training toward the population optimum of
+Proposition 5 rather than toward a per-example memorizing solution. It also gives
+a precise mechanism for prediction **P6**: at fixed network capacity, larger $N$
+makes the epoch-consistent lookup table harder to realize with a smooth,
+finite-parameter function, pushing the attained solution back toward Proposition 5.
+
+*(Note the asymmetry with the conditional case of Part A: Proposition 4 needs no
+such genericity argument and no "fixed-batch" caveat, because $y^i$ pins down $i$
+deterministically for every $x_0$, not merely with probability $1$ on one finite
+draw. Resampling $x_0$ every epoch does nothing to prevent conditional collapse —
+this is exactly why $P4$ ["collapse is far weaker/absent for unconditional CFM"]
+holds while conditional collapse is universal.)*
+
+### Lemma 25 (the collapse field cannot be exactly represented by a finite network)
+
+Let $g(t) = 1/(1-t)$ on $[0,1)$. Let $f_\theta:\mathbb R\to\mathbb R$ be **any**
+finite-depth, finite-width feedforward network with finite real weights, built
+from affine layers and activations that are globally Lipschitz (this covers every
+activation used in `src/models/mlp_velocity.py`, and indeed ReLU, leaky-ReLU,
+tanh, sigmoid, GELU/SiLU, softplus, etc.). Then
+
+$$\sup_{t\in[0,1)}\big|f_\theta(t) - g(t)\big| = \infty.$$
+
+**Proof.** A finite composition of affine maps (finite weight matrices, hence
+finite operator norm) and globally Lipschitz activations is globally Lipschitz
+on $\mathbb R$, with constant equal to the product of the layer constants — finite
+because there are finitely many layers and finite weights. A Lipschitz function
+is bounded on any bounded set (fix $t_0\in[0,1)$; for all $t\in[0,1)$,
+$|f_\theta(t)|\le |f_\theta(t_0)| + K|t-t_0| \le |f_\theta(t_0)| + K$). So
+$\sup_{t\in[0,1)}|f_\theta(t)| < \infty$. But $g(t)\to\infty$ as $t\uparrow 1$, so
+$g$ is unbounded on $[0,1)$. Hence $f_\theta - g$ is unbounded on $[0,1)$. $\blacksquare$
+
+**Consequence.** For $x\ne x^i$ fixed, $t\mapsto v_0^\star(x,t,y^i) = (x^i-x)/(1-t)$
+has exactly this $1/(1-t)$ blow-up along the direction $x^i-x$. By Lemma 25 (applied
+coordinatewise to that direction), **no finite MLP of the kind used in this repo can
+represent $v_0^\star$ exactly on all of $[0,1)$** — the representation gap
+$L^\star_{\mathrm{model}} - L^\star_{\mathrm{all}}$ in Remark 22 is provably strictly
+positive for *every* finite architecture, not merely for a Lipschitz-capped class
+$\mathcal F_L$ as in Corollary 21.
+
+*(This does **not** contradict the universal approximation theorem, and does not
+retract Remark 22's warning against claiming $L^\star_{\mathrm{model}}>0$ without a
+constraint: UAT guarantees arbitrarily good **uniform** approximation only on
+**compact** sets, and every compact subset $[0,1-\delta]$, $\delta>0$, is disjoint
+from the singularity. Lemma 25 is a statement strictly about the open boundary
+$t\to1^-$ — exactly the regime the sampler must traverse to reach the collapse
+point $x^i$, and exactly where `flows/ode_solver.py`'s $t=1$ singularity handling
+matters in practice.)*
+
+---
+
 ## Part E — Scope: what is and is not predicted
 
 ### Proved (exact population consequences)
@@ -542,6 +676,9 @@ Two warnings:
 | P-7 | $\operatorname{tr}\operatorname{Cov}_h = \operatorname{tr}\Sigma + h^2\|J\|_F^2 + \cdots$ (Prop. 15) |
 | P-8 | interpolant noise leaves $p_1$ unchanged for all $\sigma$; halves the Lipschitz blow-up rate (Prop. 17, Cor. 18) |
 | P-9 | $\operatorname{Lip}_x v_\theta \le L \Rightarrow L_0(v_\theta)\ge d/(3L)$ (Cor. 21) |
+| P-10 | a fixed finite unconditional batch always admits an exact zero-loss memorizing field, despite $\inf L_{\mathrm{unc}}>0$ at the population level (Prop. 23) |
+| P-11 | resampling $x_0$ every epoch, not mere continuity of $\pi_0$, is what defeats P-10's construction and forces training toward the Prop. 5 mixture (Rmk. 24) |
+| P-12 | no finite Lipschitz-activation network exactly represents $v_0^\star$ on all of $[0,1)$ — the representation gap is strictly positive for every finite architecture (Lem. 25) |
 
 ### Explicitly **not** determined by the population theory
 
@@ -586,7 +723,17 @@ The specific contributions here are:
    interpolant noise provably does not (Prop. 17, Prop. 19);
 4. the **atomicity obstruction** (Prop. 14), which bounds how much any $h$ can achieve;
 5. the **representation floor** (Cor. 21) as a measurable quantity separating
-   representation from optimisation error.
+   representation from optimisation error;
+6. two results (Part D2) that translate the finite-sample and exact-representability
+   arguments of the unconditional ReFlow/gradient-variance literature (2510.18118,
+   their Propositions 2–3 and Extra-Lemma 1) into this repo's setting: a finite fixed
+   batch always admits an exact-zero-loss unconditional memorizing field despite
+   positive population loss (Prop. 23, mirroring their Prop. 2 via the same
+   generic-position argument, their Prop. 3, reproduced as Lemma 22), with the
+   resampling-of-$x_0$ mechanism made precise (Rmk. 24); and an exact (not merely
+   Lipschitz-capped) non-representability statement for the collapse field's
+   $1/(1-t)$ blow-up (Lemma 25, the boundedness analogue of their scaling argument
+   for $1/x$).
 
 Summarised in one line:
 
@@ -602,4 +749,19 @@ $$\textbf{Conditional collapse is the zero-bandwidth limit of a kernel-weighted 
 
 *(For the unconditional "resample $x_0$" mechanism that this work contrasts against,
 see the stochastic-interpolant / gradient-variance line of work referenced in the
-project spec as 2510.18118.)*
+project spec as 2510.18118. That paper's Proposition 2 constructs, for a **finite**
+i.i.d. sample of unconditional pairs with no labels, a deterministic vector field
+attaining zero *Monte-Carlo* loss, using their Proposition 3's generic-position
+argument (interpolant segments a.s. don't cross) to make the pair index recoverable
+from $(x_t,t)$ alone. This is existence of a zero-loss field on a **finite empirical
+batch**; it says nothing about the population $L^2$ minimiser, and indeed their own
+Section 3 (gradient variance) is precisely about which of several zero-training-loss
+solutions optimisation actually prefers. Proposition 4 above is a different kind of
+statement — an exact closed-form characterisation of the **population** minimiser,
+made possible without any genericity assumption because $y^i$, not generic position,
+supplies the injectivity. Part D2 restates their Propositions 2–3 and Extra-Lemma 1
+in this repo's notation (Lemma 22, Prop. 23, Lemma 25) so the two levels of
+statement — finite-batch existence vs. population characterisation — sit side by
+side rather than being conflated, and so that the resampling mechanism they describe
+qualitatively (Remark 24) has a precise if-and-only-if role: it is exactly what is
+absent from the conditional case, which is why P4 holds.)*
