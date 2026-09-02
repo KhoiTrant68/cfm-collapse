@@ -108,6 +108,17 @@ def main() -> None:
                   f"kernel={r['trace_kernel']:.3f}  ratio_k={r['ratio_to_kernel']:.3f}  "
                   f"n_eff={r['n_eff']:.1f}")
 
+    if not rows:
+        # Checkpoints are gitignored as "regenerable", so on a clean clone (or after
+        # a cleanup) every run is skipped above. Writing an empty frame here would
+        # silently truncate the tracked p7_kernel.csv that Tables 5-6 are built from.
+        raise SystemExit(
+            "No p7y checkpoints found under "
+            f"{ROOT}/p7y_h*_seed*/checkpoints/ckpt_200000.pt -- retrain those runs "
+            "before re-running this script. Refusing to overwrite the existing "
+            "p7_kernel.csv with an empty table."
+        )
+
     df = pd.DataFrame(rows)
     out = ROOT / "_theory" / "raw"; out.mkdir(parents=True, exist_ok=True)
     df.to_csv(out / "p7_kernel.csv", index=False)

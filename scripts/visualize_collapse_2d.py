@@ -72,6 +72,8 @@ def main():
     ap.add_argument("--late", type=int, default=200000)
     ap.add_argument("--n-conditions", type=int, default=4)
     ap.add_argument("--M", type=int, default=600)
+    ap.add_argument("--zoom", type=float, default=0.4,
+                    help="half-width of the per-panel inset window around x^i")
     ap.add_argument("--out", default=None)
     args = ap.parse_args()
 
@@ -103,18 +105,37 @@ def main():
 
         ax.scatter(s_e[:, 0], s_e[:, 1], s=6, alpha=0.25, color="C0",
                    label=f"early (it={args.early})")
-        ax.scatter(s_l[:, 0], s_l[:, 1], s=6, alpha=0.35, color="C3",
+        ax.scatter(s_l[:, 0], s_l[:, 1], s=8, alpha=0.5, color="C3", zorder=4,
                    label=f"late (it={args.late})")
         cov_ellipse(ax, mu, cov, n_std=2.0, edgecolor="k", lw=1.5, ls="--",
                     label="posterior 2σ")
         ax.scatter([mu[0]], [mu[1]], marker="+", s=140, color="k", label="μ_post")
-        ax.scatter([x_i[0]], [x_i[1]], marker="*", s=180, color="gold",
-                   edgecolor="k", zorder=5, label="x^i (train)")
+        # hollow star so a fully collapsed red cluster underneath stays visible
+        ax.scatter([x_i[0]], [x_i[1]], marker="*", s=220, facecolor="none",
+                   edgecolor="goldenrod", lw=1.6, zorder=6, label="x^i (train)")
         ax.set_title(f"condition i={i}")
         ax.set_aspect("equal", "datalim")
         if col == 0:
-            ax.legend(fontsize=7, loc="best")
+            ax.legend(fontsize=7, loc="upper left")
         ax.grid(alpha=0.3)
+
+        # Late collapse is often far tighter than the posterior scale (trace(Cov)
+        # can reach ~1e-4), so the red cloud is a sub-pixel dot on the main axes.
+        # An inset zoomed to the late cluster is what actually shows the collapse.
+        tr_cov = float(s_l.var(axis=0).sum())
+        half = args.zoom  # fixed window so panels are directly comparable
+        axin = ax.inset_axes([0.56, 0.04, 0.42, 0.42])
+        axin.scatter(s_l[:, 0], s_l[:, 1], s=8, alpha=0.5, color="C3", zorder=4)
+        axin.scatter([x_i[0]], [x_i[1]], marker="*", s=200, facecolor="none",
+                     edgecolor="goldenrod", lw=1.6, zorder=6)
+        axin.set_xlim(x_i[0] - half, x_i[0] + half)
+        axin.set_ylim(x_i[1] - half, x_i[1] + half)
+        axin.set_xticks([]); axin.set_yticks([])
+        for sp in axin.spines.values():
+            sp.set_edgecolor("0.4")
+        axin.text(0.04, 0.04, f"zoom ±{half:g}\ntr Cov={tr_cov:.1e}",
+                  transform=axin.transAxes, fontsize=6.5, va="bottom", ha="left",
+                  bbox=dict(boxstyle="round,pad=0.2", fc="white", ec="none", alpha=0.75))
 
     fig.suptitle("Posterior collapse onto the memorized training point (d=2)")
     fig.tight_layout()

@@ -345,7 +345,9 @@ $$\operatorname{tr}\operatorname{Cov}_h(y) = \textstyle\sum_j p_j^{(h)}(y)\,\|x^
 
 Đo lại trên các checkpoint đã có (`scripts/analyze_p7_kernel.py`, 20 điều kiện, M=1000):
 
-> **Lưu ý về số seed (T8).** Bảng này lên **5 seed** (`p7y_h*_seed{0..4}`) như mọi sweep khác. Khác với sweep chỉ cần `metrics.csv`, bảng dưới đây phải **load lại checkpoint** để tính `v_θ` tại các `(x,t)` cụ thể; toàn bộ 20 checkpoint `ckpt_200000.pt` (4 h × 5 seed) đều còn trên đĩa nên chạy đủ n=5. Số dưới đây do đó là mean ± std trên 5 seed, tái tạo bằng `uv run python scripts/analyze_p7_kernel.py`.
+> **Lưu ý về số seed (T8).** Bảng này lên **5 seed** (`p7y_h*_seed{0..4}`) như mọi sweep khác. Khác với sweep chỉ cần `metrics.csv`, bảng dưới đây phải **load lại checkpoint** để tính `v_θ` tại các `(x,t)` cụ thể; khi chạy lần đầu, toàn bộ 20 checkpoint `ckpt_200000.pt` (4 h × 5 seed) đều còn trên đĩa nên chạy đủ n=5.
+>
+> **Cập nhật 2026-09-02 (audit lần 2):** các checkpoint `p7y_h*_seed*/checkpoints/` **đã bị xoá khỏi đĩa** (gitignore coi là regenerable), nên `analyze_p7_kernel.py` và `verify_kernel_theory.py` **không chạy lại được tại chỗ** — cần train lại `p7y_h*_seed{0..4}` (deterministic theo seed) trước. Kết quả đã tính thì **vẫn còn nguyên và đã track git** trong `results/exp1/_theory/raw/p7_kernel_summary.csv` và `kernel_verification.csv`; đã đối chiếu lại từng ô của bảng này và bảng (†) với hai CSV đó — khớp tuyệt đối. Hình `fig_p7_summary.png` cũng dựng từ chính các CSV này nên tái lập được ngay.
 
 | h | `Cov_h` (Thm 10) | `Σ_post` | trace(Cov) đo được (n=5) | **ratio_to_kernel** (n=5) | ratio_to_post | n_eff (/200) |
 |------|------|------|------|------|------|------|
@@ -546,3 +548,80 @@ Giả thuyết trung tâm **được xác nhận vững chắc**: trong conditio
 - Kéo dài EXP-1 với **lr-decay** để đạt collapse tuyệt đối mà không diverge.
 - Đo held-out cẩn thận hơn (median + đếm ca phân kỳ) thay vì mean bị chi phối bởi blow-up.
 - EXP-2/EXP-3: thử CelebA 64×64 và các loại mask khác để tổng quát hoá.
+
+---
+
+## Remedy — làm mượt endpoint (target noise) ✅ (2026-09-03)
+
+**Động cơ.** Prop 14 (atomicity) loại bỏ *mọi* remedy mà endpoint law vẫn nằm trên các
+atom training — bao gồm nhãn nhoè (Thm 10) và, hiển nhiên vì `γ(1)=0`, nhiễu interpolant
+(Prop 17). Nhưng nó cũng chỉ ra remedy phải làm gì: **dịch chuyển support**. Trong ba
+chỗ có thể bơm nhiễu (nhãn, đường đi, endpoint), chỉ chỗ thứ ba làm được.
+
+**Lý thuyết (Prop mới, đã chứng minh đầy đủ).** Thay `X₁ = x⁽ᴵ⁾ + ρ·ξ`, `ξ~N(0,I_d)` lấy
+mới mỗi bước. Cùng lập luận mixture-coupling của Thm 10 cho:
+
+    p₁(·|y) = Σⱼ pⱼ⁽ʰ⁾(y) · N(x⁽ʲ⁾, ρ²I_d),   mean = x̄_h(y),   Cov = Cov_h(y) + ρ²I_d
+
+Ba hệ quả: (i) liên tục tuyệt đối ∀ρ>0 ⇒ cận W₂ của Prop 14 **không còn áp dụng**;
+(ii) `s₁ = ρ > 0` ⇒ **kỳ dị 1/(1−t) biến mất** (nguồn của Lemma norepr và của hiện
+tượng diverge ở lr cố định); (iii) `(h,ρ)` là hai núm vặn, đủ khớp *cả* mô-men bậc 1 và
+bậc 2 bằng luật liên tục — `h` một mình chỉ khớp được một mô-men mà vẫn atomic.
+Code: `train.target_noise_rho` trong `src/flows/cfm.py`; config
+`configs/exp1_target_noise.yaml`.
+
+### Cận atomicity thực sự lớn bao nhiêu? — và một overclaim của paper bị lộ
+
+Cận `F = E_{x~p(·|y)} dist(x,{x⁽ⁱ⁾})²` của eq (14.1) **tính được trực tiếp**. Tại cấu
+hình EXP-1: `F = 0.0353`, tức `W₂ ≥ 0.19` nhưng **chỉ 3.5% của trace(Σ_post) = 1.004**.
+Và luật atomic *tối ưu population* đã đạt MMD = 0.0089 — thấp hơn 0.024 mà model train
+được. Nghĩa là: paper từng viết plateau MMD/Sinkhorn là "bằng chứng số trực tiếp của cận
+độc lập-h" — **sai**. Phần dư đó do kernel bias + optimisation gap, không phải atomicity.
+Tệ hơn: RBF MMD ở bandwidth median-heuristic **không phân giải nổi khoảng cách giữa các
+atom**, nên MMD là dụng cụ sai để đo atomicity. Đã sửa cả main text lẫn appendix.
+
+### Scaling: obstruction cắn khi nào, remedy giúp khi nào
+
+`scripts/atomicity_scaling.py` (đánh giá population endpoint law, không cần train):
+
+| d | N | trace(Σ_post) | F | F/trΣ | MMD atomic | gain(ρ) | OT atomic | gain(ρ) |
+|---|---|---|---|---|---|---|---|---|
+| 2 | 1000 | 1.004 | 0.0073 | 0.007 | 0.0048 | 1.01× | 3.33 | 1.17× |
+| 2 | 200  | 1.004 | 0.0353 | 0.035 | 0.0115 | 1.02× | 16.75 | 1.31× |
+| 2 | 50   | 1.004 | 0.1932 | 0.192 | 0.0742 | 1.24× | 60.41 | **1.57×** |
+| 5 | 200  | 4.001 | 0.9242 | 0.231 | 0.0059 | 1.05× | 277.96 | 1.31× |
+| 10 | 200 | 9.001 | 4.8303 | 0.537 | 0.0105 | 1.07× | 1638.21 | 1.13× |
+| 10 | 50  | 9.001 | 7.0125 | 0.779 | 0.0434 | 1.18× | 2406.63 | 1.16× |
+
+`F/trΣ` theo đúng scaling `N^(−2/d)`. **Hai điều đọc được, cả hai đều quan trọng:**
+(i) gain OT > gain MMD ở *mọi* dòng — OT nhìn thấy support atomic, MMD thì không;
+(ii) gain tăng theo F **khi cố định d** (1.17→1.31→1.57× khi N giảm), nhưng **KHÔNG tăng
+qua d**: d=10 có F lớn nhất mà gain nhỏ nhất, vì ρ đẳng hướng không thể lấp một khe hở
+chiều cao mà không phải trả `d·ρ²` phương sai. **Endpoint smoothing bị chiều đánh bại,
+đúng như KDE.** (Đây là điểm tôi phải tự sửa: bản nháp đầu viết gain "follows F", sai.)
+
+Sweep chi tiết 1 cấu hình (`scripts/verify_target_noise.py`, M=2000): tại h=0.1, OT giảm
+12.03 → 5.68 khi ρ=0.1 (2.1×), có đúng hình chữ U theo ρ (12.03, 7.93, 5.68, 5.80, 10.47,
+32.11 cho ρ = 0, .05, .1, .2, .3, .5) — đúng bias-variance mà mệnh đề dự đoán.
+
+### Xác nhận trên model đã train ✅
+
+4 run `exp1_tgt_rho{00,03}_seed{0,1}`: kiến trúc/lịch trình EXP-1 y hệt, N=50 (nơi cận
+d=2 lớn nhất), h=0.1, ρ∈{0, 0.3}, 200k iter. Phân tích: `scripts/analyze_target_noise.py`.
+
+| arm | trace(Cov) đo | dự đoán `tr Cov_h + dρ²` | MMD | OT | ‖mean−μ_post‖ |
+|-----|---------------|---------------------------|-----|-----|----------------|
+| ρ=0   | 0.3265 | 0.3272 | 0.1749 | 79.18 | 0.3983 |
+| ρ=0.3 | 0.4914 | 0.5072 | 0.1174 | **31.54** | 0.4166 |
+
+→ **KHỚP**: (i) model train được đạt đúng endpoint law dự đoán — trace(Cov) khớp
+`tr Cov_h + dρ²` trong **3%** ở cả hai nhánh, đúng cho từng seed chứ không chỉ trung
+bình; (ii) mean **không đổi** theo ρ (0.398 vs 0.417) — đúng công thức mô-men, ρ dịch
+covariance chứ không dịch mean; (iii) khoảng cách tới posterior giải tích giảm
+**2.5× theo OT** (79.2→31.5, và 2.5× ở *từng* seed riêng), nhưng chỉ 1.5× theo MMD —
+lặp lại đúng chênh lệch độ nhạy của hai metric.
+
+**Giới hạn trung thực.** Remedy này *xoá* obstruction về mặt cấu trúc, nhưng lợi ích bị
+chặn bởi kích thước obstruction (nhỏ ở đúng cấu hình d=2,N=200 mà paper nghiên cứu
+nhiều nhất), phải trả `+ρ²I_d` phương sai để đổi lấy tính liên tục, và **suy giảm theo
+chiều**. Chưa test ở quy mô lớn, chưa quét ρ trên EXP-2/EXP-3, chưa thử ρ bất đẳng hướng.

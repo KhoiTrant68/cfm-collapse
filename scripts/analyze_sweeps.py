@@ -9,9 +9,9 @@ Robust to still-running sweeps (missing runs are skipped).
 from __future__ import annotations
 
 import argparse
-import glob
 import json
 import re
+import sys
 from pathlib import Path
 
 import matplotlib
@@ -19,6 +19,9 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from src.utils import glob_seed_runs  # noqa: E402
 
 
 def final_row(run_dir: Path) -> dict | None:
@@ -35,7 +38,7 @@ def final_row(run_dir: Path) -> dict | None:
 def collect(root: Path, pattern: str, value_regex: str) -> pd.DataFrame:
     """Return per-run final metrics with the swept value parsed from the name."""
     rows = []
-    for rd in sorted(glob.glob(str(root / pattern))):
+    for rd in glob_seed_runs(str(root / pattern)):
         rd = Path(rd)
         m = re.search(value_regex, rd.name)
         if not m:
@@ -156,7 +159,7 @@ def main():
 
     # ---------------- d/k ---------------------------------------------------
     dk_rows = []
-    for rd in sorted(glob.glob(str(root / "dk_d*k*_seed*"))):
+    for rd in glob_seed_runs(str(root / "dk_d*k*_seed*")):
         rd = Path(rd)
         m = re.search(r"d(\d+)k(\d+)_seed(\d+)", rd.name)
         fr = final_row(rd)

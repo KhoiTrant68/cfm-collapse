@@ -9,7 +9,8 @@ population theory predicts the SAME collapse curve (trace_cov, mean_err to the
 assigned x^i) under shuffled labels, while mean_err_post (distance to the
 *true* analytic posterior mean of that y, unrelated to the shuffled x^i)
 should NOT collapse to zero. This is the conditional analogue of the
-"Adversarial Pairings" experiment in Shin et al. (arXiv:2510.18118).
+"Adversarial Pairings" experiment in Reu et al. (arXiv:2510.18118, cited as
+gradvar2025 in the paper).
 
 Usage
 -----
@@ -21,8 +22,8 @@ Usage
 from __future__ import annotations
 
 import argparse
-import glob
 import json
+import sys
 from pathlib import Path
 
 import matplotlib
@@ -30,10 +31,13 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import pandas as pd
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from src.utils import glob_seed_runs  # noqa: E402
+
 
 def load_runs(pattern: str, group: str = "train") -> pd.DataFrame:
     frames = []
-    for run_dir in sorted(glob.glob(pattern)):
+    for run_dir in glob_seed_runs(pattern):
         csv = Path(run_dir) / "raw" / "metrics.csv"
         if not csv.exists():
             continue
@@ -103,7 +107,7 @@ def main():
     ax.axhline(trace_post, color="k", ls=":", lw=1.0, label=f"trace(Σ_post)={trace_post:.3f}")
     ax.set_xscale("log"); ax.set_yscale("log")
     ax.set_xlabel("training iteration"); ax.set_ylabel("trace(Cov) of generated samples")
-    ax.set_title("Adversarial pairing: collapse is identical under shuffled labels")
+    ax.set_title("Adversarial pairing: collapse persists under shuffled labels")
     ax.legend(); ax.grid(True, which="both", alpha=0.3)
     fig.tight_layout(); fig.savefig(out / "figures" / "adv_trace_cov.png", dpi=140)
     plt.close(fig)
@@ -115,7 +119,8 @@ def main():
     _plot_band(ax, mep_shuf, "‖mean − μ_post(y^i)‖, shuffled (true-but-irrelevant posterior)", "C0", ls="-.")
     ax.set_xscale("log"); ax.set_yscale("log")
     ax.set_xlabel("training iteration"); ax.set_ylabel("distance")
-    ax.set_title("Under shuffled labels: converges to the assigned x^i, not to μ_post(y^i)")
+    ax.set_title("Shuffled labels: mean converges to assigned x^i, not μ_post(y^i)",
+                 fontsize=11)
     ax.legend(fontsize=8); ax.grid(True, which="both", alpha=0.3)
     fig.tight_layout(); fig.savefig(out / "figures" / "adv_mean_targets.png", dpi=140)
     plt.close(fig)

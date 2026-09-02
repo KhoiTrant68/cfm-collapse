@@ -239,7 +239,8 @@ def train(cfg: dict, out_root: str | Path) -> Path:
     trainer = CFMTrainer(
         X, Y if conditional else None, interp, conditional=conditional,
         source_std=dc.get("source_std", 1.0),
-        y_noise_h=cfg["train"].get("y_noise_h", 0.0), device=device,
+        y_noise_h=cfg["train"].get("y_noise_h", 0.0),
+        target_noise_rho=cfg["train"].get("target_noise_rho", 0.0), device=device,
     )
 
     opt_name = cfg["train"].get("optimizer", "adam").lower()

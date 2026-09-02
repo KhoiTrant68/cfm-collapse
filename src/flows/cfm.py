@@ -27,6 +27,14 @@ class CFMTrainer:
     conditional : whether to feed y to the model.
     y_noise_h : bandwidth h of Gaussian smoothing added to the *condition*
         (spec P7 remedy). Fresh noise each step. 0 disables it.
+    target_noise_rho : bandwidth rho of Gaussian smoothing added to the
+        *endpoint* x1, i.e. X_1 = x^I + rho * xi with xi ~ N(0, I_d) drawn
+        fresh every step. Unlike y-noise (which reweights the atoms) and
+        interpolant noise (which is endpoint-preserving because gamma(1)=0),
+        this moves the support of the population endpoint law off the training
+        set: it becomes sum_i p_i^(h)(y) N(x^i, rho^2 I), which is absolutely
+        continuous, so the h-independent Wasserstein floor of Prop 6 no longer
+        applies. 0 disables it.
     """
 
     def __init__(
@@ -37,6 +45,7 @@ class CFMTrainer:
         conditional: bool,
         source_std: float = 1.0,
         y_noise_h: float = 0.0,
+        target_noise_rho: float = 0.0,
         device: torch.device | None = None,
     ):
         self.device = device or torch.device("cpu")
@@ -46,6 +55,7 @@ class CFMTrainer:
         self.conditional = conditional
         self.source_std = float(source_std)
         self.y_noise_h = float(y_noise_h)
+        self.target_noise_rho = float(target_noise_rho)
         self.N = X.shape[0]
         self.d = X.shape[1]
 
@@ -58,6 +68,12 @@ class CFMTrainer:
                         generator: torch.Generator | None = None) -> torch.Tensor:
         idx = torch.randint(0, self.N, (batch_size,), generator=generator, device=self.device)
         x1 = self.X[idx]
+        if self.target_noise_rho > 0.0:
+            # Fresh xi every step, exactly as x0 is resampled: the population
+            # object is X_1 = x^I + rho*xi, not a one-off jittered dataset.
+            x1 = x1 + self.target_noise_rho * torch.randn(
+                x1.shape, generator=generator, device=self.device
+            )
         y = None
         if self.conditional:
             y = self.Y[idx]

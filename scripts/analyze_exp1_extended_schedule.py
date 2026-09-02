@@ -82,7 +82,7 @@ def main():
     ax.axvline(1000000, color="gray", ls=":", lw=1.0)
     ax.set_xscale("log"); ax.set_yscale("log")
     ax.set_xlabel("training iteration"); ax.set_ylabel("metric value")
-    ax.set_title(f"Cosine LR schedule reaches deeper collapse without diverging ({n_seeds} seeds)")
+    ax.set_title(f"Cosine LR schedule avoids divergence, tracked to 1e6 iters ({n_seeds} seeds)")
     ax.legend(fontsize=7); ax.grid(True, which="both", alpha=0.3)
     fig.tight_layout(); fig.savefig(out / "figures" / "extended_schedule.png", dpi=140)
     plt.close(fig)

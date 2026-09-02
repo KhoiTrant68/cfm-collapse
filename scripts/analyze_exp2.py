@@ -5,8 +5,8 @@
 from __future__ import annotations
 
 import argparse
-import glob
 import json
+import sys
 from pathlib import Path
 
 import matplotlib
@@ -14,10 +14,13 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import pandas as pd
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from src.utils import glob_seed_runs  # noqa: E402
+
 
 def load(pattern: str) -> pd.DataFrame:
     frames = []
-    for rd in sorted(glob.glob(pattern)):
+    for rd in glob_seed_runs(pattern):
         csv = Path(rd) / "raw" / "metrics.csv"
         if csv.exists():
             df = pd.read_csv(csv); df["run"] = Path(rd).name

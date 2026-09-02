@@ -274,3 +274,462 @@ state only the pointwise/exact non-representability claim (which is correctly
 proved) and explicitly noting that the only proven strict loss floor is the
 Lipschitz-capped one. No experiments changed; recompiled clean (26 pages, 0
 undefined refs/citations).
+
+### Second external review pass -- tightened Prop~expansion assumptions + 3 wording fixes (2026-09-02)
+
+A follow-up external review of the updated PDF (not authored by this session)
+rated the paper "Weak Accept -> Accept" post-Lemma-norepr-fix and flagged one
+substantive item plus three wording precision issues, all verified against the
+current `main.tex` before acting:
+
+1. **Audited Proposition~prop:expansion (bandwidth expansion of the
+   conditional covariance).** The main-text statement said only "under
+   standard smoothness"; the appendix proof was already fully rigorous
+   (explicitly assumes $\rho_Y$ positive and $C^2$ near $y$, $\Sigma$ $C^1$,
+   $\mu$ $C^2$, and derives the $O_P((Nh^k)^{-1/2})$ term from a
+   kernel-variance argument) but two assumptions used implicitly in the proof
+   were never stated in the Proposition itself: that $y$ is an interior point
+   of $\operatorname{supp}(\rho_Y)$ (boundary bias is a different, uncovered
+   regime) and that the expansion is pointwise in $y$, not uniform. Added both
+   explicitly to the Proposition statement -- no change to the proof, since it
+   already only ever used these two facts.
+2. Softened "architecture-agnostic ... persist at scale" in the
+   small-scale-experiments limitation to "parameterisation-independent", with
+   an explicit added clause that persistence *at scale* is a separate,
+   unestablished, architecture-dependent claim.
+3. Scoped "only label noise ... can change $p_1$" (interpolant-noise
+   paragraph) to "among the two perturbations studied here", with an explicit
+   disclaimer about untested alternatives (non-endpoint-preserving paths,
+   stochastic couplings over the index).
+4. Replaced "by elimination the residual gap is not a Lipschitz-capacity
+   effect" / the `fig:lipschitz` caption's "so the plateau is
+   optimisation-limited" with wording that only claims the one tested
+   Lipschitz-floor mechanism is ruled out, not every possible
+   capacity/representation effect.
+
+Also added one sentence to the Introduction's "Conditional sharpening"
+contribution item making explicit that hard-conditioning collapse is *not*
+the ordinary finite-sample memorisation of an over-parameterised network
+fitting a fixed batch (that's the *unconditional* phenomenon of
+Section~sec:theory-d2, adapted from `gradvar2025`) -- it is already present in
+the exact population minimiser because $y^i$ identifies the atom
+deterministically, with no batch/resampling escape route. Recompiled clean
+(27 pages, 0 undefined refs/citations).
+
+### Full experiment/figure audit -- 3 stale plot titles, 1 real data-loading bug, 1 caption overclaim (2026-09-02)
+
+Went through every experimental result and every one of the 25 figures actually
+`\includegraphics`'d in `main.tex` (there was one unused leftover,
+`fig_extended.png`, removed) and cross-checked each against its caption/table
+numbers. Findings:
+
+1. **Three plot titles were stale**, baked into the PNG from before this
+   session's caption-honesty passes, contradicting the (already-corrected)
+   LaTeX text right next to them: `fig_extended_schedule.png` still said
+   "reaches deeper collapse without diverging"; `fig_adv_trace_cov.png` said
+   "collapse is identical under shuffled labels" (the two curves are visibly,
+   persistently apart -- 0.625 vs.\ 0.396 at $2\times10^5$, not identical);
+   `fig_lipschitz.png`'s panel (b) said "$\Rightarrow$ optimisation-limited"
+   (the same overclaim already softened in the caption text). Fixed the
+   `ax.set_title(...)` calls in `scripts/analyze_exp1_extended_schedule.py`,
+   `scripts/analyze_exp1_adversarial.py`, and `scripts/make_paper_figures.py`
+   and regenerated all three PNGs.
+2. **`fig_adv_mean_targets.png`'s title was visually cut off** at the figure
+   edge ("...not to $\mu$\_post(y^" with no closing paren). Shortened the
+   title and reduced its font size; regenerated.
+3. **Real data-loading bug found while regenerating (2)**: `scripts/analyze_exp1_adversarial.py`'s
+   `--real "results/exp1/exp1_cond_seed*"` glob also matches
+   `exp1_cond_seed0_ext` (the fixed-lr run that diverges to
+   $\operatorname{tr}\Cov\sim10^{55}$ near $10^6$ iterations) and the 5
+   `exp1_cond_seedN_mr` memorization-ratio reruns -- 11 directories instead of
+   the intended 5, which (when I reran the script to fix the title) produced a
+   figure with the real-pairing curve spiking to $10^{56}$ and a legend
+   claiming "11 seeds". The currently-committed figure predates the `_mr`/`_ext`
+   directories and was unaffected, but the bug was live and would have silently
+   corrupted the next regeneration by anyone. Fixed by filtering loaded run
+   directories to names ending in `seed<digits>` (regex `seed\d+$`) in
+   `load_runs()`, which excludes both suffixed variants; reran and confirmed
+   the output matches the numbers already in `main.tex` exactly (5 seeds,
+   $0.396\pm0.127$ real vs.\ $0.625\pm0.108$ shuffled at $2\times10^5$).
+4. **`fig_exp2_2d.png`'s caption overclaimed**: it said generated samples
+   "concentrate on the posterior mode containing the memorised $x^i$ and
+   abandon the other" as if true of all four shown conditions, but one of the
+   four (the third panel, `y=+3.00`) visibly collapses onto the *other* mode,
+   not the one containing $x^i$. The checkpoints for the underlying run
+   (`exp2_gmm_seed0`) no longer exist locally (gitignored, not regenerated
+   this session), so the image itself could not be regenerated to swap that
+   condition out; softened the caption instead to say "in most conditions
+   shown" and point to the mode-coverage statistic (which is $0.72$, not
+   $1.0$, i.e.\ this is expected some of the time) rather than claiming it of
+   every panel. Also softened the same overclaim in
+   `scripts/visualize_gmm_2d.py`'s suptitle for future reruns.
+5. **Lower-confidence note, not fixed**: `fig_collapse2d.png`'s third panel
+   (condition $i{=}133$) shows no visible red ("late") points, most likely
+   because the collapsed cluster sits exactly under the opaque gold star
+   marker (drawn last, on top) rather than a missing-data bug -- but the
+   underlying checkpoints (`exp1_cond_seed0_ext`) are also gone locally, so
+   this could not be verified numerically either way.
+6. Everything else checked out: all EXP-1 P1--P4 curves, the P5/P6/P7 sweeps,
+   the kernel-verification figure, the optimality-gap and posterior-distance
+   figures, the EXP-2 quantitative curves, and the full EXP-3 MNIST/CIFAR-10
+   qualitative progressions (200/1000/3000/7000/15000 iters) all matched their
+   captions and the numbers in the tables. Recompiled clean (27 pages, 0
+   undefined refs/citations).
+
+### Second full audit -- 2 wrong qualitative figures, a reference-line bug, a glob bug in 4 scripts (2026-09-02)
+
+A second, deeper pass over every figure and every reported number. Unlike the
+first audit (which found stale *titles*), this one found figures whose *content*
+did not support the caption, plus two data-loading bugs. Every number in the
+paper was re-derived from the raw metrics and matches; the problems were in what
+the figures plotted and in how the analysis scripts select runs.
+
+1. **`fig_collapse2d.png` -- the "money figure" contradicted its own caption.**
+   It was generated from `exp1_cond_seed0_ext`, the *fixed-lr* run that diverges
+   near 1e6 iterations, at its 7e5 checkpoint. In two of the four panels
+   (i=66, i=133) the late (red) samples visibly do **not** sit on the gold star
+   x^i, while the caption claimed the cloud "contracts to the memorised training
+   point". Regenerated instead from `exp1_ext_sched_seed0` (the cosine-schedule
+   run the paper now features) at 1e6 iterations, after verifying numerically
+   that all four conditions give ||mean - x^i|| in {0.052, 0.015, 0.002, 0.075}
+   and trace(Cov) in {8.4e-2, 1.9e-2, 5.8e-5, 8.5e-2}. Because the collapsed
+   cloud is then a sub-pixel dot at posterior scale, `visualize_collapse_2d.py`
+   now also draws a fixed +/-0.4 zoom inset per panel (annotated with that
+   condition's trace(Cov)) and a *hollow* gold star so the cluster underneath
+   stays visible. Caption rewritten to state the per-condition spread honestly
+   rather than implying uniform collapse.
+
+2. **`fig_exp2_2d.png` -- the previous session's "fix" was itself wrong.** The
+   earlier audit softened this caption to say that "in one of the four conditions
+   here, the late-stage samples instead collapse onto the *other* mode". Checked
+   numerically this time (on `exp2b_gmm_seed0_mr`, same config and seed as the
+   run behind the figure, checkpoints intact): assigning late samples to their
+   nearest posterior mode, the share landing in the x^i-containing mode is
+   **0.999 / 0.766 / 0.990 / 1.000** across the four displayed conditions, versus
+   ~0.5 each at iteration 1e3. No panel collapses onto the wrong mode. The
+   over-correction is reverted; the caption now quotes those four numbers and
+   attributes the one imperfect condition (23% residual mass) to the
+   optimisation-paced caveat, tying it to the aggregate mode coverage of 0.72.
+   `visualize_gmm_2d.py`'s suptitle reverted to the accurate claim as well.
+
+3. **Reference-line bug in `analyze_exp1.py` (P1/P4 + Table 1).** Both reference
+   lines were read with `.iloc[0]`, i.e. **seed 0's** value, while the plotted
+   curves are 5-seed means. trace(Sigma_X) ranges 1.76--2.17 over the five seeds,
+   and seed 0's 2.171 is the largest; drawing that against the 5-seed mean curve
+   made the unconditional baseline look like it sits *below* the data variance.
+   With the correct 5-seed reference (1.931 +/- 0.162) the measured
+   1.926 +/- 0.171 lands essentially exactly on it -- i.e. the bug was
+   *understating* the paper's own confirmation of Corollary 6. Fixed to average
+   per-run constants across seeds and report +/-std; Table 1's caption updated
+   (trace(Sigma_post) = 1.018 +/- 0.016, trace(Sigma_X) = 1.931 +/- 0.162) with a
+   sentence pointing out the match.
+
+4. **The glob over-matching bug was in four scripts, not one.** The first audit
+   fixed it locally in `analyze_exp1_adversarial.py`. It is also present in
+   `analyze_exp1.py` (`exp1_cond_seed*` -> 11 runs instead of 5, pulling in the
+   diverged `_ext` run and five `_mr` reruns; `exp1_uncond_seed*` -> 10 instead
+   of 5) and `analyze_exp2.py` (`exp2b_gmm_seed*` -> 4 instead of 2). That means
+   **P1--P4, Table 1 and the EXP-2 curves would all be silently corrupted by
+   anyone re-running the pipeline today.** The committed figures predate those
+   sibling directories, so the published numbers were never affected -- verified
+   by re-deriving every one of them from the raw CSVs after the fix. Replaced the
+   ad-hoc local regex with a shared `src.utils.glob_seed_runs`, which constrains a
+   trailing `seed*` to digits (plus any literal suffix in the pattern) and leaves
+   every other wildcard alone, so `p5_sobs*_seed*`, `p7i_sig*_seed*_c2` and
+   `exp1_cond_seed[0-9]` keep working. Wired into `analyze_exp1.py`,
+   `analyze_exp1_adversarial.py`, `analyze_exp2.py` and `analyze_sweeps.py`.
+
+5. **Caption/figure mismatches fixed.** `fig:optgap` claimed the gap "decays
+   monotonically to 0" when it ends at 0.09--0.44 (now "toward 0", with the
+   endpoint stated); `fig:postdist` claimed both metrics "fall with h" when
+   Sinkhorn is non-monotone over h >= 0.05; `fig:exp3curve`'s caption described
+   the observed-region reconstruction, which the figure does not plot, and did
+   not say it is a single seed; `fig:sweeps`(b) was subcaptioned "collapse ratio"
+   while the panel plots trace(Cov) and trace(Sigma_post) separately; the
+   adversarial main text said the curves cross "by 1e5 iterations" while its own
+   caption said "between 1e4 and 3e4"; the CIFAR-10 caption said completions are
+   "identical ... to the nearest training image" when the nearest-image distance
+   there is 5x MNIST's (now stated); `tab:p7i`'s "mean bias" row was unlabelled
+   and actually reports the corrected-target ||mean - mu_post|| (0.649/0.646, not
+   the old-target 0.68/0.66).
+
+6. **Two figures were never referenced from the body text** (`fig:collapse2d`,
+   `fig:exp23qual`) -- both now have a sentence in the text that cites them and
+   states what they show quantitatively.
+
+7. **`fig_memorization_ratio.png`'s title said "conditional far more"**, a
+   magnitude claim the paper's own text explicitly disclaims (the two ratios are
+   not comparable in magnitude). Changed to "conditional rises further" and left
+   a code comment explaining why.
+
+8. **`fig_p3_meanshift.png` plots a reference the caption never explained**: the
+   distance to the nearest *other* training point (~0.17). At 2e5,
+   ||mean - x^i|| = 0.38 still exceeds it -- a reviewer would notice. The caption
+   now states this, and points to the 1e6 value (0.137) and to the memorisation
+   ratio, which does not depend on this scale.
+
+9. **Typesetting.** Three display equations overflowed the margin by up to 130pt
+   (Prop kernel-field's proof, and two in the Prop expansion appendix proof); all
+   broken into aligned form. Table 1's header was trimmed. Remaining overfull
+   boxes: 10pt and 2pt.
+
+10. **Verification performed (all matched the manuscript).** Re-derived from raw
+    CSVs: every cell of Table 1 (conditional trace(Cov)/velocity/mean distances at
+    1e2/1e4/1e5/2e5, the unconditional row, and the 1e6 schedule column); the
+    adversarial numbers; the P5/P6/(d,k) sweeps; the P7 kernel table and the
+    velocity-match table (from the tracked `_theory/raw/*.csv`); EXP-2 mode
+    coverage (0.71875 +/- 0.031) and MMD; EXP-3 MNIST 3-seed pixel-variance /
+    NN-distance / reconstruction and the CIFAR-10 trajectory. No discrepancy was
+    found in any reported number.
+
+11. **Stale claim in `results/RESULTS.md`**: it states the 20 `p7y_h*_seed*`
+    `ckpt_200000.pt` checkpoints "are still on disk". They are not -- the whole
+    `checkpoints/` tree for those runs is gone, so Tables 3--4 cannot be recomputed
+    locally without retraining. The paper's own reproducibility statement already
+    says exactly this, and the tracked `_theory/raw` CSVs still reproduce both
+    tables and every P7 figure, so no paper claim is affected.
+
+**Still open (author decision, not fixed here):** the compiled main text runs to
+page 23 (Conclusion), with references at 24 and the appendix at 25--28. ICLR's
+main-text limit is 9 pages excluding references and appendix, so the submission
+as it stands is roughly 14 pages over and would be desk-rejected. This needs an
+editorial pass -- moving most of Section 3's proofs, several of the 17 figures,
+and the ablation/sweep tables into the appendix -- which is a structural decision
+left to the authors.
+
+### Restructured to the ICLR 9-page limit (2026-09-03)
+
+The previous audit flagged that the main text ran to page 23 against ICLR's 9-page
+limit (references and the reproducibility/ethics/AI statements do not count). The
+paper now ends its Conclusion at the bottom of **page 9**, references on page 10, and
+the appendix runs pages 11--27. Nothing was deleted: every proposition, proof, figure,
+table and number that was in the 23-page version is still in the document (verified:
+18 figure environments, 7 table environments, 18 matched proof environments, 88 labels
+with zero undefined references).
+
+What moved, and where:
+
+1. **All proofs out of Section 3 into Appendix A**, as
+   `\begin{proof}[Proof of X]` blocks: Propositions kernel-field, atomicity, nwrate,
+   prop17, factors; Theorem endpoint; Corollaries zerobw, infbw, prop18; Lemma
+   mixture-coupling. Only Proposition~collapse keeps its proof inline---it is eight
+   lines and it is the paper's central result. The statements of
+   Lemma~mixture-coupling and Proposition~nwrate moved to the appendix alongside
+   their proofs, since both are used only as machinery.
+
+2. **Section 3.5 (finite-sample memorisation and exact non-representability) became
+   Appendix B** in full, with a ten-line summary subsection left in the main text
+   (`sec:d2summary`) that states what it proves and, crucially, keeps the
+   pointwise-non-representability-vs-loss-floor distinction visible to a main-text
+   reader.
+
+3. **Appendix C collects the experimental material**: C.1 the architecture/optimiser
+   ablation prose + table, C.2 the scope-marked P5/P6/(d,k) sweeps + tables + figure,
+   C.3 the additional verification subsection (optimality gap, Lipschitz, posterior
+   distance) + its three figures, C.4 the fourteen remaining supporting figures and
+   tables.
+
+4. **The main text keeps two floats and two anchors of evidence**:
+   Figure~p1p4 (P1/P4 collapse curves), Table~exp1 (all five EXP-1 quantities across
+   five seeds and the $10^6$ schedule column), and Figure~p7summary (the P7 headline).
+   Table~p7kernel moved to the appendix with its key entries quoted inline instead.
+
+5. **Prose compressed throughout** rather than dropped: the introduction's related-work
+   paragraph and six-item contribution list (now five items, with the representation
+   and non-representability points merged); the connective text between theory
+   statements; the learning-rate-schedule paragraph in Section 4.1; the adversarial,
+   P7, EXP-2 and EXP-3 paragraphs; and Limitations from five paragraphs to three. All
+   hedges and self-critical caveats were preserved verbatim in substance---the
+   seed-conflation warning, the "we ruled out this mechanism, not every mechanism"
+   framing, the atomicity caveat, the non-comparability of the two memorisation
+   ratios, and the statement that only four of five seeds improve over the last third
+   of training.
+
+Two consequences worth noting for a future editing pass:
+
+- Cross-references that used to read "Section~\ref{...}" for material now in the
+  appendix were reworded to "Appendix~\ref{...}" where they point at
+  `sec:theory-d2`, `sec:aux` and `app:exp`.
+- Every one of the eighteen figures and seven tables is cited from running text.
+  Five floats (fig:exp1extra, fig:extended, fig:exp3curve, fig:sweeps, tab:ablation)
+  lost their in-text citation during compression and were given one again---four
+  inside Appendix C so the main-text page budget was not affected.
+
+Typesetting: two overfull hboxes remain (10pt and 2pt); the three large ones from the
+previous pass stay fixed.
+
+**Data-loss bug found while verifying (2026-09-03).** Running
+`scripts/analyze_p7_kernel.py` with the `p7y` checkpoints absent (which is now the
+case on this machine, and is always the case on a clean clone) wrote an *empty*
+`results/exp1/_theory/raw/p7_kernel.csv`, destroying the 20-row per-seed table that
+Tables 5--6 are derived from, and only then crashed on the empty frame. The file was
+restored from git and the script now refuses to write when no run produced a row.
+`p7_kernel_summary.csv` was untouched, and both tables were re-verified against it.
+
+### Content review after the restructure -- three substantive gaps (2026-09-03)
+
+A pass looking at *what the paper claims and omits* rather than at figures or layout.
+Three real gaps, all fixed; the main text is still exactly 9 pages.
+
+1. **Held-out conditions were measured but never reported.** Every EXP-1 run logs 8
+   held-out $y$ alongside the 20 training conditions, and the metric has been in
+   `metrics.csv` since the first run -- but the manuscript never mentioned held-out
+   evaluation, and the compression pass earlier today had removed even the phrase
+   "and 8 held-out conditions" from the setup. This mattered for three reasons:
+   (a) it is the first question any reviewer asks of a *conditional* generative model;
+   (b) Corollary~\ref{cor:zerobw} makes an explicit, untested prediction about it
+   (at a non-training $y$ the $h\to0$ endpoint is $\delta_{x^{i^\star}}$ for the
+   nearest label); and (c) the omitted result is partly unflattering, so leaving it
+   out reads as selective reporting.
+
+   The data confirms the prediction. Held-out $\tr\Cov$ tracks the training-condition
+   value throughout (0.51 vs 0.58 at $10^5$; medians 0.43 vs 0.42 at $2\times10^5$)
+   while $\|\text{mean}-\mu_{\text{post}}(y)\|$ grows 0.12 -> 0.87 (median): the model
+   does not generalise to new labels, it snaps to the nearest memorised atom. The
+   unflattering part is reported too -- in 1 of 5 seeds the held-out ODE diverges by
+   $2\times10^5$ iterations ($\tr\Cov\approx3\times10^5$), which is why medians are
+   quoted; per-seed numbers are in the new Appendix table, together with an explicit
+   statement that we did not determine whether that divergence comes from the problem
+   instance or from the integrator's fixed step count near $t=1$.
+
+2. **The scope marker contradicted two of the propositions it covered.** It asserted
+   that Sections 3.1--3.3 characterise the population minimiser "for the empirical
+   data law" with $\D$ fixed -- but Propositions~\ref{prop:expansion}
+   and~\ref{prop:nwrate}, both inside 3.2, assume $(x^j,y^j)$ i.i.d. and are
+   asymptotic in $N$. That is a genuine change of probabilistic setting, and a theory
+   reviewer would land on it immediately. The scope marker now names the two
+   exceptions, and a sentence before Proposition~\ref{prop:expansion} says why the
+   switch is deliberate (the random-design limit is the only regime in which label
+   smoothing is a remedy rather than a reweighting). Proposition~\ref{prop:expansion}
+   is also retitled "random design".
+
+3. **The bibliography was missing the field's foundational work.** It had 11 entries,
+   and the opening sentence -- "Flow matching and stochastic-interpolant models are
+   usually trained by regressing a velocity field against a linear path" -- carried
+   **no citation at all**. A paper whose title and whole subject is conditional flow
+   matching cannot cite neither flow matching nor stochastic interpolants. Likewise
+   the central equivalence is to Nadaraya--Watson regression, uncited. Added and cited
+   in place: Lipman et al. (2023), Albergo & Vanden-Eijnden (2023), Albergo, Boffi &
+   Vanden-Eijnden (2023), Liu et al. (2023), Tong et al. (2024), Nadaraya (1964),
+   Watson (1964). Bibliography is now 18 entries, all cited, all resolved.
+
+To absorb the additions inside the 9-page budget, Figure~\ref{fig:p1p4} (P1/P4 curves)
+moved to the appendix -- Table~\ref{tab:exp1} already carries those numbers and four
+more quantities across five checkpoints -- and the EXP-2/EXP-3, Limitations and
+Conclusion paragraphs were tightened again. Final state: main text pages 1--9
+(Conclusion complete on page 9), references page 10, appendix 11--28; 18 figures,
+8 tables, 18 proofs, 90 labels, 0 undefined references, 18/18 citations resolved.
+
+**Not fixed, and worth a decision before submission.** The paper still has no
+prescriptive contribution -- it diagnoses and disproves two remedies but offers none
+that works. That is stated plainly in Limitations and is defensible for a theory
+paper, but it is the most likely reviewer objection and no amount of editing
+addresses it; only new work would.
+
+### New work: the missing remedy, and a correction it exposed (2026-09-03)
+
+The open item after the last pass was that the paper diagnosed collapse and disproved
+two remedies without offering one that works. Proposition~atomicity actually says what
+a remedy must do -- move the support off the training atoms -- so we followed that.
+
+**1. New theory: endpoint smoothing (Proposition~tgtnoise, Section 3.5).** Replace the
+endpoint by $X_1 = x^I + \rho\xi$, $\xi\sim N(0,I_d)$ redrawn every step. The same
+mixture-coupling argument that proves Theorem~endpoint gives the population endpoint
+law $\sum_i p_i^{(h)}(y)\,N(x^i,\rho^2 I_d)$, with mean $\bar x_h(y)$ and covariance
+$\Cov_h(y) + \rho^2 I_d$. Three consequences: it is absolutely continuous for every
+$\rho>0$, so eq (w2floor) does not apply; $s_1=\rho>0$, so the $1/(1-t)$ blow-up of
+$(\star)$ -- the source of Lemma~norepr and of the fixed-lr divergence -- disappears;
+and $(h,\rho)$ is two knobs, enough to match the posterior's first *and* second moments
+with a continuous law where $h$ alone hits at most one while staying atomic. Full proof
+in the appendix. Implemented as `train.target_noise_rho` in `src/flows/cfm.py`.
+
+**2. The experiment refuted the framing, and that was the useful part.** Evaluating the
+population endpoint laws directly (`scripts/verify_target_noise.py`, no training
+needed) over $h\times\rho$ at the paper's own $d{=}2$, $N{=}200$ configuration, the best
+MMD to the analytic posterior is $0.0089$ at $h{=}0.5,\rho{=}0$ -- adding $\rho$ does
+not help. The reason is not that the theory is wrong but that the obstruction is small
+here, which we then measured directly: the floor of eq (w2floor) is
+$F = \E_{x\sim p(\cdot|y)}\mathrm{dist}(x,\{x^i\})^2 = 0.0353$, i.e. $W_2\ge0.19$ but
+only **3.5% of $\tr\Sigma_{\rm post}$**.
+
+**3. That measurement exposed an overclaim in the paper.** Section 4.3/Appendix C.3 read
+the non-zero MMD plateau and the Sinkhorn plateau near 2.7 as "a direct numerical
+witness of the $h$-independent floor". It is not, on two counts: the floor is 3.5% of
+the posterior's second moment here, and the population-optimal *atomic* law already
+achieves MMD $0.0089$, well below the trained model's $0.024$ -- so the residual is
+dominated by kernel bias and the optimisation gap. Worse, an RBF MMD at the
+median-heuristic bandwidth cannot resolve inter-atom spacing at all, so MMD is
+structurally the wrong instrument for atomicity. Both the main text and the appendix now
+say this plainly and label the earlier reading as an error.
+
+**4. Scaling study (`scripts/atomicity_scaling.py`, new Table 3).** $F/\tr\Sigma_{\rm
+post}$ across $(d,N)$: 0.007 ($d{=}2,N{=}1000$), 0.035 ($d{=}2,N{=}200$), 0.192
+($d{=}2,N{=}50$), 0.231 ($d{=}5,N{=}200$), 0.537 ($d{=}10,N{=}200$), 0.779
+($d{=}10,N{=}50$) -- the $N^{-2/d}$ nearest-atom scaling. The MMD gain from endpoint
+smoothing tracks it, $1.01\times$ to $1.24\times$. So the remedy is real but its reach
+is bounded by the obstruction's size, and it is near-pointless at exactly the
+configuration this paper otherwise studies. The paper says so, in the main text and
+again in Limitations, rather than selling the remedy.
+
+Abstract, contribution list, Limitations ("we propose no working fix" was now false) and
+Conclusion were all updated to match. Main text is still exactly 9 pages: the P7 summary
+figure and the whole adversarial-pairing subsection moved to the appendix (the latter
+keeping a 10-line summary with all its numbers in the main text), plus prose
+compression throughout.
+
+**Still running at the time of writing:** four trained runs
+(`exp1_tgt_rho{00,03}_seed{0,1}`, $N{=}50$ where the $d{=}2$ floor is largest, $h{=}0.1$,
+$\rho\in\{0,0.3\}$, 200k iterations) to confirm that SGD actually attains the smoothed
+endpoint law rather than only the population argument holding. The paper currently
+claims only the population-level result, which is what the analysis above establishes;
+the trained numbers will be added when the runs land.
+
+**Update (M=2000 rerun, and the metric that actually sees atomicity).** The
+higher-resolution sweep confirms the MMD numbers above (0.0093 vs 0.0089 at
+h=0.5,rho=0; 0.0274 vs 0.0298 at h=0.1,rho=0 -- within Monte-Carlo noise), so the
+conclusion that rho does not help *in MMD* stands. But it also produced the full
+Sinkhorn column, and that tells the opposite story: at h=0.1 endpoint smoothing takes
+the entropic OT divergence from 12.03 (rho=0) to 5.68 (rho=0.1), a 2.1x reduction; at
+h=0.05, 21.6 -> 9.13 (2.4x); at h=0.01, 61.0 -> 19.6 (3.1x); at h=0, 429 -> 69.7
+(6.2x). The U-shape in rho is there too (h=0.1: 12.03, 7.93, 5.68, 5.80, 10.47, 32.11
+for rho = 0, .05, .1, .2, .3, .5), exactly the bias-variance trade-off the proposition
+predicts.
+
+This is much better evidence than the MMD sweep, and it confirms the methodological
+point rather than undercutting it: an OT distance -- the family the W2 floor of eq
+(w2floor) actually lives in -- sees the atomic support, and an RBF MMD at the
+median-heuristic bandwidth does not. The paper now leads the remedy result with the OT
+numbers and uses the MMD/OT discrepancy as the evidence that MMD was the wrong
+instrument all along.
+
+**Trained-model confirmation (4 runs, done).** `exp1_tgt_rho{00,03}_seed{0,1}`: EXP-1
+architecture and schedule unchanged, $N{=}50$ (where the $d{=}2$ floor is largest,
+$F/\tr\Sigma_{\rm post}=0.19$), $h{=}0.1$, $\rho\in\{0,0.3\}$, 2e5 iterations, 8
+conditions, M=800. Analysis: `scripts/analyze_target_noise.py`.
+
+| arm | seed | tr Cov | predicted tr Cov_h + d rho^2 | MMD | entropic OT | \|mean-mu\| |
+|-----|------|--------|------------------------------|-----|-------------|-------------|
+| rho=0   | 0 | 0.2176 | 0.2108 | 0.2330 | 118.90 | 0.5176 |
+| rho=0   | 1 | 0.4353 | 0.4436 | 0.1168 | 39.45 | 0.2790 |
+| rho=0   | mean | 0.3265 | 0.3272 | 0.1749 | 79.18 | 0.3983 |
+| rho=0.3 | 0 | 0.3959 | 0.3908 | 0.1549 | 47.38 | 0.5383 |
+| rho=0.3 | 1 | 0.5870 | 0.6236 | 0.0798 | 15.70 | 0.2948 |
+| rho=0.3 | mean | 0.4914 | 0.5072 | 0.1174 | 31.54 | 0.4166 |
+
+Three things this establishes. (i) The trained model attains the *predicted* endpoint
+law: measured tr Cov matches tr Cov_h + d rho^2 to within 3% in both arms, per seed as
+well as on average. (ii) The mean is unchanged by rho (0.398 vs 0.417), exactly as the
+moment formula requires -- rho moves the covariance, not the mean. (iii) The distance
+to the analytic posterior falls **2.5x in entropic OT** (79.2 -> 31.5), and 2.5x in
+each seed separately, against only 1.5x in MMD -- the same metric-sensitivity gap found
+at the population level. Added to the paper as Section 4.2's trained-model sentence and
+Appendix Table 11.
+
+**Scaling table now carries an OT column, and it forced a correction to my own claim.**
+The first draft of the Section 4.2 paragraph said the remedy's benefit "follows F".
+That is true at fixed d (OT gain 1.17x -> 1.31x -> 1.57x as N falls 1000 -> 200 -> 50)
+but **false across d**: at d=10 the floor is by far the largest (F/tr Sigma = 0.54-0.78)
+and the OT gain among the smallest (1.13-1.16x), because an isotropic rho cannot fill a
+high-dimensional gap without paying d*rho^2 in variance. Endpoint smoothing is defeated
+by dimension exactly as kernel density estimation is. The paper now states this as the
+remedy's main limitation rather than the earlier, wrong monotonicity claim.

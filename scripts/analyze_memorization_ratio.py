@@ -78,7 +78,10 @@ def main():
     ax.set_xscale("log")
     ax.set_xlabel("training iteration")
     ax.set_ylabel("memorization ratio ($c=1/9$)")
-    ax.set_title("Memorization ratio (Yoon et al. 2023): both rise, conditional far more")
+    # Deliberately directional, not quantitative: the two ratios are not directly
+    # comparable in magnitude (the unconditional target is spread over N atoms, so
+    # the c=1/9 dominance test is mechanically harder there). See paper Sec 4.1.
+    ax.set_title("Memorization ratio (Yoon et al. 2023): both rise, conditional rises further")
     ax.legend(); ax.grid(True, which="both", alpha=0.3)
     fig.tight_layout(); fig.savefig(out / "figures" / "memorization_ratio.png", dpi=140)
     plt.close(fig)

@@ -13,8 +13,8 @@ Usage
 from __future__ import annotations
 
 import argparse
-import glob
 import json
+import sys
 from pathlib import Path
 
 import matplotlib
@@ -23,10 +23,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from src.utils import glob_seed_runs  # noqa: E402
+
 
 def load_runs(pattern: str, group: str) -> pd.DataFrame:
     frames = []
-    for run_dir in sorted(glob.glob(pattern)):
+    for run_dir in glob_seed_runs(pattern):
         csv = Path(run_dir) / "raw" / "metrics.csv"
         if not csv.exists():
             continue
@@ -74,14 +77,23 @@ def main():
     if cond.empty:
         raise SystemExit(f"No conditional runs matched {args.cond!r}")
 
-    trace_post = float(cond["trace_post"].iloc[0])
+    # trace_post / trace_data are per-run constants that depend on the seed (the
+    # seed draws the problem instance A and the dataset), so `.iloc[0]` would pin
+    # the reference line to seed 0 while the plotted curves are seed means. Over
+    # 5 seeds trace_data ranges 1.76-2.17; using seed 0's 2.17 against a 5-seed
+    # mean curve understates how exactly the unconditional run matches Sigma_X.
+    def _ref(df, col):
+        per_run = df.groupby("run")[col].first()
+        return float(per_run.mean()), float(per_run.std(ddof=0))
+
+    trace_post, trace_post_sd = _ref(cond, "trace_post")
     n_seeds = cond["run"].nunique()
 
     # ---------------- P1: variance collapse ---------------------------------
     tc = agg_over_seeds(cond, "trace_cov_mean")
     fig, ax = plt.subplots(figsize=(6.5, 4.2))
     _plot_band(ax, tc, "conditional (generated)", "C3")
-    ax.axhline(trace_post, color="k", ls="--", lw=1.2, label=f"trace(Σ_post)={trace_post:.3f}")
+    ax.axhline(trace_post, color="k", ls="--", lw=1.2, label=f"trace(Σ_post)={trace_post:.3f}±{trace_post_sd:.3f}")
     ax.set_xscale("log"); ax.set_yscale("log")
     ax.set_xlabel("training iteration"); ax.set_ylabel("trace(Cov) of generated samples")
     ax.set_title(f"P1 — Posterior variance collapse ({n_seeds} seed(s))")
@@ -108,9 +120,10 @@ def main():
         tcu = agg_over_seeds(uncond, "trace_cov_mean")
         _plot_band(ax, tcu, "unconditional (baseline)", "C2", ls="-")
         if "trace_data" in uncond.columns:
-            td = float(uncond["trace_data"].iloc[0])
-            ax.axhline(td, color="C2", ls=":", lw=1.0, label=f"trace(Cov data)={td:.3f}")
-    ax.axhline(trace_post, color="k", ls="--", lw=1.0, label=f"trace(Σ_post)={trace_post:.3f}")
+            td, td_sd = _ref(uncond, "trace_data")
+            ax.axhline(td, color="C2", ls=":", lw=1.0,
+                       label=f"trace(Σ̂_X)={td:.3f}±{td_sd:.3f}")
+    ax.axhline(trace_post, color="k", ls="--", lw=1.0, label=f"trace(Σ_post)={trace_post:.3f}±{trace_post_sd:.3f}")
     ax.set_xscale("log"); ax.set_yscale("log")
     ax.set_xlabel("training iteration"); ax.set_ylabel("trace(Cov) of generated samples")
     ax.set_title(f"P4 — Conditional vs unconditional ({n_seeds} seed(s))")
@@ -149,7 +162,7 @@ def main():
     if not uncond.empty:
         summary["n_seeds_uncond"] = int(uncond["run"].nunique())
         summary["final_uncond_trace_cov"] = last(agg_over_seeds(uncond, "trace_cov_mean"))
-        summary["trace_data"] = float(uncond["trace_data"].iloc[0]) if "trace_data" in uncond else None
+        summary["trace_data"] = _ref(uncond, "trace_data")[0] if "trace_data" in uncond else None
     if not cond_ho.empty:
         summary["final_heldout_trace_cov"] = last(agg_over_seeds(cond_ho, "trace_cov_mean"))
         summary["final_heldout_mean_err_post"] = last(agg_over_seeds(cond_ho, "mean_err_post_mean"))

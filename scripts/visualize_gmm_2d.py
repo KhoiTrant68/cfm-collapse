@@ -71,8 +71,8 @@ def main():
         ax.set_title(f"y={float(y_i):+.2f}"); ax.grid(alpha=0.3)
         if c == 0:
             ax.legend(fontsize=7)
-    fig.suptitle("EXP-2 — selective memorization: late samples abandon one posterior mode "
-                 "for the mode holding x^i")
+    fig.suptitle("EXP-2 — selective memorization: late samples concentrate on the "
+                 "posterior mode holding x^i and abandon the other")
     fig.tight_layout()
     out = args.out or str(run / "figures" / "gmm_collapse_2d.png")
     Path(out).parent.mkdir(parents=True, exist_ok=True)

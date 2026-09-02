@@ -64,7 +64,7 @@ def fig_optimality_gap():
                  label=f"$h={h:g}$")
     ax1.set_xscale("log"); ax1.set_yscale("log")
     ax1.set_xlabel("iteration"); ax1.set_ylabel(r"gap $L(v_\theta)-L(v_h^\star)$")
-    ax1.set_title("(a) optimality gap decays to 0 at every $h$")
+    ax1.set_title("(a) optimality gap decays toward 0 at every $h$")
     ax1.legend(title=None, ncol=2, fontsize=9)
     style(ax1)
 
@@ -126,7 +126,7 @@ def fig_lipschitz():
     ax2.set_yscale("log")
     ax2.set_xticks(x); ax2.set_xticklabels(labels)
     ax2.set_xlabel("time $t$"); ax2.set_ylabel("loss scale")
-    ax2.set_title(r"(b) floor $\ll$ plateau $\Rightarrow$ optimisation-limited")
+    ax2.set_title(r"(b) floor $\ll$ plateau: rules out this mechanism", fontsize=11)
     ax2.legend(fontsize=9); style(ax2)
     fig.tight_layout(); fig.savefig(OUT / "fig_lipschitz.png"); plt.close(fig)
     print("wrote fig_lipschitz.png")

@@ -147,3 +147,34 @@ class RunPaths:
         for p in (figures, raw, checkpoints):
             p.mkdir(parents=True, exist_ok=True)
         return cls(root, figures, raw, checkpoints)
+
+
+def glob_seed_runs(pattern: str) -> list[str]:
+    r"""Glob run directories, constraining a trailing ``seed*`` to digits only.
+
+    A pattern like ``results/exp1/exp1_cond_seed*`` silently also matches the
+    sibling variants ``exp1_cond_seed0_ext`` (the diverging fixed-lr run) and
+    ``exp1_cond_seed{0..4}_mr`` (memorization-ratio reruns), so a 5-seed
+    aggregate quietly becomes an 11-run one -- and the ``_ext`` run's diverged
+    iter=1e6 checkpoint alone pushes trace(Cov) to ~1e55.
+
+    The fix is targeted: if the pattern's last ``seed`` is followed by ``*``,
+    that wildcard must expand to digits plus whatever literal the pattern puts
+    after it. Every other wildcard keeps ordinary glob semantics, so
+    ``p5_sobs*_seed*`` (non-numeric first wildcard), ``p7i_sig*_seed*_c2``
+    (literal suffix) and ``exp1_cond_seed[0-9]`` (no wildcard at all) all keep
+    working unchanged.
+    """
+    import glob as _glob
+    import re as _re
+
+    matches = sorted(_glob.glob(pattern))
+    norm = pattern.replace("\\", "/")
+    cut = norm.rfind("seed")
+    if cut == -1 or not norm[cut + 4:].startswith("*"):
+        return matches
+    suffix = norm[cut + 5:]
+    if "*" in suffix or "[" in suffix:  # too ambiguous to constrain safely
+        return matches
+    keep = _re.compile(r"seed\d+" + _re.escape(suffix) + r"$")
+    return [p for p in matches if keep.search(Path(p).name)]
