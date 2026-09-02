@@ -76,6 +76,25 @@ uv run python scripts/analyze_exp1.py \
 The full multi-seed protocol is scripted in `scripts/run_exp1.ps1` (Windows) and
 `scripts/run_exp1.sh` (POSIX).
 
+### Adversarial-pairing ablation
+
+Does collapse need a *real* posterior, or just distinct labels? Shuffle `Y` relative
+to `X` (`data.shuffle_labels: true`) and re-run the same architecture/schedule; the
+theory (Proposition 4) predicts collapse to the *assigned* `x^i` either way, since it
+never uses the forward operator, only label distinctness:
+
+```bash
+uv run python -m src.train --config configs/exp1_adversarial_shuffle.yaml \
+    --set run_name=exp1_adv_shuffle_seed0 seed=0
+uv run python scripts/analyze_exp1_adversarial.py \
+    --real "results/exp1/exp1_cond_seed[0-4]" \
+    --shuffled "results/exp1/exp1_adv_shuffle_seed*" \
+    --out results/exp1/_analysis_adversarial
+```
+
+Full 3-seed protocol: `scripts/run_exp1_adversarial.{sh,ps1}` (~18 min/seed on CPU,
+no GPU needed). See `results/RESULTS.md` §"Adversarial pairing" for results.
+
 ## Phase B — sweeps and remedies (EXP-1) + EXP-2
 
 Parameter sweeps (P5 σ_obs, P6 N, P7 y-noise vs interpolant-noise remedy, d/k)

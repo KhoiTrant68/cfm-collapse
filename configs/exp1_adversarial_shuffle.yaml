@@ -1,0 +1,54 @@
+# EXP-1 adversarial-pairing ablation: identical to exp1_linear_gaussian.yaml
+# except data.shuffle_labels=true, which permutes Y relative to X after
+# sampling so (x^i, y^i) is no longer the true generative pair.
+#
+# Motivation: mirrors the "Adversarial Pairings" experiment in Shin et al.
+# (arXiv:2510.18118, our `gradvar2025`), adapted to the CONDITIONAL setting.
+# Proposition 4 (exact conditional collapse) only requires the y^i to be
+# pairwise distinct -- it never uses the true forward operator A or
+# sigma_obs -- so the population theory predicts collapse to the *shuffled*
+# x^i regardless of whether the (x,y) pairing is real. This directly
+# empirically separates "collapse because y identifies i" from "collapse
+# because the model discovered real posterior structure": with shuffled
+# labels there is no real structure to discover, yet exact collapse to
+# delta_{x^i} is still predicted (and, we check here, observed).
+#
+# Same schedule as exp1_linear_gaussian.yaml for direct overlay comparison
+# against the existing results/exp1/exp1_cond_seed{0..4} runs.
+run_name: exp1_adversarial_shuffle
+seed: 0
+device: auto            # auto | cpu | cuda
+
+data:
+  d: 2
+  k: 1
+  N: 200
+  sigma_obs: 0.1
+  prior_std: 1.0
+  source_std: 1.0
+  A_kind: random
+  shuffle_labels: true  # the only difference from exp1_linear_gaussian.yaml
+
+model:
+  conditional: true
+  width: 128
+  depth: 4
+  time_embed_dim: 64
+  activation: silu
+
+train:
+  max_iters: 200000
+  batch_size: 256
+  lr: 0.001
+  interpolant_sigma: 0.0
+  y_noise_h: 0.0
+  checkpoints: [100, 300, 1000, 3000, 10000, 30000, 100000, 200000]
+
+eval:
+  n_eval_train: 20
+  n_heldout: 0           # held-out eval isn't meaningful under shuffled pairing
+  M: 1000
+  n_steps: 100
+  ode_method: rk4
+  ode_eps: 0.001
+  vel_points: 2000

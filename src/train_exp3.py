@@ -44,13 +44,13 @@ def apply_smoke_test(cfg: dict) -> dict:
 
 @torch.no_grad()
 def generate(model, cond1: torch.Tensor, M: int, n_steps: int, eps: float,
-             source_std: float, gen, device) -> torch.Tensor:
+             source_std: float, gen, device, channels: int = 1) -> torch.Tensor:
     """Integrate the flow for a single fixed condition, M different x0 (Euler).
 
-    ``cond1`` is (1, 2, 32, 32); broadcast to M. Euler is enough because the
+    ``cond1`` is (1, C+1, 32, 32); broadcast to M. Euler is enough because the
     collapsed trajectory is (near-)straight; stop at t=1-eps (t=1 singularity).
     """
-    x = source_std * torch.randn(M, 1, 32, 32, generator=gen, device=device)
+    x = source_std * torch.randn(M, channels, 32, 32, generator=gen, device=device)
     cond = cond1.to(device).expand(M, -1, -1, -1)
     ts = torch.linspace(0.0, 1.0 - eps, n_steps + 1, device=device)
     for i in range(n_steps):
@@ -67,7 +67,7 @@ def evaluate(model, problem, cfg, device, gen) -> dict:
     eps = ev.get("ode_eps", 1e-3)
     source_std = cfg["data"].get("source_std", 1.0)
     mask_inpaint = (1.0 - problem.mask_obs).to(device)   # (1,32,32) 1 on region to fill
-    n_pix = float(mask_inpaint.sum())
+    n_pix = float(mask_inpaint.sum()) * problem.channels  # per-channel pixel count
 
     n_cond = min(ev["n_conditions"], problem.N)
     idx = torch.linspace(0, problem.N - 1, n_cond).round().long().tolist()
@@ -77,18 +77,20 @@ def evaluate(model, problem, cfg, device, gen) -> dict:
     var_list, nn_list, obs_err = [], [], []
     for i in idx:
         cond1 = problem.condition(problem.X[i:i+1])
-        samples = generate(model, cond1, M, n_steps, eps, source_std, gen, device)  # (M,1,32,32)
+        samples = generate(model, cond1, M, n_steps, eps, source_std, gen, device,
+                           channels=problem.channels)  # (M,C,32,32)
         # pixel variance in the inpainted region, averaged over those pixels
-        var_map = samples.var(dim=0, unbiased=False)              # (1,32,32)
+        var_map = samples.var(dim=0, unbiased=False)              # (C,32,32)
         pix_var = float((var_map * mask_inpaint).sum() / n_pix)
         var_list.append(pix_var)
         # nearest training image to the generated MEAN (memorization)
-        mean_img = samples.mean(0, keepdim=True)                  # (1,1,32,32)
+        mean_img = samples.mean(0, keepdim=True)                  # (1,C,32,32)
         d = ((Xdev - mean_img) ** 2).flatten(1).mean(1)           # (N,)
         nn_list.append(float(d.min()))
         # observed-region reconstruction error (sanity: should stay small)
         obs = problem.mask_obs.to(device)
-        oe = float((((mean_img[0] - Xdev[i]) ** 2) * obs).sum() / obs.sum())
+        obs_n = float(obs.sum()) * problem.channels
+        oe = float((((mean_img[0] - Xdev[i]) ** 2) * obs).sum() / obs_n)
         obs_err.append(oe)
 
     return {
@@ -111,25 +113,32 @@ def save_sample_grid(model, problem, cfg, device, path: Path, n_cond=4, M=6):
     fig, axes = plt.subplots(len(idx), ncols, figsize=(1.1 * ncols, 1.1 * len(idx)),
                              squeeze=False)
     Xdev = problem.X.to(device)
+    C = problem.channels
     for r, i in enumerate(idx):
         cond1 = problem.condition(problem.X[i:i+1])
-        obs_img = (problem.observation(problem.X[i:i+1])[0, 0]).cpu()
+        obs_img = (problem.observation(problem.X[i:i+1])[0]).cpu()
         samples = generate(model, cond1, M, cfg["eval"]["n_steps"], eps,
-                           cfg["data"].get("source_std", 1.0), gen, device)
+                           cfg["data"].get("source_std", 1.0), gen, device, channels=C)
         mean_img = samples.mean(0, keepdim=True)
         d = ((Xdev - mean_img) ** 2).flatten(1).mean(1)
         nn_i = int(d.argmin())
 
         def show(ax, img, title=None):
-            ax.imshow(img.cpu().numpy(), cmap="gray", vmin=-1, vmax=1)
+            # img: (C,32,32) in [-1,1] -> HxW (gray) or HxWx3 in [0,1] (RGB)
+            arr = img.cpu().numpy()
+            if C == 1:
+                ax.imshow(arr[0], cmap="gray", vmin=-1, vmax=1)
+            else:
+                rgb = ((arr.transpose(1, 2, 0) + 1.0) / 2.0).clip(0.0, 1.0)
+                ax.imshow(rgb)
             ax.set_xticks([]); ax.set_yticks([])
             if title:
                 ax.set_title(title, fontsize=7)
         show(axes[r][0], obs_img, "observed" if r == 0 else None)
         for m in range(M):
-            show(axes[r][1 + m], samples[m, 0], f"sample" if (r == 0 and m == 0) else None)
-        show(axes[r][1 + M], problem.X[i, 0], "true" if r == 0 else None)
-        show(axes[r][2 + M], problem.X[nn_i, 0], "NN-train" if r == 0 else None)
+            show(axes[r][1 + m], samples[m], f"sample" if (r == 0 and m == 0) else None)
+        show(axes[r][1 + M], problem.X[i], "true" if r == 0 else None)
+        show(axes[r][2 + M], problem.X[nn_i], "NN-train" if r == 0 else None)
     fig.suptitle("EXP-3 inpainting: same observed top, different x0", fontsize=9)
     fig.tight_layout()
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -146,11 +155,13 @@ def train(cfg: dict, out_root: str | Path) -> Path:
     dc = cfg["data"]
     problem = InpaintingProblem.create(N=dc["N"], seed=cfg["seed"],
                                        data_root=dc.get("data_root", "data"),
-                                       mask_kind=dc.get("mask_kind", "bottom_half"))
+                                       mask_kind=dc.get("mask_kind", "bottom_half"),
+                                       dataset=dc.get("dataset", "mnist"))
+    C = problem.channels
     X = problem.X.to(device)
-    cond_all = problem.condition(problem.X).to(device)       # (N,2,32,32)
+    cond_all = problem.condition(problem.X).to(device)       # (N,C+1,32,32)
 
-    model = SmallUNet(in_channels=3, out_channels=1,
+    model = SmallUNet(in_channels=2 * C + 1, out_channels=C,
                       base=cfg["model"].get("base", 32),
                       temb_dim=cfg["model"].get("temb_dim", 128)).to(device)
     opt = torch.optim.Adam(model.parameters(), lr=cfg["train"].get("lr", 2e-4))
@@ -174,7 +185,7 @@ def train(cfg: dict, out_root: str | Path) -> Path:
     for it in range(1, max_iters + 1):
         idx = torch.randint(0, problem.N, (batch,), generator=tgen, device=device)
         x1 = X[idx]
-        x0 = source_std * torch.randn(batch, 1, 32, 32, generator=tgen, device=device)
+        x0 = source_std * torch.randn(batch, C, 32, 32, generator=tgen, device=device)
         t = torch.rand(batch, generator=tgen, device=device)
         tt = t[:, None, None, None]
         x_t = (1 - tt) * x0 + tt * x1

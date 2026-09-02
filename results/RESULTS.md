@@ -17,7 +17,11 @@
 | **P6** | (N tại capacity cố định: **không** do lý thuyết population xác định) | ➖ **THỰC NGHIỆM** | Population optimum sụp ∀N hữu hạn (Prop 4). Tỉ lệ sụp đo được đơn điệu **0.05→0.99** (5 seed); N=5000 không sụp ⇒ đo khoảng cách representation/optimisation, **không** bác bỏ Prop 4. |
 | **P7** | Nhãn nhoè `y` = kernel regression trên các atom (Thm 10) | ✅ **KHỚP** | Chuẩn tham chiếu đúng là `Cov_h` (Thm 10), **không** phải `Σ_post`. Model bám `Cov_h`: **ratio_to_kernel ≈ 1.00** (h≥0.05). `v_θ` khớp trường kernel (8.1) hơn hẳn (★). Nhiễu **interpolant** KHÔNG khôi phục (Prop 17c — *dự đoán*). Nhưng `p_h^gen` atomic ∀h (Prop 14): khớp mô-men ≠ khôi phục posterior. |
 | **EXP-2** | Selective memorization (GMM) | ✅ **KHỚP** | Mode coverage **1.0 → 0.72**, MMD tới posterior tăng ~40×; mẫu bỏ rơi mode không chứa `x⁽ⁱ⁾`. |
-| **EXP-3** | Collapse trên ảnh (MNIST inpainting) | ✅ **KHỚP** | Pixel-variance vùng inpaint giảm **~100×** (0.14→0.0013); mẫu sinh hội tụ về đúng ảnh training gần nhất (NN-dist →0.0005). |
+| **EXP-3** | Collapse trên ảnh (MNIST inpainting, 3 seed) | ✅ **KHỚP** | Pixel-variance vùng inpaint giảm **~100×** (0.137→0.00117, 3 seed); NN-dist→0.00077. |
+| **EXP-3b** | Collapse trên ảnh khó hơn (CIFAR-10 inpainting, 1 seed) | ✅ **KHỚP** | Cùng pattern: pixel-variance giảm **~16×** (0.142→0.0087); xác nhận không phải artifact của MNIST đơn giản. |
+| **Adversarial** | Xáo trộn `Y` vs `X` → vẫn sụp về `δ_{x⁽ⁱ⁾}` (Prop 4 không cần posterior thật) | ✅ **KHỚP** | `trace(Cov)` shuffled sụp **0.625 ± 0.108** ở 200k (5 seed; real: 0.396 ± 0.127, chỉ lệch do optimization gap). `‖mean−x⁽ⁱ⁾‖`→**0.559** trong khi `‖mean−μ_post(y⁽ⁱ⁾)‖` (thật nhưng vô nghĩa) **tăng** lên **1.437**. |
+| **Ablation** | Kiến trúc/optimizer khác (width, depth, SGD, 2 seed/config) | ✅ **KHỚP** | Collapse speed tăng theo capacity rồi bão hoà (width≥128, depth≥4); Adam vượt trội SGD rõ rệt (0.396 vs 0.711 ở cùng ngân sách). Không config nào mâu thuẫn Prop 4. |
+| **LR schedule** | Cosine decay cho run mở rộng 1M iter (5 seed) | ✅ **KHỚP** | Hết diverge (trước: bùng nổ ~1M iter). So sánh cùng-seed (seed 0, cùng checkpoint 700k): `trace(Cov)` 0.162→0.128, rồi 0.115 @ 1M. Trung bình 5 seed @ 1M: **0.120 ± 0.054** — độ lệch giữa seed lớn (0.035–0.186) nên không coi là "sâu hơn" 0.16 một cách chắc chắn, chỉ là bằng chứng ổn định. memorization ratio **0.955 ± 0.020** (chỉ số chắc chắn nhất). |
 
 **Kết luận: các hệ quả population được lý thuyết xác định (P1–P4, P7) đều KHỚP.** Giả thuyết trung tâm được xác nhận trên cả 3 thí nghiệm: khi điều kiện trên `y`, biến `y⁽ⁱ⁾` đóng vai trò định danh training sample, cơ chế "resample `x₀`" mất tác dụng, và minimizer sụp về `δ_{x⁽ⁱ⁾}`. Sự sụp đổ **tăng đơn điệu theo mức độ overtraining** (điều khiển bởi loss→0), và **chỉ khôi phục variance được bằng nhiễu trên chính biến điều kiện y** — nhãn nhoè `y` chính là kernel regression trên các atom training (Thm 10), còn nhiễu interpolant **không** đổi endpoint law (Prop 17c).
 
@@ -100,6 +104,174 @@ $$\operatorname{Cov}[p₁^{cond}(·|y⁽ⁱ⁾)] = 0 \quad\text{vs.}\quad \opera
 
 Vì vậy quan sát `trace(Cov) ≈ trace(Σ̂_X)` cho unconditional **chính là** (6.1) — bằng chứng của *full-empirical-measure memorisation*, **không** phải bằng chứng "không memorize". Khác biệt: **single-example memorisation** (conditional) vs **full-empirical-measure memorisation** (unconditional).
 
+**Xác nhận bằng metric chuẩn literature (2026-09-02).** Thêm `memorization_ratio`
+(Yoon et al. 2023, `c=1/9`: mẫu sinh được coi là "memorized" nếu khoảng cách² tới
+training point gần nhất ≤ 1/9 khoảng cách² tới điểm gần nhì — dùng lại bởi Buchanan
+et al. 2025, arXiv:2508.17689) vào `src/metrics/memorization.py`, wire vào
+`src/train.py` và `src/train_exp2.py`. Kết quả (5 seed, retrain riêng
+`*_mr` để không đụng vào các run đã verify cho Table 1):
+
+| iter | conditional | unconditional |
+|------|-------------|----------------|
+| 100     | 0.114 | 0.114 |
+| 10 000  | 0.127 | 0.114 |
+| 100 000 | 0.495 | 0.277 |
+| 200 000 | **0.650 ± 0.033** | **0.389 ± 0.032** |
+
+→ **KHỚP**: cả hai đều tăng từ baseline chung ~0.11 (giai đoạn calibrated), nhưng
+conditional tăng mạnh hơn hẳn — xác nhận trực tiếp Cor 6 bằng một con số per-sample
+độc lập với trace(Cov). EXP-2 (GMM, 2 seed) cũng đạt **0.83 ± 0.12** ở 300k iter,
+đồng pha với mode-coverage sụp. Hình: `results/exp1/_analysis_memratio/figures/`,
+script: `scripts/analyze_memorization_ratio.py`. Đã đưa vào `paper/main.tex`
+(Section 4.1, sau EXP-1 P1-P4).
+
+---
+
+## Adversarial pairing — collapse không cần posterior thật ✅ (2026-09-01)
+
+**Động cơ.** Prop 4 (exact conditional collapse) chỉ dùng tính chất `y¹,…,yᴺ` phân
+biệt đôi một — không hề dùng `A` hay `sigma_obs`. Lý thuyết vì vậy dự đoán: nếu ta
+**xáo trộn ngẫu nhiên `Y` so với `X`** trước khi train (phá vỡ hoàn toàn quan hệ sinh
+dữ liệu thật `y=Ax+eps`), model vẫn sụp về `δ_{x⁽ⁱ⁾}` — chỉ khác là `x⁽ⁱ⁾` giờ là điểm
+bị gán (ngẫu nhiên) cho `y⁽ⁱ⁾`, không phải điểm sinh ra `y⁽ⁱ⁾`. Đây là bản conditional
+của thí nghiệm "Adversarial Pairings" trong arXiv:2510.18118 (`gradvar2025`, đã cite
+sẵn) — nơi họ xáo trộn target của OT-pairing trên CelebA để kiểm chứng memorization
+unconditional; ở đây dự đoán còn **chính xác tuyệt đối** (không cần generic-position
+argument) vì cơ chế conditional là exact.
+
+**Setup.** `configs/exp1_adversarial_shuffle.yaml` — giống hệt kiến trúc/lịch trình
+EXP-1 mặc định, chỉ thêm `data.shuffle_labels: true` (hoán vị `Y` độc lập theo seed
+trong `src/train.py`). Chạy **5 seed** (0–4, seed 3–4 chạy bổ sung 2026-09-02 để khớp
+số seed với phần còn lại của paper), CPU, ~18-20 phút/seed song song (không cần GPU).
+So sánh trực tiếp với baseline `exp1_cond_seed{0-4}` đã có.
+
+![adv trace_cov](exp1/_analysis_adversarial/figures/adv_trace_cov.png)
+![adv mean targets](exp1/_analysis_adversarial/figures/adv_mean_targets.png)
+
+| iter | trace(Cov), real pairing (5 seed) | trace(Cov), shuffled (5 seed) |
+|------|-----------------------------------|--------------------------------|
+| 100     | 1.10 | 1.77 ± 0.35 |
+| 10 000  | 1.06 | 1.68 ± 0.11 |
+| 100 000 | 0.62 | 0.81 ± 0.13 |
+| 200 000 | **0.396 ± 0.127** | **0.625 ± 0.108** |
+
+| iter | ‖mean−x⁽ⁱ⁾‖, shuffled (điểm bị gán) | ‖mean−μ_post(y⁽ⁱ⁾)‖, shuffled (posterior thật nhưng vô nghĩa) |
+|------|--------------------------------------|-----------------------------------------------------------------|
+| 100     | 1.35 ± 0.10 | 0.84 ± 0.13 |
+| 10 000  | 1.26 ± 0.07 | 0.92 ± 0.15 |
+| 30 000  | 1.03 ± 0.14 | 1.16 ± 0.16 |
+| 200 000 | **0.559 ± 0.104** | **1.437 ± 0.176** |
+
+**Đọc kết quả.** (i) `trace(Cov)` sụp đơn điệu ở cả hai trường hợp, cùng bậc độ lớn,
+cùng nằm dưới `trace(Σ_post)=1.004` — shuffled sụp chậm hơn real pairing ở 200k
+(0.625 vs 0.396) nhưng đây là **optimization gap** (random `x`-`y` pairing là hàm khó
+fit hơn linear-Gaussian mượt trong cùng ngân sách iteration), **không phải** khác biệt
+ở population optimum — Prop 4 cố định optimum ở `0` bất kể `Y` được gán thế nào. (ii)
+Chẩn đoán sắc hơn: `‖mean−x⁽ⁱ⁾‖` (điểm bị gán) giảm đơn điệu, trong khi
+`‖mean−μ_post(y⁽ⁱ⁾)⌘` (posterior thật của `y⁽ⁱ⁾`, vẫn tính được từ `A` thật nhưng giờ
+chẳng liên quan gì đến `x⁽ⁱ⁾` bị gán) **tăng** suốt training, hai đường cắt nhau giữa
+10⁴–3×10⁴ iter. → **KHỚP**: model đi theo đúng nhãn được gán (định danh), không đi
+theo cấu trúc thống kê thật giữa `x` và `y` — xác nhận trực tiếp Corollary 6 ngay cả
+khi nhãn không mang thông tin thật nào về `x`.
+
+Chi tiết: `paper/main.tex` §Adversarial pairing (Section 4, sau EXP-1); script phân
+tích `scripts/analyze_exp1_adversarial.py`; chạy lại bằng
+`scripts/run_exp1_adversarial.{sh,ps1}`.
+
+---
+
+## Architecture/optimizer ablation ✅ (2026-09-02)
+
+**Động cơ.** Reviewer-critique: mọi kết quả EXP-1/EXP-2 dùng đúng 1 kiến trúc
+(MLP width-128/depth-4) + Adam cố định. Prop 4 chỉ ràng buộc population minimizer,
+không ràng buộc kiến trúc cụ thể nào — nên lý thuyết dự đoán collapse xảy ra với
+*mọi* kiến trúc đủ biểu diễn, chỉ khác nhau ở **tốc độ** đạt tới đó trong cùng ngân
+sách iteration. Kiểm chứng bằng sweep nhỏ trên EXP-1 (conditional, 2 seed/config,
+cùng ngân sách 200k iter với baseline).
+
+Thêm `train.optimizer` (adam|sgd) vào `src/train.py` (trước đó hardcode Adam).
+
+| config | width | depth | optimizer | trace(Cov)@200k |
+|--------|-------|-------|-----------|-------------------|
+| baseline | 128 | 4 | Adam | 0.396 ± 0.127 (5 seed) |
+| width32 | 32 | 4 | Adam | 0.657 ± 0.058 |
+| width64 | 64 | 4 | Adam | 0.526 ± 0.058 |
+| width256 | 256 | 4 | Adam | 0.403 ± 0.079 |
+| depth2 | 128 | 2 | Adam | 0.860 ± 0.156 |
+| depth6 | 128 | 6 | Adam | 0.407 ± 0.127 |
+| sgd | 128 | 4 | SGD(m=0.9,lr=0.01) | 0.711 ± 0.193 |
+
+**Đọc kết quả.** Collapse speed tăng theo capacity (width/depth) rồi **bão hoà** ở
+khoảng baseline: width256 và depth6 gần như không sụp sâu hơn baseline (0.40-0.41)
+dù width256 đạt train_loss thấp hơn hẳn (0.46 vs 0.59) — nhiều capacity hơn cho
+loss tốt hơn nhưng không tỉ lệ thuận với collapse sâu hơn ở ngân sách này. Kiến
+trúc dưới-capacity (width32, depth2) sụp chậm hẳn. Optimizer ảnh hưởng lớn: SGD chỉ
+đạt ~57% độ sụp của Adam trong cùng ngân sách. Không config nào mâu thuẫn Prop 4 —
+tất cả đều sụp đơn điệu từ cùng điểm xuất phát, chỉ khác tốc độ.
+
+Đã đưa vào `paper/main.tex` §"Architecture and optimiser sensitivity" (Section 4.1,
+sau memorization-ratio). Chạy: 12 job (`ablation_{width32,width64,width256,depth2,depth6,sgd}_seed{0,1}`),
+~30-40 phút CPU song song (28 core, 4 thread/job).
+
+---
+
+## Extended run với cosine LR schedule — hết diverge, collapse tiếp tục (đã hiệu chỉnh mức độ chắc chắn 2026-09-02)
+
+**Động cơ.** Run mở rộng gốc (`exp1_cond_seed0_ext`, 1 seed, `lr=1e-3` cố định tới
+1M iter) diverge gần 1M iter (`trace(Cov)` bùng nổ tới ~4×10⁵⁵) vì target (★) dốc
+dần gần `t=1`, bước cập nhật cố định trở nên quá lớn khi loss đã nhỏ. Câu hỏi mở
+trong Limitations: liệu lr-schedule có giải quyết được không?
+
+**Thay đổi code.** Thêm `train.lr_schedule` (`none`|`cosine`) + `train.lr_min` vào
+`src/train.py` (dùng `torch.optim.lr_scheduler.CosineAnnealingLR`, step mỗi
+iteration, cột `lr` giờ được log vào `metrics.csv`). Config mới:
+`configs/exp1_extended_schedule.yaml` — giống hệt run gốc, chỉ thêm
+`lr_schedule: cosine`, `lr: 1e-3 → lr_min: 1e-6` xuyên suốt 1M iteration.
+
+**Chạy 5 seed** (0–4), CPU, checkpoint chung `[100,1000,10000,30000,100000,200000,
+400000,700000,1000000]`, ~1.5-2.5 giờ song song (5 thread/job).
+
+![extended schedule](exp1/_analysis_ext_sched/figures/extended_schedule.png)
+
+| iter | trace(Cov) | vel_err | ‖mean−x⁽ⁱ⁾‖ | ‖mean−μ_post‖ | memorization ratio | loss |
+|------|-----------|---------|-------------|----------------|---------------------|------|
+| 100 000 | 0.564±0.156 | 0.489±0.028 | 0.562±0.096 | — | — | 0.830±0.093 |
+| 200 000 | 0.397±0.126 | 0.390±0.063 | 0.380±0.093 | — | — | 0.581±0.071 |
+| 700 000 | 0.134±0.054 | 0.201±0.048 | 0.155±0.065 | — | — | 0.218±0.023 |
+| **1 000 000** | **0.120±0.054** | **0.168±0.052** | **0.137±0.065** | **0.816±0.172** | **0.955±0.020** | **0.145±0.023** |
+
+**Đọc kết quả (đã tự phê bình lại — xem "Có, sửa lại đi", 2026-09-02).**
+Bằng chứng rõ ràng nhất là so sánh **cùng seed, cùng checkpoint**: seed 0 tại
+$7\times10^5$ iter đạt `trace(Cov) = 0.128` với schedule, so với `0.162` ở
+fixed-lr cũ cùng checkpoint — không có confound gì (cùng seed = cùng ma trận
+$A$, cùng dữ liệu), và seed 0 tiếp tục xuống `0.115` ở 1M mà không hề diverge.
+Đây là claim vững chắc.
+
+Trung bình 5-seed ở 1M (`0.120 ± 0.054`) thì **không nên coi là "sâu hơn"
+0.16 một cách chắc chắn**: độ lệch giữa seed tại 1M rất lớn (dao động
+0.035–0.186, ~5×), một phần vì "seed" trong code này vừa quyết định ma trận
+`A` của bài toán (dễ/khó khác nhau) vừa quyết định nhiễu SGD — hai nguồn ngẫu
+nhiên bị trộn lẫn. Giá trị cũ 0.16 nằm trong khoảng 1 std của 0.120±0.054 nên
+phép so sánh mean-vs-single-value này **không sắc bén về mặt thống kê**. Thêm
+nữa, từ 700k→1M (đoạn lr đã rất nhỏ, ≲2×10⁻⁴) chỉ 4/5 seed cải thiện, 1 seed
+xấu đi nhẹ — nên đoạn đuôi này chủ yếu chứng minh **không diverge** chứ chưa
+chắc là "collapse sâu thêm đáng kể".
+
+Bằng chứng chắc chắn nhất, ít nhiễu nhất, là **memorization ratio = 0.955 ±
+0.020** ở 1M — 95.5% mẫu sinh ra riêng lẻ thỏa tiêu chí memorization
+nearest-neighbor ($c=1/9$), std nhỏ, không mơ hồ.
+
+→ **Kết luận (đã hiệu chỉnh):** plateau ở 200k không phải giới hạn cứng của
+kiến trúc/tối ưu hoá — là hiện tượng **transient, nhạy với lr schedule**; điều
+chắc chắn nhất mà run này chứng minh là schedule loại bỏ hoàn toàn hiện tượng
+diverge (vững trên cả 5 seed), còn việc "collapse sâu hơn bao nhiêu" thì chỉ có
+bằng chứng cùng-seed là sắc bén, số liệu 5-seed-mean nên đọc như xác nhận ổn
+định hơn là ước lượng độ sâu chính xác. Đã cập nhật `paper/main.tex` (đoạn văn
+sau Table 1, caption Figure~fig:extended, và caption Table 1) để phản ánh đúng
+mức độ chắc chắn này.
+
+Script: `scripts/analyze_exp1_extended_schedule.py`.
+
 ---
 
 ## Những điều bất ngờ / không khớp lý thuyết (QUAN TRỌNG)
@@ -116,7 +288,7 @@ Vì vậy quan sát `trace(Cov) ≈ trace(Σ̂_X)` cho unconditional **chính l�
 
    Cả bốn đại lượng giảm **cùng nhau** về 0 — xác nhận P1/P2/P3 là cùng một hiện tượng, được điều khiển bởi `loss → 0` (minimizer lý thuyết có loss = 0). Định lý được củng cố.
 
-2. **Bất ổn tối ưu hoá khi overtrain cực độ (fixed lr).** Ở ~1M iter, run diverge (`trace(Cov)` bùng nổ, loss tăng lại 0.36→0.50). Với `lr=1e-3` cố định và target (★) ngày càng dốc gần `t=1`, Adam mất ổn định. → Để đạt collapse *hoàn toàn* cần lr-decay hoặc precision cao hơn; đây là hướng cần thử ở Giai đoạn B. **Checkpoint "collapsed" tốt nhất ≈ 700k.**
+2. **Bất ổn tối ưu hoá khi overtrain cực độ (fixed lr) — ĐÃ GIẢI QUYẾT phần diverge, KHÔNG "sâu hơn chắc chắn" (đã hiệu chỉnh 2026-09-02).** Ở ~1M iter với `lr=1e-3` cố định, run diverge (`trace(Cov)` bùng nổ, loss tăng lại 0.36→0.50) vì target (★) ngày càng dốc gần `t=1`, Adam mất ổn định. → Thêm `train.lr_schedule: cosine` (`lr: 1e-3 → lr_min: 1e-6` xuyên suốt run) vào `src/train.py`, chạy lại **5 seed** tới 1M iter (`configs/exp1_extended_schedule.yaml`, ~1.5-2.5 giờ CPU song song). Kết quả vững chắc: **không còn diverge** trên cả 5 seed, và so sánh cùng-seed (seed 0, 700k) cho `trace(Cov)` 0.162→0.128 — sạch, không confound. Kết quả *không* nên overclaim: trung bình 5-seed ở 1M (`0.120 ± 0.054`) có độ lệch giữa seed lớn (0.035–0.186) do "seed" trộn lẫn ngẫu nhiên của ma trận `A` và của SGD, nên không thể nói chắc là "sâu hơn" 0.16 cũ một cách thống kê sắc bén — bằng chứng chắc chắn nhất là memorization ratio 0.955±0.020. Xem mục "Extended run với LR schedule" bên dưới.
 
 3. **Trường vận tốc overtrained bất ổn với `y` held-out.** Với `y` ngoài training set, tích phân ODE của model overtrained có thể **phân kỳ** (seed 0: `trace(Cov)` held-out ~3e5 ở 200k; các seed khác ổn định hơn — trung bình 5 seed 6e4 ± 1.2e5, phương sai khổng lồ giữa seed). Bản thân đây là bằng chứng phụ trợ cho memorization: trường chỉ "đẹp" tại các `y⁽ⁱ⁾` đã ghi nhớ, còn ngoài đó thì hỗn loạn. Cần đo held-out cẩn thận hơn (median + đếm số ca phân kỳ) ở Giai đoạn B.
 
@@ -286,16 +458,33 @@ Che **nửa dưới** ảnh MNIST 32×32 (N=500), điều kiện `y` = nửa tr�
 
 ![EXP3 curve](exp3/exp3_mnist_seed0/figures/exp3_collapse.png)
 
-| iter | 200 | 1000 | 3000 | 7000 | 15000 |
+**Cập nhật 2026-09-02: nâng lên 3 seed** (seed0 gốc + seed1, seed2 chạy bổ sung, ~3.2-5.2 giờ/seed trên CPU — seed1/2 vô tình chạy tới 30k iter thay vì dừng ở 15k như config gốc do quên override `train.checkpoints`, không sao vì 15000 vẫn là checkpoint chung giữa cả 3). Số liệu dưới đây tại checkpoint chung `iter=15000`, mean ± std trên 3 seed:
+
+| iter | 200 | 1000 | 3000/5000\* | 7000 | 15000 |
 |------|-----|------|------|------|-------|
-| pixel-var (vùng inpaint) | 0.140 | 0.087 | 0.016 | 0.0034 | **0.0013** |
-| dist(mean, NN train img) | 0.092 | 0.062 | 0.0077 | 0.0017 | **0.0005** |
-| recon-err (vùng quan sát) | 0.0031 | 0.0005 | 1e-4 | 6e-5 | **2e-5** |
-| train loss | 0.48 | 0.10 | 0.045 | 0.024 | **0.014** |
+| pixel-var (vùng inpaint) | 0.137±0.021 | 0.095±0.012 | (seed0: 0.016 @3k; seed1/2: ~0.006 @5k) | 0.0034 (seed0) | **(1.17±0.12)×10⁻³** |
+| dist(mean, NN train img) | — | — | — | — | **(0.77±0.26)×10⁻³** |
+| recon-err (vùng quan sát) | — | — | — | — | **(1.7±1.3)×10⁻⁴** |
+
+\*seed1/seed2 dùng checkpoint mặc định của yaml (200,1000,5000,15000,30000) thay vì lịch seed0 dùng (200,1000,3000,7000,15000) — chỉ 200/1000/15000 khớp cả 3 seed; xem CSV thô để so sánh chi tiết từng seed.
+
+**Nhận xét:** obs recon-err ở 3-seed (1.7e-4) cao và nhiễu hơn số 1-seed cũ (2e-5) — vẫn nhỏ (3 bậc độ lớn dưới pixel-variance) nhưng cho thấy con số 1-seed trước đây lạc quan hơn thực tế trung bình. Đây chính xác là lý do nên dùng nhiều seed thay vì 1.
 
 **Định tính (hình grid):** ở **iter 200** cùng một nửa-trên cho ra các nửa-dưới **đa dạng** (bộ lấy mẫu posterior đúng); ở **iter 15000** mọi completion **giống hệt nhau** bất kể `x₀` và trùng khớp ảnh **true** = ảnh **NN-train** → memorize đúng điểm training.
 
-Hình: `results/exp3/exp3_mnist_seed0/figures/grid_it200.png` (đa dạng) vs `grid_it15000.png` (sụp về 1 ảnh). Pixel-variance giảm ~100×, khôi phục vùng quan sát vẫn hoàn hảo (recon-err→2e-5). Khớp hoàn toàn kịch bản collapse/selective memorization của spec Section 5. (Lưu ý: ở ảnh, loss hội tụ sâu hơn nhiều — 0.014 — nên collapse ở đây *hoàn toàn* hơn EXP-1, xuất hiện sớm từ ~3k iter.)
+Hình: `results/exp3/exp3_mnist_seed0/figures/grid_it200.png` (đa dạng) vs `grid_it15000.png` (sụp về 1 ảnh). Khớp hoàn toàn kịch bản collapse/selective memorization của spec Section 5.
+
+### EXP-3b — CIFAR-10 inpainting (dataset khó hơn) ✅ (2026-09-02)
+
+Lặp lại EXP-3 y hệt (kiến trúc, N=500, 15k iter) trên **CIFAR-10** (ảnh màu tự nhiên, phức tạp hơn hẳn MNIST) để kiểm tra collapse có phải chỉ do MNIST quá đơn giản không — 1 seed, ~3.2 giờ (CPU, chạy song song 2 job MNIST khác nên có tranh chấp CPU). Cần sửa code: `InpaintingProblem` (`src/problems/inpainting.py`) và `train_exp3.py` để channel-agnostic (MNIST=1 kênh, CIFAR=3 kênh); `SmallUNet` vốn đã channel-agnostic sẵn. Config mới: `configs/exp3_cifar10.yaml`.
+
+| iter | 200 | 1000 | 3000 | 7000 | 15000 |
+|------|-----|------|------|------|-------|
+| pixel-var (vùng inpaint) | 0.142 | 0.102 | 0.120 | 0.032 | **0.0087** |
+| dist(mean, NN train img) | 0.057 | 0.052 | 0.061 | 0.021 | **0.0040** |
+| train loss | 0.508 | 0.168 | 0.128 | 0.092 | **0.054** |
+
+→ **KHỚP**: cùng pattern collapse (pixel-var giảm ~16×, hình grid cho thấy completion đa dạng ở iter 200 → giống hệt nhau + trùng khớp ảnh training ở iter 15000). Xác nhận cơ chế không phải artifact của MNIST đơn giản. Hình: `results/exp3/exp3_cifar10_seed0/figures/grid_it{200,15000}.png`, đã đưa vào `paper/main.tex` (Figure exp3cifar).
 
 ---
 

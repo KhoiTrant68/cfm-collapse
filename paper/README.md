@@ -6,10 +6,15 @@ repository code; see the Reproducibility paragraph in the paper.
 
 ## Files
 
-- `main.tex` — full manuscript (English, LaTeX), 15 pages, 18 figures.
+- `main.tex` — full manuscript (English, LaTeX), formatted for **ICLR 2027**
+  (`iclr2027_conference.sty`), currently anonymized for double-blind review.
+- `iclr2027_conference.sty`, `iclr2027_conference.bst`, `fancyhdr.sty`, `natbib.sty` —
+  official ICLR 2027 style files, downloaded from
+  `github.com/ICLR/Master-Template` (`iclr2027.zip`). Do not hand-edit; re-download if
+  ICLR updates them.
 - `refs.bib` — 7 references (5 memorisation-literature citations from THEORY.md + the
   two phenomenon/technique sources).
-- `figures/` — 18 PNGs referenced by `main.tex`. Two kinds:
+- `figures/` — 23 PNGs referenced by `main.tex`. Three kinds:
   - **copied from `results/`** (the analysis-script outputs): `fig_p1_variance`,
     `fig_p4_cond_uncond`, `fig_p2_velocity`, `fig_p3_meanshift`, `fig_collapse2d`,
     `fig_extended`, `fig_p5_sigma`, `fig_p6_n`, `fig_kernel_verify`,
@@ -20,11 +25,40 @@ repository code; see the Reproducibility paragraph in the paper.
     headline), `fig_optgap` (T5), `fig_lipschitz` (T6), `fig_posterior_distance`
     (T7), `fig_exp2_curves` (EXP-2 mode-coverage + MMD vs iteration, 2 seeds).
     Regenerate with `uv run python scripts/make_paper_figures.py`.
+  - **copied from `results/exp1/_analysis_adversarial/`**: `fig_adv_trace_cov`,
+    `fig_adv_mean_targets` (the adversarial-pairing ablation, see below).
+    Regenerate with `scripts/run_exp1_adversarial.{sh,ps1}` then
+    `uv run python scripts/analyze_exp1_adversarial.py --real "results/exp1/exp1_cond_seed[0-4]" --shuffled "results/exp1/exp1_adv_shuffle_seed*" --out results/exp1/_analysis_adversarial`.
+  - **copied from `results/exp1/_analysis_memratio/`**: `fig_memorization_ratio`
+    (see `scripts/analyze_memorization_ratio.py`).
+  - **copied from `results/exp3/exp3_cifar10_seed0/figures/`**: `fig_exp3_cifar_grid200`,
+    `fig_exp3_cifar_grid15k` (the CIFAR-10 EXP-3 replication, see below).
+  - **copied from `results/exp1/_analysis_ext_sched/figures/`**: `fig_extended_schedule`
+    (replaces the old single-seed `fig_extended`; see below). Regenerate with
+    `scripts/analyze_exp1_extended_schedule.py`.
+
+## Adversarial-pairing ablation (2026-09-01)
+
+New Experiments subsection (`sec:adversarial`, after EXP-1, before the P5/P6 sweeps):
+`Y` is randomly permuted relative to `X` before training
+(`configs/exp1_adversarial_shuffle.yaml`, `data.shuffle_labels: true`, wired up in
+`src/train.py`) to test whether conditional collapse needs a *real* `x`-`y`
+relationship. Proposition 4 (`prop:collapse`) never uses the forward operator, only
+label distinctness, so it predicts collapse regardless. 5 seeds, ~18-20min/seed on CPU
+(no GPU needed), directly comparable against the existing `exp1_cond_seed{0-4}`
+baseline. Mirrors the "Adversarial Pairings" experiment in
+[arXiv:2510.18118](https://arxiv.org/abs/2510.18118) (`gradvar2025`, already cited),
+adapted from the unconditional/generic-position setting to the exact conditional one.
+Result: collapse happens either way (shuffled lags the real pairing at 200k due to an
+optimisation-gap difference, not a population-optimum difference); the generated mean
+converges to the *assigned* `x^i`, not to the *true* (now irrelevant)
+`mu_post(y^i)`, whose distance actually grows during training. See
+`results/RESULTS.md` §"Adversarial pairing" for the full numbers.
 
 ## Compile
 
-Needs a LaTeX toolchain (TeX Live / MiKTeX). It was **not** compiled in-repo — only the
-source is provided.
+Needs a LaTeX toolchain (TeX Live / MiKTeX). Verified to compile clean (no undefined
+refs/citations, no LaTeX errors) with MiKTeX 25.12 on 2026-09-01.
 
 ```bash
 cd paper
@@ -33,16 +67,210 @@ pdflatex main && bibtex main && pdflatex main && pdflatex main
 
 ## Status / TODO before submission
 
-- **Theory** is complete and proof-carrying (load-bearing results inline, two auxiliary
-  lemmas in the appendix). Proposition/Theorem numbers are LaTeX-auto and do **not**
-  match the `THEORY.md` numbering; the descriptive names do.
+- **Theory** is complete and proof-carrying: every load-bearing result now has a full
+  proof either inline or in Appendix A (2026-09-01: the "omitted for brevity" appendix
+  placeholder was replaced with full proofs of Propositions uncond/expansion/liplb and
+  Corollary floor, transcribed from `docs/THEORY.md`; Part D2 of `THEORY.md`
+  — finite-sample memorisation and exact non-representability, previously not in the
+  paper at all — was added as a new Theory subsection). Proposition/Theorem numbers
+  are LaTeX-auto and do **not** match the `THEORY.md` numbering; the descriptive names
+  do.
 - **Experiments** cover P1–P7, the interpolant-noise contrast, the three
   checkpoint-only checks (optimality gap / Lipschitz / posterior distance), EXP-2 (GMM)
   and EXP-3 (MNIST). All 5-seed where the sweep supports it.
-- **Author/affiliation** are placeholders.
 - **Weakest empirical point** (state honestly, or strengthen): EXP-3 is a single seed at
   N=500, no N-sweep.
 - Still available in `results/` but not currently used: the raw P7 y-noise sweep
   (`results/exp1/_sweeps/figures/P7_y_noise.png`) and the intermediate MNIST grids
   (`grid_it{1000,3000,7000}.png`). Copy into `figures/` and add an
   `\includegraphics` if you want them.
+
+### ICLR 2027 conversion (2026-09-01)
+
+- Switched `\documentclass` to `iclr2027_conference.sty` (5.5in x 9in text block,
+  narrower than the old free-form 1in-margin `article` layout).
+- **Anonymized**: `\author` now reads "Anonymous authors / Paper under double-blind
+  review" and the identifying `\thanks{Correspondence: ...}` footnote (real name +
+  email) was removed — the ICLR style hides `\author` in submission mode regardless,
+  but the old `\thanks` footnote text would still have leaked into the PDF, so it had
+  to go. Do not reintroduce name/affiliation/email anywhere in `main.tex` until
+  camera-ready, when `\iclrfinalcopy` should be uncommented and real authors restored.
+- Added the three ICLR-required end-of-paper sections (before `\bibliography`):
+  **Reproducibility statement** (filled in, ported from the old "Reproducibility"
+  paragraph), **Ethics statement** and **AI use statement** (both left as `%% TODO`
+  placeholders — the AI use statement is *required*, not optional; fill in truthfully
+  before submitting, per the ICLR 2027 AI Policy for Authors).
+- Bibliography kept as `\bibliographystyle{plainnat}` + `refs.bib` (ICLR allows any
+  consistent style); not switched to `iclr2027_conference.bst`.
+- MiKTeX 25.12 was installed and the source verified to compile clean end-to-end
+  (`pdflatex && bibtex && pdflatex && pdflatex`, no undefined refs/citations).
+
+### Float placement, figure sizing, and correctness pass (2026-09-01)
+
+- Added `\usepackage{placeins}` with `\FloatBarrier` at every subsection boundary in
+  Experiments, and changed every `[t]`/`[p]` placement to `[htb]`, so figures/tables
+  render near the text that references them instead of drifting to the end of the
+  section (previously several floats were pushed as far as the appendix).
+- Fixed figures that were illegibly small: `fig_collapse2d` and `fig_exp2_2d` (wide
+  4-panel composites, ~3.8:1 aspect) were squeezed into a 0.32–0.5\textwidth column;
+  both now get their own full-width figure. The `fig_exp3_grid*` MNIST progression
+  (5 panels) is stacked vertically at 0.5\textwidth each rather than 5-across at
+  0.19\textwidth.
+- **Bug fixed**: the caption of `fig_kernel_verify` (Figure~7) described its right
+  panel as a "trace-covariance vs.\ $h$" plot; the panel is actually a 2D scatter of
+  generated samples against kernel-weighted training points. Caption corrected to
+  match the actual figure content. All 21 figures were checked against their
+  captions/tables; no other content mismatches found (two informational-only notes:
+  the title baked into `fig_kernel_verify.png` cites old `THEORY.md` numbering
+  ("Prop 8 / Thm 10"), not the LaTeX auto-numbers — cosmetic, would need the PNG
+  regenerated to fix; and the panel's example TV=0.124 is a single illustrative seed
+  at $h=0.5$, vs.\ Table~10's 5-seed mean $0.16\pm0.02$ — not an error, just not the
+  same statistic).
+
+### Proof expansion — no page limit (2026-09-01)
+
+Per explicit instruction to stop worrying about ICLR's 9-page main-text guideline
+(stated in `iclr2027_conference.tex`'s own submission instructions, still in force
+in the template as fetched on 2026-09-01 — worth re-checking before the real
+deadline in case the venue enforces it at submission time) and maximise rigor:
+
+- Filled in the four proofs the appendix previously deferred as "omitted for
+  brevity" (Propositions uncond/expansion/liplb, Corollary floor), transcribed in
+  full from `docs/THEORY.md`.
+- Converted two previously-informal prose claims into proved statements: the
+  $h\to0$/$h\to\infty$ bandwidth limits (now Corollaries `zerobw`/`infbw`, each with
+  a short proof) and the Nadaraya–Watson bias/variance/optimal-bandwidth claim (now
+  Proposition `nwrate`, with proof).
+- Added an entirely new Theory subsection, "Finite-sample memorisation and exact
+  non-representability" (mirrors `THEORY.md` Part D2, previously absent from the
+  paper): a lemma on generic non-intersection of interpolant segments, a
+  proposition showing a fixed finite unconditional batch always admits an
+  exact-zero-loss memorising field despite positive population loss, a remark
+  pinpointing per-epoch resampling of $x_0$ as the mechanism that defeats this in
+  real training, and a lemma proving no finite Lipschitz-activation network can
+  exactly represent the collapsed field's $1/(1-t)$ blow-up. All four are full
+  proofs, not sketches (the covariance-expansion proof, Proposition `nwrate` in the
+  main paper, remains a proof *sketch*, consistent with how it's presented in
+  `THEORY.md`).
+- The paper is now **18 pages** and no longer fits ICLR's stated 9-page guideline —
+  this was a deliberate tradeoff for proof completeness per explicit instruction,
+  not an oversight. Before actually submitting, decide whether to (a) confirm ICLR
+  2027 truly has no enforced limit for this track, (b) move the new Part D2 material
+  and/or the appendix proofs to a clearly-marked supplementary PDF, or (c) trim back
+  down — do not assume the current page count is submission-ready without revisiting
+
+### Memorisation ratio, citations, review-critique fixes, deeper proofs (2026-09-01/02)
+
+Several more rounds landed after the entry above (paper is now **26 pages**);
+consult `git log -- paper/main.tex` and `results/RESULTS.md` for exact numbers, this
+is a summary of *what* changed and *why*, not a full changelog:
+
+- Added the per-sample **memorisation ratio** (Yoon et al. 2023, $c=1/9$;
+  `src/metrics/memorization.py`, wired into `src/train.py`/`train_exp2.py`) as a
+  literature-standard complement to trace(Cov); cited `buchanan2025edge`
+  (arXiv:2508.17689, independent capacity-crossover account of the same broad
+  phenomenon) and `yoon2023memorization`, `carlini2023extracting`,
+  `somepalli2023diffusion`.
+- Self-critiqued the paper as a reviewer would and fixed what came up: filled in
+  the `AI use statement`/`Ethics statement` (were `%% TODO` placeholders — **check
+  these reflect your actual process before submitting**, they are a factual
+  disclosure), added missing `author` fields to `gradvar2025`/`physicscfm2026` in
+  `refs.bib` (looked up via web search since neither was cited with authors),
+  flagged and fixed a seed-conflation issue (the training `seed` also redraws the
+  problem instance's forward operator `A`, not just SGD randomness — now called out
+  explicitly in Section~4), tempered a couple of overclaiming sentences (the
+  Lipschitz-floor discussion in Section~4.4, the Part D2 novelty framing in the
+  Introduction), and substantially expanded `Section~5` (Limitations) to name what's
+  *not* solved (the residual optimisation gap, small experiment scale, no
+  architecture/optimiser study, no proposed remedy) instead of only what is.
+- Re-expanded several proofs in the "no proof skipped" style of
+  arXiv:2508.17689 (Buchanan et al.): Proposition `expansion`'s proof went from a
+  labelled `(sketch)` to a full 4-step derivation (including *why* there is no
+  $h^3$ term — the naive cross-term is actually $O(h^4)$ because the tilted
+  measure's third moments themselves start at $O(h)$); Proposition `kernel-field`
+  and Theorem `endpoint` were expanded with the Bayes'-rule algebra spelled out and
+  a new standalone `Lemma mixture-coupling`; Proposition `prop17`'s "Proof sketch"
+  became a full proof, and Corollary `prop18` / Proposition `factors` (previously
+  *unproved*, just asserted) each got a real proof. No `(sketch)` labels remain
+  anywhere in the paper.
+- **Architecture/optimiser ablation** (addresses a reviewer critique that every
+  EXP-1/EXP-2 result used one fixed MLP + Adam): added `train.optimizer` (adam|sgd)
+  to `src/train.py` (previously hardcoded to Adam) and ran a 12-job sweep
+  (width $\in\{32,64,256\}$, depth $\in\{2,6\}$, and SGD, 2 seeds each, same
+  200k-iteration budget as the baseline) — new Experiments paragraph "Architecture
+  and optimiser sensitivity" (Section~4.1, table `tab:ablation`). Finding: collapse
+  speed increases with capacity then saturates near the baseline's size; SGD
+  collapses much less than Adam in the same budget; no configuration contradicts
+  Proposition 4. ~30-40 min on CPU (28-core, 4 threads/job), no GPU.
+- **CIFAR-10 EXP-3 replication** (addresses a reviewer critique that EXP-3 was
+  MNIST-only and single-seed): made `src/problems/inpainting.py` and
+  `src/train_exp3.py` channel-agnostic (`InpaintingProblem.channels`,
+  `dataset="mnist"|"cifar10"`; `SmallUNet` was already channel-agnostic) and added
+  `configs/exp3_cifar10.yaml`. Also reran EXP-3 MNIST with 2 more seeds
+  (`exp3_mnist_seed{1,2}`) so the headline EXP-3 numbers in the paper are now a
+  3-seed mean$\pm$std, not a single run (note: seed1/2 accidentally trained to
+  30k iterations instead of matching seed0's 15k-iteration checkpoint schedule —
+  harmless, since 15000 is still a common checkpoint across all three, but see the
+  raw CSVs if you want the deeper-training numbers too). CIFAR-10 (one seed) shows
+  the same qualitative collapse (diverse completions at iter 200 -> visually
+  identical to each other and to the nearest training image by iter 15000),
+  confirming the phenomenon is not an MNIST-simplicity artefact. New figures
+  `fig_exp3_cifar_grid{200,15k}`. This was genuinely slow on CPU (no GPU
+  available): the MNIST U-Net trains at roughly **0.4s/iteration**, ~350x slower
+  per step than EXP-1's MLP; the 3 jobs (2 extra MNIST seeds + CIFAR-10) took
+  **3.2-5.2 hours** each running in parallel (seed1/2 additionally accumulated
+  time from training 2x longer than planned, see above). If you rerun this,
+  budget accordingly and expect real wall-clock, not a quick background task.
+  this.
+
+### Cosine LR schedule for the extended run (2026-09-02)
+
+Resolves an open question from the Limitations section: the original extended
+run (`exp1_cond_seed0_ext`, 1 seed, fixed `lr=1e-3` to 1M iterations) diverges
+near 1M iterations because the collapsed target's Lipschitz constant grows as
+`t->1` and a constant step size eventually overshoots. Added `train.lr_schedule`
+(`none`|`cosine`) + `train.lr_min` to `src/train.py` (`CosineAnnealingLR`,
+stepped every iteration; current `lr` is now logged in `metrics.csv`). New
+config `configs/exp1_extended_schedule.yaml` (same problem/architecture,
+`lr: 1e-3 -> lr_min: 1e-6` over 1M iterations), run for **5 seeds** (previously
+1). Result: no divergence on any of the 5 seeds, and a clean same-seed
+comparison (seed 0, matching 700k checkpoint) shows `trace(Cov)` 0.162 -> 0.128
+with no confound. The 5-seed mean at 1M (`0.120 +/- 0.054`) should *not* be read
+as a tight improvement over the old single-seed value of 0.16 -- between-seed
+spread at 1M is large (0.035-0.186), partly because "seed" here also reseeds
+the problem instance (the linear operator `A`), not just SGD; 0.16 is not
+clearly excluded by `0.120 +/- 0.054`. The tail from 700k->1M (very low lr)
+only improves 4/5 seeds. The memorisation ratio, `0.955 +/- 0.020`, is the
+tightest and most defensible number. Table 1 (`tab:exp1`) and the EXP-1
+discussion/figure (`fig:extended`, now `fig_extended_schedule.png`) were
+revised (2026-09-02, "sửa lại đi" pass) to lead with the same-seed comparison
+and flag the seed-variance/tail caveats instead of just reporting the 5-seed
+mean against the old value; the Limitations paragraph on the residual
+optimisation gap was revised to say the plateau is schedule-sensitive rather
+than a hard floor, without claiming a precise depth improvement. Analysis
+script: `scripts/analyze_exp1_extended_schedule.py`. ~1.5-2.5h on CPU (5 seeds
+in parallel, 5 threads/job) -- no GPU needed, this experiment is MLP-sized.
+
+### External review pass -- fixed an overclaim in Lemma norepr (2026-09-02)
+
+Two external review documents (`paper_evaluation_detailed.md`,
+`paper_evaluation_with_detailed_proofs.md`, both untracked at the repo root, not
+authored by this session) were read end-to-end. Most of their points were
+already addressed by earlier passes this session (empirical-data-law
+terminology, the Lipschitz-capped-only loss floor in Corollary~cor:floor, the
+N-sweep, adversarial-shuffle prominence, the two-different-collapse-meanings
+scope marker, the `buchanan2025edge`/`gradvar2025` positioning). One genuine,
+previously-unnoticed gap survived: `main.tex`'s Introduction (contribution item
+6) and the text right after Lemma~lem:norepr's proof both claimed that
+pointwise non-representability of the $1/(1-t)$ singularity implies a strictly
+positive $L^2$ loss gap for *every* finite architecture, not only the
+Lipschitz-capped class of Corollary~cor:floor. That inference is not valid:
+unbounded pointwise error on a shrinking neighbourhood of $t=1$ is compatible
+with $L_0(v_\theta)\to0$ along a sequence of finite networks with growing (but
+each individually finite) Lipschitz constant -- which is exactly what
+Figure~fig:lipschitz already shows happening empirically (the trained network's
+Lipschitz constant blows up as $t\to1$). Fixed by weakening both passages to
+state only the pointwise/exact non-representability claim (which is correctly
+proved) and explicitly noting that the only proven strict loss floor is the
+Lipschitz-capped one. No experiments changed; recompiled clean (26 pages, 0
+undefined refs/citations).

@@ -1,0 +1,44 @@
+# EXP-1 extended run WITH a cosine LR schedule, to test whether decaying the
+# learning rate avoids the fixed-LR divergence near 10^6 iterations seen in
+# exp1_cond_seed0_ext (Limitations: "reaching total collapse cleanly would need
+# a learning-rate schedule"). Same problem/architecture/checkpoints as that run;
+# the only difference is train.lr_schedule=cosine, decaying from lr=1e-3 down
+# to lr_min=1e-6 over the full 1e6 iterations.
+run_name: exp1_ext_sched_default
+seed: 0
+device: auto
+
+data:
+  d: 2
+  k: 1
+  N: 200
+  sigma_obs: 0.1
+  prior_std: 1.0
+  source_std: 1.0
+  A_kind: random
+
+model:
+  conditional: true
+  width: 128
+  depth: 4
+  time_embed_dim: 64
+  activation: silu
+
+train:
+  max_iters: 1000000
+  batch_size: 256
+  lr: 0.001
+  lr_schedule: cosine
+  lr_min: 0.000001
+  interpolant_sigma: 0.0
+  y_noise_h: 0.0
+  checkpoints: [100, 1000, 10000, 30000, 100000, 200000, 400000, 700000, 1000000]
+
+eval:
+  n_eval_train: 20
+  n_heldout: 8
+  M: 1000
+  n_steps: 100
+  ode_method: rk4
+  ode_eps: 0.001
+  vel_points: 2000

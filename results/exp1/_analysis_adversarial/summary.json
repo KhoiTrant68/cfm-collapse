@@ -1,0 +1,35 @@
+{
+  "n_seeds_real": 5,
+  "n_seeds_shuffled": 5,
+  "trace_post": 1.0040473220529973,
+  "final_trace_cov_real": {
+    "iter": 200000,
+    "mean": 0.39642295856905796,
+    "std": 0.12741703882356556
+  },
+  "final_trace_cov_shuffled": {
+    "iter": 200000,
+    "mean": 0.6248587838141513,
+    "std": 0.10790468857561052
+  },
+  "final_mean_err_train_point_real": {
+    "iter": 200000,
+    "mean": 0.3793663052118924,
+    "std": 0.10230385438231755
+  },
+  "final_mean_err_train_point_shuffled": {
+    "iter": 200000,
+    "mean": 0.55949838449915,
+    "std": 0.10385578323530215
+  },
+  "final_mean_err_post_real": {
+    "iter": 200000,
+    "mean": 0.6564811638217449,
+    "std": 0.1766989156328058
+  },
+  "final_mean_err_post_shuffled": {
+    "iter": 200000,
+    "mean": 1.4370393029637885,
+    "std": 0.1756332867146195
+  }
+}

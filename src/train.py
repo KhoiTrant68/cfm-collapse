@@ -34,6 +34,7 @@ from .flows.cfm import CFMTrainer
 from .flows.interpolants import LinearInterpolant
 from .flows.ode_solver import generate_samples
 from .metrics.kernel_theory import cov_expansion, kernel_moments
+from .metrics.memorization import memorization_ratio
 from .metrics.posterior_stats import posterior_sample_stats, sample_covariance_trace
 from .metrics.velocity_error import velocity_error_vs_closed_form
 from .models.mlp_velocity import build_model
@@ -115,6 +116,10 @@ def evaluate_conditional(model, problem, X, Y, cfg, device, gen) -> list[dict]:
                     "n_eff": neff,
                     "ratio_to_kernel": st.trace_cov / trace_kernel if trace_kernel > 0 else float("nan"),
                     "mean_err_kernel": float(torch.linalg.norm(mean - x_bar_h)),
+                    # per-sample nearest-neighbour memorization ratio (Yoon
+                    # et al. 2023 / arXiv:2508.17689, c=1/9), complementing
+                    # the sample-mean-based diagnostics above.
+                    "memorization_ratio": memorization_ratio(samples, X),
                 })
             else:
                 # Held-out: no specific x^i; measure variance, posterior-mean
@@ -125,6 +130,7 @@ def evaluate_conditional(model, problem, X, Y, cfg, device, gen) -> list[dict]:
                     "trace_cov": sample_covariance_trace(samples),
                     "mean_err_post": float(torch.linalg.norm(mean - mu_post.to(torch.float64))),
                     "dist_to_nearest_train": float(dists.min()),
+                    "memorization_ratio": memorization_ratio(samples, X),
                 })
         return recs
 
@@ -167,6 +173,12 @@ def evaluate_unconditional(model, problem, X, cfg, device, gen) -> list[dict]:
         "trace_cov_std": 0.0,
         "trace_post": problem.posterior_trace(),
         "trace_data": data_trace,
+        # per-sample memorization ratio: even though the unconditional flow
+        # spreads across the *full* empirical measure (Corollary 6) rather
+        # than a single atom, every sample still lands near some training
+        # point, so this should also be high at convergence.
+        "memorization_ratio_mean": memorization_ratio(samples, X),
+        "memorization_ratio_std": 0.0,
         "n_eval": 1,
     }]
 
@@ -203,6 +215,21 @@ def train(cfg: dict, out_root: str | Path) -> Path:
     save_json(problem.to_dict(), run_dir / "problem.json")
     X, Y = problem.sample_dataset(dc["N"], seed=cfg["seed"] + 1)
 
+    if dc.get("shuffle_labels", False):
+        # Adversarial-pairing ablation (cf. gradvar2025's shuffled-target test):
+        # permute Y relative to X so (x^i, y^i) is no longer the true generative
+        # pair. Proposition 4 only needs the y^i to be pairwise distinct -- it
+        # never uses A or sigma_obs -- so the theory predicts collapse to the
+        # *shuffled* x^i regardless. mu_post(y_i) below still uses the true A,
+        # so it now targets an x unrelated to the shuffled x^i: a converging
+        # mean_err_train_point alongside a non-converging mean_err_post is the
+        # signature that memorisation tracks the (adversarial) label identity,
+        # not any real posterior structure.
+        g_shuf = torch.Generator().manual_seed(cfg["seed"] + 9999)
+        perm = torch.randperm(X.shape[0], generator=g_shuf)
+        Y = Y[perm]
+        save_json({"perm": perm.tolist()}, run_dir / "shuffle_perm.json")
+
     # ---- model + trainer ---------------------------------------------------
     conditional = cfg["model"].get("conditional", True)
     cond_dim = problem.k if conditional else 0
@@ -215,9 +242,31 @@ def train(cfg: dict, out_root: str | Path) -> Path:
         y_noise_h=cfg["train"].get("y_noise_h", 0.0), device=device,
     )
 
-    opt = torch.optim.Adam(model.parameters(), lr=cfg["train"].get("lr", 1e-3))
+    opt_name = cfg["train"].get("optimizer", "adam").lower()
+    lr = cfg["train"].get("lr", 1e-3)
+    if opt_name == "adam":
+        opt = torch.optim.Adam(model.parameters(), lr=lr)
+    elif opt_name == "sgd":
+        opt = torch.optim.SGD(
+            model.parameters(), lr=lr,
+            momentum=cfg["train"].get("momentum", 0.9),
+        )
+    else:
+        raise ValueError(f"Unknown train.optimizer={opt_name!r} (expected adam|sgd)")
     batch_size = cfg["train"].get("batch_size", 256)
     max_iters = cfg["train"]["max_iters"]
+
+    lr_schedule = cfg["train"].get("lr_schedule", "none").lower()
+    if lr_schedule == "none":
+        sched = None
+    elif lr_schedule == "cosine":
+        lr_min = cfg["train"].get("lr_min", lr * 1e-2)
+        sched = torch.optim.lr_scheduler.CosineAnnealingLR(
+            opt, T_max=max_iters, eta_min=lr_min,
+        )
+    else:
+        raise ValueError(f"Unknown train.lr_schedule={lr_schedule!r} (expected none|cosine)")
+
     checkpoints = cfg["train"].get("checkpoints") or default_checkpoints(max_iters)
     if isinstance(checkpoints, (int, float, str)):
         checkpoints = [checkpoints]
@@ -228,6 +277,9 @@ def train(cfg: dict, out_root: str | Path) -> Path:
 
     print(f"[{cfg['run_name']}] device={device} conditional={conditional} "
           f"N={dc['N']} d={problem.d} k={problem.k} sigma_obs={dc['sigma_obs']} "
+          f"width={cfg['model'].get('width')} depth={cfg['model'].get('depth')} "
+          f"optimizer={opt_name} lr={lr} lr_schedule={lr_schedule} "
+          f"shuffle_labels={dc.get('shuffle_labels', False)} "
           f"max_iters={max_iters} trace_post={problem.posterior_trace():.5f}")
 
     metric_rows: list[dict] = []
@@ -240,8 +292,9 @@ def train(cfg: dict, out_root: str | Path) -> Path:
             rows = evaluate_conditional(model, problem, X, Y, cfg, device, eval_gen)
         else:
             rows = evaluate_unconditional(model, problem, X, cfg, device, eval_gen)
+        cur_lr = opt.param_groups[0]["lr"]
         for r in rows:
-            r.update({"iter": it, "train_loss": loss_ema,
+            r.update({"iter": it, "train_loss": loss_ema, "lr": cur_lr,
                       "elapsed_s": time.time() - t_start})
             metric_rows.append(r)
         model.train()
@@ -262,6 +315,8 @@ def train(cfg: dict, out_root: str | Path) -> Path:
         loss = trainer.loss_with_model(model, batch_size, generator=train_gen)
         loss.backward()
         opt.step()
+        if sched is not None:
+            sched.step()
         lv = float(loss.detach())
         loss_ema = lv if loss_ema is None else 0.99 * loss_ema + 0.01 * lv
 

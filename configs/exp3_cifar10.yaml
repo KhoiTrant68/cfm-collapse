@@ -1,0 +1,32 @@
+# EXP-3b: CIFAR-10 inpainting (bottom-half mask) -- harder analogue of EXP-3
+# (MNIST). Same setup/mechanism, natural RGB images instead of digits, to
+# probe whether the collapse phenomenon (Section 4, EXP-3) is an artefact of
+# MNIST's simplicity. See src/problems/inpainting.py (dataset="cifar10").
+run_name: exp3_cifar10_default
+seed: 0
+device: auto
+
+data:
+  dataset: cifar10
+  N: 500                # same scale as the MNIST EXP-3 run, for comparability
+  mask_kind: bottom_half
+  source_std: 1.0
+  data_root: data
+
+model:
+  base: 32
+  temb_dim: 128
+
+train:
+  max_iters: 15000      # same budget as the MNIST run
+  batch_size: 64
+  lr: 0.0002
+  checkpoints: [200, 1000, 3000, 7000, 15000]
+
+eval:
+  n_conditions: 6
+  M: 16
+  n_steps: 50
+  ode_eps: 0.001
+  grid_conditions: 4
+  grid_M: 6

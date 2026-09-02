@@ -27,6 +27,7 @@ from .flows.cfm import CFMTrainer
 from .flows.interpolants import LinearInterpolant
 from .flows.ode_solver import generate_samples
 from .metrics.distances import mmd_rbf, sinkhorn_distance
+from .metrics.memorization import memorization_ratio
 from .metrics.mode_coverage import mode_coverage
 from .metrics.posterior_stats import sample_covariance_trace
 from .models.mlp_velocity import build_model
@@ -79,7 +80,8 @@ def evaluate(model, problem: GMMProblem, X, Y, cfg, device, gen) -> dict:
         d_train = float(torch.linalg.norm(X.to(torch.float64) - mean[None, :], dim=1).min())
         recs.append({**mc, "mmd": mmd, "sinkhorn": sink,
                      "trace_cov": sample_covariance_trace(samples),
-                     "dist_to_nearest_train": d_train})
+                     "dist_to_nearest_train": d_train,
+                     "memorization_ratio": memorization_ratio(samples, X)})
 
     out = {"group": "train", "n_eval": len(recs)}
     for k in recs[0]:
