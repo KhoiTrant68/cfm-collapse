@@ -1,0 +1,91 @@
+{
+  "constant_budget": [
+    {
+      "N": 100,
+      "iter": 30000,
+      "n_seeds": 3,
+      "samples_per_image": 19200.0,
+      "pixel_var_inpaint_mean": 0.00012041101460150139,
+      "pixel_var_inpaint_mean_std": 2.0696491003217813e-05,
+      "nn_dist_mean": 7.380989255679347e-05,
+      "nn_dist_mean_std": 2.9218292970800777e-05
+    },
+    {
+      "N": 500,
+      "iter": 30000,
+      "n_seeds": 3,
+      "samples_per_image": 3840.0,
+      "pixel_var_inpaint_mean": 0.0004484018572838667,
+      "pixel_var_inpaint_mean_std": 7.368898861351282e-05,
+      "nn_dist_mean": 0.0003710415144774,
+      "nn_dist_mean_std": 4.57349897563251e-06
+    },
+    {
+      "N": 2000,
+      "iter": 30000,
+      "n_seeds": 3,
+      "samples_per_image": 960.0,
+      "pixel_var_inpaint_mean": 0.001794069122600667,
+      "pixel_var_inpaint_mean_std": 0.0002433056046611217,
+      "nn_dist_mean": 0.0013009779860213332,
+      "nn_dist_mean_std": 0.00030845778546835783
+    }
+  ],
+  "constant_exposure": [
+    {
+      "N": 100,
+      "iter": 6000,
+      "n_seeds": 1,
+      "samples_per_image": 3840.0,
+      "pixel_var_inpaint_mean": 0.0008591726558127,
+      "nn_dist_mean": 0.0003829161432804,
+      "train_loss": 0.0159439351822803
+    },
+    {
+      "N": 500,
+      "iter": 30000,
+      "n_seeds": 1,
+      "samples_per_image": 3840.0,
+      "pixel_var_inpaint_mean": 0.0003786367742577,
+      "nn_dist_mean": 0.0003762420625813,
+      "train_loss": 0.0088798771041986
+    },
+    {
+      "N": 2000,
+      "iter": 120000,
+      "n_seeds": 1,
+      "samples_per_image": 3840.0,
+      "pixel_var_inpaint_mean": 0.0003678458451759,
+      "nn_dist_mean": 0.0002585803352606,
+      "train_loss": 0.0079643730774224
+    }
+  ],
+  "matched_loss": [
+    {
+      "train_loss": 0.03,
+      "100": 0.003094397535714671,
+      "500": 0.0057818027211668085,
+      "2000": 0.010346659960842938
+    },
+    {
+      "train_loss": 0.02,
+      "100": 0.0010945059494163025,
+      "500": 0.0027651129594676005,
+      "2000": 0.003134641674671826
+    },
+    {
+      "train_loss": 0.015,
+      "100": 0.0007759975369129675,
+      "500": 0.0012303129587420707,
+      "2000": 0.001374868252650873
+    },
+    {
+      "train_loss": 0.01,
+      "100": 0.0003152248767511391,
+      "500": 0.0006159892669523486,
+      "2000": 0.0005804834893095996
+    }
+  ],
+  "exponent_constant_budget": 0.8994679131301817,
+  "exponent_constant_exposure": -0.2891882456790969
+}

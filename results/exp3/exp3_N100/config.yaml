@@ -1,0 +1,28 @@
+run_name: exp3_N100
+seed: 0
+device: auto
+data:
+  N: 100
+  mask_kind: bottom_half
+  source_std: 1.0
+  data_root: data
+model:
+  base: 32
+  temb_dim: 128
+train:
+  max_iters: 30000
+  batch_size: 64
+  lr: 0.0002
+  checkpoints:
+  - 200
+  - 1000
+  - 5000
+  - 15000
+  - 30000
+eval:
+  n_conditions: 6
+  M: 16
+  n_steps: 50
+  ode_eps: 0.001
+  grid_conditions: 4
+  grid_M: 6
