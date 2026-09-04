@@ -23,6 +23,9 @@
 | **Ablation** | Kiến trúc/optimizer khác (width, depth, SGD, 2 seed/config) | ✅ **KHỚP** | Collapse speed tăng theo capacity rồi bão hoà (width≥128, depth≥4); Adam vượt trội SGD rõ rệt (0.396 vs 0.711 ở cùng ngân sách). Không config nào mâu thuẫn Prop 4. |
 | **LR schedule** | Cosine decay cho run mở rộng 1M iter (5 seed) | ✅ **KHỚP** | Hết diverge (trước: bùng nổ ~1M iter). So sánh cùng-seed (seed 0, cùng checkpoint 700k): `trace(Cov)` 0.162→0.128, rồi 0.115 @ 1M. Trung bình 5 seed @ 1M: **0.120 ± 0.054** — độ lệch giữa seed lớn (0.035–0.186) nên không coi là "sâu hơn" 0.16 một cách chắc chắn, chỉ là bằng chứng ổn định. memorization ratio **0.955 ± 0.020** (chỉ số chắc chắn nhất). |
 
+| **EXP-3 N-sweep** | (N tại budget cố định: **không** do lý thuyết xác định) | ➖ **THỰC NGHIỆM** | Ở budget cố định 30k iter, pixel-var tăng theo N với số mũ **+0.90** (chênh 14.9×, 3 seed). Nhưng exposure mỗi ảnh = 30000·64/N ∝ 1/N, nên đường cong này **không phân biệt được** "phụ thuộc N" với "phụ thuộc tiến độ tối ưu hoá". Giữ exposure cố định: số mũ về **−0.29** (chênh 2.3×); khớp theo loss: N=500 ≈ N=2000. Phần lớn phụ thuộc N là artifact của ngân sách; hiệu ứng thật còn ~2×. |
+| **Gap diagnostic (h=0.1, 1M iter)** | Plateau ở h>0: optimisation hay representation? | ✅ **OPTIMISATION** | `ratio_to_kernel` 1.65 → **1.00** từ 10⁵ rồi phẳng; `‖mean − x̄_h‖` 0.188 → 0.0534 (10⁵) → **0.0220** (10⁶), vẫn giảm ở cuối ngân sách, **không thấy sàn**. Bằng chứng *dương* cho cách đọc optimisation-paced, bổ sung cho lập luận loại trừ ở T6. |
+
 **Kết luận: các hệ quả population được lý thuyết xác định (P1–P4, P7) đều KHỚP.** Giả thuyết trung tâm được xác nhận trên cả 3 thí nghiệm: khi điều kiện trên `y`, biến `y⁽ⁱ⁾` đóng vai trò định danh training sample, cơ chế "resample `x₀`" mất tác dụng, và minimizer sụp về `δ_{x⁽ⁱ⁾}`. Sự sụp đổ **tăng đơn điệu theo mức độ overtraining** (điều khiển bởi loss→0), và **chỉ khôi phục variance được bằng nhiễu trên chính biến điều kiện y** — nhãn nhoè `y` chính là kernel regression trên các atom training (Thm 10), còn nhiễu interpolant **không** đổi endpoint law (Prop 17c).
 
 > **Quy tắc phát ngôn (docs/THEORY.md Part E).** P5 (theo σ_obs) và P6 (theo N tại capacity cố định) **không** phải là "dự đoán lý thuyết" — lý thuyết population không xác định chúng. Chúng được báo cáo là **phát hiện thực nghiệm** (ký hiệu ➖), không phải "khớp"/"không khớp". Kết quả phẳng của P5 *nhất quán với*, chứ không *bác bỏ*, cơ chế định-danh-qua-y.
@@ -310,6 +313,8 @@ Script: `scripts/analyze_exp1_extended_schedule.py`.
 
 **Lưu ý phát ngôn (Part E).** Population optimum **sụp với mọi N hữu hạn** (Prop 4) — sự phụ thuộc của collapse *quan sát được* vào N tại **capacity cố định** không do lý thuyết population xác định, nên đây là phát hiện thực nghiệm, không phải "dự đoán khớp". Kết quả: đơn điệu và rất rõ, ổn định qua 5 seed (std nhỏ hơn nhiều so với khoảng cách giữa các N) — N nhỏ → mạng ghi nhớ hết → sụp gần hoàn toàn (N=50: variance ~5% posterior); N=5000 → **gần như không sụp** (≈ posterior thật, 99%). Việc N=5000 không sụp cho thấy **khoảng cách giữa nghiệm chính xác và regime representation/optimisation**, **không** bác bỏ Prop 4. Đây cũng là lý do EXP-3 dùng N nhỏ để lộ collapse trong budget hữu hạn.
 
+> **⚠️ Bổ sung 2026-09-05 — sweep này có một confound chưa được kiểm soát.** Cả 4 điểm N chạy ở **cùng 2×10⁵ iteration và cùng batch size**, nên số gradient sample mỗi điểm training nhận được tỉ lệ **1/N**. Nghĩa là "tỉ lệ sụp theo N" và "tỉ lệ sụp theo tiến độ tối ưu hoá trên mỗi mẫu" là **cùng một đường cong**, không tách được bằng dữ liệu hiện có. Sweep tương ứng trên EXP-3 (xem mục *EXP-3 N-sweep* bên dưới) đã chạy đối chứng: giữ exposure cố định thì phụ thuộc N gần như biến mất (chênh 14.9× → 2.3×). Điều đó **ủng hộ** câu rào đón sẵn có ở trên ("đo khoảng cách representation/optimisation, không bác bỏ Prop 4") — nhưng cũng có nghĩa là bảng P6 này nên được đọc là *một budget cố định đi được tới đâu ở mỗi N*, chứ không phải *population optimum phụ thuộc N thế nào*. Chưa chạy lại P6 của EXP-1 dưới đối chứng exposure.
+
 ### P5 — Sụp vs nhiễu quan sát σ_obs ➖ (phát hiện thực nghiệm)
 
 ![P5](exp1/_sweeps/figures/P5_sigma_obs.png)
@@ -438,6 +443,28 @@ Hai điều đọc được: (1) `gap` **giảm đơn điệu về 0** theo iter
 
 ---
 
+### T8 — Gap ở h>0 có đóng lại theo ngân sách không? ✅ (2026-09-05)
+
+T5/T6 bác bỏ được **giả thuyết Lipschitz** cho plateau ở h=0, nhưng chưa trả lời trực tiếp: phần dư ở **h>0** là optimisation gap (ngân sách dài hơn sẽ đóng lại) hay representation floor (không ngân sách nào đóng được)? Chạy `configs/exp1_extended_schedule_h01.yaml` — h=0.1, cosine schedule, **10⁶ iter, 5 seed**.
+
+| iter | 10² | 10⁴ | 10⁵ | 4×10⁵ | 10⁶ |
+|------|-----|-----|-----|-------|-----|
+| `ratio_to_kernel` (đích 1) | 1.649 | 1.062 | 1.002 | 0.997 | 1.004 |
+| `‖mean − x̄_h‖` (đích 0) | 0.188 | 0.151 | 0.0534 | 0.0314 | **0.0220** |
+| `trace(Cov)` | 1.091 | 1.087 | 1.035 | 1.018 | 1.056 |
+
+(trung vị 5 seed; `trace(Σ_post)` = 1.004)
+
+**Kết luận: optimisation, không phải representation.** Hiệp phương sai chạm tối ưu kernel từ 10⁵ rồi giữ nguyên; sai số trung bình **vẫn đang giảm ở cuối ngân sách** — thêm 2.4× trong decade cuối, **không xuất hiện sàn**. Representation floor sẽ biểu hiện thành plateau; không có. Đây là bằng chứng *dương*, bổ sung cho lập luận *loại trừ* ở T6. Nó chỉ chặn một phía: không cho biết sàn cuối cùng nằm ở đâu.
+
+**⚠️ Đọc bằng metric sai sẽ ra kết luận ngược.** `vel_rel_err` ở h=0.1 gần như đứng yên (0.78 → 0.65 qua 10⁶ iter), trong khi ở h=0 nó giảm 0.78 → 0.15. Nhưng `src/metrics/velocity_error.py` đo khoảng cách tới trường **collapsed** `v*(x,t,y) = (xⁱ−x)/(1−t)` — công thức **không chứa h**. Ở h=0.1 một model *đúng đắn không chịu collapse* thì **buộc phải** ở xa nó. Chỉ các đại lượng h-aware của Prop 13 (`kernel_theory.py`) mới trả lời được câu hỏi.
+
+Phụ: `n_eff` = **25.1** (trung vị; 13.7–43.9 giữa các seed) ở h=0.1 so với **1.00** ở h=0 — kernel thật sự trung bình hoá nhiều atom thay vì sụp về một. `n_eff` không đổi theo iteration vì nó chỉ phụ thuộc (X, Y, h). Loss ở h=0.1 dừng ở ~1.49 (irreducible error tăng theo h, đúng như T5), còn h=0 xuống 0.152. memorization ratio: h=0 → **0.963**, h=0.1 → **0.763** — làm mượt giảm ghi nhớ nhưng không xoá.
+
+**Seed 4 là outlier ở `ratio_to_kernel`** (2.85 so với 0.99–1.03 của 4 seed kia): ma trận A ngẫu nhiên của seed đó cho `Cov_h` gần suy biến nên tỉ số bị ill-conditioned. `‖mean − x̄_h‖` — không chia cho số nhỏ — vẫn ổn định trên chính seed đó (0.019–0.026 trên cả 5 seed). Vì vậy báo cáo bằng **trung vị**, không phải mean ± std.
+
+Kết quả: `results/exp1/exp1_ext_sched_h01_seed{0..4}/`.
+
 ## EXP-2 — Gaussian Mixture: selective memorization ✅
 
 Prior GMM 4 mode tại `(±2,±2)`, `A` chiếu `R²→R¹` (mất thông tin) → **hậu nghiệm lưỡng phong** dạng đóng (2 mode, trọng số ~0.5/0.5 mỗi `y`). N=100, 300k iter, 2 seed. Ground truth = GMM posterior giải tích; đo mode coverage + MMD/Sinkhorn.
@@ -475,6 +502,47 @@ Che **nửa dưới** ảnh MNIST 32×32 (N=500), điều kiện `y` = nửa tr�
 **Định tính (hình grid):** ở **iter 200** cùng một nửa-trên cho ra các nửa-dưới **đa dạng** (bộ lấy mẫu posterior đúng); ở **iter 15000** mọi completion **giống hệt nhau** bất kể `x₀` và trùng khớp ảnh **true** = ảnh **NN-train** → memorize đúng điểm training.
 
 Hình: `results/exp3/exp3_mnist_seed0/figures/grid_it200.png` (đa dạng) vs `grid_it15000.png` (sụp về 1 ảnh). Khớp hoàn toàn kịch bản collapse/selective memorization của spec Section 5.
+
+### EXP-3 N-sweep — và cái bẫy exposure ➖ (phát hiện thực nghiệm, 2026-09-05)
+
+Chạy trên 2× Quadro RTX 6000, ~13 phút/run (so với ~3 giờ/run trên CPU).
+
+**A — budget cố định (30000 iter, batch 64, 3 seed mỗi điểm).**
+
+| N | grad samples / ảnh | pixel-var vùng inpaint | dist tới ảnh train gần nhất |
+|---|---|---|---|
+| 100 | 19 200 | (1.20 ± 0.21)×10⁻⁴ | (7.4 ± 2.9)×10⁻⁵ |
+| 500 | 3 840 | (4.48 ± 0.74)×10⁻⁴ | (3.71 ± 0.05)×10⁻⁴ |
+| 2000 | 960 | (1.79 ± 0.24)×10⁻³ | (1.30 ± 0.31)×10⁻³ |
+
+Số mũ log-log **+0.90**, chênh **14.9×**. Nhìn như một scaling law sạch theo N — nhưng **không được đọc như vậy**: cột giữa tỉ lệ chính xác với 1/N, nên số mũ ≈ +1 là điều **cả hai** cách giải thích đều dự đoán.
+
+**B — exposure cố định (3840 gradient sample mỗi ảnh, seed 0).**
+
+| N | iters | pixel-var | dist NN | train loss cuối |
+|---|---|---|---|---|
+| 100 | 6 000 | 8.59×10⁻⁴ | 3.83×10⁻⁴ | 0.0159 |
+| 500 | 30 000 | 3.79×10⁻⁴ | 3.76×10⁻⁴ | 0.0089 |
+| 2000 | 120 000 | 3.68×10⁻⁴ | 2.59×10⁻⁴ | 0.0080 |
+
+Số mũ về **−0.29**, chênh còn **2.3×**, hết đơn điệu. N=500 vs N=2000 lệch **3%**, trong khi std giữa seed ở N=500 là **17%** → không phân biệt được.
+
+**C — khớp theo training loss** (nội suy trên mọi checkpoint của mọi run ở mỗi N; đối chứng không giả định exposure là đơn vị đúng).
+
+| train loss | N=100 | N=500 | N=2000 |
+|---|---|---|---|
+| 0.030 | 3.09×10⁻³ | 5.78×10⁻³ | 1.03×10⁻² |
+| 0.020 | 1.09×10⁻³ | 2.77×10⁻³ | 3.13×10⁻³ |
+| 0.015 | 7.76×10⁻⁴ | 1.23×10⁻³ | 1.37×10⁻³ |
+| 0.010 | 3.15×10⁻⁴ | 6.16×10⁻⁴ | 5.80×10⁻⁴ |
+
+N=500 và N=2000 lệch 6–13% với dấu không nhất quán → như nhau. N=100 thấp hơn đều đặn ~2×.
+
+**Kết luận.** Phần lớn phụ thuộc N ở budget cố định là **artifact của ngân sách tối ưu hoá**, không phải của N. Hiệu ứng N thật còn lại ~**2×** (không phải ~15×), hướng đúng trực giác (ít atom hơn → dễ nhớ hơn). Việc phụ thuộc N gần như biến mất khi khống chế ngân sách chính là điều **Prop 4 dự đoán** — population minimizer sụp với *mọi* N hữu hạn, nên một phụ thuộc N nội tại lớn mới là điều đáng ngạc nhiên.
+
+**Cảnh báo trung thực.** B và C mỗi điểm chỉ 1 seed (A có 3 seed). Điểm N=100 của B cũng là run ít hội tụ nhất (loss 0.0159 vs 0.0080) — chính vì thế phải có C, và C đồng thuận. Ngoài ra run 120k tại mốc chung iter=30000 cho 1.503×10⁻³ còn run 30k cho 1.516×10⁻³ dù **cùng seed, cùng config**: kernel cuDNN không tất định cộng điều kiện chia sẻ GPU khác nhau, khuếch đại qua 30 000 bước. Lệch 0.8% (pixel-var) và 17% (nn_dist), nằm trong nhiễu seed — nhưng nghĩa là số EXP-3 **không** tái lập tới từng chữ số trên GPU.
+
+Script: `scripts/analyze_exp3_n_sweep.py`. Kết quả: `results/exp3/_n_sweep/`.
 
 ### EXP-3b — CIFAR-10 inpainting (dataset khó hơn) ✅ (2026-09-02)
 

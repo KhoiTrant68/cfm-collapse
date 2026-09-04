@@ -237,10 +237,81 @@ def fig_exp2_curves():
     print("wrote fig_exp2_curves.png")
 
 
+# --------------------------------------------------------------------------
+def fig_exp3_n_sweep():
+    """EXP-3 N-sweep, constant budget vs constant per-image exposure.
+
+    Both panels share a y-axis: the point of the figure is that the apparent
+    N-dependence on the left (exponent ~ +0.9) largely disappears on the right
+    once the per-image gradient exposure is held fixed, so the left panel is
+    measuring optimisation progress rather than N.
+    """
+    import json
+    d = json.load(open("results/exp3/_n_sweep/summary.json", encoding="utf-8"))
+    a, b = d["constant_budget"], d["constant_exposure"]
+    Na = [r["N"] for r in a]; ya = [r["pixel_var_inpaint_mean"] for r in a]
+    ea = [r["pixel_var_inpaint_mean_std"] for r in a]
+    Nb = [r["N"] for r in b]; yb = [r["pixel_var_inpaint_mean"] for r in b]
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 4.0), sharey=True)
+    ax1.errorbar(Na, ya, yerr=ea, fmt="o-", capsize=4, color=OI["vermillion"],
+                 label=f"slope ${d['exponent_constant_budget']:+.2f}$")
+    ax1.set_title("constant budget (30k iters, 3 seeds)")
+    ax1.set_ylabel("inpaint-region pixel variance")
+    ax2.plot(Nb, yb, "s-", color=OI["blue"],
+             label=f"slope ${d['exponent_constant_exposure']:+.2f}$")
+    ax2.set_title("constant exposure (3840 samples/image)")
+    for ax in (ax1, ax2):
+        ax.set_xscale("log"); ax.set_yscale("log")
+        ax.set_xlabel("$N$ (training set size)")
+        ax.legend(loc="best"); style(ax)
+    fig.tight_layout(); fig.savefig(OUT / "fig_exp3_n_sweep.png"); plt.close(fig)
+    print("wrote fig_exp3_n_sweep.png")
+
+
+# --------------------------------------------------------------------------
+def fig_gap_diagnostic_h01():
+    """EXP-1 h=0.1 budget extension: distance to the Prop-13 kernel optimum.
+
+    The point is that neither curve has bottomed out at 1e6 iterations, so the
+    residual gap at h>0 is paced by optimisation, not by a representation floor.
+    """
+    import glob
+    rows = []
+    for run in sorted(glob.glob("results/exp1/exp1_ext_sched_h01_seed*")):
+        df = pd.read_csv(f"{run}/raw/metrics.csv")
+        rows.append(df[df["group"] == "train"])
+    if not rows:
+        print("  [skip] fig_gap_diagnostic_h01: no h=0.1 runs found")
+        return
+    all_ = pd.concat(rows)
+    g = all_.groupby("iter")
+    it = np.array(sorted(all_["iter"].unique()), float)
+    ratio = g["ratio_to_kernel_mean"].median().values
+    merr = g["mean_err_kernel_mean"].median().values
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 4.0))
+    ax1.axhline(1.0, color=OI["black"], lw=1.0, ls="--", label="kernel optimum")
+    ax1.plot(it, ratio, "o-", color=OI["green"],
+             label=r"$\mathrm{tr}\,\mathrm{Cov}\,/\,\mathrm{tr}\,\mathrm{Cov}_h$")
+    ax1.set_xscale("log"); ax1.set_ylabel("ratio to kernel covariance")
+    ax1.set_ylim(0.9, 1.8)
+    ax2.plot(it, merr, "o-", color=OI["green"])
+    ax2.set_xscale("log"); ax2.set_yscale("log")
+    ax2.set_ylabel(r"$\|\mathrm{mean}-\bar{x}_h\|$")
+    for ax in (ax1, ax2):
+        ax.set_xlabel("iteration"); style(ax)
+    ax1.legend(loc="best")
+    fig.tight_layout(); fig.savefig(OUT / "fig_gap_diagnostic_h01.png"); plt.close(fig)
+    print("wrote fig_gap_diagnostic_h01.png")
+
+
 if __name__ == "__main__":
     fig_optimality_gap()
     fig_posterior_distance()
     fig_lipschitz()
     fig_p7_summary()
     fig_exp2_curves()
+    fig_exp3_n_sweep()
+    fig_gap_diagnostic_h01()
     print("done")

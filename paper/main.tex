@@ -1735,6 +1735,86 @@ reported as empirical findings (Section~\ref{sec:scope}).}
 \end{figure}
 
 
+\subsection{An $N$-sweep on EXP-3, and what it actually measures (empirical)}
+\label{sec:nsweep3}
+
+Table~\ref{tab:sweeps} sweeps $N$ on EXP-1 at a fixed iteration budget. We repeat
+that sweep on the image experiment, and add the control the EXP-1 version lacks.
+
+At $N\in\{100,500,2000\}$ and a fixed $30000$ iterations with batch $64$
+(3 seeds each), the inpaint-region pixel variance rises monotonically with $N$, by
+$14.9\times$, with a log--log slope of $+0.90$ (Table~\ref{tab:nsweep3}A). Taken
+alone that looks like a clean scaling law in $N$. It is not safe to read it that
+way. At a fixed budget the number of gradient samples each training image receives
+is $30000\times64/N$, i.e.\ exactly proportional to $1/N$, so ``variance grows like
+$N$'' and ``variance grows as optimisation progress per image shrinks'' are the same
+curve. A slope of $\approx+1$ is what \emph{either} explanation predicts.
+
+Two controls separate them. Holding the per-image exposure fixed at $3840$ gradient
+samples instead ($N{=}100$ at $6$k iterations, $N{=}500$ at $30$k, $N{=}2000$ at
+$120$k), the slope drops to $-0.29$ and the spread from $14.9\times$ to
+$2.3\times$; $N{=}500$ and $N{=}2000$ then differ by $3\%$, against a $17\%$
+seed-to-seed standard deviation (Table~\ref{tab:nsweep3}B, Figure~\ref{fig:nsweep3}).
+Lining the runs up by training loss instead of by iteration---a control that does not
+assume exposure is the right currency---gives the same answer: $N{=}500$ and
+$N{=}2000$ agree to $6$--$13\%$ with inconsistent sign at every loss level, while
+$N{=}100$ sits about $2\times$ lower (Table~\ref{tab:nsweep3}C).
+
+So most of the apparent $N$-dependence at fixed budget is an optimisation-budget
+effect, and the residual genuine effect is a factor $\approx2$ rather than
+$\approx15$. This is what Proposition~\ref{prop:collapse} would lead one to expect:
+the population minimiser is collapsed for \emph{every} finite $N$, so a large
+intrinsic $N$-dependence would be the surprising outcome. It also sharpens the
+caveat already attached to the EXP-1 sweep in Table~\ref{tab:sweeps}, which shares
+the same fixed-budget design and therefore the same confound: that sweep is best
+read as a statement about how far a fixed budget gets you at each $N$, not about
+how the population optimum depends on $N$. We have not rerun the EXP-1 sweep under
+an exposure control; the EXP-3 evidence here is what supports the reading.
+
+\begin{table}[htb]
+\centering\small
+\begin{tabular}{lccc}
+\toprule
+\textbf{A. constant budget} ($30000$ iters, 3 seeds) & $N{=}100$ & $N{=}500$ & $N{=}2000$\\
+\midrule
+grad.\ samples per image & $19200$ & $3840$ & $960$\\
+inpaint pixel variance   & $1.20(21)\times10^{-4}$ & $4.48(74)\times10^{-4}$ & $1.79(24)\times10^{-3}$\\
+NN distance to train image & $7.4(2.9)\times10^{-5}$ & $3.71(5)\times10^{-4}$ & $1.30(31)\times10^{-3}$\\
+\midrule
+\textbf{B. constant exposure} ($3840$/image, seed 0) & $N{=}100$ & $N{=}500$ & $N{=}2000$\\
+\midrule
+iterations               & $6000$ & $30000$ & $120000$\\
+inpaint pixel variance   & $8.59\times10^{-4}$ & $3.79\times10^{-4}$ & $3.68\times10^{-4}$\\
+final training loss      & $0.0159$ & $0.0089$ & $0.0080$\\
+\midrule
+\textbf{C. matched training loss} & $N{=}100$ & $N{=}500$ & $N{=}2000$\\
+\midrule
+at loss $0.020$          & $1.09\times10^{-3}$ & $2.77\times10^{-3}$ & $3.13\times10^{-3}$\\
+at loss $0.015$          & $7.76\times10^{-4}$ & $1.23\times10^{-3}$ & $1.37\times10^{-3}$\\
+at loss $0.010$          & $3.15\times10^{-4}$ & $6.16\times10^{-4}$ & $5.80\times10^{-4}$\\
+\bottomrule
+\end{tabular}
+\caption{EXP-3 $N$-sweep (empirical, not determined by the population theory).
+Panel A is the fixed-budget sweep: slope $+0.90$ in $\log N$, spread $14.9\times$.
+Panel B holds the per-image gradient exposure fixed instead: slope $-0.29$, spread
+$2.3\times$. Panel C lines the runs up by training loss, interpolating over every
+checkpoint of every run at that $N$. Parenthesised digits are the standard deviation
+over 3 seeds in the last digits shown; panels B and C use a single seed per point,
+so the $N{=}100$ gap in B (whose run is also the least converged, loss $0.0159$) is
+best read together with C rather than alone.}
+\label{tab:nsweep3}
+\end{table}
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.85\textwidth]{fig_exp3_n_sweep.png}
+\caption{EXP-3 $N$-sweep on a shared $y$-axis. Left: at a fixed $30000$-iteration
+budget the inpaint-region variance rises like $N^{+0.90}$. Right: at a fixed
+per-image gradient exposure the same three $N$ values are nearly flat. The
+difference between the panels is the confound, not the data.}
+\label{fig:nsweep3}
+\end{figure}
+
 \subsection{Additional verification (gap to optimum, Lipschitz, posterior distance)}
 \label{sec:aux}
 
@@ -1798,6 +1878,66 @@ monotone over $h\ge0.05$, varying only within $3.1$--$3.5$ there). Neither appro
 $0$ at any $h$---the $h$-independent atomicity floor of
 Proposition~\ref{prop:atomicity}.}
 \label{fig:postdist}
+\end{figure}
+
+(iv)~\emph{Does the gap close with budget?} Items (i)--(iii) leave open whether the
+residual gap at $h>0$ is an optimisation gap that a longer run would close, or a
+representation floor that no budget can. We test this directly by extending the
+$h{=}0.1$ run to $10^6$ iterations under the cosine schedule of
+Section~\ref{sec:exp1}, over 5 seeds (Table~\ref{tab:gaph01},
+Figure~\ref{fig:gaph01}). The covariance reaches the kernel optimum early and stays
+there ($\tr\Cov/\tr\Covh = 1.65 \to 1.00$ by $10^5$, then flat to $10^6$), while the
+mean error $\|\text{mean}-\bar x_h\|$ keeps falling, $0.188 \to 0.0534$ at $10^5$
+$\to 0.0220$ at $10^6$: a further factor $2.4$ over the last decade of budget, with
+no sign of a floor. A representation limit would show as a plateau; none appears
+within $10^6$ iterations. This is positive evidence for the optimisation-paced
+reading of Section~\ref{sec:limitations}, complementing the elimination argument in
+(ii)---though it bounds the gap from one side only, and does not tell us where the
+floor eventually lies.
+
+Read this against the \emph{wrong} lens for comparison. The relative velocity error
+to the collapsed field $(x^{i}-x)/(1-t)$ of Section~\ref{sec:theory-hard} barely moves at $h{=}0.1$
+($0.78\to0.65$ over the same $10^6$ iterations) while at $h{=}0$ it falls
+$0.78\to0.15$. That is not a representation limit either: the reference $\vstar$ at
+$h{=}0$ does not depend on $h$, so at $h{=}0.1$ a model that correctly refuses to
+collapse \emph{must} stay far from it. The $h$-aware Proposition~\ref{prop:moments}
+quantities are the only ones that answer the question, which is why they are what
+Table~\ref{tab:gaph01} reports.
+
+\begin{table}[htb]
+\centering\small
+\begin{tabular}{lccccc}
+\toprule
+iteration & $10^2$ & $10^4$ & $10^5$ & $4\times10^5$ & $10^6$\\
+\midrule
+$\tr\Cov/\tr\Covh$        & $1.649$ & $1.062$ & $1.002$ & $0.997$ & $1.004$\\
+$\|\text{mean}-\bar x_h\|$ & $0.188$ & $0.151$ & $0.0534$ & $0.0314$ & $0.0220$\\
+$\tr\Cov$                  & $1.091$ & $1.087$ & $1.035$ & $1.018$ & $1.056$\\
+\bottomrule
+\end{tabular}
+\caption{EXP-1 at $h{=}0.1$, extended to $10^6$ iterations (median over 5 seeds;
+$\tr\Sigmapost=1.004$). The covariance matches the kernel optimum from $10^5$ on;
+the mean error is still decreasing at the end of the budget. At $h{=}0$ under the
+same schedule and seeds, $\tr\Cov$ instead falls $1.087\to0.115$ and $n_{\rm eff}=1$
+throughout---full collapse---whereas here $n_{\rm eff}=25.1$ (median; $13.7$--$43.9$
+across seeds) and is a property of $(X,Y,h)$ alone, not of training. The two small
+increases in the mean-error row ($10^5\!\to\!2{\times}10^5$ and
+$4\!\times\!10^5\!\to\!7{\times}10^5$, not shown) are within seed noise. Per seed at
+$10^6$ the mean error is $0.019$--$0.026$; the ratio is $0.99$--$1.03$ for four seeds
+and $2.85$ for seed~4, whose draw of $A$ gives a near-degenerate $\Covh$ and so an
+ill-conditioned ratio---the mean error, which does not divide by a small number, is
+well behaved on that seed too.}
+\label{tab:gaph01}
+\end{table}
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.85\textwidth]{fig_gap_diagnostic_h01.png}
+\caption{EXP-1 at $h{=}0.1$ over $10^6$ iterations (median of 5 seeds). Left: the
+covariance ratio to the Proposition~\ref{prop:moments} optimum settles at $1$ by
+$10^5$. Right: the distance from the generated mean to $\bar x_h$ keeps decreasing
+to the end of the budget---no representation floor is visible.}
+\label{fig:gaph01}
 \end{figure}
 
 \subsection{Supporting figures and tables}
