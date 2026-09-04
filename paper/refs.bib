@@ -41,8 +41,8 @@
 }
 
 @article{physicscfm2026,
-  author  = {Dasgupta, Agnimitra and Fardisi, Ali and Aminy, Mehrnegar and Binder, Brianna and Shaddy, Bryan and Oberai, Assad},
-  title   = {Solving physics-constrained inverse problems with conditional flow matching},
+  author  = {Dasgupta, Agnimitra and Fardisi, Ali and Aminy, Mehrnegar and Binder, Brianna and Shaddy, Bryan and Moazami, Saeed and Oberai, Assad},
+  title   = {Conditional flow matching for physics-constrained inverse problems with finite training data},
   journal = {arXiv preprint arXiv:2603.14135},
   year    = {2026},
   note    = {Source of the observed variance-collapse / selective-memorization phenomenon},
@@ -51,6 +51,7 @@
 @article{gradvar2025,
   author  = {Reu, Teodora and Dromigny, Sixtine and Bronstein, Michael and Vargas, Francisco},
   title   = {Gradient Variance Reveals Failure Modes in Flow-Based Generative Models},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
   journal = {arXiv preprint arXiv:2510.18118},
   year    = {2025},
   note    = {Unconditional memorization via the deterministic interpolant; the resample-$x_0$ mechanism},
@@ -145,4 +146,39 @@
   number={4},
   pages={359--372},
   year={1964}
+}
+
+@article{ho2022cascaded,
+  author  = {Ho, Jonathan and Saharia, Chitwan and Chan, William and Fleet, David J. and Norouzi, Mohammad and Salimans, Tim},
+  title   = {Cascaded Diffusion Models for High Fidelity Image Generation},
+  journal = {Journal of Machine Learning Research},
+  volume  = {23},
+  number  = {47},
+  pages   = {1--33},
+  year    = {2022},
+  note    = {Introduces conditioning augmentation: Gaussian noise added to the conditioning input. This is the label smoothing analysed here, arrived at empirically},
+}
+
+@inproceedings{sadat2024cads,
+  author    = {Sadat, Seyedmorteza and Buhmann, Jakob and Bradley, Derek and Hilliges, Otmar and Weber, Romann M.},
+  title     = {{CADS}: Unleashing the Diversity of Diffusion Models through Condition-Annealed Sampling},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year      = {2024},
+  note      = {Anneals Gaussian noise on the conditioning vector at inference time, explicitly to restore conditional diversity; the empirical counterpart of our Theorem 10},
+}
+
+@article{scarvelis2025closedform,
+  author  = {Scarvelis, Christopher and S{\'a}ez de Oc{\'a}riz Borde, Haitz and Solomon, Justin},
+  title   = {Closed-Form Diffusion Models},
+  journal = {Transactions on Machine Learning Research},
+  year    = {2025},
+  note    = {The optimal denoiser on a finite training set is a kernel-weighted average of training points and collapses onto a mixture of atoms; the unconditional antecedent of our endpoint law. arXiv:2310.12395},
+}
+
+@inproceedings{chen2026scoresmoothing,
+  author    = {Chen, Zhengdao},
+  title     = {On the Interpolation Effect of Score Smoothing in Diffusion Models},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year      = {2026},
+  note      = {Smoothing the empirical score to escape exact memorisation, in the unconditional setting. arXiv:2502.19499},
 }

@@ -114,10 +114,30 @@ random, we characterise the exact population minimiser of the flow-matching
 objective over all square-integrable vector fields, together with the endpoint law
 of its flow.
 
-That the empirical minimiser memorises is \emph{not} new; it is well established in
-the diffusion-memorisation literature
-\citep{pidstrigach2022manifolds,gu2023memorization,kadkhodaie2024generalization,biroli2023diffusion,kamb2024creativity,buchanan2025edge}.
-Closest in spirit is \citet{buchanan2025edge}, who characterise a
+Two established lines bracket this paper, and it is worth saying exactly which part of
+the picture each already owns. On one side, that the empirical minimiser memorises is
+well established
+\citep{pidstrigach2022manifolds,gu2023memorization,kadkhodaie2024generalization,biroli2023diffusion,kamb2024creativity,buchanan2025edge};
+\citet{scarvelis2025closedform} in particular already identify the closed-form
+\emph{unconditional} denoiser on a finite training set as a kernel-weighted average of
+training points that degenerates to a mixture of atoms, and
+\citet{chen2026scoresmoothing} analyse smoothing the empirical score as the escape. On
+the other side, adding Gaussian noise to a conditioning signal is standard practice and
+not something we propose: it is the conditioning augmentation of \citet{ho2022cascaded},
+and \citet{sadat2024cads} anneal exactly such noise at inference \emph{for the express
+purpose of restoring conditional diversity}---the empirical counterpart of the very
+phenomenon analysed here.
+
+What neither line supplies is the object connecting them. We show that the second is not
+a heuristic patch on the first but is \emph{exactly} Nadaraya--Watson regression over the
+training atoms (Theorem~\ref{thm:endpoint}). That identification does two things a purely
+empirical account cannot. It replaces a tuning knob by a parameter-free reference curve
+computable from the training set alone, against which a trained model can be audited
+(Proposition~\ref{prop:moments}). And it exposes a ceiling the empirical literature does
+not report: because the smoothed law remains supported on the training atoms at
+\emph{every} bandwidth, conditioning noise can match moments but can never recover the
+posterior, with a Wasserstein floor independent of $h$
+(Proposition~\ref{prop:atomicity}). Closest in spirit is \citet{buchanan2025edge}, who characterise a
 memorisation/generalisation \emph{phase transition} in \emph{unconditional}
 diffusion models as denoiser capacity $M$ ranges from the number of modes $K$ up to
 the dataset size $N$. That is a capacity-driven account of the same broad
@@ -139,11 +159,13 @@ structure} underlying the collapse, which this literature does not isolate:
   atom \emph{deterministically}, so the collapse is already present in the exact
   population minimiser, for every $x_0$ and every fresh draw---no finite batch, no
   fitting, no resampling escape route.
-\item \textbf{Label smoothing $\equiv$ kernel regression.} Label noise makes the
-  population endpoint an exact Nadaraya--Watson mixture
+\item \textbf{Label smoothing $\equiv$ kernel regression.} Conditioning noise is an
+  existing technique \citep{ho2022cascaded,sadat2024cads}; what is new is that it makes
+  the population endpoint an \emph{exact} Nadaraya--Watson mixture
   \citep{nadaraya1964estimating,watson1964smooth} over training atoms
-  (Theorem~\ref{thm:endpoint}), converting a $0/1$ statement into a quantitative,
-  parameter-free reference curve $\Covh(y)$ (Proposition~\ref{prop:moments}).
+  (Theorem~\ref{thm:endpoint}), turning a $0/1$ statement into a parameter-free
+  reference curve $\Covh(y)$ a trained model can be audited against
+  (Proposition~\ref{prop:moments}).
 \item \textbf{Separation of two remedies.} Label noise changes the population
   endpoint; interpolant noise provably does not, at any noise level
   (Propositions~\ref{prop:prop17} and \ref{prop:factors}).
@@ -418,18 +440,22 @@ remedy rather than a reweighting.
 \label{prop:expansion}
 Let $(x^j,y^j)$ be i.i.d.\ with marginal label density $\rho_Y$, $\Sigma(y)=\Cov(X\mid Y=y)$
 and $J(y)=\partial\mu/\partial y$. Fix a query point $y$ in the interior of
-$\operatorname{supp}(\rho_Y)$ at which $\rho_Y$ is positive and $C^2$, $\Sigma(\cdot)$ is
-$C^1$, and $\mu(\cdot)$ is $C^2$ (all standard nonparametric-regression regularity, needed
-only in a neighbourhood of this fixed $y$). Then, pointwise at this $y$, as
-$Nh^k\to\infty,h\to0$,
+$\operatorname{supp}(\rho_Y)$ at which $\rho_Y$ is positive and $C^2$ and $\mu(\cdot)$ is
+$C^2$ (standard nonparametric-regression regularity, needed only in a neighbourhood of
+this fixed $y$), and assume in addition that $\Sigma(\cdot)$ is \emph{constant} on that
+neighbourhood. Then, pointwise at this $y$, as $Nh^k\to\infty,h\to0$,
 \begin{equation}
 \Covh(y)=\Sigma(y)+h^2 J(y)J(y)^\top+O(h^4)+O_P\big((Nh^k)^{-1/2}\big),
 \label{eq:expansion}
 \end{equation}
-so $\tr\Covh(y)=\tr\Sigma(y)+h^2\|J(y)\|_F^2+\cdots$. The expansion is not claimed
+so $\tr\Covh(y)=\tr\Sigma(y)+h^2\|J(y)\|_F^2+\cdots$. Homoscedasticity is
+load-bearing, not cosmetic: a varying $\Sigma(\cdot)$ contributes its own $O(h^2)$,
+the same order as $h^2JJ^\top$ and not separable from it, so $\|J\|_F^2$ would cease to
+be identified (Appendix~\ref{app:proofs} gives the extra term and a counterexample).
+The linear-Gaussian instance of Section~\ref{sec:setup}, which is the case we test,
+satisfies it exactly with $\Sigma(y)\equiv\Sigmapost$. Nor is the expansion claimed
 uniform over $y$; near the boundary of $\operatorname{supp}(\rho_Y)$ the kernel loses mass
-asymmetrically and the bias term changes order (the standard nonparametric
-boundary-bias phenomenon), which \eqref{eq:expansion} does not cover.
+asymmetrically and the bias changes order (standard nonparametric boundary bias).
 \end{proposition}
 
 The between-group inflation $h^2\|J\|_F^2$ is positive and, unlike the bias of the
@@ -580,7 +606,11 @@ satisfies the normal equations to $1.8\times10^{-15}$; closed-form field integra
 maps every $x_0\to x^i$; the unconditional model does not leak $y$). Sweeps use five
 seeds per point. The seed controls \emph{both} the problem instance (the operator $A$,
 hence $\Sigmapost$) \emph{and} all training randomness, so every error bar below mixes
-the two; we flag this conflation rather than disentangle it.
+the two; we flag this conflation rather than disentangle it. Every across-seed
+$\pm$ we report is a \emph{population} standard deviation (denominator $n$, not
+$n{-}1$), applied consistently throughout; at $n{=}5$ the sample standard deviation is
+larger by $\sqrt{5/4}\approx1.12$, so a reader preferring that convention should widen
+each interval by about $11\%$.
 
 \subsection{EXP-1: exact-theory quantities (P1--P4)}
 \label{sec:exp1}
@@ -1066,17 +1096,30 @@ every $a,b,c$. Consequently
 \label{eq:u-cov}
 \end{equation}
 
-\emph{Step 2: within-group term.} By $C^1$ smoothness of $\Sigma(\cdot)$,
-$\Sigma(y+hu)=\Sigma(y)+h\,[\nabla\Sigma(y)\cdot u]+O(h^2)$ (a matrix-valued
-first-order expansion, contracting the gradient 3-tensor with $u$), so by
-\eqref{eq:tilted-u} and \eqref{eq:u-mean},
+\emph{Step 2: within-group term.} Here the homoscedasticity hypothesis is used, and
+it is used for the whole of this step: with $\Sigma(\cdot)\equiv\Sigma(y)$ on a
+neighbourhood of $y$, and since $\tilde q_h$ places all but exponentially little mass
+on that neighbourhood,
 \[
-\E_h[\Sigma(Y)]=\E_{\tilde q_h}[\Sigma(y+hu)]
-=\Sigma(y)+h\,\big[\nabla\Sigma(y)\cdot\E_{\tilde q_h}[u]\big]+O(h^2)
-=\Sigma(y)+O(h^2),
+\E_h[\Sigma(Y)]=\E_{\tilde q_h}[\Sigma(y+hu)]=\Sigma(y),
 \]
-since $\E_{\tilde q_h}[u]=O(h)$ by \eqref{eq:u-mean}, making the second term $O(h^2)$
-outright. This is the within-group term of \eqref{eq:expansion}.
+exactly, with no remainder. This is the within-group term of \eqref{eq:expansion}.
+
+It is worth recording what fails without that hypothesis, since the gap is of leading
+order rather than a technicality. For merely $C^2$ $\Sigma(\cdot)$ one gets, by the same
+substitution together with \eqref{eq:u-mean} and \eqref{eq:u-2mom},
+\[
+\E_h[\Sigma(Y)]=\Sigma(y)+h\,\big[\nabla\Sigma(y)\cdot\E_{\tilde q_h}[u]\big]
++\tfrac{h^2}2\big[\nabla^2\Sigma(y)\cdot\E_{\tilde q_h}[uu^\top]\big]+O(h^3)
+=\Sigma(y)+h^2\Big[\nabla\Sigma(y)\cdot s(y)+\tfrac12\operatorname{tr}\nabla^2\Sigma(y)\Big]+O(h^3),
+\]
+using $\E_{\tilde q_h}[u]=h\,s(y)+O(h^2)$. The bracket is an $O(1)$ quantity multiplying
+$h^2$, i.e.\ exactly the order of the between-group term $h^2JJ^\top$ computed in
+Step~3, so the two cannot be separated and $\|J\|_F^2$ is not identifiable from
+$\tr\Covh$ alone. A one-dimensional example makes the failure concrete: take
+$k=d=1$, $Y\sim\mathrm{Unif}(-2,2)$ and $X\mid Y=y\sim\N(0,1+y^2)$, so that
+$\mu\equiv0$ and $J\equiv0$. Then $\Covh(y)=\E_{\tilde q_h}[1+(y+hu)^2]=\Sigma(y)+h^2$,
+whereas \eqref{eq:expansion} with $J=0$ would predict $\Sigma(y)+O(h^4)$.
 
 \emph{Step 3: between-group term.} By the $C^2$ Taylor expansion of $\mu$,
 \[
