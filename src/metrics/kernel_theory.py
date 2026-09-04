@@ -72,6 +72,22 @@ def kernel_moments(y_q: Tensor, X: Tensor, Y: Tensor, h: float) -> tuple[Tensor,
     return x_bar, cov, n_eff(p)
 
 
+def kernel_moments_trace(y_q: Tensor, X: Tensor, Y: Tensor, h: float
+                         ) -> tuple[Tensor, float, float]:
+    """(x_bar_h, tr Cov_h, n_eff) without ever forming the d x d covariance.
+
+    Same quantities as :func:`kernel_moments`, but using
+    ``tr Cov_h = sum_j p_j |x^j - x_bar_h|^2``.  At image scale (d = 3072) the
+    full matrix is 9.4M entries per query and only its trace is ever used, so
+    this is the routine EXP-3 calls.
+    """
+    X, = _as_f64(X)
+    p = kernel_weights(y_q, Y, h)                       # (N,) f64
+    x_bar = (p[:, None] * X).sum(dim=0)                 # (d,)
+    sq = ((X - x_bar[None, :]) ** 2).sum(dim=1)         # (N,)
+    return x_bar, float((p * sq).sum()), n_eff(p)
+
+
 def kernel_trace_cov(y_q: Tensor, X: Tensor, Y: Tensor, h: float) -> float:
     """tr Cov_h(y_q) — the exact P7 reference target (Thm 10 / Prop 13)."""
     _, cov, _ = kernel_moments(y_q, X, Y, h)

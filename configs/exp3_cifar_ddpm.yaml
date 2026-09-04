@@ -1,0 +1,49 @@
+# EXP-3 at realistic capacity: CIFAR-10 inpainting with the standard DDPM U-Net
+# (35.75M parameters) instead of the 0.5M SmallUNet, and with the kernel-theory
+# metrics enabled so Theorem 10 can be tested in image space (d=3072, k=1536)
+# rather than only at d=2.
+#
+# Budget: 60000 iterations at batch 128 with N=2000 is 3840 gradient samples per
+# training image, the same per-image exposure as the N-sweep runs, so collapse
+# depth is comparable to those.
+#
+# Bandwidth: h is calibrated to the conditioning-space distance scale, whose
+# nearest-neighbour median is ~12.6 here. The usable window is narrow --
+# median n_eff is 1.00 at h=3, 1.21 at h=4, 6.5 at h=5, 57 at h=6 and 202 at
+# h=7 -- so the sweep brackets it at h in {0, 4, 5, 6}, giving reference
+# tr Cov_h of 0, 61, 276, 362 against a full-empirical-covariance trace of 774.
+run_name: exp3_cifar_ddpm
+seed: 0
+device: auto
+
+data:
+  N: 2000
+  dataset: cifar10
+  mask_kind: bottom_half
+  source_std: 1.0
+  data_root: data
+
+model:
+  arch: ddpm
+  base: 128
+  ch_mult: [1, 2, 2, 2]
+  num_res_blocks: 2
+  attn_resolutions: [16]
+  temb_dim: 512
+  dropout: 0.0
+
+train:
+  max_iters: 60000
+  batch_size: 128
+  lr: 0.0002
+  y_noise_h: 0.0        # swept over {0, 4, 5, 6}
+  amp: true
+  checkpoints: [500, 2000, 8000, 20000, 40000, 60000]
+
+eval:
+  n_conditions: 8
+  M: 16
+  n_steps: 50
+  ode_eps: 0.001
+  grid_conditions: 4
+  grid_M: 6

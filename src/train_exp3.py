@@ -25,6 +25,7 @@ if _nt:
 
 from .models.unet_small import SmallUNet
 from .problems.inpainting import InpaintingProblem
+from .metrics.kernel_theory import kernel_moments_trace
 from .utils import RunPaths, apply_overrides, dump_config, get_device, load_yaml, set_seed
 
 
@@ -60,6 +61,39 @@ def generate(model, cond1: torch.Tensor, M: int, n_steps: int, eps: float,
     return x
 
 
+def smooth_cond(cond: torch.Tensor, mask_obs: torch.Tensor, h: float,
+                gen=None) -> torch.Tensor:
+    """Label smoothing for the image problem: y~ = y + h*eps.
+
+    The conditioning tensor is [observed image ; mask]; the noise is added to the
+    observed-image channels only, and only where the mask is 1, so the mask
+    channel keeps identifying which pixels are observed. h=0 returns ``cond``
+    untouched, so every pre-existing run is bit-identical.
+    """
+    if h <= 0.0:
+        return cond
+    C = cond.shape[1] - 1
+    noise = torch.randn(cond.shape[0], C, *cond.shape[2:], generator=gen,
+                        device=cond.device, dtype=cond.dtype)
+    out = cond.clone()
+    out[:, :C] = out[:, :C] + h * noise * mask_obs.to(cond.device)
+    return out
+
+
+def cond_vectors(problem) -> torch.Tensor:
+    """The conditioning variable y^i as a flat vector over observed pixels only.
+
+    This is the ``y`` of the theory: distances between these vectors are what the
+    label kernel K_h acts on, so the mask channel (identical for every i) and the
+    unobserved pixels (identically zero) must not be included -- they would add a
+    constant to every pairwise distance and change nothing, but they would make
+    the reported dimension k meaningless.
+    """
+    sel = problem.mask_obs.flatten().bool()                     # (32*32,)
+    flat = problem.X.flatten(2)                                 # (N,C,1024)
+    return flat[:, :, sel].flatten(1)                           # (N, C*|obs|)
+
+
 @torch.no_grad()
 def evaluate(model, problem, cfg, device, gen) -> dict:
     ev = cfg["eval"]
@@ -74,11 +108,24 @@ def evaluate(model, problem, cfg, device, gen) -> dict:
     idx = sorted(set(idx))
 
     Xdev = problem.X.to(device)
+    h = float(cfg["train"].get("y_noise_h", 0.0))
+    Xflat = Xdev.flatten(1).to(torch.float64)                 # (N,d) for kernel moments
+    Yvec = cond_vectors(problem).to(device).to(torch.float64)  # (N,k)
     var_list, nn_list, obs_err = [], [], []
+    trace_meas, trace_kern, ratio_kern, meanerr_kern, neff_list = [], [], [], [], []
     for i in idx:
         cond1 = problem.condition(problem.X[i:i+1])
         samples = generate(model, cond1, M, n_steps, eps, source_std, gen, device,
                            channels=problem.channels)  # (M,C,32,32)
+        # ---- kernel-theory reference (Thm 10 / Prop 13), in image space ----
+        sflat = samples.flatten(1).to(torch.float64)          # (M,d)
+        tr_meas = float(sflat.var(dim=0, unbiased=False).sum())
+        x_bar_h, tr_kern, n_ef = kernel_moments_trace(Yvec[i], Xflat, Yvec, h)
+        trace_meas.append(tr_meas)
+        trace_kern.append(tr_kern)
+        ratio_kern.append(tr_meas / tr_kern if tr_kern > 0 else float("nan"))
+        meanerr_kern.append(float((sflat.mean(0) - x_bar_h).norm()))
+        neff_list.append(n_ef)
         # pixel variance in the inpainted region, averaged over those pixels
         var_map = samples.var(dim=0, unbiased=False)              # (C,32,32)
         pix_var = float((var_map * mask_inpaint).sum() / n_pix)
@@ -98,6 +145,13 @@ def evaluate(model, problem, cfg, device, gen) -> dict:
         "pixel_var_inpaint_std": float(np.std(var_list)),
         "nn_dist_mean": float(np.mean(nn_list)),
         "obs_recon_err_mean": float(np.mean(obs_err)),
+        # kernel reference (Thm 10 / Prop 13) -- the P7 quantities, in image space
+        "trace_cov_mean": float(np.mean(trace_meas)),
+        "trace_cov_kernel_mean": float(np.mean(trace_kern)),
+        "ratio_to_kernel_mean": float(np.nanmean(ratio_kern)),
+        "ratio_to_kernel_median": float(np.nanmedian(ratio_kern)),
+        "mean_err_kernel_mean": float(np.mean(meanerr_kern)),
+        "n_eff_mean": float(np.mean(neff_list)),
     }
 
 
@@ -161,9 +215,22 @@ def train(cfg: dict, out_root: str | Path) -> Path:
     X = problem.X.to(device)
     cond_all = problem.condition(problem.X).to(device)       # (N,C+1,32,32)
 
-    model = SmallUNet(in_channels=2 * C + 1, out_channels=C,
-                      base=cfg["model"].get("base", 32),
-                      temb_dim=cfg["model"].get("temb_dim", 128)).to(device)
+    arch = cfg["model"].get("arch", "small")
+    if arch == "small":
+        model = SmallUNet(in_channels=2 * C + 1, out_channels=C,
+                          base=cfg["model"].get("base", 32),
+                          temb_dim=cfg["model"].get("temb_dim", 128)).to(device)
+    elif arch == "ddpm":
+        from .models.unet import UNet
+        model = UNet(in_channels=2 * C + 1, out_channels=C,
+                     base=cfg["model"].get("base", 128),
+                     ch_mult=tuple(cfg["model"].get("ch_mult", [1, 2, 2, 2])),
+                     num_res_blocks=cfg["model"].get("num_res_blocks", 2),
+                     attn_resolutions=tuple(cfg["model"].get("attn_resolutions", [16])),
+                     temb_dim=cfg["model"].get("temb_dim", 512),
+                     dropout=cfg["model"].get("dropout", 0.0)).to(device)
+    else:
+        raise ValueError(f"Unknown model.arch={arch!r} (expected small|ddpm)")
     opt = torch.optim.Adam(model.parameters(), lr=cfg["train"].get("lr", 2e-4))
     batch = cfg["train"].get("batch_size", 64)
     source_std = dc.get("source_std", 1.0)
@@ -173,11 +240,14 @@ def train(cfg: dict, out_root: str | Path) -> Path:
         ckpts = [ckpts]
     ckpts = sorted(set(int(c) for c in ckpts if int(c) <= max_iters) | {max_iters})
 
+    y_noise_h = float(cfg["train"].get("y_noise_h", 0.0))
+    use_amp = bool(cfg["train"].get("amp", False)) and device.type == "cuda"
+    scaler = torch.amp.GradScaler("cuda", enabled=use_amp)
     tgen = torch.Generator(device=device).manual_seed(cfg["seed"] + 2)
     egen = torch.Generator(device=device).manual_seed(cfg["seed"] + 3)
     n_params = sum(p.numel() for p in model.parameters())
-    print(f"[{cfg['run_name']}] UNet params={n_params/1e6:.2f}M N={problem.N} "
-          f"max_iters={max_iters} device={device}")
+    print(f"[{cfg['run_name']}] arch={arch} params={n_params/1e6:.2f}M N={problem.N} "
+          f"max_iters={max_iters} h={cfg['train'].get('y_noise_h', 0.0)} device={device}")
 
     rows, loss_ema, t0 = [], None, time.time()
     ckset = set(ckpts)
@@ -190,9 +260,14 @@ def train(cfg: dict, out_root: str | Path) -> Path:
         tt = t[:, None, None, None]
         x_t = (1 - tt) * x0 + tt * x1
         target = x1 - x0
-        pred = model(x_t, t, cond_all[idx])
-        loss = ((target - pred) ** 2).mean()
-        opt.zero_grad(set_to_none=True); loss.backward(); opt.step()
+        cond_b = smooth_cond(cond_all[idx], problem.mask_obs, y_noise_h, tgen)
+        with torch.amp.autocast("cuda", enabled=use_amp):
+            pred = model(x_t, t, cond_b)
+            loss = ((target - pred) ** 2).mean()
+        opt.zero_grad(set_to_none=True)
+        scaler.scale(loss).backward()
+        scaler.step(opt)
+        scaler.update()
         lv = float(loss.detach())
         loss_ema = lv if loss_ema is None else 0.99 * loss_ema + 0.01 * lv
 
@@ -209,8 +284,8 @@ def train(cfg: dict, out_root: str | Path) -> Path:
                              M=cfg["eval"].get("grid_M", 6))
             model.train()
             print(f"  it={it:>6d} pix_var_inpaint={r['pixel_var_inpaint_mean']:.4f} "
-                  f"nn_dist={r['nn_dist_mean']:.4f} obs_err={r['obs_recon_err_mean']:.4f} "
-                  f"loss={loss_ema:.4f} ({time.time()-t0:.0f}s)")
+                  f"nn_dist={r['nn_dist_mean']:.4f} ratio_kern={r['ratio_to_kernel_median']:.3f} "
+                  f"n_eff={r['n_eff_mean']:.1f} loss={loss_ema:.4f} ({time.time()-t0:.0f}s)")
 
     pd.DataFrame(rows).to_csv(paths.raw / "metrics.csv", index=False)
     print(f"[{cfg['run_name']}] done in {time.time()-t0:.1f}s")
