@@ -38,6 +38,11 @@ def main():
     ap.add_argument("--seeds", type=int, default=10)
     ap.add_argument("--iters", type=int, default=200000)
     ap.add_argument("--gpu", type=int, default=0)
+    ap.add_argument("--cpu", action="store_true",
+                    help="run on CPU. These are d=2 MLPs: measured 180 it/s on two "
+                         "CPU threads against 144 it/s on a GPU already shared with "
+                         "four other jobs, so CPU is both faster here and leaves the "
+                         "GPU entirely free for the image runs.")
     ap.add_argument("--max-parallel", type=int, default=10)
     ap.add_argument("--python", default=os.environ.get("CFM_PYTHON_CMD", ".venv/bin/python"))
     args = ap.parse_args()
@@ -50,7 +55,8 @@ def main():
         jobs.append((f"seedsplit_inst_s{s}", ["seed=0", f"data.problem_seed={s}"]))
 
     Path("logs").mkdir(exist_ok=True)
-    env = dict(os.environ, CUDA_VISIBLE_DEVICES=str(args.gpu), OMP_NUM_THREADS="2")
+    env = dict(os.environ, OMP_NUM_THREADS="2", MKL_NUM_THREADS="2",
+               CUDA_VISIBLE_DEVICES="" if args.cpu else str(args.gpu))
     t0 = time.time()
     running: list[tuple[str, subprocess.Popen]] = []
     pending = list(jobs)
@@ -64,6 +70,8 @@ def main():
             cmd = [args.python, "-u", "-m", "src.train", "--config", CFG, "--out", OUT,
                    "--set", *overrides, f"train.max_iters={args.iters}",
                    "model.conditional=true", f"run_name={name}"]
+            if args.cpu:
+                cmd.append("device=cpu")
             log = open(f"logs/{name}.log", "w")
             running.append((name, subprocess.Popen(cmd, env=env, stdout=log,
                                                    stderr=subprocess.STDOUT)))
