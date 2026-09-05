@@ -9,8 +9,12 @@
 @article{gu2023memorization,
   author  = {Gu, Xiangming and Du, Chao and Pang, Tianyu and Li, Chongxuan and Lin, Min and Wang, Ye},
   title   = {On Memorization in Diffusion Models},
-  journal = {arXiv preprint arXiv:2310.02664},
-  year    = {2023},
+  journal = {Transactions on Machine Learning Research},
+  year    = {2025},
+  note    = {arXiv:2310.02664. Finds that conditioning on uninformative *random* labels
+             sharply increases memorisation -- the empirical form of our adversarial-pairing
+             result, and what Proposition 4 explains: identification, not informativeness,
+             is what collapses the minimiser},
 }
 
 @inproceedings{kadkhodaie2024generalization,
@@ -48,12 +52,11 @@
   note    = {Source of the observed variance-collapse / selective-memorization phenomenon},
 }
 
-@article{gradvar2025,
-  author  = {Reu, Teodora and Dromigny, Sixtine and Bronstein, Michael and Vargas, Francisco},
-  title   = {Gradient Variance Reveals Failure Modes in Flow-Based Generative Models},
+@inproceedings{gradvar2025,
+  author    = {Reu, Teodora and Dromigny, Sixtine and Bronstein, Michael and Vargas, Francisco},
+  title     = {Gradient Variance Reveals Failure Modes in Flow-Based Generative Models},
   booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
-  journal = {arXiv preprint arXiv:2510.18118},
-  year    = {2025},
+  year      = {2025},
   note    = {Unconditional memorization via the deterministic interpolant; the resample-$x_0$ mechanism},
 }
 
@@ -181,4 +184,26 @@
   booktitle = {International Conference on Learning Representations (ICLR)},
   year      = {2026},
   note      = {Smoothing the empirical score to escape exact memorisation, in the unconditional setting. arXiv:2502.19499},
+}
+
+@article{smola2026support,
+  author  = {Smola, Daniel Matsui},
+  title   = {Support-Conditioned Flow Matching Is Kernel Smoothing},
+  journal = {arXiv preprint arXiv:2605.13386},
+  year    = {2026},
+  note    = {Identifies the *spatial* factor of the index posterior as a Nadaraya--Watson
+             smoother whose bandwidth is the flow time; complementary to our reading of the
+             *label* factor},
+}
+
+@inproceedings{somepalli2023copying,
+  author    = {Somepalli, Gowthami and Singla, Vasu and Goldblum, Micah and Geiping, Jonas and Goldstein, Tom},
+  title     = {Understanding and Mitigating Copying in Diffusion Models},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  volume    = {36},
+  pages     = {47783--47803},
+  year      = {2023},
+  note      = {Replication is common for text-conditional models and rare for unconditional
+               ones, and caption randomisation mitigates it -- the phenomenon Corollary 6
+               accounts for, at Stable-Diffusion scale},
 }

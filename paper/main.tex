@@ -121,7 +121,14 @@ well established
 \citet{scarvelis2025closedform} in particular already identify the closed-form
 \emph{unconditional} denoiser on a finite training set as a kernel-weighted average of
 training points that degenerates to a mixture of atoms, and
-\citet{chen2026scoresmoothing} analyse smoothing the empirical score as the escape. On
+\citet{chen2026scoresmoothing} analyse smoothing the empirical score as the escape. Nearest to us on
+this side is \citet{smola2026support}, who read the \emph{spatial} factor
+$\pi_0(\tfrac{x-tx^i}{1-t})$ of the index posterior as a Nadaraya--Watson smoother whose
+bandwidth is the flow time $1-t$, sharpening to a nearest-neighbour rule as $t\to1$. That
+is the other factor of the same product \eqref{eq:kernel-field}: our subject is the
+\emph{label} factor $K_h(y-y^i)$, whose bandwidth is a modelling choice rather than a
+consequence of the clock, and what we extract from it is the endpoint law and its moments
+rather than the field. The two readings compose; neither implies the other. On
 the other side, adding Gaussian noise to a conditioning signal is standard practice and
 not something we propose: it is the conditioning augmentation of \citet{ho2022cascaded},
 and \citet{sadat2024cads} anneal exactly such noise at inference \emph{for the express
@@ -316,6 +323,17 @@ conditional second moment:
 The often-cited observation $\tr\Cov\approx\tr\Xhat$ for the unconditional baseline
 is precisely \eqref{eq:distinction}, i.e.\ evidence of full-empirical-measure
 memorisation, \emph{not} of non-memorisation.
+
+Two empirical findings in the literature are, on this reading, the same statement at
+scale. \citet{somepalli2023copying} report that verbatim replication ``often does not
+happen for unconditional models, while it is common in the text-conditional case'' in
+Stable Diffusion, and that randomising captions mitigates it: that asymmetry is
+\eqref{eq:distinction}, and caption randomisation is label smoothing.
+\citet{gu2023memorization} report that conditioning on \emph{uninformative random}
+labels sharply increases memorisation, which is puzzling if one expects informative
+conditioning to matter; Proposition~\ref{prop:collapse} says informativeness is
+irrelevant and identification is everything, and our adversarially shuffled-label
+experiment (Section~\ref{sec:experiments}) is that prediction tested directly.
 
 \subsection{Label smoothing is exactly kernel regression}
 \label{sec:theory-kernel}
@@ -547,7 +565,7 @@ universal approximation $\inf_\theta L(v_\theta)$ may be $0$; what we prove is t
 any architecture with $\operatorname{Lip}_x v_\theta\le L$ cannot beat $d/(3L)$.
 Second, it does not bind in our experiments: with $d=2$ and a trained
 $\operatorname{Lip}_x$ of order $10^1$--$10^2$, the floor is of order $10^{-2}$,
-one to two orders of magnitude below the observed plateau $0.48$.
+one to two orders of magnitude below the loss plateau $0.48$ observed at $2\times10^5$ iterations (it falls to $0.36$ by $7\times10^5$, so the gap is if anything understated).
 Corollary~\ref{cor:floor} is therefore best used as a \emph{measurement}---estimate
 $L$, compare $d/(3L)$ to the plateau, report which gap dominates
 (Appendix~\ref{sec:aux})---and that measurement rules the representation
@@ -839,9 +857,8 @@ weight functions, the linear-Gaussian instance) is made explicit at the point it
 used.
 
 \subsection*{Ethics statement}
-%% DRAFT -- please review/edit before submission.
 This work trains small models on synthetic linear-Gaussian and Gaussian-mixture data
-and on the public MNIST dataset. No human subjects, personally identifiable
+and on the public MNIST and CIFAR-10 datasets. No human subjects, personally identifiable
 information, or other sensitive data are used or generated. The paper's contribution
 is a precise theoretical and empirical account of an existing memorisation phenomenon
 in conditional generative models, which bears directly on the data-privacy and
@@ -852,8 +869,6 @@ memorisation. We are not aware of any other ethical concerns raised by this
 submission.
 
 \subsection*{AI use statement}
-%% DRAFT -- please review/edit before submission to accurately reflect your own
-%% process; this is a factual disclosure the authors must take responsibility for.
 We used a generative-AI coding and writing assistant (Claude, Anthropic) throughout
 this project's development: to draft and revise manuscript text, including the
 conversion of the manuscript to the ICLR format and multiple rounds of copy-editing;
@@ -1386,17 +1401,27 @@ $\Pr[\exists\,t\in(0,1):\ell_i(t)=\ell_j(t)]=0$.
 $\Pr[\exists\,t_i,t_j\in(0,1),\,t_i\ne t_j:\ell_i(t_i)=\ell_j(t_j)]=0$.
 \end{lemma}
 \begin{proof}
-(a) Fix $\hat t\in(0,1)$; $\ell_i(\hat t)=\ell_j(\hat t)$ solves to
-$z^j=\tfrac{1-\hat t}{\hat t}(x_0^i-x_0^j)+z^i$, which pins $z^j$ to a
-one-dimensional affine subspace of $\R^d$ determined by $(x_0^i,x_0^j,z^i,\hat t)$.
-This subspace is Lebesgue-null whenever $d\ge2$, and $\rho_1$ is absolutely
-continuous, so conditionally on $(x_0^i,x_0^j,z^i)$ the event has probability $0$;
-integrating over $(x_0^i,x_0^j,z^i)$ preserves probability $0$, and the bound is
-uniform in $\hat t$, so the same holds for "some $t=\hat t$" (the constraint is on
-$z^j$ alone and does not depend on which $\hat t$ occurs). A union bound over the
-finitely many pairs $(i,j)$ finishes (a). (b) With $t_i\ne t_j$ both free, solving
-for $z^j$ pins it to a two-dimensional affine subspace, Lebesgue-null when $d>2$;
-the rest of the argument is identical.
+(a) For a \emph{fixed} $\hat t\in(0,1)$, $\ell_i(\hat t)=\ell_j(\hat t)$ solves to
+$z^j=z^i+\tfrac{1-\hat t}{\hat t}(x_0^i-x_0^j)$, which pins $z^j$ to a single
+\emph{point}, not to a subspace; and that point moves with $\hat t$, so a fixed-$\hat t$
+argument does not by itself control the event ``$\exists t$''. Take the union
+directly instead. Conditionally on $(x_0^i,x_0^j,z^i)$,
+\[
+\{\exists\,t\in(0,1):\ell_i(t)=\ell_j(t)\}
+=\Big\{z^j\in R\Big\},\qquad
+R:=\big\{z^i+s\,(x_0^i-x_0^j)\ :\ s\in(0,\infty)\big\},
+\]
+since $s=(1-t)/t$ is a bijection from $(0,1)$ onto $(0,\infty)$. $R$ is a half-line,
+hence contained in a one-dimensional affine subspace of $\R^d$ and Lebesgue-null for
+$d\ge2$ (if $x_0^i=x_0^j$, which happens with probability $0$, $R$ is the single point
+$z^i$, still null). As $\rho_1$ is absolutely continuous and $z^j$ is independent of
+$(x_0^i,x_0^j,z^i)$, the conditional probability is $0$, and integrating preserves it.
+A union bound over the finitely many pairs $(i,j)$ finishes (a). (b) With $t_i\ne t_j$
+both free the same union argument gives
+$z^j\in\{[(1-t_i)x_0^i+t_iz^i-(1-t_j)x_0^j]/t_j:(t_i,t_j)\in(0,1)^2\}$, the image of a
+two-dimensional parameter set under a map that is smooth on compact subsets, hence a
+countable union of Lipschitz images of bounded planar sets; each has Hausdorff dimension
+at most $2$ and so is Lebesgue-null when $d>2$. The rest is identical.
 \end{proof}
 
 \begin{proposition}[A memorising field always exists on a fixed finite unconditional batch]
