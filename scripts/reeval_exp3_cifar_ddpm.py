@@ -93,10 +93,9 @@ def reeval(run: str, M: int, n_cond: int, device) -> dict | None:
                      dc.get("source_std", 1.0), gen, device, channels=C)
         sf = s.flatten(1).to(torch.float64)                       # (M,d)
         tm = float(sf.var(dim=0, unbiased=True).sum())            # unbiased trace
-        _, tk, ne = kernel_moments_trace(Yvec[i], Xflat, Yvec, h)
+        x_bar_h, tk, ne = kernel_moments_trace(Yvec[i], Xflat, Yvec, h)
         tr_meas.append(tm); tr_kern.append(tk); neffs.append(ne)
-        mean_errs.append(float((sf.mean(0) - kernel_moments_trace(
-            Yvec[i], Xflat, Yvec, h)[0]).norm()))
+        mean_errs.append(float((sf.mean(0) - x_bar_h).norm()))
         # ---- is the nearest training image the *right* one? ----
         dist_all = ((Xflat - sf.mean(0)[None, :]) ** 2).mean(dim=1)      # (N,)
         nn_correct.append(float(int(dist_all.argmin()) == i))

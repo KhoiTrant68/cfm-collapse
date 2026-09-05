@@ -226,3 +226,7 @@ scratch/
 
 # Downloaded datasets (MNIST etc. — auto-fetched by torchvision)
 data/
+
+# Smoke-test output (`--smoke-test`): a few seconds to regenerate, referenced by
+# nothing, and 10 files of noise in results/ when committed.
+results/**/*_smoke/
