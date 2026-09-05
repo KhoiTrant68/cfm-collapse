@@ -1,0 +1,46 @@
+{
+  "rows": [
+    {
+      "N": 50,
+      "iters": 10000,
+      "exposure_per_point": 51200,
+      "n_seeds": 5,
+      "ratio_mean": 0.44424081396761317,
+      "ratio_std": 0.19561728743168602,
+      "fixed_budget_mean": 0.049,
+      "fixed_budget_std": 0.038
+    },
+    {
+      "N": 200,
+      "iters": 40000,
+      "exposure_per_point": 51200,
+      "n_seeds": 5,
+      "ratio_mean": 0.7743397119617152,
+      "ratio_std": 0.1652287447243495,
+      "fixed_budget_mean": 0.389,
+      "fixed_budget_std": 0.123
+    },
+    {
+      "N": 1000,
+      "iters": 200000,
+      "exposure_per_point": 51200,
+      "n_seeds": 5,
+      "ratio_mean": 0.9278973350182058,
+      "ratio_std": 0.0872242357327371,
+      "fixed_budget_mean": 0.912,
+      "fixed_budget_std": 0.103
+    },
+    {
+      "N": 5000,
+      "iters": 1000000,
+      "exposure_per_point": 51200,
+      "n_seeds": 5,
+      "ratio_mean": 1.0136810341769074,
+      "ratio_std": 0.06487161096925789,
+      "fixed_budget_mean": 0.99,
+      "fixed_budget_std": 0.031
+    }
+  ],
+  "spread_fixed_budget": 20.20408163265306,
+  "spread_fixed_exposure": 2.2818277886795166
+}
