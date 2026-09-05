@@ -111,7 +111,13 @@ def reeval(run: str, M: int, n_cond: int, device) -> dict | None:
                     "ratio_mean": float(r.mean()),
                     "ratio_ci_lo": float(np.percentile(boot, 2.5)),
                     "ratio_ci_hi": float(np.percentile(boot, 97.5)),
-                    "split_half_noise": float(np.mean(halves))})
+                    "ratio_iqr_lo": float(np.percentile(r, 25)),
+                    "ratio_iqr_hi": float(np.percentile(r, 75)),
+                    "ratio_min": float(r.min()), "ratio_max": float(r.max()),
+                    "split_half_noise": float(np.mean(halves)),
+                    "ratio_per_condition": [float(v) for v in r],
+                    "trace_kernel_per_condition": [float(v) for v in tr_kern],
+                    "n_eff_per_condition": [float(v) for v in neffs]})
     return res
 
 
@@ -132,8 +138,10 @@ def main():
         out.append(r)
         if "ratio_median" in r:
             print(f"  h={r['h']:.0f} iter={r['iter']} ratio={r['ratio_median']:.3f} "
-                  f"[{r['ratio_ci_lo']:.3f}, {r['ratio_ci_hi']:.3f}]  "
-                  f"split-half noise +/-{r['split_half_noise']:.3f}  "
+                  f"CI[{r['ratio_ci_lo']:.3f},{r['ratio_ci_hi']:.3f}] "
+                  f"IQR[{r['ratio_iqr_lo']:.3f},{r['ratio_iqr_hi']:.3f}] "
+                  f"range[{r['ratio_min']:.3f},{r['ratio_max']:.3f}] "
+                  f"split-half +/-{r['split_half_noise']:.3f}  "
                   f"tr Cov={r['trace_cov']:.4g} vs Cov_h={r['trace_cov_kernel']:.4g}")
         else:
             print(f"  h={r['h']:.0f} iter={r['iter']} tr Cov={r['trace_cov']:.4g} "
