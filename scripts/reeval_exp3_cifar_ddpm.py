@@ -26,7 +26,8 @@ from pathlib import Path
 import numpy as np
 import torch
 
-from src.metrics.kernel_theory import kernel_moments_trace
+from src.metrics.kernel_theory import kernel_moments_trace, kernel_weights
+from src.metrics.memorization import memorization_ratio
 from src.problems.inpainting import InpaintingProblem
 from src.train_exp3 import cond_vectors, generate
 from src.utils import get_device, load_yaml
@@ -79,8 +80,13 @@ def reeval(run: str, M: int, n_cond: int, device) -> dict | None:
     Yvec = cond_vectors(problem).to(device).to(torch.float64)
     gen = torch.Generator(device=device).manual_seed(12345)
 
+    # observed-region coordinates, for the Theorem 10 prediction of obs_recon_err
+    sel = problem.mask_obs.flatten().bool()
+    n_obs = int(sel.sum()) * C
+
     idx = sorted(set(np.linspace(0, problem.N - 1, n_cond).round().astype(int).tolist()))
     ratios, halves, tr_meas, tr_kern, mean_errs, neffs = [], [], [], [], [], []
+    nn_correct, memratios, obs_pred, obs_meas = [], [], [], []
     for i in idx:
         cond1 = problem.condition(problem.X[i:i + 1])
         s = generate(model, cond1, M, ev["n_steps"], ev.get("ode_eps", 1e-3),
@@ -91,6 +97,20 @@ def reeval(run: str, M: int, n_cond: int, device) -> dict | None:
         tr_meas.append(tm); tr_kern.append(tk); neffs.append(ne)
         mean_errs.append(float((sf.mean(0) - kernel_moments_trace(
             Yvec[i], Xflat, Yvec, h)[0]).norm()))
+        # ---- is the nearest training image the *right* one? ----
+        dist_all = ((Xflat - sf.mean(0)[None, :]) ** 2).mean(dim=1)      # (N,)
+        nn_correct.append(float(int(dist_all.argmin()) == i))
+
+        # ---- literature-standard memorisation ratio (Prop 14 test) ----
+        memratios.append(memorization_ratio(sf, Xflat, threshold=1.0 / 9.0))
+
+        # ---- observation-space moment: Theorem 10 predicts this exactly ----
+        pw = kernel_weights(Yvec[i], Yvec, h)
+        ybar = (pw[:, None] * Yvec).sum(0)
+        obs_pred.append(float(((ybar - Yvec[i]) ** 2).sum() / n_obs))
+        smean_obs = sf.mean(0).reshape(C, -1)[:, sel].reshape(-1)
+        obs_meas.append(float(((smean_obs - Yvec[i]) ** 2).sum() / n_obs))
+
         if tk > 0:
             ratios.append(tm / tk)
             # split-half: two independent M/2 estimates, to size the sampling noise
@@ -102,7 +122,13 @@ def reeval(run: str, M: int, n_cond: int, device) -> dict | None:
            "trace_cov": float(np.mean(tr_meas)),
            "trace_cov_kernel": float(np.mean(tr_kern)),
            "mean_err_kernel": float(np.mean(mean_errs)),
-           "n_eff": float(np.mean(neffs))}
+           "n_eff": float(np.mean(neffs)),
+           "nn_correct_rate": float(np.mean(nn_correct)),
+           "memorization_ratio": float(np.mean(memratios)),
+           "obs_err_predicted": float(np.mean(obs_pred)),
+           "obs_err_measured": float(np.mean(obs_meas)),
+           "obs_err_ratio": float(np.mean(obs_meas) / np.mean(obs_pred))
+           if np.mean(obs_pred) > 0 else float("nan")}
     if ratios:
         r = np.array(ratios)
         boot = np.array([np.median(np.random.choice(r, len(r), replace=True))
@@ -141,11 +167,17 @@ def main():
                   f"CI[{r['ratio_ci_lo']:.3f},{r['ratio_ci_hi']:.3f}] "
                   f"IQR[{r['ratio_iqr_lo']:.3f},{r['ratio_iqr_hi']:.3f}] "
                   f"range[{r['ratio_min']:.3f},{r['ratio_max']:.3f}] "
-                  f"split-half +/-{r['split_half_noise']:.3f}  "
-                  f"tr Cov={r['trace_cov']:.4g} vs Cov_h={r['trace_cov_kernel']:.4g}")
+                  f"split-half +/-{r['split_half_noise']:.3f}\n"
+                  f"        tr Cov={r['trace_cov']:.4g} vs Cov_h={r['trace_cov_kernel']:.4g}  "
+                  f"| obs err {r['obs_err_measured']:.5f} vs predicted {r['obs_err_predicted']:.5f} "
+                  f"(x{r['obs_err_ratio']:.2f})  | NN-correct {r['nn_correct_rate']*100:.0f}%  "
+                  f"memratio {r['memorization_ratio']:.3f}")
         else:
             print(f"  h={r['h']:.0f} iter={r['iter']} tr Cov={r['trace_cov']:.4g} "
-                  f"(kernel reference is 0 at h=0)  |mean-x^i|={r['mean_err_kernel']:.4g}")
+                  f"(kernel reference is 0 at h=0)  |mean-x^i|={r['mean_err_kernel']:.4g}\n"
+                  f"        obs err {r['obs_err_measured']:.5f} vs predicted "
+                  f"{r['obs_err_predicted']:.5f}  | NN-correct "
+                  f"{r['nn_correct_rate']*100:.0f}%  memratio {r['memorization_ratio']:.3f}")
 
     with open(OUT / "reeval.json", "w", encoding="utf-8") as f:
         json.dump(out, f, indent=2)
