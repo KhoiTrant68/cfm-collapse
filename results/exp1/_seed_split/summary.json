@@ -1,0 +1,32 @@
+{
+  "run_varying": {
+    "seedsplit_train_s0": 0.38132396426916954,
+    "seedsplit_train_s1": 0.4500493181659197,
+    "seedsplit_train_s2": 0.2813261258233313,
+    "seedsplit_train_s3": 0.33540380414338483,
+    "seedsplit_train_s4": 0.3093608313460915,
+    "seedsplit_train_s5": 0.26044290462836767,
+    "seedsplit_train_s6": 0.2476673650532643,
+    "seedsplit_train_s7": 0.41909850395727116,
+    "seedsplit_train_s8": 0.3695200651987999,
+    "seedsplit_train_s9": 0.30860509831350963
+  },
+  "instance_varying": {
+    "seedsplit_inst_s0": 0.38132396426916954,
+    "seedsplit_inst_s1": 0.47252768782858584,
+    "seedsplit_inst_s2": 0.34430276501507745,
+    "seedsplit_inst_s3": 0.5237337885176514,
+    "seedsplit_inst_s4": 0.1819381968818763,
+    "seedsplit_inst_s5": 0.5579522932273765,
+    "seedsplit_inst_s6": 0.3304837275233722,
+    "seedsplit_inst_s7": 0.273810800949532,
+    "seedsplit_inst_s8": 0.5566261928140863,
+    "seedsplit_inst_s9": 0.3629737118984584
+  },
+  "std_run": 0.06753675949020659,
+  "std_instance": 0.12612144922510593,
+  "quadrature": 0.14306583742137388,
+  "published_std_ddof0": 0.123,
+  "published_std_ddof1": 0.13751818061623708,
+  "instance_share_of_variance": 0.7771520953929656
+}
