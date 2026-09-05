@@ -146,7 +146,7 @@ def evaluate_conditional(model, problem, X, Y, cfg, device, gen) -> list[dict]:
     # held-out conditions (fresh draws from rho, not in the training set)
     n_ho = ev.get("n_heldout", 0)
     if n_ho > 0:
-        g_ho = torch.Generator().manual_seed(cfg["seed"] + 7777)
+        g_ho = torch.Generator().manual_seed(int(cfg["data"].get("problem_seed", cfg["seed"])) + 7777)
         X_ho = problem.sample_prior(n_ho, generator=g_ho)
         Y_ho = problem.forward(X_ho, generator=g_ho)
         ho_recs = eval_group(list(range(n_ho)), "heldout", X_ho, [Y_ho[i] for i in range(n_ho)])
@@ -201,6 +201,11 @@ def _aggregate(recs: list[dict], group: str, extra: dict) -> dict:
 def train(cfg: dict, out_root: str | Path) -> Path:
     device = get_device(cfg.get("device", "auto"))
     set_seed(cfg["seed"])
+    # The problem instance (operator A, dataset, held-out queries, adversarial
+    # shuffle) and the training run are seeded separately, so that error bars can
+    # isolate one from the other. Defaults to cfg["seed"], which reproduces every
+    # run made before this split exactly.
+    problem_seed = int(cfg["data"].get("problem_seed", cfg["seed"]))
 
     run_dir = Path(out_root) / cfg["run_name"]
     paths = RunPaths.make(run_dir)
@@ -209,11 +214,11 @@ def train(cfg: dict, out_root: str | Path) -> Path:
     # ---- problem + dataset -------------------------------------------------
     dc = cfg["data"]
     problem = LinearGaussianProblem.create(
-        d=dc["d"], k=dc["k"], sigma_obs=dc["sigma_obs"], seed=cfg["seed"],
+        d=dc["d"], k=dc["k"], sigma_obs=dc["sigma_obs"], seed=problem_seed,
         prior_std=dc.get("prior_std", 1.0), A_kind=dc.get("A_kind", "random"),
     )
     save_json(problem.to_dict(), run_dir / "problem.json")
-    X, Y = problem.sample_dataset(dc["N"], seed=cfg["seed"] + 1)
+    X, Y = problem.sample_dataset(dc["N"], seed=problem_seed + 1)
 
     if dc.get("shuffle_labels", False):
         # Adversarial-pairing ablation (cf. gradvar2025's shuffled-target test):
@@ -225,7 +230,7 @@ def train(cfg: dict, out_root: str | Path) -> Path:
         # mean_err_train_point alongside a non-converging mean_err_post is the
         # signature that memorisation tracks the (adversarial) label identity,
         # not any real posterior structure.
-        g_shuf = torch.Generator().manual_seed(cfg["seed"] + 9999)
+        g_shuf = torch.Generator().manual_seed(problem_seed + 9999)
         perm = torch.randperm(X.shape[0], generator=g_shuf)
         Y = Y[perm]
         save_json({"perm": perm.tolist()}, run_dir / "shuffle_perm.json")

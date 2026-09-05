@@ -61,6 +61,17 @@ def generate(model, cond1: torch.Tensor, M: int, n_steps: int, eps: float,
     return x
 
 
+def _nan_safe(fn, values) -> float:
+    """Apply a nan-aware reduction, returning nan for an all-nan input.
+
+    numpy warns on an all-nan slice, which at h=0 is every checkpoint: the ratio to
+    a zero reference is undefined there by construction. Suppressing the warning at
+    the point where the undefinedness is meaningful keeps real warnings visible.
+    """
+    arr = np.asarray(values, dtype=float)
+    return float("nan") if arr.size == 0 or np.all(np.isnan(arr)) else float(fn(arr))
+
+
 def smooth_cond(cond: torch.Tensor, mask_obs: torch.Tensor, h: float,
                 gen=None) -> torch.Tensor:
     """Label smoothing for the image problem: y~ = y + h*eps.
@@ -123,6 +134,9 @@ def evaluate(model, problem, cfg, device, gen) -> dict:
         x_bar_h, tr_kern, n_ef = kernel_moments_trace(Yvec[i], Xflat, Yvec, h)
         trace_meas.append(tr_meas)
         trace_kern.append(tr_kern)
+        # At h=0 the kernel puts all its mass on one atom, so tr Cov_h is exactly 0
+        # and the ratio is undefined by construction, not by numerical accident --
+        # read trace_cov and mean_err_kernel there instead.
         ratio_kern.append(tr_meas / tr_kern if tr_kern > 0 else float("nan"))
         meanerr_kern.append(float((sflat.mean(0) - x_bar_h).norm()))
         neff_list.append(n_ef)
@@ -148,8 +162,8 @@ def evaluate(model, problem, cfg, device, gen) -> dict:
         # kernel reference (Thm 10 / Prop 13) -- the P7 quantities, in image space
         "trace_cov_mean": float(np.mean(trace_meas)),
         "trace_cov_kernel_mean": float(np.mean(trace_kern)),
-        "ratio_to_kernel_mean": float(np.nanmean(ratio_kern)),
-        "ratio_to_kernel_median": float(np.nanmedian(ratio_kern)),
+        "ratio_to_kernel_mean": _nan_safe(np.nanmean, ratio_kern),
+        "ratio_to_kernel_median": _nan_safe(np.nanmedian, ratio_kern),
         "mean_err_kernel_mean": float(np.mean(meanerr_kern)),
         "n_eff_mean": float(np.mean(neff_list)),
     }
