@@ -8,3 +8,9 @@
 *.fls
 *.fdb_latexmk
 *.synctex.gz
+
+# The compiled PDF: regenerable from main.tex by the compile chain in README.md.
+# Tracking it cost 19.5 MB of history across 9 rebuilds -- more than the entire
+# working tree -- because PDFs are already compressed and do not delta-compress.
+# Commit it deliberately with `git add -f paper/main.pdf` at a milestone if wanted.
+main.pdf
