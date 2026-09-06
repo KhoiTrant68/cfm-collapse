@@ -213,10 +213,24 @@ explicitly, work by work.
   reference $\tr\Covh$ is nearly constant across conditions, so agreement with it is
   compatible with a model that ignores the label entirely. We measure both. On CIFAR-10
   at $35.75$M parameters, the aggregate agreement at our widest bandwidth is $1.15$ with
-  a $95\%$ interval of $[1.08,1.18]$ while the across-condition slope is $-0.156$
+  a $95\%$ bootstrap interval of $[1.08,1.18]$---which redrawing the problem instance
+widens to $[0.92,1.18]$---while the across-condition slope is $-0.156$
   (Section~\ref{sec:cifarddpm}) --- and the atomicity that holds exactly for the
   population minimiser is violated by $38\%$ of that model's samples. The warning
   applies to our own headline statistic, and we state where it should not be trusted.
+\item \textbf{A diagnostic, and the wrong one it replaces.} The methodological
+  content of the previous point stands on its own and is what we expect to transfer.
+  An agreement statistic is only as informative as the variation in its denominator,
+  so the quantity to report is not the level of $\tr\Cov/\tr\Covh$ but its
+  \emph{across-condition slope} $\beta$: regress $\log\tr\Cov$ on $\log\tr\Covh$ over
+  evaluation conditions, where the theory predicts $\beta=1$ and $\beta=0$ means the
+  model ignores the label. On our data the two statistics disagree in the worst
+  possible way---at $h{=}6$ the level says $1.15$ and the slope says $-0.156$---and
+  the slope is the one that is right. We also show what the level's error bars hide:
+  a bootstrap interval across conditions gives $[1.08,1.18]$ while redrawing the
+  problem instance moves the same number from $1.181$ to $0.924$. None of this is
+  specific to flow matching; it applies to any claim of the form ``the restored
+  variance matches reference $X$''.
 \item \textbf{Separation of two remedies.} Label noise changes the population
   endpoint; interpolant noise provably does not, at any noise level
   (Propositions~\ref{prop:prop17} and \ref{prop:factors}; Remark~\ref{rem:notsampler}
@@ -254,7 +268,18 @@ the endpoint rather than the label---produces a law that could be a posterior at
 
 In one line: \emph{conditional collapse is the zero-bandwidth limit of a
 kernel-weighted empirical conditional flow}, and the natural remedy moves along that
-limit without ever leaving the training atoms (Figure~\ref{fig:mechanism}). On scope
+limit without ever leaving the training atoms (Figure~\ref{fig:mechanism}).
+
+We should be plain about which half of that carries the weight. The population
+analysis is elementary---each result is a short Bayes computation on a Gaussian
+interpolant with deterministic conditioning---and its value is that it supplies an
+exact reference, not that it is difficult. What the reference then buys is the part we
+expect to outlast it: a way to tell a model that has recovered the posterior's second
+moment from one that has recovered the posterior, a proof that two of the three
+interventions practitioners reach for cannot help, and a measurement protocol that
+catches an agreement statistic certifying nothing. The paper is therefore best read as
+a negative and diagnostic result with an exact derivation behind it, rather than as a
+theoretical advance. On scope
 (Section~\ref{sec:scope}): the theory characterises the exact population minimiser for
 the empirical data law, not what a finite network trained by SGD attains, so we
 separate quantities it determines from quantities it does not---the dependence of
@@ -706,9 +731,13 @@ $[0,1)$. Both concern the unconditional model and are kept distinct from the
 conditional statements above, which need no finite batch at all.
 
 The population theory proves exact consequences for the empirical minimiser
-(Propositions~\ref{prop:collapse}--\ref{prop:expansion},
+(Propositions~\ref{prop:collapse}--\ref{prop:tgtnoise},
 Corollaries~\ref{cor:zerobw}--\ref{cor:infbw}, Proposition~\ref{prop:liplb},
-Corollary~\ref{cor:floor}); Appendix~\ref{sec:theory-d2} adds exact statements about
+Corollary~\ref{cor:floor}). Proposition~\ref{prop:expansion} and
+Proposition~\ref{prop:nwrate} are deliberately \emph{not} in that list: they treat
+$\D$ as an i.i.d.\ sample and are asymptotic in $N$, as flagged where they are
+stated.
+Appendix~\ref{sec:theory-d2} adds exact statements about
 a \emph{randomly drawn} finite unconditional batch. It does \emph{not} determine: the
 number of SGD steps to approach the optimum; the dependence of \emph{observed}
 collapse on $N$ at fixed architecture (the population optimum collapses for every
@@ -2400,10 +2429,8 @@ substantially, with SGD reaching only about half the collapse Adam does here.}
 \end{table}
 
 
-\subsection{Adversarial pairing, in full}
-\label{app:adv}
-
 \subsection{Adversarial pairing: collapse does not require a real posterior}
+\label{app:adv}
 \label{sec:adversarial}
 
 Proposition~\ref{prop:collapse} never uses $A$ or $\sigma_{\mathrm{obs}}$: it needs
