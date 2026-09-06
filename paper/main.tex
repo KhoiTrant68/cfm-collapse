@@ -161,52 +161,10 @@ interpolation is the capacity analogue of our $h\colon0\to\infty$ interpolation
 (Corollaries~\ref{cor:zerobw} and~\ref{cor:infbw})---and neither result subsumes
 the other. Our contribution is the \emph{conditional and kernel-regression
 structure} underlying the collapse, which this literature does not isolate.
-Table~\ref{tab:related} states the boundary explicitly, work by work.
+Table~\ref{tab:related} in Appendix~\ref{app:deferred} states the boundary
+explicitly, work by work.
 
-\begin{table}[htb]
-\centering\small
-\renewcommand{\arraystretch}{1.15}
-\begin{tabular}{@{}p{0.20\textwidth}p{0.15\textwidth}p{0.28\textwidth}p{0.30\textwidth}@{}}
-\toprule
-work & conditioning & what it establishes & what it leaves open, and we supply\\
-\midrule
-\citet{scarvelis2025closedform} & unconditional & closed-form empirical denoiser is a
-kernel-weighted average of training points, degenerating to a mixture of atoms &
-the \emph{conditional} case, where the label identifies one atom rather than
-reweighting all of them\\
-\citet{chen2026scoresmoothing} & unconditional & smoothing the empirical score as the
-escape from memorisation & smoothing the \emph{label}, and the exact endpoint law it
-induces\\
-\citet{smola2026support} & conditional & the \emph{spatial} factor
-$\pi_0(\tfrac{x-tx^i}{1-t})$ is a Nadaraya--Watson smoother with bandwidth the flow
-time $1-t$, sharpening to nearest-neighbour as $t\to1$ & the \emph{label} factor
-$K_h(y-y^i)$ of the same product \eqref{eq:kernel-field}, whose bandwidth is a
-modelling choice; and the endpoint law and its moments rather than the field. The two
-readings compose; neither implies the other\\
-\citet{gu2023memorization} & conditional & unique/random labels sharply increase
-memorisation at CIFAR and FFHQ scale, empirically & \emph{why}: informativeness is
-irrelevant, identification is everything
-(Proposition~\ref{prop:collapse}), which our shuffled-label experiment tests directly\\
-\citet{somepalli2023copying} & text & replication is common with text conditioning and
-rare without it; randomising captions mitigates & that this asymmetry \emph{is}
-Eq.~\eqref{eq:distinction}, and that caption randomisation is label smoothing in the
-sense of Theorem~\ref{thm:endpoint}\\
-\citet{ho2022cascaded}; \citet{sadat2024cads} & conditional & conditioning noise as
-practice; annealed at inference to restore conditional diversity & that the restored
-variance is an exact Nadaraya--Watson mixture over training atoms---hence a
-parameter-free reference, and a false certificate for posterior recovery\\
-\citet{buchanan2025edge} & unconditional & memorisation/generalisation phase transition
-as denoiser capacity $M$ ranges over $K\to N$ & the label/bandwidth analogue
-$h\colon0\to\infty$ (Corollaries~\ref{cor:zerobw},~\ref{cor:infbw}); neither result
-subsumes the other\\
-\bottomrule
-\end{tabular}
-\caption{Where this paper sits. The rows above the rule on conditioning noise own the
-memorisation side; the two below own the remedy side. What no row supplies is the object
-connecting them---that the remedy is exactly kernel regression over the atoms the
-memorisation produces, with the ceiling that entails.}
-\label{tab:related}
-\end{table}
+
 
 \noindent In summary:
 
@@ -333,23 +291,9 @@ every flow-matching objective \citep{lipman2023flow,albergo2023building,liu2023r
 we restate it because every later result is an evaluation of the conditional
 expectation it identifies, and record no proof for it.
 
-\paragraph{Three conventions, stated rather than assumed.} \emph{(i) Versions.} The
-minimiser of an $L^2$ projection is unique only up to a null set
-(Proposition~\ref{prop:projection}), yet the results below assert formulas ``for every
-$x$ and $t<1$''. What we exhibit in each case is a distinguished \emph{continuous}
-version: the weights in \eqref{eq:kernel-field} are ratios of everywhere-positive
-smooth functions (Lemma~\ref{lem:cov}), so the formula defines a continuous field on
-$\R^d\times[0,1)$, and every pointwise claim is a claim about that version. Any other
-minimiser agrees with it a.e., which is all the flow sees. \emph{(ii) Endpoints.}
-$p_1$ always denotes the weak limit $\lim_{t\uparrow1}p_t$, never a value attained at
-$t=1$; the field is undefined there. We establish that the limit exists wherever we use
-it, each time from almost-sure convergence of the interpolant rather than by appeal to a
-general theorem, and Lemma~\ref{lem:wellposed} is deliberately narrowed so as not to
-claim existence in general. \emph{(iii) Where the flow is well posed.} The $1/(1-t)$
-factor means no statement here extends to the closed interval. All flows are solved on
-$[0,1)$, where Lemma~\ref{lem:wellposed} gives existence, uniqueness and a growth bound;
-the blow-up at $t=1$ is the mechanism under study, not a technical nuisance to be
-regularised away.
+Appendix~\ref{app:deferred} records three conventions this section relies on:
+which version of the a.e.-defined minimiser is meant, that $p_1$ always denotes a weak
+limit, and that every flow is solved on $[0,1)$ only.
 
 \begin{proposition}[$L^2$ projection]
 \label{prop:projection}
@@ -514,31 +458,16 @@ identified by Theorem~\ref{thm:endpoint}, so it needs no separate proof; we stat
 because it is the object every experiment in Section~\ref{sec:experiments} measures
 against.
 
-\begin{proposition}[Near-duplicate labels]
-\label{prop:nearduplicate}
-Fix a query $y$ and a subset $C\subseteq\{1,\dots,N\}$ with
-$|y-y^i|\le\varepsilon$ for $i\in C$ and $|y-y^j|\ge\Delta$ for $j\notin C$, where
-$\varepsilon<\Delta$. For the Gaussian kernel of bandwidth $h$, put
-\[
-\eta:=\frac{N-|C|}{|C|}\exp\!\Big(\!-\frac{\Delta^2-\varepsilon^2}{2h^2}\Big),
-\qquad
-\kappa:=\exp\!\Big(\frac{\varepsilon^2}{2h^2}\Big)\ \ge 1 .
-\]
-Then \emph{(a)} $\sum_{j\notin C}p_j^{(h)}(y)\le\eta$; \emph{(b)}
-$p_i^{(h)}(y)/p_{i'}^{(h)}(y)\le\kappa$ for all $i,i'\in C$; and \emph{(c)}
-$n_{\mathrm{eff}}(y)\ge|C|/(\kappa+|C|\eta^2)$.
-Consequently, as $\varepsilon/h\to0$ and $\Delta/h\to\infty$ the index posterior
-converges to the uniform law on $C$, the endpoint law to
-$|C|^{-1}\sum_{i\in C}\delta_{x^i}$, and $n_{\mathrm{eff}}\to|C|$.
-\end{proposition}
-This is the regime that occurs in practice---captions or labels that are close but
-not identical---and it makes the bandwidth window explicit. Both conditions can hold
-at once exactly when $\varepsilon\ll h\ll\Delta$, so a usable $h$ exists precisely when
-clusters are tight relative to their separation; inside that window the model behaves as
-though conditioned on the cluster, with $n_{\mathrm{eff}}$ counting the cluster and not
-the dataset. Note what does \emph{not} improve: the endpoint law is still a finite sum
-of point masses, now $|C|$ of them, so Proposition~\ref{prop:atomicity} applies
-unchanged. Near-duplicate labels buy effective sample size, not continuity.
+Exactly repeated labels collapse onto the label's empirical conditional support,
+as noted above; the practically common case of labels that are \emph{close but not
+equal} is quantified in Proposition~\ref{prop:nearduplicate}
+(Appendix~\ref{app:deferred}), which shows a usable bandwidth exists precisely when
+clusters are tight relative to their separation, and that inside that window
+$n_{\mathrm{eff}}$ counts the cluster rather than the dataset.
+A usable bandwidth therefore exists exactly when $\varepsilon\ll h\ll\Delta$, and
+inside that window $n_{\mathrm{eff}}$ counts the cluster rather than the dataset. The law
+is still a finite sum of point masses, now $|C|$ of them: near-duplicate labels buy
+effective sample size, not continuity.
 
 \begin{proposition}[Label smoothing never leaves the training set]
 \label{prop:atomicity}
@@ -558,24 +487,11 @@ new samples, so matching $\tr\Covh$ matches a second moment, not the posterior. 
 genuine remedy needs $h\to0$ \emph{and} $N\to\infty$ jointly---the Nadaraya--Watson
 consistency regime of Proposition~\ref{prop:nwrate} (appendix)---not $h$ alone.
 
-\paragraph{How large is the floor, and where does it bind?}
-Proposition~\ref{prop:atomicity} gives an $h$-independent floor but not its size, and
-the paper measures it small (Appendix~\ref{sec:aux}), which invites the objection that
-the obstruction is a curiosity. The scaling answers that. The floor is the best
-$N$-point approximation of a continuous posterior in $W_2$, and by Zador's theorem
-\citep[Ch.~6]{graf2000quantization} that error decays as $N^{-1/d}$ for a measure with
-a non-degenerate absolutely continuous part on $\R^d$. The exponent is the whole story:
-\[
-N^{-1/d}\;=\;0.071 \ \text{ at our default } (d,N)=(2,200),
-\qquad
-N^{-1/d}\;=\;0.9975 \ \text{ at } (d,N)=(3072,2000).
-\]
-At $d{=}2$ two hundred atoms genuinely do fill the posterior, which is why we measure
-the floor and find it negligible; at image dimension the same number of atoms reduces
-the approximation error by a quarter of one percent. The atomicity obstruction is
-therefore not merely present but \emph{dominant} in exactly the regime where diversity
-is wanted, and negligible in the regime where it is easy to measure. We report both,
-and take this to be the reason the obstruction deserves the weight we give it.
+The floor's \emph{size} is what decides whether this matters, and it scales as
+$N^{-1/d}$ by Zador's theorem \citep[Ch.~6]{graf2000quantization}: $0.071$ at our
+$(d,N)=(2,200)$ default but $0.9975$ at $(3072,2000)$. The obstruction is negligible
+exactly where it is easy to measure and essentially undiminished in the image regime
+(Appendix~\ref{app:deferred}).
 
 \subsection{Escaping the obstruction: smoothing the endpoint}
 \label{sec:theory-remedy}
@@ -639,13 +555,9 @@ The linear-Gaussian instance of Section~\ref{sec:setup}, which is the case we te
 satisfies it exactly with $\Sigma(y)\equiv\Sigmapost$. Nor is the expansion claimed
 uniform over $y$; near the boundary of $\operatorname{supp}(\rho_Y)$ the kernel loses mass
 asymmetrically and the bias changes order (standard nonparametric boundary bias).
-Both restrictions matter for what follows: a pointwise, homoscedastic expansion should
-\emph{not} be expected to describe an image model, where $\Sigma(\cdot)$ certainly
-varies with the conditioning image and most evaluation conditions sit near the boundary
-of a $1536$-dimensional label support. The across-condition slope of $0.481$ measured
-in Section~\ref{sec:cifarddpm} is what that failure to transfer looks like, and we read
-it that way rather than as a refutation of \eqref{eq:expansion} at the point where it
-is claimed.
+A pointwise, homoscedastic expansion should not be expected to describe an image
+model, and the across-condition slope of $0.481$ in Section~\ref{sec:cifarddpm} is what
+that failure to transfer looks like (Appendix~\ref{app:deferred}).
 \end{proposition}
 
 The between-group inflation $h^2\|J\|_F^2$ is positive and, unlike the bias of the
@@ -705,15 +617,9 @@ Corollary~\ref{cor:prop18} (appendix) records what interpolant noise \emph{does}
 change: it raises the irreducible error ($\inf_vL_\sigma>0$ for $\sigma>0$, whereas
 $\inf_vL_0=0$) and halves the Lipschitz blow-up rate. Neither touches $p_1$.
 
-\begin{proposition}[The two mechanisms act on different factors]
-\label{prop:factors}
-In the factorisation \eqref{eq:kernel-field}, label smoothing modifies the label
-factor $K_h(y-y^i)$ and therefore changes $p_1$ (Theorem~\ref{thm:endpoint});
-interpolant noise rescales the spatial factor $\N(tx^i,s_t^2 I_d)$
-\emph{isotropically and identically for every $i$}, leaving the endpoint law
-unchanged (Proposition~\ref{prop:prop17}). The two remedies are therefore not
-interchangeable.
-\end{proposition}
+Proposition~\ref{prop:factors} (Appendix~\ref{app:deferred}) locates the
+difference precisely: the two noises multiply different factors of the same index
+posterior, and only the label factor survives to $t=1$.
 This cleanly separates the present conditional mechanism from the unconditional
 ``resample-$x_0$'' remedy of the gradient-variance line \citep{gradvar2025}, which
 operates through attainability rather than through the population optimum.
@@ -747,18 +653,11 @@ every $w$ and every initial law. In particular, if $N\le d$ then $\dim\mathcal A
 N-1<d$, so $\mathcal A$ is Lebesgue-null and \emph{no} guidance weight makes the
 conditional law absolutely continuous.
 \end{proposition}
-Two things are worth separating here. What Proposition~\ref{prop:cfg} proves is a
-statement about \emph{dimension}: guidance moves mass around inside a set of dimension
-at most $N-1$ and cannot leave it. In the image regime that is already decisive
----$N{=}2000$ atoms in $d{=}3072$ leaves a null set---but at $N>d$ the affine hull is
-all of $\R^d$ and the proposition says nothing. What we \emph{observe}, integrating the
-exact guided field, is stronger: endpoints land on the atoms themselves, to integrator
-accuracy, at every $w$ we tried, and increasing $w$ changes \emph{which} atom is
-reached rather than whether an atom is reached
-(\texttt{scripts/verify\_cfg\_affine.py}; the identity \eqref{eq:cfgorth} is
-reproduced to six decimal places for $h\in\{0,0.7\}$ and $w\in\{0,3,12\}$). We do not
-prove that stronger statement: it requires a trapping argument near $t=1$ that we have
-not completed, and we prefer to mark the boundary than to assert past it.
+Proposition~\ref{prop:cfg} is a statement about \emph{dimension}, decisive when
+$N\le d$ and vacuous when $N>d$. Integrating the exact guided field shows something
+stronger---endpoints land on the atoms themselves, and larger $w$ changes \emph{which}
+atom is reached---which we report as measured rather than proved
+(Appendix~\ref{app:deferred}).
 
 The practical reading is that guidance belongs with interpolant noise rather than with
 label smoothing. Of the four interventions considered in this paper, two leave the
@@ -771,88 +670,26 @@ training set (Proposition~\ref{prop:tgtnoise}), and it pays $+\rho^2I_d$ of vari
 do it. That ordering---inert, inert, reweighting, support-moving---is the practical
 content of the theory.
 
-\subsection{Finite capacity: a genuine representation floor}
-\label{sec:theory-floor}
+\subsection{Finite capacity}
+\label{sec:theory-capacity}
 
-The results so far describe the population minimiser over \emph{all}
-square-integrable fields; a trained network is restricted to a finite-capacity
-class. Here is one concrete way that restriction alone forces a positive loss floor,
-independent of any optimisation difficulty.
-
-\begin{proposition}[Lipschitz lower bound]
-\label{prop:liplb}
-Fix $i$, $t<1$, $f_i(x,t)=(x^i-x)/(1-t)$, and suppose $v(\cdot,t,y^i)$ is
-$L$-Lipschitz in $x$. Under $X_t\mid I=i\sim\N(tx^i,(1-t)^2 I_d)$,
-$\E[|v(X_t,t,y^i)-f_i(X_t,t)|^2\mid I=i]\ge d\,[1-L(1-t)]_+^2$.
-\end{proposition}
-
-\begin{corollary}[Loss floor under a uniform Lipschitz constraint]
-\label{cor:floor}
-For $\mathcal F_L=\{v:\operatorname{Lip}_x v(\cdot,t,y^i)\le L\ \forall t,i\}$ with
-$L\ge1$ and $t\sim\mathrm{Unif}(0,1)$,
-\begin{equation}
-\inf_{v\in\mathcal F_L}L_0(v)\ \ge\ d\int_{1-1/L}^1[1-L(1-t)]^2\,dt\ =\ \frac{d}{3L}\ >\ 0.
-\label{eq:floor}
-\end{equation}
-More generally, if the Lipschitz constant is allowed to depend on time,
-$\operatorname{Lip}_xv(\cdot,t,y^i)\le L(t)$, the same pointwise bound integrates to
-\begin{equation}
-\inf_{v\in\mathcal F_{L(\cdot)}}L_0(v)\ \ge\ d\int_0^1\big[1-L(t)(1-t)\big]_+^2\,dt .
-\label{eq:floorlt}
-\end{equation}
-\end{corollary}
-
-\eqref{eq:floorlt} is the honest form of the statement, and it changes how
-\eqref{eq:floor} should be read. The uniform-$L$ floor is an artefact of the
-uniformity: the integrand in \eqref{eq:floorlt} vanishes identically as soon as
-$L(t)\ge1/(1-t)$ for a.e.\ $t$, so a network whose Lipschitz constant in $x$ grows like
-$1/(1-t)$ near the endpoint---which a time-conditioned network is free to do, and which
-the target field itself does---faces no floor at all from this mechanism. That is
-consistent with what we measure: Appendix~\ref{sec:aux} finds the $d/(3L)$ value some
-$50\times$ below the observed plateau. We therefore do not offer this as an explanation
-of the plateau, and say so in Section~\ref{sec:limitations}; we retain it because ruling
-a mechanism out is worth recording, and because \eqref{eq:floorlt} localises what would
-have to be measured---the profile $L(t)$ near $t=1$, not a single constant---for the
-question to be settled.
-
-Two warnings temper \eqref{eq:floor}. First, the bound is \emph{conditional} on the
-constraint: an MLP with unbounded weights lies in no fixed $\mathcal F_L$, and by
-universal approximation $\inf_\theta L(v_\theta)$ may be $0$; what we prove is that
-any architecture with $\operatorname{Lip}_x v_\theta\le L$ cannot beat $d/(3L)$.
-Second, it does not bind in our experiments: with $d=2$ and a trained
-$\operatorname{Lip}_x$ of order $10^1$--$10^2$, the floor is of order $10^{-2}$,
-one to two orders of magnitude below the loss plateau $0.48$ observed at $2\times10^5$ iterations (it falls to $0.36$ by $7\times10^5$, so the gap is if anything understated).
-Corollary~\ref{cor:floor} is therefore best used as a \emph{measurement}---estimate
-$L$, compare $d/(3L)$ to the plateau, report which gap dominates
-(Appendix~\ref{sec:aux})---and that measurement rules the representation
-explanation \emph{out} here.
+A uniform Lipschitz bound on $v$ yields a measurable loss floor $d/(3L)$, and its
+time-varying refinement $d\int_0^1[1-L(t)(1-t)]_+^2dt$ shows that floor to be an
+artefact of the uniformity: it vanishes identically once $L(t)\ge1/(1-t)$. We measure
+the uniform version and find it some $50\times$ below the observed plateau, so we do
+\emph{not} offer it as an explanation, and we do not claim it as a contribution.
+Statements, proofs and the measurement are in Appendices~\ref{app:deferred}
+and~\ref{sec:aux}.
 
 
-\subsection{Finite-sample memorisation (summary)}
-\label{sec:d2summary}
-
-Appendix~\ref{sec:theory-d2} adapts two representability results of the
-unconditional gradient-variance literature \citep{gradvar2025} to the present
-notation---a fixed finite \emph{unconditional} batch always admits an exact
-zero-loss memorising field despite Proposition~\ref{prop:uncond}'s positive
-population loss (Proposition~\ref{prop:memorize}), and resampling $x_0$ every
-epoch is exactly what defeats that construction (Remark~\ref{rem:resample})---and
-adds a new, problem-specific result: no finite-depth, finite-width network with
-globally Lipschitz activations can equal the collapsed field's $1/(1-t)$ blow-up
-\emph{pointwise} on all of $[0,1)$ (Remark~\ref{lem:norepr}). We state it as a
-remark rather than a contribution because its reach is narrow: our sampler, like every
-practical one, stops at $t=1-10^{-3}$, where $1/(1-t)$ is merely $10^3$ and a finite
-network represents it comfortably. It rules out exact representation on the open
-interval, not adequacy on the interval anyone integrates over. We keep that
-pointwise claim separate from a loss floor: the only class for which we prove a
-strictly positive floor is the Lipschitz-capped $\mathcal F_L$ of
-Corollary~\ref{cor:floor}. The contrast with Proposition~\ref{prop:collapse} is
-the point---conditional collapse needs no genericity argument and no fixed-batch
-caveat, because $y^i$ pins down $i$ for every $x_0$, not merely with probability
-one on a single draw.
-
-\subsection{Scope: what is and is not predicted}
+\subsection{Finite-sample memorisation, and scope}
 \label{sec:scope}
+
+Appendix~\ref{sec:theory-d2} adapts two representability results for a \emph{randomly
+drawn} finite unconditional batch: a memorising field always exists on such a batch,
+and the collapsed field's $1/(1-t)$ blow-up is not exactly representable pointwise on
+$[0,1)$. Both concern the unconditional model and are kept distinct from the
+conditional statements above, which need no finite batch at all.
 
 The population theory proves exact consequences for the empirical minimiser
 (Propositions~\ref{prop:collapse}--\ref{prop:expansion},
@@ -912,28 +749,7 @@ closed form $(x^i-x)/(1-t)$ (P2), the generated mean moves from $\mu_{\mathrm{po
 toward the training point $x^i$ (P3), and the unconditional baseline retains
 data-scale variance throughout (P4).
 
-\begin{table}[htb]
-\centering\small
-\begin{tabular}{lccccc}
-\toprule
-& \multicolumn{5}{c}{iteration}\\
-\cmidrule(l){2-6}
-quantity & $10^2$ & $10^4$ & $10^5$ & $2\times10^5$ & $1\times10^6$ \\
-\midrule
-conditional $\tr\Cov$ & $1.08\pm0.02$ & $1.03\pm0.11$ & $0.58\pm0.18$ & $0.396\pm0.127$ & $0.120\pm0.054$\\
-velocity rel.\ error vs.\ ($\star$) & $0.78\pm0.03$ & $0.75\pm0.07$ & $0.50\pm0.04$ & $0.40\pm0.05$ & $0.168\pm0.052$\\
-$\|\text{mean}-x^i\|$ & $0.90\pm0.16$ & $0.87\pm0.20$ & $0.58\pm0.13$ & $0.38\pm0.10$ & $0.137\pm0.065$\\
-$\|\text{mean}-\mu_{\mathrm{post}}\|$ & $0.15\pm0.06$ & $0.25\pm0.07$ & $0.52\pm0.10$ & $0.66\pm0.18$ & $0.816\pm0.172$\\
-unconditional $\tr\Cov$ & $1.85\pm0.55$ & $1.93\pm0.16$ & $1.91\pm0.17$ & $1.926\pm0.171$ & ---\\
-\bottomrule
-\end{tabular}
-\caption{EXP-1, mean$\pm$std over 5 seeds; the $10^6$ column is the cosine-schedule
-run (no unconditional counterpart), whose between-seed spread makes it evidence of
-\emph{stability} rather than a precise depth estimate. Same-seed reference values:
-$\tr\Sigmapost=1.018\pm0.016$, $\tr\Xhat=1.931\pm0.162$---the unconditional row
-matches the latter almost exactly, which is \eqref{eq:distinction} measured directly.}
-\label{tab:exp1}
-\end{table}
+
 
 The variance tracks the true posterior up to $\sim\!10^4$ iterations---the model is a
 correct Bayesian sampler in this phase, which is exactly why early stopping works
@@ -1094,13 +910,9 @@ $\sqrt{2/(M-1)}$, which is $8.9\%$ at $M{=}256$ but $36\%$ at the $M{=}16$ used 
 training, so all numbers below are re-measured from checkpoints rather than read off the
 training-time metrics.
 
-This instance is deliberately chosen to be a genuine conditional inverse problem
-rather than a classification-style one: the conditioning variable is the observed half
-of the image, so it is continuous and high-dimensional ($k{=}1536$); many completions
-are consistent with any given $y$, so a collapsed sampler is a real failure rather than
-a near-optimal answer; and training runs long past the point of good calibration, with
-checkpoints early and late. Those are the conditions under which posterior collapse is
-worth measuring at all.
+The instance is a genuine conditional inverse problem---continuous,
+high-dimensional conditioning, many valid completions, training long past
+calibration---rather than a classification-style one (Appendix~\ref{app:deferred}).
 
 \paragraph{Hard conditioning ($h{=}0$): Proposition~\ref{prop:collapse} at scale.}
 $\tr\Cov$ falls from $179.1$ at iteration $500$ to $0.431$ at $60000$ on the
@@ -1154,17 +966,17 @@ This is a partial confirmation and we state it as one. Theorem~\ref{thm:endpoint
 right about which conditions have more posterior variance and wrong about how much, by
 a factor that itself grows with the reference.
 
-\paragraph{The atomicity floor does not survive training.}
-Proposition~\ref{prop:atomicity} proves that the smoothed population law is supported on
-the training set for \emph{every} $h$. The trained network escapes it, progressively: the
-fraction of generated samples lying on a training atom is $1.000$, $0.829$, $0.717$ and
-$0.620$ at $h=0,4,5,6$, so at $h{=}6$ roughly $38\%$ of samples are off-atom. The value
-of exactly $1.000$ at $h{=}0$ rules out ODE discretisation as the explanation, since the
-same integrator is used throughout. Atomicity is thus a property of the population
-minimiser that finite capacity partially undoes---which is good news for sample quality
-and bad news for treating Proposition~\ref{prop:atomicity} as a statement about trained
-models. It is also the one place in this paper where a proved property of the exact
-minimiser is measurably violated by the network that approximates it.
+\paragraph{Three supporting measurements.} Atomicity, exact for the population
+minimiser, does not survive training: the fraction of samples on a training atom is
+$1.000$, $0.829$, $0.717$, $0.620$ at $h=0,4,5,6$, and the exact $1.000$ at $h{=}0$
+rules out the integrator as the cause. What governs the discrepancy is
+$n_{\mathrm{eff}}$ rather than $h$: pooled over the $144$ (condition, $h$) pairs with
+$h>0$, Spearman's correlation is $-0.858$ against $n_{\mathrm{eff}}$ and $-0.554$
+against $h$. And repeating $h{=}0$ and $h{=}4$ at a second seed---which redraws the
+mask, the training subset and all training randomness---moves $\tr\Cov$ at $h{=}4$ by
+$35\%$ ($178.5\to240.7$) while the ratio to the Theorem~\ref{thm:endpoint} reference
+moves by $3.5\%$ ($6.83\to7.07$): the reference-relative quantity is the stable one.
+Appendix~\ref{app:deferred} gives each in full.
 
 \paragraph{What governs the discrepancy is $n_{\mathrm{eff}}$, not $h$.}
 Pooling all $144$ (condition, $h$) pairs with $h>0$, the Spearman correlation between
@@ -1201,16 +1013,13 @@ $h{=}6$ is uninformative.}
 \section{Limitations}
 \label{sec:limitations}
 
-\paragraph{A proved property of the population minimiser that the trained model
-violates.} Proposition~\ref{prop:atomicity} shows the smoothed law is supported on the
-training set for every $h$, and Section~\ref{sec:cifarddpm} measures the fraction of
-generated samples actually on an atom as $1.000$, $0.829$, $0.717$, $0.620$ at
-$h=0,4,5,6$. The obstruction is therefore exact for the object the theory describes and
-only approximate for the object practitioners train, with the gap widening as $h$ grows.
-We do not have a quantitative account of that gap, and it is the clearest instance in
-this paper of the population/finite-network distinction biting: everywhere else the two
-agree in direction, here they disagree about a set-valued statement that is either true
-or false.
+\paragraph{A proved property that the trained model violates.}
+Proposition~\ref{prop:atomicity} is exact for the object the theory describes and only
+approximate for the object practitioners train, with the gap widening in $h$
+(Section~\ref{sec:cifarddpm}). We have no quantitative account of that gap. It is the
+clearest instance in this paper of the population/finite-network distinction biting:
+elsewhere the two agree in direction, here they disagree about a statement that is
+either true or false.
 
 \paragraph{The optimisation gap is bounded away from one explanation, not explained.}
 A finite network reaches the population minimiser only up to an optimisation gap,
@@ -1241,17 +1050,13 @@ or with an anisotropic $\rho$. Finally, P5/P6 are empirical
 findings the theory does not determine, and the checkpoint-based tables require
 retraining the $p7y$ runs.
 
-\paragraph{We do not benchmark against the remedies practitioners already use.} Early
-stopping, weight averaging, condition dropout, caption randomisation and
-classifier-free guidance scale are all deployed against exactly the symptom studied
-here, and we compare against none of them. Our claim is therefore diagnostic, not
-prescriptive: $\Covh$ is a reference a trained model can be audited against, and label
-smoothing is what that reference describes---but which intervention one should actually
-reach for, and at what cost to sample quality, is not settled by anything in this paper.
-Caption randomisation is the one case where our analysis makes a concrete prediction
-(it is label smoothing, so Theorem~\ref{thm:endpoint} applies to it and the atomicity
-ceiling binds it), and testing that prediction against the practice is the obvious next
-experiment.
+\paragraph{We do not benchmark against the remedies practitioners use.} Early
+stopping, weight averaging, condition dropout, caption randomisation and guidance
+scale are all deployed against this symptom and we compare against none of them; our
+claim is diagnostic, not prescriptive. Caption randomisation is the one case where the
+analysis makes a concrete prediction---it is label smoothing, so
+Theorem~\ref{thm:endpoint} applies and the atomicity ceiling binds it---and testing
+that against practice is the obvious next experiment.
 
 % ==========================================================================
 \section{Conclusion}
@@ -2054,6 +1859,315 @@ quantitative loss floor we prove, $d/(3L)$, therefore applies only to the
 Lipschitz-capped class $\mathcal F_L$ of Corollary~\ref{cor:floor}, and should not
 be read as a statement about arbitrary finite architectures.
 
+
+\section{Material deferred from the main text}
+\label{app:deferred}
+
+Nothing here is new; each block was moved out of the body for length, and the
+body states the claim it supports. They appear in the order the main text
+raises them.
+
+% ---- near-duplicate proposition ----
+\begin{proposition}[Near-duplicate labels]
+\label{prop:nearduplicate}
+Fix a query $y$ and a subset $C\subseteq\{1,\dots,N\}$ with
+$|y-y^i|\le\varepsilon$ for $i\in C$ and $|y-y^j|\ge\Delta$ for $j\notin C$, where
+$\varepsilon<\Delta$. For the Gaussian kernel of bandwidth $h$, put
+\[
+\eta:=\frac{N-|C|}{|C|}\exp\!\Big(\!-\frac{\Delta^2-\varepsilon^2}{2h^2}\Big),
+\qquad
+\kappa:=\exp\!\Big(\frac{\varepsilon^2}{2h^2}\Big)\ \ge 1 .
+\]
+Then \emph{(a)} $\sum_{j\notin C}p_j^{(h)}(y)\le\eta$; \emph{(b)}
+$p_i^{(h)}(y)/p_{i'}^{(h)}(y)\le\kappa$ for all $i,i'\in C$; and \emph{(c)}
+$n_{\mathrm{eff}}(y)\ge|C|/(\kappa+|C|\eta^2)$.
+Consequently, as $\varepsilon/h\to0$ and $\Delta/h\to\infty$ the index posterior
+converges to the uniform law on $C$, the endpoint law to
+$|C|^{-1}\sum_{i\in C}\delta_{x^i}$, and $n_{\mathrm{eff}}\to|C|$.
+\end{proposition}
+
+% ---- two-factor separation proposition ----
+\begin{proposition}[The two mechanisms act on different factors]
+\label{prop:factors}
+In the factorisation \eqref{eq:kernel-field}, label smoothing modifies the label
+factor $K_h(y-y^i)$ and therefore changes $p_1$ (Theorem~\ref{thm:endpoint});
+interpolant noise rescales the spatial factor $\N(tx^i,s_t^2 I_d)$
+\emph{isotropically and identically for every $i$}, leaving the endpoint law
+unchanged (Proposition~\ref{prop:prop17}). The two remedies are therefore not
+interchangeable.
+\end{proposition}
+
+% ---- finite-sample memorisation summary subsection ----
+\subsection{Finite-sample memorisation (summary)}
+\label{sec:d2summary}
+
+Appendix~\ref{sec:theory-d2} adapts two representability results of the
+unconditional gradient-variance literature \citep{gradvar2025} to the present
+notation---a fixed finite \emph{unconditional} batch always admits an exact
+zero-loss memorising field despite Proposition~\ref{prop:uncond}'s positive
+population loss (Proposition~\ref{prop:memorize}), and resampling $x_0$ every
+epoch is exactly what defeats that construction (Remark~\ref{rem:resample})---and
+adds a new, problem-specific result: no finite-depth, finite-width network with
+globally Lipschitz activations can equal the collapsed field's $1/(1-t)$ blow-up
+\emph{pointwise} on all of $[0,1)$ (Remark~\ref{lem:norepr}). We state it as a
+remark rather than a contribution because its reach is narrow: our sampler, like every
+practical one, stops at $t=1-10^{-3}$, where $1/(1-t)$ is merely $10^3$ and a finite
+network represents it comfortably. It rules out exact representation on the open
+interval, not adequacy on the interval anyone integrates over. We keep that
+pointwise claim separate from a loss floor: the only class for which we prove a
+strictly positive floor is the Lipschitz-capped $\mathcal F_L$ of
+Corollary~\ref{cor:floor}. The contrast with Proposition~\ref{prop:collapse} is
+the point---conditional collapse needs no genericity argument and no fixed-batch
+caveat, because $y^i$ pins down $i$ for every $x_0$, not merely with probability
+one on a single draw.
+
+\subsection{Scope: what is and is not predicted}
+
+% ---- EXP-1 headline table ----
+\begin{table}[htb]
+\centering\small
+\begin{tabular}{lccccc}
+\toprule
+& \multicolumn{5}{c}{iteration}\\
+\cmidrule(l){2-6}
+quantity & $10^2$ & $10^4$ & $10^5$ & $2\times10^5$ & $1\times10^6$ \\
+\midrule
+conditional $\tr\Cov$ & $1.08\pm0.02$ & $1.03\pm0.11$ & $0.58\pm0.18$ & $0.396\pm0.127$ & $0.120\pm0.054$\\
+velocity rel.\ error vs.\ ($\star$) & $0.78\pm0.03$ & $0.75\pm0.07$ & $0.50\pm0.04$ & $0.40\pm0.05$ & $0.168\pm0.052$\\
+$\|\text{mean}-x^i\|$ & $0.90\pm0.16$ & $0.87\pm0.20$ & $0.58\pm0.13$ & $0.38\pm0.10$ & $0.137\pm0.065$\\
+$\|\text{mean}-\mu_{\mathrm{post}}\|$ & $0.15\pm0.06$ & $0.25\pm0.07$ & $0.52\pm0.10$ & $0.66\pm0.18$ & $0.816\pm0.172$\\
+unconditional $\tr\Cov$ & $1.85\pm0.55$ & $1.93\pm0.16$ & $1.91\pm0.17$ & $1.926\pm0.171$ & ---\\
+\bottomrule
+\end{tabular}
+\caption{EXP-1, mean$\pm$std over 5 seeds; the $10^6$ column is the cosine-schedule
+run (no unconditional counterpart), whose between-seed spread makes it evidence of
+\emph{stability} rather than a precise depth estimate. Same-seed reference values:
+$\tr\Sigmapost=1.018\pm0.016$, $\tr\Xhat=1.931\pm0.162$---the unconditional row
+matches the latter almost exactly, which is \eqref{eq:distinction} measured directly.}
+\label{tab:exp1}
+\end{table}
+
+% ---- 5.4 problem-specification justification (C8) ----
+This instance is deliberately chosen to be a genuine conditional inverse problem
+rather than a classification-style one: the conditioning variable is the observed half
+of the image, so it is continuous and high-dimensional ($k{=}1536$); many completions
+are consistent with any given $y$, so a collapsed sampler is a real failure rather than
+a near-optimal answer; and training runs long past the point of good calibration, with
+checkpoints early and late. Those are the conditions under which posterior collapse is
+worth measuring at all.
+
+% ---- 5.4 atomicity, n_eff and seed paragraphs ----
+\paragraph{The atomicity floor does not survive training.}
+Proposition~\ref{prop:atomicity} proves that the smoothed population law is supported on
+the training set for \emph{every} $h$. The trained network escapes it, progressively: the
+fraction of generated samples lying on a training atom is $1.000$, $0.829$, $0.717$ and
+$0.620$ at $h=0,4,5,6$, so at $h{=}6$ roughly $38\%$ of samples are off-atom. The value
+of exactly $1.000$ at $h{=}0$ rules out ODE discretisation as the explanation, since the
+same integrator is used throughout. Atomicity is thus a property of the population
+minimiser that finite capacity partially undoes---which is good news for sample quality
+and bad news for treating Proposition~\ref{prop:atomicity} as a statement about trained
+models. It is also the one place in this paper where a proved property of the exact
+minimiser is measurably violated by the network that approximates it.
+
+% ---- Limitations: atomicity paragraph, trimmed ----
+\paragraph{A proved property of the population minimiser that the trained model
+violates.} Proposition~\ref{prop:atomicity} shows the smoothed law is supported on the
+training set for every $h$, and Section~\ref{sec:cifarddpm} measures the fraction of
+generated samples actually on an atom as $1.000$, $0.829$, $0.717$, $0.620$ at
+$h=0,4,5,6$. The obstruction is therefore exact for the object the theory describes and
+only approximate for the object practitioners train, with the gap widening as $h$ grows.
+We do not have a quantitative account of that gap, and it is the clearest instance in
+this paper of the population/finite-network distinction biting: everywhere else the two
+agree in direction, here they disagree about a set-valued statement that is either true
+or false.
+
+% ---- Limitations: remedies paragraph, trimmed ----
+\paragraph{We do not benchmark against the remedies practitioners already use.} Early
+stopping, weight averaging, condition dropout, caption randomisation and
+classifier-free guidance scale are all deployed against exactly the symptom studied
+here, and we compare against none of them. Our claim is therefore diagnostic, not
+prescriptive: $\Covh$ is a reference a trained model can be audited against, and label
+smoothing is what that reference describes---but which intervention one should actually
+reach for, and at what cost to sample quality, is not settled by anything in this paper.
+Caption randomisation is the one case where our analysis makes a concrete prediction
+(it is label smoothing, so Theorem~\ref{thm:endpoint} applies to it and the atomicity
+ceiling binds it), and testing that prediction against the practice is the obvious next
+experiment.
+
+% ---- related-work comparison table ----
+\begin{table}[htb]
+\centering\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{@{}p{0.20\textwidth}p{0.15\textwidth}p{0.28\textwidth}p{0.30\textwidth}@{}}
+\toprule
+work & conditioning & what it establishes & what it leaves open, and we supply\\
+\midrule
+\citet{scarvelis2025closedform} & unconditional & closed-form empirical denoiser is a
+kernel-weighted average of training points, degenerating to a mixture of atoms &
+the \emph{conditional} case, where the label identifies one atom rather than
+reweighting all of them\\
+\citet{chen2026scoresmoothing} & unconditional & smoothing the empirical score as the
+escape from memorisation & smoothing the \emph{label}, and the exact endpoint law it
+induces\\
+\citet{smola2026support} & conditional & the \emph{spatial} factor
+$\pi_0(\tfrac{x-tx^i}{1-t})$ is a Nadaraya--Watson smoother with bandwidth the flow
+time $1-t$, sharpening to nearest-neighbour as $t\to1$ & the \emph{label} factor
+$K_h(y-y^i)$ of the same product \eqref{eq:kernel-field}, whose bandwidth is a
+modelling choice; and the endpoint law and its moments rather than the field. The two
+readings compose; neither implies the other\\
+\citet{gu2023memorization} & conditional & unique/random labels sharply increase
+memorisation at CIFAR and FFHQ scale, empirically & \emph{why}: informativeness is
+irrelevant, identification is everything
+(Proposition~\ref{prop:collapse}), which our shuffled-label experiment tests directly\\
+\citet{somepalli2023copying} & text & replication is common with text conditioning and
+rare without it; randomising captions mitigates & that this asymmetry \emph{is}
+Eq.~\eqref{eq:distinction}, and that caption randomisation is label smoothing in the
+sense of Theorem~\ref{thm:endpoint}\\
+\citet{ho2022cascaded}; \citet{sadat2024cads} & conditional & conditioning noise as
+practice; annealed at inference to restore conditional diversity & that the restored
+variance is an exact Nadaraya--Watson mixture over training atoms---hence a
+parameter-free reference, and a false certificate for posterior recovery\\
+\citet{buchanan2025edge} & unconditional & memorisation/generalisation phase transition
+as denoiser capacity $M$ ranges over $K\to N$ & the label/bandwidth analogue
+$h\colon0\to\infty$ (Corollaries~\ref{cor:zerobw},~\ref{cor:infbw}); neither result
+subsumes the other\\
+\bottomrule
+\end{tabular}
+\caption{Where this paper sits. The rows above the rule on conditioning noise own the
+memorisation side; the two below own the remedy side. What no row supplies is the object
+connecting them---that the remedy is exactly kernel regression over the atoms the
+memorisation produces, with the ceiling that entails.}
+\label{tab:related}
+\end{table}
+
+% ---- regularity conventions (B7) ----
+\paragraph{Three conventions, stated rather than assumed.} \emph{(i) Versions.} The
+minimiser of an $L^2$ projection is unique only up to a null set
+(Proposition~\ref{prop:projection}), yet the results below assert formulas ``for every
+$x$ and $t<1$''. What we exhibit in each case is a distinguished \emph{continuous}
+version: the weights in \eqref{eq:kernel-field} are ratios of everywhere-positive
+smooth functions (Lemma~\ref{lem:cov}), so the formula defines a continuous field on
+$\R^d\times[0,1)$, and every pointwise claim is a claim about that version. Any other
+minimiser agrees with it a.e., which is all the flow sees. \emph{(ii) Endpoints.}
+$p_1$ always denotes the weak limit $\lim_{t\uparrow1}p_t$, never a value attained at
+$t=1$; the field is undefined there. We establish that the limit exists wherever we use
+it, each time from almost-sure convergence of the interpolant rather than by appeal to a
+general theorem, and Lemma~\ref{lem:wellposed} is deliberately narrowed so as not to
+claim existence in general. \emph{(iii) Where the flow is well posed.} The $1/(1-t)$
+factor means no statement here extends to the closed interval. All flows are solved on
+$[0,1)$, where Lemma~\ref{lem:wellposed} gives existence, uniqueness and a growth bound;
+the blow-up at $t=1$ is the mechanism under study, not a technical nuisance to be
+regularised away.
+
+% ---- atomicity floor scaling (B5) ----
+\paragraph{How large is the floor, and where does it bind?}
+Proposition~\ref{prop:atomicity} gives an $h$-independent floor but not its size, and
+the paper measures it small (Appendix~\ref{sec:aux}), which invites the objection that
+the obstruction is a curiosity. The scaling answers that. The floor is the best
+$N$-point approximation of a continuous posterior in $W_2$, and by Zador's theorem
+\citep[Ch.~6]{graf2000quantization} that error decays as $N^{-1/d}$ for a measure with
+a non-degenerate absolutely continuous part on $\R^d$. The exponent is the whole story:
+\[
+N^{-1/d}\;=\;0.071 \ \text{ at our default } (d,N)=(2,200),
+\qquad
+N^{-1/d}\;=\;0.9975 \ \text{ at } (d,N)=(3072,2000).
+\]
+At $d{=}2$ two hundred atoms genuinely do fill the posterior, which is why we measure
+the floor and find it negligible; at image dimension the same number of atoms reduces
+the approximation error by a quarter of one percent. The atomicity obstruction is
+therefore not merely present but \emph{dominant} in exactly the regime where diversity
+is wanted, and negligible in the regime where it is easy to measure. We report both,
+and take this to be the reason the obstruction deserves the weight we give it.
+
+% ---- guidance commentary ----
+Two things are worth separating here. What Proposition~\ref{prop:cfg} proves is a
+statement about \emph{dimension}: guidance moves mass around inside a set of dimension
+at most $N-1$ and cannot leave it. In the image regime that is already decisive
+---$N{=}2000$ atoms in $d{=}3072$ leaves a null set---but at $N>d$ the affine hull is
+all of $\R^d$ and the proposition says nothing. What we \emph{observe}, integrating the
+exact guided field, is stronger: endpoints land on the atoms themselves, to integrator
+accuracy, at every $w$ we tried, and increasing $w$ changes \emph{which} atom is
+reached rather than whether an atom is reached
+(\texttt{scripts/verify\_cfg\_affine.py}; the identity \eqref{eq:cfgorth} is
+reproduced to six decimal places for $h\in\{0,0.7\}$ and $w\in\{0,3,12\}$). We do not
+prove that stronger statement: it requires a trapping argument near $t=1$ that we have
+not completed, and we prefer to mark the boundary than to assert past it.
+
+% ---- near-duplicate commentary ----
+This is the regime that occurs in practice---captions or labels that are close but
+not identical---and it makes the bandwidth window explicit. Both conditions can hold
+at once exactly when $\varepsilon\ll h\ll\Delta$, so a usable $h$ exists precisely when
+clusters are tight relative to their separation; inside that window the model behaves as
+though conditioned on the cluster, with $n_{\mathrm{eff}}$ counting the cluster and not
+the dataset. Note what does \emph{not} improve: the endpoint law is still a finite sum
+of point masses, now $|C|$ of them, so Proposition~\ref{prop:atomicity} applies
+unchanged. Near-duplicate labels buy effective sample size, not continuity.
+
+% ---- bandwidth-expansion caveats (B8) ----
+Both restrictions matter for what follows: a pointwise, homoscedastic expansion should
+\emph{not} be expected to describe an image model, where $\Sigma(\cdot)$ certainly
+varies with the conditioning image and most evaluation conditions sit near the boundary
+of a $1536$-dimensional label support. The across-condition slope of $0.481$ measured
+in Section~\ref{sec:cifarddpm} is what that failure to transfer looks like, and we read
+it that way rather than as a refutation of \eqref{eq:expansion} at the point where it
+is claimed.
+
+% ---- Lipschitz representation floor (B4 / former contribution 5) ----
+\subsection{Finite capacity: a genuine representation floor}
+\label{sec:theory-floor}
+
+The results so far describe the population minimiser over \emph{all}
+square-integrable fields; a trained network is restricted to a finite-capacity
+class. Here is one concrete way that restriction alone forces a positive loss floor,
+independent of any optimisation difficulty.
+
+\begin{proposition}[Lipschitz lower bound]
+\label{prop:liplb}
+Fix $i$, $t<1$, $f_i(x,t)=(x^i-x)/(1-t)$, and suppose $v(\cdot,t,y^i)$ is
+$L$-Lipschitz in $x$. Under $X_t\mid I=i\sim\N(tx^i,(1-t)^2 I_d)$,
+$\E[|v(X_t,t,y^i)-f_i(X_t,t)|^2\mid I=i]\ge d\,[1-L(1-t)]_+^2$.
+\end{proposition}
+
+\begin{corollary}[Loss floor under a uniform Lipschitz constraint]
+\label{cor:floor}
+For $\mathcal F_L=\{v:\operatorname{Lip}_x v(\cdot,t,y^i)\le L\ \forall t,i\}$ with
+$L\ge1$ and $t\sim\mathrm{Unif}(0,1)$,
+\begin{equation}
+\inf_{v\in\mathcal F_L}L_0(v)\ \ge\ d\int_{1-1/L}^1[1-L(1-t)]^2\,dt\ =\ \frac{d}{3L}\ >\ 0.
+\label{eq:floor}
+\end{equation}
+More generally, if the Lipschitz constant is allowed to depend on time,
+$\operatorname{Lip}_xv(\cdot,t,y^i)\le L(t)$, the same pointwise bound integrates to
+\begin{equation}
+\inf_{v\in\mathcal F_{L(\cdot)}}L_0(v)\ \ge\ d\int_0^1\big[1-L(t)(1-t)\big]_+^2\,dt .
+\label{eq:floorlt}
+\end{equation}
+\end{corollary}
+
+\eqref{eq:floorlt} is the honest form of the statement, and it changes how
+\eqref{eq:floor} should be read. The uniform-$L$ floor is an artefact of the
+uniformity: the integrand in \eqref{eq:floorlt} vanishes identically as soon as
+$L(t)\ge1/(1-t)$ for a.e.\ $t$, so a network whose Lipschitz constant in $x$ grows like
+$1/(1-t)$ near the endpoint---which a time-conditioned network is free to do, and which
+the target field itself does---faces no floor at all from this mechanism. That is
+consistent with what we measure: Appendix~\ref{sec:aux} finds the $d/(3L)$ value some
+$50\times$ below the observed plateau. We therefore do not offer this as an explanation
+of the plateau, and say so in Section~\ref{sec:limitations}; we retain it because ruling
+a mechanism out is worth recording, and because \eqref{eq:floorlt} localises what would
+have to be measured---the profile $L(t)$ near $t=1$, not a single constant---for the
+question to be settled.
+
+Two warnings temper \eqref{eq:floor}. First, the bound is \emph{conditional} on the
+constraint: an MLP with unbounded weights lies in no fixed $\mathcal F_L$, and by
+universal approximation $\inf_\theta L(v_\theta)$ may be $0$; what we prove is that
+any architecture with $\operatorname{Lip}_x v_\theta\le L$ cannot beat $d/(3L)$.
+Second, it does not bind in our experiments: with $d=2$ and a trained
+$\operatorname{Lip}_x$ of order $10^1$--$10^2$, the floor is of order $10^{-2}$,
+one to two orders of magnitude below the loss plateau $0.48$ observed at $2\times10^5$ iterations (it falls to $0.36$ by $7\times10^5$, so the gap is if anything understated).
+Corollary~\ref{cor:floor} is therefore best used as a \emph{measurement}---estimate
+$L$, compare $d/(3L)$ to the plateau, report which gap dominates
+(Appendix~\ref{sec:aux})---and that measurement rules the representation
+explanation \emph{out} here.
 
 \section{Additional experimental results}
 \label{app:exp}
