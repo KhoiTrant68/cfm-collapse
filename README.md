@@ -19,6 +19,42 @@ v*(x, t, y^i) = (x^i - x) / (1 - t)          (★)
 whose flow maps every source `x0` to the single training point `x^i`, so the
 generated posterior has **zero variance**.
 
+## The result, in four animations
+
+**The collapse, on real photographs.** Six completions of the same masked image at
+successive training iterations. They start visibly different and end pixel-identical
+-- and identical to one specific training image, shown in the last column. Measured
+`tr Cov` falls 179.1 -> 0.431 across these frames.
+
+![training](paper/figures/anim_cifar_training.gif)
+
+**The remedy, and its ceiling.** The same conditions at the end of training, swept
+over the label bandwidth. Diversity comes back as `h` grows -- which is what any
+diversity metric would reward -- while the fraction of samples that are still
+training images stays high. At `h = 5` the completions are wildly varied and 72% of
+them are training photographs, several of which do not even match the visible half.
+Restored variance, un-restored posterior.
+
+![bandwidth](paper/figures/anim_cifar_bandwidth.gif)
+
+**The whole family in one sweep.** On the 2-d instance, the exact endpoint law as `h`
+runs from 0 upward: a single point mass, then a kernel-weighted mixture that passes
+exactly through `tr Cov_h = tr Sigma_post`, then the uniform empirical measure. The
+two corollaries of the paper are the two ends of this animation.
+
+![bandwidth sweep](paper/figures/anim_bandwidth_2d.gif)
+
+**Guidance cannot leave the training set.** Atoms spanning a plane in R^3, with
+trajectories started deliberately off it. Whatever the guidance weight, they are
+pulled onto the plane, because the component orthogonal to it obeys `q_t = (1-t) q_0`
+exactly. When `N <= d` that plane is a null set, so no guidance weight makes the
+conditional law continuous.
+
+![guidance](paper/figures/anim_guidance_3d.gif)
+
+Regenerate any of them with
+`uv run python -m scripts.make_project_animations --only NAME`.
+
 ## The mechanism, in one animation
 
 ![collapse](paper/figures/anim_collapse.gif)

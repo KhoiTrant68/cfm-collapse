@@ -2977,8 +2977,21 @@ samples against $10240$ for $N{=}5000$, a factor of $100$.}
 \label{tab:p6exposure}
 \end{table}
 
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.62\textwidth]{fig_p6_exposure.png}
+\caption{The P6 sweep read both ways. At a fixed iteration budget each training
+point of the $N{=}50$ run receives a hundred times the gradient samples of the
+$N{=}5000$ run, so ``collapse deepens as $N$ falls'' and ``collapse deepens as each
+point is trained on more'' are the same curve. Holding exposure fixed instead
+separates them, and most of the apparent $N$-dependence goes with it: the spread
+across $N$ falls from $20.2\times$ to $2.28\times$, and $N{=}5000$ does not collapse
+at all within the budget.}
+\label{fig:p6exposure}
+\end{figure}
+
 Table~\ref{tab:p6exposure} reads the sweep both ways. Spread across $N$ falls from
-$20.2\times$ to $2.28\times$, and $N{=}5000$ reaches
+$20.2\times$ to $2.28\times$ (Figure~\ref{fig:p6exposure}), and $N{=}5000$ reaches
 $1.014$---no collapse at all within the budget. This replicates the EXP-3 finding
 ($14.9\times\to2.34\times$) on a different architecture, a different dimension and a
 different dataset, which is the strongest form the claim can take here: two experiments
@@ -3016,7 +3029,18 @@ only a measurement.}
 \label{tab:seedsplit}
 \end{table}
 
-In Table~\ref{tab:seedsplit}, the problem instance carries
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.56\textwidth]{fig_seed_split.png}
+\caption{What the EXP-1 error bars are measuring. Ten runs with the problem
+instance held fixed and the training run varying, against ten with the reverse.
+The instance carries $78\%$ of the variance: most of the width of every $\pm$ in
+this paper is which operator $A$ happened to be drawn, not how the run went.}
+\label{fig:seedsplit}
+\end{figure}
+
+In Table~\ref{tab:seedsplit} and Figure~\ref{fig:seedsplit}, the problem
+instance carries
 $0.1261^2/(0.1261^2+0.0675^2)=78\%$ of the variance and the
 training run $22\%$. So roughly three quarters of every EXP-1 error bar in this paper is
 which operator $A$ happened to be drawn, not how the run went; genuine run-to-run
