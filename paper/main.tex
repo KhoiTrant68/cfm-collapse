@@ -20,6 +20,7 @@
 \usepackage{xcolor}
 \usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
 \usepackage{placeins} % \FloatBarrier keeps figures/tables from drifting past a subsection
+\usepackage{enumitem} % lettered sub-claims inside lemma statements
 
 \graphicspath{{figures/}}
 
@@ -86,7 +87,14 @@ interchangeable: label noise moves the population endpoint, interpolant noise pr
 does not, at any noise level (Proposition~\ref{prop:prop17}). Across five seeds, a trained MLP tracks the kernel
 reference to within seed noise ($\text{ratio-to-kernel}\approx1.00$ for $h\ge0.05$),
 and we reproduce the same collapse on a Gaussian-mixture posterior, on MNIST and
-CIFAR-10 inpainting, and under adversarially shuffled labels.
+CIFAR-10 inpainting, and under adversarially shuffled labels. At realistic capacity---a
+$35.75$M-parameter DDPM U-Net on CIFAR-10, $d{=}3072$---hard-conditioning collapse is
+unambiguous ($415\times$ in $\tr\Cov$; the generated mean identifies the correct
+training image at every evaluation condition), while the smoothed prediction holds only
+in direction: regressing measured on predicted variance across conditions gives a
+log--log slope of $0.481$ where the theory predicts $1$, and the atomicity obstruction,
+exact for the population minimiser, is violated by $38\%$ of samples at the widest
+bandwidth we test.
 Throughout, we distinguish carefully between exact population consequences and
 empirical findings that the population theory does not, by itself, determine.
 \end{abstract}
@@ -239,7 +247,10 @@ Propositions~\ref{prop:expansion} and~\ref{prop:nwrate} treat $\D$ as an i.i.d.\
 sample and are asymptotic in $N$, because their content is precisely what happens as
 the fixed-$N$ picture is left behind; we mark the switch where it occurs. We state
 the load-bearing results here and defer all proofs to Appendix~\ref{app:proofs}. The
-projection identity underlying everything is standard.
+projection identity underlying everything is the standard $L^2$ decomposition behind
+every flow-matching objective \citep{lipman2023flow,albergo2023building,liu2023rectified};
+we restate it because every later result is an evaluation of the conditional
+expectation it identifies, and record no proof for it.
 
 \begin{proposition}[$L^2$ projection]
 \label{prop:projection}
@@ -320,6 +331,11 @@ conditional second moment:
 \end{equation}
 \end{corollary}
 
+Both halves are immediate: the conditional statement is
+Proposition~\ref{prop:collapse}(d) and the unconditional one is
+Proposition~\ref{prop:uncond}; the corollary only places them side by side, which is
+the entire point.
+
 The often-cited observation $\tr\Cov\approx\tr\Xhat$ for the unconditional baseline
 is precisely \eqref{eq:distinction}, i.e.\ evidence of full-empirical-measure
 memorisation, \emph{not} of non-memorisation.
@@ -393,6 +409,11 @@ computable from the training set for any $h$. They are the correct reference aga
 which generated moments must be compared. $\tr\Covh(y)$ need not be monotone in $h$;
 monotonicity is not implied and must be reported empirically.
 \end{proposition}
+
+This is the mean and covariance of the discrete law $\sum_ip_i^{(h)}(y)\delta_{x^i}$
+identified by Theorem~\ref{thm:endpoint}, so it needs no separate proof; we state it
+because it is the object every experiment in Section~\ref{sec:experiments} measures
+against.
 
 \begin{proposition}[Label smoothing never leaves the training set]
 \label{prop:atomicity}
@@ -624,7 +645,8 @@ satisfies the normal equations to $1.8\times10^{-15}$; closed-form field integra
 maps every $x_0\to x^i$; the unconditional model does not leak $y$). Sweeps use five
 seeds per point. The seed controls \emph{both} the problem instance (the operator $A$,
 hence $\Sigmapost$) \emph{and} all training randomness, so every error bar below mixes
-the two; we flag this conflation rather than disentangle it. Every across-seed
+the two; Appendix~\ref{sec:seedsplit} separates them with a dedicated
+\texttt{problem\_seed} and finds the instance carries $78\%$ of the variance. Every across-seed
 $\pm$ we report is a \emph{population} standard deviation (denominator $n$, not
 $n{-}1$), applied consistently throughout; at $n{=}5$ the sample standard deviation is
 larger by $\sqrt{5/4}\approx1.12$, so a reader preferring that convention should widen
@@ -806,9 +828,132 @@ identical by 15000 and coincide with that image (Fig.~\ref{fig:exp3prog}). CIFAR
 
 \FloatBarrier
 
+\subsection{Realistic capacity: CIFAR-10 with a 35.75M-parameter DDPM U-Net}
+\label{sec:cifarddpm}
+
+Everything above is $d\le10$ synthetic or a $0.5$M U-Net, so the standing objection is
+that the mechanism is an artefact of small capacity. We therefore repeat EXP-3 with the
+standard DDPM U-Net (base width $128$, channel multipliers $(1,2,2,2)$, self-attention
+at $16{\times}16$; $35.75$M parameters), on CIFAR-10 bottom-half inpainting with
+$N{=}2000$, $d{=}3072$ and $k{=}1536$, for $60000$ iterations at batch $128$. That is
+$3840$ gradient samples per training image, the same per-image exposure as the
+$N$-sweep of Appendix~\ref{sec:nsweep3}, so collapse depth is comparable to it.
+Evaluation is at $48$ conditions with $M{=}256$ samples each, drawn from the final
+checkpoint, with the unbiased ($n{-}1$) covariance. Sample size matters here: the trace
+of a covariance estimated from $M$ samples carries a relative sampling error of about
+$\sqrt{2/(M-1)}$, which is $8.9\%$ at $M{=}256$ but $36\%$ at the $M{=}16$ used during
+training, so all numbers below are re-measured from checkpoints rather than read off the
+training-time metrics.
+
+\paragraph{Hard conditioning ($h{=}0$): Proposition~\ref{prop:collapse} at scale.}
+$\tr\Cov$ falls from $179.1$ at iteration $500$ to $0.431$ at $60000$ on the
+training-time estimator, a factor of $415$; re-measured at $M{=}256$ the final value is
+$0.458$. Every one of the $48$ conditions has $n_{\mathrm{eff}}=1.00$, the generated
+mean identifies the correct training image at $48/48$ conditions, and the memorisation
+ratio is exactly $1.000$. At $35.75$M parameters on real images, the trained model does
+what Proposition~\ref{prop:collapse} says the population minimiser does.
+
+\paragraph{Label smoothing ($h>0$): the aggregate ratio is the wrong statistic.}
+Table~\ref{tab:cifarddpm} reports, per bandwidth, both the ratio
+$\tr\Cov/\tr\Covh$ the earlier sections use and the regression that we argue should
+replace it: the OLS slope $\beta$ of $\log\tr\Cov$ on $\log\tr\Covh$ \emph{across
+conditions}. Theorem~\ref{thm:endpoint} predicts $\beta=1$; $\beta=0$ would mean the
+model ignores the reference entirely.
+
+\begin{table}[htb]
+\centering\small
+\begin{tabular}{ccccccc}
+\toprule
+$h$ & $n_{\mathrm{eff}}$ & median $\tr\Cov/\tr\Covh$ & $\beta$ (s.e.) & $R^2$ &
+decades in $\tr\Covh$ & CV of $\tr\Covh$\\
+\midrule
+$4$ & $2.6$ & $5.30$ \,[$2.24$, $7.45$] & $0.481$ $(0.037)$ & $0.785$ & $4.57$ & $1.102$\\
+$5$ & $16.4$ & $1.38$ \,[$1.18$, $1.78$] & $0.349$ $(0.049)$ & $0.522$ & $2.16$ & $0.537$\\
+$6$ & $74.9$ & $1.15$ \,[$1.08$, $1.18$] & $-0.156$ $(0.058)$ & $0.135$ & $0.74$ & $0.208$\\
+\bottomrule
+\end{tabular}
+\caption{CIFAR-10, DDPM U-Net, $48$ conditions at $M{=}256$. Brackets are $95\%$
+bootstrap intervals for the median ratio. $\beta$ is the across-condition log--log
+slope of measured against predicted variance (Fig.~\ref{fig:cifartrack}); theory
+predicts $\beta=1$. The last two columns say how much range the regression had:
+the number of decades spanned by the predictor and its coefficient of variation.}
+\label{tab:cifarddpm}
+\end{table}
+
+The two statistics disagree, and the disagreement is the finding. At $h{=}6$ the median
+ratio is $1.15$ with a $95\%$ interval of $[1.08,1.18]$---by that reading, near-perfect
+agreement with Theorem~\ref{thm:endpoint}. But $\beta=-0.156$: the model does not track
+the reference there at all. The explanation is in the last two columns. At $h{=}6$ the
+reference is nearly constant across conditions ($0.74$ decades, CV $0.208$), so a ratio
+near $1$ is equally consistent with a model that ignores $y$ altogether, and the
+apparent agreement certifies nothing. \emph{A ratio is only as informative as the
+variation in its denominator.} We flag this because the aggregate ratio is the statistic
+the rest of the paper reports, and at large $h$ it should not be trusted.
+
+The informative regime is $h{=}4$, where the reference moves over $4.57$ decades. There
+$\beta=0.481\pm0.037$ with $R^2=0.785$ across $48$ conditions: the model orders the
+conditions almost as the theory says it should, while compressing the range by half.
+This is a partial confirmation and we state it as one. Theorem~\ref{thm:endpoint} is
+right about which conditions have more posterior variance and wrong about how much, by
+a factor that itself grows with the reference.
+
+\paragraph{The atomicity floor does not survive training.}
+Proposition~\ref{prop:atomicity} proves that the smoothed population law is supported on
+the training set for \emph{every} $h$. The trained network escapes it, progressively: the
+fraction of generated samples lying on a training atom is $1.000$, $0.829$, $0.717$ and
+$0.620$ at $h=0,4,5,6$, so at $h{=}6$ roughly $38\%$ of samples are off-atom. The value
+of exactly $1.000$ at $h{=}0$ rules out ODE discretisation as the explanation, since the
+same integrator is used throughout. Atomicity is thus a property of the population
+minimiser that finite capacity partially undoes---which is good news for sample quality
+and bad news for treating Proposition~\ref{prop:atomicity} as a statement about trained
+models. It is also the one place in this paper where a proved property of the exact
+minimiser is measurably violated by the network that approximates it.
+
+\paragraph{What governs the discrepancy is $n_{\mathrm{eff}}$, not $h$.}
+Pooling all $144$ (condition, $h$) pairs with $h>0$, the Spearman correlation between
+the ratio and the effective sample size $n_{\mathrm{eff}}=1/\sum_jp_j^2$ is $-0.858$,
+against $-0.554$ for the correlation with $h$ itself. The bandwidth matters only through
+how many training atoms it actually pools; conditions whose kernel weight concentrates on
+one or two atoms are the ones the model overshoots, at any $h$.
+
+\paragraph{Reproducibility across problem instances.} Repeating the $h{=}0$ and $h{=}4$
+runs at a second seed---which redraws the mask, the training subset and all training
+randomness---moves $\tr\Cov$ at $h{=}4$ from $178.5$ to $240.7$ ($35\%$) and
+$n_{\mathrm{eff}}$ from $2.36$ to $2.77$, so the two instances are genuinely different
+problems; the ratio to the Theorem~\ref{thm:endpoint} reference moves from $6.83$ to
+$7.07$, i.e.\ by $3.5\%$ (training-time estimator, used consistently for both). At
+$h{=}0$, $\tr\Cov$ is $0.431$ against $0.409$. The reference-relative quantity is the
+stable one, which is the practical case for reporting it.
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=\textwidth]{fig_cifar_ddpm_tracking.png}
+\caption{Measured against predicted conditional variance, per condition, on the
+CIFAR-10 DDPM run. Dashed: the identity, which is Theorem~\ref{thm:endpoint}'s
+prediction. Solid: the fitted slope. All three panels share one range, so the
+shrinking of the predictor's spread with $h$---four and a half decades at $h{=}4$
+down to a third of a decade at $h{=}6$---is visible directly. The right-hand cloud
+sits on the identity line while having no slope: that is why the aggregate ratio at
+$h{=}6$ is uninformative.}
+\label{fig:cifartrack}
+\end{figure}
+
+\FloatBarrier
+
 % ==========================================================================
 \section{Limitations}
 \label{sec:limitations}
+
+\paragraph{A proved property of the population minimiser that the trained model
+violates.} Proposition~\ref{prop:atomicity} shows the smoothed law is supported on the
+training set for every $h$, and Section~\ref{sec:cifarddpm} measures the fraction of
+generated samples actually on an atom as $1.000$, $0.829$, $0.717$, $0.620$ at
+$h=0,4,5,6$. The obstruction is therefore exact for the object the theory describes and
+only approximate for the object practitioners train, with the gap widening as $h$ grows.
+We do not have a quantitative account of that gap, and it is the clearest instance in
+this paper of the population/finite-network distinction biting: everywhere else the two
+agree in direction, here they disagree about a set-valued statement that is either true
+or false.
 
 \paragraph{The optimisation gap is bounded away from one explanation, not explained.}
 A finite network reaches the population minimiser only up to an optimisation gap,
@@ -820,19 +965,24 @@ $\sim\!50\times$ below the plateau, which is moreover strongly schedule-sensitiv
 (Table~\ref{tab:exp1}). We have thus ruled \emph{this} mechanism out without
 supplying a positive quantitative theory of the gap itself.
 
-\paragraph{Small scale, and a remedy of limited reach.} EXP-1/EXP-2 are $d\le10$
-synthetic problems and EXP-3 uses $32\times32$ images, $N{=}500$ and one small U-Net
-(3 MNIST seeds, 1 CIFAR-10 seed); the mechanism is parameterisation-independent by
-construction, but persistence \emph{at scale} is a separate claim we do not establish,
-and the width/depth/optimiser sweep (Appendix~\ref{app:exp}) covers only $\tr\Cov$ at
-one budget. Endpoint smoothing (Proposition~\ref{prop:tgtnoise}) removes the atomicity
+\paragraph{Scale, and a remedy of limited reach.} EXP-1/EXP-2 are $d\le10$ synthetic
+problems and EXP-3's MNIST runs use $32\times32$ images, $N{=}500$ and one small U-Net.
+Section~\ref{sec:cifarddpm} extends this to the standard DDPM U-Net at $35.75$M
+parameters on CIFAR-10 ($d{=}3072$), where hard-conditioning collapse is unambiguous
+($415\times$ in $\tr\Cov$, correct training image at $48/48$ conditions); but the
+$h>0$ agreement there is only partial, with an across-condition log--log slope of
+$0.481$ against the predicted $1$, so Theorem~\ref{thm:endpoint} is confirmed in
+direction and not in magnitude at that scale. Beyond $35.75$M parameters, and for
+text-conditional models where the label space is not a Euclidean space with a natural
+kernel, persistence remains a claim we do not establish. The width/depth/optimiser
+sweep (Appendix~\ref{app:exp}) covers only $\tr\Cov$ at one budget. Endpoint smoothing (Proposition~\ref{prop:tgtnoise}) removes the atomicity
 obstruction by construction and is confirmed on a trained model at $N{=}50$, but its
 benefit is bounded by that obstruction's size---small in exactly the regime we study
 most---it buys continuity at the price of $+\rho^2I_d$ of variance, and it degrades
 with dimension (Table~\ref{tab:floor}); we have not tested it at scale, on EXP-2/EXP-3,
 or with an anisotropic $\rho$. Finally, P5/P6 are empirical
-findings the theory does not determine, the seed controls both problem instance and
-training run, and the checkpoint-based tables require retraining the $p7y$ runs.
+findings the theory does not determine, and the checkpoint-based tables require
+retraining the $p7y$ runs.
 
 % ==========================================================================
 \section{Conclusion}
@@ -896,22 +1046,95 @@ text, claims, proofs, and code.
 
 \begin{lemma}[Change of variables]
 \label{lem:cov}
-Fix $i$ and $t<1$. The map $X_0\mapsto X_t=(1-t)X_0+tx^i$ is invertible affine with
-$X_0=(X_t-tx^i)/(1-t)$, so $\sigma(X_t\mid I=i)=\sigma(X_0\mid I=i)$ and the conditional
-density is $p(x\mid I=i,t)=(1-t)^{-d}\pi_0\!\big(\tfrac{x-tx^i}{1-t}\big)$. The Jacobian
-$(1-t)^{-d}$ is $i$-independent and cancels in every posterior over $I$. Because $\pi_0$
-is Gaussian, $p(x\mid I=i,t)>0$ for every $x$ and $t<1$.
+Fix $i$ and $t<1$. Conditionally on $I=i$, the map $X_0\mapsto X_t=(1-t)X_0+tx^i$ is an
+invertible affine bijection of $\R^d$ with inverse $X_0=(X_t-tx^i)/(1-t)$; hence
+$\sigma(X_t\mid I=i)=\sigma(X_0\mid I=i)$ and
+\begin{equation}
+p(x\mid I=i,t)=(1-t)^{-d}\,\pi_0\!\big(\tfrac{x-tx^i}{1-t}\big).
+\label{eq:cov}
+\end{equation}
+The Jacobian factor $(1-t)^{-d}$ does not depend on $i$, so it cancels in every
+posterior over $I$. Because $\pi_0$ is Gaussian, $p(x\mid I=i,t)>0$ for every $x$ and
+every $t<1$.
 \end{lemma}
+\begin{proof}
+The map $\Psi(x_0)=(1-t)x_0+tx^i$ has linear part $(1-t)I_d$, invertible for $t<1$, with
+$\det D\Psi=(1-t)^d$ and inverse $\Psi^{-1}(x)=(x-tx^i)/(1-t)$; a bijection generates the
+same $\sigma$-algebra as its argument, and \eqref{eq:cov} is the change-of-variables
+formula for densities, $p_{X_t}(x)=p_{X_0}(\Psi^{-1}(x))\,|\det D\Psi|^{-1}$. The factor
+$(1-t)^{-d}$ involves neither $i$ nor $x$, so it appears identically in numerator and
+denominator of $\Pr(I=i\mid X_t=x,t)$. Positivity is that of the Gaussian density
+$\pi_0>0$ everywhere, composed with a bijection.
+\end{proof}
 
 \begin{lemma}[Well-posedness]
 \label{lem:wellposed}
-Let $w_1,\dots,w_N:\R^d\times[0,1)\to[0,1]$ be $C^\infty$ with $\sum_i w_i\equiv1$ and
-$v(x,t)=\sum_i w_i(x,t)(x^i-x)/(1-t)$. Then $v$ is $C^\infty$ hence locally Lipschitz on
-$\R^d\times[0,1)$, the ODE $\dot x_t=v(x_t,t)$ has a unique solution on $[0,1)$ for every
-initial condition, and with $M=\max_i|x^i|$, $|x_t|+M\le(|x_0|+M)/(1-t)$. Consequently
-the continuity equation has a unique measure solution and endpoint laws are the weak
-limits $p_1=\lim_{t\uparrow1}p_t$.
+Let $w_1,\dots,w_N:\R^d\times[0,1)\to[0,1]$ be $C^\infty$ with $\sum_i w_i\equiv1$, and
+set $v(x,t)=\sum_i w_i(x,t)(x^i-x)/(1-t)$ and $M=\max_i|x^i|$. Then:
+\begin{enumerate}[label=(\alph*),leftmargin=2em]
+\item $v\in C^\infty(\R^d\times[0,1))$, hence is locally Lipschitz in $x$, uniformly on
+  compact subsets of $[0,1)$;
+\item for every $x_0$ the ODE $\dot x_t=v(x_t,t)$, $x_{t=0}=x_0$, has a unique solution
+  on the whole of $[0,1)$, and it obeys $|x_t|+M\le(|x_0|+M)/(1-t)$;
+\item writing $\Phi_{t}$ for the resulting flow map, for every $\mu_0\in\mathcal P(\R^d)$
+  the curve $\mu_t:=(\Phi_t)_\#\mu_0$ is the \emph{unique} narrowly continuous measure
+  solution of $\partial_t\mu_t+\nabla\!\cdot(v\mu_t)=0$ on $[0,1)$ with initial datum
+  $\mu_0$.
+\end{enumerate}
+We do \emph{not} claim that $\lim_{t\uparrow1}\mu_t$ exists for arbitrary such weights;
+where an endpoint law is asserted below (Propositions~\ref{prop:collapse}
+and~\ref{prop:kernel-field}, Theorem~\ref{thm:endpoint}) its existence is established
+directly, from almost-sure convergence of the interpolant, and $p_1$ denotes that weak
+limit.
 \end{lemma}
+\begin{proof}
+(a) On $\R^d\times[0,1)$ the map $(x,t)\mapsto(x^i-x)/(1-t)$ is $C^\infty$ and the $w_i$
+are $C^\infty$ by hypothesis, so $v$ is a finite sum of products of $C^\infty$ functions.
+Local Lipschitzness in $x$, uniform for $t$ in compacts of $[0,1)$, follows from
+continuity of $\nabla_x v$ on the compact set.
+
+(b) Local existence and uniqueness on a maximal interval $[0,\tau)$ is
+Picard--Lindel\"of \citep[Ch.~II]{hartman2002ode}, using (a). For the bound, note
+$\sum_i w_i\equiv1$ and $w_i\ge0$ give the pointwise estimate
+\begin{equation}
+|v(x,t)|\;\le\;\sum_i w_i(x,t)\,\frac{|x^i-x|}{1-t}\;\le\;\frac{M+|x|}{1-t}.
+\label{eq:vgrowth}
+\end{equation}
+Put $g(t):=|x_t|+M$, which is locally Lipschitz, hence differentiable a.e.\ with
+$g'(t)\le|\dot x_t|=|v(x_t,t)|\le g(t)/(1-t)$ by \eqref{eq:vgrowth}. Gr\"onwall's
+inequality gives
+\[
+g(t)\;\le\;g(0)\exp\!\int_0^t\frac{ds}{1-s}\;=\;\frac{g(0)}{1-t},
+\qquad t\in[0,\tau),
+\]
+which is the stated bound. Since the right-hand side is finite for every $t<1$, the
+solution stays in a bounded set on every $[0,T]$ with $T<1$, so it cannot blow up before
+$t=1$ and $\tau=1$.
+
+(c) That $\mu_t=(\Phi_t)_\#\mu_0$ solves the continuity equation is the standard
+computation: for $\varphi\in C_c^\infty(\R^d)$,
+$\frac{d}{dt}\int\varphi\,d\mu_t=\int\nabla\varphi(\Phi_t(x))\cdot v(\Phi_t(x),t)\,
+d\mu_0(x)=\int\nabla\varphi\cdot v\,d\mu_t$. For uniqueness, fix $T<1$ and let
+$(\mu_t)_{t\in[0,T]}$ be any narrowly continuous solution with the same initial datum.
+By (a) and (b) the flow is a $C^\infty$ diffeomorphism of $\R^d$ for each $t\le T$
+\citep[Ch.~V]{hartman2002ode}; write $\Phi_{s,T}$ for the flow from time $s$ to time
+$T$. Given $\varphi\in C_c^\infty(\R^d)$, set $\psi(x,s):=\varphi(\Phi_{s,T}(x))$. Then
+$\psi$ is $C^1$ on $\R^d\times[0,T]$, solves the backward transport equation
+$\partial_s\psi+v\cdot\nabla\psi=0$ with $\psi(\cdot,T)=\varphi$ by the method of
+characteristics, and has compact support in $x$ for each $s$, namely
+$\Phi_{T,s}(\operatorname{supp}\varphi)$. Testing the continuity equation against $\psi$
+(legitimate after the usual truncation in time, since $\psi$ is $C^1$ and compactly
+supported in $x$ uniformly on $[0,T]$),
+\[
+\frac{d}{ds}\int\psi(\cdot,s)\,d\mu_s
+=\int\big(\partial_s\psi+v\cdot\nabla\psi\big)\,d\mu_s=0 ,
+\]
+so $\int\varphi\,d\mu_T=\int\psi(\cdot,0)\,d\mu_0=\int\varphi\circ\Phi_{0,T}\,d\mu_0
+=\int\varphi\,d\big((\Phi_T)_\#\mu_0\big)$. As $\varphi$ was arbitrary,
+$\mu_T=(\Phi_T)_\#\mu_0$, and $T<1$ was arbitrary. (This is the classical
+smooth-field case of the general uniqueness theory for continuity equations; see
+\citealp[Ch.~8]{ambrosio2008gradient} for the statement under far weaker regularity.)
+\end{proof}
 
 Both $v_{\mathrm{unc}}^\star$ and $\vstar$ have this form with smooth weights, so
 Lemma~\ref{lem:wellposed} applies and no ``assume the flow is well defined'' hypothesis
@@ -1254,14 +1477,37 @@ value $1$) and $\vstar$ is bounded on bounded sets up to and including $t=1$.
 \end{proof}
 
 \begin{proof}[Proof of Proposition~\ref{prop:nwrate}]
-The bias is the $O(h^2)$ term identified in the proof of
-Proposition~\ref{prop:expansion} (Taylor-expanding $\mu(y^j)$ about $y$ against the
-symmetric kernel weights); squaring gives $\mathrm{Bias}^2=O(h^4)$. Averaging over an
-effective sample size $\asymp Nh^k$ gives the usual Nadaraya--Watson variance rate
-$O((Nh^k)^{-1})$. Summing, $\mathrm{MSE}(h)=c_1h^4+c_2(Nh^k)^{-1}+o(\cdot)$ for
-constants $c_1,c_2>0$; differentiating and setting to $0$,
-$4c_1h^3=c_2kN^{-1}h^{-k-1}$, i.e.\ $h^{k+4}\propto N^{-1}$, so
-$h^\star\asymp N^{-1/(k+4)}$.
+The first two displays are the classical pointwise bias and variance of the
+Nadaraya--Watson estimator at an interior point, and we claim no novelty for them; we
+record here only that the hypotheses under which they are usually stated are exactly
+the ones already imposed in Proposition~\ref{prop:expansion}, so nothing further is
+assumed. Those hypotheses are: $(x^j,y^j)$ i.i.d.; $y$ interior to
+$\operatorname{supp}(\rho_Y)$ with $\rho_Y(y)>0$ and $\rho_Y\in C^2$ near $y$;
+$\mu\in C^2$ near $y$; $K$ a bounded, symmetric, compactly supported (or
+sufficiently rapidly decaying) kernel with $\int K=1$ and finite second moment; and
+the bandwidth regime $h\to0$, $Nh^k\to\infty$. Under precisely these,
+$\mathrm{Bias}=\tfrac{h^2}{2}\mu_2(K)\big[\Delta\mu(y)
++2\nabla\mu(y)^\top\nabla\rho_Y(y)/\rho_Y(y)\big]+o(h^2)$ and
+$\Var=\tfrac{R(K)}{Nh^k}\cdot\tfrac{\Sigma(y)}{\rho_Y(y)}+o\big((Nh^k)^{-1}\big)$,
+where $\mu_2(K)=\int u_1^2K(u)\,du$ and $R(K)=\int K^2$; see
+\citet[\S1.5 and \S1.6]{tsybakov2009nonparametric} or
+\citet[Ch.~5]{gyorfi2002distribution}. The leading bias constant is the one obtained
+by Taylor-expanding $\mu(y^j)$ about $y$ against the symmetric kernel weights, which
+is the same computation as the $O(h^2)$ term in the proof of
+Proposition~\ref{prop:expansion}.
+
+Only the last step is ours, and it is elementary. Writing
+$\mathrm{MSE}(h)=c_1h^4+c_2(Nh^k)^{-1}+o(\cdot)$ with $c_1,c_2>0$ the squared-bias and
+variance constants above, $\frac{d}{dh}\mathrm{MSE}=4c_1h^3-c_2kN^{-1}h^{-k-1}$
+vanishes when $h^{k+4}=c_2k/(4c_1N)$, i.e.\ $h^\star\asymp N^{-1/(k+4)}$; the second
+derivative is positive there, so it is the minimiser.
+
+The design-point remark needs no separate argument: at $y=y^i$ the summand $j=i$
+carries weight $K_h(0)/\sum_jK_h(y^i-y^j)$, and $\sum_{j}K_h(y^i-y^j)\asymp Nh^k$ in
+probability under the stated regime, so that weight is $\Theta((Nh^k)^{-1})\to0$. When
+$Nh^k\not\to\infty$ it does not vanish and the expansion above does not apply --- which
+is exactly the fixed-$N$, $h\to0$ regime of Corollary~\ref{cor:zerobw}, where the
+weight tends to $1$ instead.
 \end{proof}
 
 \begin{proof}[Proof of Proposition~\ref{prop:prop17}]
@@ -1803,6 +2049,86 @@ reported as empirical findings (Section~\ref{sec:scope}).}
 \end{figure}
 
 
+\subsection{The same exposure control on EXP-1 (empirical)}
+\label{sec:p6exposure}
+
+The EXP-3 $N$-sweep of Appendix~\ref{sec:nsweep3} showed that a fixed-budget sweep
+confounds $N$ with per-image exposure. The P6 sweep of Table~\ref{tab:sweeps} has
+exactly the same design---every $N$ trained for $2\times10^5$ iterations at batch
+$256$, so each training point receives $2\times10^5\cdot256/N$ gradient samples,
+precisely proportional to $1/N$---and therefore the same confound. We rerun it holding
+exposure fixed instead, at $51200$ gradient samples per training point (the value the
+published $N{=}1000$ run happens to have), which means $10^4$ iterations at $N{=}50$ and
+$10^6$ at $N{=}5000$; five seeds per point, $20$ runs.
+
+\begin{table}[htb]
+\centering\small
+\begin{tabular}{lcccc}
+\toprule
+$N$ & 50 & 200 & 1000 & 5000\\
+\midrule
+iterations (fixed exposure) & $10^4$ & $4{\times}10^4$ & $2{\times}10^5$ & $10^6$\\
+fixed budget ($2{\times}10^5$ iters) & $0.049\pm0.038$ & $0.389\pm0.123$ &
+  $0.912\pm0.103$ & $0.990\pm0.031$\\
+fixed exposure ($51200$/point) & $0.444\pm0.196$ & $0.774\pm0.165$ &
+  $0.928\pm0.087$ & $1.014\pm0.065$\\
+\bottomrule
+\end{tabular}
+\caption{P6 read two ways, collapse ratio $\tr\Cov/\tr\Sigmapost$, 5 seeds each.
+Spread across $N$ falls from $20.2\times$ at fixed budget to $2.28\times$ at fixed
+exposure. At fixed budget each point of the $N{=}50$ run sees $1024000$ gradient
+samples against $10240$ for $N{=}5000$, a factor of $100$.}
+\label{tab:p6exposure}
+\end{table}
+
+Spread across $N$ falls from $20.2\times$ to $2.28\times$, and $N{=}5000$ reaches
+$1.014$---no collapse at all within the budget. This replicates the EXP-3 finding
+($14.9\times\to2.34\times$) on a different architecture, a different dimension and a
+different dataset, which is the strongest form the claim can take here: two experiments
+sharing none of those agree that the genuine $N$-dependence is a factor of about two,
+not fifteen. Both the EXP-1 P6 sweep and the EXP-3 $N$-sweep as originally reported are
+therefore statements about how far a fixed budget gets you at each $N$. We keep the
+original numbers in Table~\ref{tab:sweeps} rather than replacing them, since they are
+what the fixed-budget protocol yields and the comparison is the point.
+
+\subsection{What the EXP-1 error bars are measuring (empirical)}
+\label{sec:seedsplit}
+
+Section~\ref{sec:experiments} notes that \texttt{seed} drives both the problem instance
+(the operator $A$, hence $\Sigmapost$, and the dataset draw) and all training
+randomness, so every $\pm$ in this paper mixes the two. A separate
+\texttt{problem\_seed} makes them independent. Two sweeps of ten runs each at $2\times
+10^5$ iterations---one holding the instance fixed and varying the run, one the
+reverse---give the split.
+
+\begin{table}[htb]
+\centering\small
+\begin{tabular}{llcccc}
+\toprule
+varying & held fixed & $n$ & mean & std & range\\
+\midrule
+training run & problem instance & 10 & 0.3363 & $0.0675$ & $[0.2477, 0.4500]$\\
+problem instance & training run & 10 & 0.3986 & $0.1261$ & $[0.1819, 0.5580]$\\
+\bottomrule
+\end{tabular}
+\caption{Decomposition of the EXP-1 error bar, collapse ratio at the final
+checkpoint; sample standard deviations ($n{-}1$). Added in quadrature the two give
+$0.1431$, against the published 5-seed spread of $0.123$ (population convention;
+$0.1375$ on the sample convention)---a consistency check on the decomposition, not
+only a measurement.}
+\label{tab:seedsplit}
+\end{table}
+
+The problem instance carries $0.1261^2/(0.1261^2+0.0675^2)=78\%$ of the variance and the
+training run $22\%$. So roughly three quarters of every EXP-1 error bar in this paper is
+which operator $A$ happened to be drawn, not how the run went; genuine run-to-run
+variability is about half of what the published bars imply. This does not change any
+conclusion---the collapse effects are far larger than either component---but it means
+the bars are conservative as measures of reproducibility, and that fixing the instance
+would tighten every interval in Table~\ref{tab:sweeps} without a single additional run.
+We report it rather than retrofitting it into the existing tables, whose numbers were
+produced under the conflated protocol.
+
 \subsection{An $N$-sweep on EXP-3, and what it actually measures (empirical)}
 \label{sec:nsweep3}
 
@@ -1836,8 +2162,9 @@ intrinsic $N$-dependence would be the surprising outcome. It also sharpens the
 caveat already attached to the EXP-1 sweep in Table~\ref{tab:sweeps}, which shares
 the same fixed-budget design and therefore the same confound: that sweep is best
 read as a statement about how far a fixed budget gets you at each $N$, not about
-how the population optimum depends on $N$. We have not rerun the EXP-1 sweep under
-an exposure control; the EXP-3 evidence here is what supports the reading.
+how the population optimum depends on $N$. Appendix~\ref{sec:p6exposure} reruns the
+EXP-1 sweep under exactly this control and finds the same thing there
+($20.2\times\to2.28\times$), on a different architecture, dimension and dataset.
 
 \begin{table}[htb]
 \centering\small
