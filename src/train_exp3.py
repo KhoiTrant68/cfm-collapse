@@ -253,6 +253,20 @@ def train(cfg: dict, out_root: str | Path) -> Path:
     if isinstance(ckpts, (int, float, str)):
         ckpts = [ckpts]
     ckpts = sorted(set(int(c) for c in ckpts if int(c) <= max_iters) | {max_iters})
+    # Evaluation happens at every entry of `checkpoints`; writing the weights out
+    # is separate. One DDPM checkpoint is 143 MB, so the six-entry schedule costs
+    # 858 MB per run, and eight seed runs filled the training machine's quota
+    # mid-flight, killing two runs at iteration 20000. Only the final weights are
+    # ever re-read (by reeval_exp3_cifar_ddpm.py), so a run that is not being
+    # inspected along the way can set `save_checkpoints: [60000]` and still record
+    # the full metric trajectory.
+    keep = cfg["train"].get("save_checkpoints")
+    if keep is None:
+        keep = set(ckpts)
+    elif not isinstance(keep, (list, tuple)):
+        keep = {int(keep)}
+    else:
+        keep = {int(c) for c in keep}
 
     y_noise_h = float(cfg["train"].get("y_noise_h", 0.0))
     use_amp = bool(cfg["train"].get("amp", False)) and device.type == "cuda"
@@ -286,8 +300,9 @@ def train(cfg: dict, out_root: str | Path) -> Path:
         loss_ema = lv if loss_ema is None else 0.99 * loss_ema + 0.01 * lv
 
         if it in ckset:
-            torch.save({"iter": it, "model_state": model.state_dict()},
-                       paths.checkpoints / f"ckpt_{it}.pt")
+            if it in keep:
+                torch.save({"iter": it, "model_state": model.state_dict()},
+                           paths.checkpoints / f"ckpt_{it}.pt")
             model.eval()
             r = evaluate(model, problem, cfg, device, egen)
             r.update({"iter": it, "train_loss": loss_ema, "elapsed_s": time.time() - t0})

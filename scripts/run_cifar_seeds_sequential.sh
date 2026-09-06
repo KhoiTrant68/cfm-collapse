@@ -26,6 +26,12 @@
 #     setsid nohup bash scripts/run_cifar_seeds_sequential.sh 0 \
 #       > logs/cifar_seq.log 2>&1 < /dev/null &'
 #
+# DISK. Only the final weights are kept. Six checkpoints at 143 MB apiece is
+# 858 MB per run, and that is what exhausted the machine's quota at 02:30,
+# killing two runs 20000 iterations in. The metric trajectory is unaffected:
+# evaluation still runs at every entry of train.checkpoints, only the writing
+# out of intermediate weights is dropped.
+#
 # Skips anything already finished, so it is safe to re-run after a crash, and it
 # waits out any run still in flight before starting.
 set -u
@@ -52,6 +58,7 @@ for job in 5:1 6:1 0:2 4:2 5:2 6:2; do
   CUDA_VISIBLE_DEVICES="$GPU" $PY -u -m src.train_exp3 \
       --config configs/exp3_cifar_ddpm.yaml \
       --set "run_name=$name" "train.y_noise_h=${h}.0" "seed=${seed}" \
+      "train.save_checkpoints=[60000]" \
       > "logs/${name}.log" 2>&1
   echo "    rc=$? ($(date +%H:%M:%S))"
 done
