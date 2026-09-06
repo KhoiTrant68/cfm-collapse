@@ -47,8 +47,8 @@
 \newcommand{\vstar}{v_h^\star}
 \newcommand{\Covh}{\operatorname{Cov}_h}
 
-\title{Posterior Variance Collapse in Conditional Flow Matching \\
-is the Zero-Bandwidth Limit of a Kernel-Weighted Empirical Conditional Flow}
+\title{Restored Variance Is Not a Restored Posterior:\\
+Conditional Flow Matching as Kernel Regression over Training Atoms}
 
 % Authors must not appear in the submitted version; the iclr2027_conference
 % style hides \author automatically and prints "Anonymous authors" as long as
@@ -81,8 +81,8 @@ generated law remains atomic at every bandwidth $h$, yielding an $h$-independent
 Wasserstein floor (Proposition~\ref{prop:atomicity}). That obstruction names its own
 cure---move the support---and smoothing the \emph{endpoint} does so, restoring an
 absolutely continuous law (Proposition~\ref{prop:tgtnoise}); measuring the floor
-directly shows it is small at our default configuration, correcting an earlier reading
-of our own MMD curves. Two superficially similar remedies are moreover not
+directly shows it is small at our default configuration, and that MMD cannot see it
+while an optimal-transport distance can. Two superficially similar remedies are moreover not
 interchangeable: label noise moves the population endpoint, interpolant noise provably
 does not, at any noise level (Proposition~\ref{prop:prop17}). Across five seeds, a trained MLP tracks the kernel
 reference to within seed noise ($\text{ratio-to-kernel}\approx1.00$ for $h\ge0.05$),
@@ -160,7 +160,55 @@ phenomenon we study from the label/bandwidth side---their $M\colon K\to N$
 interpolation is the capacity analogue of our $h\colon0\to\infty$ interpolation
 (Corollaries~\ref{cor:zerobw} and~\ref{cor:infbw})---and neither result subsumes
 the other. Our contribution is the \emph{conditional and kernel-regression
-structure} underlying the collapse, which this literature does not isolate:
+structure} underlying the collapse, which this literature does not isolate.
+Table~\ref{tab:related} states the boundary explicitly, work by work.
+
+\begin{table}[htb]
+\centering\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{@{}p{0.20\textwidth}p{0.15\textwidth}p{0.28\textwidth}p{0.30\textwidth}@{}}
+\toprule
+work & conditioning & what it establishes & what it leaves open, and we supply\\
+\midrule
+\citet{scarvelis2025closedform} & unconditional & closed-form empirical denoiser is a
+kernel-weighted average of training points, degenerating to a mixture of atoms &
+the \emph{conditional} case, where the label identifies one atom rather than
+reweighting all of them\\
+\citet{chen2026scoresmoothing} & unconditional & smoothing the empirical score as the
+escape from memorisation & smoothing the \emph{label}, and the exact endpoint law it
+induces\\
+\citet{smola2026support} & conditional & the \emph{spatial} factor
+$\pi_0(\tfrac{x-tx^i}{1-t})$ is a Nadaraya--Watson smoother with bandwidth the flow
+time $1-t$, sharpening to nearest-neighbour as $t\to1$ & the \emph{label} factor
+$K_h(y-y^i)$ of the same product \eqref{eq:kernel-field}, whose bandwidth is a
+modelling choice; and the endpoint law and its moments rather than the field. The two
+readings compose; neither implies the other\\
+\citet{gu2023memorization} & conditional & unique/random labels sharply increase
+memorisation at CIFAR and FFHQ scale, empirically & \emph{why}: informativeness is
+irrelevant, identification is everything
+(Proposition~\ref{prop:collapse}), which our shuffled-label experiment tests directly\\
+\citet{somepalli2023copying} & text & replication is common with text conditioning and
+rare without it; randomising captions mitigates & that this asymmetry \emph{is}
+Eq.~\eqref{eq:distinction}, and that caption randomisation is label smoothing in the
+sense of Theorem~\ref{thm:endpoint}\\
+\citet{ho2022cascaded}; \citet{sadat2024cads} & conditional & conditioning noise as
+practice; annealed at inference to restore conditional diversity & that the restored
+variance is an exact Nadaraya--Watson mixture over training atoms---hence a
+parameter-free reference, and a false certificate for posterior recovery\\
+\citet{buchanan2025edge} & unconditional & memorisation/generalisation phase transition
+as denoiser capacity $M$ ranges over $K\to N$ & the label/bandwidth analogue
+$h\colon0\to\infty$ (Corollaries~\ref{cor:zerobw},~\ref{cor:infbw}); neither result
+subsumes the other\\
+\bottomrule
+\end{tabular}
+\caption{Where this paper sits. The rows above the rule on conditioning noise own the
+memorisation side; the two below own the remedy side. What no row supplies is the object
+connecting them---that the remedy is exactly kernel regression over the atoms the
+memorisation produces, with the ceiling that entails.}
+\label{tab:related}
+\end{table}
+
+\noindent In summary:
 
 \begin{enumerate}\itemsep2pt
 \item \textbf{Conditional sharpening.} Hard conditioning turns full-empirical-measure
@@ -181,26 +229,57 @@ structure} underlying the collapse, which this literature does not isolate:
   (Theorem~\ref{thm:endpoint}), turning a $0/1$ statement into a parameter-free
   reference curve $\Covh(y)$ a trained model can be audited against
   (Proposition~\ref{prop:moments}).
+\item \textbf{Restored variance is a false certificate.} This is the paper's title and
+  its practical point, and it fails at two levels. Structurally, the smoothed law stays
+  supported on the training atoms at \emph{every} bandwidth, so conditioning noise can
+  match the posterior's second moment while remaining a finite sum of point masses, with
+  a Wasserstein floor independent of $h$ (Proposition~\ref{prop:atomicity}); a diversity
+  metric that reports ``variance restored'' certifies nothing about posterior recovery.
+  Statistically, the certificate can be empty even on its own terms: at large $h$ the
+  reference $\tr\Covh$ is nearly constant across conditions, so agreement with it is
+  compatible with a model that ignores the label entirely. We measure both. On CIFAR-10
+  at $35.75$M parameters, the aggregate agreement at our widest bandwidth is $1.15$ with
+  a $95\%$ interval of $[1.08,1.18]$ while the across-condition slope is $-0.156$
+  (Section~\ref{sec:cifarddpm}) --- and the atomicity that holds exactly for the
+  population minimiser is violated by $38\%$ of that model's samples. The warning
+  applies to our own headline statistic, and we state where it should not be trusted.
 \item \textbf{Separation of two remedies.} Label noise changes the population
   endpoint; interpolant noise provably does not, at any noise level
-  (Propositions~\ref{prop:prop17} and \ref{prop:factors}).
-\item \textbf{Atomicity obstruction, and the escape from it.} The smoothed law is
-  atomic for every $h$, yielding an $h$-independent Wasserstein floor
-  (Proposition~\ref{prop:atomicity}). The obstruction names its own cure---move the
-  support---and endpoint smoothing does exactly that
-  (Proposition~\ref{prop:tgtnoise}). We \emph{measure} the floor rather than assert
-  it, and find it small at our default $(d,N)$, correcting an earlier reading of our
-  own MMD curves.
-\item \textbf{Representation vs.\ optimisation.} A uniform Lipschitz bound gives a
-  measurable loss floor $d/(3L)$ (Corollary~\ref{cor:floor}); measuring it shows the
-  observed plateau is \emph{not} explained by that mechanism. Separately
-  (Appendix~\ref{sec:theory-d2}) no finite network with globally Lipschitz
-  activations represents the collapsed field's $1/(1-t)$ blow-up pointwise on
-  $[0,1)$---a claim we keep explicitly distinct from a loss floor.
+  (Propositions~\ref{prop:prop17} and \ref{prop:factors}). The obstruction in
+  pillar~3 also names its own cure---move the support---and endpoint smoothing does
+  exactly that (Proposition~\ref{prop:tgtnoise}), at the price of $+\rho^2I_d$ of
+  variance and with a benefit bounded by the size of the floor it removes.
 \end{enumerate}
 
+Two further results are reported in the appendices and deliberately \emph{not} claimed
+as contributions, because measurement did not support them: a uniform-Lipschitz loss
+floor $d/(3L)$ (Corollary~\ref{cor:floor}), which we compute and find some $50\times$
+below the plateau it was meant to explain, and a pointwise non-representability lemma
+(Appendix~\ref{sec:theory-d2}) whose force is blunted by the sampler stopping at
+$t=1-10^{-3}$. We keep both, with those caveats attached, rather than let a list of
+propositions stand in for a thesis.
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=\textwidth]{fig_mechanism.png}
+\caption{The mechanism. Shaded: the true posterior $p(\cdot\mid y)$, which is
+continuous. Black: the training atoms. Orange: where the \emph{exact population
+minimiser}'s flow actually sends its samples. Under hard conditioning the label
+identifies one atom and every initial condition lands on it, so the endpoint law is a
+single point mass and the conditional variance is zero for any parameterisation
+(Proposition~\ref{prop:collapse}). Smoothing the label spreads the mass over the
+\emph{same} atoms with Nadaraya--Watson weights (Theorem~\ref{thm:endpoint}): the
+second moment can be made to match the posterior's exactly, while the law remains a
+finite sum of point masses and the Wasserstein distance to the posterior keeps a floor
+no $h$ removes (Proposition~\ref{prop:atomicity}). Only moving the support---smoothing
+the endpoint rather than the label---produces a law that could be a posterior at all
+(Proposition~\ref{prop:tgtnoise}). The middle panel is this paper's title.}
+\label{fig:mechanism}
+\end{figure}
+
 In one line: \emph{conditional collapse is the zero-bandwidth limit of a
-kernel-weighted empirical conditional flow.} On scope
+kernel-weighted empirical conditional flow}, and the natural remedy moves along that
+limit without ever leaving the training atoms (Figure~\ref{fig:mechanism}). On scope
 (Section~\ref{sec:scope}): the theory characterises the exact population minimiser for
 the empirical data law, not what a finite network trained by SGD attains, so we
 separate quantities it determines from quantities it does not---the dependence of
@@ -845,6 +924,14 @@ $\sqrt{2/(M-1)}$, which is $8.9\%$ at $M{=}256$ but $36\%$ at the $M{=}16$ used 
 training, so all numbers below are re-measured from checkpoints rather than read off the
 training-time metrics.
 
+This instance is deliberately chosen to be a genuine conditional inverse problem
+rather than a classification-style one: the conditioning variable is the observed half
+of the image, so it is continuous and high-dimensional ($k{=}1536$); many completions
+are consistent with any given $y$, so a collapsed sampler is a real failure rather than
+a near-optimal answer; and training runs long past the point of good calibration, with
+checkpoints early and late. Those are the conditions under which posterior collapse is
+worth measuring at all.
+
 \paragraph{Hard conditioning ($h{=}0$): Proposition~\ref{prop:collapse} at scale.}
 $\tr\Cov$ falls from $179.1$ at iteration $500$ to $0.431$ at $60000$ on the
 training-time estimator, a factor of $415$; re-measured at $M{=}256$ the final value is
@@ -983,6 +1070,18 @@ with dimension (Table~\ref{tab:floor}); we have not tested it at scale, on EXP-2
 or with an anisotropic $\rho$. Finally, P5/P6 are empirical
 findings the theory does not determine, and the checkpoint-based tables require
 retraining the $p7y$ runs.
+
+\paragraph{We do not benchmark against the remedies practitioners already use.} Early
+stopping, weight averaging, condition dropout, caption randomisation and
+classifier-free guidance scale are all deployed against exactly the symptom studied
+here, and we compare against none of them. Our claim is therefore diagnostic, not
+prescriptive: $\Covh$ is a reference a trained model can be audited against, and label
+smoothing is what that reference describes---but which intervention one should actually
+reach for, and at what cost to sample quality, is not settled by anything in this paper.
+Caption randomisation is the one case where our analysis makes a concrete prediction
+(it is label smoothing, so Theorem~\ref{thm:endpoint} applies to it and the atomicity
+ceiling binds it), and testing that prediction against the practice is the obvious next
+experiment.
 
 % ==========================================================================
 \section{Conclusion}

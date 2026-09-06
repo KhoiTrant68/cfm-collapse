@@ -22,7 +22,7 @@
 # taking two 20000-iteration runs with it, because the driver was a child of the
 # ssh session. Launch it detached:
 #
-#   ssh ds3 'cd /home/khang/khoi/cfm-collapse && \
+#   ssh <host> 'cd <repo-root> && \
 #     setsid nohup bash scripts/run_cifar_seeds_sequential.sh 0 \
 #       > logs/cifar_seq.log 2>&1 < /dev/null &'
 #
