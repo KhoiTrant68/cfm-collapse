@@ -759,12 +759,60 @@ is then not an unexplained residual but the coefficient of the singularity the
 network cannot reproduce, and the collapse we measure over training
 (Table~\ref{tab:exp1}, Section~\ref{sec:cifarddpm}) is that coefficient shrinking.
 
-Two limits should be stated plainly. The integral in \eqref{eq:survival} is along the
-model's own trajectory, whereas the training loss is an expectation over the
-interpolant's law; converting one into the other needs control of a density ratio
-that we do not supply, so this is a statement about pathwise error and not yet about
-the loss. And it bounds the deviation from the \emph{collapsed} trajectory, so it
-constrains how much variance can survive, not what the surviving law looks like.
+The bound as stated is pathwise, integrating along the model's own trajectory,
+which is not a quantity anyone measures. It converts into the training loss with one
+extra hypothesis, and the conversion is worth spelling out because the hypothesis is
+weaker than it first looks.
+
+\begin{corollary}[Loss form]
+\label{cor:lossform}
+In the setting of Proposition~\ref{prop:survival}, suppose in addition that
+$\Delta(\cdot,t)$ is $L_\Delta$-Lipschitz in $x$ for a.e.\ $t\le T$. Let
+\[
+\mathcal L_i(v)\;:=\;\E_{t\sim\mathrm{Unif}(0,1)}\,\E_{X_0\sim\pi_0}
+\big|v(X_t,t,y^i)-U\big|^2,\qquad X_t=(1-t)X_0+tx^i,\ U=x^i-X_0,
+\]
+be the flow-matching loss at index $i$, and write
+$\mathcal E(t):=\big(\E_{X_0}|x^v_t-x^\star_t|^2\big)^{1/2}$ for the root-mean-square
+deviation over initial conditions. Then for $t\le T$,
+\begin{equation}
+\mathcal E(t)\;\le\;e^{L_\Delta t}\,\sqrt{\mathcal L_i(v)}\;\sqrt{t(1-t)},
+\qquad\text{so}\qquad
+\mathcal E(1-\delta)\;\le\;e^{L_\Delta}\sqrt{\mathcal L_i(v)\,\delta}.
+\label{eq:lossform}
+\end{equation}
+Consequently the conditional second moment about the memorised atom obeys
+$\big(\E|x^v_{1-\delta}-x^i|^2\big)^{1/2}\le e^{L_\Delta}\sqrt{\mathcal L_i(v)\delta}
++\delta\,\big(\E|X_0-x^i|^2\big)^{1/2}$.
+\end{corollary}
+
+Note which Lipschitz constant is assumed. It is that of the \emph{error} $\Delta$,
+not of the field, whose constant $1/(1-t)$ diverges by construction. The two are
+independent, and the distinction is exactly what keeps the hypothesis from excluding
+the phenomenon: an error of the form $c\,(1-t)^{-1}u$---the kind
+Proposition~\ref{prop:survival}(b) identifies as the only kind that survives---is
+constant in $x$ and has $L_\Delta=0$. A model may therefore diverge from the field at
+the field's own rate while its error stays smooth in space, which is what
+\eqref{eq:lossform} is designed to cover.
+
+What \eqref{eq:lossform} says is that the conditional standard deviation a model can
+retain at truncation $1-\delta$ is at most $e^{L_\Delta}\sqrt{\mathcal L_i\,\delta}$.
+Loss and truncation enter symmetrically, both as square roots: halving the loss and
+halving $\delta$ buy the same factor. Collapse is optimisation-paced in a precise
+sense---the retained deviation is controlled by the loss the optimiser has not yet
+removed---and stopping early is the only other lever, which is what the early-stopping
+measurement in Appendix~\ref{app:deferred} shows in practice. We report the bound's
+tightness rather than assert it: over sixteen configurations---spatially constant and
+linear errors, magnitudes growing like $(1-t)^{-a}$ for $a\in\{0,\tfrac12,1\}$, and two
+truncations---it holds everywhere, with the measured deviation between $1.9$ and $27$
+times below the bound (\texttt{scripts/verify\_error\_survival.py}). The slack tracks
+$L_\Delta$, as the $e^{L_\Delta}$ factor says it should: it is smallest for errors
+constant in space, where that factor is $1$, and largest for the steepest linear error
+tested. So the bound is honest about the scaling $\sqrt{\mathcal L_i\delta}$ and loose
+in its constant, and we use it for the former.
+
+One limit remains and is not closed by this: the bound constrains how much variance
+can survive, not what the surviving law looks like.
 
 \subsection{Finite capacity}
 \label{sec:theory-capacity}
@@ -2017,6 +2065,38 @@ gives $|e_{1-\delta}|\le\varepsilon\sqrt{\delta(1-\delta)}\le\varepsilon\sqrt\de
 $|e_t|\le\frac{c}{a}\big((1-t)^{1-a}-(1-t)\big)$. As $t\uparrow1$ this tends to $0$
 when $a<1$ and diverges when $a>1$. For $a=1$, $\int_0^t(1-s)^{-2}ds=\frac{t}{1-t}$
 and \eqref{eq:survival} gives $|e_t|\le c\,t\le c$.
+\end{proof}
+
+\begin{proof}[Proof of Corollary~\ref{cor:lossform}]
+Since $U=\vstarz(X_t,t,y^i)$ almost surely (Proposition~\ref{prop:collapse}(a)),
+the loss is exactly the error's own $L^2$ norm along the interpolant:
+$\mathcal L_i(v)=\int_0^1\ell(s)^2ds$ with
+$\ell(s)^2:=\E_{X_0}|\Delta(x^\star_s,s)|^2$, where $x^\star_s=(1-s)X_0+sx^i$ has the
+law of $X_s$ by construction. Both trajectories are pushforwards of the same $X_0$,
+which is what lets the two expectations be compared at all.
+
+Take $L^2(X_0)$ norms in \eqref{eq:survival}. By Minkowski's integral inequality the
+norm passes inside the $ds$ integral, so
+\[
+\mathcal E(t)\;\le\;(1-t)\int_0^t\frac{\big\|\Delta(x^v_s,s)\big\|_{L^2}}{1-s}\,ds .
+\]
+By the Lipschitz hypothesis, $|\Delta(x^v_s,s)|\le|\Delta(x^\star_s,s)|
++L_\Delta|x^v_s-x^\star_s|$ pointwise, hence
+$\|\Delta(x^v_s,s)\|_{L^2}\le\ell(s)+L_\Delta\mathcal E(s)$ by the triangle
+inequality. Writing $F(t):=\mathcal E(t)/(1-t)$ and $G(t):=\int_0^t\ell(s)(1-s)^{-1}ds$,
+\[
+F(t)\;\le\;G(t)+L_\Delta\int_0^t\frac{\mathcal E(s)}{1-s}\,ds\;=\;G(t)+L_\Delta\int_0^tF(s)\,ds .
+\]
+$G$ is nondecreasing, so Gr\"onwall's inequality in integral form gives
+$F(t)\le G(t)e^{L_\Delta t}$. By Cauchy--Schwarz,
+$G(t)\le\big(\int_0^t\ell^2\big)^{1/2}\big(\int_0^t(1-s)^{-2}ds\big)^{1/2}
+\le\sqrt{\mathcal L_i(v)}\,\sqrt{t/(1-t)}$, and multiplying by $(1-t)$ yields
+\eqref{eq:lossform}. Setting $t=1-\delta$ and bounding $1-\delta\le1$ gives the
+truncated form.
+
+For the last display, $x^\star_{1-\delta}=\delta X_0+(1-\delta)x^i$, so
+$|x^\star_{1-\delta}-x^i|=\delta|X_0-x^i|$, and the triangle inequality in
+$L^2(X_0)$ adds that to $\mathcal E(1-\delta)$.
 \end{proof}
 
 \section{Finite-sample memorisation and exact non-representability}
