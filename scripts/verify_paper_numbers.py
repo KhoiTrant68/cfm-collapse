@@ -110,6 +110,20 @@ def mean_of_ratios(run: str) -> float:
 check("h=5 mean-of-ratios instability (factor)", 1.7,
       mean_of_ratios("h5") / mean_of_ratios("h5_seed1"), 2e-2)
 
+for run, want in (("h6", 1.181), ("h6_seed1", 0.924)):
+    check(f"{run} aggregate ratio", want, aggregate_ratio(run), 1e-3)
+check("h=6 seed spread, aggregate (%)", 21.7,
+      abs(aggregate_ratio("h6_seed1") - aggregate_ratio("h6"))
+      / aggregate_ratio("h6") * 100, 1e-2)
+
+print("\nBeta trajectory (optimisation gap, not a fixed exponent)")
+bt = json.loads(pathlib.Path("results/exp3/_cifar_ddpm/beta_trajectory.json")
+                .read_text(encoding="utf-8"))
+for h, it, want in ((4, 500, -0.031), (4, 8000, -0.045), (4, 20000, 0.119),
+                    (4, 60000, 0.390), (5, 60000, 0.223), (6, 60000, -0.202)):
+    row = next(r for r in bt if r["h"] == h and r["iter"] == it)
+    check(f"beta h={h} at iter {it}", want, row["slope"], 5e-3)
+
 collapse = 179.1 / 0.431
 check("h=0 collapse factor 415x", 415, collapse, 3e-3)
 

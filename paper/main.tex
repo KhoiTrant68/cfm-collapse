@@ -726,9 +726,13 @@ trained network gets there. That is a real gap rather than a framing device, bec
 the phenomenon practitioners actually report is temporal---a model that is well
 calibrated and then, with further training, is not---and the question they ask is when
 to stop. Our experiments measure that trajectory (Table~\ref{tab:exp1},
-Section~\ref{sec:cifarddpm}) but the theory does not predict it, and a characterisation
-of the collapse time as a function of $N$, $d$ and capacity, in a regime where training
-is analytically tractable, is the main thing missing from this account.
+Section~\ref{sec:cifarddpm}), and Figure~\ref{fig:betatraj} measures the rate at which
+a trained model comes to obey Theorem~\ref{thm:endpoint}---tracking is absent for
+$8000$ iterations, then appears and strengthens without saturating. But that is a
+measurement, not a prediction: nothing in the theory determines $\beta(t)$, and a
+characterisation of the collapse time as a function of $N$, $d$ and capacity, in a
+regime where training is analytically tractable, remains the main thing missing from
+this account.
 
 % ==========================================================================
 \section{Experiments}
@@ -976,7 +980,24 @@ the rest of the paper reports, and at large $h$ it should not be trusted.
 The informative regime is $h{=}4$, where the reference moves over $4.57$ decades. There
 $\beta=0.481\pm0.037$ with $R^2=0.785$ across $48$ conditions: the model orders the
 conditions almost as the theory says it should, while compressing the range by half.
-This is a partial confirmation and we state it as one. Theorem~\ref{thm:endpoint} is
+This is a partial confirmation, but it is not a static one. Measuring the same slope
+at each saved checkpoint (Figure~\ref{fig:betatraj}) shows $\beta$ near zero for the
+first $8000$ iterations---the model does not track the reference at all---after which
+it rises monotonically and is \emph{still rising} when the budget ends:
+$-0.03,-0.03,-0.05,+0.12,+0.20,+0.39$ at $h{=}4$ and
+$-0.06,-0.05,-0.07,-0.00,+0.17,+0.22$ at $h{=}5$ (at $M{=}96$ throughout, so the
+comparison across checkpoints is like for like; the final $h{=}4$ value re-measured at
+$M{=}256$ is the $0.481$ quoted above). Tracking the kernel reference is therefore
+something the model \emph{learns}, and $0.481$ is where $60000$ iterations reached
+rather than a ceiling of the model class. We are careful about what this does and does
+not show: it establishes that the deficit is at least partly an optimisation gap and
+not a fixed property of the parameterisation, and it does \emph{not} establish that
+$\beta\to1$, which would need a budget we have not run. Three rival explanations for a
+fixed exponent---an additive variance floor, a hard floor, and an affine map---were
+fitted to the final checkpoint and all lose to the power law in log space
+($R^2$ $0.42$, $0.24$, $0.28$ against $0.78$ at $h{=}4$), so an offset is not what is
+happening. At $h{=}6$, $\beta$ never leaves zero, which is what the missing range
+predicts. Theorem~\ref{thm:endpoint} is
 right about which conditions have more posterior variance and wrong about how much, by
 a factor that itself grows with the reference.
 
@@ -1007,7 +1028,11 @@ randomness---moves $\tr\Cov$ at $h{=}4$ from $178.5$ to $240.7$ ($35\%$) and
 $n_{\mathrm{eff}}$ from $2.36$ to $2.77$, so the two instances are genuinely different
 problems. The aggregate ratio $\tr\Cov/\tr\Covh$ moves from $2.255$ to $2.464$, i.e.\
 by $9.3\%$; at $h{=}5$ the raw trace moves by $16\%$ ($276.8\to321.2$) and the
-aggregate ratio by $0.27\%$ ($1.2449\to1.2482$). At $h{=}0$, $\tr\Cov$ is $0.431$
+aggregate ratio by $0.27\%$ ($1.2449\to1.2482$). At $h{=}6$, however, the aggregate
+ratio moves from $1.181$ to $0.924$---a $22\%$ spread that straddles $1$. So the
+apparent agreement at $h{=}6$ is not merely uninformative for want of range: it is not
+stable even in the sign of its deviation, and a single-seed reading of it could have
+been reported as agreement to $18\%$ or to $8\%$ depending on which instance was drawn. At $h{=}0$, $\tr\Cov$ is $0.431$
 against $0.409$. The reference-relative quantity is the stable one, which is the
 practical case for reporting it.
 
@@ -1025,6 +1050,19 @@ $M{=}256$ mean $20.4$ against a median of $5.30$ at $h{=}4$
 instance-stability from the $3.5\%$ figure alone; the third seed run showed that
 figure to be a coincidence of one bandwidth. We report the aggregate ratio throughout,
 and medians with bootstrap intervals where per-condition detail is needed.
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.62\textwidth]{fig_beta_trajectory.png}
+\caption{The across-condition slope $\beta$ against training iteration, at $M{=}96$ per
+condition. For the first $8000$ iterations the model does not track the kernel
+reference at any bandwidth. After that $\beta$ rises at $h{=}4$ and $h{=}5$ and has not
+levelled off by the end of the run, so the gap to the predicted $\beta=1$ is at least
+partly an optimisation gap rather than a property of the model class. At $h{=}6$ it
+stays at zero, which is what a reference with almost no range across conditions
+predicts. Error bars are standard errors of the slope.}
+\label{fig:betatraj}
+\end{figure}
 
 \begin{figure}[htb]
 \centering
