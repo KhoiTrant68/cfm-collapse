@@ -53,7 +53,9 @@ def build_model(cfg, C, device):
 
 
 @torch.no_grad()
-def reeval(run: str, M: int, n_cond: int, device) -> dict | None:
+def reeval(run: str, M: int, n_cond: int, device,
+           ckpt_iter: int | None = None) -> dict | None:
+    """Re-evaluate one checkpoint; the last one unless `ckpt_iter` names another."""
     root = Path("results/exp3") / run
     cfg = load_yaml(root / "config.yaml")
     ckpts = sorted(root.glob("checkpoints/ckpt_*.pt"),
@@ -61,7 +63,14 @@ def reeval(run: str, M: int, n_cond: int, device) -> dict | None:
     if not ckpts:
         print(f"  [skip] {run}: no checkpoints")
         return None
-    ck = ckpts[-1]
+    if ckpt_iter is None:
+        ck = ckpts[-1]
+    else:
+        match = [c for c in ckpts if int(c.stem.split("_")[1]) == ckpt_iter]
+        if not match:
+            print(f"  [skip] {run}: no checkpoint at iteration {ckpt_iter}")
+            return None
+        ck = match[0]
     it = int(ck.stem.split("_")[1])
 
     dc = cfg["data"]
