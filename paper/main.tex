@@ -971,10 +971,12 @@ $1.000$, $0.829$, $0.717$, $0.620$ at $h=0,4,5,6$, and the exact $1.000$ at $h{=
 rules out the integrator as the cause. What governs the discrepancy is
 $n_{\mathrm{eff}}$ rather than $h$: pooled over the $144$ (condition, $h$) pairs with
 $h>0$, Spearman's correlation is $-0.858$ against $n_{\mathrm{eff}}$ and $-0.554$
-against $h$. And repeating $h{=}0$ and $h{=}4$ at a second seed---which redraws the
-mask, the training subset and all training randomness---moves $\tr\Cov$ at $h{=}4$ by
-$35\%$ ($178.5\to240.7$) while the ratio to the Theorem~\ref{thm:endpoint} reference
-moves by $3.5\%$ ($6.83\to7.07$): the reference-relative quantity is the stable one.
+against $h$. And repeating $h{=}0$, $h{=}4$ and $h{=}5$ at a second seed---which redraws the
+mask, the training subset and all training randomness---moves the raw $\tr\Cov$ by
+$35\%$ and $16\%$ while the aggregate ratio $\tr\Cov/\tr\Covh$ moves by $9.3\%$ and
+$0.27\%$: the reference-relative quantity is the stable one, provided it is formed as
+a ratio of aggregates rather than an average of per-condition ratios, which is
+heavy-tailed and does not reproduce at all.
 Appendix~\ref{app:deferred} gives each in full.
 
 \paragraph{What governs the discrepancy is $n_{\mathrm{eff}}$, not $h$.}
@@ -988,10 +990,26 @@ one or two atoms are the ones the model overshoots, at any $h$.
 runs at a second seed---which redraws the mask, the training subset and all training
 randomness---moves $\tr\Cov$ at $h{=}4$ from $178.5$ to $240.7$ ($35\%$) and
 $n_{\mathrm{eff}}$ from $2.36$ to $2.77$, so the two instances are genuinely different
-problems; the ratio to the Theorem~\ref{thm:endpoint} reference moves from $6.83$ to
-$7.07$, i.e.\ by $3.5\%$ (training-time estimator, used consistently for both). At
-$h{=}0$, $\tr\Cov$ is $0.431$ against $0.409$. The reference-relative quantity is the
-stable one, which is the practical case for reporting it.
+problems. The aggregate ratio $\tr\Cov/\tr\Covh$ moves from $2.255$ to $2.464$, i.e.\
+by $9.3\%$; at $h{=}5$ the raw trace moves by $16\%$ ($276.8\to321.2$) and the
+aggregate ratio by $0.27\%$ ($1.2449\to1.2482$). At $h{=}0$, $\tr\Cov$ is $0.431$
+against $0.409$. The reference-relative quantity is the stable one, which is the
+practical case for reporting it.
+
+\paragraph{Which ratio, and a third false certificate.} That conclusion depends on
+\emph{how} the ratio is formed, and the difference is large enough to reverse it. The
+aggregate ratio---$\tr\Cov$ summed over conditions divided by $\tr\Covh$ summed over
+conditions---is what Theorem~\ref{thm:endpoint} predicts and what reproduces. The
+average of per-condition ratios does not: it moves by $3.5\%$ at $h{=}4$ ($6.83$ to
+$7.07$), which looks reassuring, but by a factor of $1.7$ at $h{=}5$ ($2.315$ to
+$1.356$). The reason is that a per-condition ratio has a denominator that can be
+arbitrarily close to zero, so its average is heavy-tailed and dominated by whichever
+condition happened to draw the smallest $\tr\Covh$---the same pathology that makes the
+$M{=}256$ mean $20.4$ against a median of $5.30$ at $h{=}4$
+(Section~\ref{sec:cifarddpm}). An earlier version of this paper argued
+instance-stability from the $3.5\%$ figure alone; the third seed run showed that
+figure to be a coincidence of one bandwidth. We report the aggregate ratio throughout,
+and medians with bootstrap intervals where per-condition detail is needed.
 
 \begin{figure}[htb]
 \centering

@@ -1,0 +1,44 @@
+run_name: exp3_cifar_ddpm_h5_seed1
+seed: 1
+device: auto
+data:
+  N: 2000
+  dataset: cifar10
+  mask_kind: bottom_half
+  source_std: 1.0
+  data_root: data
+model:
+  arch: ddpm
+  base: 128
+  ch_mult:
+  - 1
+  - 2
+  - 2
+  - 2
+  num_res_blocks: 2
+  attn_resolutions:
+  - 16
+  temb_dim: 512
+  dropout: 0.0
+train:
+  max_iters: 60000
+  batch_size: 128
+  lr: 0.0002
+  y_noise_h: 5.0
+  amp: true
+  checkpoints:
+  - 500
+  - 2000
+  - 8000
+  - 20000
+  - 40000
+  - 60000
+  save_checkpoints:
+  - 60000
+eval:
+  n_conditions: 8
+  M: 16
+  n_steps: 50
+  ode_eps: 0.001
+  grid_conditions: 4
+  grid_M: 6

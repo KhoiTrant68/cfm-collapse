@@ -74,14 +74,41 @@ for name, it, col, want in (
         ("h4_seed1 iter60000 trace_cov", 60000, "trace_cov_mean", 240.7),
         ("h4 iter60000 ratio", 60000, "ratio_to_kernel_mean", 6.83),
         ("h4_seed1 iter60000 ratio", 60000, "ratio_to_kernel_mean", 7.07),
+        ("h5 iter60000 ratio", 60000, "ratio_to_kernel_mean", 2.315),
+        ("h5_seed1 iter60000 ratio", 60000, "ratio_to_kernel_mean", 1.356),
         ("h4 iter60000 n_eff", 60000, "n_eff_mean", 2.36),
         ("h4_seed1 iter60000 n_eff", 60000, "n_eff_mean", 2.77)):
     run = name.split()[0]
-    suffix = {"h0": "h0", "h0_seed1": "h0_seed1", "h4": "h4",
-              "h4_seed1": "h4_seed1"}[run]
-    df = pd.read_csv(f"results/exp3/exp3_cifar_ddpm_{suffix}/raw/metrics.csv")
+    df = pd.read_csv(f"results/exp3/exp3_cifar_ddpm_{run}/raw/metrics.csv")
     row = df[df["iter"] == it].iloc[0]
     check(name, want, float(row[col]), 2e-3)
+
+print("\nSeed reproducibility: the AGGREGATE ratio is what the paper argues from")
+
+
+def aggregate_ratio(run: str) -> float:
+    df = pd.read_csv(f"results/exp3/exp3_cifar_ddpm_{run}/raw/metrics.csv")
+    r = df.sort_values("iter").iloc[-1]
+    return float(r["trace_cov_mean"]) / float(r["trace_cov_kernel_mean"])
+
+
+for run, want in (("h4", 2.255), ("h4_seed1", 2.464),
+                  ("h5", 1.2449), ("h5_seed1", 1.2482)):
+    check(f"{run} aggregate ratio", want, aggregate_ratio(run), 1e-3)
+
+for label, a, b, want in (("h=4 seed spread, aggregate", "h4", "h4_seed1", 9.3),
+                          ("h=5 seed spread, aggregate", "h5", "h5_seed1", 0.27)):
+    ra, rb = aggregate_ratio(a), aggregate_ratio(b)
+    check(label + " (%)", want, abs(rb - ra) / ra * 100, 3e-2)
+
+# The instability the paper now reports about the other estimator.
+def mean_of_ratios(run: str) -> float:
+    df = pd.read_csv(f"results/exp3/exp3_cifar_ddpm_{run}/raw/metrics.csv")
+    return float(df.sort_values("iter").iloc[-1]["ratio_to_kernel_mean"])
+
+
+check("h=5 mean-of-ratios instability (factor)", 1.7,
+      mean_of_ratios("h5") / mean_of_ratios("h5_seed1"), 2e-2)
 
 collapse = 179.1 / 0.431
 check("h=0 collapse factor 415x", 415, collapse, 3e-3)
