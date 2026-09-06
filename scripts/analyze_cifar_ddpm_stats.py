@@ -183,7 +183,7 @@ def make_figure(rows, per_h) -> None:
         ax.set_aspect("equal", adjustable="box")
         ax.set_title(rf"$h={h}$:  $\beta={f['slope']:.2f}$, "
                      rf"{f['decades']:.1f} decades", fontsize=10)
-        ax.set_xlabel(r"$\log_{10}\,\mathrm{tr}\,\mathrm{Cov}_h$  (Theorem 10)")
+        ax.set_xlabel(r"$\log_{10}\,\mathrm{tr}\,\mathrm{Cov}_h$  (kernel theory)")
         ax.grid(alpha=0.3)
         ax.legend(fontsize=7, loc="upper left", framealpha=0.9)
     np.atleast_1d(axes)[0].set_ylabel(r"$\log_{10}\,\mathrm{tr}\,\mathrm{Cov}$  (measured)")

@@ -6,14 +6,15 @@ actually sends its samples (red).
 
     h = 0        the label identifies one atom, every initial condition lands on
                  it, and the endpoint law is a single point mass -- zero variance
-                 no matter how the model is parameterised (Proposition 4).
+                 no matter how the model is parameterised (the exact-collapse proposition).
     h > 0        the label is smoothed, so the endpoint law becomes a kernel-
-                 weighted mixture over atoms (Theorem 10). The second moment can
+                 weighted mixture over atoms (the endpoint theorem). The second moment can
                  be made to match the posterior's exactly; the law is still a
                  finite sum of point masses, and the Wasserstein distance to the
-                 posterior has a floor that no h removes (Proposition 14).
+                 posterior has a floor that no h removes (the atomicity proposition).
     endpoint     smoothing the endpoint instead moves the support off the atoms,
-                 giving an absolutely continuous law (Proposition 7) -- the only
+                 giving an absolutely continuous law (the endpoint-smoothing
+                 proposition) -- the only
                  one of the three that can be a posterior at all.
 
 The middle panel is the paper's title: restored variance, un-restored posterior.

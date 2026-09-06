@@ -11,6 +11,15 @@ how the experiments may be described.
 
 ---
 
+> **Status.** `paper/main.tex` is the canonical statement of the theory. This file
+> is the working development record and is now behind it: it does not contain the
+> endpoint-smoothing proposition, the classifier-free-guidance result, the
+> near-duplicate-label bounds, the proof of well-posedness, or the time-varying
+> Lipschitz floor, all of which are stated and proved in the paper. Numbering here is
+> also independent of the paper's -- results are cross-referenced from code by name in
+> the source comments, not by number, for that reason. Where the two disagree, the
+> paper is correct.
+
 ## 0. Setup and notation
 
 Fix a training set
@@ -534,7 +543,7 @@ representability arguments of the unconditional gradient-variance/ReFlow literat
 — see the note on 2510.18118 at the end of Part E. Both results are new; neither
 appears in Parts A–D.)*
 
-### Lemma 22 (generic non-intersection of finite interpolant segments)
+### Lemma 22′ (generic non-intersection of finite interpolant segments)
 
 Let $x_0^1,\dots,x_0^N \stackrel{\text{iid}}{\sim}\pi_0$ and, independently,
 $x^1,\dots,x^N\stackrel{\text{iid}}{\sim}\rho_1$, both absolutely continuous on
@@ -566,12 +575,12 @@ argument is identical. $\blacksquare$
 Proposition 3; it is reproduced here in the repo's own notation because Part A
 never needs it — Lemma 2 gets injectivity for free from the affine invertibility
 $X_0\mapsto X_t$ given $I=i$, valid for **any** $\pi_0$, no genericity argument
-required. Lemma 22 is the tool needed once labels are removed and the source
+required. Lemma 22′ is the tool needed once labels are removed and the source
 points are also finite and fixed, i.e. Proposition 23 below.)*
 
 ### Proposition 23 (a memorizing field always exists on a fixed finite unconditional batch)
 
-Fix $N$ unconditional pairs $\{(x_0^i,x^i)\}_{i=1}^N$ as in Lemma 22 (with $d>2$,
+Fix $N$ unconditional pairs $\{(x_0^i,x^i)\}_{i=1}^N$ as in Lemma 22′ (with $d>2$,
 $x^i$ pairwise distinct a.s.), and sample $m$ time points $t^{(i,j)}\in(0,1)$,
 $j=1,\dots,m$, independently across $(i,j)$ (e.g. uniformly). Let
 
@@ -584,7 +593,7 @@ exists a (deterministic, non-parametric) $v$ with $L_{\mathrm{MC}}^{\mathrm{unc}
 — **even though** $\inf_v L_{\mathrm{unc}}(v) > 0$ at the population level whenever the
 $x^i$ are not all equal (Proposition 7).
 
-**Proof.** By Lemma 22(a)–(b) applied to every pair $i\ne j$ and union-bounded over
+**Proof.** By Lemma 22′(a)–(b) applied to every pair $i\ne j$ and union-bounded over
 the $\binom N2$ pairs, almost surely no two of the $N$ full segments
 $\{\ell_i(t):t\in(0,1)\}$ intersect at all, hence in particular the finitely many
 sampled points $(X_t^{(i,j)}, t^{(i,j)})$ never collide across different $i$. On
@@ -729,7 +738,7 @@ The specific contributions here are:
    their Propositions 2–3 and Extra-Lemma 1) into this repo's setting: a finite fixed
    batch always admits an exact-zero-loss unconditional memorizing field despite
    positive population loss (Prop. 23, mirroring their Prop. 2 via the same
-   generic-position argument, their Prop. 3, reproduced as Lemma 22), with the
+   generic-position argument, their Prop. 3, reproduced as Lemma 22′), with the
    resampling-of-$x_0$ mechanism made precise (Rmk. 24); and an exact (not merely
    Lipschitz-capped) non-representability statement for the collapse field's
    $1/(1-t)$ blow-up (Lemma 25, the boundedness analogue of their scaling argument
@@ -760,7 +769,7 @@ solutions optimisation actually prefers. Proposition 4 above is a different kind
 statement — an exact closed-form characterisation of the **population** minimiser,
 made possible without any genericity assumption because $y^i$, not generic position,
 supplies the injectivity. Part D2 restates their Propositions 2–3 and Extra-Lemma 1
-in this repo's notation (Lemma 22, Prop. 23, Lemma 25) so the two levels of
+in this repo's notation (Lemma 22′, Prop. 23, Lemma 25) so the two levels of
 statement — finite-batch existence vs. population characterisation — sit side by
 side rather than being conflated, and so that the resampling mechanism they describe
 qualitatively (Remark 24) has a precise if-and-only-if role: it is exactly what is

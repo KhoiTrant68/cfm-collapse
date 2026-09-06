@@ -2,11 +2,11 @@
 
 Theory. With the endpoint replaced by X_1 = x^I + rho*xi (xi ~ N(0,I_d), fresh
 every step) and the label smoothed as usual, the same mixture-coupling argument
-that gives Theorem 1 yields the population endpoint law
+that gives the endpoint theorem yields the population endpoint law
 
     p_1(. | y) = sum_i p_i^(h)(y) N(x^i, rho^2 I_d),          (*)
 
-which is absolutely continuous for every rho > 0. Proposition 6's Wasserstein
+which is absolutely continuous for every rho > 0. The atomicity proposition's Wasserstein
 floor -- which holds for *any* law supported on {x^1..x^N} and does not depend
 on h -- therefore does not apply.
 
