@@ -1,25 +1,29 @@
-"""The mechanism, in one figure, for the introduction.
+"""The mechanism, from integrated trajectories rather than drawn arrows.
 
-Three panels over the same scene: a continuous true posterior (shaded), the
-training atoms that fall inside it (black), and where the exact population flow
-actually sends its samples (red).
+Three exact population flows on the same real problem instance (d=2, k=1, N=200),
+each integrated from the same 160 draws of the source, with the true posterior drawn
+underneath:
 
-    h = 0        the label identifies one atom, every initial condition lands on
-                 it, and the endpoint law is a single point mass -- zero variance
-                 no matter how the model is parameterised (the exact-collapse proposition).
-    h > 0        the label is smoothed, so the endpoint law becomes a kernel-
-                 weighted mixture over atoms (the endpoint theorem). The second moment can
-                 be made to match the posterior's exactly; the law is still a
-                 finite sum of point masses, and the Wasserstein distance to the
-                 posterior has a floor that no h removes (the atomicity proposition).
-    endpoint     smoothing the endpoint instead moves the support off the atoms,
-                 giving an absolutely continuous law (the endpoint-smoothing
-                 proposition) -- the only
-                 one of the three that can be a posterior at all.
+    h = 0        the label identifies one atom and every trajectory lands on it;
+                 the endpoint law is a point mass and the conditional variance is
+                 zero for any parameterisation.
+    h = h*       the bandwidth is chosen, by bisection, so that tr Cov_h equals
+                 tr Sigma_post *exactly*. The generated law now has precisely the
+                 right conditional variance -- and is still a finite sum of point
+                 masses. This panel is the paper's title.
+    endpoint     smoothing the endpoint instead moves the support off the atoms and
+                 gives an absolutely continuous law, the only one of the three that
+                 could be a posterior at all.
 
-The middle panel is the paper's title: restored variance, un-restored posterior.
+The lower row makes the middle panel's point unmissable: the same three laws
+projected onto the posterior's principal axis, against the true posterior density.
+Matching the second moment and matching the distribution are different things, and
+at h* the first holds while the second fails completely.
 
-    uv run python scripts/make_mechanism_figure.py
+Nothing here is sketched. The fields are the closed forms of the paper, integrated
+with RK4 on a grid graded towards t=1.
+
+    uv run python -m scripts.make_mechanism_figure
 
 Writes: paper/figures/fig_mechanism.png
 """
@@ -31,101 +35,169 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.patches import Ellipse
+import torch
+
+from src.metrics.kernel_theory import kernel_field, kernel_weights, kernel_moments
+from src.problems.linear_gaussian import LinearGaussianProblem
 
 OUT = Path("paper/figures/fig_mechanism.png")
-
-# Okabe-Ito, matching scripts/make_paper_figures.py.
-OI = {"black": "#000000", "orange": "#E69F00", "sky": "#56B4E9",
-      "green": "#009E73", "blue": "#0072B2", "vermillion": "#D55E00",
-      "purple": "#CC79A7"}
-
-ATOMS = np.array([[-1.15, 0.55], [-0.35, -0.75], [0.30, 0.85],
-                  [0.95, -0.35], [1.35, 0.60], [-0.85, -0.20]])
-TARGET = 3                      # the atom whose label was queried
-WEIGHTS = np.array([0.10, 0.06, 0.17, 0.42, 0.19, 0.06])   # kernel weights at h > 0
-RNG = np.random.default_rng(0)
+OI = {"black": "#000000", "sky": "#56B4E9", "blue": "#0072B2",
+      "vermillion": "#D55E00", "orange": "#E69F00", "green": "#009E73"}
+N_PATHS, N_STEPS, T_END = 160, 400, 1.0 - 1e-3
 
 
-def start_points(n: int = 9, r: float = 2.35) -> np.ndarray:
-    a = np.linspace(0, 2 * np.pi, n, endpoint=False) + 0.22
-    return np.c_[r * np.cos(a), r * np.sin(a) * 0.72]
+def flow(X, Y, y, h, x0, source_std=1.0):
+    """Integrate the exact kernel field from every row of x0 (RK4, graded grid)."""
+    ts = 1.0 - np.geomspace(1.0, 1.0 - T_END, N_STEPS + 1)
+    x = torch.tensor(x0, dtype=torch.float64)
+    traj = [x.clone()]
+    for a, b in zip(ts[:-1], ts[1:]):
+        dt = b - a
+        def f(tt, xx):
+            t_vec = torch.full((xx.shape[0],), float(tt), dtype=torch.float64)
+            return kernel_field(xx, t_vec, y, X, Y, h, source_std)
+        k1 = f(a, x); k2 = f(a + dt / 2, x + dt / 2 * k1)
+        k3 = f(a + dt / 2, x + dt / 2 * k2); k4 = f(b, x + dt * k3)
+        x = x + dt / 6 * (k1 + 2 * k2 + 2 * k3 + k4)
+        traj.append(x.clone())
+    return np.stack([p.numpy() for p in traj]), x.numpy()
 
 
-def scene(ax, title: str, subtitle: str) -> None:
-    ax.add_patch(Ellipse((0.05, 0.05), 3.5, 2.35, angle=-12, facecolor=OI["sky"],
-                         alpha=0.16, edgecolor=OI["sky"], lw=1.2, zorder=0))
-    ax.scatter(ATOMS[:, 0], ATOMS[:, 1], s=34, color=OI["black"], zorder=4,
-               label="training atoms $x^i$")
-    ax.set_xlim(-2.7, 2.7); ax.set_ylim(-2.0, 2.0)
-    ax.set_aspect("equal"); ax.set_xticks([]); ax.set_yticks([])
-    ax.set_title(title, fontsize=11, pad=7)
-    ax.text(0.5, -0.10, subtitle, transform=ax.transAxes, ha="center",
-            va="top", fontsize=8.6)
-    for sp in ax.spines.values():
-        sp.set_alpha(0.35)
+def bandwidth_matching_posterior(X, Y, y, target, lo=1e-3, hi=5.0):
+    """Bisect for h with tr Cov_h(y) = tr Sigma_post."""
+    for _ in range(60):
+        mid = 0.5 * (lo + hi)
+        _, cov, _ = kernel_moments(y, X, Y, mid)
+        if float(torch.trace(cov)) < target:
+            lo = mid
+        else:
+            hi = mid
+    return 0.5 * (lo + hi)
 
 
-def arrows(ax, targets: np.ndarray, jitter: float = 0.0) -> None:
-    for k, s in enumerate(start_points()):
-        t = targets[k % len(targets)]
-        if jitter:
-            t = t + RNG.normal(scale=jitter, size=2)
-        ax.annotate("", xy=t, xytext=s,
-                    arrowprops=dict(arrowstyle="->", color=OI["black"], alpha=0.30,
-                                    lw=0.9, shrinkA=2, shrinkB=3,
-                                    connectionstyle="arc3,rad=0.13"), zorder=2)
-        ax.plot(*s, marker="o", ms=2.6, color=OI["black"], alpha=0.45, zorder=3)
+def posterior_ellipse(ax, mu, Sigma, **kw):
+    vals, vecs = np.linalg.eigh(Sigma)
+    ang = np.degrees(np.arctan2(vecs[1, -1], vecs[0, -1]))
+    from matplotlib.patches import Ellipse
+    for k in (1.0, 2.0):
+        ax.add_patch(Ellipse(mu, 2 * k * np.sqrt(vals[-1]), 2 * k * np.sqrt(vals[0]),
+                             angle=ang, fill=(k == 2.0), facecolor=OI["sky"],
+                             alpha=0.22 if k == 2.0 else 1.0, edgecolor=OI["blue"],
+                             lw=1.8, zorder=0, **kw))
 
 
 def main() -> None:
-    fig, axes = plt.subplots(1, 3, figsize=(11.6, 4.0))
+    torch.manual_seed(0)
+    prob = LinearGaussianProblem.create(d=2, k=1, sigma_obs=0.1, seed=0)
+    Xt, Yt = prob.sample_dataset(200, seed=1)
+    X, Y = Xt.to(torch.float64), Yt.to(torch.float64)
+    Xn = X.numpy()
 
-    # --- h = 0 -------------------------------------------------------------
-    ax = axes[0]
-    scene(ax, r"hard conditioning  ($h=0$)",
-          "every initial condition lands on one atom\n"
-          r"$p_1=\delta_{x^i}$   —   zero conditional variance")
-    arrows(ax, ATOMS[TARGET][None, :])
-    ax.scatter(*ATOMS[TARGET], s=250, color=OI["vermillion"], zorder=5,
-               edgecolors="white", linewidths=1.1, label="generated law")
-    # Redraw the atom on top: the law sits exactly on it, and that must be visible.
-    ax.scatter(*ATOMS[TARGET], s=26, color=OI["black"], zorder=6)
+    i = int(np.argmin(np.abs(Y[:, 0].numpy() - np.median(Y[:, 0].numpy()))))
+    y, xi = Y[i], Xn[i]
+    Sigma = prob.Sigma_post.numpy().astype(float)
+    mu = prob.posterior_mean(Y[i:i + 1].to(torch.float32)).numpy()[0].astype(float)
+    tr_post = float(np.trace(Sigma))
 
-    # --- h > 0 -------------------------------------------------------------
-    ax = axes[1]
-    scene(ax, r"label smoothing  ($h>0$)",
-          "kernel-weighted mixture over the same atoms\n"
-          r"variance can match $\Sigma_{\mathrm{post}}$ — support cannot")
-    order = np.argsort(-WEIGHTS)[:4]
-    arrows(ax, ATOMS[order])
-    ax.scatter(ATOMS[:, 0], ATOMS[:, 1], s=60 + 620 * WEIGHTS,
-               color=OI["vermillion"], zorder=5, edgecolors="white", linewidths=1.1,
-               label=r"generated law, area $\propto p_i^{(h)}$")
-    # Same again: the mass is spread over atoms, not moved off them.
-    ax.scatter(ATOMS[:, 0], ATOMS[:, 1], s=26, color=OI["black"], zorder=6)
+    h_star = bandwidth_matching_posterior(X, Y, y, tr_post)
+    _, cov_star, _ = kernel_moments(y, X, Y, h_star)
+    print(f"  h* = {h_star:.4f}  ->  tr Cov_h = {float(torch.trace(cov_star)):.4f} "
+          f"vs tr Sigma_post = {tr_post:.4f}")
 
-    # --- endpoint smoothing ------------------------------------------------
-    ax = axes[2]
-    scene(ax, "endpoint smoothing",
-          "support moves off the atoms\n"
-          "absolutely continuous — a posterior is now reachable")
-    arrows(ax, ATOMS[order], jitter=0.16)
-    for (cx, cy), w in zip(ATOMS, WEIGHTS):
-        cloud = RNG.normal(scale=0.17, size=(int(340 * w) + 14, 2)) + (cx, cy)
-        ax.scatter(cloud[:, 0], cloud[:, 1], s=7, color=OI["vermillion"],
-                   alpha=0.42, edgecolors="none", zorder=5)
-    ax.scatter([], [], s=40, color=OI["vermillion"], label="generated law")
+    rng = np.random.default_rng(0)
+    x0 = rng.normal(size=(N_PATHS, 2))
+    rho = 0.30
 
-    for ax in axes:
-        ax.legend(loc="upper left", fontsize=7.4, framealpha=0.92,
-                  borderpad=0.35, handletextpad=0.5)
-    axes[0].text(-2.55, -1.85, "shaded: true posterior $p(\\cdot\\mid y)$",
-                 fontsize=7.6, color=OI["blue"], alpha=0.9)
+    runs = []
+    for h in (0.0, h_star):
+        paths, ends = flow(X, Y, y, h, x0)
+        runs.append((paths, ends))
+    # Endpoint smoothing: p_1 = sum_i p_i N(x^i, rho^2 I), sampled directly.
+    p = kernel_weights(y, Y, h_star).numpy()
+    idx = rng.choice(len(p), size=N_PATHS, p=p)
+    ends_ep = Xn[idx] + rho * rng.normal(size=(N_PATHS, 2))
 
-    fig.tight_layout(rect=(0, 0.035, 1, 1))
+    titles = [
+        (r"hard conditioning  ($h=0$)",
+         "every trajectory lands on one atom\n"
+         r"$p_1=\delta_{x^i}$  —  zero conditional variance"),
+        (rf"label smoothing at $h^\star={h_star:.2f}$",
+         "bandwidth tuned so that $\\mathrm{tr}\\,\\mathrm{Cov}_h"
+         "=\\mathrm{tr}\\,\\Sigma_{\\mathrm{post}}$ exactly\n"
+         "right variance, wrong support: still atoms"),
+        (rf"endpoint smoothing  ($\rho={rho}$)",
+         "support moves off the atoms\n"
+         "absolutely continuous — a posterior is reachable"),
+    ]
+
+    fig, axes = plt.subplots(2, 3, figsize=(12.4, 7.1),
+                             gridspec_kw={"height_ratios": [2.5, 1.0]})
+    lim = None
+    for c in range(3):
+        ax = axes[0, c]
+        posterior_ellipse(ax, mu, Sigma)
+        ax.scatter(Xn[:, 0], Xn[:, 1], s=9, color=OI["black"], alpha=0.45, zorder=2,
+                   label="training atoms $x^i$")
+        if c < 2:
+            paths, ends = runs[c]
+            ax.plot(paths[:, :, 0], paths[:, :, 1], color=OI["black"], alpha=0.10,
+                    lw=0.6, zorder=1)
+        else:
+            ends = ends_ep
+        if c == 1:
+            w = kernel_weights(y, Y, h_star).numpy()
+            keep = w > 1e-3
+            ax.scatter(Xn[keep, 0], Xn[keep, 1], s=8 + 900 * w[keep],
+                       color=OI["vermillion"], alpha=0.7, edgecolors="white",
+                       linewidths=0.8, zorder=4,
+                       label=r"generated law, area $\propto p^{(h)}_i$")
+        else:
+            ax.scatter(ends[:, 0], ends[:, 1], s=26 if c == 2 else 150,
+                       color=OI["vermillion"], alpha=0.55 if c == 2 else 1.0,
+                       edgecolors="white" if c == 0 else "none", linewidths=0.9,
+                       zorder=4, label="generated law")
+        ax.scatter(*xi, s=14, color=OI["black"], zorder=6)
+        ax.set_title(titles[c][0], fontsize=11.5, pad=8)
+        ax.text(0.5, -0.055, titles[c][1], transform=ax.transAxes, ha="center",
+                va="top", fontsize=8.8)
+        ax.set_xticks([]); ax.set_yticks([]); ax.set_aspect("equal")
+        ax.legend(fontsize=7.4, loc="upper left", framealpha=0.92)
+        if lim is None:
+            lim = (ax.get_xlim(), ax.get_ylim())
+        ax.set_xlim(*lim[0]); ax.set_ylim(*lim[1])
+        for s_ in ax.spines.values():
+            s_.set_alpha(0.35)
+
+    # --- lower row: the same laws on the posterior's principal axis -----------
+    vals, vecs = np.linalg.eigh(Sigma)
+    u = vecs[:, -1]
+    grid = np.linspace(-3.2, 3.2, 400)
+    dens = np.exp(-0.5 * grid ** 2 / vals[-1]) / np.sqrt(2 * np.pi * vals[-1])
+    for c in range(3):
+        ax = axes[1, c]
+        ax.plot(grid, dens, color=OI["sky"], lw=1.8, zorder=1,
+                label="true posterior")
+        if c == 0:
+            ax.axvline((xi - mu) @ u, color=OI["vermillion"], lw=2.2, zorder=3,
+                       label="generated")
+        elif c == 1:
+            w = kernel_weights(y, Y, h_star).numpy()
+            proj = (Xn - mu) @ u
+            keep = w > 1e-3
+            ax.vlines(proj[keep], 0, w[keep] / w[keep].max() * dens.max(),
+                      color=OI["vermillion"], lw=1.6, zorder=3, label="generated")
+        else:
+            ax.hist((ends_ep - mu) @ u, bins=26, density=True, color=OI["vermillion"],
+                    alpha=0.6, zorder=2, label="generated")
+        ax.set_xlim(-3.2, 3.2); ax.set_yticks([])
+        ax.set_xlabel("projection on the posterior's principal axis", fontsize=8.5)
+        ax.legend(fontsize=7.4, loc="upper right", framealpha=0.92)
+        for s_ in ax.spines.values():
+            s_.set_alpha(0.35)
+
+    fig.tight_layout(h_pad=2.6)
     OUT.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(OUT, dpi=200)
+    fig.savefig(OUT, dpi=200, bbox_inches="tight")
     plt.close(fig)
     print(f"Saved: {OUT}")
 

@@ -19,6 +19,23 @@ v*(x, t, y^i) = (x^i - x) / (1 - t)          (★)
 whose flow maps every source `x0` to the single training point `x^i`, so the
 generated posterior has **zero variance**.
 
+## The mechanism, in one animation
+
+![collapse](paper/figures/anim_collapse.gif)
+
+Three exact population flows on the same problem, from the same source draws. Left:
+hard conditioning, where every trajectory lands on one training image and the cloud's
+spread ends at 0.001. Middle: label smoothing at the bandwidth where `tr Cov_h` equals
+`tr Sigma_post` exactly, so the spread ends at 1.055 against a target of 1.002 -- the
+right variance, on the same finite set of atoms. Right: endpoint smoothing, the only
+one of the three whose support leaves the training set.
+
+The strip underneath is what is actually collapsing: the effective number of atoms the
+flow is choosing between stays near 100 for most of the clock and falls to 1 only in
+the last few percent, which is why collapse looks abrupt.
+
+Regenerate with `uv run python -m scripts.make_collapse_animation`.
+
 ## Setup
 
 This repo uses [`uv`](https://docs.astral.sh/uv/). Torch is pinned to the CPU

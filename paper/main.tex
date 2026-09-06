@@ -137,7 +137,8 @@ bandwidth is the flow time $1-t$, sharpening to a nearest-neighbour rule as $t\t
 is the other factor of the same product \eqref{eq:kernel-field}: our subject is the
 \emph{label} factor $K_h(y-y^i)$, whose bandwidth is a modelling choice rather than a
 consequence of the clock, and what we extract from it is the endpoint law and its moments
-rather than the field. The two readings compose; neither implies the other. The sharpest way to see that
+rather than the field. The two readings compose; neither implies the other; Figure~\ref{fig:factorisation}
+shows both factors at work on a real instance. The sharpest way to see that
 they are not the same result applied to opposite halves of a product is to ask what
 each factor can be used for. The spatial factor is imposed by the clock: its
 bandwidth is $1-t$, it is common to the conditional and unconditional fields alike,
@@ -251,19 +252,40 @@ propositions stand in for a thesis.
 
 \begin{figure}[htb]
 \centering
+\includegraphics[width=\textwidth]{fig_factorisation.png}
+\caption{The index posterior, factor by factor, on the real $d{=}2$ instance
+($N{=}200$, $h{=}0.1$), with atoms coloured and sized by their weight. The
+\emph{label} factor selects a band of eligible atoms and does not move with $t$
+($n_{\mathrm{eff}}=17.6$). The \emph{spatial} factor at mid-time selects a different,
+broader region ($29.1$). Neither alone picks out an atom; their product---the weight
+the flow actually follows---is supported on the intersection ($5.5$), and by $t=0.95$
+it has collapsed onto one ($1.00$). The two bandwidths are not on the same footing:
+$1-t$ is imposed by the clock and is identical in the unconditional field, whereas
+$h$ is a modelling choice. Everything this paper extracts comes from the right-hand
+factor, which is what separates it from a reading of the left one
+\citep{smola2026support}.}
+\label{fig:factorisation}
+\end{figure}
+
+\begin{figure}[htb]
+\centering
 \includegraphics[width=\textwidth]{fig_mechanism.png}
-\caption{The mechanism. Shaded: the true posterior $p(\cdot\mid y)$, which is
-continuous. Black: the training atoms. Orange: where the \emph{exact population
-minimiser}'s flow actually sends its samples. Under hard conditioning the label
-identifies one atom and every initial condition lands on it, so the endpoint law is a
-single point mass and the conditional variance is zero for any parameterisation
-(Proposition~\ref{prop:collapse}). Smoothing the label spreads the mass over the
-\emph{same} atoms with Nadaraya--Watson weights (Theorem~\ref{thm:endpoint}): the
-second moment can be made to match the posterior's exactly, while the law remains a
-finite sum of point masses and the Wasserstein distance to the posterior keeps a floor
-no $h$ removes (Proposition~\ref{prop:atomicity}). Only moving the support---smoothing
-the endpoint rather than the label---produces a law that could be a posterior at all
-(Proposition~\ref{prop:tgtnoise}). The middle panel is this paper's title.}
+\caption{The mechanism, computed rather than sketched: $160$ trajectories
+integrated under each \emph{exact population} field on the real $d{=}2$ instance
+($N{=}200$), with the true posterior shaded and the training atoms in black.
+\textbf{Left}, hard conditioning: the label identifies one atom, every initial
+condition lands on it, and the endpoint law is a point mass---zero conditional
+variance for any parameterisation (Proposition~\ref{prop:collapse}).
+\textbf{Middle}, label smoothing at the bandwidth $h^\star$ found by bisection so that
+$\tr\Covh=\tr\Sigmapost$ to four decimals: the generated law now has \emph{exactly}
+the right conditional variance and is still a finite sum of point masses on the same
+atoms (Theorem~\ref{thm:endpoint}, Proposition~\ref{prop:atomicity}). \textbf{Right},
+endpoint smoothing: the support moves off the atoms and the law becomes absolutely
+continuous, the only one of the three that could be a posterior
+(Proposition~\ref{prop:tgtnoise}). The lower row is the point: all three laws
+projected onto the posterior's principal axis against the true posterior density. A
+matched second moment (middle) and a matched distribution (right) are different
+things, and the middle panel is this paper's title.}
 \label{fig:mechanism}
 \end{figure}
 
