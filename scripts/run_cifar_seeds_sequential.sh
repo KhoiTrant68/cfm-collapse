@@ -47,7 +47,14 @@ while pgrep -f "src.train_exp[3] .*exp3_cifar_ddpm_h" > /dev/null; do
 done
 
 # "h:seed", most valuable first.
-for job in 5:1 6:1 0:2 4:2 5:2 6:2; do
+#
+# The seed-2 runs for h=5 and h=6 were dropped in favour of the class-conditional
+# experiment (run_cifar_class.sh). Two seeds already cover every condition, and a
+# third tightens a bar that exists; the class-conditional runs test a regime the
+# paper has no image evidence for at all -- repeated labels, where the prediction is
+# the within-class scatter rather than zero. h=4 keeps its third seed because that
+# is the condition the across-condition slope is measured at.
+for job in 5:1 6:1 0:2 4:2; do
   h="${job%%:*}"; seed="${job##*:}"
   name="exp3_cifar_ddpm_h${h}_seed${seed}"
   if [ -f "results/exp3/${name}/raw/metrics.csv" ]; then
