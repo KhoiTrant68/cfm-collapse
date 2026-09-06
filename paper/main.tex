@@ -252,7 +252,7 @@ propositions stand in for a thesis.
 
 \begin{figure}[htb]
 \centering
-\includegraphics[width=\textwidth]{fig_factorisation.png}
+\includegraphics[width=0.98\textwidth]{fig_factorisation.png}
 \caption{The index posterior, factor by factor, on the real $d{=}2$ instance
 ($N{=}200$, $h{=}0.1$), with atoms coloured and sized by their weight. The
 \emph{label} factor selects a band of eligible atoms and does not move with $t$
@@ -269,23 +269,21 @@ factor, which is what separates it from a reading of the left one
 
 \begin{figure}[htb]
 \centering
-\includegraphics[width=\textwidth]{fig_mechanism.png}
-\caption{The mechanism, computed rather than sketched: $160$ trajectories
-integrated under each \emph{exact population} field on the real $d{=}2$ instance
-($N{=}200$), with the true posterior shaded and the training atoms in black.
-\textbf{Left}, hard conditioning: the label identifies one atom, every initial
-condition lands on it, and the endpoint law is a point mass---zero conditional
-variance for any parameterisation (Proposition~\ref{prop:collapse}).
-\textbf{Middle}, label smoothing at the bandwidth $h^\star$ found by bisection so that
-$\tr\Covh=\tr\Sigmapost$ to four decimals: the generated law now has \emph{exactly}
-the right conditional variance and is still a finite sum of point masses on the same
-atoms (Theorem~\ref{thm:endpoint}, Proposition~\ref{prop:atomicity}). \textbf{Right},
-endpoint smoothing: the support moves off the atoms and the law becomes absolutely
-continuous, the only one of the three that could be a posterior
-(Proposition~\ref{prop:tgtnoise}). The lower row is the point: all three laws
-projected onto the posterior's principal axis against the true posterior density. A
-matched second moment (middle) and a matched distribution (right) are different
-things, and the middle panel is this paper's title.}
+\includegraphics[width=\textwidth]{fig_mechanism_schematic.png}
+\caption{The mechanism. Shaded: the true posterior, which is continuous. Black: the
+training atoms. Orange: where the \emph{exact population minimiser}'s flow sends its
+samples. Under hard conditioning the label identifies one atom and every initial
+condition lands on it, so the endpoint law is a point mass and the conditional
+variance is zero for any parameterisation (Proposition~\ref{prop:collapse}).
+Smoothing the label spreads the mass over the \emph{same} atoms with
+Nadaraya--Watson weights (Theorem~\ref{thm:endpoint}): the second moment can be made
+to match the posterior's exactly, while the law remains a finite sum of point masses
+and the Wasserstein distance to the posterior keeps a floor no $h$ removes
+(Proposition~\ref{prop:atomicity}). Only moving the support---smoothing the endpoint
+rather than the label---gives a law that could be a posterior at all
+(Proposition~\ref{prop:tgtnoise}). The middle panel is this paper's title. This
+figure is a schematic; Figure~\ref{fig:mechanismreal} is the same three scenes
+computed on a real instance.}
 \label{fig:mechanism}
 \end{figure}
 
@@ -665,6 +663,20 @@ p_1^{\mathrm{cond}}(\cdot\mid y^i)=\delta_{x^i}\quad\text{for every }\sigma\ge0.
 \end{equation}
 \end{proposition}
 
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.74\textwidth]{fig_interpolant.png}
+\caption{Why Proposition~\ref{prop:prop17} is structural rather than accidental. The
+flow is $x_t=t\,x^i+s_t\,x_0$ with $s_t^2=(1-t)^2+\gamma(t)^2$, so the endpoint is
+decided entirely by $s_1$. Interpolant noise widens the envelope in the middle of the
+interval---visibly so, and more for larger $\sigma$---but every schedule that is a
+valid interpolant must satisfy $\gamma(1)=0$, since otherwise the path never reaches
+the data. The envelope is therefore pinned to zero at $t=1$ for every $\sigma$, and
+the endpoint law is unchanged. The property that makes the noise admissible is the
+property that makes it inert.}
+\label{fig:interpolant}
+\end{figure}
+
 \begin{remark}[This is not an artefact of how we integrate]
 \label{rem:notsampler}
 Part (b) gives the flow in \emph{closed form}, $x_t=t\,x^i+s_t\,x_0$, and (c) follows
@@ -781,6 +793,24 @@ is then not an unexplained residual but the coefficient of the singularity the
 network cannot reproduce, and the collapse we measure over training
 (Table~\ref{tab:exp1}, Section~\ref{sec:cifarddpm}) is that coefficient shrinking.
 
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.92\textwidth]{fig_survival.png}
+\caption{Proposition~\ref{prop:survival}, drawn. \textbf{Left}: the deviation
+$|e_t|$ from the collapsed trajectory, for velocity errors growing like
+$(1-t)^{-a}$. The exact field's linear part is $-\tfrac{1}{1-t}I_d$, a contraction
+whose strength diverges, so an error only reaches the endpoint if it diverges at the
+same rate: curves with $a<1$ are driven to zero, the $a=1$ curve is the separatrix
+and flattens at the error's own coefficient, and $a>1$ grows without bound.
+\textbf{Right}: the deviation retained at a fixed truncation, against $a$. At any
+finite truncation this is a smooth curve---the threshold is a statement about the
+limit---and it crosses $O(1)$ at exactly $a=1$. The practical reading is that a
+bounded error is annihilated by the flow, so a model can keep conditional variance
+only by failing to reproduce the blow-up, which is the failure
+Remark~\ref{lem:norepr} says a finite Lipschitz network cannot avoid.}
+\label{fig:survival}
+\end{figure}
+
 The bound as stated is pathwise, integrating along the model's own trajectory,
 which is not a quantity anyone measures. It converts into the training loss with one
 extra hypothesis, and the conversion is worth spelling out because the hypothesis is
@@ -889,6 +919,23 @@ measurement, not a prediction: nothing in the theory determines $\beta(t)$, and 
 characterisation of the collapse time as a function of $N$, $d$ and capacity, in a
 regime where training is analytically tractable, remains the main thing missing from
 this account.
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.94\textwidth]{fig_mechanism.png}
+\caption{The same three scenes as Figure~\ref{fig:mechanism}, now computed rather
+than drawn: $160$ trajectories integrated with RK4 under each \emph{exact population}
+field on the real $d{=}2$ instance ($N{=}200$), the true posterior shaded, the
+training atoms black. The middle panel's bandwidth is not chosen for looks---it is
+found by bisection so that $\tr\Covh(y)=\tr\Sigmapost$ to four decimals
+($h^\star=0.703$, $1.0040$ against $1.0040$), so the generated law has \emph{exactly}
+the right conditional variance while remaining supported on the training atoms. The
+lower row projects all three laws onto the posterior's principal axis against its
+density: a single spike, a forest of spikes spanning the right range, and a
+continuum. Matching the second moment and matching the distribution are different
+things, and the middle column is the difference.}
+\label{fig:mechanismreal}
+\end{figure}
 
 % ==========================================================================
 \section{Experiments}
@@ -2260,6 +2307,20 @@ Nothing here is new; each block was moved out of the body for length, and the
 body states the claim it supports. They appear in the order the main text
 raises them.
 
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.72\textwidth]{fig_window.png}
+\caption{The bandwidth window of Proposition~\ref{prop:nearduplicate}. With labels
+in clusters of size $|C|$ at within-cluster scale $\varepsilon$ and between-cluster
+scale $\Delta$, $n_{\mathrm{eff}}$ plateaus at $|C|$ exactly while
+$\varepsilon\ll h\ll\Delta$: the model behaves as though conditioned on the cluster,
+and the effective sample size counts the cluster rather than the dataset. The
+lowest curve is the case that matters for the hypothesis---clusters loose relative
+to their separation ($\varepsilon=0.3$)---where there is \emph{no} plateau at all
+and $n_{\mathrm{eff}}$ runs from $1$ to $N$ with no usable $h$ in between.}
+\label{fig:window}
+\end{figure}
+
 % ---- near-duplicate proposition ----
 \begin{proposition}[Near-duplicate labels]
 \label{prop:nearduplicate}
@@ -2488,6 +2549,22 @@ atom to $x^*$ is unique, and write $i^*=\arg\min_j|x^*-x^j|$. Then
 So guidance can change \emph{which} atom is reached once the label is smoothed---the
 choice of $i^*$ depends on the trajectory, hence on $w$---but never reaches anything
 else, and under hard conditioning it cannot even do that.
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.94\textwidth]{fig_guidance.png}
+\caption{Proposition~\ref{prop:cfg}, drawn. \textbf{Left}: the component of the
+guided trajectory orthogonal to the affine hull of the training set, normalised by
+its initial value. For every guidance weight it lies exactly on $(1-t)$ over six
+decades---the identity $q_t=(1-t)q_0$ the proof turns on, which holds because the
+guided target is an affine combination of atoms and so is annihilated by the
+orthogonal projection. \textbf{Right}, in three dimensions because the result is
+about dimension: six atoms spanning a plane in $\R^3$, and trajectories started
+deliberately off that plane. Whatever $w$, they are pulled into it. When $N\le d$
+the hull is Lebesgue-null, so no guidance weight yields an absolutely continuous
+conditional law.}
+\label{fig:guidance}
+\end{figure}
 
 Two things are worth separating here. What Proposition~\ref{prop:cfg} proves is a
 statement about \emph{dimension}: guidance moves mass around inside a set of dimension
