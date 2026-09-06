@@ -24,7 +24,9 @@ import torch
 class InpaintingProblem:
     X: torch.Tensor          # (N, C, 32, 32) in [-1, 1]
     mask_obs: torch.Tensor   # (1, 32, 32) 1 = observed (top half), 0 = to inpaint
-    labels: torch.Tensor     # (N,) class/digit labels (for reference only)
+    labels: torch.Tensor     # (N,) class/digit labels
+    cond_kind: str = "inpaint"   # "inpaint": y = visible half; "class": y = one-hot
+    n_classes: int = 10
 
     @property
     def N(self) -> int:
@@ -37,7 +39,8 @@ class InpaintingProblem:
     @classmethod
     def create(cls, N: int, seed: int = 0, data_root: str = "data",
                mask_kind: str = "bottom_half",
-               dataset: str = "mnist") -> "InpaintingProblem":
+               dataset: str = "mnist",
+               cond_kind: str = "inpaint") -> "InpaintingProblem":
         from torchvision import datasets  # local import: heavy dependency
 
         if dataset == "mnist":
@@ -71,15 +74,42 @@ class InpaintingProblem:
             mask[:, 16:, :] = 1.0
         else:
             raise ValueError(mask_kind)
-        return cls(X=x, mask_obs=mask, labels=labels)
+        if cond_kind not in ("inpaint", "class"):
+            raise ValueError(f"Unknown cond_kind={cond_kind!r} (expected inpaint|class)")
+        return cls(X=x, mask_obs=mask, labels=labels, cond_kind=cond_kind,
+                   n_classes=int(labels.max().item()) + 1)
 
     # ------------------------------------------------------------------ #
     def observation(self, x: torch.Tensor) -> torch.Tensor:
         """y_obs = image with the inpainted region zeroed (kept top half)."""
         return x * self.mask_obs
 
-    def condition(self, x: torch.Tensor) -> torch.Tensor:
-        """Conditioning tensor fed to the U-Net: [observed image, mask]."""
+    def condition(self, x: torch.Tensor, rows=None) -> torch.Tensor:
+        """Conditioning tensor fed to the U-Net.
+
+        For ``cond_kind="inpaint"`` this is [observed image ; mask], and it is a
+        function of ``x`` alone. For ``cond_kind="class"`` it is the one-hot class
+        broadcast over the spatial grid -- which keeps the U-Net's
+        ``forward(x, t, cond)`` signature unchanged for the price of a few constant
+        channels -- and it is *not* a function of ``x``, so ``rows`` must say which
+        rows of ``self.labels`` the batch corresponds to. It defaults to all of them,
+        which is right when ``x`` is the whole of ``self.X``; callers passing a slice
+        must pass the matching slice here.
+        """
+        if self.cond_kind == "class":
+            lab = self.labels if rows is None else self.labels[rows]
+            if lab.shape[0] != x.shape[0]:
+                raise ValueError(
+                    f"condition(): {x.shape[0]} rows of x but {lab.shape[0]} labels; "
+                    "pass rows= matching the slice of X")
+            oh = torch.zeros(x.shape[0], self.n_classes, dtype=x.dtype,
+                             device=x.device)
+            oh[torch.arange(x.shape[0]), lab.to(x.device)] = 1.0
+            return oh[:, :, None, None].expand(-1, -1, x.shape[2], x.shape[3])
         obs = self.observation(x)
         mask = self.mask_obs.expand(x.shape[0], -1, -1, -1)
         return torch.cat([obs, mask], dim=1)             # (B, 2, 32, 32)
+
+    @property
+    def cond_channels(self) -> int:
+        return self.n_classes if self.cond_kind == "class" else self.channels + 1

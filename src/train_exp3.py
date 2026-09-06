@@ -83,6 +83,9 @@ def smooth_cond(cond: torch.Tensor, mask_obs: torch.Tensor, h: float,
     """
     if h <= 0.0:
         return cond
+    if mask_obs is None:            # class conditioning: every channel is signal
+        return cond + h * torch.randn(cond.shape, generator=gen,
+                                      device=cond.device, dtype=cond.dtype)
     C = cond.shape[1] - 1
     noise = torch.randn(cond.shape[0], C, *cond.shape[2:], generator=gen,
                         device=cond.device, dtype=cond.dtype)
@@ -100,6 +103,12 @@ def cond_vectors(problem) -> torch.Tensor:
     constant to every pairwise distance and change nothing, but they would make
     the reported dimension k meaningless.
     """
+    if getattr(problem, "cond_kind", "inpaint") == "class":
+        # One-hot: within a class the distance is 0, between classes sqrt(2), so
+        # the near-duplicate bounds hold with eps = 0 and Delta = sqrt(2).
+        oh = torch.zeros(problem.N, problem.n_classes)
+        oh[torch.arange(problem.N), problem.labels] = 1.0
+        return oh
     sel = problem.mask_obs.flatten().bool()                     # (32*32,)
     flat = problem.X.flatten(2)                                 # (N,C,1024)
     return flat[:, :, sel].flatten(1)                           # (N, C*|obs|)
@@ -125,7 +134,7 @@ def evaluate(model, problem, cfg, device, gen) -> dict:
     var_list, nn_list, obs_err = [], [], []
     trace_meas, trace_kern, ratio_kern, meanerr_kern, neff_list = [], [], [], [], []
     for i in idx:
-        cond1 = problem.condition(problem.X[i:i+1])
+        cond1 = problem.condition(problem.X[i:i+1], rows=slice(i, i + 1))
         samples = generate(model, cond1, M, n_steps, eps, source_std, gen, device,
                            channels=problem.channels)  # (M,C,32,32)
         # ---- kernel-theory reference (Thm 10 / Prop 13), in image space ----
@@ -199,7 +208,7 @@ def save_sample_grid(model, problem, cfg, device, path: Path, n_cond=4, M=6):
     Xdev = problem.X.to(device)
     C = problem.channels
     for r, i in enumerate(idx):
-        cond1 = problem.condition(problem.X[i:i+1])
+        cond1 = problem.condition(problem.X[i:i+1], rows=slice(i, i + 1))
         obs_img = (problem.observation(problem.X[i:i+1])[0]).cpu()
         samples = generate(model, cond1, M, cfg["eval"]["n_steps"], eps,
                            cfg["data"].get("source_std", 1.0), gen, device, channels=C)
@@ -240,19 +249,20 @@ def train(cfg: dict, out_root: str | Path) -> Path:
     problem = InpaintingProblem.create(N=dc["N"], seed=cfg["seed"],
                                        data_root=dc.get("data_root", "data"),
                                        mask_kind=dc.get("mask_kind", "bottom_half"),
-                                       dataset=dc.get("dataset", "mnist"))
+                                       dataset=dc.get("dataset", "mnist"),
+                                       cond_kind=dc.get("cond_kind", "inpaint"))
     C = problem.channels
     X = problem.X.to(device)
     cond_all = problem.condition(problem.X).to(device)       # (N,C+1,32,32)
 
     arch = cfg["model"].get("arch", "small")
     if arch == "small":
-        model = SmallUNet(in_channels=2 * C + 1, out_channels=C,
+        model = SmallUNet(in_channels=C + problem.cond_channels, out_channels=C,
                           base=cfg["model"].get("base", 32),
                           temb_dim=cfg["model"].get("temb_dim", 128)).to(device)
     elif arch == "ddpm":
         from .models.unet import UNet
-        model = UNet(in_channels=2 * C + 1, out_channels=C,
+        model = UNet(in_channels=C + problem.cond_channels, out_channels=C,
                      base=cfg["model"].get("base", 128),
                      ch_mult=tuple(cfg["model"].get("ch_mult", [1, 2, 2, 2])),
                      num_res_blocks=cfg["model"].get("num_res_blocks", 2),
@@ -304,7 +314,8 @@ def train(cfg: dict, out_root: str | Path) -> Path:
         tt = t[:, None, None, None]
         x_t = (1 - tt) * x0 + tt * x1
         target = x1 - x0
-        cond_b = smooth_cond(cond_all[idx], problem.mask_obs, y_noise_h, tgen)
+        cond_mask = None if problem.cond_kind == "class" else problem.mask_obs
+        cond_b = smooth_cond(cond_all[idx], cond_mask, y_noise_h, tgen)
         with torch.amp.autocast("cuda", enabled=use_amp):
             pred = model(x_t, t, cond_b)
             loss = ((target - pred) ** 2).mean()

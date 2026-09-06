@@ -31,14 +31,24 @@ def _log_kernel_weights(y_q: Tensor, Y: Tensor, h: float) -> Tensor:
     """Unnormalised log label-kernel weights log K_h(y_q − y^j), shape (N,).
 
     The kernel normalisation (2π h²)^{-k/2} is common to every atom and drops
-    out under the softmax, so it is omitted. For ``h == 0`` we return a hard
-    log-indicator on the nearest label (Corollary 11).
+    out under the softmax, so it is omitted.
+
+    For ``h == 0`` the weights concentrate on the nearest label, uniformly over
+    *every* atom attaining that minimum. With distinct labels that is a single
+    index (Corollary 11); with repeated labels -- class conditioning, say -- it is
+    the whole tied set, which is the empirical conditional support the duplicate-label
+    case of Proposition 2 collapses onto. Putting the mass on one arbitrary member
+    of a tie instead would report n_eff = 1 and a zero reference covariance where
+    the truth is the within-class scatter.
     """
     y_q, Y = _as_f64(y_q, Y)
     d2 = ((y_q[None, :] - Y) ** 2).sum(dim=-1)  # (N,)
     if h <= 0.0:
+        dmin = d2.min()
+        # Tolerance because the label vectors arrive through floating-point work.
+        tied = d2 <= dmin + 1e-12 * (1.0 + dmin.abs())
         log_w = torch.full_like(d2, -float("inf"))
-        log_w[int(d2.argmin())] = 0.0
+        log_w[tied] = 0.0
         return log_w
     return -0.5 * d2 / (h ** 2)
 
@@ -46,7 +56,8 @@ def _log_kernel_weights(y_q: Tensor, Y: Tensor, h: float) -> Tensor:
 def kernel_weights(y_q: Tensor, Y: Tensor, h: float) -> Tensor:
     """p_j^(h)(y_q) ∝ K_h(y_q − y^j).  y_q:(k,), Y:(N,k) -> (N,).
 
-    h == 0: point mass on argmin_j |y_q − y^j| (Corollary 11).
+    h == 0: uniform over argmin_j |y_q − y^j| -- a point mass when labels are
+    distinct (Corollary 11), the tied set when they repeat.
     """
     return torch.softmax(_log_kernel_weights(y_q, Y, h), dim=0)
 

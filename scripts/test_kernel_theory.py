@@ -24,7 +24,8 @@ import torch
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from src.flows.interpolants import closed_form_velocity  # noqa: E402
-from src.metrics.kernel_theory import (  # noqa: E402
+from src.metrics.kernel_theory import (
+    kernel_moments_trace,  # noqa: E402
     cov_expansion,
     kernel_field,
     kernel_trace_cov,
@@ -54,6 +55,25 @@ def main() -> None:
     check("Cor 11: h=0 -> one-hot at nearest label",
           int(w0.argmax()) == 37 and abs(float(w0.max()) - 1.0) < 1e-9,
           f"argmax={int(w0.argmax())}, max={float(w0.max()):.6f}")
+
+    # 1a. Duplicate labels: h=0 spreads uniformly over the tied set, which is the
+    #     empirical conditional support of the duplicate-label case. With distinct
+    #     labels this reduces to the one-hot above.
+    lab = torch.tensor([0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2])
+    Yc = torch.zeros(12, 3, dtype=torch.float64)
+    Yc[torch.arange(12), lab] = 1.0
+    Xc = torch.randn(12, 5, dtype=torch.float64, generator=torch.Generator().manual_seed(0))
+    wt = kernel_weights(Yc[5], Yc, h=0.0)
+    check("duplicate labels: h=0 -> uniform on the tied class",
+          bool(torch.allclose(wt[4:8], torch.full((4,), 0.25, dtype=torch.float64)))
+          and float(wt.sum()) - float(wt[4:8].sum()) < 1e-12,
+          f"class weights={[round(float(v), 4) for v in wt[4:8]]}")
+    _, tr_tied, ne_tied = kernel_moments_trace(Yc[5], Xc, Yc, h=0.0)
+    sub = Xc[4:8]
+    want = float(((sub - sub.mean(0)) ** 2).sum(1).mean())
+    check("duplicate labels: n_eff = class size, tr Cov_0 = within-class scatter",
+          abs(ne_tied - 4.0) < 1e-9 and abs(tr_tied - want) < 1e-9,
+          f"n_eff={ne_tied:.4f} (want 4), tr={tr_tied:.6f} (want {want:.6f})")
 
     # 1a'. small-but-positive h still concentrates on nearest label
     w_small = kernel_weights(y_q, Y, h=1e-3)

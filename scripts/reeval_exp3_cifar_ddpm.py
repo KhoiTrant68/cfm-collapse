@@ -77,7 +77,8 @@ def reeval(run: str, M: int, n_cond: int, device,
     problem = InpaintingProblem.create(N=dc["N"], seed=cfg["seed"],
                                        data_root=dc.get("data_root", "data"),
                                        mask_kind=dc.get("mask_kind", "bottom_half"),
-                                       dataset=dc.get("dataset", "mnist"))
+                                       dataset=dc.get("dataset", "mnist"),
+                                       cond_kind=dc.get("cond_kind", "inpaint"))
     C = problem.channels
     model = build_model(cfg, C, device)
     model.load_state_dict(torch.load(ck, map_location=device)["model_state"])
@@ -97,7 +98,7 @@ def reeval(run: str, M: int, n_cond: int, device,
     ratios, halves, tr_meas, tr_kern, mean_errs, neffs = [], [], [], [], [], []
     nn_correct, memratios, obs_pred, obs_meas = [], [], [], []
     for i in idx:
-        cond1 = problem.condition(problem.X[i:i + 1])
+        cond1 = problem.condition(problem.X[i:i + 1], rows=slice(i, i + 1))
         s = generate(model, cond1, M, ev["n_steps"], ev.get("ode_eps", 1e-3),
                      dc.get("source_std", 1.0), gen, device, channels=C)
         sf = s.flatten(1).to(torch.float64)                       # (M,d)
