@@ -136,7 +136,22 @@ bandwidth is the flow time $1-t$, sharpening to a nearest-neighbour rule as $t\t
 is the other factor of the same product \eqref{eq:kernel-field}: our subject is the
 \emph{label} factor $K_h(y-y^i)$, whose bandwidth is a modelling choice rather than a
 consequence of the clock, and what we extract from it is the endpoint law and its moments
-rather than the field. The two readings compose; neither implies the other. On
+rather than the field. The two readings compose; neither implies the other. The sharpest way to see that
+they are not the same result applied to opposite halves of a product is to ask what
+each factor can be used for. The spatial factor is imposed by the clock: its
+bandwidth is $1-t$, it is common to the conditional and unconditional fields alike,
+and it cannot be tuned, swept, or removed. The label factor is a modelling choice,
+and everything this paper extracts follows from that: an $h$-indexed family with a
+parameter-free reference curve to audit against (Proposition~\ref{prop:moments}), the
+two limits $h\to0$ and $h\to\infty$ (Corollaries~\ref{cor:zerobw}
+and~\ref{cor:infbw}), a bandwidth window set by the geometry of the labels
+(Proposition~\ref{prop:nearduplicate}), and an $h$-independent obstruction, which is a
+statement about the whole family and so needs a family to state
+(Proposition~\ref{prop:atomicity}). Classifier-free guidance is the cleanest case:
+the conditional and unconditional fields differ in exactly one place---the label
+factor, since the spatial factor is identical in both---so guidance is
+\emph{entirely} a label-factor phenomenon, and Propositions~\ref{prop:cfg}
+and~\ref{prop:cfgatom} are not available from a reading of the other factor at all. On
 the other side, adding Gaussian noise to a conditioning signal is standard practice and
 not something we propose: it is the conditioning augmentation of \citet{ho2022cascaded},
 and \citet{sadat2024cads} anneal exactly such noise at inference \emph{for the express
@@ -1067,13 +1082,24 @@ or with an anisotropic $\rho$. Finally, P5/P6 are empirical
 findings the theory does not determine, and the checkpoint-based tables require
 retraining the $p7y$ runs.
 
-\paragraph{We do not benchmark against the remedies practitioners use.} Early
-stopping, weight averaging, condition dropout, caption randomisation and guidance
-scale are all deployed against this symptom and we compare against none of them; our
-claim is diagnostic, not prescriptive. Caption randomisation is the one case where the
-analysis makes a concrete prediction---it is label smoothing, so
-Theorem~\ref{thm:endpoint} applies and the atomicity ceiling binds it---and testing
-that against practice is the obvious next experiment.
+\paragraph{Where the standard remedies stand.} Five interventions are deployed
+against this symptom in practice, and the account here settles three of them without
+new experiments. \emph{Guidance} is inert: it cannot leave the affine hull of the
+training set at any weight, and under hard conditioning it returns the conditioned
+atom itself (Propositions~\ref{prop:cfg} and~\ref{prop:cfgatom}). \emph{Caption
+randomisation} is label smoothing, so Theorem~\ref{thm:endpoint} describes it exactly
+and the atomicity ceiling binds it. \emph{Condition dropout} replaces the label by a
+null token with some probability during training; conditionally on a real label the
+minimiser of Proposition~\ref{prop:projection} is unchanged, so it does not move the
+conditional endpoint either---what it does is supply the unconditional field that
+guidance then combines. \emph{Early stopping} we measure: the aggregate ratio at
+$h{=}6$ passes through $0.98$ at $8000$ iterations and drifts to $1.18$ by $60000$,
+so stopping early does recover the kernel prediction almost exactly, at a bandwidth
+where the run cannot hold it (Appendix~\ref{app:deferred}). At $h{=}4$ it never
+arrives within the budget, falling only to $2.26$. \emph{Weight averaging} we have
+not analysed or tested. So the claim is prescriptive for four of the five and silent
+on the fifth; what we still do not offer is a comparison at matched sample quality,
+which is the axis a practitioner actually trades against.
 
 % ==========================================================================
 \section{Conclusion}
