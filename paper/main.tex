@@ -45,6 +45,7 @@
 \newcommand{\Xhat}{\widehat{\Sigma}_X}
 \newcommand{\rhohat}{\widehat{\rho}}
 \newcommand{\vstar}{v_h^\star}
+\newcommand{\vstarz}{v_0^\star}
 \newcommand{\Covh}{\operatorname{Cov}_h}
 
 \title{Restored Variance Is Not a Restored Posterior:\\
@@ -708,6 +709,62 @@ reweighting the same atoms, so the atomicity ceiling still binds
 training set (Proposition~\ref{prop:tgtnoise}), and it pays $+\rho^2I_d$ of variance to
 do it. That ordering---inert, inert, reweighting, support-moving---is the practical
 content of the theory.
+
+\subsection{What survives the flow: from velocity error to retained variance}
+\label{sec:survival}
+
+The results so far describe the population minimiser; none says what happens to a
+model that is merely \emph{close} to it. That is the gap between the paper and the
+phenomenon, because collapse in practice is paced by optimisation, and ``paced''
+has so far been an observation rather than a rate. The following closes it, and the
+answer is a contraction estimate rather than the growth estimate one might expect.
+
+\begin{proposition}[Error survival]
+\label{prop:survival}
+Fix $i$, let $h=0$ with distinct labels, and let $v$ be any locally Lipschitz field.
+Write $\Delta(x,t):=v(x,t,y^i)-\vstarz(x,t,y^i)$ for its error against the exact
+collapsed field, let $x^v_t$ solve $\dot x_t=v(x_t,t,y^i)$ from $x_0$, and let
+$x^\star_t=(1-t)x_0+tx^i$ be the exact trajectory from the same $x_0$. Then for
+$t<1$, with $e_t:=x^v_t-x^\star_t$,
+\begin{equation}
+|e_t|\;\le\;(1-t)\int_0^t\frac{|\Delta(x^v_s,s)|}{1-s}\,ds .
+\label{eq:survival}
+\end{equation}
+Consequently:
+\begin{enumerate}[label=(\alph*),leftmargin=2em]
+\item \emph{(bounded errors do not survive)} if
+  $\int_0^t|\Delta(x^v_s,s)|^2ds\le\varepsilon^2$ then
+  $|e_t|\le\varepsilon\sqrt{(1-t)t}\le\varepsilon\sqrt{1-t}$, so a sampler stopping
+  at $t=1-\delta$ has $|e_{1-\delta}|\le\varepsilon\sqrt\delta$, which vanishes with
+  $\delta$ \emph{for every} finite $\varepsilon$;
+\item \emph{(the threshold)} if $|\Delta(x,t)|\le c\,(1-t)^{-a}$ with $a>0$, $a\ne1$,
+  then $|e_t|\le\frac{c}{a}\big((1-t)^{1-a}-(1-t)\big)$, and for $a=1$,
+  $|e_t|\le c\,t\le c$. So $\sup_{t<1}|e_t|$ vanishes when $a<1$, is at most $c$ when
+  $a=1$, and is unbounded when $a>1$.
+\end{enumerate}
+\end{proposition}
+
+The reading is that the collapsed field is \emph{self-enforcing}. Its linear part is
+$-\tfrac{1}{1-t}I_d$, a contraction whose strength diverges as $t\to1$, and that
+contraction annihilates any perturbation that does not itself diverge at rate
+$1/(1-t)$. A model can therefore retain conditional variance only by being wrong in
+one specific way---by failing to reproduce the $1/(1-t)$ blow-up---and the deviation
+it keeps is, to leading order, the coefficient of that failure.
+
+This closes a loop the paper already had open. Remark~\ref{lem:norepr} observes that
+no finite network with globally Lipschitz activations represents $1/(1-t)$ pointwise
+on $[0,1)$; Proposition~\ref{prop:survival} says that this failure is the \emph{only}
+route to nonzero conditional variance under hard conditioning. The observed plateau
+is then not an unexplained residual but the coefficient of the singularity the
+network cannot reproduce, and the collapse we measure over training
+(Table~\ref{tab:exp1}, Section~\ref{sec:cifarddpm}) is that coefficient shrinking.
+
+Two limits should be stated plainly. The integral in \eqref{eq:survival} is along the
+model's own trajectory, whereas the training loss is an expectation over the
+interpolant's law; converting one into the other needs control of a density ratio
+that we do not supply, so this is a statement about pathwise error and not yet about
+the loss. And it bounds the deviation from the \emph{collapsed} trajectory, so it
+constrains how much variance can survive, not what the surviving law looks like.
 
 \subsection{Finite capacity}
 \label{sec:theory-capacity}
@@ -1916,6 +1973,51 @@ Proposition~\ref{prop:cfgatom} assumes and Proposition~\ref{prop:cfg} does not: 
 the trajectory converges. Proposition~\ref{prop:cfg}'s conclusion---support in the
 affine hull---holds unconditionally, by the exact identity $q_t=(1-t)q_0$.
 \end{remark}
+
+\begin{proof}[Proof of Proposition~\ref{prop:survival}]
+Both trajectories start at $x_0$, so $e_0=0$. Since
+$\vstarz(x,t,y^i)=(x^i-x)/(1-t)$ is affine in $x$ with linear part
+$-\tfrac{1}{1-t}I_d$,
+\[
+\dot e_t=v(x^v_t,t,y^i)-\vstarz(x^\star_t,t,y^i)
+=\Delta(x^v_t,t)+\big[\vstarz(x^v_t,t,y^i)-\vstarz(x^\star_t,t,y^i)\big]
+=\Delta(x^v_t,t)-\frac{e_t}{1-t}.
+\]
+The bracketed term is a \emph{contraction}, which is what makes the estimate go the
+way it does. The map $t\mapsto|e_t|$ is locally Lipschitz, hence differentiable a.e.,
+and wherever $e_t\ne0$,
+\[
+\frac{d}{dt}|e_t|=\frac{\langle e_t,\dot e_t\rangle}{|e_t|}
+=\frac{\langle e_t,\Delta(x^v_t,t)\rangle}{|e_t|}-\frac{|e_t|}{1-t}
+\;\le\;|\Delta(x^v_t,t)|-\frac{|e_t|}{1-t}
+\]
+by Cauchy--Schwarz; where $e_t=0$ the same inequality holds for the upper Dini
+derivative. Put $u_t:=|e_t|/(1-t)$, which is absolutely continuous on $[0,T]$ for
+every $T<1$ with $u_0=0$. Then a.e.
+\[
+\dot u_t=\frac{1}{1-t}\frac{d}{dt}|e_t|+\frac{|e_t|}{(1-t)^2}
+\;\le\;\frac{|\Delta(x^v_t,t)|}{1-t}-\frac{|e_t|}{(1-t)^2}+\frac{|e_t|}{(1-t)^2}
+=\frac{|\Delta(x^v_t,t)|}{1-t},
+\]
+the two $|e_t|$ terms cancelling exactly. Integrating from $0$ to $t$ and multiplying
+by $(1-t)$ gives \eqref{eq:survival}.
+
+(a) By Cauchy--Schwarz applied to \eqref{eq:survival},
+\[
+|e_t|\le(1-t)\Big(\int_0^t|\Delta|^2ds\Big)^{1/2}
+\Big(\int_0^t\frac{ds}{(1-s)^2}\Big)^{1/2}
+\le(1-t)\,\varepsilon\,\Big(\frac{1}{1-t}-1\Big)^{1/2}
+=\varepsilon\sqrt{(1-t)\,t},
+\]
+using $\int_0^t(1-s)^{-2}ds=\frac{1}{1-t}-1=\frac{t}{1-t}$. Setting $t=1-\delta$
+gives $|e_{1-\delta}|\le\varepsilon\sqrt{\delta(1-\delta)}\le\varepsilon\sqrt\delta$.
+
+(b) For $a\ne1$, $\int_0^t(1-s)^{-1-a}ds=\frac{1}{a}\big((1-t)^{-a}-1\big)$, so
+\eqref{eq:survival} gives
+$|e_t|\le\frac{c}{a}\big((1-t)^{1-a}-(1-t)\big)$. As $t\uparrow1$ this tends to $0$
+when $a<1$ and diverges when $a>1$. For $a=1$, $\int_0^t(1-s)^{-2}ds=\frac{t}{1-t}$
+and \eqref{eq:survival} gives $|e_t|\le c\,t\le c$.
+\end{proof}
 
 \section{Finite-sample memorisation and exact non-representability}
 \label{sec:theory-d2}
