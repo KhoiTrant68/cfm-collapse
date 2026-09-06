@@ -192,16 +192,26 @@ def bandwidth_2d(frames=64, fps=12):
     print(f"  {out.name}")
 
 
-# ------------------------------------------------------------------ rotating 3-d
-def guidance_3d(n_az=60, fps=14, n_steps=8000):
+# ------------------------------------------------------- guidance, over the clock
+def guidance_3d(fps=14, n_steps=6000, n_keep=90):
+    """Animate the clock, not the camera.
+
+    The first version of this rotated a finished picture, so the only thing moving
+    was the viewpoint and a viewer had no way to tell what was supposed to be
+    happening. What the proposition says is that the component of the trajectory
+    orthogonal to the affine hull of the atoms obeys q_t = (1-t) q_0 exactly, so the
+    thing to animate is time, and the thing to draw is height above the hull. Each
+    point therefore carries a dropped line to the plane, and the side panel tracks
+    that height against (1-t) as the clock runs.
+    """
     rng = np.random.default_rng(0)
     N, h = 6, 0.6
     X = rng.normal(size=(N, 2)) * 1.5
     Y = rng.normal(size=(N, 1))
     i = 2
     y = Y[i].copy()
-    X3 = np.concatenate([X, np.zeros((N, 1))], 1)
-    ts = 1.0 - np.geomspace(1.0, 1e-6, n_steps + 1)
+    X3 = np.concatenate([X, np.zeros((N, 1))], 1)      # atoms span the z = 0 plane
+    ts = 1.0 - np.geomspace(1.0, 1e-4, n_steps + 1)
 
     def path(w, x0):
         x, out = x0.copy(), [x0.copy()]
@@ -215,39 +225,76 @@ def guidance_3d(n_az=60, fps=14, n_steps=8000):
             m = (1 + w) * (wc @ X3) - w * (qq @ X3)
             x = x + dt * (m - x) / (1 - a)
             out.append(x.copy())
-        return np.stack(out)[::40]
+        return np.stack(out)
 
-    starts = rng.normal(size=(6, 3)) * 1.7
-    paths = {w: [path(w, s) for s in starts] for w in (0.0, 15.0)}
+    # Start well off the plane so the height is the visible variable.
+    starts = np.concatenate([rng.normal(size=(4, 2)) * 1.6,
+                             np.array([[2.0], [-2.4], [1.7], [-1.5]])], 1)
+    weights = ((0.0, OI["blue"]), (15.0, OI["vermillion"]))
+    paths = {w: np.stack([path(w, s0) for s0 in starts]) for w, _ in weights}
 
-    fig = plt.figure(figsize=(6.2, 5.2))
-    ax = fig.add_subplot(projection="3d")
-    gx = np.linspace(X3[:, 0].min() - 1.2, X3[:, 0].max() + 1.2, 2)
-    gy = np.linspace(X3[:, 1].min() - 1.2, X3[:, 1].max() + 1.2, 2)
+    idx = np.unique(np.geomspace(1, len(ts) - 1, n_keep).astype(int))
+    fig = plt.figure(figsize=(12.0, 5.0))
+    gs = fig.add_gridspec(1, 2, width_ratios=[1.35, 1.0], wspace=0.18)
+    ax = fig.add_subplot(gs[0], projection="3d")
+    axh = fig.add_subplot(gs[1])
+    gx = np.linspace(X3[:, 0].min() - 1.4, X3[:, 0].max() + 1.4, 2)
+    gy = np.linspace(X3[:, 1].min() - 1.4, X3[:, 1].max() + 1.4, 2)
     GX, GY = np.meshgrid(gx, gy)
+    zmax = max(abs(paths[w][:, :, 2]).max() for w, _ in weights) * 1.05
+
+    for w, c in weights:
+        hh = np.abs(paths[w][:, :, 2])
+        axh.plot(1 - ts, (hh / hh[:, :1]).mean(0), color=c, lw=1.6,
+                 label=f"height above the hull, $w={w:g}$")
+    axh.plot(1 - ts, 1 - ts, color=OI["black"], ls="--", lw=1.4,
+             label=r"$(1-t)$, what the proof predicts")
+    hmark = axh.axvline(1 - ts[idx[0]], color=OI["black"], lw=1.1)
+    axh.set_xscale("log"); axh.set_yscale("log"); axh.invert_xaxis()
+    axh.set_xlabel(r"$1-t$  (time remaining)"); axh.grid(alpha=0.3)
+    axh.set_ylabel(r"$|q_t| / |q_0|$")
+    axh.legend(fontsize=8, loc="lower left")
+    axh.set_title("the height obeys $(1-t)$ exactly, for every $w$", fontsize=10.5,
+                  pad=12)
+    # PillowWriter saves the canvas as-is, with no tight bounding box, so a
+    # suptitle above y=1 is simply cut off.
+    sup = fig.suptitle("", fontsize=12.5, y=0.985)
+    fig.subplots_adjust(top=0.84, bottom=0.13, left=0.02, right=0.97)
 
     def update(k):
+        kk = idx[k]
         ax.clear()
-        ax.plot_surface(GX, GY, np.zeros_like(GX), alpha=0.17, color=OI["sky"],
+        ax.plot_surface(GX, GY, np.zeros_like(GX), alpha=0.20, color=OI["sky"],
                         edgecolor="none")
-        for w, c in ((0.0, OI["sky"]), (15.0, OI["vermillion"])):
-            for j, tr in enumerate(paths[w]):
-                ax.plot(tr[:, 0], tr[:, 1], tr[:, 2], color=c, lw=1.1, alpha=0.8,
-                        label=(f"trajectory, $w={w:g}$" if j == 0 else None))
-                ax.scatter(*tr[-1], s=28, color=c)
-        ax.scatter(X3[:, 0], X3[:, 1], X3[:, 2], s=44, color=OI["black"],
-                   label="training atoms")
-        ax.scatter(*X3[i], marker="*", s=260, color=OI["blue"],
+        # Hollow, so a trajectory landing on an atom stays visible inside it.
+        ax.scatter(X3[:, 0], X3[:, 1], X3[:, 2], s=110, facecolors="none",
+                   edgecolors=OI["black"], linewidths=1.4, depthshade=False,
+                   label="training atoms (they span the plane)")
+        ax.scatter(*X3[i], marker="*", s=280, color=OI["green"], depthshade=False,
                    label="conditioned atom")
+        for w, c in weights:
+            P = paths[w][:, kk, :]
+            for q in P:                      # a dropped line makes height visible
+                ax.plot([q[0], q[0]], [q[1], q[1]], [0.0, q[2]], color=c, lw=0.9,
+                        alpha=0.55)
+            ax.scatter(P[:, 0], P[:, 1], P[:, 2], s=34, color=c, depthshade=False,
+                       label=f"$w={w:g}$")
+        ax.set_zlim(-zmax, zmax)
         ax.set_xticks([]); ax.set_yticks([]); ax.set_zticks([])
-        ax.view_init(elev=16 + 8 * np.sin(2 * np.pi * k / n_az), azim=-60 + 360 * k / n_az)
-        ax.set_title("guidance cannot leave the affine hull", fontsize=11)
-        ax.legend(fontsize=7.5, loc="upper left")
+        ax.set_zlabel("distance from the hull", fontsize=8.5, labelpad=-9)
+        ax.view_init(elev=17, azim=-62)
+        ax.set_title("whatever $w$, the flow is pulled onto the hull", fontsize=10.5,
+                     pad=12)
+        ax.legend(fontsize=7.2, loc="upper left")
+        hmark.set_xdata([1 - ts[kk], 1 - ts[kk]])
+        mean_h = np.mean([np.abs(paths[w][:, kk, 2]).mean() for w, _ in weights])
+        sup.set_text(f"$t = {ts[kk]:.5f}$        "
+                     f"mean distance from the hull $= {mean_h:.4f}$")
         return []
 
-    anim = animation.FuncAnimation(fig, update, frames=n_az, blit=False)
+    anim = animation.FuncAnimation(fig, update, frames=len(idx), blit=False)
     out = FIGS / "anim_guidance_3d.gif"
-    anim.save(out, writer=animation.PillowWriter(fps=fps))
+    anim.save(out, writer=animation.PillowWriter(fps=fps), dpi=100)
     plt.close(fig)
     print(f"  {out.name}")
 

@@ -149,7 +149,7 @@ def fig_p7_summary():
     ax1.errorbar(x, meas_m, yerr=meas_s, marker="o", color=OI["blue"],
                  capsize=3, label=r"measured $\mathrm{tr}\,\mathrm{Cov}$ (5 seeds)")
     ax1.plot(x, kern, marker="s", color=OI["vermillion"], ls="--",
-             label=r"kernel target $\mathrm{tr}\,\mathrm{Cov}_h$ (Thm 2)")
+             label=r"kernel target $\mathrm{tr}\,\mathrm{Cov}_h$ (endpoint theorem)")
     ax1.plot(x, post, marker="^", color=OI["green"], ls=":",
              label=r"$\mathrm{tr}\,\Sigma_{\mathrm{post}}$")
     ax1.set_xticks(x); ax1.set_xticklabels(labels)

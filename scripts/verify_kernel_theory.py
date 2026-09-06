@@ -139,11 +139,11 @@ def main():
 
     hs = [t[0] for t in summ]
     ax1.errorbar(hs, [t[1] for t in summ], yerr=[t[2] for t in summ], fmt="o-",
-                 color="C0", capsize=3, label="v_θ vs kernel field (8.1)")
+                 color="C0", capsize=3, label="v_θ vs the kernel field")
     ax1.errorbar(hs, [t[3] for t in summ], yerr=[t[4] for t in summ], fmt="s--",
                  color="C3", capsize=3, label="v_θ vs collapse field (★)")
     ax1.set_xlabel("label-noise bandwidth h"); ax1.set_ylabel("relative L2 velocity error")
-    ax1.set_title("(8.1) learned field matches kernel minimiser")
+    ax1.set_title("learned field matches the kernel minimiser")
     ax1.legend(); ax1.grid(alpha=0.3)
 
     fig_seed = next(s for s in SEEDS if (0.5, s) in cache)
@@ -154,7 +154,7 @@ def main():
     ax2.bar([i + 0.2 for i in xpos], q[topk], width=0.4, label="empirical (generated)", color="C1")
     ax2.set_xticks(list(xpos)); ax2.set_xticklabels([int(j) for j in topk], fontsize=7)
     ax2.set_xlabel("training index j (top weights)"); ax2.set_ylabel("weight")
-    ax2.set_title(f"(10.1) mixture weights, h=0.5 (TV={tv:.3f})"); ax2.legend()
+    ax2.set_title(f"mixture weights, h=0.5 (TV={tv:.3f})"); ax2.legend()
 
     ax3.scatter(samples[:, 0], samples[:, 1], s=5, alpha=0.15, color="C1", label="generated")
     sizes = 20 + 600 * (p / p.max())
@@ -165,7 +165,8 @@ def main():
     ax3.set_title("generated samples land on kernel-weighted train pts")
     ax3.legend(fontsize=7); ax3.set_aspect("equal", "datalim"); ax3.grid(alpha=0.3)
 
-    fig.suptitle("Numerical verification of label-smoothing = kernel regression (Prop 8 / Thm 10)")
+    fig.suptitle("Numerical verification: label smoothing is exactly kernel regression
+(the kernel-field proposition and the endpoint theorem)")
     fig.tight_layout(); fig.savefig(out / "kernel_theory_verification.png", dpi=140)
     print(f"\nwrote {out_raw / 'kernel_verification.csv'} and {out / 'kernel_theory_verification.png'}")
 

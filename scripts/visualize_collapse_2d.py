@@ -73,7 +73,10 @@ def main():
     ap.add_argument("--n-conditions", type=int, default=4)
     ap.add_argument("--M", type=int, default=600)
     ap.add_argument("--zoom", type=float, default=0.4,
-                    help="half-width of the per-panel inset window around x^i")
+                    help="fixed inset half-width. The default reproduces the figure in the "
+                         "paper, whose caption quotes it; pass 0 to scale the window to "
+                         "each cluster instead, which is better when the traces span "
+                         "orders of magnitude.")
     ap.add_argument("--out", default=None)
     args = ap.parse_args()
 
@@ -91,6 +94,23 @@ def main():
     ncol = len(idx)
     fig, axes = plt.subplots(1, ncol, figsize=(4.0 * ncol, 4.2), squeeze=False)
     cov = prob.Sigma_post.numpy()
+
+    trace_post = float(np.trace(cov))
+
+    # Pre-pass: one axis range for every panel, so the four are comparable. Panels
+    # that each auto-scale look like four different experiments.
+    _all = []
+    for i in idx:
+        y_i = Y[i]
+        _all.append(generate_samples(
+            m_early, args.M, 2, y_i, source_std=cfg["data"].get("source_std", 1.0),
+            n_steps=100, method="rk4",
+            generator=torch.Generator().manual_seed(args.seed)).numpy())
+        _all.append(X[i].numpy()[None, :])
+    _all = np.concatenate(_all, 0)
+    pad = 0.12 * (_all.max(0) - _all.min(0))
+    shared = (_all[:, 0].min() - pad[0], _all[:, 0].max() + pad[0],
+              _all[:, 1].min() - pad[1], _all[:, 1].max() + pad[1])
 
     for col, i in enumerate(idx):
         ax = axes[0][col]
@@ -114,7 +134,8 @@ def main():
         ax.scatter([x_i[0]], [x_i[1]], marker="*", s=220, facecolor="none",
                    edgecolor="goldenrod", lw=1.6, zorder=6, label="x^i (train)")
         ax.set_title(f"condition i={i}")
-        ax.set_aspect("equal", "datalim")
+        ax.set_xlim(shared[0], shared[1]); ax.set_ylim(shared[2], shared[3])
+        ax.set_aspect("equal")
         if col == 0:
             ax.legend(fontsize=7, loc="upper left")
         ax.grid(alpha=0.3)
@@ -123,7 +144,11 @@ def main():
         # can reach ~1e-4), so the red cloud is a sub-pixel dot on the main axes.
         # An inset zoomed to the late cluster is what actually shows the collapse.
         tr_cov = float(s_l.var(axis=0).sum())
-        half = args.zoom  # fixed window so panels are directly comparable
+        # Scale the window to the cluster. A fixed window cannot serve clusters
+        # whose traces span three orders of magnitude: the tight ones become a dot
+        # and the loose ones fill the frame, which misreads as "no collapse".
+        sd = float(np.sqrt(max(tr_cov, 1e-12)))
+        half = max(4.0 * sd, 1e-3) if args.zoom <= 0 else args.zoom
         axin = ax.inset_axes([0.56, 0.04, 0.42, 0.42])
         axin.scatter(s_l[:, 0], s_l[:, 1], s=8, alpha=0.5, color="C3", zorder=4)
         axin.scatter([x_i[0]], [x_i[1]], marker="*", s=200, facecolor="none",
@@ -133,9 +158,20 @@ def main():
         axin.set_xticks([]); axin.set_yticks([])
         for sp in axin.spines.values():
             sp.set_edgecolor("0.4")
-        axin.text(0.04, 0.04, f"zoom ±{half:g}\ntr Cov={tr_cov:.1e}",
+        # A scale bar, because the window is no longer the same in every panel.
+        bar = 10.0 ** np.floor(np.log10(half))
+        if bar > half:
+            bar /= 10.0
+        x0b = x_i[0] - half + 0.10 * (2 * half)
+        y0b = x_i[1] - half + 0.16 * (2 * half)
+        axin.plot([x0b, x0b + bar], [y0b, y0b], color="0.25", lw=2.0, zorder=8)
+        axin.text(x0b + bar / 2, y0b + 0.03 * (2 * half), f"{bar:g}", fontsize=6.5,
+                  ha="center", va="bottom", color="0.25", zorder=8)
+        axin.text(0.04, 0.80, f"tr Cov = {tr_cov:.1e}\n"
+                              f"= {tr_cov / trace_post * 100:.2g}% of "
+                              f"tr $\\Sigma_{{post}}$",
                   transform=axin.transAxes, fontsize=6.5, va="bottom", ha="left",
-                  bbox=dict(boxstyle="round,pad=0.2", fc="white", ec="none", alpha=0.75))
+                  bbox=dict(boxstyle="round,pad=0.2", fc="white", ec="none", alpha=0.8))
 
     fig.suptitle("Posterior collapse onto the memorized training point (d=2)")
     fig.tight_layout()
