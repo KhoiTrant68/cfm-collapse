@@ -656,8 +656,7 @@ conditional law absolutely continuous.
 Proposition~\ref{prop:cfg} is a statement about \emph{dimension}, decisive when
 $N\le d$ and vacuous when $N>d$. Integrating the exact guided field shows something
 stronger---endpoints land on the atoms themselves, and larger $w$ changes \emph{which}
-atom is reached---which we report as measured rather than proved
-(Appendix~\ref{app:deferred}).
+atom is reached (Proposition~\ref{prop:cfgatom}).
 
 The practical reading is that guidance belongs with interpolant noise rather than with
 label smoothing. Of the four interventions considered in this paper, two leave the
@@ -1728,6 +1727,85 @@ Summing and inverting gives (c). The limits follow since $\kappa\to1$ and $\eta\
 under the stated regime.
 \end{proof}
 
+\begin{proof}[Proof of Proposition~\ref{prop:cfgatom}]
+Throughout, $x_t\to x^*$ is the hypothesis, and $m_w(x,t)$ is as in
+\eqref{eq:cfgfield}, so $\dot x_t=(m_w(x_t,t)-x_t)/(1-t)$.
+
+\emph{Step 1: if $m_w(x_t,t)$ converges, its limit is $x^*$.} Suppose
+$m_w(x_t,t)\to m^*$ with $m^*\ne x^*$, and set $u=(m^*-x^*)/|m^*-x^*|$ and
+$c=|m^*-x^*|/2>0$. Since $m_w(x_t,t)-x_t\to m^*-x^*$, there is $t_0<1$ with
+$\langle m_w(x_t,t)-x_t,\,u\rangle\ge c$ for all $t\in[t_0,1)$. Then
+\[
+\frac{d}{dt}\langle x_t,u\rangle=\frac{\langle m_w(x_t,t)-x_t,\,u\rangle}{1-t}
+\;\ge\;\frac{c}{1-t},
+\qquad t\in[t_0,1),
+\]
+and integrating, $\langle x_t,u\rangle\ge\langle x_{t_0},u\rangle+c\log\frac{1-t_0}{1-t}
+\to+\infty$ as $t\uparrow1$, contradicting $x_t\to x^*$. Hence $m^*=x^*$.
+
+\emph{Step 2: both weight families concentrate on $x^{i^*}$.} Both
+$w^{(h)}_j$ of \eqref{eq:kernel-field} and $q_j$ of Proposition~\ref{prop:uncond} have
+the form
+\[
+\alpha_j(x,t)=\frac{c_j\,\exp\!\big(-|x-tx^j|^2/2(1-t)^2\big)}
+{\sum_l c_l\,\exp\!\big(-|x-tx^l|^2/2(1-t)^2\big)},
+\]
+with constants $c_j>0$ not depending on $(x,t)$: $c_j=K_h(y-y^j)$ in the first case
+and $c_j\equiv1/N$ in the second (Lemma~\ref{lem:cov} supplies the Gaussian form and
+the cancellation of the Jacobian). Fix $j\ne i^*$. Since $x_t\to x^*$ and $t\to1$ we
+have $x_t-tx^j\to x^*-x^j$ for every $j$, so
+\[
+|x_t-tx^j|^2-|x_t-tx^{i^*}|^2\;\longrightarrow\;|x^*-x^j|^2-|x^*-x^{i^*}|^2\;=:\;2\kappa_j\;>\;0,
+\]
+strictly positive because the nearest atom is unique. Hence there is $t_j<1$ with
+that difference at least $\kappa_j$ for $t\in[t_j,1)$, and therefore
+\[
+\frac{\alpha_j(x_t,t)}{\alpha_{i^*}(x_t,t)}
+\;\le\;\frac{c_j}{c_{i^*}}\exp\!\Big(\!-\frac{\kappa_j}{2(1-t)^2}\Big)\;\longrightarrow\;0 .
+\]
+As this holds for each of the finitely many $j\ne i^*$ and $\sum_j\alpha_j=1$, we get
+$\alpha_{i^*}(x_t,t)\to1$, $\alpha_j(x_t,t)\to0$ for $j\ne i^*$, and consequently
+$\sum_j\alpha_j(x_t,t)\,x^j\to x^{i^*}$.
+
+\emph{Step 3: solve the fixed-point equation.} (a) For $h>0$ both
+$\bar x_h(x_t,t)=\sum_jw_j^{(h)}x^j$ and $\bar x_{\mathrm{unc}}(x_t,t)=\sum_jq_jx^j$
+are covered by Step 2, with the \emph{same} $i^*$, since $i^*$ depends only on $x^*$.
+Therefore
+\[
+m_w(x_t,t)=(1+w)\bar x_h-w\,\bar x_{\mathrm{unc}}\;\longrightarrow\;(1+w)x^{i^*}-w\,x^{i^*}=x^{i^*},
+\]
+the guidance term cancelling exactly in the limit, and Step 1 gives $x^*=x^{i^*}$.
+
+(b) For $h=0$ with distinct labels, Proposition~\ref{prop:collapse}(a) gives
+$\vstar(\cdot,\cdot,y^i)=(x^i-x)/(1-t)$ exactly, i.e.\ the conditional mean is $x^i$
+for every $(x,t)$, while $\bar x_{\mathrm{unc}}(x_t,t)\to x^{i^*}$ by Step 2. So
+$m_w(x_t,t)\to(1+w)x^i-w\,x^{i^*}$ and Step 1 gives
+\begin{equation}
+x^*=(1+w)x^i-w\,x^{i^*}.
+\label{eq:cfgfixed}
+\end{equation}
+If $i^*=i$ this is $x^*=x^i$ and we are done; so suppose $i^*\ne i$, whence
+$x^i\ne x^{i^*}$ by distinctness. If $w=0$ then \eqref{eq:cfgfixed} reads $x^*=x^i$,
+so $i^*=i$ by uniqueness of the nearest atom, a contradiction. If $w>0$, rearranging
+\eqref{eq:cfgfixed} gives $x^*-x^i=w(x^i-x^{i^*})$ and
+$x^*-x^{i^*}=(1+w)(x^i-x^{i^*})$, so
+\[
+|x^*-x^i|=w\,|x^i-x^{i^*}|\;<\;(1+w)\,|x^i-x^{i^*}|=|x^*-x^{i^*}| ,
+\]
+i.e.\ $x^i$ is strictly closer to $x^*$ than $x^{i^*}$ is, contradicting the
+definition of $i^*$. Hence $i^*=i$ and $x^*=x^i$.
+\end{proof}
+
+\begin{remark}
+The uniqueness hypothesis excludes only $x^*$ equidistant from two atoms. When it
+fails, Step 2 gives concentration on the set of nearest atoms and the argument yields
+$x^*$ in their convex hull; the conclusion that the limit lies in the training set's
+convex hull, rather than at a vertex, is all that survives. Note also what
+Proposition~\ref{prop:cfgatom} assumes and Proposition~\ref{prop:cfg} does not: that
+the trajectory converges. Proposition~\ref{prop:cfg}'s conclusion---support in the
+affine hull---holds unconditionally, by the exact identity $q_t=(1-t)q_0$.
+\end{remark}
+
 \section{Finite-sample memorisation and exact non-representability}
 \label{sec:theory-d2}
 
@@ -2080,6 +2158,22 @@ is wanted, and negligible in the regime where it is easy to measure. We report b
 and take this to be the reason the obstruction deserves the weight we give it.
 
 % ---- guidance commentary ----
+\begin{proposition}[Guidance lands on a training atom]
+\label{prop:cfgatom}
+Assume $x^1,\dots,x^N$ are distinct, let $w\ge0$, and let $x_t$ solve
+$\dot x_t=v_w(x_t,t)$ on $[0,1)$ with $x_t\to x^*$ as $t\uparrow1$. Assume the nearest
+atom to $x^*$ is unique, and write $i^*=\arg\min_j|x^*-x^j|$. Then
+\begin{enumerate}[label=(\alph*),leftmargin=2em]
+\item if $h>0$, $x^*=x^{i^*}$: the limit is a training atom; and
+\item if $h=0$ with distinct labels, $x^*=x^i$ for every $w\ge0$: the limit is the
+  \emph{conditioned} atom, so guidance is entirely inert under hard conditioning.
+\end{enumerate}
+\end{proposition}
+
+So guidance can change \emph{which} atom is reached once the label is smoothed---the
+choice of $i^*$ depends on the trajectory, hence on $w$---but never reaches anything
+else, and under hard conditioning it cannot even do that.
+
 Two things are worth separating here. What Proposition~\ref{prop:cfg} proves is a
 statement about \emph{dimension}: guidance moves mass around inside a set of dimension
 at most $N-1$ and cannot leave it. In the image regime that is already decisive
@@ -2089,9 +2183,8 @@ exact guided field, is stronger: endpoints land on the atoms themselves, to inte
 accuracy, at every $w$ we tried, and increasing $w$ changes \emph{which} atom is
 reached rather than whether an atom is reached
 (\texttt{scripts/verify\_cfg\_affine.py}; the identity \eqref{eq:cfgorth} is
-reproduced to six decimal places for $h\in\{0,0.7\}$ and $w\in\{0,3,12\}$). We do not
-prove that stronger statement: it requires a trapping argument near $t=1$ that we have
-not completed, and we prefer to mark the boundary than to assert past it.
+reproduced to six decimal places for $h\in\{0,0.7\}$ and $w\in\{0,3,12\}$). Proposition~\ref{prop:cfgatom} proves it, assuming only that the trajectory
+converges at all.
 
 % ---- near-duplicate commentary ----
 This is the regime that occurs in practice---captions or labels that are close but

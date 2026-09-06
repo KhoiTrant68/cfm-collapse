@@ -16,10 +16,14 @@ so the orthogonal component decays exactly linearly and the endpoint law is
 supported in A, whatever w is. When N <= d, A is Lebesgue-null in R^d, so no
 guidance weight can make the conditional law absolutely continuous.
 
-This integrates the true CFG ODE (no approximation of the weights) from a start
-point deliberately placed off A, and checks q_t/(1-t) is constant to integrator
-accuracy. It also reports the endpoint's distance to the nearest atom, which the
-affine-hull result does not by itself control.
+The second, stronger claim is that the limit is a training *atom*, and that at
+h = 0 it is the conditioned atom for every w -- guidance is inert there. That one
+assumes the trajectory converges; the affine-hull identity does not.
+
+This integrates the true CFG ODE (no approximation of the weights). Part 1 starts
+from a point deliberately off A and checks q_t/(1-t) is constant to integrator
+accuracy. Part 2 sweeps random instances, bandwidths and guidance weights and
+checks every endpoint against the nearest atom.
 
     uv run python scripts/verify_cfg_affine.py
 """
@@ -120,6 +124,37 @@ def main() -> None:
               f"|q_T| = {np.linalg.norm(orth_component(xT, X)):.3e}")
     print("\nThe ratio being 1 to integrator accuracy is the claim: the orthogonal")
     print("component decays exactly like (1-t), for every guidance weight.")
+    endpoints()
+
+
+def endpoints(n_instances: int = 24) -> None:
+    """Every endpoint should be a training atom; at h=0, the conditioned one."""
+    print("\n\nEndpoints, over random instances "
+          "(claim: always an atom; at h=0 always the conditioned atom)\n")
+    rng = np.random.default_rng(7)
+    worst, off_atom, wrong_atom, n = 0.0, 0, 0, 0
+    for trial in range(n_instances):
+        N, d, k = 6, 10, 2
+        globals()["RNG"] = np.random.default_rng(100 + trial)
+        X, Y = make_instance(N, d, k)
+        i = int(rng.integers(N))
+        for h in (0.0, 0.6):
+            for guidance in (0.0, 2.0, 8.0):
+                x0 = rng.normal(size=d) * 2.0
+                traj = integrate(x0, X, Y, Y[i].copy(), h, guidance,
+                                 hard_index=i, n_steps=6000, t_end=1 - 1e-7)
+                xT = traj[-1][1]
+                dist = np.linalg.norm(X - xT[None, :], axis=1)
+                j = int(dist.argmin())
+                worst = max(worst, dist[j]); n += 1
+                off_atom += dist[j] > 1e-4
+                wrong_atom += (h == 0.0 and j != i)
+    print(f"  {n} trajectories")
+    print(f"  worst distance from an endpoint to the nearest atom: {worst:.2e}")
+    print(f"  endpoints further than 1e-4 from every atom:  {off_atom}  "
+          f"{'OK' if not off_atom else 'VIOLATED'}")
+    print(f"  h=0 endpoints that are not the conditioned atom: {wrong_atom}  "
+          f"{'OK' if not wrong_atom else 'VIOLATED'}")
 
 
 if __name__ == "__main__":
