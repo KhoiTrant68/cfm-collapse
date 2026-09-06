@@ -228,7 +228,8 @@ memorisation produces, with the ceiling that entails.}
   \citep{nadaraya1964estimating,watson1964smooth} over training atoms
   (Theorem~\ref{thm:endpoint}), turning a $0/1$ statement into a parameter-free
   reference curve $\Covh(y)$ a trained model can be audited against
-  (Proposition~\ref{prop:moments}).
+  (Proposition~\ref{prop:moments}), with the practically common case of
+  near-duplicate labels quantified in Proposition~\ref{prop:nearduplicate}.
 \item \textbf{Restored variance is a false certificate.} This is the paper's title and
   its practical point, and it fails at two levels. Structurally, the smoothed law stays
   supported on the training atoms at \emph{every} bandwidth, so conditioning noise can
@@ -245,7 +246,8 @@ memorisation produces, with the ceiling that entails.}
   applies to our own headline statistic, and we state where it should not be trusted.
 \item \textbf{Separation of two remedies.} Label noise changes the population
   endpoint; interpolant noise provably does not, at any noise level
-  (Propositions~\ref{prop:prop17} and \ref{prop:factors}). The obstruction in
+  (Propositions~\ref{prop:prop17} and \ref{prop:factors}; Remark~\ref{rem:notsampler}
+  records why this is not an artefact of how the flow is integrated). The obstruction in
   pillar~3 also names its own cure---move the support---and endpoint smoothing does
   exactly that (Proposition~\ref{prop:tgtnoise}), at the price of $+\rho^2I_d$ of
   variance and with a benefit bounded by the size of the floor it removes.
@@ -529,20 +531,6 @@ Consequently, as $\varepsilon/h\to0$ and $\Delta/h\to\infty$ the index posterior
 converges to the uniform law on $C$, the endpoint law to
 $|C|^{-1}\sum_{i\in C}\delta_{x^i}$, and $n_{\mathrm{eff}}\to|C|$.
 \end{proposition}
-\begin{proof}
-Write $K_i=K_h(y-y^i)$, so $p_i^{(h)}=K_i/\sum_jK_j$. (a) Bounding the denominator
-below by its $C$-part, $\sum_{j\notin C}p_j^{(h)}\le\sum_{j\notin C}K_j/\sum_{i\in
-C}K_i$; the numerator is at most $(N-|C|)c\,e^{-\Delta^2/2h^2}$ and the denominator at
-least $|C|c\,e^{-\varepsilon^2/2h^2}$, where $c$ is the common normalising constant,
-which gives $\eta$. (b) $K_i/K_{i'}=\exp((|y-y^{i'}|^2-|y-y^i|^2)/2h^2)\le
-\exp(\varepsilon^2/2h^2)$, since $|y-y^{i'}|\le\varepsilon$ and $|y-y^i|\ge0$. (c) Let
-$S=\sum_{i\in C}p^{(h)}_i\le1$. By (b), $|C|\,p^{(h)}_i\le\kappa S$ for each $i\in C$,
-so $\sum_{i\in C}(p^{(h)}_i)^2\le S\max_{i\in C}p^{(h)}_i\le\kappa S^2/|C|\le\kappa/|C|$,
-while $\sum_{j\notin C}(p^{(h)}_j)^2\le(\sum_{j\notin C}p^{(h)}_j)^2\le\eta^2$ by (a).
-Summing and inverting gives (c). The limits follow since $\kappa\to1$ and $\eta\to0$
-under the stated regime.
-\end{proof}
-
 This is the regime that occurs in practice---captions or labels that are close but
 not identical---and it makes the bandwidth window explicit. Both conditions can hold
 at once exactly when $\varepsilon\ll h\ll\Delta$, so a usable $h$ exists precisely when
@@ -759,22 +747,6 @@ every $w$ and every initial law. In particular, if $N\le d$ then $\dim\mathcal A
 N-1<d$, so $\mathcal A$ is Lebesgue-null and \emph{no} guidance weight makes the
 conditional law absolutely continuous.
 \end{proposition}
-\begin{proof}
-Proposition~\ref{prop:kernel-field} and Proposition~\ref{prop:uncond} give
-$\vstar=\sum_iw_i^{(h)}(x^i-x)/(1-t)$ and
-$v_{\mathrm{unc}}^\star=\sum_iq_i(x^i-x)/(1-t)$, both with weights summing to one.
-Subtracting, the $-x$ terms combine as $-(1+w)x+wx=-x$, which is
-\eqref{eq:cfgfield}; the coefficients sum to $(1+w)-w=1$, so $m_w$ is an affine
-combination of the atoms. Since $\Pi$ is affine with $\Pi z=z$ for $z\in\mathcal A$,
-applying $I-\Pi$ to $\dot x_t=(m_w(x_t,t)-x_t)/(1-t)$ annihilates $m_w$ and leaves
-$\dot q_t=-q_t/(1-t)$, whose solution is \eqref{eq:cfgorth}. The endpoint of every
-trajectory therefore lies in $\mathcal A$, hence so does the support of the endpoint
-law. Well-posedness on $[0,1)$ is Lemma~\ref{lem:wellposed} with the nonnegativity of
-the weights relaxed to boundedness: $|m_w|\le(1+2w)\max_i|x^i|$, so the growth estimate
-\eqref{eq:vgrowth} holds with $M$ replaced by $(1+2w)M$ and the rest of the argument is
-unchanged.
-\end{proof}
-
 Two things are worth separating here. What Proposition~\ref{prop:cfg} proves is a
 statement about \emph{dimension}: guidance moves mass around inside a set of dimension
 at most $N-1$ and cannot leave it. In the image regime that is already decisive
@@ -789,10 +761,15 @@ prove that stronger statement: it requires a trapping argument near $t=1$ that w
 not completed, and we prefer to mark the boundary than to assert past it.
 
 The practical reading is that guidance belongs with interpolant noise rather than with
-label smoothing. Of the three interventions considered here, only smoothing the
-conditioning variable changes the population endpoint at all
-(Propositions~\ref{prop:prop17} and~\ref{prop:cfg}), and even that one cannot leave the
-training atoms (Proposition~\ref{prop:atomicity}).
+label smoothing. Of the four interventions considered in this paper, two leave the
+population endpoint law exactly where it was---interpolant noise
+(Proposition~\ref{prop:prop17}) and guidance (Proposition~\ref{prop:cfg}, which pins it
+to the affine hull of the atoms). Label smoothing does change it, but only by
+reweighting the same atoms, so the atomicity ceiling still binds
+(Proposition~\ref{prop:atomicity}). Only endpoint smoothing moves the support off the
+training set (Proposition~\ref{prop:tgtnoise}), and it pays $+\rho^2I_d$ of variance to
+do it. That ordering---inert, inert, reweighting, support-moving---is the practical
+content of the theory.
 
 \subsection{Finite capacity: a genuine representation floor}
 \label{sec:theory-floor}
@@ -1916,6 +1893,36 @@ $I\sim\mathrm{Unif}\{1,\dots,N\}$ and $t\sim\mathrm{Unif}(0,1)$, giving
 $\inf_{v\in\mathcal F_L}L_0(v)\ge d\int_{1-1/L}^1[1-L(1-t)]^2\,dt=d/(3L)$.
 \end{proof}
 
+\begin{proof}[Proof of Proposition~\ref{prop:cfg}]
+Proposition~\ref{prop:kernel-field} and Proposition~\ref{prop:uncond} give
+$\vstar=\sum_iw_i^{(h)}(x^i-x)/(1-t)$ and
+$v_{\mathrm{unc}}^\star=\sum_iq_i(x^i-x)/(1-t)$, both with weights summing to one.
+Subtracting, the $-x$ terms combine as $-(1+w)x+wx=-x$, which is
+\eqref{eq:cfgfield}; the coefficients sum to $(1+w)-w=1$, so $m_w$ is an affine
+combination of the atoms. Since $\Pi$ is affine with $\Pi z=z$ for $z\in\mathcal A$,
+applying $I-\Pi$ to $\dot x_t=(m_w(x_t,t)-x_t)/(1-t)$ annihilates $m_w$ and leaves
+$\dot q_t=-q_t/(1-t)$, whose solution is \eqref{eq:cfgorth}. The endpoint of every
+trajectory therefore lies in $\mathcal A$, hence so does the support of the endpoint
+law. Well-posedness on $[0,1)$ is Lemma~\ref{lem:wellposed} with the nonnegativity of
+the weights relaxed to boundedness: $|m_w|\le(1+2w)\max_i|x^i|$, so the growth estimate
+\eqref{eq:vgrowth} holds with $M$ replaced by $(1+2w)M$ and the rest of the argument is
+unchanged.
+\end{proof}
+
+\begin{proof}[Proof of Proposition~\ref{prop:nearduplicate}]
+Write $K_i=K_h(y-y^i)$, so $p_i^{(h)}=K_i/\sum_jK_j$. (a) Bounding the denominator
+below by its $C$-part, $\sum_{j\notin C}p_j^{(h)}\le\sum_{j\notin C}K_j/\sum_{i\in
+C}K_i$; the numerator is at most $(N-|C|)c\,e^{-\Delta^2/2h^2}$ and the denominator at
+least $|C|c\,e^{-\varepsilon^2/2h^2}$, where $c$ is the common normalising constant,
+which gives $\eta$. (b) $K_i/K_{i'}=\exp((|y-y^{i'}|^2-|y-y^i|^2)/2h^2)\le
+\exp(\varepsilon^2/2h^2)$, since $|y-y^{i'}|\le\varepsilon$ and $|y-y^i|\ge0$. (c) Let
+$S=\sum_{i\in C}p^{(h)}_i\le1$. By (b), $|C|\,p^{(h)}_i\le\kappa S$ for each $i\in C$,
+so $\sum_{i\in C}(p^{(h)}_i)^2\le S\max_{i\in C}p^{(h)}_i\le\kappa S^2/|C|\le\kappa/|C|$,
+while $\sum_{j\notin C}(p^{(h)}_j)^2\le(\sum_{j\notin C}p^{(h)}_j)^2\le\eta^2$ by (a).
+Summing and inverting gives (c). The limits follow since $\kappa\to1$ and $\eta\to0$
+under the stated regime.
+\end{proof}
+
 \section{Finite-sample memorisation and exact non-representability}
 \label{sec:theory-d2}
 
@@ -2373,7 +2380,8 @@ samples against $10240$ for $N{=}5000$, a factor of $100$.}
 \label{tab:p6exposure}
 \end{table}
 
-Spread across $N$ falls from $20.2\times$ to $2.28\times$, and $N{=}5000$ reaches
+Table~\ref{tab:p6exposure} reads the sweep both ways. Spread across $N$ falls from
+$20.2\times$ to $2.28\times$, and $N{=}5000$ reaches
 $1.014$---no collapse at all within the budget. This replicates the EXP-3 finding
 ($14.9\times\to2.34\times$) on a different architecture, a different dimension and a
 different dataset, which is the strongest form the claim can take here: two experiments
@@ -2411,7 +2419,8 @@ only a measurement.}
 \label{tab:seedsplit}
 \end{table}
 
-The problem instance carries $0.1261^2/(0.1261^2+0.0675^2)=78\%$ of the variance and the
+In Table~\ref{tab:seedsplit}, the problem instance carries
+$0.1261^2/(0.1261^2+0.0675^2)=78\%$ of the variance and the
 training run $22\%$. So roughly three quarters of every EXP-1 error bar in this paper is
 which operator $A$ happened to be drawn, not how the run went; genuine run-to-run
 variability is about half of what the published bars imply. This does not change any
