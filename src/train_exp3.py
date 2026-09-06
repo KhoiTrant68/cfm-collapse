@@ -159,9 +159,25 @@ def evaluate(model, problem, cfg, device, gen) -> dict:
         "pixel_var_inpaint_std": float(np.std(var_list)),
         "nn_dist_mean": float(np.mean(nn_list)),
         "obs_recon_err_mean": float(np.mean(obs_err)),
-        # kernel reference (Thm 10 / Prop 13) -- the P7 quantities, in image space
+        # Kernel reference (Thm 10 / Prop 13) -- the P7 quantities, in image space.
+        #
+        # Three ratios, and they are not interchangeable. `ratio_to_kernel_agg` is
+        # the ratio of the two aggregates, which is what Theorem 10 predicts and the
+        # only one that reproduces across problem instances (it moves 0.27% between
+        # seeds at h=5, where the mean below moves by a factor of 1.7). The *mean* of
+        # per-condition ratios is heavy-tailed, because a per-condition denominator
+        # can be arbitrarily close to zero when that condition's kernel weight sits
+        # on a single atom -- at h=4 it gives 20.4 against a median of 5.30. Prefer
+        # the aggregate; use the median when per-condition detail is wanted; the mean
+        # is retained only because earlier tables quote it.
+        #
+        # Note also that analyze_p7_kernel.py writes a column of the same name,
+        # `ratio_to_kernel_mean`, meaning something else: the mean across *seeds* of
+        # per-seed aggregate ratios. That one is well behaved.
         "trace_cov_mean": float(np.mean(trace_meas)),
         "trace_cov_kernel_mean": float(np.mean(trace_kern)),
+        "ratio_to_kernel_agg": (float(np.mean(trace_meas)) / float(np.mean(trace_kern))
+                                if float(np.mean(trace_kern)) > 0 else float("nan")),
         "ratio_to_kernel_mean": _nan_safe(np.nanmean, ratio_kern),
         "ratio_to_kernel_median": _nan_safe(np.nanmedian, ratio_kern),
         "mean_err_kernel_mean": float(np.mean(meanerr_kern)),

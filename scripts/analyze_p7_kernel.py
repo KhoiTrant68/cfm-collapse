@@ -132,6 +132,10 @@ def main() -> None:
             "trace_expansion": g["trace_expansion"].mean(),
             "trace_meas_mean": g["trace_meas"].mean(),
             "trace_meas_std": g["trace_meas"].std(ddof=0),
+            # Mean across seeds of the per-seed *aggregate* ratio
+            # (trace_meas / trace_kernel), not a mean of per-condition ratios --
+            # see the note in src/train_exp3.py, where a column of the same name
+            # means the latter and is heavy-tailed.
             "ratio_to_kernel_mean": g["ratio_to_kernel"].mean(),
             "ratio_to_kernel_std": g["ratio_to_kernel"].std(ddof=0),
             "ratio_to_post_mean": g["ratio_to_post"].mean(),
