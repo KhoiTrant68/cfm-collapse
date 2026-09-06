@@ -331,6 +331,24 @@ every flow-matching objective \citep{lipman2023flow,albergo2023building,liu2023r
 we restate it because every later result is an evaluation of the conditional
 expectation it identifies, and record no proof for it.
 
+\paragraph{Three conventions, stated rather than assumed.} \emph{(i) Versions.} The
+minimiser of an $L^2$ projection is unique only up to a null set
+(Proposition~\ref{prop:projection}), yet the results below assert formulas ``for every
+$x$ and $t<1$''. What we exhibit in each case is a distinguished \emph{continuous}
+version: the weights in \eqref{eq:kernel-field} are ratios of everywhere-positive
+smooth functions (Lemma~\ref{lem:cov}), so the formula defines a continuous field on
+$\R^d\times[0,1)$, and every pointwise claim is a claim about that version. Any other
+minimiser agrees with it a.e., which is all the flow sees. \emph{(ii) Endpoints.}
+$p_1$ always denotes the weak limit $\lim_{t\uparrow1}p_t$, never a value attained at
+$t=1$; the field is undefined there. We establish that the limit exists wherever we use
+it, each time from almost-sure convergence of the interpolant rather than by appeal to a
+general theorem, and Lemma~\ref{lem:wellposed} is deliberately narrowed so as not to
+claim existence in general. \emph{(iii) Where the flow is well posed.} The $1/(1-t)$
+factor means no statement here extends to the closed interval. All flows are solved on
+$[0,1)$, where Lemma~\ref{lem:wellposed} gives existence, uniqueness and a growth bound;
+the blow-up at $t=1$ is the mechanism under study, not a technical nuisance to be
+regularised away.
+
 \begin{proposition}[$L^2$ projection]
 \label{prop:projection}
 For every square-integrable $v$,
@@ -494,6 +512,46 @@ identified by Theorem~\ref{thm:endpoint}, so it needs no separate proof; we stat
 because it is the object every experiment in Section~\ref{sec:experiments} measures
 against.
 
+\begin{proposition}[Near-duplicate labels]
+\label{prop:nearduplicate}
+Fix a query $y$ and a subset $C\subseteq\{1,\dots,N\}$ with
+$|y-y^i|\le\varepsilon$ for $i\in C$ and $|y-y^j|\ge\Delta$ for $j\notin C$, where
+$\varepsilon<\Delta$. For the Gaussian kernel of bandwidth $h$, put
+\[
+\eta:=\frac{N-|C|}{|C|}\exp\!\Big(\!-\frac{\Delta^2-\varepsilon^2}{2h^2}\Big),
+\qquad
+\kappa:=\exp\!\Big(\frac{\varepsilon^2}{2h^2}\Big)\ \ge 1 .
+\]
+Then \emph{(a)} $\sum_{j\notin C}p_j^{(h)}(y)\le\eta$; \emph{(b)}
+$p_i^{(h)}(y)/p_{i'}^{(h)}(y)\le\kappa$ for all $i,i'\in C$; and \emph{(c)}
+$n_{\mathrm{eff}}(y)\ge|C|/(\kappa+|C|\eta^2)$.
+Consequently, as $\varepsilon/h\to0$ and $\Delta/h\to\infty$ the index posterior
+converges to the uniform law on $C$, the endpoint law to
+$|C|^{-1}\sum_{i\in C}\delta_{x^i}$, and $n_{\mathrm{eff}}\to|C|$.
+\end{proposition}
+\begin{proof}
+Write $K_i=K_h(y-y^i)$, so $p_i^{(h)}=K_i/\sum_jK_j$. (a) Bounding the denominator
+below by its $C$-part, $\sum_{j\notin C}p_j^{(h)}\le\sum_{j\notin C}K_j/\sum_{i\in
+C}K_i$; the numerator is at most $(N-|C|)c\,e^{-\Delta^2/2h^2}$ and the denominator at
+least $|C|c\,e^{-\varepsilon^2/2h^2}$, where $c$ is the common normalising constant,
+which gives $\eta$. (b) $K_i/K_{i'}=\exp((|y-y^{i'}|^2-|y-y^i|^2)/2h^2)\le
+\exp(\varepsilon^2/2h^2)$, since $|y-y^{i'}|\le\varepsilon$ and $|y-y^i|\ge0$. (c) Let
+$S=\sum_{i\in C}p^{(h)}_i\le1$. By (b), $|C|\,p^{(h)}_i\le\kappa S$ for each $i\in C$,
+so $\sum_{i\in C}(p^{(h)}_i)^2\le S\max_{i\in C}p^{(h)}_i\le\kappa S^2/|C|\le\kappa/|C|$,
+while $\sum_{j\notin C}(p^{(h)}_j)^2\le(\sum_{j\notin C}p^{(h)}_j)^2\le\eta^2$ by (a).
+Summing and inverting gives (c). The limits follow since $\kappa\to1$ and $\eta\to0$
+under the stated regime.
+\end{proof}
+
+This is the regime that occurs in practice---captions or labels that are close but
+not identical---and it makes the bandwidth window explicit. Both conditions can hold
+at once exactly when $\varepsilon\ll h\ll\Delta$, so a usable $h$ exists precisely when
+clusters are tight relative to their separation; inside that window the model behaves as
+though conditioned on the cluster, with $n_{\mathrm{eff}}$ counting the cluster and not
+the dataset. Note what does \emph{not} improve: the endpoint law is still a finite sum
+of point masses, now $|C|$ of them, so Proposition~\ref{prop:atomicity} applies
+unchanged. Near-duplicate labels buy effective sample size, not continuity.
+
 \begin{proposition}[Label smoothing never leaves the training set]
 \label{prop:atomicity}
 For every $h\in[0,\infty)$, $\operatorname{supp}(p_h^{\mathrm{gen}}(\cdot\mid y))
@@ -511,6 +569,25 @@ label smoothing \emph{redistributes weight over training atoms}; it never genera
 new samples, so matching $\tr\Covh$ matches a second moment, not the posterior. A
 genuine remedy needs $h\to0$ \emph{and} $N\to\infty$ jointly---the Nadaraya--Watson
 consistency regime of Proposition~\ref{prop:nwrate} (appendix)---not $h$ alone.
+
+\paragraph{How large is the floor, and where does it bind?}
+Proposition~\ref{prop:atomicity} gives an $h$-independent floor but not its size, and
+the paper measures it small (Appendix~\ref{sec:aux}), which invites the objection that
+the obstruction is a curiosity. The scaling answers that. The floor is the best
+$N$-point approximation of a continuous posterior in $W_2$, and by Zador's theorem
+\citep[Ch.~6]{graf2000quantization} that error decays as $N^{-1/d}$ for a measure with
+a non-degenerate absolutely continuous part on $\R^d$. The exponent is the whole story:
+\[
+N^{-1/d}\;=\;0.071 \ \text{ at our default } (d,N)=(2,200),
+\qquad
+N^{-1/d}\;=\;0.9975 \ \text{ at } (d,N)=(3072,2000).
+\]
+At $d{=}2$ two hundred atoms genuinely do fill the posterior, which is why we measure
+the floor and find it negligible; at image dimension the same number of atoms reduces
+the approximation error by a quarter of one percent. The atomicity obstruction is
+therefore not merely present but \emph{dominant} in exactly the regime where diversity
+is wanted, and negligible in the regime where it is easy to measure. We report both,
+and take this to be the reason the obstruction deserves the weight we give it.
 
 \subsection{Escaping the obstruction: smoothing the endpoint}
 \label{sec:theory-remedy}
@@ -537,7 +614,7 @@ p_1(\cdot\mid y)=\sum_i p_i^{(h)}(y)\,\N(x^i,\rho^2I_d),
 \end{equation}
 For every $\rho>0$ this law is absolutely continuous, so \eqref{eq:w2floor} does not
 apply to it; moreover $s_1=\rho>0$, so $\vstar$ extends continuously to $t=1$ and the
-$1/(1-t)$ blow-up of $(\star)$---the source of both Lemma~\ref{lem:norepr} and the
+$1/(1-t)$ blow-up of $(\star)$---the source of both Remark~\ref{lem:norepr} and the
 fixed-learning-rate divergence of Section~\ref{sec:exp1}---disappears.
 \end{proposition}
 
@@ -574,6 +651,13 @@ The linear-Gaussian instance of Section~\ref{sec:setup}, which is the case we te
 satisfies it exactly with $\Sigma(y)\equiv\Sigmapost$. Nor is the expansion claimed
 uniform over $y$; near the boundary of $\operatorname{supp}(\rho_Y)$ the kernel loses mass
 asymmetrically and the bias changes order (standard nonparametric boundary bias).
+Both restrictions matter for what follows: a pointwise, homoscedastic expansion should
+\emph{not} be expected to describe an image model, where $\Sigma(\cdot)$ certainly
+varies with the conditioning image and most evaluation conditions sit near the boundary
+of a $1536$-dimensional label support. The across-condition slope of $0.481$ measured
+in Section~\ref{sec:cifarddpm} is what that failure to transfer looks like, and we read
+it that way rather than as a refutation of \eqref{eq:expansion} at the point where it
+is claimed.
 \end{proposition}
 
 The between-group inflation $h^2\|J\|_F^2$ is positive and, unlike the bias of the
@@ -617,6 +701,18 @@ p_1^{\mathrm{cond}}(\cdot\mid y^i)=\delta_{x^i}\quad\text{for every }\sigma\ge0.
 \label{eq:invariance}
 \end{equation}
 \end{proposition}
+
+\begin{remark}[This is not an artefact of how we integrate]
+\label{rem:notsampler}
+Part (b) gives the flow in \emph{closed form}, $x_t=t\,x^i+s_t\,x_0$, and (c) follows
+because $s_1=0$. No integrator appears in the argument, and no early stopping: the
+endpoint is pinned by the interpolant itself. The reason is structural. Any
+interpolant-noise schedule must satisfy $\gamma(1)=0$, since otherwise $X_1\ne X_1$
+and the path does not reach the data at all; but $\gamma(1)=0$ is exactly the condition
+that erases the noise at the endpoint. Interpolant noise is therefore not a remedy that
+happens to fail, but one that cannot in principle succeed---the property making it a
+valid interpolant is the property making it inert at $t=1$.
+\end{remark}
 Corollary~\ref{cor:prop18} (appendix) records what interpolant noise \emph{does}
 change: it raises the irreducible error ($\inf_vL_\sigma>0$ for $\sigma>0$, whereas
 $\inf_vL_0=0$) and halves the Lipschitz blow-up rate. Neither touches $p_1$.
@@ -633,6 +729,70 @@ interchangeable.
 This cleanly separates the present conditional mechanism from the unconditional
 ``resample-$x_0$'' remedy of the gradient-variance line \citep{gradvar2025}, which
 operates through attainability rather than through the population optimum.
+
+\subsection{Classifier-free guidance does not escape either}
+\label{sec:theory-cfg}
+
+Guidance is the remedy a practitioner is most likely to reach for, and it is not
+covered by Proposition~\ref{prop:prop17}. Because we have both exact fields in closed
+form, its endpoint law can be read off. Write the guided field at weight $w\ge0$ as
+$v_w:=(1+w)\vstar(\cdot,\cdot,y)-w\,v_{\mathrm{unc}}^\star$.
+
+\begin{proposition}[Guidance cannot leave the affine hull of the training set]
+\label{prop:cfg}
+For every $w\ge0$ and $h\in[0,\infty)$, $t<1$,
+\begin{equation}
+v_w(x,t)=\frac{m_w(x,t)-x}{1-t},\qquad
+m_w(x,t)=\sum_i\Big[(1+w)w_i^{(h)}(x,t,y)-w\,q_i(x,t)\Big]x^i,
+\label{eq:cfgfield}
+\end{equation}
+whose coefficients sum to $1$ but are in general \emph{not} nonnegative; hence
+$m_w(x,t)\in\mathcal A:=\operatorname{aff}\{x^1,\dots,x^N\}$ for every $(x,t)$. Let
+$\Pi$ be the orthogonal projection onto $\mathcal A$ and $q_t:=x_t-\Pi x_t$. Then along
+any solution of $\dot x_t=v_w(x_t,t)$,
+\begin{equation}
+q_t=(1-t)\,q_0 ,
+\label{eq:cfgorth}
+\end{equation}
+so $q_t\to0$ and the endpoint law of the guided flow is supported in $\mathcal A$, for
+every $w$ and every initial law. In particular, if $N\le d$ then $\dim\mathcal A\le
+N-1<d$, so $\mathcal A$ is Lebesgue-null and \emph{no} guidance weight makes the
+conditional law absolutely continuous.
+\end{proposition}
+\begin{proof}
+Proposition~\ref{prop:kernel-field} and Proposition~\ref{prop:uncond} give
+$\vstar=\sum_iw_i^{(h)}(x^i-x)/(1-t)$ and
+$v_{\mathrm{unc}}^\star=\sum_iq_i(x^i-x)/(1-t)$, both with weights summing to one.
+Subtracting, the $-x$ terms combine as $-(1+w)x+wx=-x$, which is
+\eqref{eq:cfgfield}; the coefficients sum to $(1+w)-w=1$, so $m_w$ is an affine
+combination of the atoms. Since $\Pi$ is affine with $\Pi z=z$ for $z\in\mathcal A$,
+applying $I-\Pi$ to $\dot x_t=(m_w(x_t,t)-x_t)/(1-t)$ annihilates $m_w$ and leaves
+$\dot q_t=-q_t/(1-t)$, whose solution is \eqref{eq:cfgorth}. The endpoint of every
+trajectory therefore lies in $\mathcal A$, hence so does the support of the endpoint
+law. Well-posedness on $[0,1)$ is Lemma~\ref{lem:wellposed} with the nonnegativity of
+the weights relaxed to boundedness: $|m_w|\le(1+2w)\max_i|x^i|$, so the growth estimate
+\eqref{eq:vgrowth} holds with $M$ replaced by $(1+2w)M$ and the rest of the argument is
+unchanged.
+\end{proof}
+
+Two things are worth separating here. What Proposition~\ref{prop:cfg} proves is a
+statement about \emph{dimension}: guidance moves mass around inside a set of dimension
+at most $N-1$ and cannot leave it. In the image regime that is already decisive
+---$N{=}2000$ atoms in $d{=}3072$ leaves a null set---but at $N>d$ the affine hull is
+all of $\R^d$ and the proposition says nothing. What we \emph{observe}, integrating the
+exact guided field, is stronger: endpoints land on the atoms themselves, to integrator
+accuracy, at every $w$ we tried, and increasing $w$ changes \emph{which} atom is
+reached rather than whether an atom is reached
+(\texttt{scripts/verify\_cfg\_affine.py}; the identity \eqref{eq:cfgorth} is
+reproduced to six decimal places for $h\in\{0,0.7\}$ and $w\in\{0,3,12\}$). We do not
+prove that stronger statement: it requires a trapping argument near $t=1$ that we have
+not completed, and we prefer to mark the boundary than to assert past it.
+
+The practical reading is that guidance belongs with interpolant noise rather than with
+label smoothing. Of the three interventions considered here, only smoothing the
+conditioning variable changes the population endpoint at all
+(Propositions~\ref{prop:prop17} and~\ref{prop:cfg}), and even that one cannot leave the
+training atoms (Proposition~\ref{prop:atomicity}).
 
 \subsection{Finite capacity: a genuine representation floor}
 \label{sec:theory-floor}
@@ -657,7 +817,26 @@ $L\ge1$ and $t\sim\mathrm{Unif}(0,1)$,
 \inf_{v\in\mathcal F_L}L_0(v)\ \ge\ d\int_{1-1/L}^1[1-L(1-t)]^2\,dt\ =\ \frac{d}{3L}\ >\ 0.
 \label{eq:floor}
 \end{equation}
+More generally, if the Lipschitz constant is allowed to depend on time,
+$\operatorname{Lip}_xv(\cdot,t,y^i)\le L(t)$, the same pointwise bound integrates to
+\begin{equation}
+\inf_{v\in\mathcal F_{L(\cdot)}}L_0(v)\ \ge\ d\int_0^1\big[1-L(t)(1-t)\big]_+^2\,dt .
+\label{eq:floorlt}
+\end{equation}
 \end{corollary}
+
+\eqref{eq:floorlt} is the honest form of the statement, and it changes how
+\eqref{eq:floor} should be read. The uniform-$L$ floor is an artefact of the
+uniformity: the integrand in \eqref{eq:floorlt} vanishes identically as soon as
+$L(t)\ge1/(1-t)$ for a.e.\ $t$, so a network whose Lipschitz constant in $x$ grows like
+$1/(1-t)$ near the endpoint---which a time-conditioned network is free to do, and which
+the target field itself does---faces no floor at all from this mechanism. That is
+consistent with what we measure: Appendix~\ref{sec:aux} finds the $d/(3L)$ value some
+$50\times$ below the observed plateau. We therefore do not offer this as an explanation
+of the plateau, and say so in Section~\ref{sec:limitations}; we retain it because ruling
+a mechanism out is worth recording, and because \eqref{eq:floorlt} localises what would
+have to be measured---the profile $L(t)$ near $t=1$, not a single constant---for the
+question to be settled.
 
 Two warnings temper \eqref{eq:floor}. First, the bound is \emph{conditional} on the
 constraint: an MLP with unbounded weights lies in no fixed $\mathcal F_L$, and by
@@ -683,7 +862,11 @@ population loss (Proposition~\ref{prop:memorize}), and resampling $x_0$ every
 epoch is exactly what defeats that construction (Remark~\ref{rem:resample})---and
 adds a new, problem-specific result: no finite-depth, finite-width network with
 globally Lipschitz activations can equal the collapsed field's $1/(1-t)$ blow-up
-\emph{pointwise} on all of $[0,1)$ (Lemma~\ref{lem:norepr}). We keep that
+\emph{pointwise} on all of $[0,1)$ (Remark~\ref{lem:norepr}). We state it as a
+remark rather than a contribution because its reach is narrow: our sampler, like every
+practical one, stops at $t=1-10^{-3}$, where $1/(1-t)$ is merely $10^3$ and a finite
+network represents it comfortably. It rules out exact representation on the open
+interval, not adequacy on the interval anyone integrates over. We keep that
 pointwise claim separate from a loss floor: the only class for which we prove a
 strictly positive floor is the Lipschitz-capped $\mathcal F_L$ of
 Corollary~\ref{cor:floor}. The contrast with Proposition~\ref{prop:collapse} is
@@ -708,6 +891,16 @@ $\sigma_{\mathrm{obs}}$ (the theory implies no monotonicity, so a flat sweep is
 $\tr\Covh$ in $h$; or finite-sample error bars. We therefore never call a quantity in
 that second list a ``theoretical prediction'' that ``matched'' or ``failed''; it is
 reported as an empirical finding, marked ``(empirical).''
+
+The compact way to say this: \emph{the theory predicts the destination, not the speed.}
+Every result here concerns where the population flow ends, and none concerns when a
+trained network gets there. That is a real gap rather than a framing device, because
+the phenomenon practitioners actually report is temporal---a model that is well
+calibrated and then, with further training, is not---and the question they ask is when
+to stop. Our experiments measure that trajectory (Table~\ref{tab:exp1},
+Section~\ref{sec:cifarddpm}) but the theory does not predict it, and a characterisation
+of the collapse time as a function of $N$, $d$ and capacity, in a regime where training
+is analytically tractable, is the main thing missing from this account.
 
 % ==========================================================================
 \section{Experiments}
@@ -1815,14 +2008,14 @@ epoch does nothing to prevent it, which is exactly why conditional collapse is
 universal while unconditional memorisation is not.
 \end{remark}
 
-\begin{lemma}[The collapse field cannot be exactly represented by a finite network]
+\begin{remark}[The collapse field cannot be exactly represented by a finite network]
 \label{lem:norepr}
 Let $g(t)=1/(1-t)$ on $[0,1)$ and let $f_\theta:\R\to\R$ be any finite-depth,
 finite-width feedforward network with finite real weights, built from affine layers
 and globally Lipschitz activations (this covers ReLU, leaky-ReLU, tanh, sigmoid,
 GELU/SiLU, softplus, and every activation used in our experiments). Then
 $\sup_{t\in[0,1)}|f_\theta(t)-g(t)|=\infty$.
-\end{lemma}
+\end{remark}
 \begin{proof}
 A finite composition of affine maps (finite weight matrices, hence finite operator
 norm) and globally Lipschitz activations is globally Lipschitz on $\R$, with
@@ -1834,7 +2027,7 @@ $g$ is unbounded on $[0,1)$, hence so is $f_\theta-g$.
 \end{proof}
 
 For $x\ne x^i$ fixed, $t\mapsto v_0^\star(x,t,y^i)=(x^i-x)/(1-t)$ has exactly this
-$1/(1-t)$ blow-up along the direction $x^i-x$, so Lemma~\ref{lem:norepr} (applied
+$1/(1-t)$ blow-up along the direction $x^i-x$, so Remark~\ref{lem:norepr} (applied
 coordinatewise to that direction) shows that \emph{no} finite network of the kind
 used in Section~\ref{sec:experiments} can represent $v_0^\star$ \emph{exactly} on
 all of $[0,1)$: for every fixed parameter vector $\theta$ there is some $(x,t)$ at
