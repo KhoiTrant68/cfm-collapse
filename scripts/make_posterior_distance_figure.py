@@ -67,7 +67,7 @@ def main() -> None:
     floor = float(r["mmd_floor"].mean())
     ax.axhspan(floor * 0.55, floor * 1.8, color=OI["green"], alpha=0.16, lw=0)
     ax.axhline(floor, color=OI["green"], ls="-", lw=1.6,
-               label=f"sampling floor  {floor:.5f}\n(exact recovery, $M{=}1000$)")
+               label=f"sampling floor  {floor:.5f}\n(exact recovery, $M=1000$)")
     ax.plot(x, r["mmd_atomic"], "s--", color=OI["orange"], lw=1.8, ms=7,
             label=r"atomic prediction $\sum_i p_i^{(h)}\delta_{x^i}$")
     ax.errorbar(x, m["mmd_to_post"], yerr=m["mmd_std"], fmt="o-", color=OI["blue"],
@@ -106,8 +106,8 @@ def main() -> None:
     ax.set_xticks(x); ax.set_xticklabels(labels)
     ax.set_xlabel(r"label-noise bandwidth $h$")
     ax.set_ylabel(r"$\sqrt{S_\varepsilon}$ to the posterior   (data units)")
-    ax.set_title("(b) as a length: the best bandwidth still sits\n"
-                 f"{w_atom.iloc[-1] / post_sd * 100:.0f}\\% of a posterior width away",
+    ax.set_title("(b) as a length: even the best bandwidth's predicted law sits\n"
+                 f"{w_atom.iloc[-1] / post_sd * 100:.0f}% of a posterior width away",
                  fontsize=10)
     ax.grid(alpha=0.3); ax.legend(fontsize=7.5, loc="lower left")
 

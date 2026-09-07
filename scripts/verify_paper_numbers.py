@@ -11,10 +11,12 @@ Exits non-zero if any check fails, so it can be run before a submission build.
 
     uv run python scripts/verify_paper_numbers.py
 """
+import glob
 import json
 import pathlib
 import re
 
+import numpy as np
 import pandas as pd
 
 tex = pathlib.Path("paper/main.tex").read_text(encoding="utf-8")
@@ -143,6 +145,68 @@ check("seed split, std run", 0.0675, ss["std_run"], 2e-3)
 check("seed split, std instance", 0.1261, ss["std_instance"], 2e-3)
 check("seed split, quadrature", 0.1431, ss["quadrature"], 2e-3)
 check("seed split, instance share", 0.78, ss["instance_share_of_variance"], 6e-3)
+
+print("\nEntropic OT: the numbers, and whether the estimator can resolve them")
+# Every OT value in the paper was, until this was caught, produced by a Sinkhorn
+# whose log-domain dual mixed two unit conventions. Nothing here checked them,
+# which is why it survived. These checks close that hole: the values, and -- for
+# the differences the text reads -- whether they clear the estimator's own floor.
+res = pd.read_csv("results/exp1/_theory/raw/ot_resolution.csv")
+for d, N, want in ((2, 200, 0.0138), (2, 50, 0.0194), (2, 1000, 0.0198),
+                   (5, 200, 0.6227), (10, 200, 4.2731)):
+    row = res[(res["d"] == d) & (res["N"] == N)].iloc[0]
+    check(f"OT sampling floor d={d} N={N}", want, row["ot_floor"], 2e-2)
+
+pop = pd.read_csv("results/exp1/_theory/raw/target_noise_population.csv")
+
+
+def cell(h, rho, col):
+    r = pop[(pop["h"] == h) & (pop["rho"] == rho)]
+    return float(r[col].iloc[0])
+
+
+check("population best MMD (h=0.5, rho=0)", 0.0089, cell(0.5, 0.0, "mmd"), 2e-2)
+check("smoothing at the best h hurts MMD", 0.0123, cell(0.5, 0.2, "mmd"), 2e-2)
+check("population OT at h=0.5, rho=0", 0.106, cell(0.5, 0.0, "sinkhorn"), 3e-2)
+check("smoothing at the best h hurts OT", 0.131, cell(0.5, 0.2, "sinkhorn"), 3e-2)
+check("population OT at h=0.1, rho=0", 0.168, cell(0.1, 0.0, "sinkhorn"), 3e-2)
+check("population OT at h=0.1, rho=0.1", 0.158, cell(0.1, 0.1, "sinkhorn"), 3e-2)
+# The claim the paper actually makes about that pair: the improvement is smaller
+# than the floor, so it is not a measurement. Checked as an inequality.
+gain = cell(0.1, 0.0, "sinkhorn") - cell(0.1, 0.1, "sinkhorn")
+flr = float(res[(res["d"] == 2) & (res["N"] == 200)]["ot_floor"].iloc[0])
+print(f"  {'OK ' if gain < flr else 'BAD'} "
+      f"{'h=0.1 OT gain is below the estimator floor':44s} "
+      f"gain={gain:<12.4g} floor={flr:<12.4g}")
+ok, fail = ok + (gain < flr), fail + (gain >= flr)
+
+trn = pd.read_csv("results/exp1/_theory/raw/target_noise_trained.csv").set_index("arm")
+b, sm = trn.loc["rho=0.0"], trn.loc["rho=0.3"]
+check("trained-model MMD gain from rho", 1.49, b["mmd"] / sm["mmd"], 1e-2)
+check("trained-model OT gain from rho", 1.29, b["sinkhorn"] / sm["sinkhorn"], 1e-2)
+check("trained-model OT, rho=0", 0.692, b["sinkhorn"], 2e-2)
+check("trained-model OT, rho=0.3", 0.537, sm["sinkhorn"], 2e-2)
+# The ordering is the corrected claim: MMD gains MORE than OT, where the paper
+# previously said the reverse.
+mmd_wins = (b["mmd"] / sm["mmd"]) > (b["sinkhorn"] / sm["sinkhorn"])
+print(f"  {'OK ' if mmd_wins else 'BAD'} "
+      f"{'MMD gain exceeds OT gain (the reversal)':44s} "
+      f"mmd={b['mmd'] / sm['mmd']:<12.3g} ot={b['sinkhorn'] / sm['sinkhorn']:<12.3g}")
+ok, fail = ok + mmd_wins, fail + (not mmd_wins)
+
+print("\nThe loss form against the measured collapse (Corollary cor:lossform)")
+_m = pd.concat([pd.read_csv(f) for f in
+                sorted(glob.glob("results/exp1/exp1_cond_seed[0-9]/raw/metrics.csv"))])
+_m = _m[_m["group"] == "train"]
+_g = _m.groupby("iter")[["train_loss", "trace_cov_mean"]].mean()
+_it = _g.index.values
+_k = _it >= 1000
+_sl = np.polyfit(np.log(_g["train_loss"].values[_k]),
+                 np.log(np.sqrt(_g["trace_cov_mean"].values[_k])), 1)[0]
+_sl2 = np.polyfit(np.log(_g["train_loss"].values[_it >= 30000]),
+                  np.log(np.sqrt(_g["trace_cov_mean"].values[_it >= 30000])), 1)[0]
+check("sqrt-loss pacing, slope from iter 1000", 0.429, _sl, 5e-3)
+check("sqrt-loss pacing, slope over last three", 0.485, _sl2, 5e-3)
 
 print("\nsanity: strings the new text depends on")
 for s in (r"\label{sec:cifarddpm}", r"\label{tab:cifarddpm}",

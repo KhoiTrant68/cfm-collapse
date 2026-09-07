@@ -85,6 +85,16 @@ def main():
     print(f"OT  ratio rho=0 / rho=0.3 : {b[3]/max(s_[3],1e-12):.2f}x")
     print(f"MMD ratio rho=0 / rho=0.3 : {b[2]/max(s_[2],1e-12):.2f}x")
 
+    # Table tab:tgt is transcribed from here, so write it somewhere a checker can
+    # read rather than leaving the paper's copy as the only record.
+    import pandas as pd
+    out = Path("results/exp1/_theory/raw/target_noise_trained.csv")
+    out.parent.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame([{"arm": k, "trace_cov": v[0], "predicted": v[1], "mmd": v[2],
+                   "sinkhorn": v[3], "mean_err": v[4]} for k, v in agg.items()]
+                 ).to_csv(out, index=False)
+    print(f"wrote {out}")
+
 
 if __name__ == "__main__":
     main()

@@ -112,6 +112,19 @@ def main():
     print(f"best atomic (rho=0): h={base[0]}, rho=0    MMD={results[base][0]:.4f}")
     print(f"reduction factor  : {results[base][0] / max(results[best][0], 1e-12):.1f}x")
 
+    # The paper quotes cells from this sweep, so write them where a checker can
+    # read them. They were quoted from stdout before, which is why a wrong
+    # estimator could sit in the text for as long as it did.
+    import csv
+    out = Path("results/exp1/_theory/raw/target_noise_population.csv")
+    out.parent.mkdir(parents=True, exist_ok=True)
+    with open(out, "w", newline="", encoding="utf-8") as f:
+        w = csv.writer(f)
+        w.writerow(["h", "rho", "mmd", "sinkhorn", "trace_cov", "mean_err"])
+        for (h, rho), (mm, sk, tc, me) in sorted(results.items()):
+            w.writerow([h, rho, mm, sk, tc, me])
+    print(f"wrote {out}")
+
 
 if __name__ == "__main__":
     main()
