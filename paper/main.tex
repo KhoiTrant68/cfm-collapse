@@ -3258,25 +3258,55 @@ optimisation-limited plateau instead.}
 \label{fig:lipschitz}
 \end{figure}
 
-(iii)~\emph{Posterior distance.} The MMD to the analytic posterior $\N(\mu_{\mathrm{post}},
-\Sigmapost)$ falls with $h$ ($0.256\to0.012$) but never reaches $0$, and the Sinkhorn
-distance plateaus near $2.7$ (Figure~\ref{fig:postdist}). An earlier version of this
-paper read that plateau as a numerical witness of the floor \eqref{eq:w2floor}. That
-reading is wrong, and Section~\ref{sec:p7} now reports the correction: the floor is
-directly computable, equals $0.0353$ here---$3.5\%$ of $\tr\Sigmapost$---and the
-population-optimal atomic law already reaches ${\rm MMD}=0.0089$, well below what the
-trained model attains. The residual MMD is therefore dominated by kernel bias and the
-optimisation gap, not by atomicity. Atomicity is real (Proposition~\ref{prop:atomicity}
-is exact) but it is not what these two curves measure.
+(iii)~\emph{Posterior distance.} Both distances to the analytic posterior
+$\N(\mu_{\mathrm{post}},\Sigmapost)$ fall monotonically with $h$---MMD
+$0.256\to0.012$, entropic OT $1.34\to0.119$---and neither approaches zero
+(Figure~\ref{fig:postdist}). Zero, however, is the wrong thing to compare against: no
+finite sample reaches it, so we compute the two scales that make the numbers readable,
+both from ground truth alone and both free of any trained model
+(\texttt{scripts/analyze\_posterior\_reference\_scales.py}). The \emph{sampling floor}
+is what the same estimators return for two independent $M{=}1000$ draws from the
+\emph{same} posterior: ${\rm MMD}=0.00073$, $\sqrt{S_\varepsilon}=0.075$. The
+\emph{atomic prediction} is the distance from the posterior to
+$\sum_ip_i^{(h)}\delta_{x^i}$, the law Theorem~\ref{thm:endpoint} says the model
+converges to. The measured curves track that prediction closely at every
+$h\ge0.05$---at $h{=}0.5$, $\sqrt{S_\varepsilon}=0.345$ measured against $0.333$
+predicted---and the prediction itself stops $4.6\times$ above the sampling floor in
+$W_2$ and $14\times$ above it in MMD. In the data's own units the best bandwidth
+leaves the generated law $0.345$ from the posterior, which is $34\%$ of the posterior's
+own width $\sqrt{\tr\Sigmapost}=1.00$.
+
+An earlier version of this paper read the OT curve's apparent plateau as a numerical
+witness of the floor \eqref{eq:w2floor}. That reading was wrong twice over. The
+numbers were produced by the Sinkhorn implementation corrected in
+Section~\ref{sec:p7}, so the plateau was an artefact; and the floor is in any case
+directly computable, equals $0.0353$ here---$3.5\%$ of $\tr\Sigmapost$---while the
+population-optimal atomic law already reaches ${\rm MMD}=0.0089$, below what the
+trained model attains. What the corrected curves do show is the claim the paper makes:
+the model converges to the atomic law the theory names, and that law does not converge
+to the posterior. Atomicity is real (Proposition~\ref{prop:atomicity} is exact); what
+these curves measure is the model arriving at it.
 
 \begin{figure}[htb]
 \centering
-\includegraphics[width=0.85\textwidth]{fig_posterior_distance.png}
-\caption{MMD (left) falls monotonically with $h$ but never reaches $0$; the Sinkhorn
-distance (right) drops sharply from $h{=}0$ and then flattens near $2.7$ (it is not
-monotone over $h\ge0.05$, varying only within $3.1$--$3.5$ there). Neither approaches
-$0$ at any $h$---the $h$-independent atomicity floor of
-Proposition~\ref{prop:atomicity}.}
+\includegraphics[width=\textwidth]{fig_posterior_distance.png}
+\caption{Distance to the true posterior, against the two scales that make it
+readable. \textbf{(a)} MMD. The \emph{sampling floor} (green) is what the same
+estimator returns for two independent $M{=}1000$ draws from the same posterior---the
+bottom of the axis in practice, since $0$ is not reachable at finite $M$. The
+\emph{atomic prediction} (orange) is the distance to $\sum_ip_i^{(h)}\delta_{x^i}$,
+the law Theorem~\ref{thm:endpoint} names; it is where the theory puts the model, not
+an artefact of the estimator. The measured curve falls onto it and the pair stop
+$14\times$ above the floor. \textbf{(b)} the same in $W_2$ units, so the numbers are
+lengths in the data's own scale: at the best bandwidth the law sits $0.345$ from a
+posterior $1.00$ wide, $4.6\times$ the floor. \textbf{(c)} why: $n_{\mathrm{eff}}$,
+the number of training atoms the mixture actually uses, is at most $66$ of $200$---the
+law is a finite mixture of point masses at every $h$, which is
+Proposition~\ref{prop:atomicity}. Panel (c) is over the eight conditions of this
+sweep, all from seed $0$, so that it describes the same measurements as (a) and (b);
+the five-seed averages quoted in Section~\ref{sec:p7} ($26$ and $102$) are larger and
+make the same point with more of the label space. Raising $h$ moves the model towards the posterior;
+the thing it moves towards is atomic.}
 \label{fig:postdist}
 \end{figure}
 

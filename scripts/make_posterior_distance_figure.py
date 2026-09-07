@@ -105,6 +105,13 @@ def main() -> None:
     ax.set_yscale("log")
     ax.set_xticks(x); ax.set_xticklabels(labels)
     ax.set_xlabel(r"label-noise bandwidth $h$")
+    gap_w = float(w_atom.iloc[-1] / w_floor)
+    ax.annotate("", xy=(len(x) - 1, w_floor), xytext=(len(x) - 1, w_atom.iloc[-1]),
+                arrowprops=dict(arrowstyle="<->", lw=1.6, color=OI["vermillion"]))
+    ax.annotate(f"${gap_w:.1f}\\times$",
+                xy=(len(x) - 1, np.sqrt(w_floor * w_atom.iloc[-1])),
+                xytext=(-8, 0), textcoords="offset points", ha="right", va="center",
+                fontsize=10, color=OI["vermillion"])
     ax.set_ylabel(r"$\sqrt{S_\varepsilon}$ to the posterior   (data units)")
     ax.set_title("(b) as a length: even the best bandwidth's predicted law sits\n"
                  f"{w_atom.iloc[-1] / post_sd * 100:.0f}% of a posterior width away",
