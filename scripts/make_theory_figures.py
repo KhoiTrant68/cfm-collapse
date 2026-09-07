@@ -39,12 +39,14 @@ Writes: paper/figures/fig_{survival,guidance,window,interpolant}.png
 """
 from __future__ import annotations
 
+import glob
 from pathlib import Path
 
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 
 FIGS = Path("paper/figures")
 OI = {"black": "#000000", "orange": "#E69F00", "sky": "#56B4E9", "green": "#009E73",
@@ -53,54 +55,160 @@ RNG = np.random.default_rng(0)
 
 
 # --------------------------------------------------------------------- survival
-def survival(d=4, n_steps=120000, t_end=1 - 1e-5):
-    xi, x0 = RNG.normal(size=d), RNG.normal(size=d)
-    u = RNG.normal(size=d); u /= np.linalg.norm(u)
-    ts = 1.0 - np.geomspace(1.0, 1.0 - t_end, n_steps + 1)
+def survival(d=4, n_steps=40000):
+    """Proposition prop:survival, drawn three ways.
 
-    def run(a):
-        xv, xs, out = x0.copy(), x0.copy(), []
-        for p, q in zip(ts[:-1], ts[1:]):
-            dt = q - p
-            xv = xv + dt * ((xi - xv) / (1 - p) + u * (1 - p) ** (-a))
-            xs = xs + dt * ((xi - xs) / (1 - p))
-            out.append(np.linalg.norm(xv - xs))
-        return np.array(out)
+    The deviation has a closed form. With Delta = c (1-t)^{-a} u, |u| = 1, the
+    deviation e_t = x^v_t - x^*_t obeys e' = -e/(1-t) + c(1-t)^{-a} u from e_0 = 0,
+    and the integrating factor 1/(1-t) gives
 
+        |e_t| = (c/a) ((1-t)^{1-a} - (1-t)),      |e_t| = -c (1-t) log(1-t) at a = 0,
+
+    which is the proposition's bound attained with equality. Writing eps = 1-t, the
+    trichotomy is visible in the exponent alone: eps^{1-a} -> 0 for a < 1, -> 1 at
+    a = 1, -> infinity for a > 1.
+    """
+    def exact(eps, a, c=1.0):
+        eps = np.asarray(eps, dtype=float)
+        if abs(a) < 1e-12:
+            return -c * eps * np.log(eps)
+        return c * (eps ** (1.0 - a) - eps) / a
+
+    def integrate(a, t_end, c=1.0):
+        """The same quantity from the ODE, as a check that the closed form is right."""
+        xi, x0 = RNG.normal(size=d), RNG.normal(size=d)
+        u = RNG.normal(size=d); u /= np.linalg.norm(u)
+        ts = 1.0 - np.geomspace(1.0, 1.0 - t_end, n_steps + 1)
+        xv, xs = x0.copy(), x0.copy()
+        for p_, q_ in zip(ts[:-1], ts[1:]):
+            dt = q_ - p_
+            xv = xv + dt * ((xi - xv) / (1 - p_) + c * u * (1 - p_) ** (-a))
+            xs = xs + dt * ((xi - xs) / (1 - p_))
+        return float(np.linalg.norm(xv - xs))
+
+    fig, axes = plt.subplots(1, 3, figsize=(14.6, 4.3))
+
+    # ---------------------------------------------------- (a) along the clock
+    ax = axes[0]
+    eps = np.geomspace(1.0, 1e-6, 400)
     exps = [0.0, 0.5, 0.9, 1.0, 1.1, 1.3]
     colors = [OI["sky"], OI["green"], OI["orange"], OI["black"],
               OI["vermillion"], OI["purple"]]
-    fig, axes = plt.subplots(1, 2, figsize=(10.4, 3.9))
-    finals = []
     for a, c in zip(exps, colors):
-        e = run(a)
-        finals.append(e[-1])
-        axes[0].plot(1 - ts[1:], e, color=c, lw=2.0 if a == 1.0 else 1.4,
-                     label=rf"$a={a}$" + (r"  (threshold)" if a == 1.0 else ""))
-    axes[0].set_xscale("log"); axes[0].set_yscale("log")
-    axes[0].invert_xaxis()
-    axes[0].set_xlabel(r"$1-t$   (time remaining, decreasing $\rightarrow$)")
-    axes[0].set_ylabel(r"deviation $|e_t|$ from the collapsed trajectory")
-    axes[0].set_title(r"error $|\Delta|\propto(1-t)^{-a}$: what reaches the endpoint",
-                      fontsize=10.5)
-    axes[0].grid(alpha=0.3); axes[0].legend(fontsize=8, loc="lower left")
+        ax.plot(eps, exact(eps, a), color=c, lw=2.6 if a == 1.0 else 1.5,
+                label=rf"$a={a}$" + ("  (threshold)" if a == 1.0 else ""))
+        # The ODE, at three points per curve: the closed form is not a fit.
+        for te in (1 - 1e-2, 1 - 1e-4, 1 - 1e-6):
+            ax.plot([1 - te], [integrate(a, te)], "o", ms=4.5, mfc="none",
+                    mec=c, mew=1.2, zorder=5)
+    ax.plot([], [], "o", ms=4.5, mfc="none", mec="0.35", mew=1.2,
+            label="ODE, integrated")
+    ax.axhline(1.0, color=OI["black"], ls=":", lw=1.0)
+    # Say what each curve does at the endpoint, at the endpoint.
+    for a, c, txt in ((1.3, OI["purple"], r"$\to\infty$"),
+                      (1.0, OI["black"], r"$\to c$"),
+                      (0.5, OI["green"], r"$\to 0$")):
+        ax.annotate(txt, xy=(1e-6, exact(1e-6, a)), xytext=(6, 0),
+                    textcoords="offset points", fontsize=10, color=c,
+                    va="center", ha="left", annotation_clip=False)
+    ax.set_xscale("log"); ax.set_yscale("log"); ax.invert_xaxis()
+    ax.set_ylim(1e-7, 1e3)
+    ax.set_xlabel(r"$1-t$   (time remaining, decreasing $\rightarrow$)")
+    ax.set_ylabel(r"deviation $|e_t|$ from the collapsed trajectory")
+    ax.set_title(r"(a) an error $|\Delta|=c(1-t)^{-a}$ along the clock",
+                 fontsize=10.5)
+    ax.grid(alpha=0.3); ax.legend(fontsize=7.5, loc="lower left", ncol=2)
 
-    fine = np.linspace(0.0, 1.4, 29)
-    vals = [run(a)[-1] for a in fine]
-    axes[1].plot(fine, vals, "o-", ms=3.5, color=OI["blue"], lw=1.5)
-    axes[1].axvline(1.0, color=OI["black"], ls="--", lw=1.2,
-                    label=r"$a=1$: the field's own rate")
-    axes[1].set_yscale("log")
-    axes[1].set_xlabel(r"divergence exponent $a$")
-    axes[1].set_ylabel(r"retained deviation at $t=1-10^{-5}$")
-    axes[1].set_title("the threshold is exactly the field's rate", fontsize=10.5)
-    axes[1].grid(alpha=0.3); axes[1].legend(fontsize=8, loc="upper left")
+    # ------------------------------------------------- (b) the limit, as a pivot
+    ax = axes[1]
+    aa = np.linspace(0.0, 2.0, 401)
+    deltas = [1e-2, 1e-3, 1e-4, 1e-6, 1e-8]
+    greys = plt.cm.viridis(np.linspace(0.15, 0.85, len(deltas)))
+    for dl, col in zip(deltas, greys):
+        ax.plot(aa, [exact(dl, a) for a in aa], color=col, lw=1.8,
+                label=rf"$\delta=10^{{{int(np.log10(dl))}}}$")
+    ax.axvline(1.0, color=OI["black"], ls="--", lw=1.4)
+    ax.plot([1.0], [1.0], "o", color=OI["black"], ms=7, zorder=6)
+    ax.set_yscale("log"); ax.set_ylim(1e-9, 1e9)
+    ax.annotate(r"$\rightarrow 0$", xy=(0.45, 1e-6), fontsize=13,
+                color=OI["sky"], ha="center")
+    ax.annotate(r"$\rightarrow \infty$", xy=(1.6, 1e6), fontsize=13,
+                color=OI["vermillion"], ha="center")
+    ax.annotate("every truncation\npasses through $(1,\\,c)$", xy=(1.0, 1.0),
+                xytext=(1.18, 3e-5), fontsize=8.5,
+                arrowprops=dict(arrowstyle="->", lw=0.8, color=OI["black"]))
+    ax.set_xlabel(r"divergence exponent $a$")
+    ax.set_ylabel(r"deviation retained at $t=1-\delta$")
+    ax.set_title("(b) the threshold is a limit, so vary the truncation",
+                 fontsize=10.5)
+    ax.grid(alpha=0.3); ax.legend(fontsize=8, loc="upper left", ncol=1)
+
+    # ------------------------------------- (c) the loss form against measurement
+    ax = axes[2]
+    dl = 1e-3     # EXP-1's sampler truncation (eval.ode_eps)
+    # Span the measured losses and no further: an extrapolated fit line over
+    # three decades when the data occupies one invites a reading the data
+    # does not support.
+    lo = np.geomspace(0.3, 4.0, 100)
+    ax.plot(lo, np.sqrt(lo * dl), color=OI["black"], lw=2.0,
+            label=r"bound $\sqrt{\mathcal{L}\delta}$  ($L_\Delta=0$)")
+    fs = sorted(glob.glob("results/exp1/exp1_cond_seed[0-9]/raw/metrics.csv"))
+    if fs:
+        m = pd.concat([pd.read_csv(f) for f in fs])
+        m = m[m["group"] == "train"]
+        g = m.groupby("iter")[["train_loss", "trace_cov_mean"]].mean()
+        std = np.sqrt(g["trace_cov_mean"].values)
+        loss = g["train_loss"].values
+        it = g.index.values
+        # Iterations 100 and 300 are still leaving initialisation -- data-scale
+        # variance, no collapse under way -- so they are drawn but not fitted.
+        fitm = it >= 1000
+        ax.scatter(loss[~fitm], std[~fitm], s=44, facecolor="none",
+                   edgecolor="0.55", linewidth=1.2, zorder=5,
+                   label="pre-collapse (not fitted)")
+        sc = ax.scatter(loss[fitm], std[fitm], c=np.log10(it[fitm]), cmap="viridis",
+                        s=52, zorder=6, edgecolor="white", linewidth=0.6,
+                        label="EXP-1 checkpoints (5 seeds)")
+        cb = fig.colorbar(sc, ax=ax, pad=0.02)
+        cb.set_label(r"$\log_{10}$ iteration", fontsize=8.5)
+        cb.ax.tick_params(labelsize=7.5)
+        sl, ic = np.polyfit(np.log(loss[fitm]), np.log(std[fitm]), 1)
+        rr = np.corrcoef(np.log(loss[fitm]), np.log(std[fitm]))[0, 1] ** 2
+        late = it >= 30000
+        sl2 = np.polyfit(np.log(loss[late]), np.log(std[late]), 1)[0]
+        ax.plot(lo, np.exp(ic) * lo ** sl, color=OI["vermillion"], ls="--", lw=1.6,
+                label=rf"fit: slope ${sl:.3f}$, $R^2={rr:.2f}$")
+        ax.axhline(1.0, color=OI["green"], ls=":", lw=1.4,
+                   label=r"calibrated: $\sqrt{\mathrm{tr}\,\Sigma_{\mathrm{post}}}$")
+        off = float(np.median(std[fitm] / np.sqrt(loss[fitm] * dl)))
+        ax.annotate("the exponent is the prediction; the constant is not:\n"
+                    f"slope ${sl:.3f}$ against $0.5$ (${sl2:.3f}$ over the last\n"
+                    f"three checkpoints), offset $e^{{L_\\Delta}}\\approx{off:.0f}$",
+                    xy=(0.03, 0.965), xycoords="axes fraction", fontsize=7.6,
+                    ha="left", va="top",
+                    bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="0.8"))
+    ax.set_xscale("log"); ax.set_yscale("log")
+    ax.set_xlim(0.28, 4.4); ax.set_ylim(1.2e-2, 2.6)
+    # Over less than a decade the default log locator lays minor labels on top of
+    # each other; name the ticks.
+    from matplotlib.ticker import FixedLocator, NullLocator, FuncFormatter
+    ax.xaxis.set_major_locator(FixedLocator([0.3, 0.5, 1.0, 2.0, 4.0]))
+    ax.xaxis.set_minor_locator(NullLocator())
+    ax.xaxis.set_major_formatter(FuncFormatter(lambda v, _: f"{v:g}"))
+    ax.yaxis.set_major_locator(FixedLocator([0.02, 0.05, 0.1, 0.3, 1.0, 2.0]))
+    ax.yaxis.set_minor_locator(NullLocator())
+    ax.yaxis.set_major_formatter(FuncFormatter(lambda v, _: f"{v:g}"))
+    ax.set_xlabel(r"training loss $\mathcal{L}_i$")
+    ax.set_ylabel(r"conditional std $\sqrt{\mathrm{tr}\,\mathrm{Cov}}$ retained")
+    ax.set_title(r"(c) the loss form, measured: collapse is paced by $\sqrt{\mathcal{L}}$",
+                 fontsize=10.5)
+    ax.grid(alpha=0.3); ax.legend(fontsize=7.0, loc="lower right")
+
     fig.tight_layout(); fig.savefig(FIGS / "fig_survival.png", dpi=200)
     plt.close(fig)
     print("  fig_survival.png")
 
 
-# --------------------------------------------------------------------- guidance
 def guidance(N=6, d=2, n_steps=30000, t_end=1 - 1e-6):
     X = RNG.normal(size=(N, d)) * 1.5
     Y = RNG.normal(size=(N, 1))

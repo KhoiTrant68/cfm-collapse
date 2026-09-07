@@ -795,19 +795,31 @@ network cannot reproduce, and the collapse we measure over training
 
 \begin{figure}[htb]
 \centering
-\includegraphics[width=0.92\textwidth]{fig_survival.png}
-\caption{Proposition~\ref{prop:survival}, drawn. \textbf{Left}: the deviation
-$|e_t|$ from the collapsed trajectory, for velocity errors growing like
-$(1-t)^{-a}$. The exact field's linear part is $-\tfrac{1}{1-t}I_d$, a contraction
-whose strength diverges, so an error only reaches the endpoint if it diverges at the
-same rate: curves with $a<1$ are driven to zero, the $a=1$ curve is the separatrix
-and flattens at the error's own coefficient, and $a>1$ grows without bound.
-\textbf{Right}: the deviation retained at a fixed truncation, against $a$. At any
-finite truncation this is a smooth curve---the threshold is a statement about the
-limit---and it crosses $O(1)$ at exactly $a=1$. The practical reading is that a
-bounded error is annihilated by the flow, so a model can keep conditional variance
-only by failing to reproduce the blow-up, which is the failure
-Remark~\ref{lem:norepr} says a finite Lipschitz network cannot avoid.}
+\includegraphics[width=\textwidth]{fig_survival.png}
+\caption{Proposition~\ref{prop:survival} and Corollary~\ref{cor:lossform}, drawn.
+\textbf{(a)} the deviation $|e_t|$ from the collapsed trajectory for velocity errors
+growing like $c(1-t)^{-a}$. The exact field's linear part is $-\tfrac{1}{1-t}I_d$, a
+contraction whose strength diverges, so an error only reaches the endpoint if it
+diverges at the same rate: $a<1$ is driven to zero, $a=1$ is the separatrix and
+flattens at the error's own coefficient $c$, and $a>1$ grows without bound. The
+curves are the closed form
+$|e_t|=\tfrac{c}{a}\big((1-t)^{1-a}-(1-t)\big)$---the bound
+\eqref{eq:survival} attained with equality---and the open markers are the ODE
+integrated numerically at three truncations, so neither is asked for on trust.
+\textbf{(b)} the threshold is a statement about the limit, so the truncation is
+varied rather than fixed: the curves pivot about $a=1$, fanning to $0$ below it and
+to $\infty$ above, and every truncation passes through the same point $(1,c)$.
+\textbf{(c)} the loss form against what EXP-1 actually did. Equation
+\eqref{eq:lossform} predicts the retained conditional standard deviation scales like
+$\sqrt{\mathcal L}$ at fixed truncation; the measured slope over the six checkpoints
+from $10^3$ on is $0.429$ at $R^2=0.99$, and $0.485$ over the last three, against the
+predicted $\tfrac12$. The offset is the constant the bound does not pin down,
+$e^{L_\Delta}\approx25$, i.e.\ the inequality holds here with $L_\Delta\ge3.2$. The
+exponent is the corollary's content and it is confirmed; the constant is loose. The
+practical reading of all three panels is that a bounded error is annihilated by the
+flow, so a model can keep conditional variance only by failing to reproduce the
+blow-up---the failure Remark~\ref{lem:norepr} says a finite Lipschitz network cannot
+avoid---and the rate at which it stops failing is set by the loss.}
 \label{fig:survival}
 \end{figure}
 
@@ -862,6 +874,25 @@ $L_\Delta$, as the $e^{L_\Delta}$ factor says it should: it is smallest for erro
 constant in space, where that factor is $1$, and largest for the steepest linear error
 tested. So the bound is honest about the scaling $\sqrt{\mathcal L_i\delta}$ and loose
 in its constant, and we use it for the former.
+
+That scaling is testable on the runs themselves, and we test it rather than leave
+``optimisation-paced'' as a turn of phrase. EXP-1 records both the training loss and
+the retained conditional variance at every checkpoint, at a fixed sampler truncation
+$\delta=10^{-3}$, so \eqref{eq:lossform} predicts
+$\log\sqrt{\tr\mathrm{Cov}}$ to be affine in $\log\mathcal L_i$ with slope
+$\tfrac12$. Over the six checkpoints from $10^3$ iterations onward the measured slope
+is $0.429$ at $R^2=0.99$, and over the last three---where collapse is actually
+running---it is $0.485$ at $R^2=0.998$ (Figure~\ref{fig:survival}(c),
+\texttt{scripts/verify\_error\_survival.py}). The two earliest checkpoints are
+excluded and reported separately: at $10^2$ and $3\times10^2$ iterations the model is
+still leaving its initialisation, holds data-scale variance, and is not collapsing at
+all, so it is not in the regime the corollary describes. The prefactor is
+$e^{L_\Delta}\approx25$ and is near-constant across the collapse ($23.9\to26.0$),
+which is what the bound predicts for an error whose spatial Lipschitz constant is not
+changing much; it holds here with $L_\Delta\ge3.2$, consistent with the empirical
+Lipschitz constants of Figure~\ref{fig:lipschitz}. The exponent is the corollary's
+content and the measurement confirms it; the constant is loose by a factor of $25$
+and we do not use it.
 
 One limit remains and is not closed by this: the bound constrains how much variance
 can survive, not what the surviving law looks like.
@@ -3031,11 +3062,16 @@ only a measurement.}
 
 \begin{figure}[htb]
 \centering
-\includegraphics[width=0.56\textwidth]{fig_seed_split.png}
-\caption{What the EXP-1 error bars are measuring. Ten runs with the problem
-instance held fixed and the training run varying, against ten with the reverse.
-The instance carries $78\%$ of the variance: most of the width of every $\pm$ in
-this paper is which operator $A$ happened to be drawn, not how the run went.}
+\includegraphics[width=\textwidth]{fig_seed_split.png}
+\caption{What the EXP-1 error bars are measuring. \textbf{(a)} ten runs with the
+problem instance held fixed and the training run varying, against ten with the
+reverse; the shaded blocks are the min--max spans, and the circled point is the one
+run both arms share. \textbf{(b)} the two standard deviations and their quadrature
+sum against the published five-seed spread: the two sources account for the observed
+bar, so nothing else of comparable size is missing from the decomposition.
+\textbf{(c)} the bars next to the effect they are attached to. The collapse is
+$0.63$ in ratio units and the widest bar is $0.14$, so the bars being conservative
+changes their width and not a single conclusion.}
 \label{fig:seedsplit}
 \end{figure}
 

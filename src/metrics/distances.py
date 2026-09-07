@@ -60,26 +60,43 @@ def sinkhorn_distance(x: torch.Tensor, y: torch.Tensor,
         return float(loss(x.to(torch.float32), y.to(torch.float32)))
 
     def _ot(a: torch.Tensor, b: torch.Tensor) -> torch.Tensor:
+        """Entropic OT cost via the log-domain Sinkhorn dual.
+
+        The potentials f, g are carried in *cost* units, so the exponent is
+        (f + g - C)/eps and the dual value is <f,mu> + <g,nu>. An earlier version
+        mixed the two conventions -- it added a raw-unit potential to -C/eps
+        inside the logsumexp -- which made the returned number unrelated to the
+        transport cost: two identical Gaussians scored 3.34 and a point mass
+        against a Gaussian scored 0. The three closed forms in
+        scripts/verify_sinkhorn.py pin this down.
+
+        eps-scaling: at the eps this paper needs (blur 0.1, p 2 -> eps 1e-2) a
+        fixed-eps iteration converges too slowly to be trusted at 200 steps, so
+        anneal eps down to its target and spend the iterations where they count.
+        """
         a = a.to(torch.float64)
         b = b.to(torch.float64)
         C = _pairwise_sq_dists(a, b)
         if p == 1:
             C = C.clamp_min(0).sqrt()
         n, m = C.shape
-        eps = blur ** p
-        mu = torch.full((n,), 1.0 / n, dtype=torch.float64)
-        nu = torch.full((m,), 1.0 / m, dtype=torch.float64)
-        u = torch.zeros(n, dtype=torch.float64)
-        v = torch.zeros(m, dtype=torch.float64)
-        log_mu = torch.log(mu)
-        log_nu = torch.log(nu)
-        K = -C / eps
-        for _ in range(n_iters):
-            u = eps * (log_mu - torch.logsumexp(K + v[None, :], dim=1)) + u
-            v = eps * (log_nu - torch.logsumexp(K.T + u[None, :], dim=1)) + v
-        P = torch.exp((K + u[:, None] + v[None, :]) / 1.0)  # not needed for cost
-        # transport cost via dual: <u,mu> + <v,nu>
-        return (u @ mu + v @ nu)
+        eps_target = blur ** p
+        log_mu = torch.full((n,), -float(torch.tensor(float(n)).log()), dtype=torch.float64)
+        log_nu = torch.full((m,), -float(torch.tensor(float(m)).log()), dtype=torch.float64)
+        mu, nu = log_mu.exp(), log_nu.exp()
+
+        f = torch.zeros(n, dtype=torch.float64)
+        g = torch.zeros(m, dtype=torch.float64)
+        eps0 = max(float(C.max()), eps_target)
+        n_anneal = max(1, n_iters // 4)
+        schedule = torch.logspace(
+            float(torch.tensor(eps0).log10()), float(torch.tensor(eps_target).log10()),
+            n_anneal, dtype=torch.float64)
+        for k in range(n_iters):
+            eps = float(schedule[min(k, n_anneal - 1)])
+            f = -eps * torch.logsumexp((g[None, :] - C) / eps + log_nu[None, :], dim=1)
+            g = -eps * torch.logsumexp((f[:, None] - C) / eps + log_mu[:, None], dim=0)
+        return f @ mu + g @ nu
 
     ot_xy = _ot(x, y)
     ot_xx = _ot(x, x)

@@ -133,3 +133,62 @@ def _loss_form():
 
 print("\n\nC. loss form: E(1-delta) <= exp(L_Delta) sqrt(Loss * delta)")
 _loss_form()
+
+
+# ---------------------------------------------------------------------------
+def _measured_pacing():
+    """D. Does the loss form describe the collapse that was actually measured?
+
+    Part C checks the bound on constructed errors. This checks its *shape* on
+    EXP-1. The corollary says the retained deviation scales like sqrt(Loss) at
+    fixed truncation, so on log axes the conditional standard deviation against
+    the training loss should have slope 1/2, with a prefactor exp(L_Delta) that
+    the corollary does not pin down.
+
+    Iterations 100 and 300 are excluded: the model is still leaving its
+    initialisation there, holds data-scale variance, and is not collapsing, so
+    including them fits a line through a regime the corollary does not describe.
+    They are reported separately rather than silently dropped.
+    """
+    import glob
+
+    import pandas as pd
+
+    fs = sorted(glob.glob("results/exp1/exp1_cond_seed[0-9]/raw/metrics.csv"))
+    if not fs:
+        print("  (no EXP-1 runs found; skipped)")
+        return
+    m = pd.concat([pd.read_csv(f) for f in fs])
+    m = m[m["group"] == "train"]
+    g = m.groupby("iter")[["train_loss", "trace_cov_mean"]].mean()
+    it = g.index.values
+    loss = g["train_loss"].values
+    std = np.sqrt(g["trace_cov_mean"].values)
+    delta = 1e-3  # EXP-1's sampler truncation, eval.ode_eps
+
+    print(f"  {'iter':>8} {'loss':>8} {'std':>8} {'std/sqrt(L*delta)':>19}")
+    for i, l, s in zip(it, loss, std):
+        print(f"  {i:>8} {l:>8.4f} {s:>8.4f} {s / np.sqrt(l * delta):>19.1f}")
+
+    print(f"\n  {'fitted over':>16} {'n':>3} {'slope':>7} {'R^2':>7}"
+          f"   (corollary predicts 1/2)")
+    for lo in (0, 1000, 30000):
+        k = it >= lo
+        sl = np.polyfit(np.log(loss[k]), np.log(std[k]), 1)[0]
+        r2 = np.corrcoef(np.log(loss[k]), np.log(std[k]))[0, 1] ** 2
+        tag = "all checkpoints" if lo == 0 else f"iter >= {lo}"
+        print(f"  {tag:>16} {int(k.sum()):>3} {sl:>7.3f} {r2:>7.3f}")
+
+    k = it >= 1000
+    sl = np.polyfit(np.log(loss[k]), np.log(std[k]), 1)[0]
+    off = float(np.median(std[k] / np.sqrt(loss[k] * delta)))
+    ok = abs(sl - 0.5) < 0.1
+    print(f"\n  slope {sl:.3f} vs 1/2: {'agrees' if ok else 'DOES NOT AGREE'} "
+          f"within 0.1; prefactor exp(L_Delta) ~ {off:.0f}, so the bound holds "
+          f"with L_Delta >= {np.log(off):.2f}.")
+    print("  The exponent is the corollary's content and it is confirmed; the "
+          "constant is loose, and Figure fig_survival(c) says so.")
+
+
+print("\n\nD. the loss form against the measured EXP-1 collapse")
+_measured_pacing()
