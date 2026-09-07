@@ -1271,12 +1271,13 @@ $1.000$, $0.829$, $0.717$, $0.620$ at $h=0,4,5,6$, and the exact $1.000$ at $h{=
 rules out the integrator as the cause. What governs the discrepancy is
 $n_{\mathrm{eff}}$ rather than $h$: pooled over the $144$ (condition, $h$) pairs with
 $h>0$, Spearman's correlation is $-0.858$ against $n_{\mathrm{eff}}$ and $-0.554$
-against $h$. And repeating $h{=}0$, $h{=}4$ and $h{=}5$ at a second seed---which redraws the
-mask, the training subset and all training randomness---moves the raw $\tr\Cov$ by
-$35\%$ and $16\%$ while the aggregate ratio $\tr\Cov/\tr\Covh$ moves by $9.3\%$ and
-$0.27\%$: the reference-relative quantity is the stable one, provided it is formed as
-a ratio of aggregates rather than an average of per-condition ratios, which is
-heavy-tailed and does not reproduce at all.
+against $h$. And repeating every bandwidth at three seeds---each redrawing the mask, the training
+subset and all training randomness---separates the estimators sharply: across the three
+instances the average of per-condition ratios spreads by $281\%$ at $h{=}4$ and $263\%$
+at $h{=}5$, while the aggregate ratio $\tr\Cov/\tr\Covh$ spreads by $23\%$ and $30\%$.
+The per-condition average is unusable; the aggregate ratio beats the raw trace where
+the reference has range across conditions ($23\%$ against $41\%$ at $h{=}4$) and not
+where it has none.
 Appendix~\ref{app:deferred} gives each in full.
 
 \paragraph{What governs the discrepancy is $n_{\mathrm{eff}}$, not $h$.}
@@ -1286,33 +1287,78 @@ against $-0.554$ for the correlation with $h$ itself. The bandwidth matters only
 how many training atoms it actually pools; conditions whose kernel weight concentrates on
 one or two atoms are the ones the model overshoots, at any $h$.
 
-\paragraph{Reproducibility across problem instances.} Repeating the $h{=}0$ and $h{=}4$
-runs at a second seed---which redraws the mask, the training subset and all training
-randomness---moves $\tr\Cov$ at $h{=}4$ from $178.5$ to $240.7$ ($35\%$) and
-$n_{\mathrm{eff}}$ from $2.36$ to $2.77$, so the two instances are genuinely different
-problems. The aggregate ratio $\tr\Cov/\tr\Covh$ moves from $2.255$ to $2.464$, i.e.\
-by $9.3\%$; at $h{=}5$ the raw trace moves by $16\%$ ($276.8\to321.2$) and the
-aggregate ratio by $0.27\%$ ($1.2449\to1.2482$). At $h{=}6$, however, the aggregate
-ratio moves from $1.181$ to $0.924$---a $22\%$ spread that straddles $1$. So the
-apparent agreement at $h{=}6$ is not merely uninformative for want of range: it is not
-stable even in the sign of its deviation, and a single-seed reading of it could have
-been reported as agreement to $18\%$ or to $8\%$ depending on which instance was drawn. At $h{=}0$, $\tr\Cov$ is $0.431$
-against $0.409$. The reference-relative quantity is the stable one, which is the
-practical case for reporting it.
+\paragraph{Reproducibility across problem instances.} Every bandwidth was run at three
+seeds, each redrawing the mask, the training subset and all training randomness, so
+each seed is a different problem and not merely a different run: at $h{=}4$,
+$n_{\mathrm{eff}}$ is $2.36$, $2.77$ and $2.10$ across the three. Table~\ref{tab:seed3}
+gives the final values. Reading the spread as $(\max-\min)/\mathrm{mean}$: the raw
+$\tr\Cov$ moves by $41\%$ at $h{=}4$, $23\%$ at $h{=}5$ and $16\%$ at $h{=}6$, while
+the aggregate ratio $\tr\Cov/\tr\Covh$ moves by $23\%$, $30\%$ and $23\%$.
+
+That is a narrower claim than an earlier version of this paper made, and we state the
+change. With two seeds the aggregate ratio moved by $9.3\%$ at $h{=}4$ and $0.27\%$ at
+$h{=}5$, and we concluded that the reference-relative quantity is the stable one. The
+third seed shows the $h{=}5$ figure to have been a coincidence---two instances landed
+on $1.245$ and $1.248$, the third on $1.654$---and at $h{=}5$ and $h{=}6$ the aggregate
+ratio is in fact \emph{less} stable across instances than the raw trace it was meant to
+stabilise. What survives is the case at $h{=}4$, where the ratio moves by $23\%$
+against the raw trace's $41\%$; and $h{=}4$ is exactly the bandwidth at which the
+reference has range across conditions, which is the same condition the $\beta$
+measurement identifies as the informative one. A reference-relative statistic can only
+stabilise what its denominator actually varies over.
+
+At $h{=}6$ the three aggregate ratios are $1.181$, $0.924$ and $1.166$: a $23\%$ spread
+that straddles $1$. So the apparent agreement there is not merely uninformative for
+want of range---it is not stable even in the sign of its deviation, and a single-seed
+reading could have been reported as agreement to $18\%$ or to $8\%$ depending on which
+instance was drawn. At $h{=}0$, where the reference variance is exactly zero and the
+ratio is undefined, $\tr\Cov$ is $0.431$, $0.409$ and $0.467$, a $13\%$ spread, and
+$n_{\mathrm{eff}}=1.00$ at every condition of every seed.
+
+\begin{table}[htb]
+\centering\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{cccccccc}
+\toprule
+& \multicolumn{4}{c}{$\tr\Cov$ \ / \ aggregate ratio $\tr\Cov/\tr\Covh$} &
+\multicolumn{3}{c}{spread $(\max-\min)/\mathrm{mean}$}\\
+\cmidrule(lr){2-5}\cmidrule(l){6-8}
+$h$ & seed 0 & seed 1 & seed 2 & $n_{\mathrm{eff}}$ &
+raw & aggregate & mean-of-ratios\\
+\midrule
+$0$ & $0.431$ & $0.409$ & $0.467$ & $1.00$ & $13.4\%$ & --- & ---\\
+$4$ & $178.5$ / $2.255$ & $240.7$ / $2.463$ & $160.7$ / $1.944$ & $2.1$--$2.8$ &
+  $41.4\%$ & $\mathbf{23.4\%}$ & $281\%$\\
+$5$ & $276.8$ / $1.245$ & $321.2$ / $1.248$ & $349.0$ / $1.654$ & $13.0$--$17.2$ &
+  $\mathbf{22.9\%}$ & $29.6\%$ & $263\%$\\
+$6$ & $406.4$ / $1.181$ & $347.1$ / $0.924$ & $364.9$ / $1.166$ & $50$--$93$ &
+  $\mathbf{15.9\%}$ & $23.5\%$ & $70.6\%$\\
+\bottomrule
+\end{tabular}
+\caption{Three seeds of the CIFAR-10 DDPM sweep at $60000$ iterations, each a fresh
+problem instance. Bold marks the more stable of the raw trace and the aggregate ratio
+on each row. The aggregate ratio wins only at $h{=}4$, the bandwidth where the kernel
+reference varies across conditions; where the reference is nearly constant, dividing by
+it adds noise instead of removing it. The last column is why the paper does not use the
+average of per-condition ratios anywhere: at $h{=}4$ the three seeds give $6.83$,
+$7.07$ and $307.7$, the last carried by one condition whose reference happened to fall
+near zero.}
+\label{tab:seed3}
+\end{table}
 
 \paragraph{Which ratio, and a third false certificate.} That conclusion depends on
 \emph{how} the ratio is formed, and the difference is large enough to reverse it. The
 aggregate ratio---$\tr\Cov$ summed over conditions divided by $\tr\Covh$ summed over
 conditions---is what Theorem~\ref{thm:endpoint} predicts and what reproduces. The
-average of per-condition ratios does not: it moves by $3.5\%$ at $h{=}4$ ($6.83$ to
-$7.07$), which looks reassuring, but by a factor of $1.7$ at $h{=}5$ ($2.315$ to
-$1.356$). The reason is that a per-condition ratio has a denominator that can be
-arbitrarily close to zero, so its average is heavy-tailed and dominated by whichever
-condition happened to draw the smallest $\tr\Covh$---the same pathology that makes the
-$M{=}256$ mean $20.4$ against a median of $5.30$ at $h{=}4$
+average of per-condition ratios does not, and the three seeds make that beyond
+argument: at $h{=}4$ they give $6.83$, $7.07$ and $307.7$, and at $h{=}5$ $2.315$,
+$1.356$ and $37.17$. The reason is that a per-condition ratio has a denominator that
+can be arbitrarily close to zero, so its average is heavy-tailed and dominated by
+whichever condition happened to draw the smallest $\tr\Covh$---the same pathology that
+makes the $M{=}256$ mean $20.4$ against a median of $5.30$ at $h{=}4$
 (Section~\ref{sec:cifarddpm}). An earlier version of this paper argued
-instance-stability from the $3.5\%$ figure alone; the third seed run showed that
-figure to be a coincidence of one bandwidth. We report the aggregate ratio throughout,
+instance-stability from the two-seed $3.5\%$ figure alone; adding seeds turned that
+$3.5\%$ into $281\%$. We report the aggregate ratio throughout,
 and medians with bootstrap intervals where per-condition detail is needed.
 
 \begin{figure}[htb]

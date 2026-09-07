@@ -14,7 +14,6 @@ Exits non-zero if any check fails, so it can be run before a submission build.
 import glob
 import json
 import pathlib
-import re
 
 import numpy as np
 import pandas as pd
@@ -94,26 +93,58 @@ def aggregate_ratio(run: str) -> float:
     return float(r["trace_cov_mean"]) / float(r["trace_cov_kernel_mean"])
 
 
-for run, want in (("h4", 2.255), ("h4_seed1", 2.464),
-                  ("h5", 1.2449), ("h5_seed1", 1.2482)):
+for run, want in (("h4", 2.255), ("h4_seed1", 2.463), ("h4_seed2", 1.944),
+                  ("h5", 1.2449), ("h5_seed1", 1.2482), ("h5_seed2", 1.654),
+                  ("h6", 1.181), ("h6_seed1", 0.924), ("h6_seed2", 1.166)):
     check(f"{run} aggregate ratio", want, aggregate_ratio(run), 1e-3)
 
-for label, a, b, want in (("h=4 seed spread, aggregate", "h4", "h4_seed1", 9.3),
-                          ("h=5 seed spread, aggregate", "h5", "h5_seed1", 0.27)):
-    ra, rb = aggregate_ratio(a), aggregate_ratio(b)
-    check(label + " (%)", want, abs(rb - ra) / ra * 100, 3e-2)
 
-# The instability the paper now reports about the other estimator.
+def raw_trace(run: str) -> float:
+    df = pd.read_csv(f"results/exp3/exp3_cifar_ddpm_{run}/raw/metrics.csv")
+    return float(df.sort_values("iter").iloc[-1]["trace_cov_mean"])
+
+
 def mean_of_ratios(run: str) -> float:
     df = pd.read_csv(f"results/exp3/exp3_cifar_ddpm_{run}/raw/metrics.csv")
     return float(df.sort_values("iter").iloc[-1]["ratio_to_kernel_mean"])
 
 
-check("h=5 mean-of-ratios instability (factor)", 1.7,
-      mean_of_ratios("h5") / mean_of_ratios("h5_seed1"), 2e-2)
+def spread(vals) -> float:
+    v = np.asarray(vals, dtype=float)
+    return (v.max() - v.min()) / v.mean() * 100
 
-for run, want in (("h6", 1.181), ("h6_seed1", 0.924)):
-    check(f"{run} aggregate ratio", want, aggregate_ratio(run), 1e-3)
+
+# Table tab:seed3. The two-seed version of this table said the aggregate ratio was
+# the instance-stable quantity; with three seeds that holds only at h=4, where the
+# reference has range across conditions. Both directions are checked, including the
+# rows where the RAW trace is the more stable, because that is the claim that
+# changed and an unchecked reversal is how the old one survived.
+seeds = {h: [f"h{h}", f"h{h}_seed1", f"h{h}_seed2"] for h in (4, 5, 6)}
+for h, want_raw, want_agg, want_mor in ((4, 41.4, 23.4, 281.0),
+                                        (5, 22.9, 29.6, 263.0),
+                                        (6, 15.9, 23.5, 70.6)):
+    rs = seeds[h]
+    check(f"h={h} 3-seed spread, raw (%)", want_raw,
+          spread([raw_trace(r) for r in rs]), 3e-2)
+    check(f"h={h} 3-seed spread, aggregate (%)", want_agg,
+          spread([aggregate_ratio(r) for r in rs]), 3e-2)
+    check(f"h={h} 3-seed spread, mean-of-ratios (%)", want_mor,
+          spread([mean_of_ratios(r) for r in rs]), 3e-2)
+
+agg_beats_raw = {h: spread([aggregate_ratio(r) for r in seeds[h]])
+                 < spread([raw_trace(r) for r in seeds[h]]) for h in (4, 5, 6)}
+want = {4: True, 5: False, 6: False}
+for h in (4, 5, 6):
+    good = agg_beats_raw[h] == want[h]
+    print(f"  {'OK ' if good else 'BAD'} "
+          f"{f'h={h}: aggregate more stable than raw?':44s} "
+          f"paper={str(want[h]):<12} file={str(agg_beats_raw[h]):<12}")
+    ok, fail = ok + good, fail + (not good)
+
+check("h=0 3-seed spread, raw (%)", 13.4,
+      spread([raw_trace(r) for r in ("h0", "h0_seed1", "h0_seed2")]), 3e-2)
+check("h=4 mean-of-ratios, seed 2 (the outlier)", 307.7,
+      mean_of_ratios("h4_seed2"), 1e-3)
 check("h=6 seed spread, aggregate (%)", 21.7,
       abs(aggregate_ratio("h6_seed1") - aggregate_ratio("h6"))
       / aggregate_ratio("h6") * 100, 1e-2)
