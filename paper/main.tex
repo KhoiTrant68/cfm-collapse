@@ -94,9 +94,10 @@ $35.75$M-parameter DDPM U-Net on CIFAR-10, $d{=}3072$---hard-conditioning collap
 unambiguous ($415\times$ in $\tr\Cov$; the generated mean identifies the correct
 training image at every evaluation condition), while the smoothed prediction holds only
 in direction: regressing measured on predicted variance across conditions gives a
-log--log slope of $0.481$ where the theory predicts $1$, and the atomicity obstruction,
-exact for the population minimiser, is violated by $38\%$ of samples at the widest
-bandwidth we test.
+log--log slope of $0.481$ where the theory predicts $1$, and the atomicity that holds
+exactly for the population minimiser is not inherited by the trained model---$38\%$ of
+its samples are off-atom at the widest bandwidth we test, under the standard
+nearest-neighbour criterion.
 Throughout, we distinguish carefully between exact population consequences and
 empirical findings that the population theory does not, by itself, determine.
 \end{abstract}
@@ -219,17 +220,21 @@ explicitly, work by work.
   a $95\%$ bootstrap interval of $[1.08,1.18]$---which redrawing the problem instance
 widens to $[0.92,1.18]$---while the across-condition slope is $-0.156$
   (Section~\ref{sec:cifarddpm}) --- and the atomicity that holds exactly for the
-  population minimiser is violated by $38\%$ of that model's samples. The warning
+  population minimiser is not inherited by the trained model, $38\%$ of whose samples
+  are off-atom. The warning
   applies to our own headline statistic, and we state where it should not be trusted.
 \item \textbf{A diagnostic, and the wrong one it replaces.} The methodological
   content of the previous point stands on its own and is what we expect to transfer.
   An agreement statistic is only as informative as the variation in its denominator,
   so the quantity to report is not the level of $\tr\Cov/\tr\Covh$ but its
   \emph{across-condition slope} $\beta$: regress $\log\tr\Cov$ on $\log\tr\Covh$ over
-  evaluation conditions, where the theory predicts $\beta=1$ and $\beta=0$ means the
-  model ignores the label. On our data the two statistics disagree in the worst
+  evaluation conditions, where the theory predicts $\beta=1$ and $\beta\approx0$ means
+  no detectable log--log dependence of the measured variance on the predicted one. On our data the two statistics disagree in the worst
   possible way---at $h{=}6$ the level says $1.15$ and the slope says $-0.156$---and
-  the slope is the one that is right. We also show what the level's error bars hide:
+  the slope is the more informative of the two in that regime. It is not a certificate
+  either: $\tr\Cov=10\,\tr\Covh$ has slope exactly $1$ and is calibrated wrong by an
+  order of magnitude, so $\beta$ and the level answer different questions and a claim
+  of agreement needs both. We also show what the level's error bars hide:
   a bootstrap interval across conditions gives $[1.08,1.18]$ while redrawing the
   problem instance moves the same number from $1.181$ to $0.924$. None of this is
   specific to flow matching; it applies to any claim of the form ``the restored
@@ -549,9 +554,12 @@ new samples, so matching $\tr\Covh$ matches a second moment, not the posterior. 
 genuine remedy needs $h\to0$ \emph{and} $N\to\infty$ jointly---the Nadaraya--Watson
 consistency regime of Proposition~\ref{prop:nwrate} (appendix)---not $h$ alone.
 
-The floor's \emph{size} is what decides whether this matters, and it scales as
-$N^{-1/d}$ by Zador's theorem \citep[Ch.~6]{graf2000quantization}: $0.071$ at our
-$(d,N)=(2,200)$ default but $0.9975$ at $(3072,2000)$. The obstruction is negligible
+The floor's \emph{size} is what decides whether this matters, and it is governed by the
+rate factor $N^{-1/d}$: $0.071$ at our $(d,N)=(2,200)$ default but $0.9975$ at
+$(3072,2000)$. Zador's theorem \citep[Ch.~6]{graf2000quantization} gives that rate for
+the \emph{optimal} $N$-point quantiser and so bounds our floor from below, the training
+atoms being one admissible $N$-point set; whether i.i.d.\ atoms attain it is a separate
+question, measured in Appendix~\ref{app:deferred}. The obstruction is negligible
 exactly where it is easy to measure and essentially undiminished in the image regime
 (Appendix~\ref{app:deferred}).
 
@@ -601,15 +609,26 @@ remedy rather than a reweighting.
 \label{prop:expansion}
 Let $(x^j,y^j)$ be i.i.d.\ with marginal label density $\rho_Y$, $\Sigma(y)=\Cov(X\mid Y=y)$
 and $J(y)=\partial\mu/\partial y$. Fix a query point $y$ in the interior of
-$\operatorname{supp}(\rho_Y)$ at which $\rho_Y$ is positive and $C^2$ and $\mu(\cdot)$ is
-$C^2$ (standard nonparametric-regression regularity, needed only in a neighbourhood of
-this fixed $y$), and assume in addition that $\Sigma(\cdot)$ is \emph{constant} on that
-neighbourhood. Then, pointwise at this $y$, as $Nh^k\to\infty,h\to0$,
+$\operatorname{supp}(\rho_Y)$ and a ball $B(y,r)$ contained in that interior, on which
+we assume: $\rho_Y$ is positive and $C^2$; $\mu$ is $C^3$ with
+$M_3:=\sup_{B(y,r)}\|\nabla^3\mu\|<\infty$; and $\Sigma(\cdot)$ is \emph{constant}.
+Assume also the global tail conditions that $\rho_Y$ is bounded and that
+$|\mu(y')|+\|\Sigma(y')\|\le C(1+|y'|^m)$ for some $C,m$. Then, pointwise at this $y$,
+as $Nh^k\to\infty,h\to0$,
 \begin{equation}
 \Covh(y)=\Sigma(y)+h^2 J(y)J(y)^\top+O(h^4)+O_P\big((Nh^k)^{-1/2}\big),
 \label{eq:expansion}
 \end{equation}
-so $\tr\Covh(y)=\tr\Sigma(y)+h^2\|J(y)\|_F^2+\cdots$. Homoscedasticity is
+so $\tr\Covh(y)=\tr\Sigma(y)+h^2\|J(y)\|_F^2+\cdots$. Two remarks on the regularity.
+$C^3$ on $\mu$, rather than the $C^2$ that would suffice for the $h^2$ term alone, is
+what the $O(h^4)$ remainder costs: $C^2$ gives a Taylor remainder $o(h^2)$ by Peano and
+only $o(h^3)$ after it is paired with the $hJu$ term, whereas a bounded third
+derivative gives $O(h^3|u|^3)$ and hence $O(h^4)$. The tail conditions are needed
+because the kernel is Gaussian, so $u=(Y-y)/h$ ranges over all of $\R^k$ while the
+local hypotheses hold only on $B(y,r)$; they make the contribution of $|u|>r/h$
+smaller than every power of $h$ (Step~3 of the proof). Both are free in the instance we
+test: the linear-Gaussian model of Section~\ref{sec:setup} has $\mu$ affine, so
+$\nabla^3\mu\equiv0$ and the expansion is exact. Homoscedasticity is
 load-bearing, not cosmetic: a varying $\Sigma(\cdot)$ contributes its own $O(h^2)$,
 the same order as $h^2JJ^\top$ and not separable from it, so $\|J\|_F^2$ would cease to
 be identified (Appendix~\ref{app:proofs} gives the extra term and a counterexample).
@@ -760,7 +779,12 @@ Fix $i$, let $h=0$ with distinct labels, and let $v$ be any locally Lipschitz fi
 Write $\Delta(x,t):=v(x,t,y^i)-\vstarz(x,t,y^i)$ for its error against the exact
 collapsed field, let $x^v_t$ solve $\dot x_t=v(x_t,t,y^i)$ from $x_0$, and let
 $x^\star_t=(1-t)x_0+tx^i$ be the exact trajectory from the same $x_0$. Then for
-$t<1$, with $e_t:=x^v_t-x^\star_t$,
+$t<1$, with $e_t:=x^v_t-x^\star_t$, the \emph{identity}
+\begin{equation}
+e_t\;=\;(1-t)\int_0^t\frac{\Delta(x^v_s,s)}{1-s}\,ds
+\label{eq:survival-id}
+\end{equation}
+holds, and in particular
 \begin{equation}
 |e_t|\;\le\;(1-t)\int_0^t\frac{|\Delta(x^v_s,s)|}{1-s}\,ds .
 \label{eq:survival}
@@ -772,10 +796,35 @@ Consequently:
   $|e_t|\le\varepsilon\sqrt{(1-t)t}\le\varepsilon\sqrt{1-t}$, so a sampler stopping
   at $t=1-\delta$ has $|e_{1-\delta}|\le\varepsilon\sqrt\delta$, which vanishes with
   $\delta$ \emph{for every} finite $\varepsilon$;
-\item \emph{(the threshold)} if $|\Delta(x,t)|\le c\,(1-t)^{-a}$ with $a>0$, $a\ne1$,
-  then $|e_t|\le\frac{c}{a}\big((1-t)^{1-a}-(1-t)\big)$, and for $a=1$,
-  $|e_t|\le c\,t\le c$. So $\sup_{t<1}|e_t|$ vanishes when $a<1$, is at most $c$ when
-  $a=1$, and is unbounded when $a>1$.
+\item \emph{(what the bound gives)} if $|\Delta(x,t)|\le c\,(1-t)^{-a}$ with $a>0$
+  then $|e_t|\le\frac{c}{a}\big((1-t)^{1-a}-(1-t)\big)$, which at $a=1$ reads
+  $|e_t|\le c\,t\le c$. Hence $\lim_{t\uparrow1}|e_t|=0$ when $a<1$, and
+  $\limsup_{t\uparrow1}|e_t|\le c$ when $a=1$. For $a>1$ the right-hand side diverges
+  and \eqref{eq:survival} constrains $e_t$ not at all---a diverging upper bound is
+  not a diverging quantity, and $e\equiv0$ satisfies it. That case is settled by
+  (c), not by (b);
+\item \emph{(the bound is attained, so the threshold is real)} fix a unit vector $u$
+  and take the spatially constant error $\Delta(x,t)=c\,(1-t)^{-a}u$, for which
+  $v=\vstarz+\Delta$ is locally Lipschitz with $\Delta$ having Lipschitz constant
+  $L_\Delta=0$ in $x$. Then \eqref{eq:survival-id} evaluates in closed form:
+  \begin{equation}
+  e_t=\frac{c}{a}\big((1-t)^{1-a}-(1-t)\big)\,u\quad(a>0),
+  \qquad e_t=-c\,(1-t)\log(1-t)\,u\quad(a=0),
+  \label{eq:survival-sharp}
+  \end{equation}
+  so \eqref{eq:survival} holds with equality for every $t<1$. Therefore
+  $\lim_{t\uparrow1}|e_t|$ is $0$ for $a<1$, is exactly $c$ for $a=1$, and is $+\infty$
+  for $a>1$: the trichotomy is realised and not merely permitted;
+\item \emph{(what a surviving deviation requires)} for any $\Delta$ and any $L\ge0$,
+  \[
+  \lim_{t\uparrow1}|e_t|=L
+  \iff
+  \lim_{t\uparrow1}\,(1-t)\Big|\int_0^t\frac{\Delta(x^v_s,s)}{1-s}\,ds\Big|=L ,
+  \]
+  immediately from \eqref{eq:survival-id}. So a nonzero retained deviation
+  \emph{requires} the weighted error integral $\int_0^t\Delta/(1-s)\,ds$ to diverge at
+  exactly the rate $(1-t)^{-1}$; if it converges, or diverges more slowly, nothing
+  reaches the endpoint.
 \end{enumerate}
 \end{proposition}
 
@@ -788,11 +837,19 @@ it keeps is, to leading order, the coefficient of that failure.
 
 This closes a loop the paper already had open. Remark~\ref{lem:norepr} observes that
 no finite network with globally Lipschitz activations represents $1/(1-t)$ pointwise
-on $[0,1)$; Proposition~\ref{prop:survival} says that this failure is the \emph{only}
-route to nonzero conditional variance under hard conditioning. The observed plateau
-is then not an unexplained residual but the coefficient of the singularity the
-network cannot reproduce, and the collapse we measure over training
-(Table~\ref{tab:exp1}, Section~\ref{sec:cifarddpm}) is that coefficient shrinking.
+on $[0,1)$; Proposition~\ref{prop:survival}(d) says that failing to reproduce that
+rate is the \emph{only} route to nonzero conditional variance under hard conditioning,
+in the precise averaged sense the identity \eqref{eq:survival-id} supports---the
+weighted error integral must diverge at exactly rate $(1-t)^{-1}$, and part~(c)
+exhibits errors that do. We are deliberate about the form of that converse. It is a
+statement about $\int_0^t\Delta/(1-s)\,ds$, not about $\Delta$ pointwise: an error can
+oscillate, or be large only on a thin set of times, and what survives depends on the
+integral alone. Read that way, the observed plateau is the size of the weighted
+integral the network's error accumulates rather than an unexplained residual, and the
+collapse we measure over training (Table~\ref{tab:exp1},
+Section~\ref{sec:cifarddpm}) is that quantity shrinking. What the proposition does
+\emph{not} give is a pointwise converse of the form ``$e_1\ne0\Rightarrow
+\Delta=\Theta((1-t)^{-1})$''; we do not claim one.
 
 \begin{figure}[htb]
 \centering
@@ -891,9 +948,11 @@ all, so it is not in the regime the corollary describes. The prefactor is
 $e^{L_\Delta}\approx25$ and is near-constant across the collapse ($23.9\to26.0$),
 which is what the bound predicts for an error whose spatial Lipschitz constant is not
 changing much; it holds here with $L_\Delta\ge3.2$, consistent with the empirical
-Lipschitz constants of Figure~\ref{fig:lipschitz}. The exponent is the corollary's
-content and the measurement confirms it; the constant is loose by a factor of $25$
-and we do not use it.
+Lipschitz constants of Figure~\ref{fig:lipschitz}. We put this no more strongly than it
+deserves: the observed scaling is \emph{consistent} with the $\tfrac12$ exponent the
+bound predicts, on one problem and one training trajectory, which is not a
+demonstration that optimisation must follow it. The constant is loose by a factor of
+$25$ and we do not use it at all.
 
 One limit remains and is not closed by this: the bound constrains how much variance
 can survive, not what the surviving law looks like.
@@ -1208,8 +1267,12 @@ what Proposition~\ref{prop:collapse} says the population minimiser does.
 Table~\ref{tab:cifarddpm} reports, per bandwidth, both the ratio
 $\tr\Cov/\tr\Covh$ the earlier sections use and the regression that we argue should
 replace it: the OLS slope $\beta$ of $\log\tr\Cov$ on $\log\tr\Covh$ \emph{across
-conditions}. Theorem~\ref{thm:endpoint} predicts $\beta=1$; $\beta=0$ would mean the
-model ignores the reference entirely.
+conditions}. Theorem~\ref{thm:endpoint} predicts $\beta=1$. What $\beta\approx0$
+licenses is narrower than it may look: it says the measured variance has no detectable
+log--log dependence on the reference \emph{over the conditions evaluated}, which is
+consistent with the model ignoring the label but equally with a dependence that is
+non-monotone, saturating, or on some other statistic of $y$. It is evidence of absent
+tracking in this protocol, not proof that the label is unused.
 
 \begin{table}[htb]
 \centering\small
@@ -1261,9 +1324,13 @@ fixed exponent---an additive variance floor, a hard floor, and an affine map---w
 fitted to the final checkpoint and all lose to the power law in log space
 ($R^2$ $0.42$, $0.24$, $0.28$ against $0.78$ at $h{=}4$), so an offset is not what is
 happening. At $h{=}6$, $\beta$ never leaves zero, which is what the missing range
-predicts. Theorem~\ref{thm:endpoint} is
-right about which conditions have more posterior variance and wrong about how much, by
-a factor that itself grows with the reference.
+predicts. The trained model reproduces the ordering
+Theorem~\ref{thm:endpoint} implies---which conditions have more posterior variance---and
+compresses its dynamic range, by a factor that itself grows with the reference. We put
+it that way deliberately. Theorem~\ref{thm:endpoint} describes the population
+minimiser; a $35.75$M-parameter network at $60000$ iterations is not that minimiser, so
+$\beta=0.481$ is a fact about how far the optimisation has come, not a refutation. The
+theory predicts the destination, not the speed.
 
 \paragraph{Three supporting measurements.} Atomicity, exact for the population
 minimiser, does not survive training: the fraction of samples on a training atom is
@@ -1813,9 +1880,11 @@ order rather than a technicality. For merely $C^2$ $\Sigma(\cdot)$ one gets, by 
 substitution together with \eqref{eq:u-mean} and \eqref{eq:u-2mom},
 \[
 \E_h[\Sigma(Y)]=\Sigma(y)+h\,\big[\nabla\Sigma(y)\cdot\E_{\tilde q_h}[u]\big]
-+\tfrac{h^2}2\big[\nabla^2\Sigma(y)\cdot\E_{\tilde q_h}[uu^\top]\big]+O(h^3)
-=\Sigma(y)+h^2\Big[\nabla\Sigma(y)\cdot s(y)+\tfrac12\operatorname{tr}\nabla^2\Sigma(y)\Big]+O(h^3),
++\tfrac{h^2}2\big[\nabla^2\Sigma(y)\cdot\E_{\tilde q_h}[uu^\top]\big]+o(h^2)
+=\Sigma(y)+h^2\Big[\nabla\Sigma(y)\cdot s(y)+\tfrac12\operatorname{tr}\nabla^2\Sigma(y)\Big]+o(h^2),
 \]
+the $o(h^2)$ being the Peano remainder, which is all $C^2$ gives and all this remark
+needs,
 using $\E_{\tilde q_h}[u]=h\,s(y)+O(h^2)$. The bracket is an $O(1)$ quantity multiplying
 $h^2$, i.e.\ exactly the order of the between-group term $h^2JJ^\top$ computed in
 Step~3, so the two cannot be separated and $\|J\|_F^2$ is not identifiable from
@@ -1824,15 +1893,35 @@ $k=d=1$, $Y\sim\mathrm{Unif}(-2,2)$ and $X\mid Y=y\sim\N(0,1+y^2)$, so that
 $\mu\equiv0$ and $J\equiv0$. Then $\Covh(y)=\E_{\tilde q_h}[1+(y+hu)^2]=\Sigma(y)+h^2$,
 whereas \eqref{eq:expansion} with $J=0$ would predict $\Sigma(y)+O(h^4)$.
 
-\emph{Step 3: between-group term.} By the $C^2$ Taylor expansion of $\mu$,
+\emph{Step 3: between-group term.} First the tail. Split
+$\E_{\tilde q_h}[\cdot]$ over $\{|u|\le r/h\}$ and its complement. On the complement,
+$\tilde q_h(u)\le\varphi(u)\sup\rho_Y/\int\varphi\rho_Y(y+h\cdot)$, whose denominator
+is $\rho_Y(y)(1+O(h^2))$ and hence bounded below; with the polynomial growth of $\mu$
+and $\Sigma$, the contribution of $\{|u|>r/h\}$ to any of the moments below is at most
 \[
-\mu(y+hu)=\mu(y)+hJ(y)u+\tfrac{h^2}{2}Q(u)+O(h^3),\qquad
+C'\!\!\int_{|u|>r/h}\!\!(1+|y+hu|^{2m})\varphi(u)\,du
+\;\le\;C''\,e^{-r^2/(4h^2)}
+\]
+for $h$ small, since a Gaussian tail beyond radius $r/h$ dominates any polynomial
+factor. That is $o(h^p)$ for every $p$, so it is absorbed into $O(h^4)$ and we may
+work on $\{|u|\le r/h\}$, where $y+hu\in B(y,r)$ and the local hypotheses apply.
+
+There, since $\mu$ is $C^3$ on $B(y,r)$ with $\|\nabla^3\mu\|\le M_3$, Taylor with the
+Lagrange remainder gives
+\[
+\mu(y+hu)=\mu(y)+hJ(y)u+\tfrac{h^2}{2}Q(u)+R_h(u),\qquad
 Q(u)_a:=\sum_{b,c}\partial^2_{y_by_c}\mu_a(y)\,u_bu_c,
 \]
+with $|R_h(u)|\le\tfrac{M_3}{6}h^3|u|^3$. (This is the step that needs $C^3$: under
+$C^2$ the remainder is only $o(h^2)$, which is too weak for the $O(h^4)$ claimed
+below.) Since $\tilde q_h$ has Gaussian tails its moments of every order are bounded
+uniformly in $h\le1$, so $\Cov_{\tilde q_h}(hJu,R_h)=O(h\cdot h^3)=O(h^4)$,
+$\Cov_{\tilde q_h}(\tfrac{h^2}2Q,R_h)=O(h^5)$ and $\Cov_{\tilde q_h}[R_h]=O(h^6)$; all
+are absorbed into $O(h^4)$ and we may drop $R_h$ from what follows.
 and since covariance is invariant to the additive constant $\mu(y)$,
 \begin{equation}
 \begin{aligned}
-\Cov_h[\mu(Y)]&=\Cov_{\tilde q_h}\!\Big[hJ(y)u+\tfrac{h^2}2Q(u)+O(h^3)\Big]\\
+\Cov_h[\mu(Y)]&=\Cov_{\tilde q_h}\!\Big[hJ(y)u+\tfrac{h^2}2Q(u)\Big]+O(h^4)\\
 &=h^2J(y)\Cov_{\tilde q_h}[u]J(y)^\top
 +h^3\Big[J(y)\Cov_{\tilde q_h}(u,Q(u))+\mathrm{sym}\Big]
 +h^4\Cov_{\tilde q_h}[Q(u)].
@@ -1890,7 +1979,14 @@ the Nadaraya--Watson estimator of $\mu(y)$, with
 \mathrm{Bias}=O(h^2),\qquad \Var=O\big((Nh^k)^{-1}\big),\qquad
 \mathrm{MSE}=O(h^4)+O\big((Nh^k)^{-1}\big),
 \]
-minimised at $h^\star\asymp N^{-1/(k+4)}$. Queries at $y=y^i$ are \emph{design
+minimised at $h^\star\asymp N^{-1/(k+4)}$ \emph{provided the leading bias coefficient is
+nonzero}. That proviso is not decorative: the rate balances $c_1h^4$ against
+$c_2(Nh^k)^{-1}$ and needs $c_1,c_2>0$, whereas $c_1$ is built from
+$\nabla^2\mu(y)$ and the score of $\rho_Y$ and vanishes identically when $\mu$ is
+affine---which is exactly the linear-Gaussian instance we test, where the bias is $0$
+at every $h$ and the MSE is monotone in $h$ rather than U-shaped. The rate is the
+generic one; the case we measure is the degenerate one, and we say so rather than
+quoting a rate our own setting does not exhibit. Queries at $y=y^i$ are \emph{design
 points}: $x^i$ receives the maximal weight $K_h(0)$, and $Nh^k\to\infty$ is exactly
 what makes its relative influence vanish; without it the result does not apply there.
 \end{proposition}
@@ -2202,29 +2298,26 @@ affine hull---holds unconditionally, by the exact identity $q_t=(1-t)q_0$.
 Both trajectories start at $x_0$, so $e_0=0$. Since
 $\vstarz(x,t,y^i)=(x^i-x)/(1-t)$ is affine in $x$ with linear part
 $-\tfrac{1}{1-t}I_d$,
-\[
+\begin{equation}
 \dot e_t=v(x^v_t,t,y^i)-\vstarz(x^\star_t,t,y^i)
 =\Delta(x^v_t,t)+\big[\vstarz(x^v_t,t,y^i)-\vstarz(x^\star_t,t,y^i)\big]
 =\Delta(x^v_t,t)-\frac{e_t}{1-t}.
-\]
+\label{eq:survival-ode}
+\end{equation}
 The bracketed term is a \emph{contraction}, which is what makes the estimate go the
-way it does. The map $t\mapsto|e_t|$ is locally Lipschitz, hence differentiable a.e.,
-and wherever $e_t\ne0$,
+way it does. Rather than estimate $|e_t|$ directly we solve \eqref{eq:survival-ode}:
+$(1-t)^{-1}$ is an integrating factor, since on $[0,T]$ for any $T<1$ the map
+$t\mapsto e_t/(1-t)$ is absolutely continuous and, a.e.,
 \[
-\frac{d}{dt}|e_t|=\frac{\langle e_t,\dot e_t\rangle}{|e_t|}
-=\frac{\langle e_t,\Delta(x^v_t,t)\rangle}{|e_t|}-\frac{|e_t|}{1-t}
-\;\le\;|\Delta(x^v_t,t)|-\frac{|e_t|}{1-t}
+\frac{d}{dt}\Big[\frac{e_t}{1-t}\Big]
+=\frac{\dot e_t}{1-t}+\frac{e_t}{(1-t)^2}
+=\frac{\Delta(x^v_t,t)}{1-t}-\frac{e_t}{(1-t)^2}+\frac{e_t}{(1-t)^2}
+=\frac{\Delta(x^v_t,t)}{1-t},
 \]
-by Cauchy--Schwarz; where $e_t=0$ the same inequality holds for the upper Dini
-derivative. Put $u_t:=|e_t|/(1-t)$, which is absolutely continuous on $[0,T]$ for
-every $T<1$ with $u_0=0$. Then a.e.
-\[
-\dot u_t=\frac{1}{1-t}\frac{d}{dt}|e_t|+\frac{|e_t|}{(1-t)^2}
-\;\le\;\frac{|\Delta(x^v_t,t)|}{1-t}-\frac{|e_t|}{(1-t)^2}+\frac{|e_t|}{(1-t)^2}
-=\frac{|\Delta(x^v_t,t)|}{1-t},
-\]
-the two $|e_t|$ terms cancelling exactly. Integrating from $0$ to $t$ and multiplying
-by $(1-t)$ gives \eqref{eq:survival}.
+the two $e_t$ terms cancelling exactly. Integrating from $0$ to $t$ against $e_0=0$
+and multiplying by $(1-t)$ gives the identity \eqref{eq:survival-id}, and
+\eqref{eq:survival} follows by the triangle inequality for the integral. Note this is
+an equality before norms are taken, which is what parts (c) and (d) use.
 
 (a) By Cauchy--Schwarz applied to \eqref{eq:survival},
 \[
@@ -2236,11 +2329,34 @@ by $(1-t)$ gives \eqref{eq:survival}.
 using $\int_0^t(1-s)^{-2}ds=\frac{1}{1-t}-1=\frac{t}{1-t}$. Setting $t=1-\delta$
 gives $|e_{1-\delta}|\le\varepsilon\sqrt{\delta(1-\delta)}\le\varepsilon\sqrt\delta$.
 
-(b) For $a\ne1$, $\int_0^t(1-s)^{-1-a}ds=\frac{1}{a}\big((1-t)^{-a}-1\big)$, so
+(b) For $a>0$, $\int_0^t(1-s)^{-1-a}ds=\frac{1}{a}\big((1-t)^{-a}-1\big)$, so
 \eqref{eq:survival} gives
-$|e_t|\le\frac{c}{a}\big((1-t)^{1-a}-(1-t)\big)$. As $t\uparrow1$ this tends to $0$
-when $a<1$ and diverges when $a>1$. For $a=1$, $\int_0^t(1-s)^{-2}ds=\frac{t}{1-t}$
-and \eqref{eq:survival} gives $|e_t|\le c\,t\le c$.
+$|e_t|\le\frac{c}{a}\big((1-t)^{1-a}-(1-t)\big)$; at $a=1$ this is
+$c\big(1-(1-t)\big)=c\,t\le c$. As $t\uparrow1$ the right-hand side tends to $0$ when
+$a<1$, to $c$ when $a=1$, and to $+\infty$ when $a>1$; only the first two are
+statements about $e_t$.
+
+(c) With $\Delta(x,t)=c(1-t)^{-a}u$ the integrand of \eqref{eq:survival-id} does not
+depend on the trajectory, so the identity evaluates directly. For $a>0$,
+\[
+e_t=(1-t)\,c\,u\int_0^t(1-s)^{-1-a}ds
+=(1-t)\,c\,u\,\frac{(1-t)^{-a}-1}{a}
+=\frac{c}{a}\big((1-t)^{1-a}-(1-t)\big)u ,
+\]
+and for $a=0$, $\int_0^t(1-s)^{-1}ds=-\log(1-t)$ gives
+$e_t=-c(1-t)\log(1-t)\,u$. Both are \eqref{eq:survival-sharp}, and taking norms shows
+\eqref{eq:survival} holds with equality since $|u|=1$ and the integrand keeps a fixed
+direction. Writing $\varepsilon=1-t$, $|e_t|=\frac{c}{a}(\varepsilon^{1-a}-\varepsilon)$
+has limit $0$ for $a<1$ (both powers vanish), limit $c$ for $a=1$ (the expression is
+$c(1-\varepsilon)$ exactly), and limit $+\infty$ for $a>1$ (since
+$\varepsilon^{1-a}\to\infty$). The field $v=\vstarz+\Delta$ is locally Lipschitz in
+$x$ on $\{t<1\}$ because $\vstarz$ is and $\Delta$ is constant in $x$; the same
+constancy gives $L_\Delta=0$, so this family also satisfies the hypothesis of
+Corollary~\ref{cor:lossform}.
+
+(d) Immediate from \eqref{eq:survival-id}: the two quantities whose limits are
+compared are equal for every $t<1$, so one limit exists and equals $L$ exactly when
+the other does.
 \end{proof}
 
 \begin{proof}[Proof of Corollary~\ref{cor:lossform}]
@@ -2522,13 +2638,24 @@ worth measuring at all.
 Proposition~\ref{prop:atomicity} proves that the smoothed population law is supported on
 the training set for \emph{every} $h$. The trained network escapes it, progressively: the
 fraction of generated samples lying on a training atom is $1.000$, $0.829$, $0.717$ and
-$0.620$ at $h=0,4,5,6$, so at $h{=}6$ roughly $38\%$ of samples are off-atom. The value
+$0.620$ at $h=0,4,5,6$, so at $h{=}6$ roughly $38\%$ of samples are off-atom. ``On an
+atom'' is the nearest-neighbour criterion of \citet{yoon2023memorization} as used by
+\citet{buchanan2025edge}, at their default: a sample counts as on-atom when its squared
+distance to the nearest training image is at most $\tfrac19$ of its squared distance to
+the second-nearest, i.e.\ a ratio of raw distances below $\tfrac13$. It is a relative
+test and not floating-point equality, which for continuous image output would be
+vacuous; the criterion is fixed across all four bandwidths, so the trend is a trend in
+the data and not in the threshold
+(\texttt{src/metrics/memorization.py}). The value
 of exactly $1.000$ at $h{=}0$ rules out ODE discretisation as the explanation, since the
 same integrator is used throughout. Atomicity is thus a property of the population
 minimiser that finite capacity partially undoes---which is good news for sample quality
 and bad news for treating Proposition~\ref{prop:atomicity} as a statement about trained
 models. It is also the one place in this paper where a proved property of the exact
-minimiser is measurably violated by the network that approximates it.
+minimiser is measurably \emph{not inherited} by the network that approximates it. We
+avoid saying the proposition is violated: it is a statement about the population
+minimiser, and a finite trained model is not that object, so what the measurement shows
+is $P_\theta\ne P_h^\star$ and not that Proposition~\ref{prop:atomicity} fails.
 
 % ---- Limitations: atomicity paragraph, trimmed ----
 \paragraph{A proved property of the population minimiser that the trained model
@@ -2624,10 +2751,25 @@ regularised away.
 \paragraph{How large is the floor, and where does it bind?}
 Proposition~\ref{prop:atomicity} gives an $h$-independent floor but not its size, and
 the paper measures it small (Appendix~\ref{sec:aux}), which invites the objection that
-the obstruction is a curiosity. The scaling answers that. The floor is the best
-$N$-point approximation of a continuous posterior in $W_2$, and by Zador's theorem
-\citep[Ch.~6]{graf2000quantization} that error decays as $N^{-1/d}$ for a measure with
-a non-degenerate absolutely continuous part on $\R^d$. The exponent is the whole story:
+the obstruction is a curiosity. The scaling answers that, and it needs one distinction the earlier version of this
+paragraph elided. Zador's theorem \citep[Ch.~6]{graf2000quantization} says the
+\emph{optimal} $N$-point approximation of a measure with a non-degenerate absolutely
+continuous part on $\R^d$ has $W_2$ error decaying as $N^{-1/d}$. Our floor is over the
+$N$ atoms the training set happened to draw, which are i.i.d.\ and not placed
+optimally, so Zador bounds it from \emph{below}---the training atoms are one admissible
+$N$-point set---which is the direction the argument needs. Whether i.i.d.\ atoms attain
+the same rate we measure rather than assume
+(\texttt{scripts/verify\_atom\_floor\_scaling.py}, standard Gaussian target, atoms
+i.i.d.\ from the same law). For $d\ge3$ they do: fitting $\log F_N$ on $\log N$ over
+$N\in[200,3200]$ gives slopes $-0.612$, $-0.379$ and $-0.249$ at $d=3,5,8$ against the
+predicted $-2/d=-0.667$, $-0.400$, $-0.250$. At $d{=}2$ they do \emph{not}: the fitted
+slope is $-0.846$, and the reason is a logarithmic correction that the optimal
+quantiser does not pay---$F_N\,N/\log N$ is flat to within $1.05\times$ across that
+range while $F_N\,N$ drifts by $1.52\times$, so the i.i.d.\ floor there is
+$\Theta(\log N/N)$, not $\Theta(1/N)$. The gap is real but works against the sceptic:
+random atoms are \emph{worse} than optimal ones, so the obstruction is if anything
+larger than the quantisation rate suggests. In any case the exponent is the whole
+story:
 \[
 N^{-1/d}\;=\;0.071 \ \text{ at our default } (d,N)=(2,200),
 \qquad

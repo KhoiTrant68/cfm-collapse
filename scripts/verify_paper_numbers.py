@@ -239,6 +239,47 @@ _sl2 = np.polyfit(np.log(_g["train_loss"].values[_it >= 30000]),
 check("sqrt-loss pacing, slope from iter 1000", 0.429, _sl, 5e-3)
 check("sqrt-loss pacing, slope over last three", 0.485, _sl2, 5e-3)
 
+print("\nThe atomicity floor over i.i.d. atoms (the paper no longer cites Zador for it)")
+# Zador is about the optimal N-point quantiser; the floor is over the atoms the
+# training set drew. The paper now reports measured exponents for the latter, so
+# they belong here.
+af = pd.read_csv("results/exp1/_theory/raw/atom_floor_scaling.csv")
+for d, want in ((3, -0.612), (5, -0.379), (8, -0.249)):
+    g = af[(af["d"] == d) & (af["N"] >= 200)]
+    sl = np.polyfit(np.log(g["N"]), np.log(g["floor"]), 1)[0]
+    check(f"i.i.d. floor slope, d={d}", want, sl, 5e-3)
+g2 = af[(af["d"] == 2) & (af["N"] >= 200)]
+r_log = (g2["floor"] * g2["N"] / np.log(g2["N"])).values
+r_pow = (g2["floor"] * g2["N"]).values
+check("d=2 log-model drift", 1.05, r_log.max() / r_log.min(), 1e-2)
+check("d=2 power-model drift", 1.52, r_pow.max() / r_pow.min(), 1e-2)
+_logwins = (r_log.max() / r_log.min()) < (r_pow.max() / r_pow.min())
+print(f"  {'OK ' if _logwins else 'BAD'} "
+      f"{'d=2 i.i.d. floor is log(N)/N, not 1/N':44s} "
+      f"log drift={r_log.max() / r_log.min():<12.3g} "
+      f"pow drift={r_pow.max() / r_pow.min():<12.3g}")
+ok, fail = ok + _logwins, fail + (not _logwins)
+
+print("\nProposition prop:survival(c): the bound is attained, so a>1 really diverges")
+# The proposition used to infer divergence from a diverging upper bound. It now
+# exhibits an error attaining the bound; that closed form is what makes the claim
+# a claim, so it is checked here as well as in verify_error_survival.py.
+
+
+def _e_closed(eps, a, c=1.0):
+    if abs(a) < 1e-12:
+        return -c * eps * np.log(eps)
+    return c * (eps ** (1.0 - a) - eps) / a
+
+
+check("a=1 retains exactly c at 1-t=1e-8", 1.0, _e_closed(1e-8, 1.0), 1e-6)
+check("a=0.5 has vanished by 1-t=1e-8", 0.0002, _e_closed(1e-8, 0.5), 1e-3)
+_div = _e_closed(1e-16, 1.3) > 1e4 and _e_closed(1e-8, 1.3) > 1e2
+print(f"  {'OK ' if _div else 'BAD'} "
+      f"{'a=1.3 diverges as the truncation tightens':44s} "
+      f"1e-8={_e_closed(1e-8, 1.3):<12.4g} 1e-16={_e_closed(1e-16, 1.3):<12.4g}")
+ok, fail = ok + _div, fail + (not _div)
+
 print("\nsanity: strings the new text depends on")
 for s in (r"\label{sec:cifarddpm}", r"\label{tab:cifarddpm}",
           r"\label{fig:cifartrack}", r"\label{sec:p6exposure}",

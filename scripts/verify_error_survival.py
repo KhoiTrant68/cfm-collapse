@@ -192,3 +192,64 @@ def _measured_pacing():
 
 print("\n\nD. the loss form against the measured EXP-1 collapse")
 _measured_pacing()
+
+
+# ---------------------------------------------------------------------------
+def _sharpness():
+    """E. Is the bound attained, and does a>1 actually diverge?
+
+    The proposition used to conclude "unbounded when a>1" from an upper bound that
+    diverges, which does not follow -- e == 0 satisfies the same inequality. The
+    threshold is now established by exhibiting an error that attains the bound:
+    for the spatially constant Delta(x,t) = c(1-t)^{-a} u the identity
+
+        e_t = (1-t) int_0^t Delta(x^v_s,s)/(1-s) ds
+
+    evaluates in closed form to (c/a)((1-t)^{1-a} - (1-t)) u, so equality holds.
+    This checks that closed form against the integrated ODE, which is the only
+    part of the argument a slip could hide in, and then reads off the trichotomy
+    at successively finer truncations.
+    """
+    dim = 4
+    xi_, x0_ = RNG.normal(size=dim), RNG.normal(size=dim)
+    u = RNG.normal(size=dim)
+    u /= np.linalg.norm(u)
+
+    def exact(eps, a, c=1.0):
+        if abs(a) < 1e-12:
+            return -c * eps * np.log(eps)
+        return c * (eps ** (1.0 - a) - eps) / a
+
+    def integrate(a, delta, c=1.0, n_steps=400000):
+        ts = 1.0 - np.geomspace(1.0, delta, n_steps + 1)
+        xv, xs = x0_.copy(), x0_.copy()
+        for p_, q_ in zip(ts[:-1], ts[1:]):
+            dt = q_ - p_
+            xv = xv + dt * ((xi_ - xv) / (1 - p_) + c * u * (1 - p_) ** (-a))
+            xs = xs + dt * ((xi_ - xs) / (1 - p_))
+        return float(np.linalg.norm(xv - xs))
+
+    print(f"  {'a':>5} {'1-t':>8} {'|e| integrated':>15} {'closed form':>13} "
+          f"{'rel. err':>10}")
+    worst = 0.0
+    for a in (0.0, 0.5, 0.9, 1.0, 1.1, 1.3):
+        for delta in (1e-2, 1e-4):
+            got = integrate(a, delta)
+            want = exact(delta, a)
+            rel = abs(got - want) / max(want, 1e-12)
+            worst = max(worst, rel)
+            print(f"  {a:>5.1f} {delta:>8.0e} {got:>15.6f} {want:>13.6f} {rel:>10.2e}")
+    print(f"\n  worst relative discrepancy {worst:.2e} "
+          f"({'closed form confirmed' if worst < 5e-3 else 'MISMATCH'})")
+
+    print("\n  the trichotomy, read off the closed form at finer truncations:")
+    print(f"  {'a':>5} " + " ".join(f"{d:>11.0e}" for d in (1e-2, 1e-4, 1e-8, 1e-16)))
+    for a in (0.5, 0.9, 1.0, 1.1, 1.3):
+        vals = [exact(d, a) for d in (1e-2, 1e-4, 1e-8, 1e-16)]
+        print(f"  {a:>5.1f} " + " ".join(f"{v:>11.3e}" for v in vals))
+    print("  a < 1 -> 0, a = 1 -> c = 1 exactly, a > 1 -> infinity. The bound of (b) "
+          "is attained,\n  so (c) settles the case (b) cannot.")
+
+
+print("\n\nE. sharpness: the bound is attained, and a>1 diverges")
+_sharpness()
