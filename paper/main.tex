@@ -815,16 +815,26 @@ Consequently:
   so \eqref{eq:survival} holds with equality for every $t<1$. Therefore
   $\lim_{t\uparrow1}|e_t|$ is $0$ for $a<1$, is exactly $c$ for $a=1$, and is $+\infty$
   for $a>1$: the trichotomy is realised and not merely permitted;
-\item \emph{(what a surviving deviation requires)} for any $\Delta$ and any $L\ge0$,
-  \[
-  \lim_{t\uparrow1}|e_t|=L
+\item \emph{(what a surviving deviation requires)} write
+  $I(t):=\int_0^t\Delta(x^v_s,s)(1-s)^{-1}ds$ for the accumulated weighted error, so
+  that \eqref{eq:survival-id} reads $e_t=(1-t)I(t)$. Then for any $\Delta$ and any
+  $e_\star\in\R^d$,
+  \begin{equation}
+  \lim_{t\uparrow1}e_t=e_\star
   \iff
-  \lim_{t\uparrow1}\,(1-t)\Big|\int_0^t\frac{\Delta(x^v_s,s)}{1-s}\,ds\Big|=L ,
-  \]
-  immediately from \eqref{eq:survival-id}. So a nonzero retained deviation
-  \emph{requires} the weighted error integral $\int_0^t\Delta/(1-s)\,ds$ to diverge at
-  exactly the rate $(1-t)^{-1}$; if it converges, or diverges more slowly, nothing
-  reaches the endpoint.
+  I(t)=\frac{e_\star}{1-t}+o\big((1-t)^{-1}\big) .
+  \label{eq:survival-conv}
+  \end{equation}
+  Since $e_t=(1-t)I(t)$ identically, the behaviour of $e_t$ at the endpoint is exactly
+  the behaviour of $I$ at the scale $(1-t)^{-1}$, and the cases are exhaustive: if
+  $|I(t)|=o((1-t)^{-1})$ then $e_t\to0$; if $(1-t)I(t)$ converges to some
+  $e_\star\ne0$---equivalently, if $I$ sits at that scale \emph{with a limiting
+  direction}---then $e_t\to e_\star$; if $(1-t)|I(t)|\to\infty$ then $|e_t|\to\infty$
+  and there is no endpoint; and if $(1-t)I(t)$ stays bounded without converging, $e_t$
+  has no limit either. In particular a nonzero endpoint deviation \emph{requires} the
+  accumulated weighted error to attain exactly the $(1-t)^{-1}$ scale, and to do so in a
+  direction that does not cancel: growing more slowly than that scale is annihilated
+  by the factor $(1-t)$, whatever the pointwise behaviour of $\Delta$ that produced it.
 \end{enumerate}
 \end{proposition}
 
@@ -839,12 +849,18 @@ This closes a loop the paper already had open. Remark~\ref{lem:norepr} observes 
 no finite network with globally Lipschitz activations represents $1/(1-t)$ pointwise
 on $[0,1)$; Proposition~\ref{prop:survival}(d) says that failing to reproduce that
 rate is the \emph{only} route to nonzero conditional variance under hard conditioning,
-in the precise averaged sense the identity \eqref{eq:survival-id} supports---the
-weighted error integral must diverge at exactly rate $(1-t)^{-1}$, and part~(c)
-exhibits errors that do. We are deliberate about the form of that converse. It is a
-statement about $\int_0^t\Delta/(1-s)\,ds$, not about $\Delta$ pointwise: an error can
+and \eqref{eq:survival-conv} says it as an exact asymptotic rather than as a word:
+the accumulated weighted error must sit at $e_\star/(1-t)+o((1-t)^{-1})$, and
+part~(c) exhibits errors that do. We are deliberate about the form of that converse.
+It constrains $I(t)=\int_0^t\Delta/(1-s)\,ds$, not $\Delta$ pointwise: an error can
 oscillate, or be large only on a thin set of times, and what survives depends on the
-integral alone. Read that way, the observed plateau is the size of the weighted
+accumulation alone. The fourth case of (d) is not vacuous, which is why we state it:
+the spatially constant $\Delta(t)=c(1-t)^{-1}e^{i\theta(t)}$ in the plane, with
+$\theta(t)=\log\frac1{1-t}$, gives $e_t=c\,e^{i\theta(t)}/(1+i)+O(1-t)$, so $|e_t|$
+sits at $c/\sqrt2$ forever while its direction turns and never settles---critical
+magnitude with no endpoint at all
+(\texttt{scripts/verify\_error\_survival.py}, part~F, which integrates the two flows
+and recovers $|e_t|=0.7071$ to five decimals). Read that way, the observed plateau is the size of the weighted
 integral the network's error accumulates rather than an unexplained residual, and the
 collapse we measure over training (Table~\ref{tab:exp1},
 Section~\ref{sec:cifarddpm}) is that quantity shrinking. What the proposition does
@@ -1878,14 +1894,15 @@ exactly, with no remainder. This is the within-group term of \eqref{eq:expansion
 It is worth recording what fails without that hypothesis, since the gap is of leading
 order rather than a technicality. For merely $C^2$ $\Sigma(\cdot)$ one gets, by the same
 substitution together with \eqref{eq:u-mean} and \eqref{eq:u-2mom},
-\[
-\E_h[\Sigma(Y)]=\Sigma(y)+h\,\big[\nabla\Sigma(y)\cdot\E_{\tilde q_h}[u]\big]
-+\tfrac{h^2}2\big[\nabla^2\Sigma(y)\cdot\E_{\tilde q_h}[uu^\top]\big]+o(h^2)
-=\Sigma(y)+h^2\Big[\nabla\Sigma(y)\cdot s(y)+\tfrac12\operatorname{tr}\nabla^2\Sigma(y)\Big]+o(h^2),
-\]
-the $o(h^2)$ being the Peano remainder, which is all $C^2$ gives and all this remark
-needs,
-using $\E_{\tilde q_h}[u]=h\,s(y)+O(h^2)$. The bracket is an $O(1)$ quantity multiplying
+\begin{align*}
+\E_h[\Sigma(Y)]
+&=\Sigma(y)+h\,\big[\nabla\Sigma(y)\cdot\E_{\tilde q_h}[u]\big]
++\tfrac{h^2}2\big[\nabla^2\Sigma(y)\cdot\E_{\tilde q_h}[uu^\top]\big]+o(h^2)\\
+&=\Sigma(y)+h^2\Big[\nabla\Sigma(y)\cdot s(y)
++\tfrac12\operatorname{tr}\nabla^2\Sigma(y)\Big]+o(h^2),
+\end{align*}
+using $\E_{\tilde q_h}[u]=h\,s(y)+O(h^2)$, the $o(h^2)$ here being the Peano remainder,
+which is all that $C^2$ gives and all that this remark needs. The bracket is an $O(1)$ quantity multiplying
 $h^2$, i.e.\ exactly the order of the between-group term $h^2JJ^\top$ computed in
 Step~3, so the two cannot be separated and $\|J\|_F^2$ is not identifiable from
 $\tr\Covh$ alone. A one-dimensional example makes the failure concrete: take
@@ -2080,11 +2097,11 @@ $\Cov(X_0,r)=(1-t)I_d$ (the $\gamma(t)Z$ term is independent of $X_0$), so the
 standard Gaussian conditional-mean formula gives
 $\E[X_0\mid r]=\Cov(X_0,r)\,\Var(r)^{-1}r=\tfrac{1-t}{s_t^2}r$; identically,
 $\Cov(Z,r)=\gamma(t)I_d$ gives $\E[Z\mid r]=\tfrac{\gamma(t)}{s_t^2}r$. Hence
-\[
+\begin{align*}
 v_\sigma^\star(x,t,y^i)=\E[\dot X_t\mid X_t=x,t,I=i]
-=x^i-\E[X_0\mid r]+\dot\gamma(t)\,\E[Z\mid r]
-=x^i+\frac{-(1-t)+\dot\gamma(t)\gamma(t)}{s_t^2}\,r.
-\]
+&=x^i-\E[X_0\mid r]+\dot\gamma(t)\,\E[Z\mid r]\\
+&=x^i+\frac{-(1-t)+\dot\gamma(t)\gamma(t)}{s_t^2}\,r.
+\end{align*}
 Since $\gamma(t)^2=\sigma^2t(1-t)$, differentiating gives
 $2\dot\gamma\gamma=\sigma^2(1-2t)$, i.e.\ $\dot\gamma\gamma=\tfrac{\sigma^2}2(1-2t)$,
 which yields (a)'s expression for $c(t)$. For the logarithmic-derivative identity,
@@ -2758,22 +2775,23 @@ continuous part on $\R^d$ has $W_2$ error decaying as $N^{-1/d}$. Our floor is o
 $N$ atoms the training set happened to draw, which are i.i.d.\ and not placed
 optimally, so Zador bounds it from \emph{below}---the training atoms are one admissible
 $N$-point set---which is the direction the argument needs. Whether i.i.d.\ atoms attain
-the same rate we measure rather than assume
-(\texttt{scripts/verify\_atom\_floor\_scaling.py}, standard Gaussian target, atoms
-i.i.d.\ from the same law). For $d\ge3$ they do: fitting $\log F_N$ on $\log N$ over
-$N\in[200,3200]$ gives slopes $-0.612$, $-0.379$ and $-0.249$ at $d=3,5,8$ against the
-predicted $-2/d=-0.667$, $-0.400$, $-0.250$. At $d{=}2$ they do \emph{not}: the fitted
-slope is $-0.846$, and the reason is a logarithmic correction that the optimal
-quantiser does not pay---$F_N\,N/\log N$ is flat to within $1.05\times$ across that
+the same rate is a separate question about a random design, and we answer it with a
+measurement rather than a citation---evidence at the dimensions we tested, not a
+theorem for all $d$ (\texttt{scripts/verify\_atom\_floor\_scaling.py}, standard
+Gaussian target, atoms i.i.d.\ from the same law). At $d=3,5,8$ the exponent is
+attained: fitting $\log F_N$ on $\log N$ over $N\in[200,3200]$ gives slopes $-0.612$,
+$-0.379$ and $-0.249$ against the predicted $-2/d=-0.667$, $-0.400$, $-0.250$. At
+$d{=}2$ it is \emph{not}: the fitted slope is $-0.846$, and the reason is a
+logarithmic correction that the optimal quantiser does not pay---$F_N\,N/\log N$ is flat to within $1.05\times$ across that
 range while $F_N\,N$ drifts by $1.52\times$, so the i.i.d.\ floor there is
 $\Theta(\log N/N)$, not $\Theta(1/N)$. The gap is real but works against the sceptic:
 random atoms are \emph{worse} than optimal ones, so the obstruction is if anything
 larger than the quantisation rate suggests. In any case the exponent is the whole
 story:
 \[
-N^{-1/d}\;=\;0.071 \ \text{ at our default } (d,N)=(2,200),
-\qquad
-N^{-1/d}\;=\;0.9975 \ \text{ at } (d,N)=(3072,2000).
+N^{-1/d}=0.071 \ \text{ at our default } (d,N)=(2,200),
+\quad
+N^{-1/d}=0.9975 \ \text{ at } (3072,2000).
 \]
 At $d{=}2$ two hundred atoms genuinely do fill the posterior, which is why we measure
 the floor and find it negligible; at image dimension the same number of atoms reduces

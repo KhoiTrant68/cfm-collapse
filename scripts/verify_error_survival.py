@@ -186,8 +186,9 @@ def _measured_pacing():
     print(f"\n  slope {sl:.3f} vs 1/2: {'agrees' if ok else 'DOES NOT AGREE'} "
           f"within 0.1; prefactor exp(L_Delta) ~ {off:.0f}, so the bound holds "
           f"with L_Delta >= {np.log(off):.2f}.")
-    print("  The exponent is the corollary's content and it is confirmed; the "
-          "constant is loose, and Figure fig_survival(c) says so.")
+    print("  One trajectory on one problem is consistent with the exponent the bound "
+          "predicts;\n  it is not a demonstration that optimisation must follow it. "
+          "The constant is loose,\n  and Figure fig_survival(c) says so.")
 
 
 print("\n\nD. the loss form against the measured EXP-1 collapse")
@@ -253,3 +254,81 @@ def _sharpness():
 
 print("\n\nE. sharpness: the bound is attained, and a>1 diverges")
 _sharpness()
+
+
+
+# ---------------------------------------------------------------------------
+def _converse():
+    """F. Part (d) of the proposition: e_t = (1-t) I(t), with
+
+        I(t) = int_0^t Delta(x_s^v, s) / (1-s) ds
+
+    the accumulated weighted error. Every endpoint case for e_t is therefore a case
+    for I at the scale (1-t)^{-1}, and the proposition lists four. Three are the
+    trichotomy of part (c), already checked in E. The fourth -- I sitting AT the
+    critical scale but with no limiting direction, so that e_t has no endpoint at all
+    -- is what makes "in a direction that does not cancel" a real caveat rather than
+    decoration, and an exhaustiveness claim needs its witness.
+
+    Write the plane as C and take the spatially constant error
+
+        Delta(t) = c (1-t)^{-1} exp(i theta),   theta(t) = log(1/(1-t)),
+
+    critical in magnitude, its direction turning one radian per e-fold of (1-t).
+    Substituting eps = 1-t = e^{-theta} (so ds/(1-s) = dphi):
+
+        I = c int_0^theta e^{phi} e^{i phi} dphi = c (e^{(1+i)theta} - 1)/(1+i),
+        e_t = eps * I = c e^{i theta}/(1+i) - c e^{-theta}/(1+i).
+
+    So |e_t| -> c/sqrt(2): bounded, and bounded AWAY from zero, while arg(e_t)
+    advances without settling. Critical magnitude alone is not sufficient for an
+    endpoint; the direction has to converge too.
+
+    The check integrates the perturbed and unperturbed flows rather than evaluating
+    the closed form, so it tests the identity and not just the algebra.
+    """
+    c, xi = 1.0, 0.3 - 0.7j
+
+    def run(eps_end: float, n_steps: int = 200_000) -> complex:
+        # graded in eps, so dt/(1-t) is constant and explicit Euler stays stable
+        eps_grid = np.geomspace(1.0, eps_end, n_steps + 1)
+        xv = xs = 0.0 + 0.0j
+        for e0, e1 in zip(eps_grid[:-1], eps_grid[1:]):
+            dt = e0 - e1                      # dt = -d(eps) > 0
+            drift = c * np.exp(1j * np.log(1.0 / e0)) / e0
+            xv = xv + dt * ((xi - xv) / e0 + drift)
+            xs = xs + dt * ((xi - xs) / e0)
+        return xv - xs
+
+    def closed(eps: float) -> complex:
+        th = np.log(1.0 / eps)
+        return c * (np.exp(1j * th) - np.exp(-th)) / (1.0 + 1j)
+
+    print("  critical magnitude, direction turning one radian per e-fold of (1-t):")
+    print(f"  {'1-t':>9} {'|e_t|':>9} {'|e| pred':>9} {'arg(e_t)':>10} "
+          f"{'arg pred':>10} {'rel err':>9}")
+    mags, ok = [], True
+    for eps in (1e-2, 1e-3, 1e-4, 1e-5):
+        got, want = run(eps), closed(eps)
+        rel = abs(got - want) / abs(want)
+        mags.append(abs(got))
+        ok &= rel < 5e-3
+        print(f"  {eps:>9.0e} {abs(got):>9.5f} {abs(want):>9.5f} "
+              f"{np.angle(got):>10.5f} {np.angle(want):>10.5f} {rel:>9.2e}")
+
+    lim = c / np.sqrt(2.0)
+    ok &= max(abs(m - lim) for m in mags[1:]) < 0.02
+    print(f"\n  |e_t| holds at {lim:.5f} (spread {max(mags)-min(mags):.1e} over four "
+          f"decades of 1-t):\n  bounded, and bounded away from 0, while the argument "
+          "advances by one radian per\n  e-fold and never settles. So e_t has no "
+          f"endpoint: {'case 4 is occupied' if ok else 'CHECK FAILED'}.")
+    print("  Exhaustiveness itself needs no experiment -- e_t = (1-t)I(t) is an "
+          "identity, and a\n  limit that is 0, nonzero, infinite or absent exhausts "
+          "the possibilities for any\n  function. What needed checking is that the "
+          "fourth case is not vacuous.")
+    return bool(ok)
+
+
+print("\n\nF. the converse (d): the fourth case is occupied")
+if not _converse():
+    raise SystemExit(1)

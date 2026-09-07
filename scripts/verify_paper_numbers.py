@@ -280,6 +280,30 @@ print(f"  {'OK ' if _div else 'BAD'} "
       f"1e-8={_e_closed(1e-8, 1.3):<12.4g} 1e-16={_e_closed(1e-16, 1.3):<12.4g}")
 ok, fail = ok + _div, fail + (not _div)
 
+print("\nProposition prop:survival(d): the fourth case of the converse is occupied")
+# The converse claims four cases and calls them exhaustive. Exhaustiveness is free
+# (e_t = (1-t)I(t) is an identity), but "bounded at the critical scale, yet with no
+# limit" would be an empty case if nothing realised it. The rotating error
+# Delta(t) = c (1-t)^{-1} exp(i log(1/(1-t))) does: e_t = c e^{i theta}/(1+i) + O(1-t).
+
+
+def _e_rot(eps, c=1.0):
+    th = np.log(1.0 / eps)
+    return c * (np.exp(1j * th) - np.exp(-th)) / (1.0 + 1j)
+
+
+check("rotating error holds |e_t| at c/sqrt2", 0.7071,
+      abs(_e_rot(1e-5)), 1e-3)
+_args = [np.angle(_e_rot(e)) for e in (1e-2, 1e-3, 1e-4, 1e-5)]
+_mags = [abs(_e_rot(e)) for e in (1e-2, 1e-3, 1e-4, 1e-5)]
+# bounded away from 0 and from a single value: magnitude flat, argument not settling
+_nolimit = (max(_mags) - min(_mags) < 2e-3) and (max(_args) - min(_args) > 1.0)
+print(f"  {'OK ' if _nolimit else 'BAD'} "
+      f"{'critical magnitude, no endpoint (case 4)':44s} "
+      f"|e| spread={max(_mags) - min(_mags):<10.3g} "
+      f"arg spread={max(_args) - min(_args):<10.3g}")
+ok, fail = ok + _nolimit, fail + (not _nolimit)
+
 print("\nsanity: strings the new text depends on")
 for s in (r"\label{sec:cifarddpm}", r"\label{tab:cifarddpm}",
           r"\label{fig:cifartrack}", r"\label{sec:p6exposure}",
