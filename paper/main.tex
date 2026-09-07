@@ -963,7 +963,7 @@ each interval by about $11\%$.
 \label{sec:exp1}
 
 Table~\ref{tab:exp1} reports the four exact-theory observables (curves in
-Figures~\ref{fig:p1p4} and~\ref{fig:exp1extra}, appendix). As training proceeds past
+Figure~\ref{fig:p1p4}, appendix). As training proceeds past
 the good-calibration phase, the conditional generated variance collapses from
 $\approx\Sigmapost$ toward $0$ (P1), the velocity field approaches the collapsed
 closed form $(x^i-x)/(1-t)$ (P2), the generated mean moves from $\mu_{\mathrm{post}}$
@@ -3262,20 +3262,28 @@ to the end of the budget---no representation floor is visible.}
 
 \begin{figure}[htb]
 \centering
-\begin{subfigure}{0.48\textwidth}\includegraphics[width=\linewidth]{fig_p1_variance.png}
-\caption{P1: conditional variance collapse.}\end{subfigure}\hfill
-\begin{subfigure}{0.48\textwidth}\includegraphics[width=\linewidth]{fig_p4_cond_uncond.png}
-\caption{P4: conditional vs.\ unconditional.}\end{subfigure}
-\caption{Overtraining collapses the conditional generated variance toward zero, while
-the unconditional model retains data-scale variance (Corollary~\ref{cor:distinction}).}
+\includegraphics[width=\textwidth]{fig_p1p4.png}
+\caption{The four exact-theory observables (P1--P4) on one clock, five seeds, band
+$=$ across-seed spread. \textbf{(a)} the conditional variance sits on
+$\tr\Sigmapost$---the sampler is calibrated---and then leaves it.
+\textbf{(b)} the generated mean's distance to $\mu_{\mathrm{post}}$ rises while its
+distance to the training point $x^i$ falls, and the two cross: before the crossing
+the model is answering the inverse problem, after it the model is returning a
+memorised image. \textbf{(c)} the velocity field's relative error against the
+collapsed closed form $(x^i-x)/(1-t)$ falls. \textbf{(d)} the unconditional baseline
+holds data-scale variance ($1.93$) throughout while the conditional falls away, which
+is Corollary~\ref{cor:distinction}: the contrast is not memorising versus not, but
+\emph{which} empirical measure is memorised. The shaded band is the same interval in
+all four panels---the two checkpoints bracketing the crossing in (b)---and nothing
+here turns at a different time.}
 \label{fig:p1p4}
 \end{figure}
 
 This subsection collects the floats referenced from Section~\ref{sec:experiments}.
 Table~\ref{tab:p7kernel} gives the full P7 kernel reference and
 Table~\ref{tab:dagger} the velocity-field match, with the sample-space verification
-in Figure~\ref{fig:kernel}. For EXP-1, Figure~\ref{fig:exp1extra} plots the P2/P3
-curves that descend in lockstep with P1, Figure~\ref{fig:collapse2d} shows the
+in Figure~\ref{fig:kernel}. For EXP-1, Figure~\ref{fig:p1p4} plots all four observables on one clock,
+Figure~\ref{fig:collapse2d} shows the
 $d{=}2$ endpoint in sample space, Figure~\ref{fig:extended} the extended
 cosine-schedule run, and Figure~\ref{fig:memratio} the memorisation ratio;
 Figures~\ref{fig:adv-trace}--\ref{fig:adv-mean} cover the adversarial pairing and
@@ -3309,22 +3317,7 @@ is closer to $1$.}
 \label{tab:p7kernel}
 \end{table}
 
-\begin{figure}[htb]
-\centering
-\begin{subfigure}{0.48\textwidth}\includegraphics[width=\linewidth]{fig_p2_velocity.png}
-\caption{P2: velocity $\to(\star)$.}\end{subfigure}\hfill
-\begin{subfigure}{0.48\textwidth}\includegraphics[width=\linewidth]{fig_p3_meanshift.png}
-\caption{P3: mean $\to x^i$, away from $\mu_{\mathrm{post}}$.}\end{subfigure}
-\caption{The learned velocity approaches the collapsed closed form $(\star)$ (a) and the
-generated mean migrates from the Bayes posterior mean to the memorised training point
-(b). Both descend in lockstep with P1. Panel (b) also plots the distance from $x^i$ to
-the nearest \emph{other} training point (dotted, $\approx0.17$) as a scale reference:
-at $2\times10^5$ iterations $\|\text{mean}-x^i\|=0.38$ still exceeds it, so the mean has
-not yet resolved $x^i$ from its neighbours at this budget---it does so in the extended
-run ($0.137$ at $10^6$), and the per-sample memorisation ratio of
-Figure~\ref{fig:memratio} makes the same point without relying on this scale.}
-\label{fig:exp1extra}
-\end{figure}
+
 
 \begin{figure}[htb]
 \centering
