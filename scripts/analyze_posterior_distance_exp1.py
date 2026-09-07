@@ -65,8 +65,20 @@ def main():
     rows = []
     for name, _ in RUNS:
         rd = ROOT / name
+        # The original checkpoints were deleted when the GPU server hit its disk
+        # quota. scripts/rerun_exp1_posterior_ckpts.sh reproduces them into
+        # _recompute (same configs, same seeds, final checkpoint only), so prefer
+        # the run directory that actually has one.
+        ck = rd / "checkpoints" / "ckpt_200000.pt"
+        if not ck.exists():
+            alt = ROOT / "_recompute" / name / "checkpoints" / "ckpt_200000.pt"
+            if not alt.exists():
+                raise SystemExit(
+                    f"no final checkpoint for {name}; run "
+                    "scripts/rerun_exp1_posterior_ckpts.sh first")
+            ck = alt
         cfg, prob, X, Y, model, h = rebuild(rd)
-        state = torch.load(rd / "checkpoints" / "ckpt_200000.pt", map_location="cpu")
+        state = torch.load(ck, map_location="cpu")
         model.load_state_dict(state["model_state"]); model.eval()
         gen = torch.Generator().manual_seed(cfg["seed"] + 3)
         tgen = torch.Generator().manual_seed(cfg["seed"] + 555)

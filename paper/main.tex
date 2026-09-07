@@ -81,9 +81,10 @@ remedy, however, can only match moments; it cannot recover the posterior, since 
 generated law remains atomic at every bandwidth $h$, yielding an $h$-independent
 Wasserstein floor (Proposition~\ref{prop:atomicity}). That obstruction names its own
 cure---move the support---and smoothing the \emph{endpoint} does so, restoring an
-absolutely continuous law (Proposition~\ref{prop:tgtnoise}); measuring the floor
-directly shows it is small at our default configuration, and that MMD cannot see it
-while an optimal-transport distance can. Two superficially similar remedies are moreover not
+absolutely continuous law (Proposition~\ref{prop:tgtnoise}). Measuring the floor
+directly shows it is small at our default configuration, and that removing the
+obstruction does not buy accuracy there: swept over $(h,\rho)$, the closest law to the
+posterior is the unsmoothed one, in both metrics we score with. Two superficially similar remedies are moreover not
 interchangeable: label noise moves the population endpoint, interpolant noise provably
 does not, at any noise level (Proposition~\ref{prop:prop17}). Across five seeds, a trained MLP tracks the kernel
 reference to within seed noise ($\text{ratio-to-kernel}\approx1.00$ for $h\ge0.05$),
@@ -1099,20 +1100,49 @@ the \emph{population-optimal} atomic law already reaches ${\rm MMD}=0.0089$---be
 trained model's $0.024$. Atomicity, though exact, is therefore \emph{not} what the MMD
 curves measure; we correct that misreading in Appendix~\ref{sec:aux}. The reason is
 instrumental: an RBF MMD at the median-heuristic bandwidth cannot resolve inter-atom
-spacing. Scored in an entropic OT divergence, which can, endpoint smoothing
-(Proposition~\ref{prop:tgtnoise}) cuts the population distance to the posterior
-$2.1\times$ at $h{=}0.1$ ($12.0\to5.7$ at $\rho{=}0.1$), with the expected U-shape in
-$\rho$, while MMD moves by at most $1.2\times$. \emph{A trained model attains this}:
-retraining EXP-1 at $N{=}50$ (where the $d{=}2$ floor is largest,
-$F/\tr\Sigmapost=0.19$) with $h{=}0.1$ and $\rho\in\{0,0.3\}$, the generated $\tr\Cov$
-matches \eqref{eq:tgtendpoint}'s $\tr\Covh+d\rho^2$ to within $3\%$ in both arms and
-the mean is unchanged, while the OT distance falls $2.5\times$ ($79.2\to31.5$, and
-$2.5\times$ in each seed) against only $1.5\times$ in MMD
-(Appendix~\ref{app:tgt}). Table~\ref{tab:floor} sweeps $(d,N)$ and adds the caveat
-that matters: the gain grows with the floor at fixed $d$ but \emph{not} across
-$d$---at $d{=}10$ the floor is largest and the gain among the smallest, since an
-isotropic $\rho$ cannot fill a high-dimensional gap without paying $d\rho^2$. Endpoint
-smoothing is defeated by dimension, as kernel density estimation is.
+spacing, which is why an MMD that falls with $h$ says nothing about whether the
+support is still atomic.
+
+Does the obvious remedy help? Proposition~\ref{prop:tgtnoise} is exact: replacing the
+endpoint by $x^I+\rho\xi$ makes the population endpoint law
+$\sum_ip_i^{(h)}\N(x^i,\rho^2I_d)$, which is absolutely continuous, so the Wasserstein
+floor \eqref{eq:w2floor} stops applying altogether. The obstruction is genuinely
+removed. It does not follow that the law gets closer to the posterior, and swept over
+$(h,\rho)$ at the population optimum it does not: the best cell of the entire sweep is
+$h{=}0.5,\rho{=}0$ in \emph{both} metrics (${\rm MMD}=0.0089$, ${\rm OT}=0.106$), and at
+that $h$ smoothing makes both worse (${\rm MMD}\to0.0123$, ${\rm OT}\to0.131$ at
+$\rho{=}0.2$). At the smaller $h{=}0.1$ there is a nominal OT improvement,
+$0.168\to0.158$, but the difference of $0.010$ sits below the $0.014$ that the same
+estimator returns for two independent draws from the same posterior
+(\texttt{scripts/verify\_ot\_resolution.py}), so it is not a measurement.
+Smoothing buys continuity and pays for it in variance mismatch, and at the bandwidth
+that matters the payment exceeds the purchase.
+
+The remedy is not useless everywhere. Retraining EXP-1 at $N{=}50$---where the $d{=}2$
+floor is largest, $F/\tr\Sigmapost=0.19$---with $h{=}0.1$ and $\rho\in\{0,0.3\}$, the
+generated $\tr\Cov$ matches \eqref{eq:tgtendpoint}'s $\tr\Covh+d\rho^2$ to within
+$3\%$ in both arms, the mean is unchanged, and the distance to the posterior does fall:
+$1.49\times$ in MMD and $1.29\times$ in entropic OT, in the same direction in each seed
+(Appendix~\ref{app:tgt}). So where the atoms are sparse enough for the floor to
+dominate, filling the gaps helps a little. Table~\ref{tab:floor} sweeps $(d,N)$ and
+adds the caveat that matters: the gain grows with the floor at fixed $d$ but
+\emph{not} across $d$---at $d{=}10$ the floor is largest and the gain among the
+smallest, since an isotropic $\rho$ cannot fill a high-dimensional gap without paying
+$d\rho^2$. Endpoint smoothing is defeated by dimension, as kernel density estimation
+is.
+
+We state this correction plainly because an earlier version of this paper reported the
+opposite. It read a $2.1\times$ population gain and a $2.5\times$ trained-model gain in
+entropic OT against $1.2$--$1.5\times$ in MMD, and built on that gap an argument that
+OT sees the atomic support where MMD cannot. Those OT numbers came from a Sinkhorn
+implementation whose log-domain dual mixed two unit conventions; it scored two
+independent draws from the same Gaussian at $3.34$ and a point mass against a standard
+Gaussian at exactly $0$. It is corrected and pinned to three closed forms in
+\texttt{scripts/verify\_sinkhorn.py}, and with it corrected the gap does not exist: at
+$N{=}50$ the MMD gain is the \emph{larger} of the two. The argument that MMD cannot
+resolve inter-atom spacing survives on its own evidence---the population-optimal atomic
+law scores ${\rm MMD}=0.0089$, below the trained model's $0.024$, so an MMD of that size
+is compatible with a purely atomic law---and needs no help from OT.
 
 \paragraph{Interpolant noise does not help (Proposition~\ref{prop:prop17}).} With the
 \emph{corrected} target \eqref{eq:c2target} (verified by four closed-form checks) the
@@ -2797,35 +2827,45 @@ numbers quoted in Section~\ref{sec:p7} is \texttt{scripts/verify\_target\_noise.
 
 \begin{table}[htb]
 \centering\small
-\begin{tabular}{ccccccccc}
+\setlength{\tabcolsep}{4.5pt}
+\begin{tabular}{ccccccccccc}
 \toprule
-& & & & & \multicolumn{2}{c}{MMD} & \multicolumn{2}{c}{entropic OT}\\
-\cmidrule(lr){6-7}\cmidrule(l){8-9}
+& & & & & \multicolumn{2}{c}{MMD} & \multicolumn{3}{c}{entropic OT}\\
+\cmidrule(lr){6-7}\cmidrule(l){8-10}
 $d$ & $N$ & $\tr\Sigmapost$ & floor $F$ & $F/\tr\Sigmapost$ &
-atomic & gain from $\rho$ & atomic & gain from $\rho$\\
+atomic & gain from $\rho$ & atomic & gain from $\rho$ & \emph{est.\ floor}\\
 \midrule
-2 & 1000 & 1.004 & 0.0073 & 0.007 & 0.0048 & $1.01\times$ & 3.33 & $1.17\times$\\
-2 & 200  & 1.004 & 0.0353 & 0.035 & 0.0115 & $1.02\times$ & 16.75 & $1.31\times$\\
-2 & 50   & 1.004 & 0.1932 & 0.192 & 0.0742 & $1.24\times$ & 60.41 & $\mathbf{1.57\times}$\\
-5 & 200  & 4.001 & 0.9242 & 0.231 & 0.0059 & $1.05\times$ & 277.96 & $1.31\times$\\
-10 & 200 & 9.001 & 4.8303 & 0.537 & 0.0105 & $1.07\times$ & 1638.21 & $1.13\times$\\
-10 & 50  & 9.001 & 7.0125 & 0.779 & 0.0434 & $1.18\times$ & 2406.63 & $1.16\times$\\
+2 & 1000 & 1.004 & 0.0073 & 0.007 & 0.0048 & $1.01\times$ & 0.08 & $1.01\times$ & \emph{0.020}\\
+2 & 200  & 1.004 & 0.0353 & 0.035 & 0.0115 & $1.02\times$ & 0.18 & $1.09\times$ & \emph{0.014}\\
+2 & 50   & 1.004 & 0.1932 & 0.192 & 0.0742 & $\mathbf{1.24\times}$ & 0.76 & $1.04\times$ & \emph{0.019}\\
+5 & 200  & 4.001 & 0.9242 & 0.231 & 0.0059 & $1.05\times$ & 1.45 & $1.33\times$ & \emph{0.623}\\
+10 & 200 & 9.001 & 4.8303 & 0.537 & 0.0105 & $1.07\times$ & 7.48 & $1.21\times$ & \emph{4.273}\\
+10 & 50  & 9.001 & 7.0125 & 0.779 & 0.0434 & $1.18\times$ & 12.72 & $1.23\times$ & \emph{4.273}\\
 \bottomrule
 \end{tabular}
 \caption{The atomicity obstruction, quantified at the population optimum. $F$ is the
-exact bound of \eqref{eq:w2floor}; its relative size follows the $N^{-2/d}$
-nearest-atom scaling. ``Gain from $\rho$'' is the best score over $h$ alone divided by
-the best over $(h,\rho)$. Two readings. (i)~The OT gain exceeds the MMD gain at every
-row: an entropic OT divergence sees the atomic support, an RBF MMD at the
-median-heuristic bandwidth largely does not---which is why
-Figure~\ref{fig:postdist}'s MMD curves must not be read as measuring atomicity.
-(ii)~At fixed $d{=}2$ the OT gain grows with the floor ($1.17\to1.31\to1.57\times$ as
-$N$ falls), but \emph{across} $d$ it does not: $d{=}10$ has by far the largest floor
-and among the smallest gains, because an isotropic $\rho$ cannot fill a
-high-dimensional gap without paying $d\rho^2$ in variance. Endpoint smoothing is
+exact bound of \eqref{eq:w2floor}, computed in closed form and so free of any
+estimator; its relative size follows the $N^{-2/d}$ nearest-atom scaling. ``Gain from
+$\rho$'' is the best score over $h$ alone divided by the best over $(h,\rho)$. The
+last column is what the OT estimator returns for two independent $M$-sample draws
+from the \emph{same} posterior (\texttt{scripts/verify\_ot\_resolution.py}): the
+divergence does not vanish at finite $M$, and a difference smaller than that floor is
+not a measurement. Read against it, the OT \emph{levels} are resolved on every
+row---by $4$ to $40\times$ at $d{=}2$ and by $1.8$ to $2.3\times$ in higher
+dimension---and they confirm that the atomic law's distance to the posterior grows
+with $F$. The OT \emph{gains}, however, are $0.00$--$2.35$ in absolute terms against
+floors of $0.014$--$4.27$, so they are below resolution at every row and we do not
+read them; the endpoint-smoothing gain is taken from the MMD column, which needs no
+such correction. One reading survives and is the one that matters: at fixed $d{=}2$
+the MMD gain grows monotonically with the floor ($1.01\to1.02\to1.24\times$ as $N$
+falls from $1000$ to $50$), but \emph{across} $d$ it does not---$d{=}10$ has the
+largest floors and among the smallest gains ($1.07$, $1.18\times$)---because an
+isotropic $\rho$ cannot fill a high-dimensional gap without paying $d\rho^2$ in
+variance. Endpoint smoothing is
 defeated by dimension, exactly as kernel density estimation is. The OT column uses a
 coarser $(h,\rho)$ grid and $M{=}400$, so its absolute values are not comparable to
-the $M{=}2000$ single-configuration sweep quoted in Section~\ref{sec:p7}.}
+the $M{=}800$ single-configuration sweep quoted in Section~\ref{sec:p7}---which is also
+why that sweep's floor, quoted there, is the tighter $0.014$.}
 \label{tab:floor}
 \end{table}
 
@@ -2837,10 +2877,11 @@ Section~\ref{sec:p7}. Both arms use the EXP-1 architecture and schedule unchange
 $N{=}50$ and $h{=}0.1$, differing only in $\rho$
 (\texttt{configs/exp1\_target\_noise.yaml}, \texttt{train.target\_noise\_rho});
 analysis by \texttt{scripts/analyze\_target\_noise.py}. The measured $\tr\Cov$ tracks
-$\tr\Covh+d\rho^2$ per seed as well as on average, and the OT improvement is
-$2.5\times$ in each seed separately---the aggregate is not carried by one run. Seed
-variation is large in absolute terms (seed 0's problem instance is markedly harder than
-seed 1's), which is why the ratio, not the level, is the quantity to read.
+$\tr\Covh+d\rho^2$ per seed as well as on average, and the improvement in both
+distances is in the same direction in each seed separately---the aggregate is not
+carried by one run. Seed variation is large in absolute terms (seed 0's problem
+instance is markedly harder than seed 1's), which is why the ratio, not the level, is
+the quantity to read.
 
 \begin{table}[htb]
 \centering\small
@@ -2849,21 +2890,27 @@ seed 1's), which is why the ratio, not the level, is the quantity to read.
 arm & seed & $\tr\Cov$ & predicted $\tr\Covh+d\rho^2$ & MMD & entropic OT &
 $\|\text{mean}-\mu_{\mathrm{post}}\|$\\
 \midrule
-$\rho=0$   & 0 & 0.2176 & 0.2108 & 0.2330 & 118.90 & 0.5176\\
-           & 1 & 0.4353 & 0.4436 & 0.1168 & 39.45 & 0.2790\\
-           & \emph{mean} & \emph{0.3265} & \emph{0.3272} & \emph{0.1749} & \emph{79.18} & \emph{0.3983}\\
+$\rho=0$   & 0 & 0.2176 & 0.2108 & 0.2330 & 0.905 & 0.5176\\
+           & 1 & 0.4353 & 0.4436 & 0.1168 & 0.479 & 0.2790\\
+           & \emph{mean} & \emph{0.3265} & \emph{0.3272} & \emph{0.1749} & \emph{0.692} & \emph{0.3983}\\
 \midrule
-$\rho=0.3$ & 0 & 0.3959 & 0.3908 & 0.1549 & 47.38 & 0.5383\\
-           & 1 & 0.5870 & 0.6236 & 0.0798 & 15.70 & 0.2948\\
-           & \emph{mean} & \emph{0.4914} & \emph{0.5072} & \emph{0.1174} & \emph{31.54} & \emph{0.4166}\\
+$\rho=0.3$ & 0 & 0.3959 & 0.3908 & 0.1549 & 0.711 & 0.5383\\
+           & 1 & 0.5870 & 0.6236 & 0.0798 & 0.364 & 0.2948\\
+           & \emph{mean} & \emph{0.4914} & \emph{0.5072} & \emph{0.1174} & \emph{0.537} & \emph{0.4166}\\
 \bottomrule
 \end{tabular}
 \caption{Endpoint smoothing in a trained model ($N{=}50$, $h{=}0.1$, $2\times10^5$
 iterations, 8 conditions, $M{=}800$). The generated covariance matches
 \eqref{eq:tgtendpoint}'s $\tr\Covh+d\rho^2$ to within $3\%$ in both arms, and the mean
 is unchanged by $\rho$---both as the moment formula requires. Distance to the analytic
-posterior falls $2.5\times$ in entropic OT but only $1.5\times$ in MMD, the same
-metric-sensitivity gap seen at the population level in Table~\ref{tab:floor}.}
+posterior falls $1.49\times$ in MMD and $1.29\times$ in entropic OT. An earlier version
+of this table reported the OT column two orders of magnitude larger and falling
+$2.5\times$, and read a metric-sensitivity argument off the gap between the two
+columns. Those OT numbers came from a Sinkhorn implementation whose log-domain dual
+mixed two unit conventions; it is corrected here, pinned to three closed forms in
+\texttt{scripts/verify\_sinkhorn.py}, and the gap it appeared to show does not exist.
+Endpoint smoothing helps in both metrics at this $N$ and this $h$, and by a similar
+factor in each.}
 \label{tab:tgt}
 \end{table}
 

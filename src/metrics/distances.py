@@ -59,7 +59,7 @@ def sinkhorn_distance(x: torch.Tensor, y: torch.Tensor,
         loss = SamplesLoss("sinkhorn", p=p, blur=blur)
         return float(loss(x.to(torch.float32), y.to(torch.float32)))
 
-    def _ot(a: torch.Tensor, b: torch.Tensor) -> torch.Tensor:
+    def _ot(a: torch.Tensor, b: torch.Tensor, eps0: float | None = None) -> torch.Tensor:
         """Entropic OT cost via the log-domain Sinkhorn dual.
 
         The potentials f, g are carried in *cost* units, so the exponent is
@@ -73,6 +73,10 @@ def sinkhorn_distance(x: torch.Tensor, y: torch.Tensor,
         eps-scaling: at the eps this paper needs (blur 0.1, p 2 -> eps 1e-2) a
         fixed-eps iteration converges too slowly to be trusted at 200 steps, so
         anneal eps down to its target and spend the iterations where they count.
+        The starting eps is passed in rather than read off this call's own cost
+        matrix: the debiasing below subtracts three of these from each other, and
+        three different annealing schedules would leave three different truncation
+        residuals in a difference that is supposed to cancel them.
         """
         a = a.to(torch.float64)
         b = b.to(torch.float64)
@@ -87,7 +91,7 @@ def sinkhorn_distance(x: torch.Tensor, y: torch.Tensor,
 
         f = torch.zeros(n, dtype=torch.float64)
         g = torch.zeros(m, dtype=torch.float64)
-        eps0 = max(float(C.max()), eps_target)
+        eps0 = max(float(C.max()) if eps0 is None else eps0, eps_target)
         n_anneal = max(1, n_iters // 4)
         schedule = torch.logspace(
             float(torch.tensor(eps0).log10()), float(torch.tensor(eps_target).log10()),
@@ -98,7 +102,12 @@ def sinkhorn_distance(x: torch.Tensor, y: torch.Tensor,
             g = -eps * torch.logsumexp((f[:, None] - C) / eps + log_mu[:, None], dim=0)
         return f @ mu + g @ nu
 
-    ot_xy = _ot(x, y)
-    ot_xx = _ot(x, x)
-    ot_yy = _ot(y, y)
+    # One schedule for all three terms, set by the widest cost the pair produces.
+    z = torch.cat([x.to(torch.float64), y.to(torch.float64)], dim=0)
+    eps0 = float(_pairwise_sq_dists(z, z).max())
+    if p == 1:
+        eps0 = eps0 ** 0.5
+    ot_xy = _ot(x, y, eps0)
+    ot_xx = _ot(x, x, eps0)
+    ot_yy = _ot(y, y, eps0)
     return float((ot_xy - 0.5 * ot_xx - 0.5 * ot_yy).clamp_min(0.0))
