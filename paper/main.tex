@@ -641,9 +641,9 @@ model, and the across-condition slope of $0.481$ in Section~\ref{sec:cifarddpm} 
 that failure to transfer looks like (Appendix~\ref{app:deferred}).
 \end{proposition}
 
-The between-group inflation $h^2\|J\|_F^2$ is positive and, unlike the bias of the
-conditional \emph{mean}, is not annihilated by kernel symmetry; it produces the
-right-hand (over-smoothing) branch of the empirical U-curve. In the linear-Gaussian
+The between-group inflation $h^2\|J\|_F^2$ is positive and survives kernel symmetry,
+which kills only the odd-order terms; it produces the right-hand (over-smoothing)
+branch of the empirical U-curve. In the linear-Gaussian
 model $\mu(y)$ is exactly linear, so $J=\Sigmapost A^\top/\sigma_{\mathrm{obs}}^2$ is
 known in closed form and the $O(h^4)$ term vanishes: \eqref{eq:expansion} is then a
 parameter-free prediction. Proposition~\ref{prop:nwrate} (appendix) gives the
@@ -754,15 +754,18 @@ stronger---endpoints land on the atoms themselves, and larger $w$ changes \emph{
 atom is reached (Proposition~\ref{prop:cfgatom}).
 
 The practical reading is that guidance belongs with interpolant noise rather than with
-label smoothing. Of the four interventions considered in this paper, two leave the
-population endpoint law exactly where it was---interpolant noise
-(Proposition~\ref{prop:prop17}) and guidance (Proposition~\ref{prop:cfg}, which pins it
-to the affine hull of the atoms). Label smoothing does change it, but only by
-reweighting the same atoms, so the atomicity ceiling still binds
-(Proposition~\ref{prop:atomicity}). Only endpoint smoothing moves the support off the
-training set (Proposition~\ref{prop:tgtnoise}), and it pays $+\rho^2I_d$ of variance to
-do it. That ordering---inert, inert, reweighting, support-moving---is the practical
-content of the theory.
+label smoothing. Of the four interventions considered in this paper, interpolant noise
+leaves the population endpoint law exactly where it was, at every noise level
+(Proposition~\ref{prop:prop17}). Guidance cannot move the endpoint off the affine hull
+of the atoms (Proposition~\ref{prop:cfg}), and under hard conditioning it is fully
+inert---the conditioned atom is reached for every $w$; with smoothed labels ($h>0$) it
+still lands on a training atom, but it can change \emph{which} one
+(Proposition~\ref{prop:cfgatom}). So guidance reweights rather than escapes, as does
+label smoothing, which changes the endpoint law only by reweighting the same atoms, so
+the atomicity ceiling still binds (Proposition~\ref{prop:atomicity}). Only endpoint
+smoothing moves the support off the training set (Proposition~\ref{prop:tgtnoise}), and
+it pays $+\rho^2I_d$ of variance to do it. That ordering---inert, atom-preserving,
+reweighting, support-moving---is the practical content of the theory.
 
 \subsection{What survives the flow: from velocity error to retained variance}
 \label{sec:survival}
@@ -1515,9 +1518,11 @@ retraining the $p7y$ runs.
 
 \paragraph{Where the standard remedies stand.} Five interventions are deployed
 against this symptom in practice, and the account here settles three of them without
-new experiments. \emph{Guidance} is inert: it cannot leave the affine hull of the
-training set at any weight, and under hard conditioning it returns the conditioned
-atom itself (Propositions~\ref{prop:cfg} and~\ref{prop:cfgatom}). \emph{Caption
+new experiments. \emph{Guidance} cannot escape the training set: it cannot leave the latter's affine
+hull at any weight, and it lands on an atom, which under hard conditioning is the
+conditioned atom itself for every $w$, so there it is fully inert; with smoothed
+labels it can only change which atom is reached (Propositions~\ref{prop:cfg}
+and~\ref{prop:cfgatom}). \emph{Caption
 randomisation} is label smoothing, so Theorem~\ref{thm:endpoint} describes it exactly
 and the atomicity ceiling binds it. \emph{Condition dropout} replaces the label by a
 null token with some probability during training; conditionally on a real label the
@@ -1998,12 +2003,28 @@ the Nadaraya--Watson estimator of $\mu(y)$, with
 \]
 minimised at $h^\star\asymp N^{-1/(k+4)}$ \emph{provided the leading bias coefficient is
 nonzero}. That proviso is not decorative: the rate balances $c_1h^4$ against
-$c_2(Nh^k)^{-1}$ and needs $c_1,c_2>0$, whereas $c_1$ is built from
-$\nabla^2\mu(y)$ and the score of $\rho_Y$ and vanishes identically when $\mu$ is
-affine---which is exactly the linear-Gaussian instance we test, where the bias is $0$
-at every $h$ and the MSE is monotone in $h$ rather than U-shaped. The rate is the
-generic one; the case we measure is the degenerate one, and we say so rather than
-quoting a rate our own setting does not exhibit. Queries at $y=y^i$ are \emph{design
+$c_2(Nh^k)^{-1}$ and needs $c_1,c_2>0$, with
+$c_1=\tfrac14\mu_2(K)^2|b(y)|^2$ for
+\begin{equation}
+b(y):=\Delta\mu(y)+2\,\nabla\mu(y)^\top\nabla\log\rho_Y(y),
+\label{eq:nwbiascoef}
+\end{equation}
+which pairs the curvature of $\mu$ with a design-density term. Affineness of $\mu$
+annihilates only the first of the two: it is \emph{not} sufficient for zero bias,
+because the design-density term survives. In the linear-Gaussian instance of
+Section~\ref{sec:setup} we have $\mu(y)=By$ with $B=\Sigmapost A^\top/\sigma_{\mathrm{obs}}^2
+=A^\top\Sigma_Y^{-1}$ (the Jacobian $J$ of Proposition~\ref{prop:expansion}) and
+$\rho_Y=\N(0,\Sigma_Y)$, $\Sigma_Y=AA^\top+\sigma_{\mathrm{obs}}^2I_k$, so
+$\Delta\mu\equiv0$ but $b(y)=-2B\Sigma_Y^{-1}y$, which is nonzero for every $y\neq0$.
+There the Gaussian-kernel bias is in fact available in closed form at every $h$,
+\begin{equation}
+\bar x_h(y)-\mu(y)=-B\,h^2(\Sigma_Y+h^2I_k)^{-1}y=-h^2B\Sigma_Y^{-1}y+O(h^4),
+\label{eq:lgbias}
+\end{equation}
+whose leading term is $\tfrac{h^2}2\mu_2(K)b(y)$ with $\mu_2(K)=1$, as it must be. So
+the generic rate is the one our own instance exhibits, and the MSE is U-shaped in $h$
+away from the origin. The exception is $y=0$, where \eqref{eq:lgbias} vanishes by
+symmetry for every $h$; that is a single point, not the whole instance. Queries at $y=y^i$ are \emph{design
 points}: $x^i$ receives the maximal weight $K_h(0)$, and $Nh^k\to\infty$ is exactly
 what makes its relative influence vanish; without it the result does not apply there.
 \end{proposition}
@@ -2074,11 +2095,30 @@ by Taylor-expanding $\mu(y^j)$ about $y$ against the symmetric kernel weights, w
 is the same computation as the $O(h^2)$ term in the proof of
 Proposition~\ref{prop:expansion}.
 
-Only the last step is ours, and it is elementary. Writing
+Only the last two steps are ours, and both are elementary. Writing
 $\mathrm{MSE}(h)=c_1h^4+c_2(Nh^k)^{-1}+o(\cdot)$ with $c_1,c_2>0$ the squared-bias and
 variance constants above, $\frac{d}{dh}\mathrm{MSE}=4c_1h^3-c_2kN^{-1}h^{-k-1}$
 vanishes when $h^{k+4}=c_2k/(4c_1N)$, i.e.\ $h^\star\asymp N^{-1/(k+4)}$; the second
 derivative is positive there, so it is the minimiser.
+
+For \eqref{eq:lgbias}, the population version of $\bar x_h$ is the $\rho_Y$-average of
+$\mu$ against the kernel, $\bar x_h(y)=\E[\mu(Y)\,K_h(y-Y)]/\E[K_h(y-Y)]$. With
+$K_h=\N(0,h^2I_k)$ and $\rho_Y=\N(0,\Sigma_Y)$ the product of the two densities is,
+in $y'$, an unnormalised Gaussian with precision $\Sigma_Y^{-1}+h^{-2}I_k$ and mean
+$(\Sigma_Y^{-1}+h^{-2}I_k)^{-1}h^{-2}y=\Sigma_Y(\Sigma_Y+h^2I_k)^{-1}y$. Since
+$\mu(y')=By'$ is affine, averaging it against that Gaussian just evaluates $B$ at the
+mean, so $\bar x_h(y)=B\Sigma_Y(\Sigma_Y+h^2I_k)^{-1}y$ and
+\[
+\bar x_h(y)-By=B\big[\Sigma_Y(\Sigma_Y+h^2I_k)^{-1}-I_k\big]y=-B\,h^2(\Sigma_Y+h^2I_k)^{-1}y,
+\]
+which is \eqref{eq:lgbias}; expanding $(\Sigma_Y+h^2I_k)^{-1}=\Sigma_Y^{-1}+O(h^2)$
+gives the stated $-h^2B\Sigma_Y^{-1}y+O(h^4)$, and $b(y)=-2B\Sigma_Y^{-1}y$ follows
+from \eqref{eq:nwbiascoef} with $\Delta\mu=0$ and
+$\nabla\log\rho_Y(y)=-\Sigma_Y^{-1}y$. Note this is an exact statement about the
+population kernel average at every $h$, not only asymptotically. Both the closed form
+and its agreement with \eqref{eq:nwbiascoef} are checked numerically in
+\texttt{scripts/verify\_nw\_bias\_affine.py}, which also exhibits the U-shaped
+finite-$N$ MSE at $y\neq0$ and its monotone counterpart at $y=0$.
 
 The design-point remark needs no separate argument: at $y=y^i$ the summand $j=i$
 carries weight $K_h(0)/\sum_jK_h(y^i-y^j)$, and $\sum_{j}K_h(y^i-y^j)\asymp Nh^k$ in
