@@ -161,6 +161,16 @@ python -u scripts/kaggle_run.py \
 TRAIN_RC=$?
 echo "--- training returned $TRAIN_RC ---"
 
+BENCH="$OUTDIR/bench-${STAMP}.txt"
+if [ "$SMOKE" = "1" ]; then
+  # The rehearsal trains at batch 16, which leaves the GPU mostly idle, so the
+  # throughput it just printed overstates the real run several times over.
+  # Time the real step at the real batch before anyone plans sessions on it.
+  echo "--- throughput at the REAL batch size (ignore the batch-16 figure above) ---"
+  python -u scripts/bench_throughput.py --config "$CONFIG" --session-hours "${SESSION_HOURS:-8.0}" \
+      2>&1 | tee "$BENCH"
+fi
+
 # --------------------------------------------------------------------------- #
 # 6. analyses, once the budget is actually finished
 # --------------------------------------------------------------------------- #
@@ -211,6 +221,7 @@ if [ -d "$WORK/results/exp3/_cifar_ddpm_long" ]; then
   cp -r "$WORK/results/exp3/_cifar_ddpm_long" "$STAGE/analysis"
 fi
 cp "$LOG" "$STAGE/session.log" 2>/dev/null
+[ -f "$BENCH" ] && cp "$BENCH" "$STAGE/bench.txt"
 python - > "$STAGE/env.txt" <<'PY'
 import torch, sys, platform
 print("python", sys.version)

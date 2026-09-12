@@ -230,3 +230,11 @@ data/
 # Smoke-test output (`--smoke-test`): a few seconds to regenerate, referenced by
 # nothing, and 10 files of noise in results/ when committed.
 results/**/*_smoke/
+
+# Session zips from scripts/kaggle_session.sh, and their extracted folders.
+# They are for reading, not for history; the numbers that matter get re-derived
+# into results/ by the analysis scripts.
+cfm-results-*/
+cfm-results-*.zip
+session-*.log
+bench-*.txt
