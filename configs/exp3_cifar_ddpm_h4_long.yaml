@@ -1,0 +1,72 @@
+# EXP-3, CIFAR-10 DDPM U-Net at h=4, run four times longer than the paper's.
+#
+# Why: the across-condition slope beta of log tr Cov on log tr Cov_h is still
+# rising monotonically when the paper's 60000-iteration budget ends
+# (-0.03, -0.03, -0.05, +0.12, +0.20, +0.39 at M=96; 0.481 re-measured at
+# M=256). The paper therefore says only that 0.481 is where 60000 iterations
+# reached, not that it is a ceiling of the model class, and explicitly does not
+# claim beta -> 1. This config runs the budget that would settle it. Either
+# outcome is a result: beta continuing toward 1 turns a partial confirmation
+# into a strong one, and beta saturating identifies a real ceiling and makes the
+# gap a property of the parameterisation rather than of the optimiser.
+#
+# Only h=4 is extended. It is the informative bandwidth -- the reference spans
+# 4.57 decades across conditions there, against 0.74 at h=6, and a regression
+# whose predictor barely varies cannot say anything whatever the budget.
+#
+# Cost: measured throughput on a Quadro RTX 6000 with AMP is 4.75 it/s, so
+# 240000 iterations is ~14 h. That exceeds any single free-tier session, which
+# is what --max-hours and --resume are for; see docs/KAGGLE.md.
+#
+# Everything else is exp3_cifar_ddpm.yaml unchanged, so the first 60000
+# iterations reproduce the published run: same seed, same N, same architecture,
+# same learning rate, same batch.
+run_name: exp3_cifar_ddpm_h4_long
+seed: 0
+device: auto
+
+data:
+  N: 2000
+  dataset: cifar10
+  mask_kind: bottom_half
+  source_std: 1.0
+  data_root: data
+
+model:
+  arch: ddpm
+  base: 128
+  ch_mult: [1, 2, 2, 2]
+  num_res_blocks: 2
+  attn_resolutions: [16]
+  temb_dim: 512
+  dropout: 0.0
+
+train:
+  max_iters: 240000
+  batch_size: 128
+  lr: 0.0002
+  y_noise_h: 4.0
+  amp: true
+  # Evaluated at each of these; the first six match the published run so the
+  # reproduction can be checked point by point before the new budget begins.
+  checkpoints: [500, 2000, 8000, 20000, 40000, 60000,
+                90000, 120000, 160000, 200000, 240000]
+  # Weights archived only where beta is to be re-measured at M=256. A resumable
+  # checkpoint now carries the optimiser and both RNG streams as well as the
+  # weights, so it is ~3x the size of a weights-only one; archiving all eleven
+  # would cost several GB for nothing. Chaining uses ckpt_resume.pt, which is
+  # rewritten at every evaluation and does not accumulate.
+  save_checkpoints: [60000, 120000, 180000, 240000]
+
+eval:
+  # Training-time evaluation stays cheap and noisy on purpose: the trace of a
+  # covariance from M samples carries a relative sampling error of ~sqrt(2/(M-1)),
+  # which is 36% at M=16. It is there to watch the run, not to be reported.
+  # Reported numbers come from reeval_exp3_cifar_ddpm.py on the archived
+  # checkpoints at M=256, and beta from beta_trajectory.py.
+  n_conditions: 8
+  M: 16
+  n_steps: 50
+  ode_eps: 0.001
+  grid_conditions: 4
+  grid_M: 6

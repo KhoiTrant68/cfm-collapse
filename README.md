@@ -181,6 +181,20 @@ uv run python scripts/analyze_exp3.py --run results/exp3/exp3_mnist_seed0
 Per-checkpoint sample grids (same observed top, different `x0`, next to the true
 and nearest-neighbour training image) are saved under the run's `figures/`.
 
+### Long runs on a short-session host
+
+`--max-hours H` stops a run cleanly on a wall-clock budget and writes a resume
+point; `--resume CKPT` continues from one. A checkpoint carries the optimiser,
+the AMP scaler and both RNG streams, so a chained run is bit-identical to an
+uninterrupted one -- `scripts/verify_resume.py` checks exactly that, in about a
+minute on CPU.
+
+This is what `configs/exp3_cifar_ddpm_h4_long.yaml` needs: 240000 iterations at
+h=4, to see whether the across-condition slope keeps rising past the 60000 the
+paper reports. `scripts/kaggle_run.py` drives one session of it and prints the
+measured throughput and how many sessions are left; `docs/KAGGLE.md` has the
+recipe.
+
 ## Layout
 
 ```
