@@ -160,12 +160,19 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--M", type=int, default=256)
     ap.add_argument("--n-conditions", type=int, default=16)
+    ap.add_argument("--runs", nargs="*", default=None,
+                    help="run directories under results/exp3 (default: the four "
+                         "published bandwidths)")
+    ap.add_argument("--out", default=None,
+                    help="output directory (default: results/exp3/_cifar_ddpm)")
     args = ap.parse_args()
 
     device = get_device("auto")
-    OUT.mkdir(parents=True, exist_ok=True)
+    runs = args.runs or RUNS
+    out_dir = Path(args.out) if args.out else OUT
+    out_dir.mkdir(parents=True, exist_ok=True)
     out = []
-    for run in RUNS:
+    for run in runs:
         print(f"re-evaluating {run} (M={args.M}, {args.n_conditions} conditions)...")
         r = reeval(run, args.M, args.n_conditions, device)
         if r is None:
@@ -188,7 +195,7 @@ def main():
                   f"{r['obs_err_predicted']:.5f}  | NN-correct "
                   f"{r['nn_correct_rate']*100:.0f}%  memratio {r['memorization_ratio']:.3f}")
 
-    with open(OUT / "reeval.json", "w", encoding="utf-8") as f:
+    with open(out_dir / "reeval.json", "w", encoding="utf-8") as f:
         json.dump(out, f, indent=2)
     print(f"\nSaved: {OUT}/reeval.json")
 

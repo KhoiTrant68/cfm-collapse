@@ -77,11 +77,18 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--M", type=int, default=96)
     ap.add_argument("--n-conditions", type=int, default=48)
+    ap.add_argument("--runs", nargs="*", default=None,
+                    help="run directories under results/exp3 (default: h=4,5,6)")
+    ap.add_argument("--out-json", default=None)
+    ap.add_argument("--fig", default=None)
     args = ap.parse_args()
     device = get_device("auto")
+    runs = args.runs or RUNS
+    out_json = Path(args.out_json) if args.out_json else OUT
+    fig_path = Path(args.fig) if args.fig else FIG
 
     rows = []
-    for run in RUNS:
+    for run in runs:
         ckdir = Path("results/exp3") / run / "checkpoints"
         iters = sorted(int(p.stem.split("_")[1]) for p in ckdir.glob("ckpt_*.pt"))
         for it in iters:
@@ -96,8 +103,8 @@ def main() -> None:
                   f"beta={fit['slope']:+.3f} ({fit['se']:.3f})  "
                   f"R2={fit['r2']:.3f}  aggregate ratio={fit['aggregate_ratio']:.3f}")
 
-    OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text(json.dumps(rows, indent=2), encoding="utf-8")
+    out_json.parent.mkdir(parents=True, exist_ok=True)
+    out_json.write_text(json.dumps(rows, indent=2), encoding="utf-8")
 
     fig, ax = plt.subplots(figsize=(6.0, 4.0))
     for h, color in ((4.0, OI["blue"]), (5.0, OI["orange"]), (6.0, OI["vermillion"])):
@@ -118,10 +125,10 @@ def main() -> None:
     ax.grid(alpha=0.3)
     ax.legend(fontsize=8)
     fig.tight_layout()
-    FIG.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(FIG, dpi=200)
+    fig_path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(fig_path, dpi=200)
     plt.close(fig)
-    print(f"\nSaved: {OUT}, {FIG}")
+    print(f"\nSaved: {out_json}, {fig_path}")
 
 
 if __name__ == "__main__":
