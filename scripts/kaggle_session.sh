@@ -1,34 +1,32 @@
 #!/usr/bin/env bash
 # One Kaggle session of the extended h=4 CIFAR-10 DDPM run.
 #
-# Run it from a single notebook cell:
+# Run it from one notebook cell, with Internet on (Settings -> Internet):
 #
-#     !bash /kaggle/input/cfm-collapse/scripts/kaggle_session.sh
+#     !curl -sL -o /tmp/s.sh https://raw.githubusercontent.com/KhoiTrant68/cfm-collapse/main/scripts/kaggle_session.sh
+#     !bash /tmp/s.sh
 #
-# Everything is configured by environment variables, all optional:
+# The code always comes from main: the script clones it fresh every session, so
+# nothing has to be uploaded or attached. Everything else is configured by
+# environment variables, all optional:
 #
-#     REPO=/kaggle/input/cfm-collapse     the repo dataset, if one is attached
-#     GIT_URL=https://github.com/...      clone this instead, when REPO is absent
-#     BRANCH=main                         branch to clone
 #     DATA=/kaggle/input/cifar10-python   directory holding cifar-10-batches-py;
 #                                         left unset, CIFAR-10 is downloaded
 #     PREV=""                             previous session's output dataset
 #     HOURS=8.0                           wall-clock budget (session limit is 9)
 #     SMOKE=0                             1 = two-minute rehearsal, no GPU needed
+#     REPO=""                             offline only: an attached copy of the
+#                                         repo, used instead of cloning main
 #
-# Attaching nothing at all works, provided the notebook has internet enabled
-# (Settings -> Internet on): the repo is cloned and torchvision fetches CIFAR-10.
-#
-# It copies the repo into /kaggle/working (the dataset is read-only), restores
+# It copies the repo into /kaggle/working, restores
 # the previous session if PREV is set, trains until the budget expires, runs the
 # analyses if the run finished, and zips the small artefacts to send back. The
 # checkpoints stay in /kaggle/working and ride to the next session as the
 # notebook's own output -- they are far too large to send.
 set -uo pipefail
 
-REPO="${REPO:-/kaggle/input/cfm-collapse}"
-GIT_URL="${GIT_URL:-https://github.com/KhoiTrant68/cfm-collapse.git}"
-BRANCH="${BRANCH:-main}"
+REPO="${REPO:-}"
+GIT_URL="https://github.com/KhoiTrant68/cfm-collapse.git"
 DATA="${DATA:-}"
 PREV="${PREV:-}"
 HOURS="${HOURS:-8.0}"
@@ -48,7 +46,7 @@ fi
 
 exec > >(tee -a "$LOG") 2>&1
 echo "=== cfm-collapse session ${STAMP} ==="
-echo "repo=$REPO  data=${DATA:-<repo default>}  prev=${PREV:-<none>}  hours=$HOURS  smoke=$SMOKE"
+echo "repo=${REPO:-<clone main>}  data=${DATA:-<repo default>}  prev=${PREV:-<none>}  hours=$HOURS  smoke=$SMOKE"
 
 # --------------------------------------------------------------------------- #
 # 1. environment
@@ -63,26 +61,21 @@ else:
     print("gpu: NONE -- training will be unusably slow; enable the accelerator")
 PY
 
-if [ ! -d "$REPO/src" ]; then
-  if [ -z "$GIT_URL" ]; then
-    echo "ERROR: no src/ under REPO=$REPO and GIT_URL is empty."
-    echo "       Attach the repo dataset, set REPO=..., or set GIT_URL=..."
-    exit 2
-  fi
-  echo "no repo at $REPO; cloning $GIT_URL branch $BRANCH"
+if [ -z "$REPO" ]; then
+  echo "cloning main from $GIT_URL"
   rm -rf "$OUTDIR/repo"
-  if ! git clone -q --depth 1 --branch "$BRANCH" "$GIT_URL" "$OUTDIR/repo"; then
-    echo "ERROR: clone failed. Enable notebook internet (Settings -> Internet),"
-    echo "       or check BRANCH=$BRANCH exists, or attach the repo as a dataset."
+  if ! git clone -q --depth 1 --branch main "$GIT_URL" "$OUTDIR/repo"; then
+    echo "ERROR: clone failed. Enable notebook internet (Settings -> Internet)."
     exit 2
   fi
   REPO="$OUTDIR/repo"
-  echo "cloned to $REPO ($(git -C "$REPO" rev-parse --short HEAD))"
+  echo "cloned main at $(git -C "$REPO" rev-parse --short HEAD)"
+elif [ ! -d "$REPO/src" ]; then
+  echo "ERROR: no src/ under REPO=$REPO. Unset REPO to clone main instead."
+  exit 2
 fi
 if [ ! -f "$REPO/$CONFIG" ]; then
   echo "ERROR: $REPO has no $CONFIG."
-  echo "       That branch predates the long-run config. Merge the branch that"
-  echo "       adds it into main, or pass BRANCH=<that branch>."
   exit 2
 fi
 
@@ -272,7 +265,8 @@ echo "=================================================================="
 if [ "$DONE" -lt "$TARGET" ] 2>/dev/null; then
   echo "NOT FINISHED. Save this notebook version, attach its output to the next"
   echo "session as a dataset, and re-run the same cell with:"
-  echo "    PREV=/kaggle/input/<that-dataset> bash \$REPO/scripts/kaggle_session.sh"
+  echo "    !curl -sL -o /tmp/s.sh https://raw.githubusercontent.com/KhoiTrant68/cfm-collapse/main/scripts/kaggle_session.sh"
+  echo "    !PREV=/kaggle/input/<that-dataset> bash /tmp/s.sh"
   echo "The checkpoints are in $WORK/results -- they stay"
   echo "in the notebook output and must NOT be put in the zip."
 else

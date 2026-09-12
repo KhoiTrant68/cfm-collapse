@@ -64,59 +64,35 @@ evaluation, so a hard kill costs at most one evaluation interval.
 
 ## Setup
 
-Turn the GPU accelerator on. Then pick one of two ways to get the code and the
-data onto the machine.
-
-### Nothing to upload (recommended)
-
-Turn **Internet on** as well (Notebook settings → Internet). The session then
-fetches everything itself: it clones the repo and lets torchvision download
-CIFAR-10. One cell, no datasets to attach:
+Turn the GPU accelerator **and Internet** on (Notebook settings → Internet). The
+code always comes from `main`: every session clones it fresh, so whatever is on
+`main` when the session starts is what runs, and nothing has to be uploaded.
+Every command below is one notebook cell of this shape:
 
 ```
 !curl -sL -o /tmp/s.sh https://raw.githubusercontent.com/KhoiTrant68/cfm-collapse/main/scripts/kaggle_session.sh
 !bash /tmp/s.sh
 ```
 
-That fetches the session script; the script clones the rest. Download it to a
-file rather than piping it into `bash` — it runs several heredocs, and a script
-read from stdin shares that stream.
+The first line fetches the session script from `main`; the script clones the
+rest. Download it to a file rather than piping it into `bash` — it runs several
+heredocs, and a script read from stdin shares that stream. Settings go in front
+of `bash` on the second line, e.g. `!SMOKE=1 bash /tmp/s.sh`.
 
-If the long-run config is not on `main` yet the script stops immediately and says
-so. Point both lines at the branch that has it:
-
-```
-!curl -sL -o /tmp/s.sh https://raw.githubusercontent.com/KhoiTrant68/cfm-collapse/<branch>/scripts/kaggle_session.sh
-!BRANCH=<branch> bash /tmp/s.sh
-```
-
-CIFAR-10 lands in `/kaggle/working/cfm-collapse/data` and is re-downloaded each
-session, which costs about 170 MB and a minute. To avoid that, save it once as
-your own Kaggle dataset and pass `DATA=` as below.
-
-A private repo needs a token in the URL
-(`https://<token>@github.com/...`). Put it in a Kaggle Secret rather than in the
-notebook, or attach the repo as a dataset instead.
-
-### Or attach datasets
-
-1. **the repo** — everything except `results/`, `data/` and `.venv/`. It is
-   small. Name it `cfm-collapse`, and the default `REPO` finds it.
-2. **CIFAR-10** — an existing public CIFAR-10 dataset, or your local
-   `data/cifar-10-batches-py` (178 MB). `DATA` points at the directory
-   *containing* `cifar-10-batches-py`.
-
-This needs no internet, and is the faster option if you are running several
-sessions.
+CIFAR-10 is downloaded by torchvision into `/kaggle/working/cfm-collapse/data`
+each session, which costs about 170 MB and a minute. To avoid that, attach a
+CIFAR-10 dataset (a public one, or your local `data/cifar-10-batches-py`) and
+pass `DATA=` pointing at the directory *containing* `cifar-10-batches-py`.
 
 ### Rehearse first (a few minutes)
 
 ```
-!SMOKE=1 bash /kaggle/input/cfm-collapse/scripts/kaggle_session.sh
+!curl -sL -o /tmp/s.sh https://raw.githubusercontent.com/KhoiTrant68/cfm-collapse/main/scripts/kaggle_session.sh
+!SMOKE=1 bash /tmp/s.sh
 ```
 
 (add `DATA=/kaggle/input/cifar10-python` if you attached CIFAR-10 rather than
-letting it download, and `REPO=`/`BRANCH=` if the defaults do not find the code)
+letting it download)
 
 This runs 200 iterations of the real model on the real data, then deletes its
 own checkpoints. It is there to catch the things that actually go wrong — the
@@ -133,7 +109,8 @@ and it is in the zip as `bench.txt`.
 ### Session 1
 
 ```
-!HOURS=8.0 bash /kaggle/input/cfm-collapse/scripts/kaggle_session.sh
+!curl -sL -o /tmp/s.sh https://raw.githubusercontent.com/KhoiTrant68/cfm-collapse/main/scripts/kaggle_session.sh
+!HOURS=8.0 bash /tmp/s.sh
 ```
 
 Save the notebook version when it finishes, so its output becomes a dataset.
@@ -143,18 +120,23 @@ Save the notebook version when it finishes, so its output becomes a dataset.
 Attach the previous session's output as an input dataset, then:
 
 ```
-!PREV=/kaggle/input/<previous-output> HOURS=8.0 \
-    bash /kaggle/input/cfm-collapse/scripts/kaggle_session.sh
+!curl -sL -o /tmp/s.sh https://raw.githubusercontent.com/KhoiTrant68/cfm-collapse/main/scripts/kaggle_session.sh
+!PREV=/kaggle/input/<previous-output> HOURS=8.0 bash /tmp/s.sh
 ```
 
 `PREV` is copied forward first, so `metrics.csv`, the sample grids and the
 archived checkpoints accumulate in one place instead of being scattered over
 several notebook outputs. Repeat until the script prints `RUN COMPLETE`.
 
-Every variable is optional and can be set inline: `REPO` (default
-`/kaggle/input/cfm-collapse`), `GIT_URL` and `BRANCH` (used when `REPO` is
-absent), `DATA` (unset means download), `PREV`, `HOURS` (default 8.0), `SMOKE`,
-`OUTDIR` (default `/kaggle/working`).
+Every variable is optional and can be set inline: `DATA` (unset means download),
+`PREV`, `HOURS` (default 8.0), `SMOKE`, `OUTDIR` (default `/kaggle/working`).
+`REPO` is for a session without internet only: point it at an attached copy of
+the repo and the script uses that instead of cloning `main`.
+
+Because each session clones `main` afresh, a commit pushed to `main` between
+sessions changes the code the rest of the run uses. The session log records the
+commit it cloned (`cloned main at <sha>`); do not push changes to training, the
+model or the config while the run is in progress.
 
 ### What comes back, and what stays
 
