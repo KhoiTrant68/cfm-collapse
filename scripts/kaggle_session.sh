@@ -7,11 +7,17 @@
 #
 # Everything is configured by environment variables, all optional:
 #
-#     REPO=/kaggle/input/cfm-collapse     the repo dataset (read-only)
-#     DATA=/kaggle/input/cifar10-python   directory holding cifar-10-batches-py
+#     REPO=/kaggle/input/cfm-collapse     the repo dataset, if one is attached
+#     GIT_URL=https://github.com/...      clone this instead, when REPO is absent
+#     BRANCH=main                         branch to clone
+#     DATA=/kaggle/input/cifar10-python   directory holding cifar-10-batches-py;
+#                                         left unset, CIFAR-10 is downloaded
 #     PREV=""                             previous session's output dataset
 #     HOURS=8.0                           wall-clock budget (session limit is 9)
 #     SMOKE=0                             1 = two-minute rehearsal, no GPU needed
+#
+# Attaching nothing at all works, provided the notebook has internet enabled
+# (Settings -> Internet on): the repo is cloned and torchvision fetches CIFAR-10.
 #
 # It copies the repo into /kaggle/working (the dataset is read-only), restores
 # the previous session if PREV is set, trains until the budget expires, runs the
@@ -21,6 +27,8 @@
 set -uo pipefail
 
 REPO="${REPO:-/kaggle/input/cfm-collapse}"
+GIT_URL="${GIT_URL:-https://github.com/KhoiTrant68/cfm-collapse.git}"
+BRANCH="${BRANCH:-main}"
 DATA="${DATA:-}"
 PREV="${PREV:-}"
 HOURS="${HOURS:-8.0}"
@@ -56,7 +64,25 @@ else:
 PY
 
 if [ ! -d "$REPO/src" ]; then
-  echo "ERROR: no src/ under REPO=$REPO. Attach the repo dataset, or set REPO=..."
+  if [ -z "$GIT_URL" ]; then
+    echo "ERROR: no src/ under REPO=$REPO and GIT_URL is empty."
+    echo "       Attach the repo dataset, set REPO=..., or set GIT_URL=..."
+    exit 2
+  fi
+  echo "no repo at $REPO; cloning $GIT_URL branch $BRANCH"
+  rm -rf "$OUTDIR/repo"
+  if ! git clone -q --depth 1 --branch "$BRANCH" "$GIT_URL" "$OUTDIR/repo"; then
+    echo "ERROR: clone failed. Enable notebook internet (Settings -> Internet),"
+    echo "       or check BRANCH=$BRANCH exists, or attach the repo as a dataset."
+    exit 2
+  fi
+  REPO="$OUTDIR/repo"
+  echo "cloned to $REPO ($(git -C "$REPO" rev-parse --short HEAD))"
+fi
+if [ ! -f "$REPO/$CONFIG" ]; then
+  echo "ERROR: $REPO has no $CONFIG."
+  echo "       That branch predates the long-run config. Merge the branch that"
+  echo "       adds it into main, or pass BRANCH=<that branch>."
   exit 2
 fi
 
@@ -82,7 +108,19 @@ if [ -n "$DATA" ]; then
     echo "WARNING: no cifar-10-batches-py under DATA=$DATA; will try to download"
   fi
 else
-  echo "no DATA given; torchvision will download CIFAR-10 (needs notebook internet ON)"
+  echo "no DATA given; fetching CIFAR-10 with torchvision (needs internet ON)"
+  python - "$WORK/data" <<'PY'
+import sys
+from torchvision import datasets
+try:
+    datasets.CIFAR10(root=sys.argv[1], train=True, download=True)
+    print("cifar-10 ready under", sys.argv[1])
+except Exception as exc:
+    print("DOWNLOAD FAILED:", exc)
+    print("Enable notebook internet, or attach CIFAR-10 and pass DATA=<dir>.")
+    raise SystemExit(1)
+PY
+  if [ $? -ne 0 ]; then exit 2; fi
 fi
 
 # --------------------------------------------------------------------------- #

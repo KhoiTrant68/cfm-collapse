@@ -56,22 +56,59 @@ evaluation, so a hard kill costs at most one evaluation interval.
 
 ## Setup
 
-Upload two Kaggle datasets:
+Turn the GPU accelerator on. Then pick one of two ways to get the code and the
+data onto the machine.
+
+### Nothing to upload (recommended)
+
+Turn **Internet on** as well (Notebook settings → Internet). The session then
+fetches everything itself: it clones the repo and lets torchvision download
+CIFAR-10. One cell, no datasets to attach:
+
+```
+!curl -sL -o /tmp/s.sh https://raw.githubusercontent.com/KhoiTrant68/cfm-collapse/main/scripts/kaggle_session.sh
+!bash /tmp/s.sh
+```
+
+That fetches the session script; the script clones the rest. Download it to a
+file rather than piping it into `bash` — it runs several heredocs, and a script
+read from stdin shares that stream.
+
+If the long-run config is not on `main` yet the script stops immediately and says
+so. Point both lines at the branch that has it:
+
+```
+!curl -sL -o /tmp/s.sh https://raw.githubusercontent.com/KhoiTrant68/cfm-collapse/<branch>/scripts/kaggle_session.sh
+!BRANCH=<branch> bash /tmp/s.sh
+```
+
+CIFAR-10 lands in `/kaggle/working/cfm-collapse/data` and is re-downloaded each
+session, which costs about 170 MB and a minute. To avoid that, save it once as
+your own Kaggle dataset and pass `DATA=` as below.
+
+A private repo needs a token in the URL
+(`https://<token>@github.com/...`). Put it in a Kaggle Secret rather than in the
+notebook, or attach the repo as a dataset instead.
+
+### Or attach datasets
 
 1. **the repo** — everything except `results/`, `data/` and `.venv/`. It is
-   small. Name it `cfm-collapse`.
-2. **CIFAR-10** — attach an existing public CIFAR-10 dataset, or upload your
-   local `data/cifar-10-batches-py` (178 MB), or enable notebook internet and
-   let torchvision download it. `DATA` points at the directory *containing*
-   `cifar-10-batches-py`.
+   small. Name it `cfm-collapse`, and the default `REPO` finds it.
+2. **CIFAR-10** — an existing public CIFAR-10 dataset, or your local
+   `data/cifar-10-batches-py` (178 MB). `DATA` points at the directory
+   *containing* `cifar-10-batches-py`.
 
-Turn the GPU accelerator on.
+This needs no internet, and is the faster option if you are running several
+sessions.
 
 ### Rehearse first (two minutes, no GPU needed)
 
 ```
-!SMOKE=1 DATA=/kaggle/input/cifar10-python bash /kaggle/input/cfm-collapse/scripts/kaggle_session.sh
+!SMOKE=1 bash /kaggle/input/cfm-collapse/scripts/kaggle_session.sh
 ```
+
+(add `DATA=/kaggle/input/cifar10-python` if you attached CIFAR-10 rather than
+letting it download, and `REPO=`/`BRANCH=` if the defaults do not find the code)
 
 This runs 200 iterations of the real model on the real data, then deletes its
 own checkpoints. It is there to catch the things that actually go wrong — the
@@ -81,7 +118,7 @@ session is spent on them. It should end with `RUN COMPLETE at 200 iterations`.
 ### Session 1
 
 ```
-!DATA=/kaggle/input/cifar10-python HOURS=8.0 bash /kaggle/input/cfm-collapse/scripts/kaggle_session.sh
+!HOURS=8.0 bash /kaggle/input/cfm-collapse/scripts/kaggle_session.sh
 ```
 
 Save the notebook version when it finishes, so its output becomes a dataset.
@@ -91,7 +128,7 @@ Save the notebook version when it finishes, so its output becomes a dataset.
 Attach the previous session's output as an input dataset, then:
 
 ```
-!DATA=/kaggle/input/cifar10-python PREV=/kaggle/input/<previous-output> HOURS=8.0 \
+!PREV=/kaggle/input/<previous-output> HOURS=8.0 \
     bash /kaggle/input/cfm-collapse/scripts/kaggle_session.sh
 ```
 
@@ -100,7 +137,8 @@ archived checkpoints accumulate in one place instead of being scattered over
 several notebook outputs. Repeat until the script prints `RUN COMPLETE`.
 
 Every variable is optional and can be set inline: `REPO` (default
-`/kaggle/input/cfm-collapse`), `DATA`, `PREV`, `HOURS` (default 8.0), `SMOKE`,
+`/kaggle/input/cfm-collapse`), `GIT_URL` and `BRANCH` (used when `REPO` is
+absent), `DATA` (unset means download), `PREV`, `HOURS` (default 8.0), `SMOKE`,
 `OUTDIR` (default `/kaggle/working`).
 
 ### What comes back, and what stays
