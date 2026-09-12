@@ -238,7 +238,8 @@ def save_sample_grid(model, problem, cfg, device, path: Path, n_cond=4, M=6):
     fig.savefig(path, dpi=130); plt.close(fig)
 
 
-def train(cfg: dict, out_root: str | Path) -> Path:
+def train(cfg: dict, out_root: str | Path, resume: str | Path | None = None,
+          max_hours: float | None = None) -> Path:
     device = get_device(cfg.get("device", "auto"))
     set_seed(cfg["seed"])
     run_dir = Path(out_root) / cfg["run_name"]
@@ -303,10 +304,51 @@ def train(cfg: dict, out_root: str | Path) -> Path:
     print(f"[{cfg['run_name']}] arch={arch} params={n_params/1e6:.2f}M N={problem.N} "
           f"max_iters={max_iters} h={cfg['train'].get('y_noise_h', 0.0)} device={device}")
 
-    rows, loss_ema, t0 = [], None, time.time()
+    # A checkpoint has to carry the optimiser, the AMP scaler and both RNG
+    # streams, not just the weights: Adam's moments and the sampling stream are
+    # part of the trajectory, and a run chained across sessions that dropped them
+    # would not be the same run. `rows` rides along so the metric trajectory
+    # survives a session boundary even if the working directory does not.
+    start_it, rows, loss_ema, elapsed0 = 1, [], None, 0.0
+    if resume:
+        ck = torch.load(resume, map_location=device, weights_only=False)
+        model.load_state_dict(ck["model_state"])
+        if ck.get("opt_state") is not None:
+            opt.load_state_dict(ck["opt_state"])
+        if ck.get("scaler_state") is not None:
+            scaler.load_state_dict(ck["scaler_state"])
+        for gen, key in ((tgen, "tgen_state"), (egen, "egen_state")):
+            if ck.get(key) is not None:
+                gen.set_state(ck[key])
+        start_it = int(ck["iter"]) + 1
+        rows = [dict(r) for r in ck.get("rows", [])]
+        loss_ema = ck.get("loss_ema")
+        elapsed0 = float(ck.get("elapsed_s", 0.0))
+        if start_it > max_iters:
+            print(f"[{cfg['run_name']}] checkpoint is already at iter {ck['iter']} "
+                  f">= max_iters={max_iters}; nothing to do")
+            return run_dir
+        print(f"[{cfg['run_name']}] resumed {resume} at iter {ck['iter']} "
+              f"({elapsed0/3600:.2f}h trained); continuing to {max_iters}")
+
+    t0 = time.time() - elapsed0
+    deadline = None if max_hours is None else time.time() + float(max_hours) * 3600.0
+
+    def _payload(it: int) -> dict:
+        return {"iter": it,
+                "model_state": model.state_dict(),
+                "opt_state": opt.state_dict(),
+                "scaler_state": scaler.state_dict() if use_amp else None,
+                "tgen_state": tgen.get_state(),
+                "egen_state": egen.get_state(),
+                "loss_ema": loss_ema,
+                "elapsed_s": time.time() - t0,
+                "rows": rows,
+                "config": cfg}
+
     ckset = set(ckpts)
     model.train()
-    for it in range(1, max_iters + 1):
+    for it in range(start_it, max_iters + 1):
         idx = torch.randint(0, problem.N, (batch,), generator=tgen, device=device)
         x1 = X[idx]
         x0 = source_std * torch.randn(batch, C, 32, 32, generator=tgen, device=device)
@@ -328,8 +370,12 @@ def train(cfg: dict, out_root: str | Path) -> Path:
 
         if it in ckset:
             if it in keep:
-                torch.save({"iter": it, "model_state": model.state_dict()},
-                           paths.checkpoints / f"ckpt_{it}.pt")
+                torch.save(_payload(it), paths.checkpoints / f"ckpt_{it}.pt")
+            elif max_hours is not None:
+                # Chained runs keep a rolling resume point even at evaluations
+                # whose weights are not archived, so a hard kill costs one
+                # interval rather than the session.
+                torch.save(_payload(it), paths.checkpoints / "ckpt_resume.pt")
             model.eval()
             r = evaluate(model, problem, cfg, device, egen)
             r.update({"iter": it, "train_loss": loss_ema, "elapsed_s": time.time() - t0})
@@ -343,6 +389,15 @@ def train(cfg: dict, out_root: str | Path) -> Path:
                   f"nn_dist={r['nn_dist_mean']:.4f} ratio_kern={r['ratio_to_kernel_median']:.3f} "
                   f"n_eff={r['n_eff_mean']:.1f} loss={loss_ema:.4f} ({time.time()-t0:.0f}s)")
 
+        if deadline is not None and time.time() >= deadline and it < max_iters:
+            out = paths.checkpoints / "ckpt_resume.pt"
+            torch.save(_payload(it), out)
+            pd.DataFrame(rows).to_csv(paths.raw / "metrics.csv", index=False)
+            print(f"[{cfg['run_name']}] wall-clock budget reached at iter {it} of "
+                  f"{max_iters} ({(time.time()-t0)/3600:.2f}h total). Wrote {out}.\n"
+                  f"  resume with:  --resume {out}")
+            return run_dir
+
     pd.DataFrame(rows).to_csv(paths.raw / "metrics.csv", index=False)
     print(f"[{cfg['run_name']}] done in {time.time()-t0:.1f}s")
     return run_dir
@@ -353,13 +408,17 @@ def main():
     ap.add_argument("--config", required=True)
     ap.add_argument("--out", default="results/exp3")
     ap.add_argument("--smoke-test", action="store_true")
+    ap.add_argument("--resume", default=None,
+                    help="checkpoint from a previous run; continue training from it")
+    ap.add_argument("--max-hours", type=float, default=None,
+                    help="stop cleanly after this many hours, writing ckpt_resume.pt")
     ap.add_argument("--set", nargs="*", default=[], dest="overrides")
     args = ap.parse_args()
     cfg = load_yaml(args.config)
     cfg = apply_overrides(cfg, args.overrides)
     if args.smoke_test:
         cfg = apply_smoke_test(cfg)
-    train(cfg, args.out)
+    train(cfg, args.out, resume=args.resume, max_hours=args.max_hours)
 
 
 if __name__ == "__main__":
