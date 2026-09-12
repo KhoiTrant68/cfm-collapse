@@ -733,3 +733,149 @@ and the OT gain among the smallest (1.13-1.16x), because an isotropic rho cannot
 high-dimensional gap without paying d*rho^2 in variance. Endpoint smoothing is defeated
 by dimension exactly as kernel density estimation is. The paper now states this as the
 remedy's main limitation rather than the earlier, wrong monotonicity claim.
+
+### Referee wording fixes, and back to the ICLR 9-page limit (2026-09-12)
+
+Two things, in that order.
+
+**Eight wording fixes from the final referee pass.** Four were flagged as required:
+
+1. Corollary~`lossform`: "Collapse is *optimisation-paced* in a precise sense — the
+   retained deviation is *controlled by* the loss" → "**loss-controlled** in a precise
+   sense — the retained deviation is **bounded by** the loss". The inequality bounds; it
+   does not model optimiser dynamics. "Optimisation-paced" is now reserved for the five
+   places where it describes an observed run (the EXP-1 checkpoint sweep, the limitations
+   paragraph on the optimisation gap, and three appendix captions).
+2. Figure `survival` caption: "the exponent is the corollary's content and it is
+   confirmed" → "...and **the measured exponent is consistent with the predicted 1/2
+   scaling**". The caption was stronger than the body, which already said "consistent
+   with... on one problem and one training trajectory".
+3. Limitations heading, main text and appendix copy: "a proved property that the trained
+   model **violates**" → "**does not inherit**". The body of that same paragraph already
+   said "we avoid saying the proposition is violated", so heading and body now agree.
+4. "can only match moments" (abstract, and the related-work delta) → "can at best match
+   **selected** moments — the second, at a suitable bandwidth — without matching the
+   posterior law". No theorem says a bandwidth exists matching mean *and* covariance for
+   an arbitrary posterior; what we prove and measure is the second moment in specific
+   instances.
+
+Four more were optional and are now done too: Proposition~`survival`'s reading
+("wrong in one specific way" → "carrying an **endpoint-scale accumulated** error", since
+the converse constrains the accumulation and not Delta pointwise); the mechanism figure
+caption ("gives a law that **could be a posterior at all**" → "removes the
+**atomic-support obstruction to posterior recovery**", since absolute continuity is not
+posterior recovery); the Zador discussion ("two hundred atoms **genuinely do fill** the
+posterior" → "**densely approximate**", the floor being finite); and the scaling claim
+("**essentially undiminished** in the image regime" → "**the measured floor stays large
+relative to the posterior scale** in the image-dimensional regime").
+
+**The main text was 21 pages against ICLR's 9-page limit.** The 2026-09-03 restructure
+had put it at exactly 9; the survival proposition, the loss form, the guidance results
+and the CIFAR-10 DDPM section were added afterwards without a matching cut, and the
+`README` changelog stopped being kept. The body now ends on page **9** again
+(`\label{endmain}`, checked in `main.aux` on every build), with references and the three
+ICLR statements from page 10 and the appendix running to page 55.
+
+Nothing was deleted. Verified mechanically against the pre-restructure snapshot: the
+same 17 propositions, 1 theorem, 6 corollaries, 4 lemmas, 4 remarks, 26 proofs, 30
+figures, 17 tables and 31 numbered equations; zero citation keys dropped; **zero
+reported numbers dropped** (five went missing during compression — the M=256 re-measured
+0.431/0.458, the 8.9%/36% sampling-error figures, the 11% population-vs-sample s.d.
+note, and the h=4 early-stopping value 2.26 — and were restored into
+Appendix~`exp4`). Zero undefined references; three small overfull hboxes remain (1.9pt, 2.9pt, 8.2pt),
+all in appendix subfigure rows; and every one of the 30 figures and 17 tables is cited
+from running text (four appendix figures — `window`,
+`factorisation`, `guidance`, `interpolant` — had lost or never had a citation and were
+given one).
+
+What moved, and where:
+
+1. **Section 3.6 (error survival + loss form) → Appendix C**, `app:survivaltheory`, with
+   a 25-line summary left in the main text carrying the identity `e_t = (1-t)I(t)`, the
+   iff-condition, the trichotomy, and the loss-form bound. Its two measurement
+   paragraphs (the sixteen-configuration tightness report and the EXP-1 slope test) went
+   to Appendix D, `app:survival`, along with the oscillatory counterexample that shows
+   the fourth case of part (d) is not vacuous.
+2. **Statements of Propositions `uncond`, `expansion` and `cfg` → Appendix A**, each
+   beside its own proof, as `nwrate` already was. The main text keeps a prose statement
+   of each — for `cfg`, the affine-hull identity and `q_t = (1-t)q_0` in a sentence.
+   Proposition `collapse` keeps its eight-line proof; it moved to Appendix A too, since
+   the main text no longer had room and the statement is what carries the argument.
+3. **Remark `notsampler` → Appendix C**, cited from Section 3.4.
+4. **Section 4's per-experiment paragraphs → Appendix D**, `app:exp4`: the memorisation
+   ratio, the held-out conditions, the adversarial pairing, the endpoint-smoothing sweep
+   narrative including the Sinkhorn unit-convention post-mortem, the n_eff-versus-h
+   Spearman detail, the three-seed reproducibility table `seed3`, the "which ratio"
+   paragraph, and the three supporting CIFAR measurements. The main text keeps the
+   conclusions and the numbers, not the derivations of them.
+5. **Limitations' remedy verdicts → Appendix C**, `app:remedies`; the main text keeps the
+   one-sentence scorecard (four of five settled, weight averaging not analysed).
+6. **Four floats out of the main text**: `interpolant`, `survival`, `mechanismreal` and
+   `betatraj` to `app:figs`; `cifartrack` too, then `seed3`. The main text keeps
+   Figure `mechanism` (the thesis schematic, now 0.82\textwidth) and
+   Table `cifarddpm` (the ratio-versus-slope table), which is the minimum that lets the
+   central claim be read without turning to the appendix.
+7. **Prose compressed throughout** (the body went from 12,014 running words to 5,379, a 55% cut): the
+   abstract, the introduction's related-work paragraphs and its five contributions (the
+   false-certificate and diagnostic items merged into one, since they are two halves of
+   the same point), the scope marker, the connective text between every theory statement,
+   the EXP-1/P7/EXP-2/EXP-3 subsections (merged into one), and Limitations from four
+   paragraphs to three.
+
+Two things to watch in a future editing pass. The main text now leans on the appendix
+harder than it did — Section 3.5's guidance result and Section 3.6 are both
+statement-in-appendix, summary-in-body — so any renumbering there needs the summaries
+re-read, not just recompiled. And the body is at exactly 9 pages with no slack: adding a
+sentence anywhere pushes the Conclusion onto page 10, which `\label{endmain}` in
+`main.aux` will show immediately.
+
+### The body gets its empirical figure back (2026-09-12, later)
+
+The 9-page restructure earlier today left the body with exactly two floats, the mechanism
+schematic and the ratio-versus-slope table, and every empirical figure in the appendix. A
+reviewer reading only the body saw one drawing and one table. That was over-cut.
+
+Figure~`cifartrack` (measured against predicted conditional variance, per condition, at
+$h=4,5,6$) is now in the body, because it is the diagnostic the paper proposes and it
+makes the paper's own disagreement — the level says $1.15$, the slope says $-0.156$ —
+visible at a glance. It cost about 0.35 of a page and was paid for by:
+
+- compressing Section 3.5's four-intervention ordering to one sentence and Section 3.6's
+  two paragraphs to one;
+- tightening the EXP-1 three-measurement summary, the P7 consequences and the
+  introduction's contribution 2;
+- **moving Table~`cifarddpm` to Appendix D**, with the columns a reader needs at the
+  point of reading folded into the figure caption: the median ratios $5.30$, $1.38$,
+  $1.15$ and the slopes $0.481\,(0.037)$, $0.349\,(0.049)$, $-0.156\,(0.058)$, with the
+  bootstrap intervals, $R^2$, $n_\mathrm{eff}$ and the reference's coefficient of
+  variation left in the table. The figure's own panel titles already carry $\beta$ and
+  the decades spanned, so the body loses no number that the argument turns on.
+- folding the remedies scorecard out of Limitations and into the Conclusion.
+
+Those caption numbers are not retyped: `swap_table.py` re-read them from
+`results/exp3/_cifar_ddpm/stats.json` and asserted each against the caption before
+writing, so the caption cannot drift from the data the table was built from.
+
+Three pointers into Limitations that the compression had left dangling are also fixed.
+Three appendix captions call the collapse *optimisation-paced* and point at Limitations,
+but that phrase had been cut from it — restored, paid for in the same paragraph. The
+early-stopping detail now lives in Appendix~`remedies`, so the Appendix-D number
+paragraph points there instead. And Figure~`kernel`'s caption said the `p7y` checkpoints
+were not retained "(Section 5)", a sentence the compression had removed; the caveat now
+sits in the **reproducibility statement**, which is where a reader checking
+reproducibility looks and which does not count against the nine pages. It is accurate:
+`results/exp1/p7y_*` holds `raw/metrics.csv` and no `checkpoints/`, so
+Tables~`p7kernel` and~`dagger` and Figure~`kernel` are reproduced from stored per-run
+outputs rather than re-derived from weights.
+
+State: body pages 1–9 with Figure 1 (schematic), Figure 2 (tracking), no tables;
+references and the three ICLR statements from page 10; appendix to 55. All of
+`scripts/check_paper.py` passes, including the no-content-lost check against the
+pre-restructure snapshot.
+
+Not done, and deliberately: extending the CIFAR-10 $h{=}4$ run past 60k iterations to see
+whether $\beta$ continues toward $1$. It is the single highest-value experiment left —
+$\beta$ is still rising monotonically when the budget ends — but it needs GPU time that
+is not currently available. The paper already states the result the right way ($0.481$ is
+where 60k iterations reached, not a ceiling; no claim that $\beta\to1$), so nothing in
+the text depends on that run happening.
