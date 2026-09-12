@@ -7,8 +7,7 @@ and $0.481$ re-measured at $M{=}256$ — so the paper says only that $0.481$ is 
 60000 iterations reached, and explicitly does **not** claim $\beta \to 1$.
 
 `configs/exp3_cifar_ddpm_h4_long.yaml` runs the budget that would settle it:
-240000 iterations, everything else identical to the published run, so its first
-60000 iterations reproduce that run point by point. Either outcome is a result.
+240000 iterations, everything else identical to the published run's setup. Either outcome is a result.
 $\beta$ continuing toward 1 turns a partial confirmation into a strong one;
 $\beta$ saturating identifies a real ceiling and moves the deficit from the
 optimiser to the parameterisation.
@@ -31,8 +30,17 @@ $ python scripts/verify_resume.py
 ok: a chained run is bit-identical to an uninterrupted one
 ```
 
-Run it once on the host before trusting a chained result there — it takes about
-a minute on CPU.
+That test runs on CPU, where training is deterministic, and it proves what it
+needs to: the resume logic restores the optimiser, the scaler and the RNG streams
+exactly. On a GPU the same statement cannot be tested as bit-identity, because GPU
+training is not deterministic to begin with — cuDNN picks kernels at run time, so
+two *uninterrupted* runs on the same card already differ in the last bits and
+drift apart over many steps. A chained Kaggle run therefore differs from an
+unchained one by exactly that much and no more: chaining adds nothing, but nor is
+the result reproducible to the bit. The same holds, more strongly, when a later
+session lands on a different card (a T4 one session, a P100 the next). None of
+this touches the question the run answers, which is a trend over 240000
+iterations and far larger than floating-point drift.
 
 ## Cost
 
@@ -101,7 +109,7 @@ notebook, or attach the repo as a dataset instead.
 This needs no internet, and is the faster option if you are running several
 sessions.
 
-### Rehearse first (two minutes, no GPU needed)
+### Rehearse first (a few minutes)
 
 ```
 !SMOKE=1 bash /kaggle/input/cfm-collapse/scripts/kaggle_session.sh
@@ -114,6 +122,13 @@ This runs 200 iterations of the real model on the real data, then deletes its
 own checkpoints. It is there to catch the things that actually go wrong — the
 dataset not attached, CIFAR-10 not found, a missing package — before a GPU
 session is spent on them. It should end with `RUN COMPLETE at 200 iterations`.
+
+The rehearsal trains at batch 16, and its throughput line says so; ignore it for
+planning. A small batch leaves the GPU mostly idle, so that figure overstates the
+real run several times over — on a T4 it reads about 6 it/s. The rehearsal then
+times the real step at batch 128 (`scripts/bench_throughput.py`) and prints the
+hours and sessions the full budget needs. **That** is the number to plan against,
+and it is in the zip as `bench.txt`.
 
 ### Session 1
 
@@ -178,8 +193,10 @@ between the last checkpoint and the analysis step; note the `-m` form, which the
 imports require, and `--runs`, without which they target the published runs
 instead.
 
-Then check the reproduction before reading anything into the new points: the run
-shares its seed, data, architecture and schedule with the published one, so its
-iteration-60000 numbers should land on the published $\beta = 0.481 \pm 0.037$ at
-$R^2 = 0.785$. If they do not, the chaining or the host changed something, and
-the extension says nothing until that is explained.
+Then check the 60000-iteration point before reading anything into the later
+ones. The run shares its seed, data, mask, architecture and schedule with the
+published one but not its GPU (that was a Quadro RTX 6000), so expect agreement,
+not equality: $\beta$ near the published $0.481 \pm 0.037$, and an aggregate
+ratio near seed 0's $2.255$, inside the $1.944$–$2.463$ that the three published
+problem instances span. Far outside that and something other than hardware
+changed — find it before the extension is read.

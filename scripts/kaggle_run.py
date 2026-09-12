@@ -55,6 +55,15 @@ def _max_iters(config: Path, overrides: list[str]) -> int:
         return int(yaml.safe_load(f)["train"]["max_iters"])
 
 
+def _batch(config: Path, overrides: list[str]) -> int:
+    for ov in reversed(overrides or []):
+        if ov.startswith("train.batch_size="):
+            return int(float(ov.split("=", 1)[1]))
+    import yaml
+    with open(config, encoding="utf-8") as f:
+        return int(yaml.safe_load(f)["train"].get("batch_size", 64))
+
+
 def find_resume(run_dir: Path) -> Path | None:
     """The furthest-on checkpoint in `run_dir`, resume point or archived."""
     ck = run_dir / "checkpoints"
@@ -154,7 +163,9 @@ def main() -> int:
     print(f"iterations {start} -> {done} of {target}")
     if gained > 0 and wall > 0:
         rate = gained / wall
-        print(f"throughput {rate:.2f} it/s ({rate*3600/1000:.1f}k iterations per hour)")
+        batch = _batch(config, args.overrides)
+        print(f"throughput {rate:.2f} it/s at batch {batch}, evaluation included "
+              f"({rate*3600/1000:.1f}k iterations per hour)")
         remaining = target - done
         if remaining > 0:
             hours = remaining / rate / 3600
@@ -162,9 +173,10 @@ def main() -> int:
                   f"~ {max(1, -(-hours // args.max_hours)):.0f} more session(s) "
                   f"at --max-hours {args.max_hours}")
     if done >= target:
-        print("\nrun complete. Next, on a machine with the repo:")
-        print("  python scripts/reeval_exp3_cifar_ddpm.py --M 256 --n-conditions 48")
-        print("  python scripts/beta_trajectory.py")
+        print("\nrun complete. kaggle_session.sh runs the analyses next; by hand:")
+        print(f"  python -m scripts.reeval_exp3_cifar_ddpm --M 256 --n-conditions 48 "
+              f"--runs {run_name}")
+        print(f"  python -m scripts.beta_trajectory --runs {run_name}")
     else:
         print("\nSave this notebook's output, attach it to the next session as an")
         print("input dataset, and re-run this cell with:")

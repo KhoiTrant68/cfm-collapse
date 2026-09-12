@@ -18,9 +18,13 @@
 # 240000 iterations is ~14 h. That exceeds any single free-tier session, which
 # is what --max-hours and --resume are for; see docs/KAGGLE.md.
 #
-# Everything else is exp3_cifar_ddpm.yaml unchanged, so the first 60000
-# iterations reproduce the published run: same seed, same N, same architecture,
-# same learning rate, same batch.
+# Everything else is exp3_cifar_ddpm.yaml unchanged -- same seed, N, mask,
+# architecture, learning rate and batch -- so the first 60000 iterations are the
+# published run's setup exactly. They are not its numbers exactly: that run was a
+# Quadro RTX 6000, GPU kernels differ between cards, and 60000 steps compound the
+# difference. The check at 60000 is therefore agreement with the published seed-0
+# values (beta 0.481 +/- 0.037; aggregate ratio 2.255) inside the spread its three
+# problem instances show (aggregate ratio 1.944-2.463), not equality.
 run_name: exp3_cifar_ddpm_h4_long
 seed: 0
 device: auto
