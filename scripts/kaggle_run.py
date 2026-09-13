@@ -27,6 +27,7 @@ sessions instead of being scattered over several notebook outputs.
 from __future__ import annotations
 
 import argparse
+import os
 import shutil
 import subprocess
 import sys
@@ -177,6 +178,10 @@ def main() -> int:
         print(f"  python -m scripts.reeval_exp3_cifar_ddpm --M 256 --n-conditions 48 "
               f"--runs {run_name}")
         print(f"  python -m scripts.beta_trajectory --runs {run_name}")
+    elif os.environ.get("CFM_KAGGLE_SESSION"):
+        # kaggle_session.sh has its own PREV= form; printing --prev here
+        # would put the wrong command into the session log.
+        print("\nnot finished: the next session is PREV=<this output> bash /tmp/s.sh")
     else:
         print("\nSave this notebook's output, attach it to the next session as an")
         print("input dataset, and re-run this cell with:")

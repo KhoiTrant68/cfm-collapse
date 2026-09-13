@@ -124,6 +124,11 @@ if [ -n "$PREV" ]; then
   for cand in "$PREV/cfm-collapse/results" "$PREV/results" "$PREV"; do
     [ -d "$cand/exp3/$RUN" ] && SRC="$cand" && break
   done
+  if [ -z "$SRC" ]; then
+    # Kaggle has mounted notebook outputs at more than one depth; look deeper.
+    HIT=$(find "$PREV" -maxdepth 8-type d -path "*/exp3/$RUN" 2>/dev/null | head -1)
+    [ -n "$HIT" ] && SRC="$(dirname "$(dirname "$HIT")")"
+  fi
   if [ -n "$SRC" ]; then
     mkdir -p "$WORK/results"
     cp -r "$SRC/exp3" "$WORK/results/"
@@ -146,7 +151,7 @@ if [ "$SMOKE" = "1" ]; then
 fi
 
 echo "--- training (budget ${HOURS}h) ---"
-python -u scripts/kaggle_run.py \
+CFM_KAGGLE_SESSION=1 python -u scripts/kaggle_run.py \
     --config "$CONFIG" \
     --work "$WORK/results/exp3" \
     --max-hours "$HOURS" \
