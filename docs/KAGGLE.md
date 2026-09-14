@@ -27,8 +27,15 @@ in the middle, compare every weight.
 $ python scripts/verify_resume.py
   resumed from archived checkpoint: 88 tensors, identical
   resumed after a clean stop: 88 tensors, identical
+  resumed from archived checkpoint: metrics at [100, 200], identical
+  resumed after a clean stop: metrics at [100, 200], identical
 ok: a chained run is bit-identical to an uninterrupted one
 ```
+
+It runs on CPU, so it cannot see a failure only a GPU produces — and there was
+one: `torch.load(map_location=cuda)` moved the saved RNG state onto the GPU,
+where `Generator.set_state` rejects it, so the first real resume on Kaggle died
+at once. The rehearsal below therefore stops and resumes on the GPU itself.
 
 That test runs on CPU, where training is deterministic, and it proves what it
 needs to: the resume logic restores the optimiser, the scaler and the RNG streams
@@ -94,10 +101,11 @@ pass `DATA=` pointing at the directory *containing* `cifar-10-batches-py`.
 (add `DATA=/kaggle/input/cifar10-python` if you attached CIFAR-10 rather than
 letting it download)
 
-This runs 200 iterations of the real model on the real data, then deletes its
-own checkpoints. It is there to catch the things that actually go wrong — the
-dataset not attached, CIFAR-10 not found, a missing package — before a GPU
-session is spent on them. It should end with `RUN COMPLETE at 200 iterations`.
+This trains the real model on the real data to iteration 100, stops, resumes
+from that checkpoint to 200, then deletes its own checkpoints. It is there to
+catch the things that actually go wrong — CIFAR-10 not found, a missing package,
+a resume that fails on this GPU — before a GPU session is spent on them. It
+should end with `RUN COMPLETE at 200 iterations`.
 
 The rehearsal trains at batch 16, and its throughput line says so; ignore it for
 planning. A small batch leaves the GPU mostly idle, so that figure overstates the
@@ -126,7 +134,9 @@ Attach the previous session's output as an input dataset, then:
 
 `PREV` is copied forward first, so `metrics.csv`, the sample grids and the
 archived checkpoints accumulate in one place instead of being scattered over
-several notebook outputs. Repeat until the script prints `RUN COMPLETE`.
+several notebook outputs. The CIFAR-10 that the previous session downloaded is
+in `PREV` too, and is used instead of downloading it again. The log should show
+`restored previous session from ...` and then `resuming from ... (iteration N`. Repeat until the script prints `RUN COMPLETE`.
 
 Every variable is optional and can be set inline: `DATA` (unset means download),
 `PREV`, `HOURS` (default 8.0), `SMOKE`, `OUTDIR` (default `/kaggle/working`).

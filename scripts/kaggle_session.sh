@@ -93,7 +93,20 @@ echo "repo copied to $WORK"
 # 3. CIFAR-10
 # --------------------------------------------------------------------------- #
 mkdir -p "$WORK/data"
-if [ -n "$DATA" ]; then
+if [ -z "$DATA" ] && [ -n "$PREV" ]; then
+  # Every session's output carries the CIFAR-10 it downloaded; reuse it rather
+  # than fetch 170 MB again (one session spent 28 minutes on that).
+  HIT=$(find "$PREV" -maxdepth 8 -type d -name cifar-10-batches-py 2>/dev/null | head -1)
+  if [ -n "$HIT" ] && [ -f "$HIT/data_batch_1" ]; then
+    # Copied, not linked: a symlink into /kaggle/input would dangle in this
+    # session's output, and the session after would download again.
+    rm -rf "$WORK/data/cifar-10-batches-py"
+    cp -r "$HIT" "$WORK/data/" && echo "cifar-10 copied from the previous session ($HIT)"
+  fi
+fi
+if [ -f "$WORK/data/cifar-10-batches-py/data_batch_1" ] && [ ! -L "$WORK/data/cifar-10-batches-py" ]; then
+  :
+elif [ -n "$DATA" ]; then
   if [ -d "$DATA/cifar-10-batches-py" ]; then
     ln -sfn "$DATA/cifar-10-batches-py" "$WORK/data/cifar-10-batches-py"
     echo "cifar-10 linked from $DATA"
@@ -145,9 +158,22 @@ fi
 cd "$WORK" || exit 2
 EXTRA=()
 if [ "$SMOKE" = "1" ]; then
+  SMALL=(data.N=64 train.batch_size=16 eval.n_conditions=2 eval.M=8 eval.n_steps=10)
   EXTRA=(--set "run_name=$RUN" train.max_iters=200 "train.checkpoints=[100,200]"
-         "train.save_checkpoints=[200]" data.N=64 train.batch_size=16
-         eval.n_conditions=2 eval.M=8 eval.n_steps=10)
+         "train.save_checkpoints=[100,200]" "${SMALL[@]}")
+  # The rehearsal stops at 100 and resumes to 200, so the resume path runs on
+  # this GPU. verify_resume.py runs on CPU and missed a CUDA-only failure there;
+  # part 2 picks up ckpt_100.pt by itself and exits non-zero if resuming fails.
+  rm -rf "$WORK/results/exp3/$RUN"
+  echo "--- rehearsal part 1: train to 100 and stop ---"
+  if ! CFM_KAGGLE_SESSION=1 python -u scripts/kaggle_run.py --config "$CONFIG" \
+      --work "$WORK/results/exp3" --max-hours "$HOURS" \
+      --set "run_name=$RUN" train.max_iters=100 "train.checkpoints=[100]" \
+      "train.save_checkpoints=[100]" "${SMALL[@]}"; then
+    echo "REHEARSAL FAILED in part 1"
+    exit 1
+  fi
+  echo "--- rehearsal part 2: resume from 100 and train to 200 ---"
 fi
 
 echo "--- training (budget ${HOURS}h) ---"

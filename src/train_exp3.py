@@ -319,7 +319,9 @@ def train(cfg: dict, out_root: str | Path, resume: str | Path | None = None,
             scaler.load_state_dict(ck["scaler_state"])
         for gen, key in ((tgen, "tgen_state"), (egen, "egen_state")):
             if ck.get(key) is not None:
-                gen.set_state(ck[key])
+                # get_state() is a CPU ByteTensor even for a CUDA generator, and
+                # set_state() insists on one; map_location=cuda has moved it.
+                gen.set_state(ck[key].cpu())
         start_it = int(ck["iter"]) + 1
         rows = [dict(r) for r in ck.get("rows", [])]
         loss_ema = ck.get("loss_ema")
@@ -369,13 +371,6 @@ def train(cfg: dict, out_root: str | Path, resume: str | Path | None = None,
         loss_ema = lv if loss_ema is None else 0.99 * loss_ema + 0.01 * lv
 
         if it in ckset:
-            if it in keep:
-                torch.save(_payload(it), paths.checkpoints / f"ckpt_{it}.pt")
-            elif max_hours is not None:
-                # Chained runs keep a rolling resume point even at evaluations
-                # whose weights are not archived, so a hard kill costs one
-                # interval rather than the session.
-                torch.save(_payload(it), paths.checkpoints / "ckpt_resume.pt")
             model.eval()
             r = evaluate(model, problem, cfg, device, egen)
             r.update({"iter": it, "train_loss": loss_ema, "elapsed_s": time.time() - t0})
@@ -388,6 +383,18 @@ def train(cfg: dict, out_root: str | Path, resume: str | Path | None = None,
             print(f"  it={it:>6d} pix_var_inpaint={r['pixel_var_inpaint_mean']:.4f} "
                   f"nn_dist={r['nn_dist_mean']:.4f} ratio_kern={r['ratio_to_kernel_median']:.3f} "
                   f"n_eff={r['n_eff_mean']:.1f} loss={loss_ema:.4f} ({time.time()-t0:.0f}s)")
+            # Saved after the evaluation, not before: a run resumed from here
+            # starts at it+1 and never re-evaluates `it`, so the checkpoint must
+            # already hold this row and the evaluation stream's state after it.
+            # Evaluation reads the weights but never changes them, and uses only
+            # egen, so the training trajectory is the same either way.
+            if it in keep:
+                torch.save(_payload(it), paths.checkpoints / f"ckpt_{it}.pt")
+            elif max_hours is not None:
+                # Chained runs keep a rolling resume point even at evaluations
+                # whose weights are not archived, so a hard kill costs one
+                # interval rather than the session.
+                torch.save(_payload(it), paths.checkpoints / "ckpt_resume.pt")
 
         if deadline is not None and time.time() >= deadline and it < max_iters:
             out = paths.checkpoints / "ckpt_resume.pt"

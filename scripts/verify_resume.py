@@ -12,7 +12,11 @@ compare every weight.
     python scripts/verify_resume.py            # CPU, ~1 minute
 
 Both the clean stop (`--max-hours` expiring) and an archived checkpoint are
-exercised. Exits non-zero if any weight differs.
+exercised, and metrics.csv is compared as well as the weights. Exits non-zero
+if any weight or recorded metric differs.
+
+This runs on CPU, so it cannot catch a failure that only a CUDA device
+produces; the Kaggle rehearsal (SMOKE=1) stops and resumes on the GPU for that.
 """
 from __future__ import annotations
 
@@ -53,6 +57,22 @@ def compare(a: Path, b: Path, what: str) -> float:
     return worst
 
 
+def compare_metrics(a: Path, b: Path, what: str) -> bool:
+    """Same rows, same values: every evaluation survives the stop, and the
+    evaluation stream resumes where it left off. Timings are allowed to differ."""
+    import pandas as pd
+    da = pd.read_csv(a / RUN / "raw" / "metrics.csv").drop(columns="elapsed_s")
+    db = pd.read_csv(b / RUN / "raw" / "metrics.csv").drop(columns="elapsed_s")
+    if list(da["iter"]) != list(db["iter"]):
+        print(f"  {what}: metrics rows DIFFER, iterations {list(da['iter'])} vs {list(db['iter'])}")
+        return False
+    same = da.equals(db)
+    print(f"  {what}: metrics at {list(da['iter'])}, {'identical' if same else 'DIFFER'}")
+    if not same:
+        print(pd.concat({"straight": da, "resumed": db}, axis=1).to_string())
+    return same
+
+
 def main() -> int:
     tmp = Path(tempfile.mkdtemp(prefix="verify_resume_"))
     try:
@@ -80,9 +100,18 @@ def main() -> int:
             compare(ref, tmp / "continued" / RUN / "checkpoints" / "ckpt_200.pt",
                     "resumed after a clean stop"),
         )
+        metrics_ok = all([
+            compare_metrics(tmp / "straight", tmp / "fromckpt",
+                            "resumed from archived checkpoint"),
+            compare_metrics(tmp / "straight", tmp / "continued",
+                            "resumed after a clean stop"),
+        ])
         print()
         if worst != 0.0:
             print(f"FAIL: chaining changes the run (max weight difference {worst:.3e})")
+            return 1
+        if not metrics_ok:
+            print("FAIL: chaining changes the recorded metrics")
             return 1
         print("ok: a chained run is bit-identical to an uninterrupted one")
         return 0
