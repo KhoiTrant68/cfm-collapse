@@ -26,6 +26,11 @@ PAGE_LIMIT = 9  # ICLR main-text limit, excluding references and appendices
 PAPER = pathlib.Path(__file__).resolve().parents[1] / "paper"
 
 NUM = re.compile(r"(?<![\w.])\d+(?:\.\d+)?(?![\w])")
+# Lengths and layout knobs: measurements of the typesetting, not of the model.
+TYPESET_NUM = re.compile(
+    r"\\includegraphics\[[^\]]*\]"
+    r"|(?:width|height|scale|arraystretch|tabcolsep|hspace|vspace|linewidth)"
+    r"\s*=?\s*\{?[-0-9.]+\}?")
 LABEL = re.compile(r"\\label\{([^}]+)\}")
 REF = re.compile(r"\\(?:ref|eqref)\{([^}]+)\}")
 CITE = re.compile(r"\\cite[a-z]*\{([^}]+)\}")
@@ -102,10 +107,20 @@ def check_tex(tex: str, problems: list[str]) -> None:
         ok("anonymous (\\iclrfinalcopy not active)")
 
 
+def _reported_numbers(tex: str) -> collections.Counter:
+    """Numbers a reader could quote, i.e. not typesetting measurements.
+
+    A float's width is not a result: resizing a figure used to be reported as a
+    lost number, which trains the reader of this check to ignore it.
+    """
+    tex = TYPESET_NUM.sub(" ", tex)
+    return collections.Counter(NUM.findall(tex))
+
+
 def check_baseline(tex: str, baseline: pathlib.Path, problems: list[str]) -> None:
     old = baseline.read_text(encoding="utf-8")
 
-    before, now = collections.Counter(NUM.findall(old)), collections.Counter(NUM.findall(tex))
+    before, now = _reported_numbers(old), _reported_numbers(tex)
     gone = sorted(k for k in before if now.get(k, 0) == 0)
     if gone:
         fail(f"numbers reported in the baseline and now absent: {gone}", problems)

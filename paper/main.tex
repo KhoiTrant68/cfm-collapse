@@ -208,18 +208,20 @@ and the two consequences only it supplies. Table~\ref{tab:related} adds four lin
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.70\textwidth]{fig_mechanism_schematic.png}
-\caption{The mechanism. Shaded: the continuous true posterior. Black: the training
-atoms. Orange: where the \emph{exact population minimiser}'s flow sends its samples.
-Under hard conditioning the label identifies one atom and every initial condition lands
-on it, so the endpoint law is a point mass for any parameterisation
-(Proposition~\ref{prop:collapse}). Smoothing the label spreads the mass over the
-\emph{same} atoms with Nadaraya--Watson weights (Theorem~\ref{thm:endpoint}): the second
-moment can match the posterior's exactly while the law stays a finite sum of point
-masses, with a Wasserstein floor no $h$ removes (Proposition~\ref{prop:atomicity}). Only
-moving the support removes that obstruction (Proposition~\ref{prop:tgtnoise}). The middle
-panel is this paper's title; Figure~\ref{fig:mechanismreal} is the same scenes on a real
-instance.}
+\includegraphics[width=0.95\textwidth]{fig_flow_portrait.png}
+\caption{The mechanism in trajectory space, on one condition of the real EXP-1 instance
+($d{=}2$, $N{=}200$): $160$ draws of $x_0$, the paths they follow, where they land.
+(a,~b) the \emph{trained} network at two checkpoints of one run---still a posterior
+sampler at $1000$ iterations, and by $200000$ sending $96\%$ of its paths to the single
+atom the label identifies (Proposition~\ref{prop:collapse}), so this is an optimiser
+collapsing and not only a limit. (c) the population optimum at the $h^\star$ where
+$\tr\Covh=\tr\Sigmapost$ \emph{exactly}: marker area is Theorem~\ref{thm:endpoint}'s
+weight $p_i^{(h)}$, the variance is right and the law is still atomic, with a
+Wasserstein floor no $h$ removes (Proposition~\ref{prop:atomicity}); that panel is this
+paper's title. (d) only moving the support leaves the atoms
+(Proposition~\ref{prop:tgtnoise}). Figures~\ref{fig:traintraj}
+and~\ref{fig:interventions} add the checkpoints between (a) and (b), and the two
+interventions that do not help.}
 \label{fig:mechanism}
 \end{figure}
 
@@ -2323,6 +2325,29 @@ within the budget (Appendix~\ref{app:deferred}). \emph{Weight averaging} we have
 analysed. What we do not offer is a comparison at matched sample quality, the axis a
 practitioner actually trades against.
 
+Figure~\ref{fig:interventions} draws the four settled interventions as flows rather
+than as statements: each panel integrates the exact population field of that
+intervention from the same $160$ draws of $x_0$, on the instance of
+Figure~\ref{fig:mechanism}, so the taxonomy---inert, atom-preserving, reweighting,
+support-moving---can be read off the endpoints.
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=\textwidth]{fig_interventions.png}
+\caption{The four interventions, as exact population flows on one condition of the
+EXP-1 instance. (a) hard conditioning: every path lands on the labelled atom. (b) label
+smoothing at $h^\star$: the same atoms, reweighted by $p^{(h)}_i$ (marker area), which
+is Theorem~\ref{thm:endpoint}. (c) interpolant noise at $\sigma{=}0.5$: the paths are
+different and the endpoint is not---$\gamma(1)=0$, so the endpoint law is the same point
+mass at every noise level (Proposition~\ref{prop:prop17}). (d) guidance at $w{=}3$:
+atom-preserving, and under hard conditioning it is the conditioned atom itself
+(Proposition~\ref{prop:cfg}). (e) endpoint smoothing at $\rho{=}0.30$: the only one of
+the four whose support leaves the atoms (Proposition~\ref{prop:tgtnoise}). Produced by
+\texttt{scripts/make\_flow\_portraits.py}, which checks its own field against
+\eqref{eq:kernel-field} before drawing.}
+\label{fig:interventions}
+\end{figure}
+
 \subsection{Error survival and the loss form: statements and discussion}
 \label{app:survivaltheory}
 
@@ -2473,6 +2498,28 @@ main text, which now quotes their conclusions. Sanity checks for EXP-1 pass befo
 measurement is taken: the analytic posterior satisfies the normal equations to
 $1.8\times10^{-15}$, closed-form field integration maps every $x_0\to x^i$, and the
 unconditional model does not leak $y$.
+
+\paragraph{The collapse, checkpoint by checkpoint.} Figure~\ref{fig:traintraj} is
+Figure~\ref{fig:mechanism}(b) as it forms: the same condition, the same $160$ draws of
+$x_0$, integrated through six checkpoints of one run and then through the exact
+population field. The generated trace falls $1.19\to1.16\to0.92\to0.87\to0.13$ against
+the posterior's $1.00$ while the number of distinct atoms reached falls $72\to3$, and
+the population optimum is the limit of that sequence rather than a separate regime.
+Figure~\ref{fig:mechanismreal} adds the view a state-space panel cannot give: the same
+population laws projected onto the posterior's principal axis against its density,
+where the variance-matched middle law is a forest of spikes spanning the right range.
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=\textwidth]{fig_collapse_training.png}
+\caption{Conditional collapse as training proceeds (EXP-1, seed 0, $h{=}0$, one
+condition). Panels (a--e) integrate the trained network at the iteration shown; panel
+(f) integrates the exact population field, where every path lands on the labelled atom
+and the conditional variance is zero. Each panel prints the trace of the generated
+covariance and how many distinct training atoms the $160$ paths reach. Produced by
+\texttt{scripts/make\_flow\_portraits.py}.}
+\label{fig:traintraj}
+\end{figure}
 
 \paragraph{Measurement conventions dropped from the main text for space.} Every
 across-seed $\pm$ in this paper is a \emph{population} standard deviation (denominator
@@ -3539,13 +3586,14 @@ avoid---and the rate at which it stops failing is set by the loss.}
 \begin{figure}[htb]
 \centering
 \includegraphics[width=0.94\textwidth]{fig_mechanism.png}
-\caption{The same three scenes as Figure~\ref{fig:mechanism}, now computed rather
-than drawn: $160$ trajectories integrated with RK4 under each \emph{exact population}
-field on the real $d{=}2$ instance ($N{=}200$), the true posterior shaded, the
-training atoms black. The middle panel's bandwidth is not chosen for looks---it is
-found by bisection so that $\tr\Covh(y)=\tr\Sigmapost$ to four decimals
-($h^\star=0.703$, $1.0040$ against $1.0040$), so the generated law has \emph{exactly}
-the right conditional variance while remaining supported on the training atoms. The
+\caption{Figure~\ref{fig:mechanism}'s population panels with their one-dimensional
+marginals, which is what the state-space view cannot show: $160$ trajectories
+integrated with RK4 under each \emph{exact population} field on the real $d{=}2$
+instance ($N{=}200$), the true posterior shaded, the training atoms black. The middle
+panel's bandwidth is not chosen for looks---it is found by bisection so that
+$\tr\Covh(y)=\tr\Sigmapost$ to four decimals ($h^\star=0.703$, $1.0040$ against
+$1.0040$), so the generated law has \emph{exactly} the right conditional variance while
+remaining supported on the training atoms. The
 lower row projects all three laws onto the posterior's principal axis against its
 density: a single spike, a forest of spikes spanning the right range, and a
 continuum. Matching the second moment and matching the distribution are different
