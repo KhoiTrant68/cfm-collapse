@@ -37,6 +37,80 @@ repository code; see the Reproducibility paragraph in the paper.
     (replaces the old single-seed `fig_extended`; see below). Regenerate with
     `scripts/analyze_exp1_extended_schedule.py`.
 
+## Conventions to keep when editing (2026-09-20)
+
+### Proofs
+
+Modelled on the two ICLR 2026 papers in `references/` (Source-Guided Flow Matching;
+Preventing Model Collapse). Every proof in Appendix A follows one shape:
+
+1. **Statement in the body, pointer after it.** Every statement the body states and the
+   appendix proves ends with `\proofin` (`[Proof: Appendix A]`, right-aligned, small).
+   Statements that live in the appendix sit directly above their proof.
+2. **Helper results first.** A lemma is stated and proved *before* the result that uses it
+   (`lem:cov`, `lem:wellposed`, `lem:mixture-coupling` all precede Theorem `thm:endpoint`).
+3. **Steps.** A proof with more than one move is `\emph{Step 1: <what this step does>.}`,
+   `Step 2: ...`; a single-move proof (two corollaries) is one paragraph with its displays.
+4. **Displays are labelled** `eq:pf:<name>:<n>`, numbered in order of use, and *cited* by the
+   later step that uses them. A label that a statement or another section cites keeps its
+   descriptive name (`eq:kernel-field`, `eq:vgrowth`, `eq:tgtfield`, `eq:lgbias`, ...).
+5. **Every move names its warrant**: a cited result (`Proposition~\ref{...}`), an
+   assumption (`Assumption~\ref{as:...}`), or a labelled display. No "it is easy to see".
+6. **Closing sentence** restating what was proved: `This proves Proposition~\ref{...}.`
+7. Proof headers are always `\begin{proof}[Proof of <Kind>~\ref{<label>}]`.
+
+Assumptions are numbered once and cited, not restated: `as:standing` (Assumption 1: fixed
+dataset, linear interpolant, identifying labels), `as:design` (Assumption 2: random-design
+regularity for the bandwidth expansion, including the fourth moment), `as:lipschitz`
+(Assumption 3: Lipschitz *error*, for Corollary `lossform`).
+
+`scripts/check_paper.py --baseline <old main.tex>` after `latexmk -pdf main.tex` checks
+that no number, citation, label or theorem environment was lost.
+
+### Figures
+
+One visual language, in `scripts/figstyle.py`: Okabe-Ito colours with fixed meaning (blue-sky =
+source `x_0`, black = training atom, vermillion = what the flow generated, blue = reference
+law), `panel_tag`, `shared_legend`, `posterior_ellipse`, `trajectory_bundle` (paths from source
+to endpoint, Delay FM Fig. 2), `weight_scatter` (marker area proportional to the mixture
+weight `p_i^(h)(y)`, SGFM Fig. 3) and `theory_vs_measured` (theory a line, measurements
+crosses, predicted value a labelled dashed rule; Preventing Model Collapse Figs. 1-2).
+Every figure script calls `use_paper_style()`.
+
+| figure | source | script |
+|---|---|---|
+| body Fig. 1 `fig_flow_portrait` | trained EXP-1 model early / late; population optimum at `h*`; endpoint smoothing | `make_flow_portraits.py` |
+| body Fig. 2 `fig_cifar_ddpm_tracking` | CIFAR DDPM tracking, predicted vs measured | `analyze_cifar_ddpm_stats.py` |
+| A-fig 1 `fig_collapse_training` | the same condition through the checkpoints of `exp1_cond_seed0_mr` | `make_flow_portraits.py` |
+| A-fig 2 `fig_bandwidth_portrait` | closed-form field (top) vs model trained at that `h` (bottom, `p7yck_*` runs) | `make_flow_portraits.py` |
+| A-fig 3 `fig_interventions` | hard / label smoothing / interpolant noise / guidance / endpoint smoothing, closed form | `make_flow_portraits.py` |
+| A-fig 4 `fig_exp2_portrait` | EXP-2 GMM, trajectory layout; shares recomputed from 20000 draws and asserted against the caption | `make_exp2_portrait.py` |
+| A-fig 5 `fig_expansion` | measured `tr Cov_h` vs `tr Sigma + h^2 ||J||_F^2` | `make_expansion_figure.py` |
+| A-fig 6 `fig_image_bandwidth` | CIFAR DDPM samples at `h = 0, 4, 5, 6`, cut from the saved grids (checkpoints are not kept) | `make_image_bandwidth_figure.py` |
+
+`make_flow_portraits.py` asserts before drawing that its field reduces to
+`kernel_theory.kernel_field`, that `h*` solves `tr Cov_h = tr Sigma_post`, that endpoint
+smoothing reproduces `Cov_h + rho^2 I`, and that the plotted weights `p_i^(h)`, `n_eff` and
+`tr Cov_h` equal an independent numpy re-derivation at five bandwidths. Running it twice
+gives byte-identical PNGs. Run scripts from the repository root as modules
+(`uv run python -m scripts.make_flow_portraits`).
+
+Scripts that still use their own default styling and have not been moved to `figstyle.py`
+(their PNGs are unchanged): `make_theory_figures.py`, `make_mechanism_figure.py`,
+`make_factorisation_figure.py`, `make_p1p4_figure.py`, `make_posterior_distance_figure.py`,
+`make_seed_split_figure.py`, `beta_trajectory.py`, `visualize_collapse_2d.py`,
+`visualize_gmm_2d.py`, the `analyze_*.py` plots, and the MNIST/CIFAR-10 training grids
+(`fig_exp3_grid*`, `fig_exp3_cifar_grid*`). `make_paper_figures.py` was moved (its PNGs are
+re-rendered at 200 dpi instead of 150).
+
+### Checking the body length without pdflatex
+
+`latexmk` is the reference. On a machine with only Tectonic, `scripts/body_length_proxy.py`
+builds with a Times-metric font and prints the page the body ends on; `--pad K` measures the
+slack in points. Tectonic's own build falls back to Latin Modern and overstates the body by a
+page, so `check_paper.py` run against a plain Tectonic build fails the page limit and counts
+five "undefined" font-shape warnings that are not reference problems.
+
 ## Adversarial-pairing ablation (2026-09-01)
 
 New Experiments subsection (`sec:adversarial`, after EXP-1, before the P5/P6 sweeps):
