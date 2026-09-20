@@ -7,8 +7,8 @@ go straight into paper/figures/.
 
     uv run python scripts/make_paper_figures.py
 
-Design: colourblind-safe Okabe-Ito palette in fixed order; one y-axis per panel (no
-dual-axis); recessive grid; a legend whenever >=2 series are drawn.
+Design: the shared look of scripts/figstyle.py (colourblind-safe Okabe-Ito palette, one
+y-axis per panel, recessive grid, a legend whenever >=2 series are drawn).
 """
 from __future__ import annotations
 
@@ -20,38 +20,19 @@ try:
 except Exception:
     pass
 
-import matplotlib
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from scripts.figstyle import H_COLORS, OI, style, use_paper_style  # noqa: E402
+
+import matplotlib.pyplot as plt  # noqa: E402
+import numpy as np  # noqa: E402
+import pandas as pd  # noqa: E402
+
+use_paper_style()
 
 ROOT = Path("results/exp1/_theory/raw")
 OUT = Path("paper/figures")
 OUT.mkdir(parents=True, exist_ok=True)
-
-# Okabe-Ito colourblind-safe palette, fixed order.
-OI = {
-    "black": "#000000", "orange": "#E69F00", "sky": "#56B4E9",
-    "green": "#009E73", "yellow": "#F0E442", "blue": "#0072B2",
-    "vermillion": "#D55E00", "purple": "#CC79A7",
-}
-H_COLORS = {0.0: OI["black"], 0.01: OI["orange"], 0.05: OI["sky"],
-            0.1: OI["green"], 0.5: OI["blue"]}
-
-plt.rcParams.update({
-    "figure.dpi": 150, "savefig.dpi": 150, "font.size": 11,
-    "axes.spines.top": False, "axes.spines.right": False,
-    "axes.grid": True, "grid.color": "#cccccc", "grid.alpha": 0.4,
-    "grid.linewidth": 0.6, "axes.axisbelow": True, "legend.frameon": False,
-    "lines.linewidth": 2.0, "lines.markersize": 7,
-})
-
-
-def style(ax):
-    ax.tick_params(length=3, width=0.8)
-    for s in ("left", "bottom"):
-        ax.spines[s].set_linewidth(0.8)
 
 
 # --------------------------------------------------------------------------

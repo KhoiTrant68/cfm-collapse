@@ -4402,17 +4402,20 @@ concentrates the samples on one mode. Onset matches EXP-1.}
 
 \begin{figure}[htb]
 \centering
-\includegraphics[width=0.95\textwidth]{fig_exp2_2d.png}
-\caption{EXP-2 qualitative collapse (seed 0, $3{\times}10^5$ iterations). Early
-samples (blue) cover \emph{both} modes of the bimodal analytic posterior; late
-samples (red) concentrate on the mode containing the memorised $x^i$ and abandon the
-other. Assigning late samples to their nearest posterior mode, the share landing in
-the $x^i$-containing mode is $0.999$, $0.766$, $0.990$ and $1.000$ for the four
-conditions shown (versus $\approx0.5$ each at iteration $10^3$). The one condition
-that retains $23\%$ of its mass on the abandoned mode shows that this is an
+\includegraphics[width=0.95\textwidth]{fig_exp2_portrait.png}
+\caption{EXP-2 in trajectory space (seed 0), on four of the $N{=}100$ conditions, one
+per column. The ellipses are the two modes of the bimodal analytic posterior and the
+star is the memorised $x^i$. \textbf{(a)}~At $10^3$ iterations the $70$ source draws
+(blue) are carried to \emph{both} modes. \textbf{(b)}~At $3{\times}10^5$ iterations the
+same draws fan into a single point: assigning late samples to their nearest posterior
+mode, the share landing in the $x^i$-containing mode is $0.999$, $0.766$, $0.990$ and
+$1.000$ for the four conditions (versus $0.37$--$0.55$ at iteration $10^3$). The one
+condition that retains $23\%$ of its mass on the abandoned mode shows that this is an
 optimisation-paced process (Section~\ref{sec:limitations}), consistent with the
 aggregate mode coverage of Section~\ref{sec:exp23} settling at $0.72$ rather than
-at the single-mode value $0.5$.}
+at the single-mode value $0.5$. Produced by \texttt{scripts/make\_exp2\_portrait.py},
+which recomputes the four shares from $20000$ draws and asserts that they agree with
+the values quoted here.}
 \label{fig:exp23qual}
 \end{figure}
 
@@ -4461,8 +4464,29 @@ iteration 15000 they are visually identical to each other and closely match the
 nearest training image (rightmost two columns), confirming the collapse mechanism is
 not specific to MNIST's simplicity. The residual mismatch to that image is larger
 here than on MNIST (nearest-image distance $0.0040$ vs.\ $0.00077$), consistent with
-CIFAR-10's harder loss landscape at the same $15000$-iteration budget.}
+CIFAR-10's harder loss landscape at the same $15000$-iteration budget. The same
+comparison for the DDPM runs, across label bandwidths, is Figure~\ref{fig:imagebandwidth}.}
 \label{fig:exp3cifar}
+\end{figure}
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.9\textwidth]{fig_image_bandwidth.png}
+\caption{Inpainting with the CIFAR-10 DDPM U-Net ($35.75$M parameters, $6{\times}10^4$
+iterations) at four label bandwidths, on two of the four displayed conditions. Each row
+is the observed top half, six completions of the masked bottom half from different source
+draws $x_0$, the true image, and the training image nearest the mean completion.
+\textbf{(a)}~$h{=}0$: all six completions are one image, the true one, on both
+conditions (Proposition~\ref{prop:collapse}). \textbf{(b--d)}~$h{>}0$: the completions
+differ from one another, but they do not become posterior draws. At $h{=}4$ three of the
+six completions in the upper row still reproduce the true frog, and in the lower row none
+reproduces the true car; at $h{=}5$ and $h{=}6$ none does in either row. The same
+images, a galloping horse and a red car, recur across conditions and bandwidths, as a law
+supported on training atoms predicts (Proposition~\ref{prop:atomicity}); the blurred
+completions, which look like no training image, are the kind of off-atom mass
+Section~\ref{sec:cifarddpm} quantifies. Cut from the sample grids the runs saved,
+by \texttt{scripts/make\_image\_bandwidth\_figure.py}.}
+\label{fig:imagebandwidth}
 \end{figure}
 
 \end{document}

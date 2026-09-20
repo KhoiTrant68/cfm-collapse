@@ -192,6 +192,25 @@ def self_checks(inst: Instance) -> None:
     print(f"  endpoint smoothing rho={rho}: tr Cov measured {tr_meas:.4f} vs "
           f"predicted tr Cov_h + rho^2 d = {tr_pred:.4f}")
     assert abs(tr_meas - tr_pred) < 0.12 * tr_pred, "endpoint law is not Cov_h + rho^2 I"
+    # 4. the weights drawn as marker area, n_eff and tr Cov_h agree with a plain-numpy
+    #    re-derivation from Theorem 1's definition p_i = K_h(y-y^i) / sum_j K_h(y-y^j),
+    #    which shares no code with src/metrics/kernel_theory.py.
+    Yn, Xn, yn = inst.Y.numpy(), inst.Xn, inst.y.numpy()
+    for h in (0.05, 0.1, inst.h_star, 0.5, 2.0):
+        z = -np.sum((Yn - yn) ** 2, axis=1) / (2.0 * h * h)
+        p = np.exp(z - z.max())
+        p /= p.sum()
+        mean = p @ Xn
+        tr_ref = float(np.sum(p * np.sum((Xn - mean) ** 2, axis=1)))
+        neff_ref = 1.0 / float(np.sum(p ** 2))
+        w = inst.weights(h)
+        _, cov_h, _ = kernel_moments(inst.y, inst.X, inst.Y, h)
+        assert np.abs(w - p).max() < 1e-10, f"p_i^(h) differs at h={h}"
+        assert abs(float(torch.trace(cov_h)) - tr_ref) < 1e-9 * max(1.0, tr_ref), \
+            f"tr Cov_h differs at h={h}"
+        assert abs(n_eff(torch.as_tensor(w)) - neff_ref) < 1e-8 * neff_ref, \
+            f"n_eff differs at h={h}"
+    print("  weights, n_eff and tr Cov_h match the numpy re-derivation at 5 bandwidths")
     print("  ok\n")
 
 
