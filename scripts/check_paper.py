@@ -84,7 +84,7 @@ def check_tex(tex: str, problems: list[str]) -> None:
     else:
         ok(f"{len(labels)} labels, all unique")
 
-    refs = set(REF.findall(tex))
+    refs = {r for r in REF.findall(tex) if not r.startswith("#")}  # `#1` is a macro argument
     dangling = sorted(refs - set(labels))
     if dangling:
         fail(f"references with no label: {dangling}", problems)
