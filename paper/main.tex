@@ -53,8 +53,9 @@
 \newcommand{\Covh}{\operatorname{Cov}_h}
 \newcommand{\proofin}{\hfill\textnormal{\footnotesize[Proof: Appendix~\ref{app:proofs}]}}
 
-\title{Restored Variance Is Not a Restored Posterior:\\
-Conditional Flow Matching as Kernel Regression over Training Atoms}
+\title{Conditional Flow Matching:\\
+Kernel Smoothing over Atoms\\
+Does Not Restore the Posterior}
 
 % Authors must not appear in the submitted version; the iclr2027_conference
 % style hides \author automatically and prints "Anonymous authors" as long as
@@ -68,35 +69,26 @@ Conditional Flow Matching as Kernel Regression over Training Atoms}
 \maketitle
 
 \begin{abstract}
-Conditional flow matching trained to convergence on a finite dataset is often
-described as ``memorising'' the training data: overtraining is reported to collapse the
-conditional generative law onto individual training examples. We give an exact,
-population-level account of why. Fixing the dataset and the deterministic linear
-interpolant, the $L^2$-optimal velocity field is a posterior-weighted average of
-per-example collapsed fields; under hard conditioning with identifying labels it
-degenerates to a single atom, with \emph{zero} conditional variance and zero loss
-(Proposition~\ref{prop:collapse}). The standard remedy---label smoothing,
-i.e.\ Gaussian noise on the conditioning variable---turns that hard selection into
-\emph{exact kernel regression over the training atoms}, the endpoint law becoming a
-Nadaraya--Watson mixture $\sum_i p_i^{(h)}(y)\,\delta_{x^i}$
-(Theorem~\ref{thm:endpoint}) whose moments are a parameter-free reference curve
-computable from the training set (Proposition~\ref{prop:moments}). It can at best match selected moments---the second, at a suitable
-bandwidth---without matching the posterior law, since the generated law stays atomic at
-every $h$, leaving an $h$-independent Wasserstein floor
-(Proposition~\ref{prop:atomicity}). That obstruction names its own cure---move the support---and
-smoothing the \emph{endpoint} does so (Proposition~\ref{prop:tgtnoise}), though the floor
-measures small at our default configuration; interpolant noise provably moves nothing, at
-any noise level (Proposition~\ref{prop:prop17}). A contraction identity says which
-finite-capacity models can keep any conditional variance at all
-(Proposition~\ref{prop:survival}). Empirically, a trained MLP tracks the kernel reference
-to within seed noise, and the same collapse appears on a Gaussian-mixture posterior, on
-MNIST and CIFAR-10 inpainting, and under adversarially shuffled labels. At realistic capacity---a $35.75$M-parameter DDPM U-Net on CIFAR-10,
-$d{=}3072$---hard-conditioning collapse is unambiguous ($415\times$ in $\tr\Cov$, the
-generated mean identifying the correct training image at every condition), while the
-smoothed prediction holds only in direction: the across-condition log--log slope of
-measured on predicted variance is $0.481$ where theory predicts $1$, and the trained
-model does not inherit atomicity, $38\%$ of its samples being off-atom at the widest
-bandwidth tested.
+Finite-data conditional flow matching can become nearly deterministic after
+overtraining, but the population mechanism and the effect of label smoothing are
+unclear. We analyse the exact $L^2$ population minimiser of the conditional
+flow-matching objective with a fixed empirical dataset and a deterministic linear
+interpolant. If a label identifies one training example, the minimiser transports every
+source draw to that atom, giving zero conditional variance and zero loss. Adding
+Gaussian noise to the label instead makes the endpoint law an exact
+Nadaraya--Watson mixture over training atoms. Its moments give a parameter-free
+reference for auditing a trained model, but its support remains atomic: matching a
+conditional variance need not recover the posterior. This also separates
+interventions: label noise changes the mixture weights, interpolant noise leaves the
+endpoint law unchanged, and endpoint noise moves the support. On five-seed synthetic
+experiments, an MLP follows the kernel endpoint reference; collapse also appears for a
+Gaussian-mixture posterior, under shuffled labels, and in MNIST inpainting. On
+CIFAR-10 with a $35.75$M-parameter DDPM U-Net, hard-conditioning variance falls by
+$415\times$ and all evaluated conditions select one effective atom. Label smoothing at
+that scale is only a partial match: where the reference has useful dynamic range, the
+across-condition log--log slope is $0.481$ rather than the population value $1$, and
+$38\%$ of samples are off-atom at the widest bandwidth. Thus the population result is
+an exact audit target, not a claim that a finite network has already attained it.
 \end{abstract}
 
 % ==========================================================================
@@ -117,34 +109,34 @@ $\D=\{(x^i,y^i)\}_{i=1}^N$ and treating only the interpolation randomness as ran
 characterise the exact population minimiser of the flow-matching objective over all
 square-integrable vector fields, together with the endpoint law of its flow.
 
-Two established lines bracket this. That the empirical minimiser memorises is well
+Two established lines bracket this analysis. That the empirical minimiser memorises is well
 established
 \citep{pidstrigach2022manifolds,gu2023memorization,kadkhodaie2024generalization,biroli2023diffusion,kamb2024creativity,buchanan2025edge};
 and reading a kernel out of a finite-support flow is not new either
 \citep{scarvelis2025closedform,chen2026scoresmoothing}. Nearest to us,
 \citet{smola2026support} read the \emph{spatial} factor
 $\pi_0(\tfrac{x-tx^i}{1-t})$ of the index posterior as a Nadaraya--Watson smoother of
-bandwidth $1-t$---the other factor of the same product \eqref{eq:kernel-field}. Our
-subject is the \emph{label} factor $K_h(y-y^i)$, whose bandwidth is a modelling
-choice rather than a consequence of the clock, and what we extract is the endpoint law
-and its moments rather than the field (the two readings compose and neither implies the
-other; Appendix~\ref{app:deferred}). On the other side, Gaussian noise on a conditioning
+bandwidth $1-t$---the spatial factor of the same posterior that we factor in
+\eqref{eq:kernel-field}. Our contribution is narrower and endpoint-level: we make the
+\emph{label} factor $K_h(y-y^i)$ explicit, its bandwidth is a modelling choice rather
+than a consequence of the clock, and we derive the conditional endpoint law, moment
+reference, and their audit consequences. Thus we do not claim a new generic kernel
+identity; we identify what the conditional factor changes and what it cannot change.
+On the other side, Gaussian noise on a conditioning
 signal is standard practice and not something we propose: it is the conditioning
 augmentation of \citet{ho2022cascaded}, which \citet{sadat2024cads} anneal at inference
 \emph{to restore conditional diversity}.
 
-What neither line supplies is the object connecting them. The second is not a
-heuristic patch on the first but is \emph{exactly} Nadaraya--Watson regression over the
-training atoms (Theorem~\ref{thm:endpoint}), which replaces a tuning knob by a
-parameter-free reference curve computable from the training set alone
-(Proposition~\ref{prop:moments}) and exposes a ceiling the empirical literature does not
-report: a law supported on the training atoms at \emph{every} bandwidth can match
-selected moments but never recover the posterior, with a Wasserstein floor independent
-of $h$ (Proposition~\ref{prop:atomicity}). Closest in spirit is
+The endpoint view turns conditioning noise from a heuristic into an exact
+Nadaraya--Watson mixture over the training atoms (Theorem~\ref{thm:endpoint}). It yields
+a reference curve computable from the training set alone
+(Proposition~\ref{prop:moments}) and a limitation that moment-level evaluation misses:
+the law remains supported on training atoms at every bandwidth, so it can match selected
+moments without recovering the posterior (Proposition~\ref{prop:atomicity}). Closest in spirit is
 \citet{buchanan2025edge}, whose capacity-driven transition in \emph{unconditional}
 diffusion is the capacity analogue of our $h\colon0\to\infty$ interpolation; neither
-subsumes the other. Table~\ref{tab:relatedshort} states the boundary; the full version,
-with four further lines, is Table~\ref{tab:related}. In summary:
+subsumes the other. Table~\ref{tab:relatedshort} states the scope boundary; the full
+version, with four further lines, is Table~\ref{tab:related}. In summary:
 
 \begin{table}[t]
 \centering\footnotesize
@@ -161,9 +153,10 @@ with four further lines, is Table~\ref{tab:related}. In summary:
 this paper & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark\\
 \bottomrule
 \end{tabular}
-\caption{The novelty boundary against the three nearest lines. Reading a kernel out of a
-finite-support flow is not new; \emph{which} factor is read is, as are the endpoint law
-and the two consequences only it supplies. Table~\ref{tab:related} adds four lines.}
+\caption{Scope boundary against the three nearest lines. Reading a kernel from a
+finite-support flow is not new. This paper studies the conditional label factor and
+uses its endpoint law to audit variance recovery. Table~\ref{tab:related} adds four
+lines.}
 \label{tab:relatedshort}
 \end{table}
 
@@ -175,7 +168,7 @@ and the two consequences only it supplies. Table~\ref{tab:related} adds four lin
   this the finite-sample memorisation of an over-parameterised network fitting a batch:
   $y^i$ identifies the atom \emph{deterministically}, so the collapse is already present
   in the exact population minimiser.
-\item \textbf{Label smoothing $\equiv$ kernel regression.} Conditioning noise is an
+\item \textbf{Conditional endpoint under label smoothing.} Conditioning noise is an
   existing technique \citep{ho2022cascaded,sadat2024cads}; what is new is that it makes
   the population endpoint an \emph{exact} Nadaraya--Watson mixture
   \citep{nadaraya1964estimating,watson1964smooth} over training atoms
@@ -202,7 +195,7 @@ and the two consequences only it supplies. Table~\ref{tab:related} adds four lin
   (Propositions~\ref{prop:prop17} and~\ref{prop:factors}). The obstruction in pillar~3
   names its own cure---move the support---and endpoint smoothing does exactly that
   (Proposition~\ref{prop:tgtnoise}), at the price of $+\rho^2I_d$ of variance.
-\item \textbf{What reaches the finite model.} The collapsed field is self-enforcing
+\item \textbf{What reaches a finite model.} The collapsed field is self-enforcing
   (Proposition~\ref{prop:survival}): deviation survives to the endpoint only if the
   velocity error accumulates at the rate $(1-t)^{-1}$, so a model keeps conditional
   variance only by carrying an endpoint-scale error, itself bounded by the loss not yet
@@ -230,18 +223,12 @@ and the interventions that do not help.}
 \end{figure}
 
 In one line: \emph{conditional collapse is the zero-bandwidth limit of a
-kernel-weighted empirical conditional flow}, and the natural remedy moves along that
-limit without ever leaving the training atoms (Figure~\ref{fig:mechanism}). Each
-population result is a short Bayes computation on a Gaussian interpolant once the object
-to compute has been identified; the weight sits on that object---an exact conditional
-reference law where the literature has had approximations---and on what it buys: a way
-to tell a model that has recovered the posterior's second moment from one that has
-recovered the posterior, a proof that two of the three interventions practitioners reach
-for cannot help, and a protocol that catches an agreement statistic certifying nothing.
-Section~\ref{sec:scope} marks the scope line: the theory characterises the exact
-population minimiser for the empirical data law, not what a finite network trained by SGD
-attains, so quantities it does not determine are reported as empirical findings, never as
-predictions.
+kernel-weighted empirical conditional flow}, and label smoothing moves along that limit
+without leaving the training atoms (Figure~\ref{fig:mechanism}). The payoff is an exact
+conditional reference law: it distinguishes recovering a posterior moment from
+recovering a posterior and catches agreement statistics whose denominator has no useful
+variation. Section~\ref{sec:scope} marks the boundary throughout: the theory
+characterises an empirical population minimiser, not the finite network that SGD reaches.
 
 % ==========================================================================
 \section{Setup and notation}
@@ -634,13 +621,13 @@ leaves the collapse intact while that distance \emph{grows}, so the law tracks t
 arbitrary label-to-example assignment rather than any relation between $x$ and $y$.
 
 \label{sec:p7}%
-\paragraph{Label smoothing tracks the kernel reference (P7).} This is our strongest
+\paragraph{On synthetic MLPs, label smoothing tracks the kernel reference (P7).} This is our strongest
 empirical confirmation of the theory, and it turns on using the right reference: $\Covh$,
 not $\Sigmapost$. Over 20 conditions ($M{=}1000$, 5 seeds) the generated variance tracks
 $\Covh$ at every bandwidth---ratio-to-kernel $=1.002\pm0.050$, $0.994\pm0.039$ and
 $1.011\pm0.022$ at $h=0.05,0.1,0.5$ (Figure~\ref{fig:p7summary},
-Table~\ref{tab:p7kernel})---a verification of the \emph{endpoint law}, stronger than a
-velocity-field check, and the field agrees too. That $h\approx0.1$ ``perfectly
+Table~\ref{tab:p7kernel})---agreement with the \emph{endpoint-law reference} in this
+setting, with the field agreeing too. That $h\approx0.1$ ``perfectly
 restores'' the posterior variance is a misreading: $\tr\Cov$ merely crosses $\Sigmapost$
 there because $\Sigmapost\approx\Covh|_{h=0.1}$ for this problem. Three consequences
 follow (Appendices~\ref{sec:aux} and~\ref{app:tgt}). The law stays atomic even at the
@@ -667,8 +654,9 @@ selective memorisation (Figs.~\ref{fig:exp2curves} and~\ref{fig:exp23qual}).
 ($N{=}500$), over three seeds the inpainted-region pixel variance drops $\sim100\times$ by
 iteration $15000$ ($0.137\pm0.021\to(1.17\pm0.12)\times10^{-3}$) and the
 nearest-training-image distance falls to $(0.77\pm0.26)\times10^{-3}$: completions diverse
-at iteration 200 are identical by 15000 (Fig.~\ref{fig:exp3prog}), and CIFAR-10 collapses
-the same way, $0.142\to0.0087$.
+at iteration 200 are identical by 15000 (Fig.~\ref{fig:exp3prog}). A single small-U-Net
+CIFAR-10 trajectory shows the same qualitative decrease, $0.142\to0.0087$; we treat it
+as corroboration rather than a replication estimate.
 
 \FloatBarrier
 
@@ -676,23 +664,26 @@ the same way, $0.142\to0.0087$.
 \label{sec:cifarddpm}
 
 Everything above is $d\le10$ synthetic or a $0.5$M U-Net, so the standing objection is
-that the mechanism is an artefact of small capacity. We repeat EXP-3 with the standard
-DDPM U-Net ($35.75$M parameters) on CIFAR-10 bottom-half inpainting, $N{=}2000$,
-$d{=}3072$, $k{=}1536$, $60000$ iterations at batch $128$, evaluating $48$ conditions at
-$M{=}256$ samples each (Appendix~\ref{app:exp4}).
+that the mechanism is an artefact of small capacity. We train a standard DDPM U-Net
+($35.75$M parameters) on CIFAR-10 bottom-half inpainting, $N{=}2000$, $d{=}3072$,
+$k{=}1536$, for $60000$ iterations at batch $128$, evaluating $48$ conditions at
+$M{=}256$ samples each. Each bandwidth is repeated on three independently redrawn
+instances, which vary the mask, training subset, and training randomness together
+(Appendix~\ref{app:exp4}).
 
-\paragraph{Hard conditioning ($h{=}0$).} $\tr\Cov$ falls from $179.1$ at iteration $500$
-to $0.431$ at $60000$, a factor of $415$; all $48$ conditions have
-$n_{\mathrm{eff}}=1.00$, the generated mean identifies the correct training image at
-$48/48$, and the memorisation ratio is exactly $1.000$. At this scale, on real images,
-the trained model does what Proposition~\ref{prop:collapse} says the population minimiser
-does.
+\paragraph{Hard conditioning ($h{=}0$).} On the displayed instance, $\tr\Cov$ falls
+from $179.1$ at iteration $500$ to $0.431$ at $60000$, a factor of $415$; all $48$
+conditions have $n_{\mathrm{eff}}=1.00$, the generated mean identifies the correct
+training image at $48/48$, and the memorisation ratio is $1.000$. Across the three
+redrawn instances, final $\tr\Cov$ is $0.409$--$0.467$ and every evaluated condition has
+$n_{\mathrm{eff}}=1.00$. Thus hard-conditioning collapse is robust at this scale, while
+the experiment does not separate instance variation from optimisation variation.
 
-\paragraph{Label smoothing ($h>0$): the aggregate ratio is the wrong statistic.}
-Table~\ref{tab:cifarddpm} reports per bandwidth both the ratio $\tr\Cov/\tr\Covh$ the
-earlier sections use and the regression we argue should replace it: the OLS slope $\beta$
-of $\log\tr\Cov$ on $\log\tr\Covh$ \emph{across conditions}, which
-Theorem~\ref{thm:endpoint} predicts to be $1$.
+\paragraph{Label smoothing ($h>0$): a deliberately partial test.}
+Table~\ref{tab:cifarddpm} reports both the aggregate ratio $\tr\Cov/\tr\Covh$ and the
+more stringent OLS slope $\beta$ of $\log\tr\Cov$ on $\log\tr\Covh$ \emph{across
+conditions}; the population endpoint law predicts $\beta=1$. This tests whether the
+finite model preserves the conditional variation in the reference, not merely its level.
 
 \begin{figure}[!t]
 \centering
@@ -709,24 +700,15 @@ standard errors and bootstrap intervals in Table~\ref{tab:cifarddpm}).}
 \label{fig:cifartrack}
 \end{figure}
 
-The two statistics disagree, and the disagreement is the finding. At $h{=}6$ the median
-ratio is $1.15$---near-perfect agreement, by that reading---while $\beta=-0.156$ says the
-model does not track the reference at all. The explanation is in the last two columns:
-the reference is nearly constant across conditions ($0.74$ decades), so a ratio near $1$
-is equally consistent with a model that ignores $y$. \emph{A ratio is only as informative as the variation in its
-denominator}, which matters because the aggregate ratio is what the rest of the paper
-reports. The informative regime is $h{=}4$, where the
-reference moves over $4.57$ decades and $\beta=0.481\pm0.037$ at $R^2=0.785$: the model
-preserves the ordering the theory predicts but tracks it sublinearly, recovering half of
-the predicted exponent of $1$. That confirmation is partial but not static: the same slope
-measured at each checkpoint (Figure~\ref{fig:betatraj}) is near zero for $8000$
-iterations, then rises monotonically and is still rising when the budget ends, so
-tracking is something the model \emph{learns} and $0.481$ is where $60000$ iterations
-reached rather than a ceiling of the model class. It does \emph{not} establish
-$\beta\to1$; three rival explanations for a fixed exponent---an additive variance floor,
-a hard floor, an affine map---all lose to the power law in log space. A $35.75$M
-network at $60000$ iterations is not the population minimiser: $\beta=0.481$ says how far
-optimisation has come, not that the theorem fails.
+The two statistics disagree, and the disagreement is informative. At $h{=}6$ the median
+ratio is $1.15$, while $\beta=-0.156$: the reference spans only $0.74$ decades across
+conditions, so level agreement is compatible with ignoring conditional variation. Where
+the reference has range ($4.57$ decades at $h{=}4$), $\beta=0.481\pm0.037$ with
+$R^2=0.785$. The model preserves the predicted ordering but compresses its dynamic range,
+recovering roughly half of the population exponent. The checkpoint trajectory rises over
+the available budget, but it does \emph{not} establish $\beta\to1$. We therefore report
+the DDPM smoothing result as partial, and use the exact endpoint law as an audit target
+rather than as a fitted-model claim.
 
 
 \paragraph{Three supporting measurements} are in Appendix~\ref{app:exp4}: atomicity,
@@ -748,13 +730,14 @@ the two agree in direction while here they disagree about a statement that is ei
 true or false. Collapse is moreover \emph{optimisation-paced}, and that gap we bound
 away from one explanation rather than explain (Appendix~\ref{sec:aux}).
 
-\paragraph{Scale, and a remedy of limited reach.} EXP-1/EXP-2 are $d\le10$ synthetic
-problems and EXP-3's MNIST runs use one small U-Net; at $35.75$M parameters on CIFAR-10
-hard-conditioning collapse is unambiguous but the $h>0$ agreement is only partial, so
-Theorem~\ref{thm:endpoint} is confirmed there in direction and not in magnitude. Beyond
-that scale, and for text-conditional label spaces carrying no natural kernel,
-persistence is a claim we do not establish; endpoint smoothing's benefit is likewise
-bounded by the obstruction it removes, small in exactly the regime we study most.
+\paragraph{Scale, replication, and a remedy of limited reach.} EXP-1/EXP-2 are $d\le10$
+synthetic problems and EXP-3's MNIST runs use one small U-Net. At $35.75$M parameters on
+CIFAR-10, hard-conditioning collapse replicates across three redrawn instances, but
+those runs confound instance and optimisation randomness; the $h>0$ agreement is partial,
+not a quantitative confirmation of Theorem~\ref{thm:endpoint}. Beyond this scale, and
+for text-conditional label spaces carrying no natural kernel, persistence is a claim we
+do not establish. Endpoint smoothing's benefit is likewise bounded by the obstruction it
+removes, small in exactly the regime we study most.
 
 % ==========================================================================
 \section{Conclusion}
@@ -773,12 +756,11 @@ table to $<0.05\%$), \texttt{analyze\_p7\_kernel.py}, \texttt{verify\_kernel\_th
 \texttt{verify\_prop17.py}, \texttt{verify\_target\_noise.py},
 \texttt{atomicity\_scaling.py}. Experiments: \texttt{run\_exp1.sh},
 \texttt{run\_sweeps.py} ($+$\texttt{-{}-gpus N}), \texttt{train\_exp2},
-\texttt{train\_exp3}, each followed by the matching analysis script. One artefact is not
-regenerable from the released code as shipped: the $p7y$ runs kept their per-run metrics
-but not their checkpoints, so Table~\ref{tab:p7kernel}, Table~\ref{tab:dagger} and
-Figure~\ref{fig:kernel} are reproduced from those stored outputs rather than re-derived
-from weights, and regenerating the checkpoints means rerunning
-\texttt{run\_sweeps.py}. Proofs of all
+\texttt{train\_exp3}, each followed by the matching analysis script. The original $p7y$
+neural checkpoints were not retained. We release the per-run outputs used for
+Table~\ref{tab:p7kernel}, Table~\ref{tab:dagger}, and Figure~\ref{fig:kernel}, so those
+reported artefacts are reproducible from the supplement; recomputing them from weights
+requires rerunning \texttt{run\_sweeps.py}. Proofs of all
 load-bearing results are given in full in Section~\ref{sec:theory} and
 Appendix~\ref{app:proofs}; every stated assumption (distinct labels, smoothness of the
 weight functions, the linear-Gaussian instance) is made explicit at the point it is
