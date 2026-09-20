@@ -2846,10 +2846,17 @@ The bound as stated is pathwise, integrating along the model's own trajectory, w
 not a quantity anyone measures. It converts into the training loss with one extra
 hypothesis, weaker than it first looks.
 
+\begin{assumption}[Lipschitz error]
+\label{as:lipschitz}
+In the setting of Proposition~\ref{prop:survival}, the error
+$\Delta(\cdot,t)=v(\cdot,t,y^i)-\vstarz(\cdot,t,y^i)$ is $L_\Delta$-Lipschitz in $x$ for
+a.e.\ $t\le T$.
+\end{assumption}
+
 \begin{corollary}[Loss form]
 \label{cor:lossform}
-In the setting of Proposition~\ref{prop:survival}, suppose in addition that
-$\Delta(\cdot,t)$ is $L_\Delta$-Lipschitz in $x$ for a.e.\ $t\le T$. Let
+In the setting of Proposition~\ref{prop:survival} and under
+Assumption~\ref{as:lipschitz}, let
 \[
 \mathcal L_i(v)\;:=\;\E_{t\sim\mathrm{Unif}(0,1)}\,\E_{X_0\sim\pi_0}
 \big|v(X_t,t,y^i)-U\big|^2,\qquad X_t=(1-t)X_0+tx^i,\ U=x^i-X_0,
