@@ -1233,7 +1233,7 @@ some $C,m$.
 Item~(iv) is not implied by (i)--(iii): those bound the conditional mean and covariance,
 whereas $\Covh$ is a quadratic functional of $X$ whose \emph{variance} is what the
 stochastic term must control. It is the hypothesis the standard kernel-smoothing rate
-assumes, and Step~4 below is the only place it is used.
+assumes, and Step~5 below is the only place it is used.
 
 \begin{proposition}[Bandwidth expansion of the conditional covariance; random design]
 \label{prop:expansion}
@@ -1251,7 +1251,7 @@ heteroscedastic counterexample are discussed in Appendix~\ref{app:proofs}.
 Throughout, $\rho_Y$ denotes the marginal density of $Y$ and $s(y):=\nabla\log\rho_Y(y)\in\R^k$
 its score at $y$, both well defined since $\rho_Y$ is positive and $C^2$ near $y$.
 
-\emph{Step 0: an exact identity via a tilted population measure.} Define the
+\emph{Step 1: an exact identity via a tilted population measure.} Define the
 $h$-tilted density of $Y$,
 \[
 q_h(y'):=\frac{K_h(y-y')\,\rho_Y(y')}{\int K_h(y-y'')\,\rho_Y(y'')\,dy''},
@@ -1263,22 +1263,22 @@ converge to their population counterparts $\E_h[X]$, $\Cov_h^{\mathrm{pop}}(y):=
 (a law of large numbers for the weighted sums $\sum_jK_h(y-y^j)x^j$ and
 $\sum_jK_h(y-y^j)$ separately, then Slutsky's theorem for the ratio); the discrepancy
 between the finite-$N$ empirical moments and this population limit is the
-$O_P((Nh^k)^{-1/2})$ term addressed in Step~3. It therefore suffices to show
+$O_P((Nh^k)^{-1/2})$ term addressed in Step~5. It therefore suffices to show
 \begin{equation}
 \Cov_h^{\mathrm{pop}}(y)=\Sigma(y)+h^2J(y)J(y)^\top+O(h^4).
-\label{eq:expansion-pop}
+\label{eq:pf:expansion:1}
 \end{equation}
 By the law of total covariance applied to $X$ given $Y$ under the tilted law $Y\sim q_h$,
 \begin{equation}
 \Cov_h^{\mathrm{pop}}(y)=\underbrace{\E_h[\Sigma(Y)]}_{\text{within-group}}
 +\underbrace{\Cov_h[\mu(Y)]}_{\text{between-group}},
-\label{eq:expansion-totcov}
+\label{eq:pf:expansion:2}
 \end{equation}
 which is an exact identity for every $h>0$, since $\Sigma(Y)=\Cov(X\mid Y)$ and
 $\mu(Y)=\E[X\mid Y]$ by definition and the law of total covariance requires no
 approximation.
 
-\emph{Step 1: the tilted law of $Y$, rescaled.} Substitute $y'=y+hu$
+\emph{Step 2: the tilted law of $Y$, rescaled.} Substitute $y'=y+hu$
 ($dy'=h^k\,du$) and write $K_h(y-y')=h^{-k}\varphi(u)$ with
 $\varphi(u)=(2\pi)^{-k/2}e^{-|u|^2/2}$ the standard Gaussian density (immediate from
 the definition of $K_h$). Then
@@ -1295,28 +1295,28 @@ Hence the tilted law of $u:=(Y-y)/h$ under $q_h$ has density
 \begin{equation}
 \tilde q_h(u)=\frac{\varphi(u)\rho_Y(y+hu)}{\int\varphi(u')\rho_Y(y+hu')\,du'}
 =\varphi(u)\big[1+h\,s(y)^\top u+O(h^2)\big].
-\label{eq:tilted-u}
+\label{eq:pf:expansion:3}
 \end{equation}
 Using $\E_\varphi[u]=0$, $\E_\varphi[uu^\top]=I_k$, $\E_\varphi[u_au_bu_c]=0$ (odd
 moments of a centred Gaussian vanish) and $\E_\varphi[u_au_bu_cu_d]=\delta_{ab}\delta_{cd}
-+\delta_{ac}\delta_{bd}+\delta_{ad}\delta_{bc}$, \eqref{eq:tilted-u} gives the moments
++\delta_{ac}\delta_{bd}+\delta_{ad}\delta_{bc}$, \eqref{eq:pf:expansion:3} gives the moments
 \begin{align}
 \E_{\tilde q_h}[u]&=\E_\varphi[u]+h\,\E_\varphi\!\big[u\,(s^\top u)\big]+O(h^2)
 =h\,\E_\varphi[uu^\top]s+O(h^2)=h\,s(y)+O(h^2),
-\label{eq:u-mean}\\
+\label{eq:pf:expansion:4}\\
 \E_{\tilde q_h}[uu^\top]&=\E_\varphi[uu^\top]+h\,\E_\varphi\!\big[uu^\top(s^\top u)\big]+O(h^2)
 =I_k+0+O(h^2),
-\label{eq:u-2mom}
+\label{eq:pf:expansion:5}
 \end{align}
-the vanishing middle term in \eqref{eq:u-2mom} because $\E_\varphi[u_au_bu_c]=0$ for
+the vanishing middle term in \eqref{eq:pf:expansion:5} because $\E_\varphi[u_au_bu_c]=0$ for
 every $a,b,c$. Consequently
 \begin{equation}
 \Cov_{\tilde q_h}[u]=\E_{\tilde q_h}[uu^\top]-\E_{\tilde q_h}[u]\E_{\tilde q_h}[u]^\top
 =I_k+O(h^2)-h^2s(y)s(y)^\top=I_k+O(h^2).
-\label{eq:u-cov}
+\label{eq:pf:expansion:6}
 \end{equation}
 
-\emph{Step 2: within-group term.} Here the homoscedasticity hypothesis is used, and
+\emph{Step 3: within-group term.} Here the homoscedasticity hypothesis is used, and
 it is used for the whole of this step: with $\Sigma(\cdot)\equiv\Sigma(y)$ on a
 neighbourhood of $y$, and since $\tilde q_h$ places all but exponentially little mass
 on that neighbourhood,
@@ -1326,14 +1326,14 @@ on that neighbourhood,
 \]
 The remainder is the mass $\tilde q_h$ puts outside $B(y,r)$, where the local hypothesis
 says nothing and only the global growth bound on $\Sigma$ applies; it is the same
-Gaussian-tail estimate as in Step~3 below, hence $o(h^p)$ for every $p$ and absorbed into
+Gaussian-tail estimate as in Step~4 below, hence $o(h^p)$ for every $p$ and absorbed into
 the $O(h^4)$ of \eqref{eq:expansion}. Constancy of $\Sigma$ on the whole of $\R^k$ would
 make the step exact, but is not needed. This is the within-group term of
 \eqref{eq:expansion}.
 
 It is worth recording what fails without that hypothesis, since the gap is of leading
 order rather than a technicality. For merely $C^2$ $\Sigma(\cdot)$ one gets, by the same
-substitution together with \eqref{eq:u-mean} and \eqref{eq:u-2mom},
+substitution together with \eqref{eq:pf:expansion:4} and \eqref{eq:pf:expansion:5},
 \begin{align*}
 \E_h[\Sigma(Y)]
 &=\Sigma(y)+h\,\big[\nabla\Sigma(y)\cdot\E_{\tilde q_h}[u]\big]
@@ -1344,13 +1344,13 @@ substitution together with \eqref{eq:u-mean} and \eqref{eq:u-2mom},
 using $\E_{\tilde q_h}[u]=h\,s(y)+O(h^2)$, the $o(h^2)$ here being the Peano remainder,
 which is all that $C^2$ gives and all that this remark needs. The bracket is an $O(1)$ quantity multiplying
 $h^2$, i.e.\ exactly the order of the between-group term $h^2JJ^\top$ computed in
-Step~3, so the two cannot be separated and $\|J\|_F^2$ is not identifiable from
+Step~4, so the two cannot be separated and $\|J\|_F^2$ is not identifiable from
 $\tr\Covh$ alone. A one-dimensional example makes the failure concrete: take
 $k=d=1$, $Y\sim\mathrm{Unif}(-2,2)$ and $X\mid Y=y\sim\N(0,1+y^2)$, so that
 $\mu\equiv0$ and $J\equiv0$. Then $\Covh(y)=\E_{\tilde q_h}[1+(y+hu)^2]=\Sigma(y)+h^2$,
 whereas \eqref{eq:expansion} with $J=0$ would predict $\Sigma(y)+O(h^4)$.
 
-\emph{Step 3: between-group term.} First the tail. Split
+\emph{Step 4: between-group term.} First the tail. Split
 $\E_{\tilde q_h}[\cdot]$ over $\{|u|\le r/h\}$ and its complement. On the complement,
 $\tilde q_h(u)\le\varphi(u)\sup\rho_Y/\int\varphi\rho_Y(y+h\cdot)$, whose denominator
 is $\rho_Y(y)(1+O(h^2))$ and hence bounded below; with the polynomial growth of $\mu$
@@ -1374,8 +1374,7 @@ $C^2$ the remainder is only $o(h^2)$, which is too weak for the $O(h^4)$ claimed
 below.) Since $\tilde q_h$ has Gaussian tails its moments of every order are bounded
 uniformly in $h\le1$, so $\Cov_{\tilde q_h}(hJu,R_h)=O(h\cdot h^3)=O(h^4)$,
 $\Cov_{\tilde q_h}(\tfrac{h^2}2Q,R_h)=O(h^5)$ and $\Cov_{\tilde q_h}[R_h]=O(h^6)$; all
-are absorbed into $O(h^4)$ and we may drop $R_h$ from what follows.
-and since covariance is invariant to the additive constant $\mu(y)$,
+are absorbed into $O(h^4)$ and we may drop $R_h$ from what follows. Since covariance is invariant to the additive constant $\mu(y)$,
 \begin{equation}
 \begin{aligned}
 \Cov_h[\mu(Y)]&=\Cov_{\tilde q_h}\!\Big[hJ(y)u+\tfrac{h^2}2Q(u)\Big]+O(h^4)\\
@@ -1383,17 +1382,17 @@ and since covariance is invariant to the additive constant $\mu(y)$,
 +h^3\Big[J(y)\Cov_{\tilde q_h}(u,Q(u))+\mathrm{sym}\Big]
 +h^4\Cov_{\tilde q_h}[Q(u)].
 \end{aligned}
-\label{eq:expansion-terms}
+\label{eq:pf:expansion:7}
 \end{equation}
 The leading term is $h^2J(y)\big[I_k+O(h^2)\big]J(y)^\top=h^2J(y)J(y)^\top+O(h^4)$ by
-\eqref{eq:u-cov}. It remains to show the middle, apparently $O(h^3)$, cross term is
+\eqref{eq:pf:expansion:6}. It remains to show the middle, apparently $O(h^3)$, cross term is
 in fact $O(h^4)$: this holds because $\Cov_{\tilde q_h}(u,Q(u))$ itself vanishes at
 $h=0$ and is only $O(h)$, not $O(1)$. Indeed, since $Q(u)$ is a quadratic form in
 $u$, $\E_{\tilde q_h}[u\,Q(u)^\top]$ and $\E_{\tilde q_h}[u]\,\E_{\tilde q_h}[Q(u)]^\top$
 both involve only the third moments $\E_{\tilde q_h}[u_au_bu_c]$ of $\tilde q_h$ (for
 the second factor, through $\E_{\tilde q_h}[u]=O(h)$ paired with
 $\E_{\tilde q_h}[Q(u)]=O(1)$, which is itself an $O(h)$ quantity overall); expanding
-\eqref{eq:tilted-u} to the relevant order,
+\eqref{eq:pf:expansion:3} to the relevant order,
 \begin{align*}
 \E_{\tilde q_h}[u_au_bu_c]
 &=\E_\varphi[u_au_bu_c]+h\sum_e s_e(y)\,\E_\varphi[u_au_bu_cu_e]+O(h^2)\\
@@ -1402,15 +1401,15 @@ $\E_{\tilde q_h}[Q(u)]=O(1)$, which is itself an $O(h)$ quantity overall); expan
 using $\E_\varphi[u_au_bu_c]=0$ and the fourth-moment identity above. Thus every
 third moment of $\tilde q_h$ is itself $O(h)$ (it is exactly $0$ under the
 untilted Gaussian $\varphi$), so $\Cov_{\tilde q_h}(u,Q(u))=O(h)$, and the cross
-term in \eqref{eq:expansion-terms} is $h^3\cdot O(h)=O(h^4)$, absorbed into the
+term in \eqref{eq:pf:expansion:7} is $h^3\cdot O(h)=O(h^4)$, absorbed into the
 stated $O(h^4)$. The final term $h^4\Cov_{\tilde q_h}[Q(u)]=O(h^4)$ trivially.
 Combining, $\Cov_h[\mu(Y)]=h^2J(y)J(y)^\top+O(h^4)$, the between-group term of
 \eqref{eq:expansion}.
 
-Substituting Steps~2--3 into \eqref{eq:expansion-totcov} proves
-\eqref{eq:expansion-pop}, i.e.\ the deterministic part of \eqref{eq:expansion}.
+Substituting Steps~3--4 into \eqref{eq:pf:expansion:2} proves
+\eqref{eq:pf:expansion:1}, i.e.\ the deterministic part of \eqref{eq:expansion}.
 
-\emph{Step 4: Monte-Carlo fluctuation.} Write $S_N:=\frac1N\sum_jK_h(y-y^j)$ and
+\emph{Step 5: Monte-Carlo fluctuation.} Write $S_N:=\frac1N\sum_jK_h(y-y^j)$ and
 $T_N:=\frac1N\sum_jK_h(y-y^j)x^j$, so $\bar x_h(y)=T_N/S_N$. Each is an average of
 $N$ i.i.d.\ terms; a standard kernel-density computation gives
 $\Var\big(K_h(y-Y)\big)=\Theta(h^{-k})$ (the kernel has height $\Theta(h^{-k})$ on an
@@ -1429,7 +1428,8 @@ ratio $\E_h[X]$ then gives $\bar x_h(y)=\E_h[X]+O_P\big((Nh^k)^{-1/2}\big)$, exa
 as in standard Nadaraya--Watson consistency theory; the same argument applied to the
 (also ratio-of-averages) quadratic functional $\Covh(y)$ gives
 $\Covh(y)=\Cov_h^{\mathrm{pop}}(y)+O_P\big((Nh^k)^{-1/2}\big)$, which is the
-remaining term of \eqref{eq:expansion} and completes the proof.
+remaining term of \eqref{eq:expansion}. Together with \eqref{eq:pf:expansion:1},
+established in Steps~3--4, this proves Proposition~\ref{prop:expansion}.
 \end{proof}
 
 \begin{proposition}[Nadaraya--Watson rates for the conditional mean]
@@ -1468,27 +1468,45 @@ points}: $x^i$ receives the maximal weight $K_h(0)$, and $Nh^k\to\infty$ is exac
 what makes its relative influence vanish; without it the result does not apply there.
 \end{proposition}
 \begin{proof}[Proof of Proposition~\ref{prop:tgtnoise}]
-Fix $(x,t,y)$ with $t<1$ and condition on $I=i$. Then
-$X_t=(1-t)X_0+t x^i+t\rho\xi$, so with $r:=x-tx^i$ we have
-$r=(1-t)X_0+t\rho\xi$, a linear combination of the independent standard Gaussians
-$X_0,\xi$; hence $r\sim\N(0,s_t^2I_d)$ with $s_t^2=(1-t)^2+t^2\rho^2$, and
-$p(x\mid I=i,t)=s_t^{-d}\varphi_1(r/s_t)=\varphi_{s_t}(x-tx^i)$. As in
+\emph{Step 1: the law of the interpolant given the index.} Fix $(x,t,y)$ with $t<1$ and
+condition on $I=i$. Then $X_t=(1-t)X_0+tx^i+t\rho\xi$, so
+$r:=x-tx^i=(1-t)X_0+t\rho\xi$ is a linear combination of the independent standard
+Gaussians $X_0,\xi$, and
+\begin{equation}
+r\sim\N(0,s_t^2I_d),\qquad s_t^2=(1-t)^2+t^2\rho^2,\qquad
+p(x\mid I=i,t)=s_t^{-d}\varphi_1(r/s_t)=\varphi_{s_t}(x-tx^i).
+\label{eq:pf:tgtnoise:1}
+\end{equation}
+
+\emph{Step 2: the index posterior.} As in Step~2 of the proof of
 Proposition~\ref{prop:kernel-field}, given $I=i$ the interpolant depends only on
 $(X_0,\xi)$ and $\widetilde Y=y^i+h\varepsilon$ only on $\varepsilon$, so
-$X_t\perp\widetilde Y\mid I=i$ and Bayes' rule gives
-$\Pr(I=i\mid X_t=x,t,\widetilde Y=y)\propto\varphi_{s_t}(x-tx^i)K_h(y-y^i)=w_i$, the
-$i$-independent factor $1/N$ cancelling as before.
+$X_t\perp\widetilde Y\mid I=i$. Bayes' rule with \eqref{eq:pf:tgtnoise:1} and the
+uniform prior on $I$ gives
+\begin{equation}
+\Pr(I=i\mid X_t=x,t,\widetilde Y=y)=w_i\propto\varphi_{s_t}(x-tx^i)\,K_h(y-y^i),
+\label{eq:pf:tgtnoise:2}
+\end{equation}
+the $i$-independent factor $1/N$ cancelling as before.
 
-For the per-index target, $(X_0,\xi,r)$ are jointly Gaussian with
-$\Cov(X_0,r)=(1-t)I_d$ and $\Cov(\xi,r)=t\rho I_d$, so
-$\E[X_0\mid r]=\frac{1-t}{s_t^2}r$ and $\E[\xi\mid r]=\frac{t\rho}{s_t^2}r$. With
-$U=X_1-X_0=x^i+\rho\xi-X_0$,
-\[
-\E[U\mid X_t=x,t,I=i]=x^i+\rho\,\tfrac{t\rho}{s_t^2}r-\tfrac{1-t}{s_t^2}r
-=x^i+\tfrac{t\rho^2-(1-t)}{s_t^2}\,(x-tx^i),
-\]
-and averaging over the index posterior $w_i$ gives, by
-Proposition~\ref{prop:projection},
+\emph{Step 3: the per-index target.} The vector $(X_0,\xi,r)$ is jointly Gaussian with
+$\Cov(X_0,r)=(1-t)I_d$ and $\Cov(\xi,r)=t\rho I_d$, so the Gaussian conditional-mean
+formula $\E[a\mid r]=\Cov(a,r)\Var(r)^{-1}r$ gives
+\begin{equation}
+\E[X_0\mid r]=\tfrac{1-t}{s_t^2}\,r,\qquad
+\E[\xi\mid r]=\tfrac{t\rho}{s_t^2}\,r.
+\label{eq:pf:tgtnoise:3}
+\end{equation}
+Since $U=X_1-X_0=x^i+\rho\xi-X_0$, \eqref{eq:pf:tgtnoise:3} yields
+\begin{equation}
+\E[U\mid X_t=x,t,I=i]=x^i+\rho\,\tfrac{t\rho}{s_t^2}\,r-\tfrac{1-t}{s_t^2}\,r
+=x^i+\tfrac{t\rho^2-(1-t)}{s_t^2}\,(x-tx^i).
+\label{eq:pf:tgtnoise:4}
+\end{equation}
+
+\emph{Step 4: the field.} By Proposition~\ref{prop:projection},
+$\vstar=\E[U\mid X_t=x,t,\widetilde Y=y]$, which is \eqref{eq:pf:tgtnoise:4} averaged
+over the posterior \eqref{eq:pf:tgtnoise:2}:
 \begin{equation}
 \vstar(x,t,y)=\sum_i w_i(x,t,y)\Big[x^i+\tfrac{t\rho^2-(1-t)}{s_t^2}\,(x-tx^i)\Big],
 \qquad w_i\propto\varphi_{s_t}(x-tx^i)\,K_h(y-y^i),
@@ -1496,106 +1514,175 @@ Proposition~\ref{prop:projection},
 \end{equation}
 with $\varphi_s$ the $\N(0,s^2I_d)$ density.
 
-For the endpoint law, argue exactly as in Lemma~\ref{lem:mixture-coupling} and
-Theorem~\ref{thm:endpoint}: consider the coupling $I\sim p^{(h)}(y)$,
+\emph{Step 5: the endpoint law.} Argue exactly as in Lemma~\ref{lem:mixture-coupling}
+and Theorem~\ref{thm:endpoint}. Consider the coupling $I\sim p^{(h)}(y)$,
 $X_0\sim\pi_0$, $\xi\sim\N(0,I_d)$ mutually independent, $X_1:=x^I+\rho\xi$, with the
-same linear interpolant. Its index posterior at $(x,t)$ is
-$\propto p_i^{(h)}(y)\varphi_{s_t}(x-tx^i)$, the same proportionality in $i$ as
-$w_i$, so its conditional velocity is $\vstar$; the weights are smooth and positive
-and sum to one, so Lemma~\ref{lem:wellposed} applies and the flow transports $\pi_0$
-to $\mathrm{Law}(X_t)$ for every $t<1$. Since $X_t=(1-t)X_0+tX_1\to X_1$ almost
-surely as $t\uparrow1$, $\mathrm{Law}(X_t)\Rightarrow\mathrm{Law}(x^I+\rho\xi)
-=\sum_ip_i^{(h)}(y)\N(x^i,\rho^2I_d)$, which is \eqref{eq:tgtendpoint}. Its mean is
-$\sum_ip_i^{(h)}x^i=\bar x_h(y)$ and, by the law of total covariance applied to the
-mixture, its covariance is $\Covh(y)+\rho^2I_d$. Absolute continuity is immediate
-since each component is; \eqref{eq:w2floor} was derived from
-$\operatorname{supp}\subseteq\{x^i\}$ and so does not apply. Finally
-$s_1^2=\rho^2>0$, so $t\mapsto(t\rho^2-(1-t))/s_t^2$ is continuous at $t=1$ (with
-value $1$) and $\vstar$ is bounded on bounded sets up to and including $t=1$.
+same linear interpolant. By \eqref{eq:pf:tgtnoise:1} its index posterior at $(x,t)$ is
+$\propto p_i^{(h)}(y)\,\varphi_{s_t}(x-tx^i)$, which has the same proportionality in $i$
+as $w_i$ because $p_i^{(h)}(y)\propto K_h(y-y^i)$; and \eqref{eq:pf:tgtnoise:4} holds
+for it unchanged. So its conditional velocity is $\vstar$. Its weights are smooth,
+positive and sum to one, so Lemma~\ref{lem:wellposed} applies and the flow transports
+$\pi_0$ to $\mathrm{Law}(X_t)$ for every $t<1$. Since $X_t=(1-t)X_0+tX_1\to X_1$ almost
+surely as $t\uparrow1$,
+\begin{equation}
+\mathrm{Law}(X_t)\Rightarrow\mathrm{Law}(x^I+\rho\xi)
+=\sum_ip_i^{(h)}(y)\,\N(x^i,\rho^2I_d),
+\label{eq:pf:tgtnoise:5}
+\end{equation}
+which is \eqref{eq:tgtendpoint}.
+
+\emph{Step 6: moments, continuity and regularity at $t=1$.} The mean of
+\eqref{eq:pf:tgtnoise:5} is $\sum_ip_i^{(h)}x^i=\bar x_h(y)$ and, by the law of total
+covariance applied to the mixture,
+\begin{equation}
+\Cov=\underbrace{\rho^2I_d}_{\text{within components}}
++\underbrace{\Covh(y)}_{\text{between components}}.
+\label{eq:pf:tgtnoise:6}
+\end{equation}
+Each component is absolutely continuous, hence so is the mixture, and
+\eqref{eq:w2floor}, which was derived from $\operatorname{supp}\subseteq\{x^i\}$, does
+not apply. Finally $s_1^2=\rho^2>0$, so $t\mapsto(t\rho^2-(1-t))/s_t^2$ is continuous at
+$t=1$ with value $1$, and by \eqref{eq:tgtfield} $\vstar$ is bounded on bounded sets up
+to and including $t=1$. This proves Proposition~\ref{prop:tgtnoise}.
 \end{proof}
 
 \begin{proof}[Proof of Proposition~\ref{prop:nwrate}]
-The first two displays are the classical pointwise bias and variance of the
-Nadaraya--Watson estimator at an interior point, and we claim no novelty for them; we
-record here only that the hypotheses under which they are usually stated are exactly
-the ones already imposed in Proposition~\ref{prop:expansion}, so nothing further is
-assumed. Those hypotheses are: $(x^j,y^j)$ i.i.d.; $y$ interior to
+\emph{Step 1: the classical bias and variance.} The hypotheses under which the pointwise
+Nadaraya--Watson bias and variance are usually stated are exactly those already imposed
+in Assumption~\ref{as:design}: $(x^j,y^j)$ i.i.d.; $y$ interior to
 $\operatorname{supp}(\rho_Y)$ with $\rho_Y(y)>0$ and $\rho_Y\in C^2$ near $y$;
-$\mu\in C^2$ near $y$; $K$ a bounded, symmetric, compactly supported (or
-sufficiently rapidly decaying) kernel with $\int K=1$ and finite second moment; and
-the bandwidth regime $h\to0$, $Nh^k\to\infty$. Under precisely these,
-$\mathrm{Bias}=\tfrac{h^2}{2}\mu_2(K)\big[\Delta\mu(y)
-+2\nabla\mu(y)^\top\nabla\rho_Y(y)/\rho_Y(y)\big]+o(h^2)$ and
-$\Var=\tfrac{R(K)}{Nh^k}\cdot\tfrac{\Sigma(y)}{\rho_Y(y)}+o\big((Nh^k)^{-1}\big)$,
-where $\mu_2(K)=\int u_1^2K(u)\,du$ and $R(K)=\int K^2$; see
+$\mu\in C^2$ near $y$; together with $K$ a bounded, symmetric, compactly supported (or
+sufficiently rapidly decaying) kernel with $\int K=1$ and finite second moment, and the
+regime $h\to0$, $Nh^k\to\infty$. Under precisely these, with $\mu_2(K)=\int u_1^2K(u)\,du$
+and $R(K)=\int K^2$,
+\begin{align}
+\mathrm{Bias}&=\tfrac{h^2}{2}\,\mu_2(K)\,b(y)+o(h^2),
+\label{eq:pf:nwrate:1}\\
+\Var&=\tfrac{R(K)}{Nh^k}\cdot\tfrac{\Sigma(y)}{\rho_Y(y)}+o\big((Nh^k)^{-1}\big),
+\label{eq:pf:nwrate:2}
+\end{align}
+with $b(y)$ as in \eqref{eq:nwbiascoef}; see
 \citet[\S1.5 and \S1.6]{tsybakov2009nonparametric} or
-\citet[Ch.~5]{gyorfi2002distribution}. The leading bias constant is the one obtained
-by Taylor-expanding $\mu(y^j)$ about $y$ against the symmetric kernel weights, which
-is the same computation as the $O(h^2)$ term in the proof of
-Proposition~\ref{prop:expansion}.
+\citet[Ch.~5]{gyorfi2002distribution}. We claim no novelty for either display. The
+constant in \eqref{eq:pf:nwrate:1} is the one obtained by Taylor-expanding $\mu(y^j)$
+about $y$ against the symmetric kernel weights, which is the same computation as the
+$O(h^2)$ term in Step~4 of the proof of Proposition~\ref{prop:expansion}.
 
-Only the last two steps are ours, and both are elementary. Writing
-$\mathrm{MSE}(h)=c_1h^4+c_2(Nh^k)^{-1}+o(\cdot)$ with $c_1,c_2>0$ the squared-bias and
-variance constants above, $\frac{d}{dh}\mathrm{MSE}=4c_1h^3-c_2kN^{-1}h^{-k-1}$
-vanishes when $h^{k+4}=c_2k/(4c_1N)$, i.e.\ $h^\star\asymp N^{-1/(k+4)}$; the second
-derivative is positive there, so it is the minimiser.
+\emph{Step 2: the optimal bandwidth.} Adding the square of \eqref{eq:pf:nwrate:1} to
+\eqref{eq:pf:nwrate:2}, with $c_1=\tfrac14\mu_2(K)^2|b(y)|^2$ and $c_2$ the constant of
+\eqref{eq:pf:nwrate:2},
+\begin{equation}
+\mathrm{MSE}(h)=c_1h^4+c_2(Nh^k)^{-1}+o(\cdot),\qquad
+\frac{d}{dh}\mathrm{MSE}=4c_1h^3-c_2\,k\,N^{-1}h^{-k-1}.
+\label{eq:pf:nwrate:3}
+\end{equation}
+The derivative in \eqref{eq:pf:nwrate:3} vanishes exactly when
+\begin{equation}
+h^{k+4}=\frac{c_2\,k}{4c_1N},\qquad\text{i.e.}\qquad h^\star\asymp N^{-1/(k+4)},
+\label{eq:pf:nwrate:4}
+\end{equation}
+which needs $c_1,c_2>0$; the second derivative is positive at
+\eqref{eq:pf:nwrate:4}, so it is the minimiser. This is the proviso in the statement.
 
-For \eqref{eq:lgbias}, the population version of $\bar x_h$ is the $\rho_Y$-average of
-$\mu$ against the kernel, $\bar x_h(y)=\E[\mu(Y)\,K_h(y-Y)]/\E[K_h(y-Y)]$. With
-$K_h=\N(0,h^2I_k)$ and $\rho_Y=\N(0,\Sigma_Y)$ the product of the two densities is,
+\emph{Step 3: the linear-Gaussian instance.} The population version of $\bar x_h$ is the
+$\rho_Y$-average of $\mu$ against the kernel,
+\begin{equation}
+\bar x_h(y)=\frac{\E[\mu(Y)\,K_h(y-Y)]}{\E[K_h(y-Y)]}.
+\label{eq:pf:nwrate:5}
+\end{equation}
+With $K_h=\N(0,h^2I_k)$ and $\rho_Y=\N(0,\Sigma_Y)$ the product of the two densities is,
 in $y'$, an unnormalised Gaussian with precision $\Sigma_Y^{-1}+h^{-2}I_k$ and mean
-$(\Sigma_Y^{-1}+h^{-2}I_k)^{-1}h^{-2}y=\Sigma_Y(\Sigma_Y+h^2I_k)^{-1}y$. Since
-$\mu(y')=By'$ is affine, averaging it against that Gaussian just evaluates $B$ at the
-mean, so $\bar x_h(y)=B\Sigma_Y(\Sigma_Y+h^2I_k)^{-1}y$ and
-\[
-\bar x_h(y)-By=B\big[\Sigma_Y(\Sigma_Y+h^2I_k)^{-1}-I_k\big]y=-B\,h^2(\Sigma_Y+h^2I_k)^{-1}y,
-\]
-which is \eqref{eq:lgbias}; expanding $(\Sigma_Y+h^2I_k)^{-1}=\Sigma_Y^{-1}+O(h^2)$
-gives the stated $-h^2B\Sigma_Y^{-1}y+O(h^4)$, and $b(y)=-2B\Sigma_Y^{-1}y$ follows
-from \eqref{eq:nwbiascoef} with $\Delta\mu=0$ and
-$\nabla\log\rho_Y(y)=-\Sigma_Y^{-1}y$. Note this is an exact statement about the
-population kernel average at every $h$, not only asymptotically. Both the closed form
-and its agreement with \eqref{eq:nwbiascoef} are checked numerically in
+\begin{equation}
+(\Sigma_Y^{-1}+h^{-2}I_k)^{-1}h^{-2}y=\Sigma_Y(\Sigma_Y+h^2I_k)^{-1}y.
+\label{eq:pf:nwrate:6}
+\end{equation}
+Since $\mu(y')=By'$ is affine, averaging it against that Gaussian just evaluates $B$ at
+the mean \eqref{eq:pf:nwrate:6}, so \eqref{eq:pf:nwrate:5} gives
+$\bar x_h(y)=B\Sigma_Y(\Sigma_Y+h^2I_k)^{-1}y$ and
+\begin{equation}
+\bar x_h(y)-By=B\big[\Sigma_Y(\Sigma_Y+h^2I_k)^{-1}-I_k\big]y
+=-B\,h^2(\Sigma_Y+h^2I_k)^{-1}y,
+\label{eq:pf:nwrate:7}
+\end{equation}
+which is \eqref{eq:lgbias}. Expanding $(\Sigma_Y+h^2I_k)^{-1}=\Sigma_Y^{-1}+O(h^2)$
+gives the stated $-h^2B\Sigma_Y^{-1}y+O(h^4)$, and $b(y)=-2B\Sigma_Y^{-1}y$ follows from
+\eqref{eq:nwbiascoef} with $\Delta\mu=0$ and $\nabla\log\rho_Y(y)=-\Sigma_Y^{-1}y$.
+Note that \eqref{eq:pf:nwrate:7} is an exact statement about the population kernel
+average at every $h$, not only asymptotically. Both the closed form and its agreement
+with \eqref{eq:nwbiascoef} are checked numerically in
 \texttt{scripts/verify\_nw\_bias\_affine.py}, which also exhibits the U-shaped
 finite-$N$ MSE at $y\neq0$ and its monotone counterpart at $y=0$.
 
-The design-point remark needs no separate argument: at $y=y^i$ the summand $j=i$
-carries weight $K_h(0)/\sum_jK_h(y^i-y^j)$, and $\sum_{j}K_h(y^i-y^j)\asymp Nh^k$ in
-probability under the stated regime, so that weight is $\Theta((Nh^k)^{-1})\to0$. When
-$Nh^k\not\to\infty$ it does not vanish and the expansion above does not apply --- which
-is exactly the fixed-$N$, $h\to0$ regime of Corollary~\ref{cor:zerobw}, where the
-weight tends to $1$ instead.
+\emph{Step 4: design points.} At $y=y^i$ the summand $j=i$ carries the weight
+\begin{equation}
+\frac{K_h(0)}{\sum_jK_h(y^i-y^j)},\qquad \sum_jK_h(y^i-y^j)\asymp Nh^k
+\ \text{in probability},
+\label{eq:pf:nwrate:8}
+\end{equation}
+so under $Nh^k\to\infty$ that weight is $\Theta\big((Nh^k)^{-1}\big)\to0$. When
+$Nh^k\not\to\infty$ it does not vanish and the expansion above does not apply---which is
+exactly the fixed-$N$, $h\to0$ regime of Corollary~\ref{cor:zerobw}, where the weight
+tends to $1$ instead. This proves Proposition~\ref{prop:nwrate}.
 \end{proof}
 
 \begin{proof}[Proof of Proposition~\ref{prop:prop17}]
-Given $I=i$, write $r:=x-tx^i$. Since $X_t=(1-t)X_0+tx^i+\gamma(t)Z$,
-$r=(1-t)X_0+\gamma(t)Z$, a linear combination of the independent standard
-Gaussians $X_0,Z\sim\N(0,I_d)$, so $r\sim\N(0,s_t^2I_d)$ with
-$s_t^2=(1-t)^2+\gamma(t)^2$. For jointly Gaussian $(X_0,r)$,
-$\Cov(X_0,r)=(1-t)I_d$ (the $\gamma(t)Z$ term is independent of $X_0$), so the
-standard Gaussian conditional-mean formula gives
-$\E[X_0\mid r]=\Cov(X_0,r)\,\Var(r)^{-1}r=\tfrac{1-t}{s_t^2}r$; identically,
-$\Cov(Z,r)=\gamma(t)I_d$ gives $\E[Z\mid r]=\tfrac{\gamma(t)}{s_t^2}r$. Hence
-\begin{align*}
+\emph{Step 1: the conditional means.} Fix $i$ and write $r:=x-tx^i$. Given $I=i$,
+$X_t=(1-t)X_0+tx^i+\gamma(t)Z$, so $r=(1-t)X_0+\gamma(t)Z$ is a linear combination of
+the independent standard Gaussians $X_0,Z\sim\N(0,I_d)$, and
+\begin{equation}
+r\sim\N(0,s_t^2I_d),\qquad s_t^2=(1-t)^2+\gamma(t)^2 .
+\label{eq:pf:prop17:1}
+\end{equation}
+The pairs $(X_0,r)$ and $(Z,r)$ are jointly Gaussian with $\Cov(X_0,r)=(1-t)I_d$ (the
+term $\gamma(t)Z$ is independent of $X_0$) and $\Cov(Z,r)=\gamma(t)I_d$, so the Gaussian
+conditional-mean formula $\E[a\mid r]=\Cov(a,r)\Var(r)^{-1}r$ gives
+\begin{equation}
+\E[X_0\mid r]=\tfrac{1-t}{s_t^2}\,r,\qquad
+\E[Z\mid r]=\tfrac{\gamma(t)}{s_t^2}\,r .
+\label{eq:pf:prop17:2}
+\end{equation}
+
+\emph{Step 2: part (a), the field.} By Assumption~\ref{as:standing}(iii), $Y=y^i$ pins
+$I=i$, so Proposition~\ref{prop:projection} applied to the target \eqref{eq:c2target},
+$\dot X_t=x^i-X_0+\dot\gamma(t)Z$, and then \eqref{eq:pf:prop17:2} give
+\begin{equation}
+\begin{aligned}
 v_\sigma^\star(x,t,y^i)=\E[\dot X_t\mid X_t=x,t,I=i]
 &=x^i-\E[X_0\mid r]+\dot\gamma(t)\,\E[Z\mid r]\\
-&=x^i+\frac{-(1-t)+\dot\gamma(t)\gamma(t)}{s_t^2}\,r.
-\end{align*}
+&=x^i+\frac{-(1-t)+\dot\gamma(t)\gamma(t)}{s_t^2}\,r .
+\end{aligned}
+\label{eq:pf:prop17:3}
+\end{equation}
 Since $\gamma(t)^2=\sigma^2t(1-t)$, differentiating gives
-$2\dot\gamma\gamma=\sigma^2(1-2t)$, i.e.\ $\dot\gamma\gamma=\tfrac{\sigma^2}2(1-2t)$,
-which yields (a)'s expression for $c(t)$. For the logarithmic-derivative identity,
-$\frac{d}{dt}s_t^2=-2(1-t)+2\dot\gamma\gamma=2s_t^2c(t)$ by the same computation, so
-$c(t)=\tfrac12\frac{d}{dt}\log s_t^2$.
+\begin{equation}
+2\dot\gamma\gamma=\sigma^2(1-2t),\qquad\text{i.e.}\qquad
+\dot\gamma\gamma=\tfrac{\sigma^2}2(1-2t),
+\label{eq:pf:prop17:4}
+\end{equation}
+and substituting \eqref{eq:pf:prop17:4} into the coefficient of \eqref{eq:pf:prop17:3}
+gives the expression for $c(t)$ in (a). For the logarithmic-derivative form,
+$\tfrac{d}{dt}s_t^2=-2(1-t)+2\dot\gamma\gamma=2s_t^2c(t)$ by \eqref{eq:pf:prop17:4}, so
+$c(t)=\tfrac12\tfrac{d}{dt}\log s_t^2$.
 
-(b) Along the flow, $u_t:=x_t-tx^i$ satisfies $\dot u_t=\dot x_t-x^i
-=v_\sigma^\star(x_t,t,y^i)-x^i=c(t)u_t$ by (a) (with $r=u_t$ evaluated on the
-trajectory), a linear ODE with solution
-$u_t=u_0\exp\!\big(\int_0^tc(\tau)\,d\tau\big)
-=x_0\exp\!\big(\tfrac12[\log s_t^2-\log s_0^2]\big)=x_0\,s_t$, using $s_0=1$ and
+\emph{Step 3: part (b), the flow.} Along a trajectory put $u_t:=x_t-tx^i$. By (a) with
+$r=u_t$,
+\begin{equation}
+\dot u_t=\dot x_t-x^i=v_\sigma^\star(x_t,t,y^i)-x^i=c(t)\,u_t,
+\label{eq:pf:prop17:5}
+\end{equation}
+a linear ODE, whose solution is
+\begin{equation}
+u_t=u_0\exp\!\Big(\int_0^tc(\tau)\,d\tau\Big)
+=x_0\exp\!\big(\tfrac12[\log s_t^2-\log s_0^2]\big)=s_t\,x_0,
+\label{eq:pf:prop17:6}
+\end{equation}
+using the logarithmic-derivative form of $c$ from Step~2, $s_0=1$ and
 $u_0=x_0-0\cdot x^i=x_0$. Hence $x_t=tx^i+s_tx_0$.
 
-(c) Since $s_1=(1-1)[(1-1)+\sigma^2\cdot1]=0$, (b) gives $x_1=x^i$ for every
-$x_0\sim\pi_0$ and every $\sigma\ge0$, so $p_1^{\mathrm{cond}}(\cdot\mid y^i)=\delta_{x^i}$.
+\emph{Step 4: part (c), the endpoint.} Since $s_t^2=(1-t)[(1-t)+\sigma^2t]$ we have
+$s_1=0$, so \eqref{eq:pf:prop17:6} gives $x_t\to x^i$ as $t\uparrow1$ for every
+$x_0\sim\pi_0$ and every $\sigma\ge0$. Hence
+$p_1^{\mathrm{cond}}(\cdot\mid y^i)=\delta_{x^i}$, which is \eqref{eq:invariance}.
 \end{proof}
 
 \begin{corollary}[What interpolant noise does and does not change]
@@ -1607,48 +1694,75 @@ blow-up rate: $\lim_{t\uparrow1}(1-t)|c(t)|=1$ for $\sigma=0$ and $\tfrac12$ for
 $\sigma>0$.
 \end{corollary}
 \begin{proof}[Proof of Corollary~\ref{cor:prop18}]
-\emph{Endpoint invariance} is Proposition~\ref{prop:prop17}(c).
+\emph{Step 1: endpoint invariance.} This is Proposition~\ref{prop:prop17}(c).
 
-\emph{Irreducible error.} For $\sigma=0$, $\gamma\equiv0$ so $\dot X_t=X_1-X_0$ is
-exactly the target of Proposition~\ref{prop:collapse}, giving $\inf_vL_0=0$. For
-$\sigma>0$: by the same projection argument as Proposition~\ref{prop:projection},
-applied to $\dot X_t$ and $(X_t,t,Y)$, it suffices to show
-$\Var(\dot X_t\mid X_t=x,t,I=i)>0$ for some positive-measure set of $t$. Writing
-$\dot X_t-x^i=-X_0+\dot\gamma(t)Z$ and $r=(1-t)X_0+\gamma(t)Z$ as in the proof of
-Proposition~\ref{prop:prop17}, the standard Gaussian conditioning formula gives,
-for $u=(-1,\dot\gamma(t))$ and $w=(1-t,\gamma(t))$,
-\[
+\emph{Step 2: the irreducible error, $\sigma=0$.} Here $\gamma\equiv0$, so
+$\dot X_t=X_1-X_0$ is exactly the target of Proposition~\ref{prop:collapse}, whose
+part~(b) gives $\inf_vL_0=0$.
+
+\emph{Step 3: the irreducible error, $\sigma>0$.} By the projection argument of
+Proposition~\ref{prop:projection}, applied to $\dot X_t$ and $(X_t,t,Y)$,
+$\inf_vL_\sigma(v)=\E[\Var(\dot X_t\mid X_t,t,Y)]$, so it suffices to show
+$\Var(\dot X_t\mid X_t=x,t,I=i)>0$ on a positive-measure set of $t$. Write
+$\dot X_t-x^i=u\cdot(X_0,Z)$ and $r=w\cdot(X_0,Z)$ with $u=(-1,\dot\gamma(t))$ and
+$w=(1-t,\gamma(t))$, as in Step~1 of the proof of Proposition~\ref{prop:prop17}. The
+standard Gaussian conditioning formula, with $|w|^2=s_t^2$ and
+$u\cdot w=-(1-t)+\dot\gamma\gamma=c(t)s_t^2$ (Step~2 of that proof), gives
+\begin{equation}
 \Var(\dot X_t\mid r,I=i)=|u|^2-\frac{(u\cdot w)^2}{|w|^2}
-=\big(1+\dot\gamma(t)^2\big)-c(t)^2s_t^2,
-\]
-using $u\cdot w=-(1-t)+\dot\gamma(t)\gamma(t)=c(t)s_t^2$ from the proof of
-Proposition~\ref{prop:prop17}. This vanishes only if $u\parallel w$, i.e.\
-$\dot\gamma(t)(1-t)=-\gamma(t)$; substituting
-$\gamma(t)=\sigma\sqrt{t(1-t)}$ and $\dot\gamma(t)=\sigma(1-2t)/(2\sqrt{t(1-t)})$
-reduces this to $1-2t=-2t$, i.e.\ $1=0$---impossible. So for $\sigma>0$ the
-residual variance is strictly positive for \emph{every} $t\in(0,1)$, and
+=\big(1+\dot\gamma(t)^2\big)-c(t)^2s_t^2 .
+\label{eq:pf:prop18:1}
+\end{equation}
+This vanishes only if $u\parallel w$, i.e.\ only if
+\begin{equation}
+\dot\gamma(t)(1-t)=-\gamma(t).
+\label{eq:pf:prop18:2}
+\end{equation}
+Substituting $\gamma(t)=\sigma\sqrt{t(1-t)}$ and
+$\dot\gamma(t)=\sigma(1-2t)/(2\sqrt{t(1-t)})$ reduces \eqref{eq:pf:prop18:2} to
+$1-2t=-2t$, i.e.\ $1=0$, which is impossible. So for $\sigma>0$ the residual variance
+\eqref{eq:pf:prop18:1} is strictly positive for \emph{every} $t\in(0,1)$, and
 $\inf_vL_\sigma(v)=\E[\Var(\dot X_t\mid X_t,t,Y)]>0$.
 
-\emph{Lipschitz rate.} From (a),
-$(1-t)c(t)=\dfrac{-(1-t)+\frac{\sigma^2}2(1-2t)}{(1-t)+\sigma^2t}$, which as
-$t\uparrow1$ tends to $-1$ if $\sigma=0$ and to $-\sigma^2/2\;/\;\sigma^2=-\tfrac12$
-if $\sigma>0$, giving the stated limits.
+\emph{Step 4: the Lipschitz rate.} From part~(a) of Proposition~\ref{prop:prop17},
+\begin{equation}
+(1-t)\,c(t)=\frac{-(1-t)+\frac{\sigma^2}2(1-2t)}{(1-t)+\sigma^2t},
+\label{eq:pf:prop18:3}
+\end{equation}
+which as $t\uparrow1$ tends to $-1$ if $\sigma=0$, and to
+$-\tfrac{\sigma^2}{2}\big/\sigma^2=-\tfrac12$ if $\sigma>0$. This gives the two limits of
+$(1-t)|c(t)|$, and completes the proof of Corollary~\ref{cor:prop18}.
 \end{proof}
 
 \begin{proof}[Proof of Proposition~\ref{prop:factors}]
-By Theorem~\ref{thm:endpoint}, for $h>0$ (and $\sigma=0$) the endpoint law
-$p_h^{\mathrm{gen}}(\cdot\mid y)=\sum_ip_i^{(h)}(y)\delta_{x^i}$ depends on $h$
-only through the label factor $K_h(y-y^i)$ in \eqref{eq:kernel-field}, and
-Corollaries~\ref{cor:zerobw}--\ref{cor:infbw} show it genuinely interpolates
-between two distinct endpoint laws as $h$ ranges over $[0,\infty)$. By contrast,
-for $h=0$ with distinct labels and any $\sigma\ge0$, $Y=y^i$ already pins $I=i$
-deterministically, so no index-posterior argument is needed: Proposition~\ref{prop:prop17}
-shows directly that although the spatial factor of Lemma~\ref{lem:cov},
-$\N(tx^i,(1-t)^2I_d)$, is replaced by $\N(tx^i,s_t^2I_d)$ for \emph{every} $i$
-identically, the endpoint is exactly invariant, $p_1^{\mathrm{cond}}(\cdot\mid y^i)
-=\delta_{x^i}$ for every $\sigma$. Since perturbing the label factor changes $p_1$
-while perturbing the spatial factor identically across $i$ does not, the two
-mechanisms act through different, non-interchangeable channels.
+\emph{Step 1: the label factor moves the endpoint.} By Theorem~\ref{thm:endpoint}, for
+$h>0$ and $\sigma=0$ the endpoint law
+\begin{equation}
+p_h^{\mathrm{gen}}(\cdot\mid y)=\sum_ip_i^{(h)}(y)\,\delta_{x^i}
+\label{eq:pf:factors:1}
+\end{equation}
+depends on $h$ only through the label factor $K_h(y-y^i)$ of \eqref{eq:kernel-field}.
+By Corollaries~\ref{cor:zerobw} and~\ref{cor:infbw}, \eqref{eq:pf:factors:1}
+interpolates between the two distinct laws $\delta_{x^{i^\star}}$ (as $h\to0$, at a $y$ with a
+unique nearest label $i^\star$) and
+$\rhohat_X$ (as $h\to\infty$), so perturbing the label factor changes $p_1$.
+
+\emph{Step 2: the spatial factor does not.} Take $h=0$ and any $\sigma\ge0$. By
+Assumption~\ref{as:standing}(iii), $Y=y^i$ already pins $I=i$, so no index-posterior
+argument is needed. Interpolant noise replaces the spatial factor of
+Lemma~\ref{lem:cov},
+\begin{equation}
+\N\big(tx^i,(1-t)^2I_d\big)\ \longrightarrow\ \N\big(tx^i,s_t^2I_d\big),
+\label{eq:pf:factors:2}
+\end{equation}
+identically for every $i$, and Proposition~\ref{prop:prop17}(c) shows that despite
+\eqref{eq:pf:factors:2} the endpoint is exactly invariant,
+$p_1^{\mathrm{cond}}(\cdot\mid y^i)=\delta_{x^i}$ for every $\sigma$.
+
+\emph{Step 3: conclusion.} By Steps~1 and~2, perturbing the label factor changes $p_1$
+while perturbing the spatial factor identically across $i$ does not, so the two
+mechanisms act through different, non-interchangeable channels. This proves
+Proposition~\ref{prop:factors}.
 \end{proof}
 
 \begin{proof}[Proof of Proposition~\ref{prop:liplb}]
