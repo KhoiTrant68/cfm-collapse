@@ -51,7 +51,7 @@
 \newcommand{\vstar}{v_h^\star}
 \newcommand{\vstarz}{v_0^\star}
 \newcommand{\Covh}{\operatorname{Cov}_h}
-\newcommand{\proofin}{\hfill\textnormal{\footnotesize[Proof: Appendix~\ref{app:proofs}]}}
+\newcommand{\proofin}[1]{\hfill\textnormal{\footnotesize[Proof: Appendix~\ref{#1}]}}
 
 \title{Conditional Flow Matching:\\
 Kernel Smoothing over Atoms\\
@@ -278,7 +278,7 @@ objective \citep{lipman2023flow,albergo2023building,liu2023rectified}.
 For every square-integrable $v$,
 $L_h(v)=\E[\Var(U\mid X_t,t,\widetilde Y)]+\E\,|v-\E[U\mid X_t,t,\widetilde Y]|^2$,
 so the a.e.-unique minimiser is $\vstar(x,t,y)=\E[U\mid X_t=x,t,\widetilde Y=y]$ with
-$\inf_v L_h=\E[\Var(U\mid X_t,t,\widetilde Y)]$. \proofin
+$\inf_v L_h=\E[\Var(U\mid X_t,t,\widetilde Y)]$. \proofin{apx:pf-projection}
 \end{proposition}
 
 Lemmas~\ref{lem:cov} and~\ref{lem:wellposed} (appendix) make the conditional
@@ -302,7 +302,7 @@ Let $h=0$. Then
 (c) the ODE $\dot x_t=(x^i-x_t)/(1-t)$ has the explicit solution
 $x_t=(1-t)x_0+tx^i$, so $x_t\to x^i$ for every $x_0$; and
 (d) $p_1^{\mathrm{cond}}(\cdot\mid y^i)=\delta_{x^i}$, hence
-$\Cov[p_1^{\mathrm{cond}}(\cdot\mid y^i)]=0$. \proofin
+$\Cov[p_1^{\mathrm{cond}}(\cdot\mid y^i)]=0$. \proofin{apx:pf-collapse}
 \end{proposition}
 If labels are not distinct, collapse is onto the label's empirical conditional
 support $|\mathcal I_y|^{-1}\sum_{i\in\mathcal I_y}\delta_{x^i}$, a single atom exactly
@@ -323,7 +323,7 @@ conditional second moment:
 \qquad\text{vs.}\qquad
 \Cov[p_1^{\mathrm{unc}}]=\Xhat.
 \label{eq:distinction}
-\end{equation} \proofin
+\end{equation} \proofin{apx:pf-distinction}
 \end{corollary}
 
 The often-cited observation $\tr\Cov\approx\tr\Xhat$ for the unconditional baseline is
@@ -350,7 +350,7 @@ For $h>0$, $t<1$,
 w_i^{(h)}=\frac{\pi_0\!\big(\tfrac{x-tx^i}{1-t}\big)K_h(y-y^i)}
 {\sum_j\pi_0\!\big(\tfrac{x-tx^j}{1-t}\big)K_h(y-y^j)}.
 \label{eq:kernel-field}
-\end{equation} \proofin
+\end{equation} \proofin{apx:pf-kernel-field}
 \end{proposition}
 This factorises the index posterior into a spatial source-consistency term and a label
 kernel. With $p_i^{(h)}(y):=K_h(y-y^i)/\sum_j K_h(y-y^j)$ the normalised label weights,
@@ -363,19 +363,19 @@ For every $h>0$ and query $y$,
 \begin{equation}
 p_h^{\mathrm{gen}}(\cdot\mid y)=\sum_{i=1}^N p_i^{(h)}(y)\,\delta_{x^i}.
 \label{eq:endpoint}
-\end{equation} \proofin
+\end{equation} \proofin{apx:pf-endpoint}
 \end{theorem}
 \begin{corollary}[Zero bandwidth at fixed $N$]
 \label{cor:zerobw}
 If $y$ has a unique nearest label $i^\star=\arg\min_i|y-y^i|$, then
 $p_i^{(h)}(y)\to\mathbf 1\{i=i^\star\}$ as $h\to0$, so
 $p_h^{\mathrm{gen}}(\cdot\mid y)\Rightarrow\delta_{x^{i^\star}}$; at $y=y^i$ this
-recovers Proposition~\ref{prop:collapse}. \proofin
+recovers Proposition~\ref{prop:collapse}. \proofin{apx:pf-zerobw}
 \end{corollary}
 \begin{corollary}[Infinite bandwidth at fixed $N$]
 \label{cor:infbw}
 $p_i^{(h)}(y)\to1/N$ for every $i$ as $h\to\infty$, so
-$p_h^{\mathrm{gen}}(\cdot\mid y)\Rightarrow p_1^{\mathrm{unc}}$. \proofin
+$p_h^{\mathrm{gen}}(\cdot\mid y)\Rightarrow p_1^{\mathrm{unc}}$. \proofin{apx:pf-infbw}
 \end{corollary}
 So $h$ interpolates continuously between the two hard regimes of
 Section~\ref{sec:theory-hard}.
@@ -385,7 +385,7 @@ Section~\ref{sec:theory-hard}.
 $\bar x_h(y)=\sum_i p_i^{(h)}(y)\,x^i$ and
 $\Covh(y)=\sum_i p_i^{(h)}(y)\,(x^i-\bar x_h(y))(x^i-\bar x_h(y))^\top$, both exactly
 computable from the training set for any $h$, and the correct reference against which
-generated moments must be compared. $\tr\Covh(y)$ need not be monotone in $h$. \proofin
+generated moments must be compared. $\tr\Covh(y)$ need not be monotone in $h$. \proofin{apx:pf-moments}
 \end{proposition}
 
 These are the moments of the law identified by Theorem~\ref{thm:endpoint}, and the
@@ -405,7 +405,7 @@ W_2^2\big(p_h^{\mathrm{gen}}(\cdot\mid y),\,p(\cdot\mid y)\big)\ \ge\
 \int\operatorname{dist}\big(x,\{x^i\}\big)^2\,p(x\mid y)\,dx\ >\ 0,
 \label{eq:w2floor}
 \end{equation}
-\emph{and this lower bound does not depend on $h$.} \proofin
+\emph{and this lower bound does not depend on $h$.} \proofin{apx:pf-atomicity}
 \end{proposition}
 This is the central caveat on any ``variance is restored at $h\approx0.1$'' claim:
 label smoothing redistributes weight over training atoms and never generates new
@@ -444,7 +444,7 @@ p_1(\cdot\mid y)=\sum_i p_i^{(h)}(y)\,\N(x^i,\rho^2I_d),
 \end{equation}
 For every $\rho>0$ this law is absolutely continuous, so \eqref{eq:w2floor} does not
 apply to it; moreover $s_1=\rho>0$, so $\vstar$ extends continuously to $t=1$ and the
-$1/(1-t)$ blow-up of $(\star)$ disappears. \proofin
+$1/(1-t)$ blow-up of $(\star)$ disappears. \proofin{apx:pf-tgtnoise}
 \end{proposition}
 
 Two caveats, both quantified in Section~\ref{sec:exp1}: removing a lower bound is not
@@ -496,7 +496,7 @@ $c(t)=\frac{-(1-t)+\frac{\sigma^2}2(1-2t)}{s_t^2}=\frac12\frac{d}{dt}\log s_t^2$
 \begin{equation}
 p_1^{\mathrm{cond}}(\cdot\mid y^i)=\delta_{x^i}\quad\text{for every }\sigma\ge0.
 \label{eq:invariance}
-\end{equation} \proofin
+\end{equation} \proofin{apx:pf-prop17}
 \end{proposition}
 
 Part~(b) gives the flow in closed form and (c) follows because $s_1=0$, so no
@@ -804,33 +804,10 @@ text, claims, proofs, and code.
 \section{Deferred proofs}
 \label{app:proofs}
 
-\begin{proof}[Proof of Proposition~\ref{prop:projection}]
-\mathtoolsset{showonlyrefs}
-Let $\mathcal G=\sigma(X_t,t,\widetilde Y)$ and $m:=\E[U\mid\mathcal G]$.
+Every result of Section~\ref{sec:theory} is proved in its own subsection below, with its statement repeated for reference; results whose statement already lives in the appendix are proved where they are stated. The technical lemmas come first.
 
-\textbf{Step 1: split the loss.}
-\begin{align}
-L_h(v)&=\E|(U-m)+(m-v)|^2\\
-&=\E|U-m|^2+\E|m-v|^2+2\,\E\langle U-m,\,m-v\rangle\label{eq:pf:projection:1}
-\end{align}
-Justifications, in order: (1)~$U-v=(U-m)+(m-v)$; (2)~expand the square.
-
-\textbf{Step 2: the cross term vanishes.}
-\begin{align}
-\E\langle U-m,\,m-v\rangle&=\E\big\langle\E[U-m\mid\mathcal G],\,m-v\big\rangle\\
-&=0\label{eq:pf:projection:2}
-\end{align}
-Justifications, in order: (1)~tower property; $m-v$ is $\mathcal G$-measurable; (2)~$\E[U-m\mid\mathcal G]=0$.
-
-\textbf{Step 3: the minimiser.}
-\begin{align}
-L_h(v)&=\E[\Var(U\mid\mathcal G)]+\E|v-m|^2\\
-\inf_vL_h&=\E[\Var(U\mid\mathcal G)]\\
-\vstar(x,t,y)&=\E[U\mid X_t=x,t,\widetilde Y=y]
-\end{align}
-Justifications, in order: (1)~$\eqref{eq:pf:projection:1},\ \eqref{eq:pf:projection:2}$; (2)~$\E|v-m|^2\ge0,\ =0\iff v=m\ \text{a.e.}$; (3)~unique a.e.\ minimiser.
-This proves Proposition~\ref{prop:projection}.
-\end{proof}
+\subsection{Technical lemmas}
+\label{apx:lemmas}
 
 \begin{lemma}[Change of variables]
 \label{lem:cov}
@@ -938,18 +915,91 @@ Steps~1--4 prove Lemma~\ref{lem:wellposed}.
 
 Both $v_{\mathrm{unc}}^\star$ and $\vstar$ have this form with smooth weights, so
 Lemma~\ref{lem:wellposed} applies and no ``assume the flow is well defined'' hypothesis
-is needed. We now give the remaining proofs in full.
+is needed.
 
-\begin{proposition}[Unconditional endpoint is the full empirical law]
-\label{prop:uncond}
-For $L_{\mathrm{unc}}(v)=\E|X_1-X_0-v(X_t,t)|^2$ and $t<1$, with
-$q_i(x,t)=\Pr(I=i\mid X_t=x,t)\propto\pi_0\!\big(\tfrac{x-tx^i}{1-t}\big)$,
-\[
-v_{\mathrm{unc}}^\star(x,t)=\sum_i q_i(x,t)\,\frac{x^i-x}{1-t},\qquad
-p_1^{\mathrm{unc}}=\rhohat_X=\tfrac1N\sum_i\delta_{x^i}.
-\]
-Moreover $\inf_v L_{\mathrm{unc}}>0$ whenever $x^i\ne x^j$ for some $i\ne j$.
-\end{proposition}
+\begin{lemma}[Equivalent mixture coupling]
+\label{lem:mixture-coupling}
+Fix $y$ and consider the coupling $I\sim p^{(h)}(y)$, $X_0\sim\pi_0$ (independent of
+$I$), $X_1:=x^I$, with the same linear interpolant $X_t=(1-t)X_0+tX_1$. Its
+conditional velocity field $\E[X_1-X_0\mid X_t=x,t]$ equals $\vstar(x,t,y)$ of
+\eqref{eq:kernel-field} for every $x,t<1$.
+\end{lemma}
+\begin{proof}[Proof of Lemma~\ref{lem:mixture-coupling}]
+\mathtoolsset{showonlyrefs}
+\textbf{Step 1: the coupling's index posterior.}
+\begin{align}
+\Pr(I=i\mid X_t=x,t)&\propto p_i^{(h)}(y)\,(1-t)^{-d}\pi_0\big(\tfrac{x-tx^i}{1-t}\big)\\
+&\propto\pi_0\big(\tfrac{x-tx^i}{1-t}\big)K_h(y-y^i)\label{eq:pf:mix:1}
+\end{align}
+Justifications, in order: (1)~Bayes; Lemma~\ref{lem:cov}; (2)~$p_i^{(h)}\propto K_h(y-y^i);\ (1-t)^{-d}\text{ free of }i$.
+
+\textbf{Step 2: the two posteriors coincide.}
+\begin{align}
+\Pr(I=i\mid X_t=x,t)&=w_i^{(h)}(x,t,y)
+\end{align}
+Justification: $\eqref{eq:pf:mix:1}\ \text{is the numerator of \eqref{eq:kernel-field}; both normalise over $i$}$.
+
+\textbf{Step 3: the velocity.}
+\begin{align}
+\E[X_1-X_0\mid X_t=x,t]&=\sum_iw_i^{(h)}\,\frac{x^i-x}{1-t}\\
+&=\vstar(x,t,y)
+\end{align}
+Justifications, in order: (1)~$X_1-X_0=\frac{x^i-x}{1-t}\ \text{given }I=i;\ \text{Step~2}$; (2)~$\eqref{eq:kernel-field}$.
+This proves Lemma~\ref{lem:mixture-coupling}.
+\end{proof}
+
+\subsection{Proof of Proposition~\ref{prop:projection}}
+\label{apx:pf-projection}
+
+\begin{quote}
+\noindent\textbf{Proposition~\ref{prop:projection}} ($L^2$ projection).
+For every square-integrable $v$,
+$L_h(v)=\E[\Var(U\mid X_t,t,\widetilde Y)]+\E\,|v-\E[U\mid X_t,t,\widetilde Y]|^2$,
+so the a.e.-unique minimiser is $\vstar(x,t,y)=\E[U\mid X_t=x,t,\widetilde Y=y]$ with
+$\inf_v L_h=\E[\Var(U\mid X_t,t,\widetilde Y)]$.
+\end{quote}
+
+\begin{proof}[Proof of Proposition~\ref{prop:projection}]
+\mathtoolsset{showonlyrefs}
+Let $\mathcal G=\sigma(X_t,t,\widetilde Y)$ and $m:=\E[U\mid\mathcal G]$.
+
+\textbf{Step 1: split the loss.}
+\begin{align}
+L_h(v)&=\E|(U-m)+(m-v)|^2\\
+&=\E|U-m|^2+\E|m-v|^2+2\,\E\langle U-m,\,m-v\rangle\label{eq:pf:projection:1}
+\end{align}
+Justifications, in order: (1)~$U-v=(U-m)+(m-v)$; (2)~expand the square.
+
+\textbf{Step 2: the cross term vanishes.}
+\begin{align}
+\E\langle U-m,\,m-v\rangle&=\E\big\langle\E[U-m\mid\mathcal G],\,m-v\big\rangle\\
+&=0\label{eq:pf:projection:2}
+\end{align}
+Justifications, in order: (1)~tower property; $m-v$ is $\mathcal G$-measurable; (2)~$\E[U-m\mid\mathcal G]=0$.
+
+\textbf{Step 3: the minimiser.}
+\begin{align}
+L_h(v)&=\E[\Var(U\mid\mathcal G)]+\E|v-m|^2\\
+\inf_vL_h&=\E[\Var(U\mid\mathcal G)]\\
+\vstar(x,t,y)&=\E[U\mid X_t=x,t,\widetilde Y=y]
+\end{align}
+Justifications, in order: (1)~$\eqref{eq:pf:projection:1},\ \eqref{eq:pf:projection:2}$; (2)~$\E|v-m|^2\ge0,\ =0\iff v=m\ \text{a.e.}$; (3)~unique a.e.\ minimiser.
+This proves Proposition~\ref{prop:projection}.
+\end{proof}
+
+\subsection{Proof of Proposition~\ref{prop:collapse}}
+\label{apx:pf-collapse}
+
+\begin{quote}
+\noindent\textbf{Proposition~\ref{prop:collapse}} (Exact conditional collapse; $h=0$).
+Let $h=0$. Then
+(a) $v_0^\star(x,t,y^i)=(x^i-x)/(1-t)$ for $t<1$;
+(b) $\inf_v L_0(v)=0$;
+(c) the ODE $\dot x_t=(x^i-x_t)/(1-t)$ has the explicit solution
+$x_t=(1-t)x_0+tx^i$, so $x_t\to x^i$ for every $x_0$; and
+(d) $p_1^{\mathrm{cond}}(\cdot\mid y^i)=\delta_{x^i}$, hence
+$\Cov[p_1^{\mathrm{cond}}(\cdot\mid y^i)]=0$.
+\end{quote}
 
 \begin{proof}[Proof of Proposition~\ref{prop:collapse}]
 \mathtoolsset{showonlyrefs}
@@ -991,6 +1041,20 @@ Justifications, in order: (1)~quotient rule; (2)~$\dot x_t(1-t)=x^i-x_t$; (3)~$\
 This proves Proposition~\ref{prop:collapse}.
 \end{proof}
 
+\subsection{Proof of Proposition~\ref{prop:uncond}}
+\label{apx:pf-uncond}
+
+\begin{proposition}[Unconditional endpoint is the full empirical law]
+\label{prop:uncond}
+For $L_{\mathrm{unc}}(v)=\E|X_1-X_0-v(X_t,t)|^2$ and $t<1$, with
+$q_i(x,t)=\Pr(I=i\mid X_t=x,t)\propto\pi_0\!\big(\tfrac{x-tx^i}{1-t}\big)$,
+\[
+v_{\mathrm{unc}}^\star(x,t)=\sum_i q_i(x,t)\,\frac{x^i-x}{1-t},\qquad
+p_1^{\mathrm{unc}}=\rhohat_X=\tfrac1N\sum_i\delta_{x^i}.
+\]
+Moreover $\inf_v L_{\mathrm{unc}}>0$ whenever $x^i\ne x^j$ for some $i\ne j$.
+\end{proposition}
+
 \begin{proof}[Proof of Proposition~\ref{prop:uncond}]
 \mathtoolsset{showonlyrefs}
 \textbf{Step 1: the index posterior.}
@@ -1030,6 +1094,24 @@ Justifications, in order: (1)~$\pi_0>0,\ \eqref{eq:pf:uncond:1}$; (2)~$u\ \text{
 This proves Proposition~\ref{prop:uncond}.
 \end{proof}
 
+\subsection{Proof of Corollary~\ref{cor:distinction}}
+\label{apx:pf-distinction}
+
+\begin{quote}
+\noindent\textbf{Corollary~\ref{cor:distinction}} (The correct conditional/unconditional distinction).
+Both exact population flows are supported on the training set:
+$p_1^{\mathrm{cond}}(\cdot\mid y^i)=\delta_{x^i}$ and
+$p_1^{\mathrm{unc}}=\frac1N\sum_i\delta_{x^i}$. The distinction is therefore not
+``memorises vs.\ does not'' but \emph{single-example} vs.\
+\emph{full-empirical-measure} memorisation, with observable difference in the
+conditional second moment:
+\begin{equation*}
+\Cov[p_1^{\mathrm{cond}}(\cdot\mid y^i)]=0
+\qquad\text{vs.}\qquad
+\Cov[p_1^{\mathrm{unc}}]=\Xhat.
+\end{equation*}
+\end{quote}
+
 \begin{proof}[Proof of Corollary~\ref{cor:distinction}]
 \mathtoolsset{showonlyrefs}
 \begin{align}
@@ -1043,65 +1125,18 @@ training set; with \eqref{eq:pf:distinction:1} this is \eqref{eq:distinction}.
 This proves Corollary~\ref{cor:distinction}.
 \end{proof}
 
-\begin{proof}[Proof of Proposition~\ref{prop:atomicity}]
-\mathtoolsset{showonlyrefs}
-\textbf{Step 1: the support.}
-\begin{align}
-p_h^{\mathrm{gen}}(\cdot\mid y)&=\textstyle\sum_ip_i^{(h)}(y)\,\delta_{x^i}\\
-\operatorname{supp}p_h^{\mathrm{gen}}&\subseteq\{x^1,\dots,x^N\}
-\end{align}
-Justifications, in order: (1)~Theorem~\ref{thm:endpoint}; (2)~finite mixture of point masses.
+\subsection{Proof of Proposition~\ref{prop:kernel-field}}
+\label{apx:pf-kernel-field}
 
-\textbf{Step 2: a pointwise bound under any coupling $(X,X')$ of $p_h^{\mathrm{gen}}$ and $p(\cdot\mid y)$.}
-\begin{align}
-|X-X'|&\ge\min_i|x^i-X'|=\operatorname{dist}(X',\{x^i\})\label{eq:pf:atom:1}
-\end{align}
-Justification: $X\in\{x^i\}\ \text{a.s., Step~1}$.
-
-\textbf{Step 3: the floor.}
-\begin{align}
-\E|X-X'|^2&\ge\E\operatorname{dist}(X',\{x^i\})^2\\
-&=\int\operatorname{dist}(x,\{x^i\})^2p(x\mid y)\,dx=:F(y)\label{eq:pf:atom:2}\\
-W_2^2(p_h^{\mathrm{gen}},p(\cdot\mid y))&\ge F(y)
-\end{align}
-Justifications, in order: (1)~square and integrate \eqref{eq:pf:atom:1}; (2)~$X'\sim p(\cdot\mid y)$; (3)~$\inf\ \text{over couplings; \eqref{eq:pf:atom:2}}$.
-This is \eqref{eq:w2floor}.
-
-\textbf{Step 4: positivity, free of $h$.}
-\begin{align}
-F(y)&\ \text{involves $p_h^{\mathrm{gen}}$ only through }\{x^i\}\\
-p(\{x^i\}\mid y)&=0\\
-F(y)&>0
-\end{align}
-Justifications, in order: (1)~so it does not depend on $h$; (2)~$p(\cdot\mid y)\ \text{absolutely continuous}$; (3)~$\operatorname{dist}(\cdot,\{x^i\})>0\ \ p(\cdot\mid y)\text{-a.e.}$.
-This proves Proposition~\ref{prop:atomicity}.
-\end{proof}
-
-\begin{proof}[Proof of Corollary~\ref{cor:infbw}]
-\mathtoolsset{showonlyrefs}
-\begin{align}
-K_h(y-y^i)&=(2\pi h^2)^{-k/2}\big[1+O(h^{-2})\big]\label{eq:pf:infbw:1}\\
-p_i^{(h)}(y)&=\frac{1+O(h^{-2})}{N+O(h^{-2})}\label{eq:pf:infbw:2}\\
-&\longrightarrow\frac1N\quad(h\to\infty)\\
-p_1&\to\tfrac1N\textstyle\sum_i\delta_{x^i}=\rhohat_X
-\end{align}
-Justifications, in order: (1)~$\max_i|y-y^i|<\infty,\ \text{uniform in $i$}$; (2)~the prefactor cancels; \eqref{eq:pf:infbw:1}; (3)~$\eqref{eq:pf:infbw:2}$; (4)~Theorem~\ref{thm:endpoint}.
-This proves Corollary~\ref{cor:infbw}.
-\end{proof}
-
-\begin{proof}[Proof of Corollary~\ref{cor:zerobw}]
-\mathtoolsset{showonlyrefs}
-Let $i^\star$ be the unique nearest label: $|y-y^i|>|y-y^{i^\star}|$ for $i\ne i^\star$.
-\begin{align}
-\frac{K_h(y-y^i)}{K_h(y-y^{i^\star})}&=\exp\Big[-\frac{|y-y^i|^2-|y-y^{i^\star}|^2}{2h^2}\Big]\\
-&\xrightarrow[h\to0]{}0\label{eq:pf:zerobw:1}\\
-p_i^{(h)}(y)&\to\mathbf 1\{i=i^\star\}\label{eq:pf:zerobw:2}\\
-p_h^{\mathrm{gen}}&\Rightarrow\delta_{x^{i^\star}}
-\end{align}
-Justifications, in order: (1)~Gaussian prefactors cancel; (2)~numerator of the exponent is a positive constant; (3)~divide by $K_h(y-y^{i^\star})$, use \eqref{eq:pf:zerobw:1}; (4)~Theorem~\ref{thm:endpoint}.
-This proves Corollary~\ref{cor:zerobw}.
-\end{proof}
-
+\begin{quote}
+\noindent\textbf{Proposition~\ref{prop:kernel-field}} (Kernel-weighted population minimiser).
+For $h>0$, $t<1$,
+\begin{equation*}
+\vstar(x,t,y)=\sum_i w_i^{(h)}(x,t,y)\,\frac{x^i-x}{1-t},\quad
+w_i^{(h)}=\frac{\pi_0\!\big(\tfrac{x-tx^i}{1-t}\big)K_h(y-y^i)}
+{\sum_j\pi_0\!\big(\tfrac{x-tx^j}{1-t}\big)K_h(y-y^j)}.
+\end{equation*}
+\end{quote}
 
 \begin{proof}[Proof of Proposition~\ref{prop:kernel-field}]
 \mathtoolsset{showonlyrefs}
@@ -1138,36 +1173,16 @@ Justifications, in order: (1)~Proposition~\ref{prop:projection}; (2)~Steps~2 and
 This is \eqref{eq:kernel-field}, proving Proposition~\ref{prop:kernel-field}.
 \end{proof}
 
-\begin{lemma}[Equivalent mixture coupling]
-\label{lem:mixture-coupling}
-Fix $y$ and consider the coupling $I\sim p^{(h)}(y)$, $X_0\sim\pi_0$ (independent of
-$I$), $X_1:=x^I$, with the same linear interpolant $X_t=(1-t)X_0+tX_1$. Its
-conditional velocity field $\E[X_1-X_0\mid X_t=x,t]$ equals $\vstar(x,t,y)$ of
-\eqref{eq:kernel-field} for every $x,t<1$.
-\end{lemma}
-\begin{proof}[Proof of Lemma~\ref{lem:mixture-coupling}]
-\mathtoolsset{showonlyrefs}
-\textbf{Step 1: the coupling's index posterior.}
-\begin{align}
-\Pr(I=i\mid X_t=x,t)&\propto p_i^{(h)}(y)\,(1-t)^{-d}\pi_0\big(\tfrac{x-tx^i}{1-t}\big)\\
-&\propto\pi_0\big(\tfrac{x-tx^i}{1-t}\big)K_h(y-y^i)\label{eq:pf:mix:1}
-\end{align}
-Justifications, in order: (1)~Bayes; Lemma~\ref{lem:cov}; (2)~$p_i^{(h)}\propto K_h(y-y^i);\ (1-t)^{-d}\text{ free of }i$.
+\subsection{Proof of Theorem~\ref{thm:endpoint}}
+\label{apx:pf-endpoint}
 
-\textbf{Step 2: the two posteriors coincide.}
-\begin{align}
-\Pr(I=i\mid X_t=x,t)&=w_i^{(h)}(x,t,y)
-\end{align}
-Justification: $\eqref{eq:pf:mix:1}\ \text{is the numerator of \eqref{eq:kernel-field}; both normalise over $i$}$.
-
-\textbf{Step 3: the velocity.}
-\begin{align}
-\E[X_1-X_0\mid X_t=x,t]&=\sum_iw_i^{(h)}\,\frac{x^i-x}{1-t}\\
-&=\vstar(x,t,y)
-\end{align}
-Justifications, in order: (1)~$X_1-X_0=\frac{x^i-x}{1-t}\ \text{given }I=i;\ \text{Step~2}$; (2)~$\eqref{eq:kernel-field}$.
-This proves Lemma~\ref{lem:mixture-coupling}.
-\end{proof}
+\begin{quote}
+\noindent\textbf{Theorem~\ref{thm:endpoint}} (Endpoint law under label smoothing).
+For every $h>0$ and query $y$,
+\begin{equation*}
+p_h^{\mathrm{gen}}(\cdot\mid y)=\sum_{i=1}^N p_i^{(h)}(y)\,\delta_{x^i}.
+\end{equation*}
+\end{quote}
 
 \begin{proof}[Proof of Theorem~\ref{thm:endpoint}]
 \mathtoolsset{showonlyrefs}
@@ -1205,6 +1220,61 @@ Justifications, in order: (1)~$t\uparrow1$; (2)~$\eqref{eq:pf:endpoint:3}\ \text
 This is \eqref{eq:endpoint}, proving Theorem~\ref{thm:endpoint}.
 \end{proof}
 
+\subsection{Proof of Corollary~\ref{cor:zerobw}}
+\label{apx:pf-zerobw}
+
+\begin{quote}
+\noindent\textbf{Corollary~\ref{cor:zerobw}} (Zero bandwidth at fixed $N$).
+If $y$ has a unique nearest label $i^\star=\arg\min_i|y-y^i|$, then
+$p_i^{(h)}(y)\to\mathbf 1\{i=i^\star\}$ as $h\to0$, so
+$p_h^{\mathrm{gen}}(\cdot\mid y)\Rightarrow\delta_{x^{i^\star}}$; at $y=y^i$ this
+recovers Proposition~\ref{prop:collapse}.
+\end{quote}
+
+\begin{proof}[Proof of Corollary~\ref{cor:zerobw}]
+\mathtoolsset{showonlyrefs}
+Let $i^\star$ be the unique nearest label: $|y-y^i|>|y-y^{i^\star}|$ for $i\ne i^\star$.
+\begin{align}
+\frac{K_h(y-y^i)}{K_h(y-y^{i^\star})}&=\exp\Big[-\frac{|y-y^i|^2-|y-y^{i^\star}|^2}{2h^2}\Big]\\
+&\xrightarrow[h\to0]{}0\label{eq:pf:zerobw:1}\\
+p_i^{(h)}(y)&\to\mathbf 1\{i=i^\star\}\label{eq:pf:zerobw:2}\\
+p_h^{\mathrm{gen}}&\Rightarrow\delta_{x^{i^\star}}
+\end{align}
+Justifications, in order: (1)~Gaussian prefactors cancel; (2)~numerator of the exponent is a positive constant; (3)~divide by $K_h(y-y^{i^\star})$, use \eqref{eq:pf:zerobw:1}; (4)~Theorem~\ref{thm:endpoint}.
+This proves Corollary~\ref{cor:zerobw}.
+\end{proof}
+
+\subsection{Proof of Corollary~\ref{cor:infbw}}
+\label{apx:pf-infbw}
+
+\begin{quote}
+\noindent\textbf{Corollary~\ref{cor:infbw}} (Infinite bandwidth at fixed $N$).
+$p_i^{(h)}(y)\to1/N$ for every $i$ as $h\to\infty$, so
+$p_h^{\mathrm{gen}}(\cdot\mid y)\Rightarrow p_1^{\mathrm{unc}}$.
+\end{quote}
+
+\begin{proof}[Proof of Corollary~\ref{cor:infbw}]
+\mathtoolsset{showonlyrefs}
+\begin{align}
+K_h(y-y^i)&=(2\pi h^2)^{-k/2}\big[1+O(h^{-2})\big]\label{eq:pf:infbw:1}\\
+p_i^{(h)}(y)&=\frac{1+O(h^{-2})}{N+O(h^{-2})}\label{eq:pf:infbw:2}\\
+&\longrightarrow\frac1N\quad(h\to\infty)\\
+p_1&\to\tfrac1N\textstyle\sum_i\delta_{x^i}=\rhohat_X
+\end{align}
+Justifications, in order: (1)~$\max_i|y-y^i|<\infty,\ \text{uniform in $i$}$; (2)~the prefactor cancels; \eqref{eq:pf:infbw:1}; (3)~$\eqref{eq:pf:infbw:2}$; (4)~Theorem~\ref{thm:endpoint}.
+This proves Corollary~\ref{cor:infbw}.
+\end{proof}
+
+\subsection{Proof of Proposition~\ref{prop:moments}}
+\label{apx:pf-moments}
+
+\begin{quote}
+\noindent\textbf{Proposition~\ref{prop:moments}} (Exact finite-$N$ moments).
+$\bar x_h(y)=\sum_i p_i^{(h)}(y)\,x^i$ and
+$\Covh(y)=\sum_i p_i^{(h)}(y)\,(x^i-\bar x_h(y))(x^i-\bar x_h(y))^\top$, both exactly
+computable from the training set for any $h$, and the correct reference against which
+generated moments must be compared. $\tr\Covh(y)$ need not be monotone in $h$.
+\end{quote}
 
 \begin{proof}[Proof of Proposition~\ref{prop:moments}]
 \mathtoolsset{showonlyrefs}
@@ -1227,6 +1297,278 @@ Justifications, in order: (1)~Corollary~\ref{cor:zerobw}; (2)~closed form; (3)~C
 A function that rises from $0$ to $24.90$ and falls to $22.22$ is not monotone. This proves
 Proposition~\ref{prop:moments}.
 \end{proof}
+
+\subsection{Proof of Proposition~\ref{prop:atomicity}}
+\label{apx:pf-atomicity}
+
+\begin{quote}
+\noindent\textbf{Proposition~\ref{prop:atomicity}} (Label smoothing never leaves the training set).
+For every $h\in[0,\infty)$, $\operatorname{supp}(p_h^{\mathrm{gen}}(\cdot\mid y))
+\subseteq\{x^1,\dots,x^N\}$. Consequently, if the true posterior $p(\cdot\mid y)$ is
+absolutely continuous,
+\begin{equation*}
+W_2^2\big(p_h^{\mathrm{gen}}(\cdot\mid y),\,p(\cdot\mid y)\big)\ \ge\
+\int\operatorname{dist}\big(x,\{x^i\}\big)^2\,p(x\mid y)\,dx\ >\ 0,
+\end{equation*}
+\emph{and this lower bound does not depend on $h$.}
+\end{quote}
+
+\begin{proof}[Proof of Proposition~\ref{prop:atomicity}]
+\mathtoolsset{showonlyrefs}
+\textbf{Step 1: the support.}
+\begin{align}
+p_h^{\mathrm{gen}}(\cdot\mid y)&=\textstyle\sum_ip_i^{(h)}(y)\,\delta_{x^i}\\
+\operatorname{supp}p_h^{\mathrm{gen}}&\subseteq\{x^1,\dots,x^N\}
+\end{align}
+Justifications, in order: (1)~Theorem~\ref{thm:endpoint}; (2)~finite mixture of point masses.
+
+\textbf{Step 2: a pointwise bound under any coupling $(X,X')$ of $p_h^{\mathrm{gen}}$ and $p(\cdot\mid y)$.}
+\begin{align}
+|X-X'|&\ge\min_i|x^i-X'|=\operatorname{dist}(X',\{x^i\})\label{eq:pf:atom:1}
+\end{align}
+Justification: $X\in\{x^i\}\ \text{a.s., Step~1}$.
+
+\textbf{Step 3: the floor.}
+\begin{align}
+\E|X-X'|^2&\ge\E\operatorname{dist}(X',\{x^i\})^2\\
+&=\int\operatorname{dist}(x,\{x^i\})^2p(x\mid y)\,dx=:F(y)\label{eq:pf:atom:2}\\
+W_2^2(p_h^{\mathrm{gen}},p(\cdot\mid y))&\ge F(y)
+\end{align}
+Justifications, in order: (1)~square and integrate \eqref{eq:pf:atom:1}; (2)~$X'\sim p(\cdot\mid y)$; (3)~$\inf\ \text{over couplings; \eqref{eq:pf:atom:2}}$.
+This is \eqref{eq:w2floor}.
+
+\textbf{Step 4: positivity, free of $h$.}
+\begin{align}
+F(y)&\ \text{involves $p_h^{\mathrm{gen}}$ only through }\{x^i\}\\
+p(\{x^i\}\mid y)&=0\\
+F(y)&>0
+\end{align}
+Justifications, in order: (1)~so it does not depend on $h$; (2)~$p(\cdot\mid y)\ \text{absolutely continuous}$; (3)~$\operatorname{dist}(\cdot,\{x^i\})>0\ \ p(\cdot\mid y)\text{-a.e.}$.
+This proves Proposition~\ref{prop:atomicity}.
+\end{proof}
+
+\subsection{Proof of Proposition~\ref{prop:tgtnoise}}
+\label{apx:pf-tgtnoise}
+
+\begin{quote}
+\noindent\textbf{Proposition~\ref{prop:tgtnoise}} (Endpoint smoothing).
+Replace the endpoint by $X_1=x^I+\rho\,\xi$ with $\xi\sim\N(0,I_d)$ independent of
+$(I,X_0,\varepsilon)$ and redrawn every step, keeping label bandwidth $h\ge0$. Write
+$s_t^2=(1-t)^2+t^2\rho^2$. Then $\vstar$ is again a weighted average of per-atom
+fields, now with spatial weights $\varphi_{s_t}(x-tx^i)$ in place of
+$\pi_0(\tfrac{x-tx^i}{1-t})$ (explicitly, \eqref{eq:tgtfield} in the appendix), and
+the endpoint law is
+\begin{equation*}
+p_1(\cdot\mid y)=\sum_i p_i^{(h)}(y)\,\N(x^i,\rho^2I_d),
+\qquad
+\bar x=\bar x_h(y),\quad \Cov=\Covh(y)+\rho^2I_d.
+\end{equation*}
+For every $\rho>0$ this law is absolutely continuous, so \eqref{eq:w2floor} does not
+apply to it; moreover $s_1=\rho>0$, so $\vstar$ extends continuously to $t=1$ and the
+$1/(1-t)$ blow-up of $(\star)$ disappears.
+\end{quote}
+
+\begin{proof}[Proof of Proposition~\ref{prop:tgtnoise}]
+\mathtoolsset{showonlyrefs}
+Fix $(x,t,y)$ with $t<1$; condition on $I=i$ and put $r:=x-tx^i$.
+
+\textbf{Step 1: the law of the interpolant.}
+\begin{align}
+r&=(1-t)X_0+t\rho\xi\\
+r&\sim\N(0,s_t^2I_d),\quad s_t^2=(1-t)^2+t^2\rho^2\\
+p(x\mid I=i,t)&=\varphi_{s_t}(x-tx^i)\label{eq:pf:tgtnoise:1}
+\end{align}
+Justifications, in order: (1)~$X_t=(1-t)X_0+tx^i+t\rho\xi$; (2)~independent Gaussians; (3)~density of $r$.
+
+\textbf{Step 2: the index posterior.}
+\begin{align}
+X_t&\perp\widetilde Y\mid I=i\\
+w_i&\propto\varphi_{s_t}(x-tx^i)\,K_h(y-y^i)\label{eq:pf:tgtnoise:2}
+\end{align}
+Justifications, in order: (1)~depend on $(X_0,\xi)$ and $\varepsilon$ only; Proposition~\ref{prop:kernel-field}; (2)~Bayes for $w_i:=\Pr(I=i\mid\cdot)$; \eqref{eq:pf:tgtnoise:1}.
+
+\textbf{Step 3: the per-index target.}
+\begin{align}
+\Cov(X_0,r)=(1-t)I_d,&\quad\Cov(\xi,r)=t\rho I_d\\
+\E[X_0\mid r]&=\tfrac{1-t}{s_t^2}\,r,\quad\E[\xi\mid r]=\tfrac{t\rho}{s_t^2}\,r\label{eq:pf:tgtnoise:3}\\
+\E[U\mid X_t=x,t,I=i]&=x^i+\rho\,\tfrac{t\rho}{s_t^2}r-\tfrac{1-t}{s_t^2}r\\
+&=x^i+c_t\,(x-tx^i)\label{eq:pf:tgtnoise:4}
+\end{align}
+Justifications, in order: (1)~$(X_0,\xi,r)$ jointly Gaussian; (2)~$\E[a\mid r]=\Cov(a,r)\Var(r)^{-1}r$; (3)~$U=x^i+\rho\xi-X_0;\ \eqref{eq:pf:tgtnoise:3}$; (4)~$c_t:=\tfrac{t\rho^2-(1-t)}{s_t^2}$.
+
+\textbf{Step 4: the field.}
+\begin{align}
+\vstar(x,t,y)&=\E[U\mid X_t=x,t,\widetilde Y=y]\\
+&=\sum_iw_i\big[x^i+c_t\,(x-tx^i)\big]\label{eq:tgtfield}
+\end{align}
+Justifications, in order: (1)~Proposition~\ref{prop:projection}; (2)~average \eqref{eq:pf:tgtnoise:4} over \eqref{eq:pf:tgtnoise:2}.
+
+\textbf{Step 5: the endpoint law.} Take $I\sim p^{(h)}(y)$, $X_0\sim\pi_0$, $\xi\sim\N(0,I_d)$ independent,
+$X_1:=x^I+\rho\xi$, same linear interpolant.
+\begin{align}
+\Pr(I=i\mid X_t=x,t)&\propto p_i^{(h)}(y)\,\varphi_{s_t}(x-tx^i)\propto w_i\\
+\text{conditional velocity}&=\vstar\\
+(\Phi_t)_\#\pi_0&=\mathrm{Law}(X_t)\\
+\mathrm{Law}(X_t)&\Rightarrow\mathrm{Law}(x^I+\rho\xi)\\
+&=\textstyle\sum_ip_i^{(h)}(y)\,\N(x^i,\rho^2I_d)\label{eq:pf:tgtnoise:5}
+\end{align}
+Justifications, in order: (1)~$\eqref{eq:pf:tgtnoise:1};\ p_i^{(h)}\propto K_h(y-y^i)$; (2)~$\eqref{eq:pf:tgtnoise:4}\ \text{holds unchanged; Lemma~\ref{lem:mixture-coupling}}$; (3)~smooth positive weights: Lemma~\ref{lem:wellposed}; Step~3 of Theorem~\ref{thm:endpoint}; (4)~$X_t\to X_1\ \text{a.s.}$; (5)~mixture over $I$.
+This is \eqref{eq:tgtendpoint}.
+
+\textbf{Step 6: moments, continuity, regularity.}
+\begin{align}
+\text{mean}&=\textstyle\sum_ip_i^{(h)}x^i=\bar x_h(y)\\
+\Cov&=\rho^2I_d+\Covh(y)\label{eq:pf:tgtnoise:6}\\
+\text{law is absolutely continuous}&\\
+c_t&\to1\ \ (t\uparrow1)\\
+\vstar&\ \text{bounded on bounded sets up to $t=1$}
+\end{align}
+Justifications, in order: (1)~$\eqref{eq:pf:tgtnoise:5}$; (2)~total covariance of the mixture; (3)~each component is; so \eqref{eq:w2floor} does not apply; (4)~$s_1^2=\rho^2>0$; (5)~$\eqref{eq:tgtfield}$.
+This proves Proposition~\ref{prop:tgtnoise}.
+\end{proof}
+
+\subsection{Proof of Proposition~\ref{prop:prop17}}
+\label{apx:pf-prop17}
+
+\begin{quote}
+\noindent\textbf{Proposition~\ref{prop:prop17}} (Closed form and endpoint invariance in $\sigma$).
+Let $h=0$ and $v_\sigma^\star=\E[\dot X_t\mid X_t,t,Y]$ for target
+\eqref{eq:c2target}. Then for $t<1$:
+(a) $v_\sigma^\star(x,t,y^i)=x^i+c(t)(x-tx^i)$ with
+$c(t)=\frac{-(1-t)+\frac{\sigma^2}2(1-2t)}{s_t^2}=\frac12\frac{d}{dt}\log s_t^2$;
+(b) the flow is $x_t=t\,x^i+s_t\,x_0$; and
+(c) since $s_1=0$,
+\begin{equation*}
+p_1^{\mathrm{cond}}(\cdot\mid y^i)=\delta_{x^i}\quad\text{for every }\sigma\ge0.
+\end{equation*}
+\end{quote}
+
+\begin{proof}[Proof of Proposition~\ref{prop:prop17}]
+\mathtoolsset{showonlyrefs}
+Fix $i$; put $r:=x-tx^i$.
+
+\textbf{Step 1: the conditional means.}
+\begin{align}
+r&=(1-t)X_0+\gamma(t)Z\sim\N(0,s_t^2I_d),\quad s_t^2=(1-t)^2+\gamma(t)^2\label{eq:pf:prop17:1}\\
+\Cov(X_0,r)=(1-t)I_d,&\quad\Cov(Z,r)=\gamma(t)I_d\\
+\E[X_0\mid r]&=\tfrac{1-t}{s_t^2}\,r\label{eq:pf:prop17:2}\\
+\E[Z\mid r]&=\tfrac{\gamma(t)}{s_t^2}\,r
+\end{align}
+Justifications, in order: (1)~independent Gaussians; (2)~$\gamma(t)Z\perp X_0$; (3)~$\E[a\mid r]=\Cov(a,r)\Var(r)^{-1}r$; (4)~same.
+
+\textbf{Step 2: part (a).} By Assumption~\ref{as:standing}(iii), $Y=y^i$ pins $I=i$.
+\begin{align}
+v_\sigma^\star(x,t,y^i)&=\E[\dot X_t\mid X_t=x,t,I=i]\\
+&=x^i-\E[X_0\mid r]+\dot\gamma\,\E[Z\mid r]\\
+&=x^i+\frac{-(1-t)+\dot\gamma\gamma}{s_t^2}\,r\label{eq:pf:prop17:3}\\
+\dot\gamma\gamma&=\tfrac12\tfrac{d}{dt}\gamma^2=\tfrac{\sigma^2}2(1-2t)\label{eq:pf:prop17:4}\\
+c(t)&=\frac{-(1-t)+\frac{\sigma^2}2(1-2t)}{s_t^2}\\
+\tfrac{d}{dt}s_t^2&=-2(1-t)+2\dot\gamma\gamma=2s_t^2\,c(t)\\
+c(t)&=\tfrac12\tfrac{d}{dt}\log s_t^2
+\end{align}
+Justifications, in order: (1)~Proposition~\ref{prop:projection}; (2)~$\dot X_t=x^i-X_0+\dot\gamma Z,\ \eqref{eq:c2target}$; (3)~$\eqref{eq:pf:prop17:2}$; (4)~$\gamma^2=\sigma^2t(1-t)$; (5)~$\eqref{eq:pf:prop17:3},\ \eqref{eq:pf:prop17:4}$; (6)~$\eqref{eq:pf:prop17:4}$; (7)~previous line.
+
+\textbf{Step 3: part (b).} Put $u_t:=x_t-tx^i$.
+\begin{align}
+\dot u_t&=v_\sigma^\star(x_t,t,y^i)-x^i=c(t)\,u_t\label{eq:pf:prop17:5}\\
+u_t&=u_0\exp\!\int_0^tc\\
+&=x_0\exp\!\big(\tfrac12[\log s_t^2-\log s_0^2]\big)=s_t\,x_0\label{eq:pf:prop17:6}\\
+x_t&=tx^i+s_tx_0
+\end{align}
+Justifications, in order: (1)~(a) with $r=u_t$; (2)~linear ODE; (3)~$c=\tfrac12(\log s^2)';\ s_0=1,\ u_0=x_0$; (4)~definition of $u_t$.
+
+\textbf{Step 4: part (c).}
+\begin{align}
+s_t^2&=(1-t)\big[(1-t)+\sigma^2t\big]\ \Rightarrow\ s_1=0\\
+x_t&\to x^i\quad(t\uparrow1),\ \forall x_0,\ \forall\sigma\ge0\\
+p_1^{\mathrm{cond}}(\cdot\mid y^i)&=\delta_{x^i}
+\end{align}
+Justifications, in order: (1)~definition; (2)~$\eqref{eq:pf:prop17:6}$; (3)~point mass; this is \eqref{eq:invariance}.
+This proves Proposition~\ref{prop:prop17}.
+\end{proof}
+
+\subsection{Proof of Corollary~\ref{cor:prop18}}
+\label{apx:pf-prop18}
+
+\begin{corollary}[What interpolant noise does and does not change]
+\label{cor:prop18}
+Interpolant noise does not change the population endpoint law
+\eqref{eq:invariance} for any $\sigma$; it \emph{does} raise the irreducible error
+($\inf_v L_\sigma>0$ for $\sigma>0$, whereas $\inf_v L_0=0$) and halves the Lipschitz
+blow-up rate: $\lim_{t\uparrow1}(1-t)|c(t)|=1$ for $\sigma=0$ and $\tfrac12$ for
+$\sigma>0$.
+\end{corollary}
+
+\begin{proof}[Proof of Corollary~\ref{cor:prop18}]
+\mathtoolsset{showonlyrefs}
+\textbf{Step 1: endpoint invariance.} This is Proposition~\ref{prop:prop17}(c).
+
+\textbf{Step 2: irreducible error, $\sigma=0$.}
+\begin{align}
+\gamma\equiv0&\Rightarrow\dot X_t=X_1-X_0\\
+\inf_vL_0&=0
+\end{align}
+Justifications, in order: (1)~the target of Proposition~\ref{prop:collapse}; (2)~Proposition~\ref{prop:collapse}(b).
+
+\textbf{Step 3: irreducible error, $\sigma>0$.} By Proposition~\ref{prop:projection}, $\inf_vL_\sigma=\E[\Var(\dot X_t\mid X_t,t,Y)]$.
+With $u=(-1,\dot\gamma)$, $w=(1-t,\gamma)$: $\dot X_t-x^i=u\cdot(X_0,Z)$, $r=w\cdot(X_0,Z)$, $|w|^2=s_t^2$,
+$u\cdot w=-(1-t)+\dot\gamma\gamma=c\,s_t^2$.
+\begin{align}
+\Var(\dot X_t\mid r,I=i)&=|u|^2-\frac{(u\cdot w)^2}{|w|^2}\\
+&=\big(1+\dot\gamma^2\big)-c(t)^2s_t^2\label{eq:pf:prop18:1}\\
+\eqref{eq:pf:prop18:1}=0&\iff u\parallel w\iff\dot\gamma(1-t)=-\gamma\label{eq:pf:prop18:2}\\
+\tfrac{\sigma(1-2t)}{2\sqrt{t(1-t)}}(1-t)&=-\sigma\sqrt{t(1-t)}\iff1-2t=-2t\\
+1&=0
+\end{align}
+Justifications, in order: (1)~Gaussian conditioning; (2)~substitute; (3)~Cauchy--Schwarz equality; (4)~$\gamma=\sigma\sqrt{t(1-t)},\ \eqref{eq:pf:prop18:2}$; (5)~impossible.
+So \eqref{eq:pf:prop18:1} is $>0$ for every $t\in(0,1)$, and $\inf_vL_\sigma>0$.
+
+\textbf{Step 4: the Lipschitz rate.}
+\begin{align}
+(1-t)\,c(t)&=\frac{-(1-t)+\frac{\sigma^2}2(1-2t)}{(1-t)+\sigma^2t}\label{eq:pf:prop18:3}\\
+&\to-1\ \ (\sigma=0),\qquad\to-\tfrac{\sigma^2/2}{\sigma^2}=-\tfrac12\ \ (\sigma>0)
+\end{align}
+Justifications, in order: (1)~Proposition~\ref{prop:prop17}(a); (2)~$t\uparrow1$.
+This proves Corollary~\ref{cor:prop18}.
+\end{proof}
+
+\subsection{Proof of Proposition~\ref{prop:factors}}
+\label{apx:pf-factors}
+
+\begin{quote}
+\noindent\textbf{Proposition~\ref{prop:factors}} (The two mechanisms act on different factors).
+In the factorisation \eqref{eq:kernel-field}, label smoothing modifies the label
+factor $K_h(y-y^i)$ and therefore changes $p_1$ (Theorem~\ref{thm:endpoint});
+interpolant noise rescales the spatial factor $\N(tx^i,s_t^2 I_d)$
+\emph{isotropically and identically for every $i$}, leaving the endpoint law
+unchanged (Proposition~\ref{prop:prop17}). The two remedies are therefore not
+interchangeable.
+\end{quote}
+
+\begin{proof}[Proof of Proposition~\ref{prop:factors}]
+\mathtoolsset{showonlyrefs}
+\textbf{Step 1: the label factor moves the endpoint.}
+\begin{align}
+p_h^{\mathrm{gen}}(\cdot\mid y)&=\textstyle\sum_ip_i^{(h)}(y)\,\delta_{x^i}\label{eq:pf:factors:1}\\
+&\Rightarrow\delta_{x^{i^\star}}\ (h\to0),\qquad\Rightarrow\rhohat_X\ (h\to\infty)
+\end{align}
+Justifications, in order: (1)~Theorem~\ref{thm:endpoint}; depends on $h$ only through $K_h(y-y^i)$; (2)~Corollaries~\ref{cor:zerobw}, \ref{cor:infbw}.
+These are distinct laws (for $y$ with a unique nearest label $i^\star$), so perturbing the label factor
+changes $p_1$.
+
+\textbf{Step 2: the spatial factor does not.} Take $h=0$, any $\sigma\ge0$; $Y=y^i$ pins $I=i$ (Assumption~\ref{as:standing}(iii)).
+\begin{align}
+\N\big(tx^i,(1-t)^2I_d\big)&\longrightarrow\N\big(tx^i,s_t^2I_d\big)\quad\text{for every }i\label{eq:pf:factors:2}\\
+p_1^{\mathrm{cond}}(\cdot\mid y^i)&=\delta_{x^i}\ \ \forall\sigma
+\end{align}
+Justifications, in order: (1)~interpolant noise; Lemma~\ref{lem:cov}; (2)~Proposition~\ref{prop:prop17}(c), despite \eqref{eq:pf:factors:2}.
+
+\textbf{Step 3: conclusion.} By Steps~1 and~2 the two mechanisms act through different, non-interchangeable
+channels. This proves Proposition~\ref{prop:factors}.
+\end{proof}
+
+\subsection{Proof of Proposition~\ref{prop:expansion}}
+\label{apx:pf-expansion}
 
 \begin{assumption}[Random design, at a query point $y$]
 \label{as:design}
@@ -1359,6 +1701,9 @@ Combining the last line with \eqref{eq:pf:expansion:1} gives \eqref{eq:expansion
 This proves Proposition~\ref{prop:expansion}.
 \end{proof}
 
+\subsection{Proof of Proposition~\ref{prop:nwrate}}
+\label{apx:pf-nwrate}
+
 \begin{proposition}[Nadaraya--Watson rates for the conditional mean]
 \label{prop:nwrate}
 Under the assumptions of Proposition~\ref{prop:expansion}, $\bar x_h(y)$ is exactly
@@ -1394,64 +1739,6 @@ symmetry for every $h$; that is a single point, not the whole instance. Queries 
 points}: $x^i$ receives the maximal weight $K_h(0)$, and $Nh^k\to\infty$ is exactly
 what makes its relative influence vanish; without it the result does not apply there.
 \end{proposition}
-\begin{proof}[Proof of Proposition~\ref{prop:tgtnoise}]
-\mathtoolsset{showonlyrefs}
-Fix $(x,t,y)$ with $t<1$; condition on $I=i$ and put $r:=x-tx^i$.
-
-\textbf{Step 1: the law of the interpolant.}
-\begin{align}
-r&=(1-t)X_0+t\rho\xi\\
-r&\sim\N(0,s_t^2I_d),\quad s_t^2=(1-t)^2+t^2\rho^2\\
-p(x\mid I=i,t)&=\varphi_{s_t}(x-tx^i)\label{eq:pf:tgtnoise:1}
-\end{align}
-Justifications, in order: (1)~$X_t=(1-t)X_0+tx^i+t\rho\xi$; (2)~independent Gaussians; (3)~density of $r$.
-
-\textbf{Step 2: the index posterior.}
-\begin{align}
-X_t&\perp\widetilde Y\mid I=i\\
-w_i&\propto\varphi_{s_t}(x-tx^i)\,K_h(y-y^i)\label{eq:pf:tgtnoise:2}
-\end{align}
-Justifications, in order: (1)~depend on $(X_0,\xi)$ and $\varepsilon$ only; Proposition~\ref{prop:kernel-field}; (2)~Bayes for $w_i:=\Pr(I=i\mid\cdot)$; \eqref{eq:pf:tgtnoise:1}.
-
-\textbf{Step 3: the per-index target.}
-\begin{align}
-\Cov(X_0,r)=(1-t)I_d,&\quad\Cov(\xi,r)=t\rho I_d\\
-\E[X_0\mid r]&=\tfrac{1-t}{s_t^2}\,r,\quad\E[\xi\mid r]=\tfrac{t\rho}{s_t^2}\,r\label{eq:pf:tgtnoise:3}\\
-\E[U\mid X_t=x,t,I=i]&=x^i+\rho\,\tfrac{t\rho}{s_t^2}r-\tfrac{1-t}{s_t^2}r\\
-&=x^i+c_t\,(x-tx^i)\label{eq:pf:tgtnoise:4}
-\end{align}
-Justifications, in order: (1)~$(X_0,\xi,r)$ jointly Gaussian; (2)~$\E[a\mid r]=\Cov(a,r)\Var(r)^{-1}r$; (3)~$U=x^i+\rho\xi-X_0;\ \eqref{eq:pf:tgtnoise:3}$; (4)~$c_t:=\tfrac{t\rho^2-(1-t)}{s_t^2}$.
-
-\textbf{Step 4: the field.}
-\begin{align}
-\vstar(x,t,y)&=\E[U\mid X_t=x,t,\widetilde Y=y]\\
-&=\sum_iw_i\big[x^i+c_t\,(x-tx^i)\big]\label{eq:tgtfield}
-\end{align}
-Justifications, in order: (1)~Proposition~\ref{prop:projection}; (2)~average \eqref{eq:pf:tgtnoise:4} over \eqref{eq:pf:tgtnoise:2}.
-
-\textbf{Step 5: the endpoint law.} Take $I\sim p^{(h)}(y)$, $X_0\sim\pi_0$, $\xi\sim\N(0,I_d)$ independent,
-$X_1:=x^I+\rho\xi$, same linear interpolant.
-\begin{align}
-\Pr(I=i\mid X_t=x,t)&\propto p_i^{(h)}(y)\,\varphi_{s_t}(x-tx^i)\propto w_i\\
-\text{conditional velocity}&=\vstar\\
-(\Phi_t)_\#\pi_0&=\mathrm{Law}(X_t)\\
-\mathrm{Law}(X_t)&\Rightarrow\mathrm{Law}(x^I+\rho\xi)\\
-&=\textstyle\sum_ip_i^{(h)}(y)\,\N(x^i,\rho^2I_d)\label{eq:pf:tgtnoise:5}
-\end{align}
-Justifications, in order: (1)~$\eqref{eq:pf:tgtnoise:1};\ p_i^{(h)}\propto K_h(y-y^i)$; (2)~$\eqref{eq:pf:tgtnoise:4}\ \text{holds unchanged; Lemma~\ref{lem:mixture-coupling}}$; (3)~smooth positive weights: Lemma~\ref{lem:wellposed}; Step~3 of Theorem~\ref{thm:endpoint}; (4)~$X_t\to X_1\ \text{a.s.}$; (5)~mixture over $I$.
-This is \eqref{eq:tgtendpoint}.
-
-\textbf{Step 6: moments, continuity, regularity.}
-\begin{align}
-\text{mean}&=\textstyle\sum_ip_i^{(h)}x^i=\bar x_h(y)\\
-\Cov&=\rho^2I_d+\Covh(y)\label{eq:pf:tgtnoise:6}\\
-\text{law is absolutely continuous}&\\
-c_t&\to1\ \ (t\uparrow1)\\
-\vstar&\ \text{bounded on bounded sets up to $t=1$}
-\end{align}
-Justifications, in order: (1)~$\eqref{eq:pf:tgtnoise:5}$; (2)~total covariance of the mixture; (3)~each component is; so \eqref{eq:w2floor} does not apply; (4)~$s_1^2=\rho^2>0$; (5)~$\eqref{eq:tgtfield}$.
-This proves Proposition~\ref{prop:tgtnoise}.
-\end{proof}
 
 \begin{proof}[Proof of Proposition~\ref{prop:nwrate}]
 \mathtoolsset{showonlyrefs}
@@ -1498,112 +1785,15 @@ If $Nh^k\not\to\infty$ the weight does not vanish and the expansion does not app
 regime of Corollary~\ref{cor:zerobw}, where it tends to $1$. This proves Proposition~\ref{prop:nwrate}.
 \end{proof}
 
-\begin{proof}[Proof of Proposition~\ref{prop:prop17}]
-\mathtoolsset{showonlyrefs}
-Fix $i$; put $r:=x-tx^i$.
+\subsection{Proof of Proposition~\ref{prop:liplb}}
+\label{apx:pf-liplb}
 
-\textbf{Step 1: the conditional means.}
-\begin{align}
-r&=(1-t)X_0+\gamma(t)Z\sim\N(0,s_t^2I_d),\quad s_t^2=(1-t)^2+\gamma(t)^2\label{eq:pf:prop17:1}\\
-\Cov(X_0,r)=(1-t)I_d,&\quad\Cov(Z,r)=\gamma(t)I_d\\
-\E[X_0\mid r]&=\tfrac{1-t}{s_t^2}\,r\label{eq:pf:prop17:2}\\
-\E[Z\mid r]&=\tfrac{\gamma(t)}{s_t^2}\,r
-\end{align}
-Justifications, in order: (1)~independent Gaussians; (2)~$\gamma(t)Z\perp X_0$; (3)~$\E[a\mid r]=\Cov(a,r)\Var(r)^{-1}r$; (4)~same.
-
-\textbf{Step 2: part (a).} By Assumption~\ref{as:standing}(iii), $Y=y^i$ pins $I=i$.
-\begin{align}
-v_\sigma^\star(x,t,y^i)&=\E[\dot X_t\mid X_t=x,t,I=i]\\
-&=x^i-\E[X_0\mid r]+\dot\gamma\,\E[Z\mid r]\\
-&=x^i+\frac{-(1-t)+\dot\gamma\gamma}{s_t^2}\,r\label{eq:pf:prop17:3}\\
-\dot\gamma\gamma&=\tfrac12\tfrac{d}{dt}\gamma^2=\tfrac{\sigma^2}2(1-2t)\label{eq:pf:prop17:4}\\
-c(t)&=\frac{-(1-t)+\frac{\sigma^2}2(1-2t)}{s_t^2}\\
-\tfrac{d}{dt}s_t^2&=-2(1-t)+2\dot\gamma\gamma=2s_t^2\,c(t)\\
-c(t)&=\tfrac12\tfrac{d}{dt}\log s_t^2
-\end{align}
-Justifications, in order: (1)~Proposition~\ref{prop:projection}; (2)~$\dot X_t=x^i-X_0+\dot\gamma Z,\ \eqref{eq:c2target}$; (3)~$\eqref{eq:pf:prop17:2}$; (4)~$\gamma^2=\sigma^2t(1-t)$; (5)~$\eqref{eq:pf:prop17:3},\ \eqref{eq:pf:prop17:4}$; (6)~$\eqref{eq:pf:prop17:4}$; (7)~previous line.
-
-\textbf{Step 3: part (b).} Put $u_t:=x_t-tx^i$.
-\begin{align}
-\dot u_t&=v_\sigma^\star(x_t,t,y^i)-x^i=c(t)\,u_t\label{eq:pf:prop17:5}\\
-u_t&=u_0\exp\!\int_0^tc\\
-&=x_0\exp\!\big(\tfrac12[\log s_t^2-\log s_0^2]\big)=s_t\,x_0\label{eq:pf:prop17:6}\\
-x_t&=tx^i+s_tx_0
-\end{align}
-Justifications, in order: (1)~(a) with $r=u_t$; (2)~linear ODE; (3)~$c=\tfrac12(\log s^2)';\ s_0=1,\ u_0=x_0$; (4)~definition of $u_t$.
-
-\textbf{Step 4: part (c).}
-\begin{align}
-s_t^2&=(1-t)\big[(1-t)+\sigma^2t\big]\ \Rightarrow\ s_1=0\\
-x_t&\to x^i\quad(t\uparrow1),\ \forall x_0,\ \forall\sigma\ge0\\
-p_1^{\mathrm{cond}}(\cdot\mid y^i)&=\delta_{x^i}
-\end{align}
-Justifications, in order: (1)~definition; (2)~$\eqref{eq:pf:prop17:6}$; (3)~point mass; this is \eqref{eq:invariance}.
-This proves Proposition~\ref{prop:prop17}.
-\end{proof}
-
-\begin{corollary}[What interpolant noise does and does not change]
-\label{cor:prop18}
-Interpolant noise does not change the population endpoint law
-\eqref{eq:invariance} for any $\sigma$; it \emph{does} raise the irreducible error
-($\inf_v L_\sigma>0$ for $\sigma>0$, whereas $\inf_v L_0=0$) and halves the Lipschitz
-blow-up rate: $\lim_{t\uparrow1}(1-t)|c(t)|=1$ for $\sigma=0$ and $\tfrac12$ for
-$\sigma>0$.
-\end{corollary}
-\begin{proof}[Proof of Corollary~\ref{cor:prop18}]
-\mathtoolsset{showonlyrefs}
-\textbf{Step 1: endpoint invariance.} This is Proposition~\ref{prop:prop17}(c).
-
-\textbf{Step 2: irreducible error, $\sigma=0$.}
-\begin{align}
-\gamma\equiv0&\Rightarrow\dot X_t=X_1-X_0\\
-\inf_vL_0&=0
-\end{align}
-Justifications, in order: (1)~the target of Proposition~\ref{prop:collapse}; (2)~Proposition~\ref{prop:collapse}(b).
-
-\textbf{Step 3: irreducible error, $\sigma>0$.} By Proposition~\ref{prop:projection}, $\inf_vL_\sigma=\E[\Var(\dot X_t\mid X_t,t,Y)]$.
-With $u=(-1,\dot\gamma)$, $w=(1-t,\gamma)$: $\dot X_t-x^i=u\cdot(X_0,Z)$, $r=w\cdot(X_0,Z)$, $|w|^2=s_t^2$,
-$u\cdot w=-(1-t)+\dot\gamma\gamma=c\,s_t^2$.
-\begin{align}
-\Var(\dot X_t\mid r,I=i)&=|u|^2-\frac{(u\cdot w)^2}{|w|^2}\\
-&=\big(1+\dot\gamma^2\big)-c(t)^2s_t^2\label{eq:pf:prop18:1}\\
-\eqref{eq:pf:prop18:1}=0&\iff u\parallel w\iff\dot\gamma(1-t)=-\gamma\label{eq:pf:prop18:2}\\
-\tfrac{\sigma(1-2t)}{2\sqrt{t(1-t)}}(1-t)&=-\sigma\sqrt{t(1-t)}\iff1-2t=-2t\\
-1&=0
-\end{align}
-Justifications, in order: (1)~Gaussian conditioning; (2)~substitute; (3)~Cauchy--Schwarz equality; (4)~$\gamma=\sigma\sqrt{t(1-t)},\ \eqref{eq:pf:prop18:2}$; (5)~impossible.
-So \eqref{eq:pf:prop18:1} is $>0$ for every $t\in(0,1)$, and $\inf_vL_\sigma>0$.
-
-\textbf{Step 4: the Lipschitz rate.}
-\begin{align}
-(1-t)\,c(t)&=\frac{-(1-t)+\frac{\sigma^2}2(1-2t)}{(1-t)+\sigma^2t}\label{eq:pf:prop18:3}\\
-&\to-1\ \ (\sigma=0),\qquad\to-\tfrac{\sigma^2/2}{\sigma^2}=-\tfrac12\ \ (\sigma>0)
-\end{align}
-Justifications, in order: (1)~Proposition~\ref{prop:prop17}(a); (2)~$t\uparrow1$.
-This proves Corollary~\ref{cor:prop18}.
-\end{proof}
-
-\begin{proof}[Proof of Proposition~\ref{prop:factors}]
-\mathtoolsset{showonlyrefs}
-\textbf{Step 1: the label factor moves the endpoint.}
-\begin{align}
-p_h^{\mathrm{gen}}(\cdot\mid y)&=\textstyle\sum_ip_i^{(h)}(y)\,\delta_{x^i}\label{eq:pf:factors:1}\\
-&\Rightarrow\delta_{x^{i^\star}}\ (h\to0),\qquad\Rightarrow\rhohat_X\ (h\to\infty)
-\end{align}
-Justifications, in order: (1)~Theorem~\ref{thm:endpoint}; depends on $h$ only through $K_h(y-y^i)$; (2)~Corollaries~\ref{cor:zerobw}, \ref{cor:infbw}.
-These are distinct laws (for $y$ with a unique nearest label $i^\star$), so perturbing the label factor
-changes $p_1$.
-
-\textbf{Step 2: the spatial factor does not.} Take $h=0$, any $\sigma\ge0$; $Y=y^i$ pins $I=i$ (Assumption~\ref{as:standing}(iii)).
-\begin{align}
-\N\big(tx^i,(1-t)^2I_d\big)&\longrightarrow\N\big(tx^i,s_t^2I_d\big)\quad\text{for every }i\label{eq:pf:factors:2}\\
-p_1^{\mathrm{cond}}(\cdot\mid y^i)&=\delta_{x^i}\ \ \forall\sigma
-\end{align}
-Justifications, in order: (1)~interpolant noise; Lemma~\ref{lem:cov}; (2)~Proposition~\ref{prop:prop17}(c), despite \eqref{eq:pf:factors:2}.
-
-\textbf{Step 3: conclusion.} By Steps~1 and~2 the two mechanisms act through different, non-interchangeable
-channels. This proves Proposition~\ref{prop:factors}.
-\end{proof}
+\begin{quote}
+\noindent\textbf{Proposition~\ref{prop:liplb}} (Lipschitz lower bound).
+Fix $i$, $t<1$, $f_i(x,t)=(x^i-x)/(1-t)$, and suppose $v(\cdot,t,y^i)$ is
+$L$-Lipschitz in $x$. Under $X_t\mid I=i\sim\N(tx^i,(1-t)^2 I_d)$,
+$\E[|v(X_t,t,y^i)-f_i(X_t,t)|^2\mid I=i]\ge d\,[1-L(1-t)]_+^2$.
+\end{quote}
 
 \begin{proof}[Proof of Proposition~\ref{prop:liplb}]
 \mathtoolsset{showonlyrefs}
@@ -1642,6 +1832,23 @@ Justifications, in order: (1)~definition of $e$; (2)~$L^2(\Omega)\ \text{triangl
 This proves Proposition~\ref{prop:liplb}.
 \end{proof}
 
+\subsection{Proof of Corollary~\ref{cor:floor}}
+\label{apx:pf-floor}
+
+\begin{quote}
+\noindent\textbf{Corollary~\ref{cor:floor}} (Loss floor under a uniform Lipschitz constraint).
+For $\mathcal F_L=\{v:\operatorname{Lip}_x v(\cdot,t,y^i)\le L\ \forall t,i\}$ with
+$L\ge1$ and $t\sim\mathrm{Unif}(0,1)$,
+\begin{equation*}
+\inf_{v\in\mathcal F_L}L_0(v)\ \ge\ d\int_{1-1/L}^1[1-L(1-t)]^2\,dt\ =\ \frac{d}{3L}\ >\ 0.
+\end{equation*}
+More generally, if the Lipschitz constant is allowed to depend on time,
+$\operatorname{Lip}_xv(\cdot,t,y^i)\le L(t)$, the same pointwise bound integrates to
+\begin{equation*}
+\inf_{v\in\mathcal F_{L(\cdot)}}L_0(v)\ \ge\ d\int_0^1\big[1-L(t)(1-t)\big]_+^2\,dt .
+\end{equation*}
+\end{quote}
+
 \begin{proof}[Proof of Corollary~\ref{cor:floor}]
 \mathtoolsset{showonlyrefs}
 \textbf{Step 1: the integral.}
@@ -1660,6 +1867,9 @@ $v\in\mathcal F_L$ and every $t\in[1-1/L,1)$, where $[1-L(1-t)]_+=1-L(1-t)$.
 Justifications, in order: (1)~average over $I\sim\mathrm{Unif}$, $t\sim\mathrm{Unif}(0,1)$; (2)~$s=1-t;\ \eqref{eq:pf:floor:1}$.
 This is \eqref{eq:floor}, proving Corollary~\ref{cor:floor}.
 \end{proof}
+
+\subsection{Proof of Proposition~\ref{prop:cfg}}
+\label{apx:pf-cfg}
 
 \begin{proposition}[Guidance cannot leave the affine hull of the training set]
 \label{prop:cfg}
@@ -1725,6 +1935,27 @@ Justifications, in order: (1)~Step~2: bounded coefficients; (2)~\eqref{eq:vgrowt
 The rest of Lemma~\ref{lem:wellposed} is unchanged. This proves Proposition~\ref{prop:cfg}.
 \end{proof}
 
+\subsection{Proof of Proposition~\ref{prop:nearduplicate}}
+\label{apx:pf-nearduplicate}
+
+\begin{quote}
+\noindent\textbf{Proposition~\ref{prop:nearduplicate}} (Near-duplicate labels).
+Fix a query $y$ and a subset $C\subseteq\{1,\dots,N\}$ with
+$|y-y^i|\le\varepsilon$ for $i\in C$ and $|y-y^j|\ge\Delta$ for $j\notin C$, where
+$\varepsilon<\Delta$. For the Gaussian kernel of bandwidth $h$, put
+\[
+\eta:=\frac{N-|C|}{|C|}\exp\!\Big(\!-\frac{\Delta^2-\varepsilon^2}{2h^2}\Big),
+\qquad
+\kappa:=\exp\!\Big(\frac{\varepsilon^2}{2h^2}\Big)\ \ge 1 .
+\]
+Then \emph{(a)} $\sum_{j\notin C}p_j^{(h)}(y)\le\eta$; \emph{(b)}
+$p_i^{(h)}(y)/p_{i'}^{(h)}(y)\le\kappa$ for all $i,i'\in C$; and \emph{(c)}
+$n_{\mathrm{eff}}(y)\ge|C|/(\kappa+|C|\eta^2)$.
+Consequently, as $\varepsilon/h\to0$ and $\Delta/h\to\infty$ the index posterior
+converges to the uniform law on $C$, the endpoint law to
+$|C|^{-1}\sum_{i\in C}\delta_{x^i}$, and $n_{\mathrm{eff}}\to|C|$.
+\end{quote}
+
 \begin{proof}[Proof of Proposition~\ref{prop:nearduplicate}]
 \mathtoolsset{showonlyrefs}
 Write $K_i=K_h(y-y^i)=c\,e^{-|y-y^i|^2/2h^2}$, so $p_i^{(h)}=K_i/\sum_jK_j$.
@@ -1763,6 +1994,21 @@ n_{\mathrm{eff}}&\to|C|
 Justifications, in order: (1)~$\eqref{eq:pf:nearduplicate:1}$; (2)~$\eqref{eq:pf:nearduplicate:2}\ \text{is symmetric in $i,i'$}$; (3)~Theorem~\ref{thm:endpoint}; (4)~Cauchy--Schwarz on $C$; (5)~with the lower bound of Step~3.
 This proves Proposition~\ref{prop:nearduplicate}.
 \end{proof}
+
+\subsection{Proof of Proposition~\ref{prop:cfgatom}}
+\label{apx:pf-cfgatom}
+
+\begin{quote}
+\noindent\textbf{Proposition~\ref{prop:cfgatom}} (Guidance lands on a training atom).
+Assume $x^1,\dots,x^N$ are distinct, let $w\ge0$, and let $x_t$ solve
+$\dot x_t=v_w(x_t,t)$ on $[0,1)$ with $x_t\to x^*$ as $t\uparrow1$. Assume the nearest
+atom to $x^*$ is unique, and write $i^*=\arg\min_j|x^*-x^j|$. Then
+\begin{enumerate}[label=(\alph*),leftmargin=2em]
+\item if $h>0$, $x^*=x^{i^*}$: the limit is a training atom; and
+\item if $h=0$ with distinct labels, $x^*=x^i$ for every $w\ge0$: the limit is the
+  \emph{conditioned} atom, so guidance is entirely inert under hard conditioning.
+\end{enumerate}
+\end{quote}
 
 \begin{proof}[Proof of Proposition~\ref{prop:cfgatom}]
 \mathtoolsset{showonlyrefs}
@@ -1823,6 +2069,70 @@ Proposition~\ref{prop:cfgatom} assumes and Proposition~\ref{prop:cfg} does not: 
 the trajectory converges. Proposition~\ref{prop:cfg}'s conclusion---support in the
 affine hull---holds unconditionally, by the exact identity $q_t=(1-t)q_0$.
 \end{remark}
+
+\subsection{Proof of Proposition~\ref{prop:survival}}
+\label{apx:pf-survival}
+
+\begin{quote}
+\noindent\textbf{Proposition~\ref{prop:survival}} (Error survival).
+Fix $i$, let $h=0$ with distinct labels, and let $v$ be any locally Lipschitz field.
+Write $\Delta(x,t):=v(x,t,y^i)-\vstarz(x,t,y^i)$ for its error against the exact
+collapsed field, let $x^v_t$ solve $\dot x_t=v(x_t,t,y^i)$ from $x_0$, and let
+$x^\star_t=(1-t)x_0+tx^i$ be the exact trajectory from the same $x_0$. Then for
+$t<1$, with $e_t:=x^v_t-x^\star_t$, the \emph{identity}
+\begin{equation*}
+e_t\;=\;(1-t)\int_0^t\frac{\Delta(x^v_s,s)}{1-s}\,ds
+\end{equation*}
+holds, and in particular
+\begin{equation*}
+|e_t|\;\le\;(1-t)\int_0^t\frac{|\Delta(x^v_s,s)|}{1-s}\,ds .
+\end{equation*}
+Consequently:
+\begin{enumerate}[label=(\alph*),leftmargin=2em]
+\item \emph{(bounded errors do not survive)} if
+  $\int_0^t|\Delta(x^v_s,s)|^2ds\le\varepsilon^2$ then
+  $|e_t|\le\varepsilon\sqrt{(1-t)t}\le\varepsilon\sqrt{1-t}$, so a sampler stopping
+  at $t=1-\delta$ has $|e_{1-\delta}|\le\varepsilon\sqrt\delta$, which vanishes with
+  $\delta$ \emph{for every} finite $\varepsilon$;
+\item \emph{(what the bound gives)} if $|\Delta(x,t)|\le c\,(1-t)^{-a}$ with $a>0$
+  then $|e_t|\le\frac{c}{a}\big((1-t)^{1-a}-(1-t)\big)$, which at $a=1$ reads
+  $|e_t|\le c\,t\le c$. Hence $\lim_{t\uparrow1}|e_t|=0$ when $a<1$, and
+  $\limsup_{t\uparrow1}|e_t|\le c$ when $a=1$. For $a>1$ the right-hand side diverges
+  and \eqref{eq:survival} constrains $e_t$ not at all---a diverging upper bound is
+  not a diverging quantity, and $e\equiv0$ satisfies it. That case is settled by
+  (c), not by (b);
+\item \emph{(the bound is attained, so the threshold is real)} fix a unit vector $u$
+  and take the spatially constant error $\Delta(x,t)=c\,(1-t)^{-a}u$, for which
+  $v=\vstarz+\Delta$ is locally Lipschitz with $\Delta$ having Lipschitz constant
+  $L_\Delta=0$ in $x$. Then \eqref{eq:survival-id} evaluates in closed form:
+  \begin{equation*}
+  e_t=\frac{c}{a}\big((1-t)^{1-a}-(1-t)\big)\,u\quad(a>0),
+  \qquad e_t=-c\,(1-t)\log(1-t)\,u\quad(a=0),
+  \end{equation*}
+  so \eqref{eq:survival} holds with equality for every $t<1$. Therefore
+  $\lim_{t\uparrow1}|e_t|$ is $0$ for $a<1$, is exactly $c$ for $a=1$, and is $+\infty$
+  for $a>1$: the trichotomy is realised and not merely permitted;
+\item \emph{(what a surviving deviation requires)} write
+  $I(t):=\int_0^t\Delta(x^v_s,s)(1-s)^{-1}ds$ for the accumulated weighted error, so
+  that \eqref{eq:survival-id} reads $e_t=(1-t)I(t)$. Then for any $\Delta$ and any
+  $e_\star\in\R^d$,
+  \begin{equation*}
+  \lim_{t\uparrow1}e_t=e_\star
+  \iff
+  I(t)=\frac{e_\star}{1-t}+o\big((1-t)^{-1}\big) .
+  \end{equation*}
+  Since $e_t=(1-t)I(t)$ identically, the behaviour of $e_t$ at the endpoint is exactly
+  the behaviour of $I$ at the scale $(1-t)^{-1}$, and the cases are exhaustive: if
+  $|I(t)|=o((1-t)^{-1})$ then $e_t\to0$; if $(1-t)I(t)$ converges to some
+  $e_\star\ne0$---equivalently, if $I$ sits at that scale \emph{with a limiting
+  direction}---then $e_t\to e_\star$; if $(1-t)|I(t)|\to\infty$ then $|e_t|\to\infty$
+  and there is no endpoint; and if $(1-t)I(t)$ stays bounded without converging, $e_t$
+  has no limit either. In particular a nonzero endpoint deviation \emph{requires} the
+  accumulated weighted error to attain exactly the $(1-t)^{-1}$ scale, and to do so in a
+  direction that does not cancel: growing more slowly than that scale is annihilated
+  by the factor $(1-t)$, whatever the pointwise behaviour of $\Delta$ that produced it.
+\end{enumerate}
+\end{quote}
 
 \begin{proof}[Proof of Proposition~\ref{prop:survival}]
 \mathtoolsset{showonlyrefs}
@@ -1887,6 +2197,30 @@ Justifications, in order: (1)~$\eqref{eq:survival-id}$; (2)~subtract $e_\star$; 
 The four cases of (d) are the four behaviours of $e_t=(1-t)I(t)$ (to $0$; to $e_\star\ne0$; $|e_t|\to\infty$; bounded, no limit): they are exhaustive.
 This proves Proposition~\ref{prop:survival}.
 \end{proof}
+
+\subsection{Proof of Corollary~\ref{cor:lossform}}
+\label{apx:pf-lossform}
+
+\begin{quote}
+\noindent\textbf{Corollary~\ref{cor:lossform}} (Loss form).
+In the setting of Proposition~\ref{prop:survival} and under
+Assumption~\ref{as:lipschitz}, let
+\[
+\mathcal L_i(v)\;:=\;\E_{t\sim\mathrm{Unif}(0,1)}\,\E_{X_0\sim\pi_0}
+\big|v(X_t,t,y^i)-U\big|^2,\qquad X_t=(1-t)X_0+tx^i,\ U=x^i-X_0,
+\]
+be the flow-matching loss at index $i$, and write
+$\mathcal E(t):=\big(\E_{X_0}|x^v_t-x^\star_t|^2\big)^{1/2}$ for the root-mean-square
+deviation over initial conditions. Then for $t\le T$,
+\begin{equation*}
+\mathcal E(t)\;\le\;e^{L_\Delta t}\,\sqrt{\mathcal L_i(v)}\;\sqrt{t(1-t)},
+\qquad\text{so}\qquad
+\mathcal E(1-\delta)\;\le\;e^{L_\Delta}\sqrt{\mathcal L_i(v)\,\delta}.
+\end{equation*}
+Consequently the conditional second moment about the memorised atom obeys
+$\big(\E|x^v_{1-\delta}-x^i|^2\big)^{1/2}\le e^{L_\Delta}\sqrt{\mathcal L_i(v)\delta}
++\delta\,\big(\E|X_0-x^i|^2\big)^{1/2}$.
+\end{quote}
 
 \begin{proof}[Proof of Corollary~\ref{cor:lossform}]
 \mathtoolsset{showonlyrefs}
