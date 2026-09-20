@@ -135,8 +135,14 @@ def check_baseline(tex: str, baseline: pathlib.Path, problems: list[str]) -> Non
     else:
         ok("no citation key dropped")
 
+    def count(t: str, env: str) -> int:
+        # a displayed equation is an `equation` or an `align`: proofs written one line
+        # per step use the latter, and that is not a lost equation
+        names = ("equation", "align", "align*") if env == "equation" else (env,)
+        return sum(t.count("\\begin{%s}" % n) for n in names)
+
     for env in ENVS:
-        a, b = old.count("\\begin{%s}" % env), tex.count("\\begin{%s}" % env)
+        a, b = count(old, env), count(tex, env)
         if b < a:
             fail(f"{env}: {a} in baseline, {b} now", problems)
     ok("no theorem environment, figure or table lost")

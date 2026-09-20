@@ -13,6 +13,8 @@
 
 \usepackage{iclr2027_conference,times}
 \usepackage{amsmath,amssymb,amsthm}
+\usepackage{mathtools} % showonlyrefs inside proofs: only cited lines are numbered
+\newcommand{\why}[1]{\text{\footnotesize #1}} % the warrant column of a proof line
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{caption}
@@ -821,29 +823,35 @@ text, claims, proofs, and code.
 \label{app:proofs}
 
 \begin{proof}[Proof of Proposition~\ref{prop:projection}]
-\emph{Step 1: the decomposition.} Write $\mathcal G=\sigma(X_t,t,\widetilde Y)$ and
-$m:=\E[U\mid\mathcal G]$, which exists because $|U|\le|x^I|+|X_0|$ is square-integrable.
-For square-integrable $v$ the residual splits as $U-v=(U-m)+(m-v)$ with $m-v$
-$\mathcal G$-measurable, so
-\begin{equation}
-L_h(v)=\E|U-m|^2+\E|m-v|^2+2\,\E\langle U-m,\ m-v\rangle .
-\label{eq:pf:projection:1}
-\end{equation}
+\mathtoolsset{showonlyrefs}
+Let $\mathcal G=\sigma(X_t,t,\widetilde Y)$ and $m:=\E[U\mid\mathcal G]$.
 
-\emph{Step 2: the cross term vanishes.} By the tower property,
-\begin{equation}
-\E\langle U-m,\ m-v\rangle=\E\big\langle\E[U-m\mid\mathcal G],\ m-v\big\rangle=0,
-\label{eq:pf:projection:2}
-\end{equation}
-since $\E[U-m\mid\mathcal G]=0$ by definition of $m$.
+\textbf{Step 1: split the loss.}
+\begin{align}
+L_h(v)&=\E|(U-m)+(m-v)|^2
+  && U-v=(U-m)+(m-v)\\
+&=\E|U-m|^2+\E|m-v|^2+2\,\E\langle U-m,\,m-v\rangle
+  && \why{expand the square}\label{eq:pf:projection:1}
+\end{align}
 
-\emph{Step 3: the minimiser.} By \eqref{eq:pf:projection:1}--\eqref{eq:pf:projection:2},
-$L_h(v)=\E[\Var(U\mid\mathcal G)]+\E|v-m|^2$, where $\E|U-m|^2=\E[\Var(U\mid\mathcal G)]$
-is the trace of the conditional covariance. The second term is nonnegative and vanishes
-exactly when $v=m$ almost everywhere under the law of $(X_t,t,\widetilde Y)$, so the
-minimiser is a.e.\ unique, equals $\vstar(x,t,y)=\E[U\mid X_t=x,t,\widetilde Y=y]$, and
-$\inf_vL_h=\E[\Var(U\mid X_t,t,\widetilde Y)]$. This proves
-Proposition~\ref{prop:projection}.
+\textbf{Step 2: the cross term vanishes.}
+\begin{align}
+\E\langle U-m,\,m-v\rangle&=\E\big\langle\E[U-m\mid\mathcal G],\,m-v\big\rangle
+  && \why{tower property; $m-v$ is $\mathcal G$-measurable}\\
+&=0
+  && \E[U-m\mid\mathcal G]=0\label{eq:pf:projection:2}
+\end{align}
+
+\textbf{Step 3: the minimiser.}
+\begin{align}
+L_h(v)&=\E[\Var(U\mid\mathcal G)]+\E|v-m|^2
+  && \eqref{eq:pf:projection:1},\ \eqref{eq:pf:projection:2}\\
+\inf_vL_h&=\E[\Var(U\mid\mathcal G)]
+  && \E|v-m|^2\ge0,\ =0\iff v=m\ \text{a.e.}\\
+\vstar(x,t,y)&=\E[U\mid X_t=x,t,\widetilde Y=y]
+  && \why{unique a.e.\ minimiser}
+\end{align}
+This proves Proposition~\ref{prop:projection}.
 \end{proof}
 
 \begin{lemma}[Change of variables]
@@ -860,29 +868,36 @@ posterior over $I$. Because $\pi_0$ is Gaussian, $p(x\mid I=i,t)>0$ for every $x
 every $t<1$.
 \end{lemma}
 \begin{proof}[Proof of Lemma~\ref{lem:cov}]
-\emph{Step 1: the map is a bijection.} Put $\Psi(x_0)=(1-t)x_0+tx^i$. Its linear part
-is $(1-t)I_d$, invertible for $t<1$, so
-\begin{equation}
-\det D\Psi=(1-t)^d,\qquad \Psi^{-1}(x)=\frac{x-tx^i}{1-t}.
-\label{eq:pf:cov:1}
-\end{equation}
-A bijection generates the same $\sigma$-algebra as its argument, so
-$\sigma(X_t\mid I=i)=\sigma(X_0\mid I=i)$.
+\mathtoolsset{showonlyrefs}
+Fix $i$, $t<1$ and put $\Psi(x_0)=(1-t)x_0+tx^i$.
 
-\emph{Step 2: the density.} Given $I=i$, $X_0\sim\pi_0$ is independent of $I$, so the
-change-of-variables formula for densities and \eqref{eq:pf:cov:1} give
-\begin{equation}
-p_{X_t}(x)=p_{X_0}\big(\Psi^{-1}(x)\big)\,|\det D\Psi|^{-1}
-=(1-t)^{-d}\,\pi_0\!\big(\tfrac{x-tx^i}{1-t}\big),
-\label{eq:pf:cov:2}
-\end{equation}
-which is \eqref{eq:cov}.
+\textbf{Step 1: $\Psi$ is a bijection.}
+\begin{align}
+\det D\Psi&=(1-t)^d
+  && \why{linear part is $(1-t)I_d$, invertible for $t<1$}\\
+\Psi^{-1}(x)&=\frac{x-tx^i}{1-t}
+  && \why{solve for $x_0$}\label{eq:pf:cov:1}\\
+\sigma(X_t\mid I=i)&=\sigma(X_0\mid I=i)
+  && \why{a bijection generates the same $\sigma$-algebra}
+\end{align}
 
-\emph{Step 3: cancellation and positivity.} The factor $(1-t)^{-d}$ in
-\eqref{eq:pf:cov:2} involves neither $i$ nor $x$, so it appears identically in the
-numerator and the denominator of $\Pr(I=i\mid X_t=x,t)$. Positivity is that of the
-Gaussian density $\pi_0>0$ composed with the bijection $\Psi^{-1}$. This proves
-Lemma~\ref{lem:cov}.
+\textbf{Step 2: the density.}
+\begin{align}
+p_{X_t}(x)&=p_{X_0}\big(\Psi^{-1}(x)\big)\,|\det D\Psi|^{-1}
+  && \why{change of variables}\\
+&=(1-t)^{-d}\,\pi_0\!\big(\tfrac{x-tx^i}{1-t}\big)
+  && \eqref{eq:pf:cov:1};\ X_0\sim\pi_0\perp I\label{eq:pf:cov:2}
+\end{align}
+This is \eqref{eq:cov}.
+
+\textbf{Step 3: cancellation and positivity.}
+\begin{align}
+(1-t)^{-d}&\ \text{does not depend on $i$ or $x$}
+  && \why{cancels in $\Pr(I=i\mid X_t=x,t)$, by \eqref{eq:pf:cov:2}}\\
+p(x\mid I=i,t)&>0
+  && \pi_0>0\ \text{(Gaussian)},\ \Psi^{-1}\ \text{bijective}
+\end{align}
+This proves Lemma~\ref{lem:cov}.
 \end{proof}
 
 \begin{lemma}[Well-posedness]
@@ -906,67 +921,51 @@ directly, from almost-sure convergence of the interpolant, and $p_1$ denotes tha
 limit.
 \end{lemma}
 \begin{proof}[Proof of Lemma~\ref{lem:wellposed}]
-\emph{Step 1: part (a), smoothness.} On $\R^d\times[0,1)$ the map
-$(x,t)\mapsto(x^i-x)/(1-t)$ is $C^\infty$ and the $w_i$ are $C^\infty$ by hypothesis, so
-$v$ is a finite sum of products of $C^\infty$ functions. Local Lipschitzness in $x$,
-uniform for $t$ in compacts of $[0,1)$, follows from continuity of $\nabla_xv$ on the
-compact set.
+\mathtoolsset{showonlyrefs}
+\textbf{Step 1: part (a).}
+\begin{align}
+v&=\sum_iw_i\,\frac{x^i-x}{1-t}\in C^\infty(\R^d\times[0,1))
+  && w_i\in C^\infty,\ (x^i-x)/(1-t)\in C^\infty\\
+\nabla_xv&\ \text{continuous, bounded on compacts}
+  && \why{so $v$ is locally Lipschitz in $x$}
+\end{align}
 
-\emph{Step 2: part (b), global existence and the growth bound.} Local existence and
-uniqueness on a maximal interval $[0,\tau)$ is Picard--Lindel\"of
-\citep[Ch.~II]{hartman2002ode}, using Step~1. For the bound, $\sum_iw_i\equiv1$ and
-$w_i\ge0$ give the pointwise estimate
-\begin{equation}
-|v(x,t)|\;\le\;\sum_iw_i(x,t)\,\frac{|x^i-x|}{1-t}\;\le\;\frac{M+|x|}{1-t}.
-\label{eq:vgrowth}
-\end{equation}
-Put $g(t):=|x_t|+M$, which is locally Lipschitz, hence differentiable a.e.\ with
-$g'(t)\le|\dot x_t|=|v(x_t,t)|\le g(t)/(1-t)$ by \eqref{eq:vgrowth}. Gr\"onwall's
-inequality gives
-\begin{equation}
-g(t)\;\le\;g(0)\exp\!\int_0^t\frac{ds}{1-s}\;=\;\frac{g(0)}{1-t},\qquad t\in[0,\tau),
-\label{eq:pf:wellposed:1}
-\end{equation}
-which is the stated bound. Its right-hand side is finite for every $t<1$, so the
-solution stays in a bounded set on every $[0,T]$ with $T<1$; it cannot blow up before
-$t=1$, and $\tau=1$.
+\textbf{Step 2: part (b).} Local existence and uniqueness on $[0,\tau)$ is
+Picard--Lindel\"of \citep[Ch.~II]{hartman2002ode}, by Step~1. For the bound put $g(t)=|x_t|+M$.
+\begin{align}
+|v(x,t)|&\le\sum_iw_i\,\frac{|x^i-x|}{1-t}\le\frac{M+|x|}{1-t}\label{eq:vgrowth}\\
+  &\quad w_i\ge0,\ \textstyle\sum_iw_i=1\\
+g'(t)&\le|v(x_t,t)|\le\frac{g(t)}{1-t}\\
+  &\quad g\ \text{Lipschitz, a.e.\ differentiable};\ \eqref{eq:vgrowth}\\
+g(t)&\le g(0)\exp\!\int_0^t\frac{ds}{1-s}=\frac{g(0)}{1-t}\label{eq:pf:wellposed:1}\\
+  &\quad \why{Gr\"onwall}
+\end{align}
+The right-hand side of \eqref{eq:pf:wellposed:1} is finite for every $t<1$, so the solution
+cannot blow up before $t=1$: $\tau=1$.
 
-\emph{Step 3: part (c), the push-forward solves the equation.} For
-$\varphi\in C_c^\infty(\R^d)$ and $\mu_t=(\Phi_t)_\#\mu_0$, differentiating along the
-flow gives
-\begin{equation}
-\frac{d}{dt}\int\varphi\,d\mu_t
-=\int\nabla\varphi(\Phi_t(x))\cdot v(\Phi_t(x),t)\,d\mu_0(x)
-=\int\nabla\varphi\cdot v\,d\mu_t,
-\label{eq:pf:wellposed:2}
-\end{equation}
-which is the weak form of $\partial_t\mu_t+\nabla\!\cdot(v\mu_t)=0$.
+\textbf{Step 3: part (c), existence.} For $\varphi\in C_c^\infty$ and $\mu_t=(\Phi_t)_\#\mu_0$,
+\begin{align}
+\frac{d}{dt}\int\varphi\,d\mu_t&=\int\nabla\varphi(\Phi_t)\cdot v(\Phi_t,t)\,d\mu_0
+  && \why{chain rule along the flow}\\
+&=\int\nabla\varphi\cdot v\,d\mu_t
+  && \why{push-forward}\label{eq:pf:wellposed:2}
+\end{align}
+This is the weak form of $\partial_t\mu_t+\nabla\!\cdot(v\mu_t)=0$.
 
-\emph{Step 4: part (c), uniqueness.} Fix $T<1$ and let $(\mu_t)_{t\in[0,T]}$ be any
-narrowly continuous solution with the same initial datum. By Steps~1 and~2 the flow is a
-$C^\infty$ diffeomorphism of $\R^d$ for each $t\le T$ \citep[Ch.~V]{hartman2002ode};
-write $\Phi_{s,T}$ for the flow from time $s$ to time $T$. Given
-$\varphi\in C_c^\infty(\R^d)$ set $\psi(x,s):=\varphi(\Phi_{s,T}(x))$. Then $\psi$ is
-$C^1$ on $\R^d\times[0,T]$, has compact support in $x$ for each $s$, namely
-$\Phi_{T,s}(\operatorname{supp}\varphi)$, and by the method of characteristics solves
-the backward transport equation
-\begin{equation}
-\partial_s\psi+v\cdot\nabla\psi=0,\qquad\psi(\cdot,T)=\varphi .
-\label{eq:pf:wellposed:3}
-\end{equation}
-Testing the continuity equation against $\psi$ (legitimate after the usual truncation in
-time, since $\psi$ is $C^1$ and compactly supported in $x$ uniformly on $[0,T]$) and
-using \eqref{eq:pf:wellposed:3},
-\begin{equation}
-\frac{d}{ds}\int\psi(\cdot,s)\,d\mu_s
-=\int\big(\partial_s\psi+v\cdot\nabla\psi\big)\,d\mu_s=0 ,
-\label{eq:pf:wellposed:4}
-\end{equation}
-so $\int\varphi\,d\mu_T=\int\psi(\cdot,0)\,d\mu_0=\int\varphi\circ\Phi_{0,T}\,d\mu_0
-=\int\varphi\,d\big((\Phi_T)_\#\mu_0\big)$. As $\varphi$ was arbitrary,
-$\mu_T=(\Phi_T)_\#\mu_0$, and $T<1$ was arbitrary. This is the classical smooth-field
-case of the general uniqueness theory for continuity equations; see
-\citealp[Ch.~8]{ambrosio2008gradient} for the statement under far weaker regularity.
+\textbf{Step 4: part (c), uniqueness.} Fix $T<1$, a narrowly continuous solution $(\mu_t)$ with
+datum $\mu_0$, and $\psi(x,s):=\varphi(\Phi_{s,T}(x))$, which is $C^1$ with compact support in $x$.
+\begin{align}
+\partial_s\psi+v\cdot\nabla\psi&=0,\quad\psi(\cdot,T)=\varphi
+  && \why{characteristics}\label{eq:pf:wellposed:3}\\
+\frac{d}{ds}\int\psi(\cdot,s)\,d\mu_s&=\int(\partial_s\psi+v\cdot\nabla\psi)\,d\mu_s=0
+  && \why{test the equation; \eqref{eq:pf:wellposed:3}}\label{eq:pf:wellposed:4}\\
+\int\varphi\,d\mu_T&=\int\psi(\cdot,0)\,d\mu_0
+  && \eqref{eq:pf:wellposed:4}\text{ from $s=0$ to $T$}\\
+&=\int\varphi\,d\big((\Phi_T)_\#\mu_0\big)
+  && \psi(\cdot,0)=\varphi\circ\Phi_{0,T}
+\end{align}
+As $\varphi$ and $T<1$ were arbitrary, $\mu_T=(\Phi_T)_\#\mu_0$. This is the classical
+smooth-field case \citep[see][Ch.~8, for far weaker regularity]{ambrosio2008gradient}.
 Steps~1--4 prove Lemma~\ref{lem:wellposed}.
 \end{proof}
 
@@ -986,219 +985,229 @@ Moreover $\inf_v L_{\mathrm{unc}}>0$ whenever $x^i\ne x^j$ for some $i\ne j$.
 \end{proposition}
 
 \begin{proof}[Proof of Proposition~\ref{prop:collapse}]
-\emph{Step 1: the conditioning event pins the index.} By
-Assumption~\ref{as:standing}(iii) the labels are pairwise distinct, so $\{Y=y^i\}$
-occurs exactly when $I=i$, and $X_1=x^i$ is then deterministic. By
-Lemma~\ref{lem:cov}, conditioning further on $X_t=x$ determines the source point,
-\begin{equation}
-X_0=\frac{x-tx^i}{1-t},
-\label{eq:pf:collapse:1}
-\end{equation}
-so $U=X_1-X_0$ is a function of $(x,t,i)$ alone.
+\mathtoolsset{showonlyrefs}
+\textbf{Step 1: the index is pinned.}
+\begin{align}
+\{Y=y^i\}&=\{I=i\}
+  && \why{Assumption~\ref{as:standing}(iii)}\\
+X_1&=x^i
+  && \why{$I=i$}\\
+X_0&=\frac{x-tx^i}{1-t}
+  && \why{Lemma~\ref{lem:cov}, given $X_t=x$}\label{eq:pf:collapse:1}
+\end{align}
 
-\emph{Step 2: part (a).} Substituting \eqref{eq:pf:collapse:1} into $U=x^i-X_0$,
-\begin{equation}
-U=x^i-\frac{x-tx^i}{1-t}=\frac{x^i-x}{1-t}.
-\label{eq:pf:collapse:2}
-\end{equation}
-The right-hand side is a measurable function of the conditioning variables
-$(X_t,t,Y)$, and such a variable equals its own conditional expectation, so
-Proposition~\ref{prop:projection} gives $v_0^\star(x,t,y^i)=(x^i-x)/(1-t)$.
+\textbf{Step 2: part (a).}
+\begin{align}
+U&=x^i-X_0\\
+  &\quad U=X_1-X_0\\
+&=x^i-\frac{x-tx^i}{1-t}\\
+  &\quad \eqref{eq:pf:collapse:1}\\
+&=\frac{x^i-x}{1-t}\label{eq:pf:collapse:2}\\
+  &\quad \why{common denominator}\\
+v_0^\star(x,t,y^i)&=\E[U\mid X_t=x,t,Y=y^i]\\
+  &\quad \why{Proposition~\ref{prop:projection}}\\
+&=\frac{x^i-x}{1-t}\\
+  &\quad \eqref{eq:pf:collapse:2};\ U\ \text{is measurable in the conditioning}
+\end{align}
 
-\emph{Step 3: part (b).} Taking $v=v_0^\star$ in \eqref{eq:objective}, the residual
-$U-v_0^\star(X_t,t,Y)$ vanishes almost surely by \eqref{eq:pf:collapse:2}, so
-$L_0(v_0^\star)=0$; since $L_0\ge0$ for every $v$, $\inf_vL_0=0$.
+\textbf{Step 3: part (b).}
+\begin{align}
+U-v_0^\star(X_t,t,Y)&=0\ \text{a.s.}
+  && \eqref{eq:pf:collapse:2}\\
+L_0(v_0^\star)&=\E|U-v_0^\star|^2=0
+  && \eqref{eq:objective}\\
+\inf_vL_0&=0
+  && L_0\ge0
+\end{align}
 
-\emph{Step 4: parts (c) and (d).} Along a solution of $\dot x_t=(x^i-x_t)/(1-t)$,
-\begin{equation}
-\frac{d}{dt}\Big[\frac{x_t-x^i}{1-t}\Big]
-=\frac{\dot x_t(1-t)+(x_t-x^i)}{(1-t)^2}=0,
-\label{eq:pf:collapse:3}
-\end{equation}
-so $(x_t-x^i)/(1-t)$ is constant on $[0,1)$ and equals its value $x_0-x^i$ at $t=0$.
-Rearranging gives $x_t=(1-t)x_0+tx^i$, whence $x_t\to x^i$ as $t\uparrow1$ for every
-$x_0$. The endpoint law is therefore the point mass $\delta_{x^i}$, whose covariance
-is $0$, which is (d).
+\textbf{Step 4: parts (c) and (d).} Along $\dot x_t=(x^i-x_t)/(1-t)$,
+\begin{align}
+\frac{d}{dt}\frac{x_t-x^i}{1-t}&=\frac{\dot x_t(1-t)+(x_t-x^i)}{(1-t)^2}
+  && \why{quotient rule}\\
+&=0
+  && \dot x_t(1-t)=x^i-x_t\label{eq:pf:collapse:3}\\
+x_t&=(1-t)x_0+tx^i
+  && \eqref{eq:pf:collapse:3},\ x_{t=0}=x_0\\
+x_t&\to x^i\quad(t\uparrow1),\ \text{for every }x_0
+  && \why{coefficient of $x_0$ is $1-t\to0$}\\
+p_1^{\mathrm{cond}}(\cdot\mid y^i)&=\delta_{x^i},\quad\Cov=0
+  && \why{point mass}
+\end{align}
+This proves Proposition~\ref{prop:collapse}.
 \end{proof}
 
 \begin{proof}[Proof of Proposition~\ref{prop:uncond}]
-\emph{Step 1: the index posterior.} Bayes' rule with the uniform prior on $I$ and
-Lemma~\ref{lem:cov}'s conditional density gives
-\begin{equation}
-q_i(x,t)=\frac{\tfrac1N\,(1-t)^{-d}\pi_0\big(\tfrac{x-tx^i}{1-t}\big)}
-{\sum_j\tfrac1N\,(1-t)^{-d}\pi_0\big(\tfrac{x-tx^j}{1-t}\big)}
-\ \propto\ \pi_0\!\big(\tfrac{x-tx^i}{1-t}\big),
-\label{eq:pf:uncond:1}
-\end{equation}
-the prior $1/N$ and the Jacobian $(1-t)^{-d}$ cancelling because neither depends on
-$i$.
+\mathtoolsset{showonlyrefs}
+\textbf{Step 1: the index posterior.}
+\begin{align}
+q_i(x,t)&=\frac{\frac1N(1-t)^{-d}\pi_0\big(\frac{x-tx^i}{1-t}\big)}
+  {\sum_j\frac1N(1-t)^{-d}\pi_0\big(\frac{x-tx^j}{1-t}\big)}\\
+  &\quad \why{Bayes; Lemma~\ref{lem:cov}}\\
+&=\frac{\pi_0\big(\frac{x-tx^i}{1-t}\big)}{\sum_j\pi_0\big(\frac{x-tx^j}{1-t}\big)}\label{eq:pf:uncond:1}\\
+  &\quad \why{$\frac1N(1-t)^{-d}$ does not depend on $i$}
+\end{align}
 
-\emph{Step 2: the minimiser.} Conditionally on $I=i$, Step~1 of the proof of
-Proposition~\ref{prop:collapse} gives $U=(x^i-x)/(1-t)$, a constant given $(x,t,i)$.
-Averaging over \eqref{eq:pf:uncond:1} by the tower rule and using
-Proposition~\ref{prop:projection},
-\begin{equation}
-v_{\mathrm{unc}}^\star(x,t)=\E[U\mid X_t=x,t]
-=\sum_iq_i(x,t)\,\frac{x^i-x}{1-t}.
-\label{eq:pf:uncond:2}
-\end{equation}
+\textbf{Step 2: the minimiser.}
+\begin{align}
+U\mid(x,t,I=i)&=\frac{x^i-x}{1-t}
+  && \why{Step~2 of the proof of Proposition~\ref{prop:collapse}}\\
+v_{\mathrm{unc}}^\star(x,t)&=\E[U\mid X_t=x,t]
+  && \why{Proposition~\ref{prop:projection}}\\
+&=\sum_iq_i(x,t)\,\frac{x^i-x}{1-t}
+  && \why{tower rule over \eqref{eq:pf:uncond:1}}\label{eq:pf:uncond:2}
+\end{align}
 
-\emph{Step 3: the endpoint law.} Field \eqref{eq:pf:uncond:2} has the form required
-by Lemma~\ref{lem:wellposed}, with smooth weights summing to one, so its flow is well
-posed on $[0,1)$ and transports $p_0=\pi_0$ to $p_t=\mathrm{Law}(X_t)$, by the
-argument of Steps~2--3 in the proof of Theorem~\ref{thm:endpoint} with
-$p^{(h)}(y)$ replaced by the uniform law on $I$. Since $X_t\to X_1$ almost surely and
-$X_1\sim\rhohat_X$, $p_t\Rightarrow\rhohat_X$, i.e.\ $p_1^{\mathrm{unc}}=\rhohat_X$:
-the unconditional flow memorises the empirical measure rather than a single atom.
+\textbf{Step 3: the endpoint law.}
+\begin{align}
+\text{flow of \eqref{eq:pf:uncond:2} is well posed}&\ \text{on }[0,1)\\
+  &\quad \why{Lemma~\ref{lem:wellposed}: smooth weights, $\sum_iq_i=1$}\\
+\mathrm{Law}(X_t)&=(\Phi_t)_\#\pi_0\\
+  &\quad \why{Steps~2--3 of Theorem~\ref{thm:endpoint}, uniform law on $I$}\\
+p_t&\Rightarrow\rhohat_X\\
+  &\quad X_t\to X_1\ \text{a.s.},\ X_1\sim\rhohat_X\\
+p_1^{\mathrm{unc}}&=\rhohat_X\\
+  &\quad \why{weak limit}
+\end{align}
 
-\emph{Step 4: the loss does not vanish.} Fix $t<1$ and $x$, and write
-$u_i:=(x^i-x)/(1-t)$ and $\bar u(x,t):=\sum_iq_i(x,t)u_i$. By the positivity of
-$\pi_0$ recorded after Lemma~\ref{lem:cov}, \eqref{eq:pf:uncond:1} gives
-$q_i(x,t)>0$ for every $i$; and $x^i\ne x^j$ implies $u_i\ne u_j$, since $u$ is an
-injective affine function of $x^i$ at fixed $(x,t)$. So whenever some $x^i\ne x^j$
-the conditional law of $U$ puts positive mass on at least two distinct values, and
-\begin{equation}
-\Var(U\mid X_t=x,t)=\sum_iq_i(x,t)\,|u_i-\bar u(x,t)|^2>0
-\label{eq:pf:uncond:3}
-\end{equation}
-at \emph{every} $(x,t)$ with $t<1$. Integrating \eqref{eq:pf:uncond:3} over $(x,t)$
-and applying Proposition~\ref{prop:projection},
-$\inf_vL_{\mathrm{unc}}(v)=\E[\Var(U\mid X_t,t)]>0$, in contrast with the zero
-infimum of Proposition~\ref{prop:collapse}(b).
+\textbf{Step 4: the loss does not vanish.} Fix $t<1$, $x$; put $u_i=\frac{x^i-x}{1-t}$ and
+$\bar u=\sum_iq_iu_i$.
+\begin{align}
+q_i(x,t)&>0\ \ \forall i\\
+  &\quad \pi_0>0,\ \eqref{eq:pf:uncond:1}\\
+x^i\ne x^j&\Rightarrow u_i\ne u_j\\
+  &\quad u\ \text{is injective affine in $x^i$}\\
+\Var(U\mid X_t=x,t)&=\sum_iq_i\,|u_i-\bar u|^2>0\label{eq:pf:uncond:3}\\
+  &\quad \why{two distinct values with positive mass}\\
+\inf_vL_{\mathrm{unc}}&=\E[\Var(U\mid X_t,t)]>0\\
+  &\quad \why{Proposition~\ref{prop:projection}; \eqref{eq:pf:uncond:3} at every $(x,t)$}
+\end{align}
+This proves Proposition~\ref{prop:uncond}.
 \end{proof}
 
 \begin{proof}[Proof of Corollary~\ref{cor:distinction}]
-\emph{Step 1: the conditional flow.} By Proposition~\ref{prop:collapse}(d),
-$p_1^{\mathrm{cond}}(\cdot\mid y^i)=\delta_{x^i}$, a point mass, whose covariance is $0$.
-
-\emph{Step 2: the unconditional flow.} By Proposition~\ref{prop:uncond},
-$p_1^{\mathrm{unc}}=\rhohat_X=\frac1N\sum_i\delta_{x^i}$, whose covariance is, by
-definition of $\Xhat$,
-\begin{equation}
-\Cov[p_1^{\mathrm{unc}}]=\frac1N\sum_i(x^i-\bar x)(x^i-\bar x)^\top=\Xhat .
-\label{eq:pf:distinction:1}
-\end{equation}
-
-\emph{Step 3: conclusion.} Both laws are finite mixtures of point masses at training
-examples, hence supported on the training set, and Steps~1--2 give
-\eqref{eq:distinction}. This proves Corollary~\ref{cor:distinction}.
+\mathtoolsset{showonlyrefs}
+\begin{align}
+p_1^{\mathrm{cond}}(\cdot\mid y^i)&=\delta_{x^i},\quad\Cov=0
+  && \why{Proposition~\ref{prop:collapse}(d)}\\
+p_1^{\mathrm{unc}}&=\tfrac1N\textstyle\sum_i\delta_{x^i}
+  && \why{Proposition~\ref{prop:uncond}}\\
+\Cov[p_1^{\mathrm{unc}}]&=\tfrac1N\textstyle\sum_i(x^i-\bar x)(x^i-\bar x)^\top=\Xhat
+  && \why{definition of $\Xhat$}\label{eq:pf:distinction:1}
+\end{align}
+Both laws are mixtures of point masses at training examples, hence supported on the
+training set; with \eqref{eq:pf:distinction:1} this is \eqref{eq:distinction}.
+This proves Corollary~\ref{cor:distinction}.
 \end{proof}
 
 \begin{proof}[Proof of Proposition~\ref{prop:atomicity}]
-\emph{Step 1: the support.} Theorem~\ref{thm:endpoint} gives
-$p_h^{\mathrm{gen}}(\cdot\mid y)=\sum_ip_i^{(h)}(y)\delta_{x^i}$, so
-$\operatorname{supp}p_h^{\mathrm{gen}}\subseteq\{x^1,\dots,x^N\}$ for every $h>0$,
-which is the first claim.
+\mathtoolsset{showonlyrefs}
+\textbf{Step 1: the support.}
+\begin{align}
+p_h^{\mathrm{gen}}(\cdot\mid y)&=\textstyle\sum_ip_i^{(h)}(y)\,\delta_{x^i}
+  && \why{Theorem~\ref{thm:endpoint}}\\
+\operatorname{supp}p_h^{\mathrm{gen}}&\subseteq\{x^1,\dots,x^N\}
+  && \why{finite mixture of point masses}
+\end{align}
 
-\emph{Step 2: a pointwise bound under any coupling.} Let $(X,X')$ be any coupling of
-$p_h^{\mathrm{gen}}(\cdot\mid y)$ and $p(\cdot\mid y)$. By Step~1, $X\in\{x^i\}$
-almost surely, and therefore, pointwise,
-\begin{equation}
-|X-X'|\ \ge\ \min_{1\le i\le N}|x^i-X'|\ =\ \operatorname{dist}(X',\{x^i\}).
-\label{eq:pf:atom:1}
-\end{equation}
+\textbf{Step 2: a pointwise bound under any coupling $(X,X')$ of $p_h^{\mathrm{gen}}$ and $p(\cdot\mid y)$.}
+\begin{align}
+|X-X'|&\ge\min_i|x^i-X'|=\operatorname{dist}(X',\{x^i\})
+  && X\in\{x^i\}\ \text{a.s., Step~1}\label{eq:pf:atom:1}
+\end{align}
 
-\emph{Step 3: from the bound to the floor.} Squaring \eqref{eq:pf:atom:1} and taking
-expectations, every coupling satisfies
-\begin{equation}
-\E\,|X-X'|^2\ \ge\ \E\,\operatorname{dist}(X',\{x^i\})^2
-=\int\operatorname{dist}(x,\{x^i\})^2\,p(x\mid y)\,dx=:F(y),
-\label{eq:pf:atom:2}
-\end{equation}
-and taking the infimum over couplings on the left gives
-$W_2^2(p_h^{\mathrm{gen}},p(\cdot\mid y))\ge F(y)$, which is \eqref{eq:w2floor}.
+\textbf{Step 3: the floor.}
+\begin{align}
+\E|X-X'|^2&\ge\E\operatorname{dist}(X',\{x^i\})^2
+  && \why{square and integrate \eqref{eq:pf:atom:1}}\\
+&=\int\operatorname{dist}(x,\{x^i\})^2p(x\mid y)\,dx=:F(y)
+  && X'\sim p(\cdot\mid y)\label{eq:pf:atom:2}\\
+W_2^2(p_h^{\mathrm{gen}},p(\cdot\mid y))&\ge F(y)
+  && \inf\ \text{over couplings; \eqref{eq:pf:atom:2}}
+\end{align}
+This is \eqref{eq:w2floor}.
 
-\emph{Step 4: the floor is positive and free of $h$.} The right-hand side of
-\eqref{eq:pf:atom:2} involves $p_h^{\mathrm{gen}}$ only through the set
-$\{x^1,\dots,x^N\}$, which does not depend on $h$; and if $p(\cdot\mid y)$ is
-absolutely continuous then the finite set $\{x^i\}$ is $p(\cdot\mid y)$-null, so the
-integrand is strictly positive $p(\cdot\mid y)$-almost everywhere and $F(y)>0$. The
-bound therefore holds at every bandwidth with the same strictly positive constant.
+\textbf{Step 4: positivity, free of $h$.}
+\begin{align}
+F(y)&\ \text{involves $p_h^{\mathrm{gen}}$ only through }\{x^i\}
+  && \why{so it does not depend on $h$}\\
+p(\{x^i\}\mid y)&=0
+  && p(\cdot\mid y)\ \text{absolutely continuous}\\
+F(y)&>0
+  && \operatorname{dist}(\cdot,\{x^i\})>0\ \ p(\cdot\mid y)\text{-a.e.}
+\end{align}
+This proves Proposition~\ref{prop:atomicity}.
 \end{proof}
 
 \begin{proof}[Proof of Corollary~\ref{cor:infbw}]
-Expanding the Gaussian kernel at large bandwidth, uniformly in $i$ as $h\to\infty$,
-\begin{equation}
-K_h(y-y^i)=(2\pi h^2)^{-k/2}\exp\Big(-\frac{|y-y^i|^2}{2h^2}\Big)
-=(2\pi h^2)^{-k/2}\big[1+O(h^{-2})\big],
-\label{eq:pf:infbw:1}
-\end{equation}
-the $O(h^{-2})$ being uniform because $\max_i|y-y^i|$ is a finite constant. The
-prefactor is the same for every $i$ and cancels in the normalisation, so
-\begin{equation}
-p_i^{(h)}(y)=\frac{K_h(y-y^i)}{\sum_jK_h(y-y^j)}
-=\frac{1+O(h^{-2})}{N+O(h^{-2})}\longrightarrow\frac1N .
-\label{eq:pf:infbw:2}
-\end{equation}
-Substituting \eqref{eq:pf:infbw:2} into Theorem~\ref{thm:endpoint}'s endpoint law
-gives $p_1\to\frac1N\sum_i\delta_{x^i}=\rhohat_X$, the unconditional empirical law.
+\mathtoolsset{showonlyrefs}
+\begin{align}
+K_h(y-y^i)&=(2\pi h^2)^{-k/2}\big[1+O(h^{-2})\big]
+  && \max_i|y-y^i|<\infty,\ \text{uniform in $i$}\label{eq:pf:infbw:1}\\
+p_i^{(h)}(y)&=\frac{1+O(h^{-2})}{N+O(h^{-2})}
+  && \why{the prefactor cancels; \eqref{eq:pf:infbw:1}}\label{eq:pf:infbw:2}\\
+&\longrightarrow\frac1N\quad(h\to\infty)
+  && \eqref{eq:pf:infbw:2}\\
+p_1&\to\tfrac1N\textstyle\sum_i\delta_{x^i}=\rhohat_X
+  && \why{Theorem~\ref{thm:endpoint}}
+\end{align}
+This proves Corollary~\ref{cor:infbw}.
 \end{proof}
 
 \begin{proof}[Proof of Corollary~\ref{cor:zerobw}]
-Let $i^\star$ be the unique nearest label, so $|y-y^i|>|y-y^{i^\star}|$ for every
-$i\ne i^\star$. The Gaussian prefactors cancel in the ratio of two kernel weights,
-leaving
-\begin{equation}
-\frac{K_h(y-y^i)}{K_h(y-y^{i^\star})}
-=\exp\Big[-\frac{|y-y^i|^2-|y-y^{i^\star}|^2}{2h^2}\Big]\xrightarrow[h\to0]{}0,
-\label{eq:pf:zerobw:1}
-\end{equation}
-since the bracketed numerator is a strictly positive constant. Dividing numerator and
-denominator of $p_i^{(h)}(y)$ by $K_h(y-y^{i^\star})$ and applying
-\eqref{eq:pf:zerobw:1} to each of the $N-1$ terms $i\ne i^\star$,
-\begin{equation}
-p_{i}^{(h)}(y)\longrightarrow\mathbf 1\{i=i^\star\}\qquad (h\to0).
-\label{eq:pf:zerobw:2}
-\end{equation}
-The endpoint law of Theorem~\ref{thm:endpoint} is a finite mixture whose weights are
-exactly these, so it converges weakly to $\delta_{x^{i^\star}}$: the zero-bandwidth
-limit is nearest-label collapse, as claimed.
+\mathtoolsset{showonlyrefs}
+Let $i^\star$ be the unique nearest label: $|y-y^i|>|y-y^{i^\star}|$ for $i\ne i^\star$.
+\begin{align}
+\frac{K_h(y-y^i)}{K_h(y-y^{i^\star})}&=\exp\Big[-\frac{|y-y^i|^2-|y-y^{i^\star}|^2}{2h^2}\Big]\\
+  &\quad \why{Gaussian prefactors cancel}\\
+&\xrightarrow[h\to0]{}0\label{eq:pf:zerobw:1}\\
+  &\quad \why{numerator of the exponent is a positive constant}\\
+p_i^{(h)}(y)&\to\mathbf 1\{i=i^\star\}\label{eq:pf:zerobw:2}\\
+  &\quad \why{divide by $K_h(y-y^{i^\star})$, use \eqref{eq:pf:zerobw:1}}\\
+p_h^{\mathrm{gen}}&\Rightarrow\delta_{x^{i^\star}}\\
+  &\quad \why{Theorem~\ref{thm:endpoint}}
+\end{align}
+This proves Corollary~\ref{cor:zerobw}.
 \end{proof}
 
 
 \begin{proof}[Proof of Proposition~\ref{prop:kernel-field}]
+\mathtoolsset{showonlyrefs}
 Fix $(x,t,y)$ with $t<1$.
 
-\emph{Step 1: Bayes' rule for the latent index.} By Bayes' rule applied to $I$,
-\begin{equation}
-\Pr(I=i\mid X_t=x,t,\widetilde Y=y)=
-\frac{\Pr(I=i)\,p(x,y\mid I=i,t)}{\sum_j\Pr(I=j)\,p(x,y\mid I=j,t)}.
-\label{eq:bayes-index}
-\end{equation}
-\emph{Step 2: the two observations are conditionally independent.} Given $I=i$,
-$X_t=(1-t)X_0+tx^i$ is a deterministic affine function of $X_0$ alone
-and $\widetilde Y=y^i+h\varepsilon$ is a deterministic affine function of $\varepsilon$
-alone, with $X_0\perp\varepsilon$; hence $X_t\perp\widetilde Y\mid I=i$, with
-marginal conditional densities $p(x\mid I=i,t)=(1-t)^{-d}\pi_0\big(\tfrac{x-tx^i}{1-t}\big)$
-(Lemma~\ref{lem:cov}) and $p(y\mid I=i)=K_h(y-y^i)$ (the density of $y^i+h\varepsilon$).
-Independence gives the joint conditional density
-$p(x,y\mid I=i,t)=(1-t)^{-d}\pi_0\big(\tfrac{x-tx^i}{1-t}\big)K_h(y-y^i)$; with the
-uniform prior $\Pr(I=i)=1/N$, \eqref{eq:bayes-index} becomes
-\begin{align*}
-\Pr(I=i\mid X_t=x,t,\widetilde Y=y)
-&=\frac{\frac1N(1-t)^{-d}\,\pi_0\big(\tfrac{x-tx^i}{1-t}\big)K_h(y-y^i)}
-{\sum_j\frac1N(1-t)^{-d}\,\pi_0\big(\tfrac{x-tx^j}{1-t}\big)K_h(y-y^j)}\\
-&=\frac{\pi_0\big(\tfrac{x-tx^i}{1-t}\big)K_h(y-y^i)}
-{\sum_j\pi_0\big(\tfrac{x-tx^j}{1-t}\big)K_h(y-y^j)}=w_i^{(h)}(x,t,y),
-\end{align*}
-the $i$-independent factor $\frac1N(1-t)^{-d}$ cancelling between the numerator and
-every term of the denominator (the kernel normalisation constant inside $K_h$
-cancels identically for the same reason).
+\textbf{Step 1: Bayes' rule for the index.}
+\begin{align}
+\Pr(I=i\mid X_t=x,t,\widetilde Y=y)&=\frac{\Pr(I=i)\,p(x,y\mid I=i,t)}{\sum_j\Pr(I=j)\,p(x,y\mid I=j,t)}\label{eq:bayes-index}\\
+  &\quad \why{Bayes}
+\end{align}
 
-\emph{Step 3: the per-index target.} Given $I=i$, one further conditions on
-$X_t=x$: by Lemma~\ref{lem:cov} this determines $X_0=(x-tx^i)/(1-t)$, so
-$U=X_1-X_0=x^i-X_0=(x^i-x)/(1-t)$, exactly as in
-Proposition~\ref{prop:collapse}(a).
+\textbf{Step 2: the two observations are conditionally independent.}
+\begin{align}
+X_t&=(1-t)X_0+tx^i,\quad\widetilde Y=y^i+h\varepsilon
+  && \why{given $I=i$}\\
+X_t\perp\widetilde Y\mid I=i
+  &&& X_0\perp\varepsilon\\
+p(x,y\mid I=i,t)&=(1-t)^{-d}\pi_0\big(\tfrac{x-tx^i}{1-t}\big)K_h(y-y^i)
+  && \why{Lemma~\ref{lem:cov};\ density of $y^i+h\varepsilon$}\\
+\Pr(I=i\mid X_t=x,t,\widetilde Y=y)&=\frac{\pi_0\big(\frac{x-tx^i}{1-t}\big)K_h(y-y^i)}{\sum_j\pi_0\big(\frac{x-tx^j}{1-t}\big)K_h(y-y^j)}
+  && \eqref{eq:bayes-index}\\
+&=w_i^{(h)}
+  && \why{$\frac1N(1-t)^{-d}$ cancels}
+\end{align}
 
-\emph{Step 4: averaging over the posterior.} By Proposition~\ref{prop:projection}, the
-population minimiser is $\vstar(x,t,y)=\E[U\mid X_t=x,t,\widetilde Y=y]$, obtained
-by averaging this per-index target over the index posterior just computed:
-\[
-\vstar(x,t,y)=\sum_{i=1}^N\Pr(I=i\mid X_t=x,t,\widetilde Y=y)\cdot\frac{x^i-x}{1-t}
-=\sum_{i=1}^Nw_i^{(h)}(x,t,y)\,\frac{x^i-x}{1-t},
-\]
-which is \eqref{eq:kernel-field}: the minimiser is a weighted average of the per-atom
-collapsed fields, the label entering only through the weights.
+\textbf{Step 3: the per-index target.}
+\begin{align}
+U\mid(X_t=x,I=i)&=\frac{x^i-x}{1-t}
+  && \why{Lemma~\ref{lem:cov}; Proposition~\ref{prop:collapse}(a)}
+\end{align}
+
+\textbf{Step 4: average over the posterior.}
+\begin{align}
+\vstar(x,t,y)&=\E[U\mid X_t=x,t,\widetilde Y=y]
+  && \why{Proposition~\ref{prop:projection}}\\
+&=\sum_iw_i^{(h)}(x,t,y)\,\frac{x^i-x}{1-t}
+  && \why{Steps~2 and~3}
+\end{align}
+This is \eqref{eq:kernel-field}, proving Proposition~\ref{prop:kernel-field}.
 \end{proof}
 
 \begin{lemma}[Equivalent mixture coupling]
@@ -1209,106 +1218,96 @@ conditional velocity field $\E[X_1-X_0\mid X_t=x,t]$ equals $\vstar(x,t,y)$ of
 \eqref{eq:kernel-field} for every $x,t<1$.
 \end{lemma}
 \begin{proof}[Proof of Lemma~\ref{lem:mixture-coupling}]
-\emph{Step 1: the index posterior of the coupling.} The coupling differs from the one
-in Proposition~\ref{prop:uncond} only in its prior on $I$, so Bayes' rule with
-Lemma~\ref{lem:cov}'s density and prior $p_i^{(h)}(y)$ gives
-\begin{equation}
-\Pr(I=i\mid X_t=x,t)\ \propto\ p_i^{(h)}(y)\,(1-t)^{-d}
-\pi_0\!\big(\tfrac{x-tx^i}{1-t}\big)
-\ \propto\ \pi_0\!\big(\tfrac{x-tx^i}{1-t}\big)\,K_h(y-y^i),
-\label{eq:pf:mix:1}
-\end{equation}
-the second proportionality because $p_i^{(h)}(y)\propto K_h(y-y^i)$ by definition and
-$(1-t)^{-d}$ does not depend on $i$.
+\mathtoolsset{showonlyrefs}
+\textbf{Step 1: the coupling's index posterior.}
+\begin{align}
+\Pr(I=i\mid X_t=x,t)&\propto p_i^{(h)}(y)\,(1-t)^{-d}\pi_0\big(\tfrac{x-tx^i}{1-t}\big)\\
+  &\quad \why{Bayes; Lemma~\ref{lem:cov}}\\
+&\propto\pi_0\big(\tfrac{x-tx^i}{1-t}\big)K_h(y-y^i)\label{eq:pf:mix:1}\\
+  &\quad p_i^{(h)}\propto K_h(y-y^i);\ (1-t)^{-d}\text{ free of }i
+\end{align}
 
-\emph{Step 2: the two posteriors coincide.} The right-hand side of
-\eqref{eq:pf:mix:1} is, as a function of $i$ at fixed $(x,t,y)$, exactly the
-numerator of $w_i^{(h)}$ in \eqref{eq:kernel-field}; both are then normalised to sum
-to one over $i$, so $\Pr(I=i\mid X_t=x,t)=w_i^{(h)}(x,t,y)$.
+\textbf{Step 2: the two posteriors coincide.}
+\begin{align}
+\Pr(I=i\mid X_t=x,t)&=w_i^{(h)}(x,t,y)\\
+  &\quad \eqref{eq:pf:mix:1}\ \text{is the numerator of \eqref{eq:kernel-field}; both normalise over $i$}
+\end{align}
 
-\emph{Step 3: the velocity.} Given $I=i$, Step~1 of the proof of
-Proposition~\ref{prop:collapse} gives $X_1-X_0=(x^i-x)/(1-t)$, so averaging over
-Step~2's posterior,
-\[
-\E[X_1-X_0\mid X_t=x,t]=\sum_iw_i^{(h)}(x,t,y)\,\frac{x^i-x}{1-t}=\vstar(x,t,y),
-\]
-which is the claim: the label-smoothed minimiser is the conditional velocity of a
-coupling that never leaves the atoms.
+\textbf{Step 3: the velocity.}
+\begin{align}
+\E[X_1-X_0\mid X_t=x,t]&=\sum_iw_i^{(h)}\,\frac{x^i-x}{1-t}
+  && X_1-X_0=\frac{x^i-x}{1-t}\ \text{given }I=i;\ \text{Step~2}\\
+&=\vstar(x,t,y)
+  && \eqref{eq:kernel-field}
+\end{align}
+This proves Lemma~\ref{lem:mixture-coupling}.
 \end{proof}
 
 \begin{proof}[Proof of Theorem~\ref{thm:endpoint}]
-Fix $h>0$ and a query $y$, and let $(I,X_0,X_1,X_t)$ be the mixture coupling of
-Lemma~\ref{lem:mixture-coupling}.
+\mathtoolsset{showonlyrefs}
+Fix $h>0$, $y$, and let $(I,X_0,X_1,X_t)$ be the coupling of Lemma~\ref{lem:mixture-coupling}.
 
-\emph{Step 1: the field is the coupling's own velocity.} By
-Lemma~\ref{lem:mixture-coupling},
-\begin{equation}
-\vstar(x,t,y)=\E[X_1-X_0\mid X_t=x,t]
-=\sum_iw_i^{(h)}(x,t,y)\,\frac{x^i-x}{1-t},\qquad t<1,
-\label{eq:pf:endpoint:1}
-\end{equation}
-so the field whose flow we must study is exactly the conditional velocity of that
-coupling, and not merely a field with the same formula.
+\textbf{Step 1: the field is the coupling's velocity.}
+\begin{align}
+\vstar(x,t,y)&=\E[X_1-X_0\mid X_t=x,t]
+  && \why{Lemma~\ref{lem:mixture-coupling}}\\
+&=\sum_iw_i^{(h)}\,\frac{x^i-x}{1-t}
+  && \why{definition of }w_i^{(h)}\label{eq:pf:endpoint:1}
+\end{align}
 
-\emph{Step 2: the flow is well posed on $[0,1)$.} The right-hand side of
-\eqref{eq:pf:endpoint:1} has the form $v(x,t)=\sum_iw_i(x,t)(x^i-x)/(1-t)$ required by
-Lemma~\ref{lem:wellposed}, and its weights are smooth and sum to one: each
-$w_i^{(h)}$ is a ratio whose numerator and denominator are smooth and strictly
-positive in $(x,t)$, by the positivity of $\pi_0$ recorded after Lemma~\ref{lem:cov}.
-Lemma~\ref{lem:wellposed} therefore applies, and the ODE $\dot x_t=\vstar(x_t,t,y)$
-has a unique solution from every initial condition, with flow maps
-$(\Phi_t)_{t<1}$.
+\textbf{Step 2: well-posedness on $[0,1)$.}
+\begin{align}
+w_i^{(h)}&\ \text{smooth, positive, $\textstyle\sum_iw_i^{(h)}=1$}\\
+  &\quad \why{ratio of smooth positive terms; $\pi_0>0$ (Lemma~\ref{lem:cov})}\\
+\dot x_t=\vstar&\ \text{has a unique flow $(\Phi_t)_{t<1}$}\\
+  &\quad \why{Lemma~\ref{lem:wellposed}}
+\end{align}
 
-\emph{Step 3: the flow transports $\pi_0$ to the coupling's marginals.} Both
-$(\Phi_t)_\#\pi_0$ and $\mathrm{Law}(X_t)$ solve the continuity equation
-\begin{equation}
-\partial_t p_t+\nabla\!\cdot\!\big(p_t\,\vstar(\cdot,t,y)\big)=0,
-\qquad p_0=\pi_0,
-\label{eq:pf:endpoint:2}
-\end{equation}
-the first because it is the push-forward of a well-posed flow and the second by the
-superposition principle, $\vstar$ being the coupling's conditional velocity by
-Step~1. Lemma~\ref{lem:wellposed} gives uniqueness of solutions of
-\eqref{eq:pf:endpoint:2}, so $(\Phi_t)_\#\pi_0=\mathrm{Law}(X_t)=:p_t$ for every
-$t<1$.
+\textbf{Step 3: the flow transports $\pi_0$ to $\mathrm{Law}(X_t)$.}
+\begin{align}
+\partial_tp_t+\nabla\!\cdot\!\big(p_t\vstar\big)&=0,\quad p_0=\pi_0
+  && \why{solved by $(\Phi_t)_\#\pi_0$ and by $\mathrm{Law}(X_t)$}\label{eq:pf:endpoint:2}\\
+(\Phi_t)_\#\pi_0&=\mathrm{Law}(X_t)=:p_t
+  && \why{uniqueness, Lemma~\ref{lem:wellposed}(c)}
+\end{align}
+(The second solves \eqref{eq:pf:endpoint:2} by superposition, using Step~1.)
 
-\emph{Step 4: the endpoint.} Under the coupling, $X_t=(1-t)X_0+tx^I$ with
-$X_0\sim\pi_0$ independent of $I$, so for every realisation of $I$,
-\begin{equation}
-X_t\longrightarrow x^I\quad\text{almost surely as }t\uparrow1 .
-\label{eq:pf:endpoint:3}
-\end{equation}
-Almost-sure convergence implies convergence in law, so by \eqref{eq:pf:endpoint:3}
-and Step~3,
-\[
-p_t=\mathrm{Law}(X_t)\ \Longrightarrow\ \mathrm{Law}(x^I)
-=\sum_ip_i^{(h)}(y)\,\delta_{x^i},
-\]
-and Lemma~\ref{lem:wellposed} identifies that weak limit with
-$p_1=\lim_{t\uparrow1}p_t$. This is \eqref{eq:endpoint}: the endpoint law is the
-Nadaraya--Watson mixture over the training atoms, with weights $p^{(h)}(y)$.
+\textbf{Step 4: the endpoint.}
+\begin{align}
+X_t&=(1-t)X_0+tx^I\longrightarrow x^I\quad\text{a.s.}
+  && t\uparrow1\label{eq:pf:endpoint:3}\\
+p_t&\Rightarrow\mathrm{Law}(x^I)=\textstyle\sum_ip_i^{(h)}(y)\,\delta_{x^i}
+  && \eqref{eq:pf:endpoint:3}\ \text{a.s.\ implies in law}\\
+p_1=\lim_{t\uparrow1}p_t&=\textstyle\sum_ip_i^{(h)}(y)\,\delta_{x^i}
+  && \why{identify the weak limit, Lemma~\ref{lem:wellposed}}
+\end{align}
+This is \eqref{eq:endpoint}, proving Theorem~\ref{thm:endpoint}.
 \end{proof}
 
 
 \begin{proof}[Proof of Proposition~\ref{prop:moments}]
-\emph{Step 1: the moments of a finite mixture.} By Theorem~\ref{thm:endpoint} the endpoint
-law is $\sum_ip_i^{(h)}(y)\delta_{x^i}$, so its mean and covariance are the weighted sums
-\begin{equation}
-\bar x_h(y)=\sum_ip_i^{(h)}(y)\,x^i,\qquad
-\Covh(y)=\sum_ip_i^{(h)}(y)\,(x^i-\bar x_h(y))(x^i-\bar x_h(y))^\top,
-\label{eq:pf:moments:1}
-\end{equation}
-which involve only the training set and the kernel weights, hence are computable exactly
-for every $h$.
+\mathtoolsset{showonlyrefs}
+\textbf{Step 1: moments of a finite mixture.}
+\begin{align}
+\bar x_h(y)&=\textstyle\sum_ip_i^{(h)}(y)\,x^i\\
+  &\quad \why{mean of $\sum_ip_i^{(h)}\delta_{x^i}$, Theorem~\ref{thm:endpoint}}\\
+\Covh(y)&=\textstyle\sum_ip_i^{(h)}(y)(x^i-\bar x_h)(x^i-\bar x_h)^\top\label{eq:pf:moments:1}\\
+  &\quad \why{covariance of the same mixture}
+\end{align}
+Both involve only the training set and the kernel weights, so they are exactly computable.
 
-\emph{Step 2: $\tr\Covh(y)$ need not be monotone.} It suffices to exhibit one instance.
-Take $k=d=1$, $y=0$ and the three training pairs $(y^i,x^i)=(0,0),(1,10),(10,0)$. By
-\eqref{eq:pf:moments:1}, $\tr\Covh=\sum_ip_i^{(h)}(x^i-\bar x_h)^2$. As $h\to0$ the
-weights tend to $(1,0,0)$ (Corollary~\ref{cor:zerobw}), so $\tr\Covh\to0$. At $h=2$ the
-weights are $(0.531,\,0.469,\,2\times10^{-6})$ and $\tr\Covh=24.90$. As $h\to\infty$ the
-weights tend to $(\tfrac13,\tfrac13,\tfrac13)$ (Corollary~\ref{cor:infbw}) and
-$\tr\Covh\to\tr\Xhat=200/9=22.22$. A function that rises from $0$ to $24.90$ and then
-falls to $22.22$ is not monotone. This proves Proposition~\ref{prop:moments}.
+\textbf{Step 2: $\tr\Covh$ need not be monotone.} Take $k=d=1$, $y=0$ and pairs
+$(y^i,x^i)=(0,0),(1,10),(10,0)$, so $\tr\Covh=\sum_ip_i^{(h)}(x^i-\bar x_h)^2$ by \eqref{eq:pf:moments:1}.
+\begin{align}
+h\to0:&\quad p^{(h)}\to(1,0,0),\ \tr\Covh\to0
+  && \why{Corollary~\ref{cor:zerobw}}\\
+h=2:&\quad p^{(h)}=(0.531,\,0.469,\,2{\times}10^{-6}),\ \tr\Covh=24.90
+  && \why{closed form}\\
+h\to\infty:&\quad p^{(h)}\to(\tfrac13,\tfrac13,\tfrac13),\ \tr\Covh\to\tr\Xhat=\tfrac{200}{9}=22.22
+  && \why{Corollary~\ref{cor:infbw}}
+\end{align}
+A function that rises from $0$ to $24.90$ and falls to $22.22$ is not monotone. This proves
+Proposition~\ref{prop:moments}.
 \end{proof}
 
 \begin{assumption}[Random design, at a query point $y$]
