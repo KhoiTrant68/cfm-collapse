@@ -365,6 +365,10 @@ p_h^{\mathrm{gen}}(\cdot\mid y)=\sum_{i=1}^N p_i^{(h)}(y)\,\delta_{x^i}.
 \label{eq:endpoint}
 \end{equation} \proofin{apx:pf-endpoint}
 \end{theorem}
+\emph{Proof sketch.} By Lemma~\ref{lem:mixture-coupling}, $\vstar$ is the conditional velocity of the
+coupling $I\sim p^{(h)}(y)$, $X_1=x^I$. Its marginals solve the flow's continuity equation, so they
+coincide with the flow's (Lemma~\ref{lem:wellposed}), and they tend to $\mathrm{Law}(x^I)$ since
+$X_t\to x^I$ almost surely.
 \begin{corollary}[Zero bandwidth at fixed $N$]
 \label{cor:zerobw}
 If $y$ has a unique nearest label $i^\star=\arg\min_i|y-y^i|$, then
@@ -407,6 +411,8 @@ W_2^2\big(p_h^{\mathrm{gen}}(\cdot\mid y),\,p(\cdot\mid y)\big)\ \ge\
 \end{equation}
 \emph{and this lower bound does not depend on $h$.} \proofin{apx:pf-atomicity}
 \end{proposition}
+\emph{Proof sketch.} Any coupling of an atomic law with $p(\cdot\mid y)$ moves each posterior draw at
+least to its nearest atom, and that bound involves the atoms alone, not $h$.
 This is the central caveat on any ``variance is restored at $h\approx0.1$'' claim:
 label smoothing redistributes weight over training atoms and never generates new
 samples, so matching $\tr\Covh$ matches a second moment, not the posterior. A genuine

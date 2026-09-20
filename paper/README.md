@@ -42,30 +42,32 @@ repository code; see the Reproducibility paragraph in the paper.
 ### Proofs
 
 Modelled on the two ICLR 2026 papers in `references/` (Source-Guided Flow Matching;
-Preventing Model Collapse). Every proof in Appendix A follows one shape:
+Preventing Model Collapse) and on Wu & Mondelli, arXiv:2501.19104 (how the appendix is laid
+out). Every proof in Appendix A follows one shape:
 
-1. **Statement in the body, pointer after it.** Every statement the body states and the
-   appendix proves ends with `\proofin` (`[Proof: Appendix A]`, right-aligned, small).
-   Statements that live in the appendix sit directly above their proof.
-2. **Helper results first.** A lemma is stated and proved *before* the result that uses it
-   (`lem:cov`, `lem:wellposed`, `lem:mixture-coupling` all precede Theorem `thm:endpoint`).
+1. **One subsection per result.** Appendix A opens with `A.1 Technical lemmas`
+   (`lem:cov`, `lem:wellposed`, `lem:mixture-coupling`, each stated then proved), then one
+   `\subsection{Proof of <Kind>~\ref{<label>}}` per result, labelled `apx:pf-<name>`. A result
+   the body states is repeated there as a quote (no label, unnumbered displays); a result
+   stated in the appendix is proved where it is stated.
+2. **The body points at its own subsection**: `\proofin{apx:pf-<name>}` at the end of the
+   statement (`[Proof: Appendix A.k]`, right-aligned, small). The two results whose idea is
+   short enough (Theorem 1, Proposition `atomicity`) also carry a two-line `Proof sketch.`
+   in the body; there is no room for more.
 3. **Steps.** A proof with more than one move is `\textbf{Step 1: <what this step does>.}`,
    `Step 2: ...`; a single-move proof (two corollaries) has no Steps.
-4. **One line per move.** Each step is an `align` block: the claim or equation on the left, its
-   warrant on the right in `\why{...}` (`\text{\footnotesize ...}`): a cited result, an
-   assumption `Assumption~\ref{as:...}`, or a labelled display; no "it is easy to see".
-   Inequalities and limits go in the same column (`\le`, `\to`). A line that really is an
-   argument gets one short sentence of prose before or after the block, not inside it.
-   `\mathtoolsset{showonlyrefs}` at the head of each proof numbers only the lines that are cited.
-   Columns of an `align` add, so when the widest line plus the widest warrant would overflow,
-   put each warrant on its own row under its line (`&\quad\why{...}`); the scripts that wrote the
-   proofs did this automatically, by a width estimate.
+4. **Multi-line displays joined by prose.** Each step is an `align` block of the successive
+   lines, followed by a sentence saying what justifies them, in order (a cited result, an
+   assumption `Assumption~\ref{as:...}`, or a labelled display); no "it is easy to see".
+   Inequalities and limits go in the same block. `\mathtoolsset{showonlyrefs}` at the head of
+   each proof numbers only the lines that a later step cites. The justification sentences
+   were generated from the earlier one-warrant-per-line form and are terse; rewrite one by hand
+   into flowing prose when you next touch its proof.
 5. **Displays are labelled** `eq:pf:<name>:<n>`, numbered in order of use, and *cited* by the
    later step that uses them. A label that a statement or another section cites keeps its
    descriptive name (`eq:kernel-field`, `eq:vgrowth`, `eq:tgtfield`, `eq:lgbias`, ...).
 6. **Closing sentence** restating what was proved: `This proves Proposition~\ref{...}.`
 7. Proof headers are always `\begin{proof}[Proof of <Kind>~\ref{<label>}]`.
-
 Assumptions are numbered once and cited, not restated: `as:standing` (Assumption 1: fixed
 dataset, linear interpolant, identifying labels), `as:design` (Assumption 2: random-design
 regularity for the bandwidth expansion, including the fourth moment), `as:lipschitz`
