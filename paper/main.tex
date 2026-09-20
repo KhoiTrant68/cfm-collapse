@@ -49,6 +49,7 @@
 \newcommand{\vstar}{v_h^\star}
 \newcommand{\vstarz}{v_0^\star}
 \newcommand{\Covh}{\operatorname{Cov}_h}
+\newcommand{\proofin}{\hfill\textnormal{\footnotesize[Proof: Appendix~\ref{app:proofs}]}}
 
 \title{Restored Variance Is Not a Restored Posterior:\\
 Conditional Flow Matching as Kernel Regression over Training Atoms}
@@ -288,7 +289,7 @@ objective \citep{lipman2023flow,albergo2023building,liu2023rectified}.
 For every square-integrable $v$,
 $L_h(v)=\E[\Var(U\mid X_t,t,\widetilde Y)]+\E\,|v-\E[U\mid X_t,t,\widetilde Y]|^2$,
 so the a.e.-unique minimiser is $\vstar(x,t,y)=\E[U\mid X_t=x,t,\widetilde Y=y]$ with
-$\inf_v L_h=\E[\Var(U\mid X_t,t,\widetilde Y)]$.
+$\inf_v L_h=\E[\Var(U\mid X_t,t,\widetilde Y)]$. \proofin
 \end{proposition}
 
 Lemmas~\ref{lem:cov} and~\ref{lem:wellposed} (appendix) make the conditional
@@ -312,7 +313,7 @@ Let $h=0$. Then
 (c) the ODE $\dot x_t=(x^i-x_t)/(1-t)$ has the explicit solution
 $x_t=(1-t)x_0+tx^i$, so $x_t\to x^i$ for every $x_0$; and
 (d) $p_1^{\mathrm{cond}}(\cdot\mid y^i)=\delta_{x^i}$, hence
-$\Cov[p_1^{\mathrm{cond}}(\cdot\mid y^i)]=0$.
+$\Cov[p_1^{\mathrm{cond}}(\cdot\mid y^i)]=0$. \proofin
 \end{proposition}
 If labels are not distinct, collapse is onto the label's empirical conditional
 support $|\mathcal I_y|^{-1}\sum_{i\in\mathcal I_y}\delta_{x^i}$, a single atom exactly
@@ -333,7 +334,7 @@ conditional second moment:
 \qquad\text{vs.}\qquad
 \Cov[p_1^{\mathrm{unc}}]=\Xhat.
 \label{eq:distinction}
-\end{equation}
+\end{equation} \proofin
 \end{corollary}
 
 The often-cited observation $\tr\Cov\approx\tr\Xhat$ for the unconditional baseline is
@@ -360,7 +361,7 @@ For $h>0$, $t<1$,
 w_i^{(h)}=\frac{\pi_0\!\big(\tfrac{x-tx^i}{1-t}\big)K_h(y-y^i)}
 {\sum_j\pi_0\!\big(\tfrac{x-tx^j}{1-t}\big)K_h(y-y^j)}.
 \label{eq:kernel-field}
-\end{equation}
+\end{equation} \proofin
 \end{proposition}
 This factorises the index posterior into a spatial source-consistency term and a label
 kernel. With $p_i^{(h)}(y):=K_h(y-y^i)/\sum_j K_h(y-y^j)$ the normalised label weights,
@@ -373,19 +374,19 @@ For every $h>0$ and query $y$,
 \begin{equation}
 p_h^{\mathrm{gen}}(\cdot\mid y)=\sum_{i=1}^N p_i^{(h)}(y)\,\delta_{x^i}.
 \label{eq:endpoint}
-\end{equation}
+\end{equation} \proofin
 \end{theorem}
 \begin{corollary}[Zero bandwidth at fixed $N$]
 \label{cor:zerobw}
 If $y$ has a unique nearest label $i^\star=\arg\min_i|y-y^i|$, then
 $p_i^{(h)}(y)\to\mathbf 1\{i=i^\star\}$ as $h\to0$, so
 $p_h^{\mathrm{gen}}(\cdot\mid y)\Rightarrow\delta_{x^{i^\star}}$; at $y=y^i$ this
-recovers Proposition~\ref{prop:collapse}.
+recovers Proposition~\ref{prop:collapse}. \proofin
 \end{corollary}
 \begin{corollary}[Infinite bandwidth at fixed $N$]
 \label{cor:infbw}
 $p_i^{(h)}(y)\to1/N$ for every $i$ as $h\to\infty$, so
-$p_h^{\mathrm{gen}}(\cdot\mid y)\Rightarrow p_1^{\mathrm{unc}}$.
+$p_h^{\mathrm{gen}}(\cdot\mid y)\Rightarrow p_1^{\mathrm{unc}}$. \proofin
 \end{corollary}
 So $h$ interpolates continuously between the two hard regimes of
 Section~\ref{sec:theory-hard}.
@@ -395,7 +396,7 @@ Section~\ref{sec:theory-hard}.
 $\bar x_h(y)=\sum_i p_i^{(h)}(y)\,x^i$ and
 $\Covh(y)=\sum_i p_i^{(h)}(y)\,(x^i-\bar x_h(y))(x^i-\bar x_h(y))^\top$, both exactly
 computable from the training set for any $h$, and the correct reference against which
-generated moments must be compared. $\tr\Covh(y)$ need not be monotone in $h$.
+generated moments must be compared. $\tr\Covh(y)$ need not be monotone in $h$. \proofin
 \end{proposition}
 
 These are the moments of the law identified by Theorem~\ref{thm:endpoint}, and the
@@ -415,7 +416,7 @@ W_2^2\big(p_h^{\mathrm{gen}}(\cdot\mid y),\,p(\cdot\mid y)\big)\ \ge\
 \int\operatorname{dist}\big(x,\{x^i\}\big)^2\,p(x\mid y)\,dx\ >\ 0,
 \label{eq:w2floor}
 \end{equation}
-\emph{and this lower bound does not depend on $h$.}
+\emph{and this lower bound does not depend on $h$.} \proofin
 \end{proposition}
 This is the central caveat on any ``variance is restored at $h\approx0.1$'' claim:
 label smoothing redistributes weight over training atoms and never generates new
@@ -454,7 +455,7 @@ p_1(\cdot\mid y)=\sum_i p_i^{(h)}(y)\,\N(x^i,\rho^2I_d),
 \end{equation}
 For every $\rho>0$ this law is absolutely continuous, so \eqref{eq:w2floor} does not
 apply to it; moreover $s_1=\rho>0$, so $\vstar$ extends continuously to $t=1$ and the
-$1/(1-t)$ blow-up of $(\star)$ disappears.
+$1/(1-t)$ blow-up of $(\star)$ disappears. \proofin
 \end{proposition}
 
 Two caveats, both quantified in Section~\ref{sec:exp1}: removing a lower bound is not
@@ -506,7 +507,7 @@ $c(t)=\frac{-(1-t)+\frac{\sigma^2}2(1-2t)}{s_t^2}=\frac12\frac{d}{dt}\log s_t^2$
 \begin{equation}
 p_1^{\mathrm{cond}}(\cdot\mid y^i)=\delta_{x^i}\quad\text{for every }\sigma\ge0.
 \label{eq:invariance}
-\end{equation}
+\end{equation} \proofin
 \end{proposition}
 
 Part~(b) gives the flow in closed form and (c) follows because $s_1=0$, so no
@@ -819,6 +820,32 @@ text, claims, proofs, and code.
 \section{Deferred proofs}
 \label{app:proofs}
 
+\begin{proof}[Proof of Proposition~\ref{prop:projection}]
+\emph{Step 1: the decomposition.} Write $\mathcal G=\sigma(X_t,t,\widetilde Y)$ and
+$m:=\E[U\mid\mathcal G]$, which exists because $|U|\le|x^I|+|X_0|$ is square-integrable.
+For square-integrable $v$ the residual splits as $U-v=(U-m)+(m-v)$ with $m-v$
+$\mathcal G$-measurable, so
+\begin{equation}
+L_h(v)=\E|U-m|^2+\E|m-v|^2+2\,\E\langle U-m,\ m-v\rangle .
+\label{eq:pf:projection:1}
+\end{equation}
+
+\emph{Step 2: the cross term vanishes.} By the tower property,
+\begin{equation}
+\E\langle U-m,\ m-v\rangle=\E\big\langle\E[U-m\mid\mathcal G],\ m-v\big\rangle=0,
+\label{eq:pf:projection:2}
+\end{equation}
+since $\E[U-m\mid\mathcal G]=0$ by definition of $m$.
+
+\emph{Step 3: the minimiser.} By \eqref{eq:pf:projection:1}--\eqref{eq:pf:projection:2},
+$L_h(v)=\E[\Var(U\mid\mathcal G)]+\E|v-m|^2$, where $\E|U-m|^2=\E[\Var(U\mid\mathcal G)]$
+is the trace of the conditional covariance. The second term is nonnegative and vanishes
+exactly when $v=m$ almost everywhere under the law of $(X_t,t,\widetilde Y)$, so the
+minimiser is a.e.\ unique, equals $\vstar(x,t,y)=\E[U\mid X_t=x,t,\widetilde Y=y]$, and
+$\inf_vL_h=\E[\Var(U\mid X_t,t,\widetilde Y)]$. This proves
+Proposition~\ref{prop:projection}.
+\end{proof}
+
 \begin{lemma}[Change of variables]
 \label{lem:cov}
 Fix $i$ and $t<1$. Conditionally on $I=i$, the map $X_0\mapsto X_t=(1-t)X_0+tx^i$ is an
@@ -1040,6 +1067,23 @@ $\inf_vL_{\mathrm{unc}}(v)=\E[\Var(U\mid X_t,t)]>0$, in contrast with the zero
 infimum of Proposition~\ref{prop:collapse}(b).
 \end{proof}
 
+\begin{proof}[Proof of Corollary~\ref{cor:distinction}]
+\emph{Step 1: the conditional flow.} By Proposition~\ref{prop:collapse}(d),
+$p_1^{\mathrm{cond}}(\cdot\mid y^i)=\delta_{x^i}$, a point mass, whose covariance is $0$.
+
+\emph{Step 2: the unconditional flow.} By Proposition~\ref{prop:uncond},
+$p_1^{\mathrm{unc}}=\rhohat_X=\frac1N\sum_i\delta_{x^i}$, whose covariance is, by
+definition of $\Xhat$,
+\begin{equation}
+\Cov[p_1^{\mathrm{unc}}]=\frac1N\sum_i(x^i-\bar x)(x^i-\bar x)^\top=\Xhat .
+\label{eq:pf:distinction:1}
+\end{equation}
+
+\emph{Step 3: conclusion.} Both laws are finite mixtures of point masses at training
+examples, hence supported on the training set, and Steps~1--2 give
+\eqref{eq:distinction}. This proves Corollary~\ref{cor:distinction}.
+\end{proof}
+
 \begin{proof}[Proof of Proposition~\ref{prop:atomicity}]
 \emph{Step 1: the support.} Theorem~\ref{thm:endpoint} gives
 $p_h^{\mathrm{gen}}(\cdot\mid y)=\sum_ip_i^{(h)}(y)\delta_{x^i}$, so
@@ -1245,6 +1289,27 @@ $p_1=\lim_{t\uparrow1}p_t$. This is \eqref{eq:endpoint}: the endpoint law is the
 Nadaraya--Watson mixture over the training atoms, with weights $p^{(h)}(y)$.
 \end{proof}
 
+
+\begin{proof}[Proof of Proposition~\ref{prop:moments}]
+\emph{Step 1: the moments of a finite mixture.} By Theorem~\ref{thm:endpoint} the endpoint
+law is $\sum_ip_i^{(h)}(y)\delta_{x^i}$, so its mean and covariance are the weighted sums
+\begin{equation}
+\bar x_h(y)=\sum_ip_i^{(h)}(y)\,x^i,\qquad
+\Covh(y)=\sum_ip_i^{(h)}(y)\,(x^i-\bar x_h(y))(x^i-\bar x_h(y))^\top,
+\label{eq:pf:moments:1}
+\end{equation}
+which involve only the training set and the kernel weights, hence are computable exactly
+for every $h$.
+
+\emph{Step 2: $\tr\Covh(y)$ need not be monotone.} It suffices to exhibit one instance.
+Take $k=d=1$, $y=0$ and the three training pairs $(y^i,x^i)=(0,0),(1,10),(10,0)$. By
+\eqref{eq:pf:moments:1}, $\tr\Covh=\sum_ip_i^{(h)}(x^i-\bar x_h)^2$. As $h\to0$ the
+weights tend to $(1,0,0)$ (Corollary~\ref{cor:zerobw}), so $\tr\Covh\to0$. At $h=2$ the
+weights are $(0.531,\,0.469,\,2\times10^{-6})$ and $\tr\Covh=24.90$. As $h\to\infty$ the
+weights tend to $(\tfrac13,\tfrac13,\tfrac13)$ (Corollary~\ref{cor:infbw}) and
+$\tr\Covh\to\tr\Xhat=200/9=22.22$. A function that rises from $0$ to $24.90$ and then
+falls to $22.22$ is not monotone. This proves Proposition~\ref{prop:moments}.
+\end{proof}
 
 \begin{assumption}[Random design, at a query point $y$]
 \label{as:design}
