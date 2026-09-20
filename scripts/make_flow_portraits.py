@@ -382,9 +382,77 @@ def fig_interventions(inst: Instance) -> None:
     save(fig, "fig_interventions.png")
 
 
+TRAINED_H = {0.0: RUN_H0,
+             0.05: Path("results/exp1/p7yck_h0.05_seed0"),
+             0.1: Path("results/exp1/p7yck_h0.1_seed0"),
+             0.5: Path("results/exp1/p7yck_h0.5_seed0")}
+
+
+def fig_bandwidths(inst: Instance) -> None:
+    """Appendix: the reference law and the model trained at the same bandwidth.
+
+    Top row is Theorem 1 -- the exact population endpoint law at each h, with the
+    Nadaraya-Watson weights as marker area. Bottom row is what an MLP trained at
+    that same h actually does after 200000 iterations. The pair is the paper's
+    P7 claim in one picture: the reference is what the model is converging to,
+    and the gap is optimisation, not a different law.
+    """
+    hs = [0.0, 0.05, 0.1, 0.5]
+    fig, axes = plt.subplots(2, len(hs), figsize=(3.05 * len(hs), 6.6))
+    for j, h in enumerate(hs):
+        tr_ref = float(torch.trace(kernel_moments(inst.y, inst.X, inst.Y, h)[1]))
+        ne = n_eff(kernel_weights(inst.y, inst.Y, h))
+
+        ax = axes[0, j]
+        _frame(ax, inst)
+        paths = flow_exact(inst.X, inst.Y, inst.y, h, inst.x0)
+        if h > 0:
+            trajectory_bundle(ax, paths, show_ends=False)
+            weight_scatter(ax, inst.Xn, inst.weights(h))
+        else:
+            trajectory_bundle(ax, paths, end_size=150, end_alpha=1.0)
+        ax.set_title(f"$h={h:g}$", pad=7)
+        ax.text(0.5, -0.03,
+                f"reference: $\\mathrm{{tr}}\\,\\mathrm{{Cov}}_h={tr_ref:.2f}$,\n"
+                f"$n_{{\\mathrm{{eff}}}}={ne:.0f}$",
+                transform=ax.transAxes, ha="center", va="top", fontsize=8.6)
+        panel_tag(ax, "abcd"[j])
+
+        ax = axes[1, j]
+        _frame(ax, inst)
+        ck = TRAINED_H[h] / "checkpoints" / "ckpt_200000.pt"
+        model = load_exp1_model(ck)
+        tpaths = flow_model(model, inst.x0, inst.y.to(torch.float32))
+        st = endpoint_stats(inst, tpaths[-1])
+        trajectory_bundle(ax, tpaths, end_size=110 if h == 0 else 26,
+                          end_alpha=1.0 if h == 0 else 0.75)
+        # At h = 0 the reference is a point mass, so the ratio to it is not a
+        # number; the panel reports how concentrated the model is instead.
+        second = (f"ratio to reference ${st['tr'] / tr_ref:.2f}$" if tr_ref > 0
+                  else f"{st['top_share'] * 100:.0f}% of paths on one atom")
+        ax.text(0.5, -0.03,
+                f"trained: $\\mathrm{{tr}}\\,\\mathrm{{Cov}}={st['tr']:.2f}$,\n"
+                + second,
+                transform=ax.transAxes, ha="center", va="top", fontsize=8.6)
+        panel_tag(ax, "efgh"[j])
+        ratio = f"{st['tr'] / tr_ref:.3f}" if tr_ref > 0 else "n/a"
+        print(f"  h={h:<5} reference {tr_ref:.3f} (n_eff {ne:5.1f})  "
+              f"trained {st['tr']:.3f}  ratio {ratio:>5}  atoms {st['n_atoms']}")
+        if h == 0:
+            assert st["top_share"] > 0.9, "the h=0 model should sit on one atom"
+
+    _lock_limits(list(axes.ravel()))
+    axes[0, 0].set_ylabel("population optimum", fontsize=10)
+    axes[1, 0].set_ylabel("trained, $200000$ it.", fontsize=10)
+    shared_legend(fig, LEGEND, loc="lower center", y=-0.03)
+    fig.tight_layout(h_pad=3.0)
+    save(fig, "fig_bandwidth_portrait.png")
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--only", choices=["body", "training", "interventions", "all"],
+    ap.add_argument("--only", choices=["body", "training", "interventions",
+                                       "bandwidths", "all"],
                     default="all")
     args = ap.parse_args()
 
@@ -397,6 +465,8 @@ def main() -> None:
         fig_training(inst)
     if args.only in ("interventions", "all"):
         fig_interventions(inst)
+    if args.only in ("bandwidths", "all"):
+        fig_bandwidths(inst)
 
 
 if __name__ == "__main__":

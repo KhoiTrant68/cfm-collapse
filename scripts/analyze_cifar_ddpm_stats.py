@@ -40,8 +40,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
-from scripts.figstyle import (COLORS, panel_tag, shared_legend, style,
-                              use_paper_style)
+from scripts.figstyle import COLORS, panel_tag, style, use_paper_style
 
 SRC = Path("results/exp3/_cifar_ddpm/reeval.json")
 OUT = SRC.parent

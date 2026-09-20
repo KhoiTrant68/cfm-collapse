@@ -2978,6 +2978,32 @@ posterior.}
 \label{fig:p7summary}
 \end{figure}
 
+Figure~\ref{fig:bandwidthportrait} is the same statement in trajectory space, for one
+condition: the reference law at each bandwidth above, and the network trained at that
+bandwidth below. As $h$ grows the reference spreads over more atoms
+($n_{\mathrm{eff}}=1,4,18,81$) and the trained model follows it, at ratios of $1.24$,
+$1.09$ and $1.12$ on this condition---noisier than the $1.002\pm0.050$,
+$0.994\pm0.039$, $1.011\pm0.022$ of Figure~\ref{fig:p7summary}, which averages $20$
+conditions and $5$ seeds at $M{=}1000$ where this draws $160$ paths through a single
+condition, for which the trace alone carries an $11\%$ sampling error.
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.92\textwidth]{fig_bandwidth_portrait.png}
+\caption{Label smoothing as a flow, at four bandwidths, on one condition of the EXP-1
+instance. \textbf{Top:} the exact population endpoint law of
+Theorem~\ref{thm:endpoint}, marker area $\propto p^{(h)}_i$; at $h{=}0$ it is one atom,
+and widening $h$ reweights the \emph{same} atoms, never adding new ones. \textbf{Bottom:}
+an MLP trained at that same bandwidth for $200000$ iterations, integrated from the same
+$160$ draws of $x_0$. The model is converging to the law above it, not to some other
+law: at $h{=}0$ it puts $96\%$ of its paths on the labelled atom, and at $h>0$ its trace
+is within a quarter of the reference on a measurement whose own sampling error is
+$11\%$. Produced by \texttt{scripts/make\_flow\_portraits.py}; the $h>0$ runs are
+\texttt{p7yck\_h*\_seed0}, retrained for this figure because the original P7 sweeps kept
+their metrics but not their checkpoints.}
+\label{fig:bandwidthportrait}
+\end{figure}
+
 \subsection{The atomicity floor, measured}
 \label{app:floor}
 
