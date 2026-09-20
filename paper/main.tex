@@ -4152,7 +4152,8 @@ the true image and none does in the lower row; $h{=}5$ and $h{=}6$: none does.}
 images share each label, so the population minimiser collapses onto the class and not onto one image
 (the remark after Proposition~\ref{prop:collapse}), and the conditional variance it predicts is the
 within-class scatter rather than zero. Figure~\ref{fig:imageclass} shows two runs of the DDPM, at
-$h{=}0$ and $h{=}0.4$ on the one-hot label.
+$h{=}0$ and $h{=}0.4$ on the one-hot label: the variance is retained, and most of the completions are
+nonetheless training images.
 
 \begin{figure}[htb]
 \centering
@@ -4163,9 +4164,16 @@ $h{=}0.4$, against the within-class scatter $717$ (dashed; $719$ at $h{=}0.4$). 
 $0.64$--$0.83$ of that value for $h{=}0$ and $0.62$--$1.30$ for $h{=}0.4$ (the largest at iteration
 $500$), and both end at $0.76$ while the training loss falls from $0.22$ to $0.06$.
 \textbf{(b,~c)}~Sample grids at $60000$ iterations. The model sees only the class of the observed
-image, and its six completions are different images of that class, not one image. Nothing here
-shows whether the completions are training images: no checkpoint is kept, so the distance of
-individual samples to the training set was not computed. Cut from the saved grids and metrics by
+image, and its six completions are different images of that class, not one image, and yet
+$19$ of the $24$ completions in each run lie on a training image, at both $h$: their distance to
+the nearest of the $50000$ CIFAR-10 training images is below $\tfrac13$ of the distance to the
+second nearest (the criterion of Section~\ref{sec:cifarddpm}). The cells were recovered from the
+saved grids at their 8-bit values (\texttt{scripts/grid\_nearest\_training\_image.py}); against all
+$50000$ images the count is a lower bound, and the same test on the DDPM grids of
+Figures~\ref{fig:imagebandwidth}, \ref{fig:imagebandwidth1} and~\ref{fig:imagebandwidth2} gives
+$1.00$, $0.67$, $0.53$ and $0.54$ on an atom at $h{=}0,4,5,6$ ($72$ completions each), below the
+full-sample $1.000$, $0.829$, $0.717$ and $0.620$ of Section~\ref{sec:cifarddpm}, as a lower bound
+should. Cut from the saved grids and metrics by
 \texttt{scripts/make\_image\_extra\_figures.py}.}
 \label{fig:imageclass}
 \end{figure}
