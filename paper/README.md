@@ -49,13 +49,20 @@ Preventing Model Collapse). Every proof in Appendix A follows one shape:
    Statements that live in the appendix sit directly above their proof.
 2. **Helper results first.** A lemma is stated and proved *before* the result that uses it
    (`lem:cov`, `lem:wellposed`, `lem:mixture-coupling` all precede Theorem `thm:endpoint`).
-3. **Steps.** A proof with more than one move is `\emph{Step 1: <what this step does>.}`,
-   `Step 2: ...`; a single-move proof (two corollaries) is one paragraph with its displays.
-4. **Displays are labelled** `eq:pf:<name>:<n>`, numbered in order of use, and *cited* by the
+3. **Steps.** A proof with more than one move is `\textbf{Step 1: <what this step does>.}`,
+   `Step 2: ...`; a single-move proof (two corollaries) has no Steps.
+4. **One line per move.** Each step is an `align` block: the claim or equation on the left, its
+   warrant on the right in `\why{...}` (`\text{\footnotesize ...}`): a cited result, an
+   assumption `Assumption~\ref{as:...}`, or a labelled display; no "it is easy to see".
+   Inequalities and limits go in the same column (`\le`, `\to`). A line that really is an
+   argument gets one short sentence of prose before or after the block, not inside it.
+   `\mathtoolsset{showonlyrefs}` at the head of each proof numbers only the lines that are cited.
+   Columns of an `align` add, so when the widest line plus the widest warrant would overflow,
+   put each warrant on its own row under its line (`&\quad\why{...}`); the scripts that wrote the
+   proofs did this automatically, by a width estimate.
+5. **Displays are labelled** `eq:pf:<name>:<n>`, numbered in order of use, and *cited* by the
    later step that uses them. A label that a statement or another section cites keeps its
    descriptive name (`eq:kernel-field`, `eq:vgrowth`, `eq:tgtfield`, `eq:lgbias`, ...).
-5. **Every move names its warrant**: a cited result (`Proposition~\ref{...}`), an
-   assumption (`Assumption~\ref{as:...}`), or a labelled display. No "it is easy to see".
 6. **Closing sentence** restating what was proved: `This proves Proposition~\ref{...}.`
 7. Proof headers are always `\begin{proof}[Proof of <Kind>~\ref{<label>}]`.
 

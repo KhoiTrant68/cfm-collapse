@@ -1761,62 +1761,67 @@ channels. This proves Proposition~\ref{prop:factors}.
 \end{proof}
 
 \begin{proof}[Proof of Proposition~\ref{prop:liplb}]
-Let $X,X'$ be i.i.d.\ copies of $X_t\mid I=i\sim\N(tx^i,(1-t)^2I_d)$ and put
-$e(\cdot):=f_i(\cdot,t)-v(\cdot,t,y^i)$.
+\mathtoolsset{showonlyrefs}
+Let $X,X'$ be i.i.d.\ copies of $X_t\mid I=i\sim\N(tx^i,(1-t)^2I_d)$ and $e(\cdot):=f_i(\cdot,t)-v(\cdot,t,y^i)$.
 
-\emph{Step 1: the target's increments.} Since $f_i(X,t)-f_i(X',t)=-(X-X')/(1-t)$ and
-$X-X'\sim\N(0,2(1-t)^2I_d)$,
-\begin{equation}
-\E|f_i(X,t)-f_i(X',t)|^2=\frac{2(1-t)^2d}{(1-t)^2}=2d .
-\label{eq:pf:liplb:1}
-\end{equation}
+\textbf{Step 1: the target's increments.}
+\begin{align}
+f_i(X,t)-f_i(X',t)&=-\frac{X-X'}{1-t}
+  && f_i=(x^i-x)/(1-t)\\
+\E|f_i(X,t)-f_i(X',t)|^2&=\frac{2(1-t)^2d}{(1-t)^2}=2d
+  && X-X'\sim\N(0,2(1-t)^2I_d)\label{eq:pf:liplb:1}
+\end{align}
 
-\emph{Step 2: the model's increments.} By $L$-Lipschitzness of $v(\cdot,t,y^i)$ and
-$\E|X-X'|^2=2d(1-t)^2$,
-\begin{equation}
-\E|v(X,t,y^i)-v(X',t,y^i)|^2\le L^2\,\E|X-X'|^2=2dL^2(1-t)^2 .
-\label{eq:pf:liplb:2}
-\end{equation}
+\textbf{Step 2: the model's increments.}
+\begin{align}
+\E|v(X,t,y^i)-v(X',t,y^i)|^2&\le L^2\,\E|X-X'|^2
+  && \why{$L$-Lipschitz}\\
+&=2dL^2(1-t)^2
+  && \E|X-X'|^2=2d(1-t)^2\label{eq:pf:liplb:2}
+\end{align}
 
-\emph{Step 3: the residual's increments.} Since $X,X'$ are i.i.d.,
-\begin{equation}
-\E|e(X)-e(X')|^2=2\E|e(X)|^2-2\big|\E e(X)\big|^2\le2\,\E|e(X)|^2 .
-\label{eq:pf:liplb:3}
-\end{equation}
-Using this sharp identity, rather than the cruder $\E|e(X)-e(X')|^2\le4\E|e(X)|^2$, is
-what preserves the constant $d$ in the bound; a weaker step would give only a smaller
-floor.
+\textbf{Step 3: the residual's increments.}
+\begin{align}
+\E|e(X)-e(X')|^2&=2\E|e(X)|^2-2\big|\E e(X)\big|^2
+  && X,X'\ \text{i.i.d.}\\
+&\le2\,\E|e(X)|^2
+  && \why{drop the mean term}\label{eq:pf:liplb:3}
+\end{align}
+This sharp identity, not the cruder $\E|e(X)-e(X')|^2\le4\E|e(X)|^2$, is what preserves the constant $d$.
 
-\emph{Step 4: the triangle inequality.} Write
-$f_i(X,t)-f_i(X',t)=[e(X)-e(X')]+[v(X,t,y^i)-v(X',t,y^i)]$ and apply the
-$L^2(\Omega)$ triangle inequality. By \eqref{eq:pf:liplb:1}--\eqref{eq:pf:liplb:3},
-\begin{equation}
-\sqrt{2d}\ \le\ \sqrt{2\,\E|e(X)|^2}\ +\ \sqrt{2d}\,L(1-t),
-\label{eq:pf:liplb:4}
-\end{equation}
-hence $\sqrt{\E|e(X)|^2}\ge\sqrt d\,[1-L(1-t)]_+$, i.e.\
-$\E|e(X)|^2\ge d\,[1-L(1-t)]_+^2$. Since $e(X)=f_i(X_t,t)-v(X_t,t,y^i)$ is the negative
-of the residual in the statement, and the square does not see the sign, this proves
-Proposition~\ref{prop:liplb}.
+\textbf{Step 4: the triangle inequality.}
+\begin{align}
+f_i(X,t)-f_i(X',t)&=[e(X)-e(X')]+[v(X,t,y^i)-v(X',t,y^i)]\\
+  &\quad \why{definition of }e\\
+\sqrt{2d}&\le\sqrt{2\,\E|e(X)|^2}+\sqrt{2d}\,L(1-t)\label{eq:pf:liplb:4}\\
+  &\quad L^2(\Omega)\ \text{triangle};\ \eqref{eq:pf:liplb:1}\text{--}\eqref{eq:pf:liplb:3}\\
+\sqrt{\E|e(X)|^2}&\ge\sqrt d\,[1-L(1-t)]_+\\
+  &\quad \why{rearrange \eqref{eq:pf:liplb:4}}\\
+\E|e(X)|^2&\ge d\,[1-L(1-t)]_+^2\\
+  &\quad \why{square; the sign of $e$ is irrelevant}
+\end{align}
+This proves Proposition~\ref{prop:liplb}.
 \end{proof}
 
 \begin{proof}[Proof of Corollary~\ref{cor:floor}]
-\emph{Step 1: the integral.} Substituting $s=1-t$,
-\begin{equation}
-\int_0^{1/L}(1-Ls)^2\,ds=\Big[s-Ls^2+\tfrac{L^2s^3}3\Big]_0^{1/L}
-=\tfrac1L-\tfrac1L+\tfrac1{3L}=\tfrac1{3L}.
-\label{eq:pf:floor:1}
-\end{equation}
+\mathtoolsset{showonlyrefs}
+\textbf{Step 1: the integral.}
+\begin{align}
+\int_0^{1/L}(1-Ls)^2\,ds&=\Big[s-Ls^2+\tfrac{L^2s^3}3\Big]_0^{1/L}
+  && \why{antiderivative}\\
+&=\tfrac1L-\tfrac1L+\tfrac1{3L}=\tfrac1{3L}
+  && \why{evaluate}\label{eq:pf:floor:1}
+\end{align}
 
-\emph{Step 2: averaging the pointwise bound.} Proposition~\ref{prop:liplb}'s bound
-holds for every training index $i$, hence for every $v\in\mathcal F_L$ and every
-$t\in[1-1/L,1)$, where $[1-L(1-t)]_+=1-L(1-t)$; it therefore survives averaging over
-$I\sim\mathrm{Unif}\{1,\dots,N\}$ and $t\sim\mathrm{Unif}(0,1)$:
-\begin{equation}
-\inf_{v\in\mathcal F_L}L_0(v)\ \ge\ d\int_{1-1/L}^1[1-L(1-t)]^2\,dt\ =\ \frac d{3L},
-\label{eq:pf:floor:2}
-\end{equation}
-the last equality being \eqref{eq:pf:floor:1} with $s=1-t$. This is \eqref{eq:floor}.
+\textbf{Step 2: average the pointwise bound.} Proposition~\ref{prop:liplb} holds for every $i$, every
+$v\in\mathcal F_L$ and every $t\in[1-1/L,1)$, where $[1-L(1-t)]_+=1-L(1-t)$.
+\begin{align}
+\inf_{v\in\mathcal F_L}L_0(v)&\ge d\int_{1-1/L}^1[1-L(1-t)]^2\,dt
+  && \why{average over $I\sim\mathrm{Unif}$, $t\sim\mathrm{Unif}(0,1)$}\\
+&=\frac d{3L}
+  && s=1-t;\ \eqref{eq:pf:floor:1}\label{eq:pf:floor:2}
+\end{align}
+This is \eqref{eq:floor}, proving Corollary~\ref{cor:floor}.
 \end{proof}
 
 \begin{proposition}[Guidance cannot leave the affine hull of the training set]
@@ -1842,157 +1847,162 @@ conditional law absolutely continuous.
 \end{proposition}
 
 \begin{proof}[Proof of Proposition~\ref{prop:cfg}]
-\emph{Step 1: the guided field.} Proposition~\ref{prop:kernel-field} and
-Proposition~\ref{prop:uncond} give
-\begin{equation}
-\vstar=\sum_iw_i^{(h)}\,\frac{x^i-x}{1-t},\qquad
-v_{\mathrm{unc}}^\star=\sum_iq_i\,\frac{x^i-x}{1-t},
-\label{eq:pf:cfg:1}
-\end{equation}
-both with weights summing to one. In $v_w=(1+w)\vstar-w\,v_{\mathrm{unc}}^\star$ the $-x$
-terms combine as $-(1+w)x+wx=-x$, which is \eqref{eq:cfgfield}.
+\mathtoolsset{showonlyrefs}
+\textbf{Step 1: the guided field.}
+\begin{align}
+\vstar&=\sum_iw_i^{(h)}\frac{x^i-x}{1-t},\qquad v_{\mathrm{unc}}^\star=\sum_iq_i\frac{x^i-x}{1-t}\label{eq:pf:cfg:1}\\
+  &\quad \why{Propositions~\ref{prop:kernel-field}, \ref{prop:uncond}}\\
+v_w&=(1+w)\vstar-w\,v_{\mathrm{unc}}^\star\\
+  &\quad \why{definition}\\
+&=\frac{m_w-x}{1-t}\\
+  &\quad -(1+w)x+wx=-x;\ \text{this is \eqref{eq:cfgfield}}
+\end{align}
 
-\emph{Step 2: $m_w$ is an affine combination of the atoms.} The coefficients in
-\eqref{eq:cfgfield} sum to $(1+w)\cdot1-w\cdot1=1$, so $m_w(x,t)\in\mathcal A$ for
-every $(x,t)$ (though not, in general, in the convex hull, since the coefficients need
-not be nonnegative).
+\textbf{Step 2: $m_w$ is an affine combination of the atoms.}
+\begin{align}
+\textstyle\sum_i\big[(1+w)w_i^{(h)}-wq_i\big]&=(1+w)-w=1
+  && \textstyle\sum_iw_i^{(h)}=\sum_iq_i=1\\
+m_w(x,t)&\in\mathcal A
+  && \why{coefficients sum to $1$ (not nec.\ $\ge0$)}
+\end{align}
 
-\emph{Step 3: the orthogonal component.} $\Pi$ is affine with $\Pi z=z$ on $\mathcal A$,
-so applying $I-\Pi$ to $\dot x_t=(m_w(x_t,t)-x_t)/(1-t)$ annihilates $m_w\in\mathcal A$
-and leaves
-\begin{equation}
-\dot q_t=-\frac{q_t}{1-t},\qquad\text{whose solution is}\qquad q_t=(1-t)\,q_0,
-\label{eq:pf:cfg:2}
-\end{equation}
-which is \eqref{eq:cfgorth}.
+\textbf{Step 3: the orthogonal component.} $\Pi$ is affine with $\Pi z=z$ on $\mathcal A$.
+\begin{align}
+\dot q_t&=(I-\Pi_{\mathrm{lin}})\,\dot x_t
+  && q_t=x_t-\Pi x_t\\
+&=-\frac{q_t}{1-t}
+  && (I-\Pi)m_w=0,\ \text{as $m_w\in\mathcal A$}\label{eq:pf:cfg:2}\\
+q_t&=(1-t)\,q_0
+  && \why{solve \eqref{eq:pf:cfg:2}; this is \eqref{eq:cfgorth}}
+\end{align}
 
-\emph{Step 4: the endpoint.} By \eqref{eq:pf:cfg:2}, $\operatorname{dist}(x_t,\mathcal A)
-=|q_t|=(1-t)|q_0|\to0$. Since $\mathcal A$ is closed, the endpoint of every convergent
-trajectory lies in $\mathcal A$, and so does the support of the endpoint law.
+\textbf{Step 4: the endpoint.}
+\begin{align}
+\operatorname{dist}(x_t,\mathcal A)&=|q_t|=(1-t)|q_0|\to0
+  && \eqref{eq:cfgorth}\\
+\text{endpoint}&\in\mathcal A
+  && \mathcal A\ \text{closed}
+\end{align}
+So the support of the endpoint law lies in $\mathcal A$.
 
-\emph{Step 5: well-posedness.} It is Lemma~\ref{lem:wellposed} with the nonnegativity of
-the weights relaxed to boundedness. Here $|m_w|\le(1+2w)\max_i|x^i|$, so the growth
-estimate \eqref{eq:vgrowth} holds with $M$ replaced by $(1+2w)M$ and the rest of that
-argument is unchanged. This proves Proposition~\ref{prop:cfg}.
+\textbf{Step 5: well-posedness.}
+\begin{align}
+|m_w|&\le(1+2w)\max_i|x^i|
+  && \why{Step~2: bounded coefficients}\\
+|v_w|&\le\frac{(1+2w)M+|x|}{1-t}
+  && \why{\eqref{eq:vgrowth} with $M\to(1+2w)M$}
+\end{align}
+The rest of Lemma~\ref{lem:wellposed} is unchanged. This proves Proposition~\ref{prop:cfg}.
 \end{proof}
 
 \begin{proof}[Proof of Proposition~\ref{prop:nearduplicate}]
-Write $K_i=K_h(y-y^i)=c\,e^{-|y-y^i|^2/2h^2}$ with $c$ the common normalising constant,
-so $p_i^{(h)}=K_i/\sum_jK_j$.
+\mathtoolsset{showonlyrefs}
+Write $K_i=K_h(y-y^i)=c\,e^{-|y-y^i|^2/2h^2}$, so $p_i^{(h)}=K_i/\sum_jK_j$.
 
-\emph{Step 1: part (a), mass outside $C$.} Bounding the denominator below by its $C$-part,
-\begin{equation}
-\sum_{j\notin C}p_j^{(h)}\le\frac{\sum_{j\notin C}K_j}{\sum_{i\in C}K_i}
-\le\frac{(N-|C|)\,c\,e^{-\Delta^2/2h^2}}{|C|\,c\,e^{-\varepsilon^2/2h^2}}=\eta,
-\label{eq:pf:nearduplicate:1}
-\end{equation}
-using $|y-y^j|\ge\Delta$ for the numerator and $|y-y^i|\le\varepsilon$ for the
-denominator.
+\textbf{Step 1: part (a).}
+\begin{align}
+\sum_{j\notin C}p_j^{(h)}&\le\frac{\sum_{j\notin C}K_j}{\sum_{i\in C}K_i}
+  && \why{drop $j\notin C$ from the denominator}\\
+&\le\frac{(N-|C|)\,c\,e^{-\Delta^2/2h^2}}{|C|\,c\,e^{-\varepsilon^2/2h^2}}=\eta
+  && |y-y^j|\ge\Delta,\ |y-y^i|\le\varepsilon\label{eq:pf:nearduplicate:1}
+\end{align}
 
-\emph{Step 2: part (b), ratios inside $C$.} For $i,i'\in C$,
-\begin{equation}
-\frac{K_i}{K_{i'}}=\exp\!\Big(\frac{|y-y^{i'}|^2-|y-y^i|^2}{2h^2}\Big)
-\le\exp\!\Big(\frac{\varepsilon^2}{2h^2}\Big)=\kappa,
-\label{eq:pf:nearduplicate:2}
-\end{equation}
-since $|y-y^{i'}|\le\varepsilon$ and $|y-y^i|\ge0$; and $p_i^{(h)}/p_{i'}^{(h)}=K_i/K_{i'}$.
+\textbf{Step 2: part (b).} For $i,i'\in C$:
+\begin{align}
+\frac{p_i^{(h)}}{p_{i'}^{(h)}}&=\frac{K_i}{K_{i'}}=\exp\Big(\frac{|y-y^{i'}|^2-|y-y^i|^2}{2h^2}\Big)\\
+  &\quad \why{definition}\\
+&\le\exp\Big(\frac{\varepsilon^2}{2h^2}\Big)=\kappa\label{eq:pf:nearduplicate:2}\\
+  &\quad |y-y^{i'}|\le\varepsilon,\ |y-y^i|\ge0
+\end{align}
 
-\emph{Step 3: part (c), the effective sample size.} Let $S=\sum_{i\in C}p_i^{(h)}\le1$.
-Summing \eqref{eq:pf:nearduplicate:2} over $i'\in C$ gives $|C|\,p_i^{(h)}\le\kappa S$ for
-each $i\in C$, so
-\begin{equation}
-\sum_{i\in C}(p_i^{(h)})^2\le S\max_{i\in C}p_i^{(h)}\le\frac{\kappa S^2}{|C|}\le\frac{\kappa}{|C|},
-\qquad
-\sum_{j\notin C}(p_j^{(h)})^2\le\Big(\sum_{j\notin C}p_j^{(h)}\Big)^2\le\eta^2,
-\label{eq:pf:nearduplicate:3}
-\end{equation}
-the second by \eqref{eq:pf:nearduplicate:1}. Adding the two and inverting,
-$n_{\mathrm{eff}}=1/\sum_ip_i^{(h)2}\ge1/(\kappa/|C|+\eta^2)=|C|/(\kappa+|C|\eta^2)$.
+\textbf{Step 3: part (c).} Let $S=\sum_{i\in C}p_i^{(h)}\le1$.
+\begin{align}
+|C|\,p_i^{(h)}&\le\kappa S\quad(i\in C)\\
+  &\quad \why{sum \eqref{eq:pf:nearduplicate:2} over $i'\in C$}\\
+\sum_{i\in C}(p_i^{(h)})^2&\le S\max_{i\in C}p_i^{(h)}\le\frac{\kappa S^2}{|C|}\le\frac\kappa{|C|}\\
+  &\quad \why{previous line; $S\le1$}\\
+\sum_{j\notin C}(p_j^{(h)})^2&\le\Big(\sum_{j\notin C}p_j^{(h)}\Big)^2\le\eta^2\\
+  &\quad \eqref{eq:pf:nearduplicate:1}\\
+n_{\mathrm{eff}}=\Big(\sum_ip_i^{(h)2}\Big)^{-1}&\ge\frac{|C|}{\kappa+|C|\eta^2}\\
+  &\quad \why{add the two bounds, invert}
+\end{align}
 
-\emph{Step 4: the limits.} As $\varepsilon/h\to0$ and $\Delta/h\to\infty$ we have
-$\kappa\to1$ and $\eta\to0$. By \eqref{eq:pf:nearduplicate:1}, $S\ge1-\eta\to1$; by
-\eqref{eq:pf:nearduplicate:2} the ratios inside $C$ lie in $[\kappa^{-1},\kappa]\to\{1\}$,
-so the index posterior tends to the uniform law on $C$, and by
-Theorem~\ref{thm:endpoint} the endpoint law to $|C|^{-1}\sum_{i\in C}\delta_{x^i}$. For
-$n_{\mathrm{eff}}$, Step~3 gives the lower bound $|C|/(\kappa+|C|\eta^2)\to|C|$, and
-Cauchy--Schwarz gives $\sum_ip_i^{(h)2}\ge S^2/|C|$, i.e.\ the upper bound
-$n_{\mathrm{eff}}\le|C|/S^2\to|C|$. This proves Proposition~\ref{prop:nearduplicate}.
+\textbf{Step 4: the limits.} As $\varepsilon/h\to0$, $\Delta/h\to\infty$: $\kappa\to1$, $\eta\to0$.
+\begin{align}
+S&\ge1-\eta\to1\\
+  &\quad \eqref{eq:pf:nearduplicate:1}\\
+p_i^{(h)}/p_{i'}^{(h)}&\in[\kappa^{-1},\kappa]\to\{1\}\\
+  &\quad \eqref{eq:pf:nearduplicate:2}\ \text{is symmetric in $i,i'$}\\
+\text{posterior}&\to\text{uniform on $C$;\ endpoint law}\to|C|^{-1}\textstyle\sum_{i\in C}\delta_{x^i}\\
+  &\quad \why{Theorem~\ref{thm:endpoint}}\\
+\sum_ip_i^{(h)2}&\ge S^2/|C|,\ \text{so }n_{\mathrm{eff}}\le|C|/S^2\to|C|\\
+  &\quad \why{Cauchy--Schwarz on $C$}\\
+n_{\mathrm{eff}}&\to|C|\\
+  &\quad \why{with the lower bound of Step~3}
+\end{align}
+This proves Proposition~\ref{prop:nearduplicate}.
 \end{proof}
 
 \begin{proof}[Proof of Proposition~\ref{prop:cfgatom}]
-Throughout, $x_t\to x^*$ is the hypothesis, and $m_w(x,t)$ is as in
-\eqref{eq:cfgfield}, so $\dot x_t=(m_w(x_t,t)-x_t)/(1-t)$.
+\mathtoolsset{showonlyrefs}
+We are given $x_t\to x^*$, with $\dot x_t=(m_w(x_t,t)-x_t)/(1-t)$ and $m_w$ as in \eqref{eq:cfgfield}.
 
-\emph{Step 1: if $m_w(x_t,t)$ converges, its limit is $x^*$.} Suppose
-$m_w(x_t,t)\to m^*$ with $m^*\ne x^*$, and set $u=(m^*-x^*)/|m^*-x^*|$ and
-$c=|m^*-x^*|/2>0$. Since $m_w(x_t,t)-x_t\to m^*-x^*$, there is $t_0<1$ with
-$\langle m_w(x_t,t)-x_t,\,u\rangle\ge c$ for all $t\in[t_0,1)$. Then
-\begin{equation}
-\frac{d}{dt}\langle x_t,u\rangle=\frac{\langle m_w(x_t,t)-x_t,\,u\rangle}{1-t}
-\;\ge\;\frac{c}{1-t},
-\qquad t\in[t_0,1),
-\label{eq:pf:cfgatom:1}
-\end{equation}
-and integrating \eqref{eq:pf:cfgatom:1}, $\langle x_t,u\rangle\ge\langle x_{t_0},u\rangle+c\log\frac{1-t_0}{1-t}
-\to+\infty$ as $t\uparrow1$, contradicting $x_t\to x^*$. Hence $m^*=x^*$.
+\textbf{Step 1: if $m_w(x_t,t)\to m^*$, then $m^*=x^*$.} Suppose $m^*\ne x^*$; put
+$u=\frac{m^*-x^*}{|m^*-x^*|}$, $c=\frac{|m^*-x^*|}2>0$.
+\begin{align}
+\langle m_w(x_t,t)-x_t,\,u\rangle&\ge c\quad(t\ge t_0)
+  && m_w-x_t\to m^*-x^*\\
+\frac{d}{dt}\langle x_t,u\rangle&=\frac{\langle m_w-x_t,u\rangle}{1-t}\ge\frac c{1-t}
+  && \why{the line above}\label{eq:pf:cfgatom:1}\\
+\langle x_t,u\rangle&\ge\langle x_{t_0},u\rangle+c\log\tfrac{1-t_0}{1-t}\to+\infty
+  && \why{integrate \eqref{eq:pf:cfgatom:1}}
+\end{align}
+This contradicts $x_t\to x^*$, so $m^*=x^*$.
 
-\emph{Step 2: both weight families concentrate on $x^{i^*}$.} Both
-$w^{(h)}_j$ of \eqref{eq:kernel-field} and $q_j$ of Proposition~\ref{prop:uncond} have
-the form
-\begin{equation}
-\alpha_j(x,t)=\frac{c_j\,\exp\!\big(-|x-tx^j|^2/2(1-t)^2\big)}
-{\sum_l c_l\,\exp\!\big(-|x-tx^l|^2/2(1-t)^2\big)},
-\label{eq:pf:cfgatom:2}
-\end{equation}
-with constants $c_j>0$ not depending on $(x,t)$: $c_j=K_h(y-y^j)$ in the first case
-and $c_j\equiv1/N$ in the second (Lemma~\ref{lem:cov} supplies the Gaussian form and
-the cancellation of the Jacobian). Fix $j\ne i^*$. Since $x_t\to x^*$ and $t\to1$ we
-have $x_t-tx^j\to x^*-x^j$ for every $j$, so
-\begin{equation}
-|x_t-tx^j|^2-|x_t-tx^{i^*}|^2\;\longrightarrow\;|x^*-x^j|^2-|x^*-x^{i^*}|^2\;=:\;2\kappa_j\;>\;0,
-\label{eq:pf:cfgatom:3}
-\end{equation}
-strictly positive because the nearest atom is unique. Hence there is $t_j<1$ with
-that difference at least $\kappa_j$ for $t\in[t_j,1)$, and therefore, by
-\eqref{eq:pf:cfgatom:2},
-\begin{equation}
-\frac{\alpha_j(x_t,t)}{\alpha_{i^*}(x_t,t)}
-\;\le\;\frac{c_j}{c_{i^*}}\exp\!\Big(\!-\frac{\kappa_j}{2(1-t)^2}\Big)\;\longrightarrow\;0 .
-\label{eq:pf:cfgatom:4}
-\end{equation}
-As \eqref{eq:pf:cfgatom:4} holds for each of the finitely many $j\ne i^*$ and $\sum_j\alpha_j=1$, we get
-$\alpha_{i^*}(x_t,t)\to1$, $\alpha_j(x_t,t)\to0$ for $j\ne i^*$, and consequently
-$\sum_j\alpha_j(x_t,t)\,x^j\to x^{i^*}$.
+\textbf{Step 2: both weight families concentrate on $x^{i^*}$.}
+\begin{align}
+\alpha_j(x,t)&=\frac{c_j\,e^{-|x-tx^j|^2/2(1-t)^2}}{\sum_lc_l\,e^{-|x-tx^l|^2/2(1-t)^2}}\label{eq:pf:cfgatom:2}\\
+  &\quad \why{Lemma~\ref{lem:cov}; $c_j=K_h(y-y^j)$ for $w^{(h)}_j$, $c_j=\frac1N$ for $q_j$}\\
+|x_t-tx^j|^2-|x_t-tx^{i^*}|^2&\to|x^*-x^j|^2-|x^*-x^{i^*}|^2=:2\kappa_j>0\label{eq:pf:cfgatom:3}\\
+  &\quad x_t\to x^*,\ t\to1;\ \text{nearest atom unique}\\
+\frac{\alpha_j(x_t,t)}{\alpha_{i^*}(x_t,t)}&\le\frac{c_j}{c_{i^*}}\exp\Big(-\frac{\kappa_j}{2(1-t)^2}\Big)\to0\label{eq:pf:cfgatom:4}\\
+  &\quad \why{\eqref{eq:pf:cfgatom:2},\eqref{eq:pf:cfgatom:3}, for $t\ge t_j$}\\
+\alpha_{i^*}\to1,\ \alpha_j\to0\ (j\ne i^*)\\
+  &\quad \eqref{eq:pf:cfgatom:4};\ \textstyle\sum_j\alpha_j=1,\ \text{finitely many $j$}\\
+\textstyle\sum_j\alpha_jx^j&\to x^{i^*}\\
+  &\quad \why{previous line}
+\end{align}
 
-\emph{Step 3: solve the fixed-point equation.} (a) For $h>0$ both
-$\bar x_h(x_t,t)=\sum_jw_j^{(h)}x^j$ and $\bar x_{\mathrm{unc}}(x_t,t)=\sum_jq_jx^j$
-are covered by Step 2, with the \emph{same} $i^*$, since $i^*$ depends only on $x^*$.
-Therefore
-\begin{equation}
-m_w(x_t,t)=(1+w)\bar x_h-w\,\bar x_{\mathrm{unc}}\;\longrightarrow\;(1+w)x^{i^*}-w\,x^{i^*}=x^{i^*},
-\label{eq:pf:cfgatom:5}
-\end{equation}
-the guidance term cancelling exactly in the limit, and Step~1 applied to \eqref{eq:pf:cfgatom:5} gives $x^*=x^{i^*}$.
+\textbf{Step 3(a): $h>0$.} Both $\bar x_h=\sum_jw^{(h)}_jx^j$ and $\bar x_{\mathrm{unc}}=\sum_jq_jx^j$ fall under Step~2, with the same $i^*$.
+\begin{align}
+m_w(x_t,t)&=(1+w)\bar x_h-w\,\bar x_{\mathrm{unc}}
+  && \eqref{eq:cfgfield}\\
+&\to(1+w)x^{i^*}-w\,x^{i^*}=x^{i^*}
+  && \why{Step~2; the guidance cancels}\label{eq:pf:cfgatom:5}\\
+x^*&=x^{i^*}
+  && \why{Step~1 with \eqref{eq:pf:cfgatom:5}}
+\end{align}
 
-(b) For $h=0$ with distinct labels, Proposition~\ref{prop:collapse}(a) gives
-$\vstar(\cdot,\cdot,y^i)=(x^i-x)/(1-t)$ exactly, i.e.\ the conditional mean is $x^i$
-for every $(x,t)$, while $\bar x_{\mathrm{unc}}(x_t,t)\to x^{i^*}$ by Step 2. So
-$m_w(x_t,t)\to(1+w)x^i-w\,x^{i^*}$ and Step 1 gives
-\begin{equation}
-x^*=(1+w)x^i-w\,x^{i^*}.
-\label{eq:cfgfixed}
-\end{equation}
-If $i^*=i$ this is $x^*=x^i$ and we are done; so suppose $i^*\ne i$, whence
-$x^i\ne x^{i^*}$ by distinctness. If $w=0$ then \eqref{eq:cfgfixed} reads $x^*=x^i$,
-so $i^*=i$ by uniqueness of the nearest atom, a contradiction. If $w>0$, rearranging
-\eqref{eq:cfgfixed} gives $x^*-x^i=w(x^i-x^{i^*})$ and
-$x^*-x^{i^*}=(1+w)(x^i-x^{i^*})$, so
-\[
-|x^*-x^i|=w\,|x^i-x^{i^*}|\;<\;(1+w)\,|x^i-x^{i^*}|=|x^*-x^{i^*}| ,
-\]
-i.e.\ $x^i$ is strictly closer to $x^*$ than $x^{i^*}$ is, contradicting the
-definition of $i^*$. Hence $i^*=i$ and $x^*=x^i$. This proves both parts of
-Proposition~\ref{prop:cfgatom}.
+\textbf{Step 3(b): $h=0$.}
+\begin{align}
+\vstar(\cdot,\cdot,y^i)&=\frac{x^i-x}{1-t}\ \Rightarrow\ \text{conditional mean}=x^i
+  && \why{Proposition~\ref{prop:collapse}(a)}\\
+m_w(x_t,t)&\to(1+w)x^i-w\,x^{i^*}
+  && \bar x_{\mathrm{unc}}\to x^{i^*}\ \text{(Step~2)}\\
+x^*&=(1+w)x^i-w\,x^{i^*}
+  && \why{Step~1}\label{eq:cfgfixed}
+\end{align}
+If $i^*=i$ then $x^*=x^i$. Suppose $i^*\ne i$, so $x^i\ne x^{i^*}$ (distinct atoms).
+\begin{align}
+w=0:&\quad x^*=x^i,\ \text{so }i^*=i\\
+  &\quad \eqref{eq:cfgfixed};\ \text{nearest atom unique: contradiction}\\
+w>0:&\quad x^*-x^i=w(x^i-x^{i^*}),\ \ x^*-x^{i^*}=(1+w)(x^i-x^{i^*})\\
+  &\quad \why{rearrange \eqref{eq:cfgfixed}}\\
+&\quad|x^*-x^i|=w|x^i-x^{i^*}|<(1+w)|x^i-x^{i^*}|=|x^*-x^{i^*}|\\
+  &\quad \why{previous line}
+\end{align}
+So $x^i$ is strictly closer to $x^*$ than $x^{i^*}$, contradicting the definition of $i^*$. Hence
+$i^*=i$ and $x^*=x^i$. This proves both parts of Proposition~\ref{prop:cfgatom}.
 \end{proof}
 
 \begin{remark}
@@ -2006,141 +2016,137 @@ affine hull---holds unconditionally, by the exact identity $q_t=(1-t)q_0$.
 \end{remark}
 
 \begin{proof}[Proof of Proposition~\ref{prop:survival}]
-\emph{Step 1: the error obeys a contracting ODE.} Both trajectories start at $x_0$, so
-$e_0=0$. By Proposition~\ref{prop:collapse}(a), $\vstarz(x,t,y^i)=(x^i-x)/(1-t)$ is
-affine in $x$ with linear part $-\tfrac1{1-t}I_d$, so
-\begin{equation}
-\dot e_t=v(x^v_t,t,y^i)-\vstarz(x^\star_t,t,y^i)
-=\Delta(x^v_t,t)+\big[\vstarz(x^v_t,t,y^i)-\vstarz(x^\star_t,t,y^i)\big]
-=\Delta(x^v_t,t)-\frac{e_t}{1-t}.
-\label{eq:pf:survival:1}
-\end{equation}
-The bracketed term is a \emph{contraction}, which is what makes the estimate go the way
-it does.
+\mathtoolsset{showonlyrefs}
+\textbf{Step 1: the error obeys a contracting ODE.} Both trajectories start at $x_0$, so $e_0=0$.
+\begin{align}
+\dot e_t&=v(x^v_t,t,y^i)-\vstarz(x^\star_t,t,y^i)\\
+  &\quad \why{definition}\\
+&=\Delta(x^v_t,t)+\big[\vstarz(x^v_t,t,y^i)-\vstarz(x^\star_t,t,y^i)\big]\\
+  &\quad \why{add and subtract $\vstarz(x^v_t)$}\\
+&=\Delta(x^v_t,t)-\frac{e_t}{1-t}\label{eq:pf:survival:1}\\
+  &\quad \vstarz\ \text{affine, linear part }-\tfrac1{1-t}I_d
+\end{align}
+The bracket is a \emph{contraction}.
 
-\emph{Step 2: the identity and the bound.} Rather than estimate $|e_t|$ directly we
-solve \eqref{eq:pf:survival:1}. $(1-t)^{-1}$ is an integrating factor: on $[0,T]$ for any
-$T<1$ the map $t\mapsto e_t/(1-t)$ is absolutely continuous and, a.e.,
-\begin{equation}
-\frac{d}{dt}\Big[\frac{e_t}{1-t}\Big]
-=\frac{\dot e_t}{1-t}+\frac{e_t}{(1-t)^2}
-=\frac{\Delta(x^v_t,t)}{1-t}-\frac{e_t}{(1-t)^2}+\frac{e_t}{(1-t)^2}
-=\frac{\Delta(x^v_t,t)}{1-t},
-\label{eq:pf:survival:2}
-\end{equation}
-the two $e_t$ terms cancelling exactly by \eqref{eq:pf:survival:1}. Integrating
-\eqref{eq:pf:survival:2} from $0$ to $t$ against $e_0=0$ and multiplying by $(1-t)$ gives
-the identity \eqref{eq:survival-id}, and \eqref{eq:survival} follows by the triangle
-inequality for the integral. This is an equality before norms are taken, which is what
-parts (c) and (d) use.
+\textbf{Step 2: the identity and the bound.} On $[0,T]$, $T<1$, $e_t/(1-t)$ is absolutely continuous and a.e.
+\begin{align}
+\frac{d}{dt}\Big[\frac{e_t}{1-t}\Big]&=\frac{\dot e_t}{1-t}+\frac{e_t}{(1-t)^2}\\
+  &\quad \why{product rule}\\
+&=\frac{\Delta(x^v_t,t)}{1-t}-\frac{e_t}{(1-t)^2}+\frac{e_t}{(1-t)^2}\\
+  &\quad \eqref{eq:pf:survival:1}\\
+&=\frac{\Delta(x^v_t,t)}{1-t}\label{eq:pf:survival:2}\\
+  &\quad \why{the $e_t$ terms cancel}\\
+e_t&=(1-t)\int_0^t\frac{\Delta(x^v_s,s)}{1-s}\,ds\\
+  &\quad \why{integrate \eqref{eq:pf:survival:2}, $e_0=0$; this is \eqref{eq:survival-id}}\\
+|e_t|&\le(1-t)\int_0^t\frac{|\Delta(x^v_s,s)|}{1-s}\,ds\\
+  &\quad \why{triangle inequality; this is \eqref{eq:survival}}
+\end{align}
 
-\emph{Step 3: part (a), bounded errors do not survive.} By Cauchy--Schwarz applied to
-\eqref{eq:survival}, and $\int_0^t(1-s)^{-2}ds=\frac1{1-t}-1=\frac t{1-t}$,
-\begin{equation}
-|e_t|\le(1-t)\Big(\int_0^t|\Delta|^2ds\Big)^{1/2}
-\Big(\int_0^t\frac{ds}{(1-s)^2}\Big)^{1/2}
-\le(1-t)\,\varepsilon\,\Big(\frac{t}{1-t}\Big)^{1/2}
-=\varepsilon\sqrt{(1-t)\,t}.
-\label{eq:pf:survival:3}
-\end{equation}
-Setting $t=1-\delta$ in \eqref{eq:pf:survival:3} gives
-$|e_{1-\delta}|\le\varepsilon\sqrt{\delta(1-\delta)}\le\varepsilon\sqrt\delta$.
+\textbf{Step 3: part (a).} Assume $\int_0^t|\Delta|^2ds\le\varepsilon^2$.
+\begin{align}
+|e_t|&\le(1-t)\Big(\int_0^t|\Delta|^2\Big)^{1/2}\Big(\int_0^t\frac{ds}{(1-s)^2}\Big)^{1/2}\\
+  &\quad \why{Cauchy--Schwarz on \eqref{eq:survival}}\\
+&\le(1-t)\,\varepsilon\Big(\frac t{1-t}\Big)^{1/2}\\
+  &\quad \textstyle\int_0^t(1-s)^{-2}ds=\frac t{1-t}\\
+&=\varepsilon\sqrt{(1-t)t}\ \le\ \varepsilon\sqrt{1-t}\label{eq:pf:survival:3}\\
+  &\quad t\le1\\
+|e_{1-\delta}|&\le\varepsilon\sqrt\delta\\
+  &\quad t=1-\delta\ \text{in \eqref{eq:pf:survival:3}}
+\end{align}
 
-\emph{Step 4: part (b), what the bound gives.} For $a>0$,
-\begin{equation}
-\int_0^t(1-s)^{-1-a}ds=\frac1a\big((1-t)^{-a}-1\big),
-\label{eq:pf:survival:4}
-\end{equation}
-so \eqref{eq:survival} with $|\Delta|\le c(1-s)^{-a}$ gives
-$|e_t|\le\frac ca\big((1-t)^{1-a}-(1-t)\big)$; at $a=1$ this is
-$c\big(1-(1-t)\big)=c\,t\le c$. As $t\uparrow1$ the right-hand side tends to $0$ when
-$a<1$, to $c$ when $a=1$, and to $+\infty$ when $a>1$; only the first two are statements
-about $e_t$.
+\textbf{Step 4: part (b).} Assume $|\Delta|\le c(1-s)^{-a}$, $a>0$.
+\begin{align}
+\int_0^t(1-s)^{-1-a}ds&=\tfrac1a\big((1-t)^{-a}-1\big)
+  && \why{antiderivative}\label{eq:pf:survival:4}\\
+|e_t|&\le\tfrac ca\big((1-t)^{1-a}-(1-t)\big)
+  && \eqref{eq:survival},\ \eqref{eq:pf:survival:4}\\
+|e_t|&\le c\,t\le c\quad(a=1)
+  && (1-t)^0-(1-t)=t
+\end{align}
+As $t\uparrow1$ the bound tends to $0$ ($a<1$), $c$ ($a=1$), $+\infty$ ($a>1$); only the first two constrain $e_t$.
 
-\emph{Step 5: part (c), the bound is attained.} With $\Delta(x,t)=c(1-t)^{-a}u$ the
-integrand of \eqref{eq:survival-id} does not depend on the trajectory, so the identity
-evaluates directly. For $a>0$, by \eqref{eq:pf:survival:4},
-\begin{equation}
-e_t=(1-t)\,c\,u\int_0^t(1-s)^{-1-a}ds
-=\frac ca\big((1-t)^{1-a}-(1-t)\big)u ,
-\label{eq:pf:survival:5}
-\end{equation}
-and for $a=0$, $\int_0^t(1-s)^{-1}ds=-\log(1-t)$ gives
-$e_t=-c(1-t)\log(1-t)\,u$. Both are \eqref{eq:survival-sharp}, and taking norms shows
-\eqref{eq:survival} holds with equality since $|u|=1$ and the integrand keeps a fixed
-direction. Writing $\epsilon=1-t$, $|e_t|=\frac ca(\epsilon^{1-a}-\epsilon)$ has limit $0$
-for $a<1$ (both powers vanish), limit $c$ for $a=1$ (the expression is $c(1-\epsilon)$
-exactly), and limit $+\infty$ for $a>1$ (since $\epsilon^{1-a}\to\infty$). Finally
-$v=\vstarz+\Delta$ is locally Lipschitz in $x$ on $\{t<1\}$ because $\vstarz$ is and
-$\Delta$ is constant in $x$; the same constancy gives $L_\Delta=0$, so this family also
-satisfies Assumption~\ref{as:lipschitz}.
+\textbf{Step 5: part (c).} Take $\Delta(x,t)=c(1-t)^{-a}u$, $|u|=1$: the integrand of \eqref{eq:survival-id} is trajectory-free.
+\begin{align}
+e_t&=(1-t)\,c\,u\int_0^t(1-s)^{-1-a}ds
+  && \eqref{eq:survival-id}\\
+&=\tfrac ca\big((1-t)^{1-a}-(1-t)\big)u\quad(a>0)
+  && \eqref{eq:pf:survival:4}\label{eq:pf:survival:5}\\
+&=-c(1-t)\log(1-t)\,u\quad(a=0)
+  && \textstyle\int_0^t(1-s)^{-1}ds=-\log(1-t)
+\end{align}
+Both are \eqref{eq:survival-sharp}. The integrand keeps a fixed direction, so \eqref{eq:survival} is an equality. With $\epsilon=1-t$:
+\begin{align}
+|e_t|&=\tfrac ca(\epsilon^{1-a}-\epsilon)\to0\ (a<1),\quad c(1-\epsilon)\to c\ (a=1),\quad\to\infty\ (a>1)
+  && \eqref{eq:pf:survival:5}
+\end{align}
+Finally $v=\vstarz+\Delta$ is locally Lipschitz on $\{t<1\}$ and $L_\Delta=0$ ($\Delta$ is constant in $x$), so Assumption~\ref{as:lipschitz} holds.
 
-\emph{Step 6: part (d), what a surviving deviation requires.} With
-$I(t)=\int_0^t\Delta(x^v_s,s)(1-s)^{-1}ds$, \eqref{eq:survival-id} reads $e_t=(1-t)I(t)$
-for every $t<1$, hence
-\begin{equation}
-e_t-e_\star=(1-t)\Big[I(t)-\frac{e_\star}{1-t}\Big].
-\label{eq:pf:survival:6}
-\end{equation}
-The left-hand side of \eqref{eq:pf:survival:6} tends to $0$ exactly when the bracket is
-$o\big((1-t)^{-1}\big)$, which is \eqref{eq:survival-conv}. The four cases listed in (d)
-are the four possible behaviours of $(1-t)I(t)=e_t$ itself (tends to $0$, tends to
-$e_\star\ne0$, has norm tending to $\infty$, or stays bounded without converging), so
-they are exhaustive. This proves Proposition~\ref{prop:survival}.
+\textbf{Step 6: part (d).} Put $I(t)=\int_0^t\Delta(x^v_s,s)(1-s)^{-1}ds$.
+\begin{align}
+e_t&=(1-t)I(t)\\
+  &\quad \eqref{eq:survival-id}\\
+e_t-e_\star&=(1-t)\Big[I(t)-\frac{e_\star}{1-t}\Big]\label{eq:pf:survival:6}\\
+  &\quad \why{subtract $e_\star$}\\
+e_t\to e_\star&\iff I(t)-\frac{e_\star}{1-t}=o\big((1-t)^{-1}\big)\\
+  &\quad \eqref{eq:pf:survival:6};\ \text{this is \eqref{eq:survival-conv}}
+\end{align}
+The four cases of (d) are the four behaviours of $e_t=(1-t)I(t)$ (to $0$; to $e_\star\ne0$; $|e_t|\to\infty$; bounded, no limit): they are exhaustive.
+This proves Proposition~\ref{prop:survival}.
 \end{proof}
 
 \begin{proof}[Proof of Corollary~\ref{cor:lossform}]
-\emph{Step 1: the loss is the error's own norm.} By Proposition~\ref{prop:collapse}(a),
-$U=\vstarz(X_t,t,y^i)$ almost surely, so $|v(X_t,t,y^i)-U|=|\Delta(X_t,t)|$ and
-\begin{equation}
-\mathcal L_i(v)=\int_0^1\ell(s)^2ds,\qquad
-\ell(s)^2:=\E_{X_0}\big|\Delta(x^\star_s,s)\big|^2,
-\label{eq:pf:lossform:1}
-\end{equation}
-where $x^\star_s=(1-s)X_0+sx^i$ has the law of $X_s$ by construction. Both
-trajectories are pushforwards of the same $X_0$, which is what lets the two
-expectations be compared at all.
+\mathtoolsset{showonlyrefs}
+\textbf{Step 1: the loss is the error's norm.}
+\begin{align}
+|v(X_t,t,y^i)-U|&=|\Delta(X_t,t)|\\
+  &\quad U=\vstarz(X_t,t,y^i)\ \text{a.s., Proposition~\ref{prop:collapse}(a)}\\
+\mathcal L_i(v)&=\int_0^1\ell(s)^2ds,\quad\ell(s)^2:=\E_{X_0}|\Delta(x^\star_s,s)|^2\label{eq:pf:lossform:1}\\
+  &\quad x^\star_s=(1-s)X_0+sx^i\sim X_s
+\end{align}
 
-\emph{Step 2: Minkowski.} Take $L^2(X_0)$ norms in \eqref{eq:survival}. By Minkowski's
-integral inequality the norm passes inside the $ds$ integral, so
-\begin{equation}
-\mathcal E(t)\;\le\;(1-t)\int_0^t\frac{\big\|\Delta(x^v_s,s)\big\|_{L^2}}{1-s}\,ds .
-\label{eq:pf:lossform:2}
-\end{equation}
+\textbf{Step 2: Minkowski.}
+\begin{align}
+\mathcal E(t)&\le(1-t)\int_0^t\frac{\|\Delta(x^v_s,s)\|_{L^2}}{1-s}\,ds\label{eq:pf:lossform:2}\\
+  &\quad \why{$L^2(X_0)$ norm of \eqref{eq:survival}; Minkowski's integral inequality}
+\end{align}
 
-\emph{Step 3: closing the inequality with Assumption~\ref{as:lipschitz}.} Pointwise,
-$|\Delta(x^v_s,s)|\le|\Delta(x^\star_s,s)|+L_\Delta|x^v_s-x^\star_s|$, hence by the
-triangle inequality in $L^2(X_0)$,
-\begin{equation}
-\|\Delta(x^v_s,s)\|_{L^2}\le\ell(s)+L_\Delta\,\mathcal E(s).
-\label{eq:pf:lossform:3}
-\end{equation}
-Write $F(t):=\mathcal E(t)/(1-t)$ and $G(t):=\int_0^t\ell(s)(1-s)^{-1}ds$. Inserting
-\eqref{eq:pf:lossform:3} into \eqref{eq:pf:lossform:2},
-\begin{equation}
-F(t)\;\le\;G(t)+L_\Delta\int_0^t\frac{\mathcal E(s)}{1-s}\,ds
-\;=\;G(t)+L_\Delta\int_0^tF(s)\,ds .
-\label{eq:pf:lossform:4}
-\end{equation}
+\textbf{Step 3: close the inequality.} Put $F(t)=\mathcal E(t)/(1-t)$ and $G(t)=\int_0^t\ell(s)(1-s)^{-1}ds$.
+\begin{align}
+|\Delta(x^v_s,s)|&\le|\Delta(x^\star_s,s)|+L_\Delta|x^v_s-x^\star_s|\\
+  &\quad \why{Assumption~\ref{as:lipschitz}}\\
+\|\Delta(x^v_s,s)\|_{L^2}&\le\ell(s)+L_\Delta\,\mathcal E(s)\label{eq:pf:lossform:3}\\
+  &\quad \why{triangle inequality in $L^2(X_0)$}\\
+F(t)&\le G(t)+L_\Delta\int_0^tF(s)\,ds\label{eq:pf:lossform:4}\\
+  &\quad \eqref{eq:pf:lossform:2},\ \eqref{eq:pf:lossform:3};\ \mathcal E(s)/(1-s)=F(s)
+\end{align}
 
-\emph{Step 4: Gr\"onwall.} $G$ is nondecreasing, so Gr\"onwall's inequality in integral
-form applied to \eqref{eq:pf:lossform:4} gives $F(t)\le G(t)\,e^{L_\Delta t}$.
+\textbf{Step 4: Gr\"onwall.}
+\begin{align}
+F(t)&\le G(t)\,e^{L_\Delta t}
+  && \why{\eqref{eq:pf:lossform:4}; $G$ nondecreasing}
+\end{align}
 
-\emph{Step 5: the bound on $G$.} By Cauchy--Schwarz and \eqref{eq:pf:lossform:1},
-\begin{equation}
-G(t)\le\Big(\int_0^t\ell^2\Big)^{1/2}\Big(\int_0^t(1-s)^{-2}ds\Big)^{1/2}
-\le\sqrt{\mathcal L_i(v)}\,\sqrt{t/(1-t)} .
-\label{eq:pf:lossform:5}
-\end{equation}
-Multiplying $F(t)\le G(t)e^{L_\Delta t}$ by $(1-t)$ and using \eqref{eq:pf:lossform:5}
-yields the first bound in \eqref{eq:lossform}; setting $t=1-\delta$ and bounding
-$1-\delta\le1$ gives the truncated form.
+\textbf{Step 5: bound $G$.}
+\begin{align}
+G(t)&\le\Big(\int_0^t\ell^2\Big)^{1/2}\Big(\int_0^t(1-s)^{-2}ds\Big)^{1/2}\\
+  &\quad \why{Cauchy--Schwarz}\\
+&\le\sqrt{\mathcal L_i(v)}\,\sqrt{t/(1-t)}\label{eq:pf:lossform:5}\\
+  &\quad \eqref{eq:pf:lossform:1}\\
+\mathcal E(t)&\le e^{L_\Delta t}\sqrt{\mathcal L_i(v)}\sqrt{t(1-t)}\\
+  &\quad (1-t)\times[\text{Step 4 with \eqref{eq:pf:lossform:5}}]\\
+\mathcal E(1-\delta)&\le e^{L_\Delta}\sqrt{\mathcal L_i(v)\,\delta}\\
+  &\quad t=1-\delta;\ 1-\delta\le1
+\end{align}
+This is \eqref{eq:lossform}.
 
-\emph{Step 6: the second moment about the atom.} Since
-$x^\star_{1-\delta}=\delta X_0+(1-\delta)x^i$, we have
-$|x^\star_{1-\delta}-x^i|=\delta|X_0-x^i|$. The triangle inequality in $L^2(X_0)$ adds
-this to $\mathcal E(1-\delta)$, which is the last display of the statement. This proves
-Corollary~\ref{cor:lossform}.
+\textbf{Step 6: the second moment about the atom.}
+\begin{align}
+|x^\star_{1-\delta}-x^i|&=\delta\,|X_0-x^i|\\
+  &\quad x^\star_{1-\delta}=\delta X_0+(1-\delta)x^i\\
+\big(\E|x^v_{1-\delta}-x^i|^2\big)^{1/2}&\le\mathcal E(1-\delta)+\delta\big(\E|X_0-x^i|^2\big)^{1/2}\\
+  &\quad \why{triangle inequality in $L^2(X_0)$}
+\end{align}
+This proves Corollary~\ref{cor:lossform}.
 \end{proof}
 
 \section{Finite-sample memorisation and exact non-representability}
@@ -2166,41 +2172,36 @@ $\Pr[\exists\,t\in(0,1):\ell_i(t)=\ell_j(t)]=0$.
 $\Pr[\exists\,t_i,t_j\in(0,1),\,t_i\ne t_j:\ell_i(t_i)=\ell_j(t_j)]=0$.
 \end{lemma}
 \begin{proof}[Proof of Lemma~\ref{lem:nonintersect}]
-\emph{Step 1: part (a), why a fixed time is not enough.} For a \emph{fixed}
-$\hat t\in(0,1)$, $\ell_i(\hat t)=\ell_j(\hat t)$ solves to
-\begin{equation}
-z^j=z^i+\tfrac{1-\hat t}{\hat t}\,(x_0^i-x_0^j),
-\label{eq:pf:nonintersect:1}
-\end{equation}
-which pins $z^j$ to a single \emph{point}, not to a subspace; and that point moves with
-$\hat t$, so a fixed-$\hat t$ argument does not by itself control the event
-``$\exists t$''. We therefore take the union over $t$ directly.
+\mathtoolsset{showonlyrefs}
+\textbf{Step 1: part (a), a fixed time is not enough.}
+\begin{align}
+\ell_i(\hat t)=\ell_j(\hat t)&\iff z^j=z^i+\tfrac{1-\hat t}{\hat t}(x_0^i-x_0^j)
+  && \why{solve for $z^j$}\label{eq:pf:nonintersect:1}
+\end{align}
+This pins $z^j$ to a \emph{point} that moves with $\hat t$, so we take the union over $t$ directly.
 
-\emph{Step 2: part (a), the union is a null half-line.} Conditionally on
-$(x_0^i,x_0^j,z^i)$, and since $s=(1-t)/t$ is a bijection from $(0,1)$ onto
-$(0,\infty)$, \eqref{eq:pf:nonintersect:1} gives
-\begin{equation}
-\{\exists\,t\in(0,1):\ell_i(t)=\ell_j(t)\}=\{z^j\in R\},\qquad
-R:=\big\{z^i+s\,(x_0^i-x_0^j):s\in(0,\infty)\big\}.
-\label{eq:pf:nonintersect:2}
-\end{equation}
-$R$ is a half-line, hence contained in a one-dimensional affine subspace of $\R^d$ and
-Lebesgue-null for $d\ge2$ (if $x_0^i=x_0^j$, which has probability $0$, $R$ is the single
-point $z^i$, still null). As $\rho_1$ is absolutely continuous and $z^j$ is independent of
-$(x_0^i,x_0^j,z^i)$, the conditional probability of \eqref{eq:pf:nonintersect:2} is $0$,
-and integrating preserves it. A union bound over the finitely many pairs $(i,j)$
-finishes (a).
+\textbf{Step 2: part (a), the union is a null half-line.} Condition on $(x_0^i,x_0^j,z^i)$; $s=\frac{1-t}t$ is a bijection $(0,1)\to(0,\infty)$.
+\begin{align}
+\{\exists\,t:\ell_i(t)=\ell_j(t)\}&=\{z^j\in R\},\quad R=\{z^i+s(x_0^i-x_0^j):s>0\}\label{eq:pf:nonintersect:2}\\
+  &\quad \eqref{eq:pf:nonintersect:1}\\
+\mathrm{Leb}(R)&=0\\
+  &\quad \why{half-line in a 1-dim.\ affine subspace, $d\ge2$ (a point if $x_0^i=x_0^j$)}\\
+\Pr[z^j\in R\mid x_0^i,x_0^j,z^i]&=0\\
+  &\quad \rho_1\ \text{a.c.};\ z^j\perp(x_0^i,x_0^j,z^i)\\
+\Pr[\exists\,t:\ell_i(t)=\ell_j(t)]&=0\\
+  &\quad \why{integrate; union bound over the finitely many pairs}
+\end{align}
 
-\emph{Step 3: part (b).} With $t_i\ne t_j$ both free, the same union argument places
-$z^j$ in
-\begin{equation}
-\Big\{\big[(1-t_i)x_0^i+t_iz^i-(1-t_j)x_0^j\big]/t_j\ :\ (t_i,t_j)\in(0,1)^2\Big\},
-\label{eq:pf:nonintersect:3}
-\end{equation}
-the image of a two-dimensional parameter set under a map that is smooth on compact
-subsets, hence a countable union of Lipschitz images of bounded planar sets. Each has
-Hausdorff dimension at most $2$ and so is Lebesgue-null when $d>2$; the rest is identical
-to Step~2. This proves Lemma~\ref{lem:nonintersect}.
+\textbf{Step 3: part (b).}
+\begin{align}
+z^j&\in\Big\{\big[(1-t_i)x_0^i+t_iz^i-(1-t_j)x_0^j\big]/t_j:(t_i,t_j)\in(0,1)^2\Big\}\label{eq:pf:nonintersect:3}\\
+  &\quad \why{as in Step~2, $t_i\ne t_j$ free}\\
+\dim_{\mathcal H}\eqref{eq:pf:nonintersect:3}&\le2<d\\
+  &\quad \why{countable union of Lipschitz images of bounded planar sets}\\
+\mathrm{Leb}\big(\eqref{eq:pf:nonintersect:3}\big)&=0\\
+  &\quad d>2;\ \text{the rest is as in Step~2}
+\end{align}
+This proves Lemma~\ref{lem:nonintersect}.
 \end{proof}
 
 \begin{proposition}[A memorising field always exists on a fixed finite unconditional batch]
@@ -2219,22 +2220,29 @@ $\inf_v L_{\mathrm{unc}}(v)>0$ at the population level whenever the $z^i$ are no
 all equal (Proposition~\ref{prop:uncond}).
 \end{proposition}
 \begin{proof}[Proof of Proposition~\ref{prop:memorize}]
-\emph{Step 1: no collisions.} By Lemma~\ref{lem:nonintersect}(a)--(b), union-bounded
-over the $\binom N2$ pairs, almost surely no two of the $N$ full segments
-$\{\ell_i(t):t\in(0,1)\}$ intersect at all. In particular the $Nm$ sampled points
-$(X_t^{(i,j)},t^{(i,j)})$ never collide across different $i$.
+\mathtoolsset{showonlyrefs}
+\textbf{Step 1: no collisions.}
+\begin{align}
+\{\ell_i(t):t\in(0,1)\}\cap\{\ell_j(t):t\in(0,1)\}&=\emptyset\quad(i\ne j)\ \text{a.s.}\\
+  &\quad \why{Lemma~\ref{lem:nonintersect}(a)--(b); union over $\tbinom N2$ pairs}\\
+(X_t^{(i,j)},t^{(i,j)})&\ \text{never collide across different }i\\
+  &\quad \why{a fortiori}
+\end{align}
 
-\emph{Step 2: a lookup table.} On this full-measure event $(x,t)\mapsto i$ is well
-defined on the sample, say $i(x,t)$, so we may set
-\begin{equation}
-v(x,t):=z^{i(x,t)}-x_0^{i(x,t)}\ \text{on the sample},\qquad v:=0\ \text{elsewhere}.
-\label{eq:pf:memorize:1}
-\end{equation}
+\textbf{Step 2: a lookup table.}
+\begin{align}
+v(x,t)&:=z^{i(x,t)}-x_0^{i(x,t)}\ \text{on the sample},\qquad v:=0\ \text{elsewhere}\label{eq:pf:memorize:1}\\
+  &\quad i(x,t)\ \text{well defined by Step~1}
+\end{align}
 
-\emph{Step 3: zero empirical loss.} By \eqref{eq:pf:memorize:1},
-$v(X_t^{(i,j)},t^{(i,j)})=z^i-x_0^i$ exactly for every sampled $(i,j)$, so every summand
-of $L_{\mathrm{MC}}^{\mathrm{unc}}$ vanishes and
-$L_{\mathrm{MC}}^{\mathrm{unc}}(v)=0$. This proves Proposition~\ref{prop:memorize}.
+\textbf{Step 3: zero empirical loss.}
+\begin{align}
+v\big(X_t^{(i,j)},t^{(i,j)}\big)&=z^i-x_0^i\quad\forall(i,j)
+  && \eqref{eq:pf:memorize:1}\\
+L_{\mathrm{MC}}^{\mathrm{unc}}(v)&=0
+  && \why{every summand vanishes}
+\end{align}
+This proves Proposition~\ref{prop:memorize}.
 \end{proof}
 
 \begin{remark}[Why SGD does not land here]
@@ -2266,21 +2274,29 @@ GELU/SiLU, softplus, and every activation used in our experiments). Then
 $\sup_{t\in[0,1)}|f_\theta(t)-g(t)|=\infty$.
 \end{remark}
 \begin{proof}[Proof of Remark~\ref{lem:norepr}]
-\emph{Step 1: the network is globally Lipschitz.} A finite composition of affine maps
-(finite weight matrices, hence finite operator norm) and globally Lipschitz activations
-is globally Lipschitz on $\R$, with constant $K$ equal to the product of the finitely
-many layer constants.
+\mathtoolsset{showonlyrefs}
+\textbf{Step 1: the network is Lipschitz.}
+\begin{align}
+\mathrm{Lip}(f_\theta)&\le K:=\textstyle\prod_\ell\mathrm{Lip}(\text{layer }\ell)<\infty\\
+  &\quad \why{finitely many affine maps and Lipschitz activations}
+\end{align}
 
-\emph{Step 2: it is bounded on $[0,1)$.} Fixing $t_0\in[0,1)$, Step~1 gives
-\begin{equation}
-|f_\theta(t)|\le|f_\theta(t_0)|+K|t-t_0|\le|f_\theta(t_0)|+K\qquad\text{for all }t\in[0,1),
-\label{eq:pf:norepr:1}
-\end{equation}
-so $\sup_{t\in[0,1)}|f_\theta(t)|<\infty$.
+\textbf{Step 2: it is bounded on $[0,1)$.} Fix $t_0\in[0,1)$.
+\begin{align}
+|f_\theta(t)|&\le|f_\theta(t_0)|+K|t-t_0|\le|f_\theta(t_0)|+K
+  && \why{Step~1; $|t-t_0|\le1$}\label{eq:pf:norepr:1}\\
+\sup_{t\in[0,1)}|f_\theta(t)|&<\infty
+  && \eqref{eq:pf:norepr:1}
+\end{align}
 
-\emph{Step 3: conclusion.} But $g(t)=1/(1-t)\to\infty$ as $t\uparrow1$, so $g$ is
-unbounded on $[0,1)$, and by \eqref{eq:pf:norepr:1} so is $f_\theta-g$. Hence
-$\sup_{t\in[0,1)}|f_\theta(t)-g(t)|=\infty$, which is the remark.
+\textbf{Step 3: conclusion.}
+\begin{align}
+g(t)&=\frac1{1-t}\to\infty\quad(t\uparrow1)
+  && g\ \text{unbounded on $[0,1)$}\\
+\sup_{t\in[0,1)}|f_\theta(t)-g(t)|&=\infty
+  && \why{Step~2: $f_\theta$ bounded, $g$ not}
+\end{align}
+This proves the remark.
 \end{proof}
 
 For $x\ne x^i$ fixed, $t\mapsto v_0^\star(x,t,y^i)=(x^i-x)/(1-t)$ has exactly this
