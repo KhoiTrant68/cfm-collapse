@@ -32,7 +32,10 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
-import torch
+try:  # only the trajectory helpers below need torch; the drawing helpers do not
+    import torch
+except ImportError:  # pragma: no cover
+    torch = None
 from matplotlib.lines import Line2D
 from matplotlib.patches import Ellipse
 
@@ -243,7 +246,7 @@ def flow_exact(X, Y, y, h: float, x0, *, source_std: float = 1.0,
     return _rk4(field, x, graded_times(n_steps, t_end))
 
 
-@torch.no_grad()
+@(torch.no_grad() if torch is not None else (lambda f: f))
 def flow_model(model, x0, y, *, n_steps: int = 400,
                t_end: float = 1.0 - 1e-3) -> np.ndarray:
     """Integrate a trained velocity model, keeping the whole path.

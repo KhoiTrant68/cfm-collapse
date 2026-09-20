@@ -103,6 +103,9 @@ Every figure script calls `use_paper_style()`.
 | A-fig 4 `fig_exp2_portrait` | EXP-2 GMM, trajectory layout; shares recomputed from 20000 draws and asserted against the caption | `make_exp2_portrait.py` |
 | A-fig 5 `fig_expansion` | measured `tr Cov_h` vs `tr Sigma + h^2 ||J||_F^2` | `make_expansion_figure.py` |
 | A-fig 6 `fig_image_bandwidth` | CIFAR DDPM samples at `h = 0, 4, 5, 6`, cut from the saved grids (checkpoints are not kept) | `make_image_bandwidth_figure.py` |
+| A-fig 6b `fig_image_bandwidth_seed1/2` | the same sweep for the other two seeds (each draws its own training set) | `make_image_extra_figures.py` |
+| A-fig 6c `fig_image_training` | DDPM, `h = 0`, grids at iteration 500 ... 60000 | `make_image_extra_figures.py` |
+| A-fig 6d `fig_image_class` | class-conditional DDPM (`N = 2000`), `h = 0` and `0.4`: `tr Cov` against the within-class scatter, and the grids | `make_image_extra_figures.py` |
 
 `make_flow_portraits.py` asserts before drawing that its field reduces to
 `kernel_theory.kernel_field`, that `h*` solves `tr Cov_h = tr Sigma_post`, that endpoint

@@ -4111,8 +4111,63 @@ images, a galloping horse and a red car, recur across conditions and bandwidths,
 supported on training atoms predicts (Proposition~\ref{prop:atomicity}); the blurred
 completions, which look like no training image, are the kind of off-atom mass
 Section~\ref{sec:cifarddpm} quantifies. Cut from the sample grids the runs saved,
-by \texttt{scripts/make\_image\_bandwidth\_figure.py}.}
+by \texttt{scripts/make\_image\_bandwidth\_figure.py}. The same sweep for seeds~1 and~2 is
+Figures~\ref{fig:imagebandwidth1} and~\ref{fig:imagebandwidth2}, and the $h{=}0$ row as it forms is
+Figure~\ref{fig:imagetraining}.}
 \label{fig:imagebandwidth}
+\end{figure}
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.9\textwidth]{fig_image_training.png}
+\caption{The $h{=}0$ row of Figure~\ref{fig:imagebandwidth} as it forms (CIFAR-10 DDPM, seed~$0$):
+the grid the run saved at each of six iterations, on the two conditions shown there. At $500$ and
+$2000$ iterations the six completions of a condition differ from one another and agree with the
+observed top half only. From $8000$ iterations on they are one image, the true one, and stay so
+to $60000$ (Proposition~\ref{prop:collapse}). Cut from the saved grids by
+\texttt{scripts/make\_image\_extra\_figures.py}.}
+\label{fig:imagetraining}
+\end{figure}
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.9\textwidth]{fig_image_bandwidth_seed1.png}
+\caption{Figure~\ref{fig:imagebandwidth} for seed~$1$; each seed draws its own training set, so the
+conditions differ. $h{=}0$: six identical completions, equal to the true image, on both
+conditions. $h{=}4$: one of six completions in the upper row reproduces the true image and none
+does in the lower row; $h{=}5$ and $h{=}6$: none does.}
+\label{fig:imagebandwidth1}
+\end{figure}
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.9\textwidth]{fig_image_bandwidth_seed2.png}
+\caption{Figure~\ref{fig:imagebandwidth} for seed~$2$. $h{=}0$: six identical completions, equal to
+the true image, on both conditions. $h{=}4$: two of six completions in the upper row reproduce
+the true image and none does in the lower row; $h{=}5$ and $h{=}6$: none does.}
+\label{fig:imagebandwidth2}
+\end{figure}
+
+\paragraph{Class labels.} With $N{=}2000$ CIFAR-10 images and the class as the label, about $200$
+images share each label, so the population minimiser collapses onto the class and not onto one image
+(the remark after Proposition~\ref{prop:collapse}), and the conditional variance it predicts is the
+within-class scatter rather than zero. Figure~\ref{fig:imageclass} shows two runs of the DDPM, at
+$h{=}0$ and $h{=}0.4$ on the one-hot label.
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.9\textwidth]{fig_image_class.png}
+\caption{Class-conditional CIFAR-10 DDPM ($N{=}2000$, seed~$0$). \textbf{(a)}~$\mathrm{tr}\,\mathrm{Cov}$
+of the completions, averaged over $10$ conditions, at the six checkpoints, for $h{=}0$ and
+$h{=}0.4$, against the within-class scatter $717$ (dashed; $719$ at $h{=}0.4$). It does not collapse: it stays at
+$0.64$--$0.83$ of that value for $h{=}0$ and $0.62$--$1.30$ for $h{=}0.4$ (the largest at iteration
+$500$), and both end at $0.76$ while the training loss falls from $0.22$ to $0.06$.
+\textbf{(b,~c)}~Sample grids at $60000$ iterations. The model sees only the class of the observed
+image, and its six completions are different images of that class, not one image. Nothing here
+shows whether the completions are training images: no checkpoint is kept, so the distance of
+individual samples to the training set was not computed. Cut from the saved grids and metrics by
+\texttt{scripts/make\_image\_extra\_figures.py}.}
+\label{fig:imageclass}
 \end{figure}
 
 \end{document}
