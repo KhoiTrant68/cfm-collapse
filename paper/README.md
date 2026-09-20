@@ -115,14 +115,18 @@ gives byte-identical PNGs. Run scripts from the repository root as modules
 (`uv run python -m scripts.make_flow_portraits`).
 
 Scripts on `figstyle.py` (call `use_paper_style()`): `make_paper_figures`, `make_theory_figures`,
-`make_p1p4_figure`, `make_posterior_distance_figure`, `make_seed_split_figure` and the flow / image /
-EXP-2 / expansion scripts above. The last four of these predate the shared style and their
-annotations were laid out on framed legends and default font sizes, so they keep those two
-settings after the call. Still on their own default styling (their PNGs are unchanged): `make_mechanism_figure`,
-`make_factorisation_figure`, `beta_trajectory`, `visualize_collapse_2d`, `visualize_gmm_2d`, the `analyze_*.py` plots, and the MNIST/CIFAR-10 training grids (`fig_exp3_grid*`, `fig_exp3_cifar_grid*`),
-which are written by `src/train_exp3.py`. `fig_posterior_distance.png` is written only by
+`make_p1p4_figure`, `make_posterior_distance_figure`, `make_seed_split_figure`, `make_mechanism_figure`,
+`make_factorisation_figure` and the flow / image / EXP-2 / expansion scripts above. The ones that predate
+the shared style had their annotations laid out on framed legends (and, for two, default font sizes), so
+they keep those settings after the call; without them legends print over data. Not on it:
+`beta_trajectory.py` (it re-evaluates the DDPM checkpoints, which are not kept, and overwrites its
+JSON and figure with empty ones when they are missing: do not run it here), `visualize_collapse_2d`,
+`visualize_gmm_2d` (they write to `results/` and their output is copied), the `analyze_*.py` plots,
+and the MNIST/CIFAR-10 training grids (`fig_exp3_grid*`, `fig_exp3_cifar_grid*`), written by
+`src/train_exp3.py`. `fig_posterior_distance.png` is written only by
 `make_posterior_distance_figure.py`; `make_paper_figures.py` used to overwrite it with an older two-panel
-version and no longer does.
+version and no longer does. Scripts that import torch run with
+`uv run --with torch ...`.
 
 ### Checking the body length without pdflatex
 

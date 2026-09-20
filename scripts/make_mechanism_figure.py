@@ -40,6 +40,16 @@ import torch
 from src.metrics.kernel_theory import kernel_field, kernel_weights, kernel_moments
 from src.problems.linear_gaussian import LinearGaussianProblem
 
+import sys as _sys
+from pathlib import Path as _Path
+
+_sys.path.insert(0, str(_Path(__file__).resolve().parents[1]))
+from scripts.figstyle import use_paper_style  # noqa: E402
+
+use_paper_style()
+# legends here sit over data and were laid out with a frame
+plt.rcParams.update({"legend.frameon": True, "legend.framealpha": 0.92})
+
 OUT = Path("paper/figures/fig_mechanism.png")
 OI = {"black": "#000000", "sky": "#56B4E9", "blue": "#0072B2",
       "vermillion": "#D55E00", "orange": "#E69F00", "green": "#009E73"}
