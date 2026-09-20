@@ -54,20 +54,20 @@ out). Every proof in Appendix A follows one shape:
    statement (`[Proof: Appendix A.k]`, right-aligned, small). The two results whose idea is
    short enough (Theorem 1, Proposition `atomicity`) also carry a two-line `Proof sketch.`
    in the body; there is no room for more.
-3. **Steps.** A proof with more than one move is `\textbf{Step 1: <what this step does>.}`,
-   `Step 2: ...`; a single-move proof (two corollaries) has no Steps.
-4. **Multi-line displays joined by prose.** Each step is an `align` block of the successive
-   lines, followed by a sentence saying what justifies them, in order (a cited result, an
-   assumption `Assumption~\ref{as:...}`, or a labelled display); no "it is easy to see".
-   Inequalities and limits go in the same block. `\mathtoolsset{showonlyrefs}` at the head of
-   each proof numbers only the lines that a later step cites. The justification sentences
-   were generated from the earlier one-warrant-per-line form and are terse; rewrite one by hand
-   into flowing prose when you next touch its proof.
-5. **Displays are labelled** `eq:pf:<name>:<n>`, numbered in order of use, and *cited* by the
-   later step that uses them. A label that a statement or another section cites keeps its
-   descriptive name (`eq:kernel-field`, `eq:vgrowth`, `eq:tgtfield`, `eq:lgbias`, ...).
-6. **Closing sentence** restating what was proved: `This proves Proposition~\ref{...}.`
-7. Proof headers are always `\begin{proof}[Proof of <Kind>~\ref{<label>}]`.
+3. **Terse, formula first.** No Step headings and no justification paragraphs. A proof is one
+   opening clause ("Given ...", "By Lemma~\ref{...}, ...") followed by displays, each
+   `equation*` (or `equation` when a later line cites it) with a `split` for successive lines,
+   and short connectives between them ("Hence", "so", "with"). What justifies a line is a
+   reference (`Lemma~\ref{...}`, `Assumption~\ref{as:...}`, `\eqref{...}`) or a standard name
+   (Bayes, Gr\"onwall, Cauchy--Schwarz) written in the connecting clause, never a sentence
+   about the proof itself. A proof that ends on a display carries `\qedhere` there.
+4. **Parts.** Statements with parts (a), (b), ... are proved part by part in one proof, under
+   the statement's own letters.
+5. **Labels** `eq:pf:<name>:<n>` only on displays that a later line or proof cites; a label that a
+   statement or another section cites keeps its descriptive name (`eq:kernel-field`,
+   `eq:vgrowth`, `eq:tgtfield`, `eq:lgbias`, ...). No closing "This proves ..." sentence: the end
+   mark closes the proof.
+6. Proof headers are always `\begin{proof}[Proof of <Kind>~\ref{<label>}]`.
 Assumptions are numbered once and cited, not restated: `as:standing` (Assumption 1: fixed
 dataset, linear interpolant, identifying labels), `as:design` (Assumption 2: random-design
 regularity for the bandwidth expansion, including the fourth moment), `as:lipschitz`

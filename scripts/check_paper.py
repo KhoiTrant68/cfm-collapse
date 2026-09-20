@@ -138,7 +138,7 @@ def check_baseline(tex: str, baseline: pathlib.Path, problems: list[str]) -> Non
     def count(t: str, env: str) -> int:
         # a displayed equation is an `equation` or an `align`: proofs written one line
         # per step use the latter, and that is not a lost equation
-        names = ("equation", "align", "align*") if env == "equation" else (env,)
+        names = ("equation", "equation*", "align", "align*") if env == "equation" else (env,)
         return sum(t.count("\\begin{%s}" % n) for n in names)
 
     for env in ENVS:
