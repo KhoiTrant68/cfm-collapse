@@ -1045,7 +1045,12 @@ $\operatorname{supp}(\rho_Y)$ and a ball $B(y,r)$ contained in that interior, on
 we assume: $\rho_Y$ is positive and $C^2$; $\mu$ is $C^3$ with
 $M_3:=\sup_{B(y,r)}\|\nabla^3\mu\|<\infty$; and $\Sigma(\cdot)$ is \emph{constant}.
 Assume also the global tail conditions that $\rho_Y$ is bounded and that
-$|\mu(y')|+\|\Sigma(y')\|\le C(1+|y'|^m)$ for some $C,m$. Then, pointwise at this $y$,
+$|\mu(y')|+\|\Sigma(y')\|\le C(1+|y'|^m)$ for some $C,m$. The stochastic term carries one
+further hypothesis: the fourth conditional moment $m_4(y'):=\E[\|X\|^4\mid Y=y']$ is
+bounded on $B(y,r)$ and satisfies the same polynomial growth globally. It is not implied
+by the hypotheses above---they bound the conditional mean and covariance, whereas
+$\Covh$ is a quadratic functional of $X$ whose \emph{variance} is what Step~4 must
+control---and it is what the standard kernel-smoothing rate assumes. Then, pointwise at this $y$,
 as $Nh^k\to\infty,h\to0$,
 \begin{equation}
 \Covh(y)=\Sigma(y)+h^2 J(y)J(y)^\top+O(h^4)+O_P\big((Nh^k)^{-1/2}\big),
@@ -1130,9 +1135,15 @@ it is used for the whole of this step: with $\Sigma(\cdot)\equiv\Sigma(y)$ on a
 neighbourhood of $y$, and since $\tilde q_h$ places all but exponentially little mass
 on that neighbourhood,
 \[
-\E_h[\Sigma(Y)]=\E_{\tilde q_h}[\Sigma(y+hu)]=\Sigma(y),
+\E_h[\Sigma(Y)]=\E_{\tilde q_h}[\Sigma(y+hu)]
+=\Sigma(y)+O\big(e^{-r^2/(4h^2)}\big).
 \]
-exactly, with no remainder. This is the within-group term of \eqref{eq:expansion}.
+The remainder is the mass $\tilde q_h$ puts outside $B(y,r)$, where the local hypothesis
+says nothing and only the global growth bound on $\Sigma$ applies; it is the same
+Gaussian-tail estimate as in Step~3 below, hence $o(h^p)$ for every $p$ and absorbed into
+the $O(h^4)$ of \eqref{eq:expansion}. Constancy of $\Sigma$ on the whole of $\R^k$ would
+make the step exact, but is not needed. This is the within-group term of
+\eqref{eq:expansion}.
 
 It is worth recording what fails without that hypothesis, since the gap is of leading
 order rather than a technicality. For merely $C^2$ $\Sigma(\cdot)$ one gets, by the same
@@ -1219,7 +1230,11 @@ $N$ i.i.d.\ terms; a standard kernel-density computation gives
 $\Var\big(K_h(y-Y)\big)=\Theta(h^{-k})$ (the kernel has height $\Theta(h^{-k})$ on an
 effective support of Lebesgue measure $\Theta(h^k)$, so its second moment is
 $\Theta(h^{-k})\cdot\Theta(h^k)\cdot\Theta(h^{-k})=\Theta(h^{-k})$, dominating the
-squared mean $\Theta(1)$), and likewise for $K_h(y-Y)X$. Hence
+squared mean $\Theta(1)$), and likewise for $K_h(y-Y)X$. The quadratic functional
+$\Covh$ needs the same computation for $K_h(y-Y)XX^\top$, whose second moment is
+$\Theta(h^{-k})$ only because $m_4$ is bounded near $y$: this is the one place the
+fourth-moment hypothesis of the statement is used, and without it the $O_P$ rate is not
+available even though the deterministic expansion is unaffected. Hence
 $S_N=\E[K_h(y-Y)]+O_P\big(\sqrt{h^{-k}/N}\big)$ and
 $T_N=\E[K_h(y-Y)X]+O_P\big(\sqrt{h^{-k}/N}\big)$, i.e.\ each has \emph{relative}
 fluctuation $O_P\big((Nh^k)^{-1/2}\big)$ around a mean of order $\Theta(1)$. A
