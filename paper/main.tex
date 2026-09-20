@@ -290,10 +290,10 @@ $x_t=(1-t)x_0+tx^i$, so $x_t\to x^i$ for every $x_0$; and
 $\Cov[p_1^{\mathrm{cond}}(\cdot\mid y^i)]=0$. \proofin{apx:pf-collapse}
 \end{proposition}
 If labels are not distinct, collapse is onto the label's empirical conditional
-support $|\mathcal I_y|^{-1}\sum_{i\in\mathcal I_y}\delta_{x^i}$, a single atom exactly
-when the label is an identifier. The unconditional minimiser, by contrast, mixes all $N$
-atoms with spatial weights $q_i(x,t)\propto\pi_0(\tfrac{x-tx^i}{1-t})$ and reaches
-$\rhohat_X$ (Proposition~\ref{prop:uncond}, appendix).
+support $|\mathcal I_y|^{-1}\sum_{i\in\mathcal I_y}\delta_{x^i}$ (Corollary~\ref{cor:repeated},
+appendix), a single atom exactly when the label is an identifier. The unconditional
+minimiser, by contrast, mixes all $N$ atoms and reaches $\rhohat_X$
+(Proposition~\ref{prop:uncond}, appendix).
 
 \begin{corollary}[The correct conditional/unconditional distinction]
 \label{cor:distinction}
@@ -981,6 +981,40 @@ $\Cov[p_1^{\mathrm{cond}}(\cdot\mid y^i)]=0$.
     and $p_1^{\mathrm{cond}}(\cdot\mid y^i)=\delta_{x^i}$ with $\Cov=0$, which is (c) and (d).
 \end{proof}
 
+\subsection{Proof of Corollary~\ref{cor:repeated}}
+\label{apx:pf-repeated}
+
+\begin{corollary}[Repeated labels]
+\label{cor:repeated}
+Drop the distinctness in Assumption~\ref{as:standing}(iii), let $h=0$, and for a query label $y$ let
+$\mathcal I_y=\{i:y^i=y\}\ne\emptyset$. Then
+\begin{align*}
+    \vstarz(x,t,y) &= \sum_{i\in\mathcal I_y}q_i^y(x,t)\,\fat{i}, \qquad
+    q_i^y\propto\src{i}\ \text{ on }\mathcal I_y, \\
+    p_1^{\mathrm{cond}}(\cdot\mid y) &= \frac1{|\mathcal I_y|}\sum_{i\in\mathcal I_y}\delta_{x^i},
+\end{align*}
+whose covariance is the within-label scatter $|\mathcal I_y|^{-1}\sum_{i\in\mathcal I_y}(x^i-\bar x_y)(x^i-\bar x_y)^\top$,
+$\bar x_y=|\mathcal I_y|^{-1}\sum_{i\in\mathcal I_y}x^i$.
+\end{corollary}
+
+\begin{proof}[Proof of Corollary~\ref{cor:repeated}]
+    Given $Y=y$, $I$ is uniform on $\mathcal I_y$ and $X_0\sim\pi_0$ is independent of $I$. By Bayes and Lemma~\ref{lem:cov},
+    \begin{align*}
+        \Pr(I=i\mid X_t=x,t,Y=y) &= \frac{\src{i}}{\sum_{j\in\mathcal I_y}\src{j}} \\
+        &= q_i^y(x,t),
+    \end{align*}
+    and given $I=i$, $U=\fat{i}$ by \eqref{eq:pf:collapse:2}, so by Proposition~\ref{prop:projection}
+    \begin{align*}
+        \vstarz(x,t,y) &= \E[U\mid X_t=x,t,Y=y] \\
+        &= \sum_{i\in\mathcal I_y}q_i^y\,\fat{i}.
+    \end{align*}
+    The weights $q_i^y$ are smooth, positive and sum to one. As in the proof of Theorem~\ref{thm:endpoint}, with $I$ uniform on $\mathcal I_y$, the flow is well posed, $(\Phi_t)_\#\pi_0=\law(X_t)$, and $X_t\to x^I$ a.s., so
+    \begin{align*}
+        p_1^{\mathrm{cond}}(\cdot\mid y) &= \law(x^I) \\
+        &= \frac1{|\mathcal I_y|}\sum_{i\in\mathcal I_y}\delta_{x^i},\qedhere
+    \end{align*}
+\end{proof}
+
 \subsection{Proof of Proposition~\ref{prop:uncond}}
 \label{apx:pf-uncond}
 
@@ -1086,7 +1120,12 @@ p_h^{\mathrm{gen}}(\cdot\mid y)=\sum_{i=1}^N p_i^{(h)}(y)\,\delta_{x^i}.
         \partial_tp_t+\nabla\!\cdot\big(p_t\vstar\big)=0,\qquad p_0=\pi_0,
         \label{eq:pf:endpoint:2}
     \end{equation}
-    has a unique solution. Both $(\Phi_t)_\#\pi_0$ and $\law(X_t)$ (by superposition) solve \eqref{eq:pf:endpoint:2}, hence
+    has a unique solution. $(\Phi_t)_\#\pi_0$ solves it, and so does $\law(X_t)$: for $\varphi\in C_c^\infty$,
+    \begin{align*}
+        \frac{d}{dt}\E\,\varphi(X_t) &= \E\langle\nabla\varphi(X_t),\,X_1-X_0\rangle \\
+        &= \E\langle\nabla\varphi(X_t),\,\vstar(X_t,t,y)\rangle,
+    \end{align*}
+    by conditioning on $X_t$ (Lemma~\ref{lem:mixture-coupling}). Hence
     \begin{align*}
         (\Phi_t)_\#\pi_0 &= \law(X_t) =: p_t .
     \end{align*}
@@ -1097,6 +1136,9 @@ p_h^{\mathrm{gen}}(\cdot\mid y)=\sum_{i=1}^N p_i^{(h)}(y)\,\delta_{x^i}.
         &= \sum_i\pih{i}(y)\,\delta_{x^i}.\qedhere
     \end{align*}
 \end{proof}
+
+This is convergence in law of the marginals of the flow, which is what $p_1$ denotes. Convergence of
+individual trajectories is not claimed; Proposition~\ref{prop:cfgatom} assumes it for guided flows.
 
 \subsection{Proof of Corollary~\ref{cor:zerobw}}
 \label{apx:pf-zerobw}
@@ -1329,11 +1371,12 @@ $\sigma>0$.
 
 \begin{quote}\small
 \noindent\textbf{Proposition~\ref{prop:factors}} (The two mechanisms act on different factors).
-In the factorisation \eqref{eq:kernel-field}, label smoothing modifies the label
-factor $K_h(y-y^i)$ and therefore changes $p_1$ (Theorem~\ref{thm:endpoint});
-interpolant noise rescales the spatial factor $\N(tx^i,s_t^2 I_d)$
-\emph{isotropically and identically for every $i$}, leaving the endpoint law
-unchanged (Proposition~\ref{prop:prop17}). The two remedies are therefore not
+Let the atoms be not all equal and $y$ have a unique nearest label $i^\star$. Label smoothing
+changes the endpoint law: $p_h^{\mathrm{gen}}(\cdot\mid y)$ tends to $\delta_{x^{i^\star}}$ as
+$h\to0$ and to $\rhohat_X$ as $h\to\infty$, and these differ. Interpolant noise does not:
+although it replaces the spatial factor $\N(tx^i,(1-t)^2I_d)$ of Lemma~\ref{lem:cov} by
+$\N(tx^i,s_t^2I_d)$, identically for every $i$, $p_1^{\mathrm{cond}}(\cdot\mid y^i)=\delta_{x^i}$ for
+every $\sigma\ge0$ (Proposition~\ref{prop:prop17}). The two remedies are therefore not
 interchangeable.
 \end{quote}
 
@@ -1343,7 +1386,7 @@ interchangeable.
         p_h^{\mathrm{gen}} &\Rightarrow \delta_{x^{i^\star}} \quad (h\to0,\ \text{unique nearest label}), \\
         p_h^{\mathrm{gen}} &\Rightarrow \rhohat_X \quad (h\to\infty),
     \end{align*}
-    which are distinct. Spatial factor: for $h=0$ and any $\sigma\ge0$,
+    which are distinct because the atoms are not all equal. Spatial factor: for $h=0$ and any $\sigma\ge0$,
     \begin{align*}
         \N\big(tx^i,(1-t)^2I_d\big) &\longrightarrow \N\big(tx^i,s_t^2I_d\big) \quad \forall i, \\
         p_1^{\mathrm{cond}}(\cdot\mid y^i) &= \delta_{x^i} \quad \forall\sigma
@@ -1388,7 +1431,7 @@ heteroscedastic counterexample are discussed in Appendix~\ref{app:proofs}.
 \end{proposition}
 
 \begin{proof}[Proof of Proposition~\ref{prop:expansion}]
-    Let $s=\nabla\log\rho_Y(y)$, $q_h\propto K_h(y-\cdot)\rho_Y$, $\E_h[f]=\E[K_h(y-Y)f]/\E[K_h(y-Y)]$ and $u=(Y-y)/h$. As $N\to\infty$, $\Covh\to\Cov_h^{\mathrm{pop}}:=\Cov_h[X]$ (LLN, Slutsky), and by total covariance
+    Let $s=\nabla\log\rho_Y(y)$, $q_h\propto K_h(y-\cdot)\rho_Y$, $\E_h[f]=\E[K_h(y-Y)f]/\E[K_h(y-Y)]$ and $u=(Y-y)/h$. Let $\Cov_h^{\mathrm{pop}}:=\Cov_h[X]$ be the population counterpart of $\Covh$; its deviation from $\Covh$ at $h=h_N$ is bounded in the last part. By total covariance
     \begin{equation}
         \Cov_h^{\mathrm{pop}} = \E_h[\Sigma(Y)]+\Cov_h[\mu(Y)].
         \label{eq:pf:expansion:2}
@@ -1448,7 +1491,7 @@ heteroscedastic counterexample are discussed in Appendix~\ref{app:proofs}.
         \Var\big(K_h(y-Y)\big) &= \Theta(h^{-k}), \\
         \Var\big(K_h(y-Y)XX^\top\big) &= \Theta(h^{-k}),
     \end{align*}
-    the latter using $m_4$ bounded near $y$ (the only use of (iv)). Hence $S_N,T_N=\E[\cdot]+O_P(\sqrt{h^{-k}/N})$ and, by Slutsky,
+    the latter using $m_4$ bounded near $y$ (the only use of (iv)). Hence $S_N,T_N=\E[\cdot]+O_P(\sqrt{h^{-k}/N})$, with $\E[K_h(y-Y)]\to\rho_Y(y)>0$, and by Slutsky
     \begin{align*}
         \bar x_h &= \E_h[X]+O_P\big((Nh^k)^{-1/2}\big), \\
         \Covh &= \Cov_h^{\mathrm{pop}}+O_P\big((Nh^k)^{-1/2}\big).
@@ -1748,7 +1791,7 @@ affine hull---holds unconditionally, by the exact identity $q_t=(1-t)q_0$.
 \noindent\textbf{Proposition~\ref{prop:survival}} (Error survival).
 Fix $i$, let $h=0$ with distinct labels, and let $v$ be any locally Lipschitz field.
 Write $\Delta(x,t):=v(x,t,y^i)-\vstarz(x,t,y^i)$ for its error against the exact
-collapsed field, let $x^v_t$ solve $\dot x_t=v(x_t,t,y^i)$ from $x_0$, and let
+collapsed field, let $x^v_t$ solve $\dot x_t=v(x_t,t,y^i)$ from $x_0$ (we assume it exists on $[0,t]$), and let
 $x^\star_t=(1-t)x_0+tx^i$ be the exact trajectory from the same $x_0$. Then for
 $t<1$, with $e_t:=x^v_t-x^\star_t$, the \emph{identity}
 \begin{equation*}
@@ -2094,11 +2137,12 @@ they leave.
 % ---- two-factor separation proposition ----
 \begin{proposition}[The two mechanisms act on different factors]
 \label{prop:factors}
-In the factorisation \eqref{eq:kernel-field}, label smoothing modifies the label
-factor $K_h(y-y^i)$ and therefore changes $p_1$ (Theorem~\ref{thm:endpoint});
-interpolant noise rescales the spatial factor $\N(tx^i,s_t^2 I_d)$
-\emph{isotropically and identically for every $i$}, leaving the endpoint law
-unchanged (Proposition~\ref{prop:prop17}). The two remedies are therefore not
+Let the atoms be not all equal and $y$ have a unique nearest label $i^\star$. Label smoothing
+changes the endpoint law: $p_h^{\mathrm{gen}}(\cdot\mid y)$ tends to $\delta_{x^{i^\star}}$ as
+$h\to0$ and to $\rhohat_X$ as $h\to\infty$, and these differ. Interpolant noise does not:
+although it replaces the spatial factor $\N(tx^i,(1-t)^2I_d)$ of Lemma~\ref{lem:cov} by
+$\N(tx^i,s_t^2I_d)$, identically for every $i$, $p_1^{\mathrm{cond}}(\cdot\mid y^i)=\delta_{x^i}$ for
+every $\sigma\ge0$ (Proposition~\ref{prop:prop17}). The two remedies are therefore not
 interchangeable.
 \end{proposition}
 
@@ -2521,7 +2565,7 @@ is a contraction estimate rather than the growth estimate one might expect.
 \label{prop:survival}
 Fix $i$, let $h=0$ with distinct labels, and let $v$ be any locally Lipschitz field.
 Write $\Delta(x,t):=v(x,t,y^i)-\vstarz(x,t,y^i)$ for its error against the exact
-collapsed field, let $x^v_t$ solve $\dot x_t=v(x_t,t,y^i)$ from $x_0$, and let
+collapsed field, let $x^v_t$ solve $\dot x_t=v(x_t,t,y^i)$ from $x_0$ (we assume it exists on $[0,t]$), and let
 $x^\star_t=(1-t)x_0+tx^i$ be the exact trajectory from the same $x_0$. Then for
 $t<1$, with $e_t:=x^v_t-x^\star_t$, the \emph{identity}
 \begin{equation}
@@ -4150,7 +4194,7 @@ the true image and none does in the lower row; $h{=}5$ and $h{=}6$: none does.}
 
 \paragraph{Class labels.} With $N{=}2000$ CIFAR-10 images and the class as the label, about $200$
 images share each label, so the population minimiser collapses onto the class and not onto one image
-(the remark after Proposition~\ref{prop:collapse}), and the conditional variance it predicts is the
+(Corollary~\ref{cor:repeated}), and the conditional variance it predicts is the
 within-class scatter rather than zero. Figure~\ref{fig:imageclass} shows two runs of the DDPM, at
 $h{=}0$ and $h{=}0.4$ on the one-hot label: the variance is retained, and most of the completions are
 nonetheless training images.
