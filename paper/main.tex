@@ -684,10 +684,11 @@ Theorem~\ref{thm:endpoint} predicts to be $1$.
 
 \begin{figure}[!t]
 \centering
-\includegraphics[width=0.68\textwidth]{fig_cifar_ddpm_tracking.png}
+\includegraphics[width=0.64\textwidth]{fig_cifar_ddpm_tracking.png}
 \caption{Measured against predicted conditional variance, per condition, on the CIFAR-10
-DDPM run ($48$ conditions, $M{=}256$). Dashed: the identity, Theorem~\ref{thm:endpoint}'s
-$\beta=1$; solid: the fitted slope, with the range the regression had. The panels share
+DDPM run ($48$ conditions, $M{=}256$). Crosses: one evaluation condition each; dashed:
+the identity, Theorem~\ref{thm:endpoint}'s $\beta=1$; solid: the fitted slope, with its
+standard error printed in the panel. The panels share
 one axis range, so the collapse of the predictor's spread---$4.57$ decades at $h{=}4$ to
 $0.74$ at $h{=}6$---is visible, and the right-hand cloud sits on the identity line while
 having no slope. By the level, agreement improves with $h$ (median ratio $5.30$, $1.38$,
@@ -3382,6 +3383,39 @@ difference between the panels is the confound, not the data.}
 
 \subsection{Additional verification (gap to optimum, Lipschitz, posterior distance)}
 \label{sec:aux}
+
+\paragraph{The bandwidth expansion, measured.} Proposition~\ref{prop:expansion} is the
+one result here about a \emph{random} design, and on the linear-Gaussian instance it can
+be checked without training anything: draw datasets, compute $\tr\Covh(y)$, compare.
+Figure~\ref{fig:expansion} does that at $N{=}2000$ over $24$ draws per bandwidth. Three
+things are visible. The exact population law for this instance---$\tr\Sigmapost
++\|J\|_F^2\,h^2\Sigma_Y/(\Sigma_Y+h^2)$, which follows from the $h$-tilted law of a
+Gaussian design being Gaussian---tracks the measurement to within $2.5\%$ wherever
+$Nh^k\ge100$. The proposition's $h^2\|J\|_F^2$ is the small-$h$ limit of that law and
+departs from it by $7.7\%$ at $h{=}1$, which is the $O(h^4)$ term the statement
+discards, becoming visible. And the spread across draws falls as $(Nh^k)^{-1/2}$: fitted
+$-0.48$ against the predicted $-0.5$ over three decades of $Nh^k$, which is the
+$O_P((Nh^k)^{-1/2})$ term of the statement measured rather than assumed. Below
+$Nh^k\approx100$ the measurement sits \emph{under} the law by up to $6\%$, the plug-in
+covariance's own $1/n_{\mathrm{eff}}$ bias ($n_{\mathrm{eff}}\approx37$ at $h{=}0.02$):
+the regime where the expansion's error term dominates its signal.
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=\textwidth]{fig_expansion.png}
+\caption{Proposition~\ref{prop:expansion} against measurement on the linear-Gaussian
+instance ($N{=}2000$, $24$ datasets per bandwidth, error bars one standard deviation
+across draws). (a) the level: the exact population law (solid) and its small-$h$
+expansion $\tr\Sigmapost+h^2\|J\|_F^2$ (dotted) against the measured trace; the shaded
+band is $Nh^k<100$, where the $O_P$ term dominates. (b) the inflation term alone, on
+log axes, where the two curves separate above $h\approx0.5$; bandwidths whose measured
+excess is negative (the finite-sample bias, panel (a)) cannot be drawn on a log axis and
+are omitted. (c) the rate: the relative spread across draws against $Nh^k$, fitted
+$-0.48$ against the predicted $-1/2$. Produced by
+\texttt{scripts/make\_expansion\_figure.py}, which asserts each of these before
+drawing.}
+\label{fig:expansion}
+\end{figure}
 
 Three checkpoint-only measurements corroborate the theory.
 (i)~\emph{Optimality gap.} The Monte-Carlo gap $L(v_\theta)-L(\vstar)$, with

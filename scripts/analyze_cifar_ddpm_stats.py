@@ -40,6 +40,9 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
+from scripts.figstyle import (COLORS, panel_tag, shared_legend, style,
+                              use_paper_style)
+
 SRC = Path("results/exp3/_cifar_ddpm/reeval.json")
 OUT = SRC.parent
 FIG = Path("paper/figures/fig_cifar_ddpm_tracking.png")
@@ -165,31 +168,42 @@ def make_figure(rows, per_h) -> None:
         pts += list(np.log10(ref[ok])) + list(np.log10(meas[ok]))
     lo, hi = min(pts) - 0.3, max(pts) + 0.3
 
-    fig, axes = plt.subplots(1, len(hs), figsize=(3.3 * len(hs), 3.6), sharey=True)
-    for ax, h in zip(np.atleast_1d(axes), hs):
+    # The idiom is the one Preventing Model Collapse (ICLR 2026) uses for a
+    # prediction against a measurement: the theory is a dashed rule, the
+    # measurements are crosses on top of it, the legend is shared below the row,
+    # and each panel states the fitted number rather than carrying its own box.
+    use_paper_style()
+    fig, axes = plt.subplots(1, len(hs), figsize=(3.4 * len(hs), 3.4), sharey=True)
+    for j, (ax, h) in enumerate(zip(np.atleast_1d(axes), hs)):
         r, f = by_h[h], per_h[h]
         ref = np.asarray(r["trace_kernel_per_condition"], float)
         meas = np.asarray(r["ratio_per_condition"], float) * ref
         ok = (ref > 0) & (meas > 0)
         x, y = np.log10(ref[ok]), np.log10(meas[ok])
-        ax.plot([lo, hi], [lo, hi], color=OI["black"], ls="--", lw=1.0,
-                label=r"theory: $\beta=1$")
+        ax.plot([lo, hi], [lo, hi], color=COLORS["theory"], ls="--", lw=1.4, zorder=2)
         xs = np.linspace(x.min(), x.max(), 2)
-        ax.plot(xs, f["intercept"] + f["slope"] * xs, color=OI["vermillion"], lw=1.6,
-                label=rf"fit: $\beta={f['slope']:.2f}$, $R^2={f['r2']:.2f}$")
-        ax.scatter(x, y, s=20, color=OI["blue"], alpha=0.75, edgecolors="none",
-                   zorder=3)
+        ax.plot(xs, f["intercept"] + f["slope"] * xs, color=COLORS["generated"],
+                lw=1.8, zorder=3)
+        ax.plot(x, y, linestyle="none", marker="x", markersize=7,
+                markeredgewidth=1.5, color=COLORS["reference"], zorder=4)
         ax.set_xlim(lo, hi); ax.set_ylim(lo, hi)
         ax.set_aspect("equal", adjustable="box")
-        ax.set_title(rf"$h={h}$:  $\beta={f['slope']:.2f}$, "
-                     rf"{f['decades']:.1f} decades", fontsize=10)
+        ax.set_title(rf"$h={h}$", fontsize=11)
+        ax.text(0.96, 0.04,
+                rf"$\beta={f['slope']:.2f}\pm{f['se']:.2f}$" "\n"
+                rf"$R^2={f['r2']:.2f}$, {f['decades']:.1f} decades",
+                transform=ax.transAxes, va="bottom", ha="right", fontsize=9)
         ax.set_xlabel(r"$\log_{10}\,\mathrm{tr}\,\mathrm{Cov}_h$  (kernel theory)")
         ax.grid(alpha=0.3)
-        ax.legend(fontsize=7, loc="upper left", framealpha=0.9)
+        style(ax)
+        panel_tag(ax, "abc"[j])
     np.atleast_1d(axes)[0].set_ylabel(r"$\log_{10}\,\mathrm{tr}\,\mathrm{Cov}$  (measured)")
+    # No legend strip: the three encodings are named in the caption instead. This
+    # figure sits in a body under a 9-page limit, where the strip costs a
+    # paragraph of text.
     fig.tight_layout()
     FIG.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(FIG, dpi=200)
+    fig.savefig(FIG, dpi=200, bbox_inches="tight")
     plt.close(fig)
 
 
