@@ -54,14 +54,21 @@ out). Every proof in Appendix A follows one shape:
    statement (`[Proof: Appendix A.k]`, right-aligned, small). The two results whose idea is
    short enough (Theorem 1, Proposition `atomicity`) also carry a two-line `Proof sketch.`
    in the body; there is no room for more.
-3. **Terse, formula first.** No Step headings and no justification paragraphs. A proof is one
-   opening clause ("Given ...", "By Lemma~\ref{...}, ...") followed by displays, each
-   `equation*` (or `equation` when a later line cites it) with a `split` for successive lines,
-   and short connectives between them ("Hence", "so", "with"). What justifies a line is a
-   reference (`Lemma~\ref{...}`, `Assumption~\ref{as:...}`, `\eqref{...}`) or a standard name
-   (Bayes, Gr\"onwall, Cauchy--Schwarz) written in the connecting clause, never a sentence
-   about the proof itself. A proof that ends on a display carries `\qedhere` there.
-4. **Parts.** Statements with parts (a), (b), ... are proved part by part in one proof, under
+3. **Terse, formula first, vertical.** No Step headings and no justification paragraphs. A proof
+   is one opening clause ("Given ...", "By Lemma~\ref{...}, ...") and displays. A chain of
+   relations is an `align*` with one relation per line, aligned on the first `=`/`\le`/`\to`
+   (`LHS &= A \\ &= B \\ &\le C`); independent facts are separate lines of the same block, not
+   one line joined by `\qquad`. A display that a later line cites is an `equation` (with a
+   `split` if it has several lines) and carries the label. Short connectives ("Hence", "so", "with")
+   sit between displays; what justifies a line is a reference (`Lemma~\ref{...}`,
+   `Assumption~\ref{as:...}`, `\eqref{...}`) or a standard name (Bayes, Gr\"onwall,
+   Cauchy--Schwarz) in that clause. Source is indented four spaces inside the proof, as in
+   arXiv:2501.19104. A proof that ends on a display carries `\qedhere` there.
+   The macros live in `paper/math_commands.tex` (read by `main.tex`, like that paper's
+   `math_commands.tex`): besides `\E`, `\Var`, `\Cov`, ... it defines the shorthands proofs use for
+   repeated expressions, `\fat{i}` for $(x^i-x)/(1-t)$, `\src{i}` for
+   $\pi_0(\frac{x-tx^i}{1-t})$, `\KK{i}` for $K_h(y-y^i)$, `\pih{i}`/`\wih{i}` for
+   $p_i^{(h)}$/$w_i^{(h)}$, `\dist`, `\supp`, `\law`, `\ind`, `\eps`.4. **Parts.** Statements with parts (a), (b), ... are proved part by part in one proof, under
    the statement's own letters.
 5. **Labels** `eq:pf:<name>:<n>` only on displays that a later line or proof cites; a label that a
    statement or another section cites keeps its descriptive name (`eq:kernel-field`,

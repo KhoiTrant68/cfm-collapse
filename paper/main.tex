@@ -13,8 +13,6 @@
 
 \usepackage{iclr2027_conference,times}
 \usepackage{amsmath,amssymb,amsthm}
-\usepackage{mathtools} % showonlyrefs inside proofs: only cited lines are numbered
-\newcommand{\why}[1]{\text{\footnotesize #1}} % the warrant column of a proof line
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{caption}
@@ -37,21 +35,8 @@
 \theoremstyle{remark}
 \newtheorem{remark}{Remark}
 
-% --- shorthands -----------------------------------------------------------
-\newcommand{\R}{\mathbb{R}}
-\newcommand{\E}{\mathbb{E}}
-\newcommand{\Var}{\operatorname{Var}}
-\newcommand{\Cov}{\operatorname{Cov}}
-\newcommand{\tr}{\operatorname{tr}}
-\newcommand{\N}{\mathcal{N}}
-\newcommand{\D}{\mathcal{D}}
-\newcommand{\Sigmapost}{\Sigma_{\mathrm{post}}}
-\newcommand{\Xhat}{\widehat{\Sigma}_X}
-\newcommand{\rhohat}{\widehat{\rho}}
-\newcommand{\vstar}{v_h^\star}
-\newcommand{\vstarz}{v_0^\star}
-\newcommand{\Covh}{\operatorname{Cov}_h}
-\newcommand{\proofin}[1]{\hfill\textnormal{\footnotesize[Proof: Appendix~\ref{#1}]}}
+% --- shorthands: paper/math_commands.tex ------------------------------------
+\input{math_commands}
 
 \title{Conditional Flow Matching:\\
 Kernel Smoothing over Atoms\\
@@ -829,12 +814,17 @@ posterior over $I$. Because $\pi_0$ is Gaussian, $p(x\mid I=i,t)>0$ for every $x
 every $t<1$.
 \end{lemma}
 \begin{proof}[Proof of Lemma~\ref{lem:cov}]
-$\Psi(x_0)=(1-t)x_0+tx^i$ has $\det D\Psi=(1-t)^d$ and $\Psi^{-1}(x)=\frac{x-tx^i}{1-t}$, so
-$\sigma(X_t\mid I=i)=\sigma(X_0\mid I=i)$ and, as $X_0\sim\pi_0\perp I$,
-\begin{equation*}
-p(x\mid I=i,t)=p_{X_0}\big(\Psi^{-1}(x)\big)\,|\det D\Psi|^{-1}=(1-t)^{-d}\,\pi_0\!\Big(\frac{x-tx^i}{1-t}\Big).
-\end{equation*}
-$(1-t)^{-d}$ does not depend on $i$ and cancels in $\Pr(I=i\mid X_t=x,t)$; $\pi_0>0$ gives positivity.
+    The map $\Psi(x_0)=(1-t)x_0+tx^i$ satisfies
+    \begin{align*}
+        \det D\Psi &= (1-t)^d, \\
+        \Psi^{-1}(x) &= \frac{x-tx^i}{1-t},
+    \end{align*}
+    so $\sigma(X_t\mid I=i)=\sigma(X_0\mid I=i)$. Since $X_0\sim\pi_0$ is independent of $I$,
+    \begin{align*}
+        p(x\mid I=i,t) &= p_{X_0}\big(\Psi^{-1}(x)\big)\,|\det D\Psi|^{-1} \\
+        &= (1-t)^{-d}\,\src{i}.
+    \end{align*}
+    The factor $(1-t)^{-d}$ does not depend on $i$ and cancels in $\Pr(I=i\mid X_t=x,t)$; positivity follows from $\pi_0>0$.
 \end{proof}
 
 \begin{lemma}[Well-posedness]
@@ -858,32 +848,45 @@ directly, from almost-sure convergence of the interpolant, and $p_1$ denotes tha
 limit.
 \end{lemma}
 \begin{proof}[Proof of Lemma~\ref{lem:wellposed}]
-(a) $v$ is a finite sum of products of $C^\infty$ functions, hence locally Lipschitz in $x$, uniformly on compacts of $[0,1)$.
+    (a) $v$ is a finite sum of products of $C^\infty$ functions, hence locally Lipschitz in $x$, uniformly on compacts of $[0,1)$.
 
-(b) Local existence and uniqueness on $[0,\tau)$: Picard--Lindel\"of \citep[Ch.~II]{hartman2002ode}. Since $w_i\ge0$ and $\sum_iw_i=1$,
-\begin{equation}
-|v(x,t)|\le\sum_iw_i\,\frac{|x^i-x|}{1-t}\le\frac{M+|x|}{1-t}.
-\label{eq:vgrowth}
-\end{equation}
-For $g(t)=|x_t|+M$, $g'\le|v(x_t,t)|\le g/(1-t)$, so by Gr\"onwall
-\begin{equation*}
-g(t)\le g(0)\exp\int_0^t\frac{ds}{1-s}=\frac{g(0)}{1-t}<\infty\quad(t<1),
-\end{equation*}
-and $\tau=1$.
+    (b) Existence and uniqueness on $[0,\tau)$ follow from Picard--Lindel\"of \citep[Ch.~II]{hartman2002ode}. Since $w_i\ge0$ and $\sum_iw_i=1$,
+    \begin{equation}
+    \begin{split}
+        |v(x,t)| &\le \sum_iw_i\,\frac{|x^i-x|}{1-t} \\
+        &\le \frac{M+|x|}{1-t}.
+    \end{split}
+    \label{eq:vgrowth}
+    \end{equation}
+    For $g(t)=|x_t|+M$ this gives $g'\le|v(x_t,t)|\le g/(1-t)$, so by Gr\"onwall
+    \begin{align*}
+        g(t) &\le g(0)\exp\int_0^t\frac{ds}{1-s} \\
+        &= \frac{g(0)}{1-t} \\
+        &< \infty \qquad (t<1),
+    \end{align*}
+    and $\tau=1$.
 
-(c) For $\varphi\in C_c^\infty(\R^d)$ and $\mu_t=(\Phi_t)_\#\mu_0$,
-\begin{equation*}
-\frac{d}{dt}\int\varphi\,d\mu_t=\int\nabla\varphi(\Phi_t)\cdot v(\Phi_t,t)\,d\mu_0=\int\nabla\varphi\cdot v\,d\mu_t,
-\end{equation*}
-the weak form of $\partial_t\mu_t+\nabla\!\cdot(v\mu_t)=0$. Uniqueness: let $(\mu_t)_{t\le T}$, $T<1$, be a narrowly continuous solution and $\psi(x,s)=\varphi(\Phi_{s,T}(x))$, which is $C^1$, compactly supported in $x$, and solves
-\begin{equation*}
-\partial_s\psi+v\cdot\nabla\psi=0,\qquad\psi(\cdot,T)=\varphi .
-\end{equation*}
-Then
-\begin{equation*}
-\frac{d}{ds}\int\psi(\cdot,s)\,d\mu_s=\int(\partial_s\psi+v\cdot\nabla\psi)\,d\mu_s=0,
-\end{equation*}
-so $\int\varphi\,d\mu_T=\int\varphi\circ\Phi_{0,T}\,d\mu_0$, i.e.\ $\mu_T=(\Phi_T)_\#\mu_0$ \citep[see also][Ch.~8]{ambrosio2008gradient}.
+    (c) For $\varphi\in C_c^\infty(\R^d)$ and $\mu_t=(\Phi_t)_\#\mu_0$,
+    \begin{align*}
+        \frac{d}{dt}\int\varphi\,d\mu_t &= \int\nabla\varphi(\Phi_t)\cdot v(\Phi_t,t)\,d\mu_0 \\
+        &= \int\nabla\varphi\cdot v\,d\mu_t,
+    \end{align*}
+    the weak form of $\partial_t\mu_t+\nabla\!\cdot(v\mu_t)=0$. For uniqueness, let $(\mu_t)_{t\le T}$, $T<1$, be a narrowly continuous solution and $\psi(x,s)=\varphi(\Phi_{s,T}(x))$, which is $C^1$, compactly supported in $x$, and satisfies
+    \begin{equation*}
+        \partial_s\psi+v\cdot\nabla\psi=0,\qquad\psi(\cdot,T)=\varphi .
+    \end{equation*}
+    Then
+    \begin{align*}
+        \frac{d}{ds}\int\psi(\cdot,s)\,d\mu_s &= \int\big(\partial_s\psi+v\cdot\nabla\psi\big)\,d\mu_s \\
+        &= 0,
+    \end{align*}
+    so
+    \begin{align*}
+        \int\varphi\,d\mu_T &= \int\psi(\cdot,0)\,d\mu_0 \\
+        &= \int\varphi\circ\Phi_{0,T}\,d\mu_0 \\
+        &= \int\varphi\,d\big((\Phi_T)_\#\mu_0\big),
+    \end{align*}
+    i.e.\ $\mu_T=(\Phi_T)_\#\mu_0$ \citep[see also][Ch.~8]{ambrosio2008gradient}.
 \end{proof}
 
 Both $v_{\mathrm{unc}}^\star$ and $\vstar$ have this form with smooth weights, so
@@ -898,14 +901,16 @@ conditional velocity field $\E[X_1-X_0\mid X_t=x,t]$ equals $\vstar(x,t,y)$ of
 \eqref{eq:kernel-field} for every $x,t<1$.
 \end{lemma}
 \begin{proof}[Proof of Lemma~\ref{lem:mixture-coupling}]
-By Bayes, Lemma~\ref{lem:cov} and $p_i^{(h)}(y)\propto K_h(y-y^i)$,
-\begin{equation*}
-\Pr(I=i\mid X_t=x,t)\propto p_i^{(h)}(y)\,(1-t)^{-d}\pi_0\!\Big(\frac{x-tx^i}{1-t}\Big)\propto\pi_0\!\Big(\frac{x-tx^i}{1-t}\Big)K_h(y-y^i),
-\end{equation*}
-the numerator of $w_i^{(h)}$ in \eqref{eq:kernel-field}; both are normalised over $i$, so $\Pr(I=i\mid X_t=x,t)=w_i^{(h)}$. As $X_1-X_0=\frac{x^i-x}{1-t}$ given $I=i$,
-\begin{equation*}
-\E[X_1-X_0\mid X_t=x,t]=\sum_iw_i^{(h)}\,\frac{x^i-x}{1-t}=\vstar(x,t,y).\qedhere
-\end{equation*}
+    By Bayes, Lemma~\ref{lem:cov} and $\pih{i}(y)\propto \KK{i}$,
+    \begin{align*}
+        \Pr(I=i\mid X_t=x,t) &\propto \pih{i}(y)\,(1-t)^{-d}\,\src{i} \\
+        &\propto \src{i}\KK{i},
+    \end{align*}
+    the numerator of $\wih{i}$ in \eqref{eq:kernel-field}. Both are normalised over $i$, so $\Pr(I=i\mid X_t=x,t)=\wih{i}$. As $X_1-X_0=\fat{i}$ given $I=i$,
+    \begin{align*}
+        \E[X_1-X_0\mid X_t=x,t] &= \sum_i\wih{i}\,\fat{i} \\
+        &= \vstar(x,t,y).\qedhere
+    \end{align*}
 \end{proof}
 
 \subsection{Proof of Proposition~\ref{prop:projection}}
@@ -920,14 +925,17 @@ $\inf_v L_h=\E[\Var(U\mid X_t,t,\widetilde Y)]$.
 \end{quote}
 
 \begin{proof}[Proof of Proposition~\ref{prop:projection}]
-Let $\mathcal G=\sigma(X_t,t,\widetilde Y)$ and $m=\E[U\mid\mathcal G]$. Then
-\begin{equation*}
-\begin{split}
-L_h(v)&=\E|U-m|^2+\E|m-v|^2+2\,\E\langle U-m,\,m-v\rangle\\
-&=\E[\Var(U\mid\mathcal G)]+\E|v-m|^2,
-\end{split}
-\end{equation*}
-since $\E\langle U-m,m-v\rangle=\E\langle\E[U-m\mid\mathcal G],m-v\rangle=0$. The last term vanishes iff $v=m$ a.e.
+    Let $\mathcal G=\sigma(X_t,t,\widetilde Y)$ and $m=\E[U\mid\mathcal G]$. Then
+    \begin{align*}
+        L_h(v) &= \E|U-m|^2+\E|m-v|^2+2\,\E\langle U-m,\,m-v\rangle \\
+        &= \E[\Var(U\mid\mathcal G)]+\E|v-m|^2,
+    \end{align*}
+    since
+    \begin{align*}
+        \E\langle U-m,\,m-v\rangle &= \E\big\langle\E[U-m\mid\mathcal G],\,m-v\big\rangle \\
+        &= 0.
+    \end{align*}
+    The last term vanishes iff $v=m$ a.e., so $\vstar=m$ and $\inf_vL_h=\E[\Var(U\mid\mathcal G)]$.
 \end{proof}
 
 \subsection{Proof of Proposition~\ref{prop:collapse}}
@@ -945,19 +953,32 @@ $\Cov[p_1^{\mathrm{cond}}(\cdot\mid y^i)]=0$.
 \end{quote}
 
 \begin{proof}[Proof of Proposition~\ref{prop:collapse}]
-By Assumption~\ref{as:standing}(iii), $Y=y^i$ gives $I=i$ and $X_1=x^i$; by Lemma~\ref{lem:cov}, $X_0=\frac{x-tx^i}{1-t}$ given $X_t=x$. Hence
-\begin{equation}
-U=x^i-X_0=\frac{x^i-x}{1-t},
-\label{eq:pf:collapse:2}
-\end{equation}
-a function of the conditioning variables, so $v_0^\star(x,t,y^i)=\E[U\mid X_t=x,t,Y=y^i]=\frac{x^i-x}{1-t}$ by Proposition~\ref{prop:projection}: this is (a). By \eqref{eq:pf:collapse:2}, $U-v_0^\star(X_t,t,Y)=0$ a.s., so $L_0(v_0^\star)=0=\inf_vL_0$: (b).
-
-Along $\dot x_t=\frac{x^i-x_t}{1-t}$,
-\begin{equation*}
-\frac{d}{dt}\,\frac{x_t-x^i}{1-t}=\frac{\dot x_t(1-t)+x_t-x^i}{(1-t)^2}=0
-\ \Longrightarrow\ x_t=(1-t)x_0+tx^i\to x^i,
-\end{equation*}
-so $p_1^{\mathrm{cond}}(\cdot\mid y^i)=\delta_{x^i}$ and $\Cov=0$: (c), (d).
+    By Assumption~\ref{as:standing}(iii), $Y=y^i$ gives $I=i$ and $X_1=x^i$; by Lemma~\ref{lem:cov}, $X_0=\frac{x-tx^i}{1-t}$ given $X_t=x$. Hence
+    \begin{equation}
+        U = x^i-X_0 = \fat{i},
+        \label{eq:pf:collapse:2}
+    \end{equation}
+    a function of the conditioning variables. By Proposition~\ref{prop:projection},
+    \begin{align*}
+        v_0^\star(x,t,y^i) &= \E[U\mid X_t=x,t,Y=y^i] \\
+        &= \fat{i},
+    \end{align*}
+    which is (a). By \eqref{eq:pf:collapse:2},
+    \begin{align*}
+        U-v_0^\star(X_t,t,Y) &= 0 \quad\text{a.s.}, \\
+        L_0(v_0^\star) &= 0 = \inf_vL_0,
+    \end{align*}
+    which is (b). Along $\dot x_t=\frac{x^i-x_t}{1-t}$,
+    \begin{align*}
+        \frac{d}{dt}\,\frac{x_t-x^i}{1-t} &= \frac{\dot x_t(1-t)+x_t-x^i}{(1-t)^2} \\
+        &= 0,
+    \end{align*}
+    so
+    \begin{align*}
+        x_t &= (1-t)x_0+tx^i \\
+        &\to x^i \qquad (t\uparrow1),
+    \end{align*}
+    and $p_1^{\mathrm{cond}}(\cdot\mid y^i)=\delta_{x^i}$ with $\Cov=0$, which is (c) and (d).
 \end{proof}
 
 \subsection{Proof of Proposition~\ref{prop:uncond}}
@@ -975,21 +996,24 @@ Moreover $\inf_v L_{\mathrm{unc}}>0$ whenever $x^i\ne x^j$ for some $i\ne j$.
 \end{proposition}
 
 \begin{proof}[Proof of Proposition~\ref{prop:uncond}]
-By Bayes and Lemma~\ref{lem:cov} ($\frac1N(1-t)^{-d}$ cancels),
-\begin{equation*}
-q_i(x,t)=\frac{\pi_0\big(\frac{x-tx^i}{1-t}\big)}{\sum_j\pi_0\big(\frac{x-tx^j}{1-t}\big)}>0 .
-\end{equation*}
-Given $I=i$, $U=\frac{x^i-x}{1-t}$ by \eqref{eq:pf:collapse:2}, so by Proposition~\ref{prop:projection}
-\begin{equation*}
-v_{\mathrm{unc}}^\star(x,t)=\E[U\mid X_t=x,t]=\sum_iq_i(x,t)\,\frac{x^i-x}{1-t}.
-\end{equation*}
-This has the form of Lemma~\ref{lem:wellposed}; as in the proof of Theorem~\ref{thm:endpoint} (with the uniform law on $I$), $p_t=\mathrm{Law}(X_t)$, and $X_t\to X_1\sim\rhohat_X$ a.s., so $p_1^{\mathrm{unc}}=\rhohat_X$.
+    By Bayes and Lemma~\ref{lem:cov} ($\frac1N(1-t)^{-d}$ cancels),
+    \begin{align*}
+        q_i(x,t) &= \frac{\src{i}}{\sum_j\src{j}} \\
+        &> 0 .
+    \end{align*}
+    Given $I=i$, $U=\fat{i}$ by \eqref{eq:pf:collapse:2}, so by Proposition~\ref{prop:projection}
+    \begin{align*}
+        v_{\mathrm{unc}}^\star(x,t) &= \E[U\mid X_t=x,t] \\
+        &= \sum_iq_i(x,t)\,\fat{i}.
+    \end{align*}
+    This has the form of Lemma~\ref{lem:wellposed}. As in the proof of Theorem~\ref{thm:endpoint}, with the uniform law on $I$, $p_t=\law(X_t)$, and $X_t\to X_1\sim\rhohat_X$ a.s., so $p_1^{\mathrm{unc}}=\rhohat_X$.
 
-With $u_i=\frac{x^i-x}{1-t}$ and $\bar u=\sum_iq_iu_i$,
-\begin{equation*}
-\Var(U\mid X_t=x,t)=\sum_iq_i\,|u_i-\bar u|^2>0
-\end{equation*}
-whenever $x^i\ne x^j$ for some $i,j$ ($q_i>0$, and $u_i\ne u_j$). Hence $\inf_vL_{\mathrm{unc}}=\E[\Var(U\mid X_t,t)]>0$.
+    With $u_i=\fat{i}$ and $\bar u=\sum_iq_iu_i$,
+    \begin{align*}
+        \Var(U\mid X_t=x,t) &= \sum_iq_i\,|u_i-\bar u|^2 \\
+        &> 0
+    \end{align*}
+    whenever $x^i\ne x^j$ for some $i,j$ ($q_i>0$ and $u_i\ne u_j$). Hence $\inf_vL_{\mathrm{unc}}=\E[\Var(U\mid X_t,t)]>0$.
 \end{proof}
 
 \subsection{Proof of Corollary~\ref{cor:distinction}}
@@ -1011,11 +1035,12 @@ conditional second moment:
 \end{quote}
 
 \begin{proof}[Proof of Corollary~\ref{cor:distinction}]
-By Proposition~\ref{prop:collapse}(d), $p_1^{\mathrm{cond}}(\cdot\mid y^i)=\delta_{x^i}$, $\Cov=0$. By Proposition~\ref{prop:uncond},
-\begin{equation*}
-\Cov[p_1^{\mathrm{unc}}]=\frac1N\sum_i(x^i-\bar x)(x^i-\bar x)^\top=\Xhat .
-\end{equation*}
-Both laws are mixtures of point masses at training examples.
+    By Proposition~\ref{prop:collapse}(d), $p_1^{\mathrm{cond}}(\cdot\mid y^i)=\delta_{x^i}$ and $\Cov=0$. By Proposition~\ref{prop:uncond},
+    \begin{align*}
+        \Cov[p_1^{\mathrm{unc}}] &= \frac1N\sum_i(x^i-\bar x)(x^i-\bar x)^\top \\
+        &= \Xhat .
+    \end{align*}
+    Both laws are mixtures of point masses at training examples.
 \end{proof}
 
 \subsection{Proof of Proposition~\ref{prop:kernel-field}}
@@ -1032,14 +1057,16 @@ w_i^{(h)}=\frac{\pi_0\!\big(\tfrac{x-tx^i}{1-t}\big)K_h(y-y^i)}
 \end{quote}
 
 \begin{proof}[Proof of Proposition~\ref{prop:kernel-field}]
-Given $I=i$, $X_t=(1-t)X_0+tx^i$ and $\widetilde Y=y^i+h\varepsilon$ with $X_0\perp\varepsilon$, so by Bayes and Lemma~\ref{lem:cov}
-\begin{equation*}
-\Pr(I=i\mid X_t=x,t,\widetilde Y=y)=\frac{\pi_0\big(\frac{x-tx^i}{1-t}\big)K_h(y-y^i)}{\sum_j\pi_0\big(\frac{x-tx^j}{1-t}\big)K_h(y-y^j)}=w_i^{(h)}
-\end{equation*}
-($\frac1N(1-t)^{-d}$ cancels). Given $I=i$ and $X_t=x$, $U=\frac{x^i-x}{1-t}$ by \eqref{eq:pf:collapse:2}, so by Proposition~\ref{prop:projection}
-\begin{equation*}
-\vstar(x,t,y)=\E[U\mid X_t=x,t,\widetilde Y=y]=\sum_iw_i^{(h)}(x,t,y)\,\frac{x^i-x}{1-t}.\qedhere
-\end{equation*}
+    Given $I=i$, $X_t=(1-t)X_0+tx^i$ and $\widetilde Y=y^i+h\eps$ with $X_0\perp\eps$. By Bayes and Lemma~\ref{lem:cov},
+    \begin{align*}
+        \Pr(I=i\mid X_t=x,t,\widetilde Y=y) &= \frac{\src{i}\KK{i}}{\sum_j\src{j}\KK{j}} \\
+        &= \wih{i},
+    \end{align*}
+    since $\frac1N(1-t)^{-d}$ cancels. Given $I=i$ and $X_t=x$, $U=\fat{i}$ by \eqref{eq:pf:collapse:2}, so by Proposition~\ref{prop:projection}
+    \begin{align*}
+        \vstar(x,t,y) &= \E[U\mid X_t=x,t,\widetilde Y=y] \\
+        &= \sum_i\wih{i}(x,t,y)\,\fat{i}.\qedhere
+    \end{align*}
 \end{proof}
 
 \subsection{Proof of Theorem~\ref{thm:endpoint}}
@@ -1054,15 +1081,21 @@ p_h^{\mathrm{gen}}(\cdot\mid y)=\sum_{i=1}^N p_i^{(h)}(y)\,\delta_{x^i}.
 \end{quote}
 
 \begin{proof}[Proof of Theorem~\ref{thm:endpoint}]
-By Lemma~\ref{lem:mixture-coupling}, $\vstar(x,t,y)=\E[X_1-X_0\mid X_t=x,t]$ for the coupling $I\sim p^{(h)}(y)$, $X_1=x^I$. The weights $w_i^{(h)}$ are smooth, positive and sum to one, so by Lemma~\ref{lem:wellposed} the flow $(\Phi_t)_{t<1}$ exists and the continuity equation
-\begin{equation}
-\partial_tp_t+\nabla\!\cdot\big(p_t\vstar\big)=0,\qquad p_0=\pi_0,
-\label{eq:pf:endpoint:2}
-\end{equation}
-has a unique solution. $(\Phi_t)_\#\pi_0$ solves it, and so does $\mathrm{Law}(X_t)$ (superposition); hence $(\Phi_t)_\#\pi_0=\mathrm{Law}(X_t)=:p_t$. Since $X_t=(1-t)X_0+tx^I\to x^I$ a.s.,
-\begin{equation*}
-p_1=\lim_{t\uparrow1}p_t=\mathrm{Law}(x^I)=\sum_ip_i^{(h)}(y)\,\delta_{x^i}.\qedhere
-\end{equation*}
+    By Lemma~\ref{lem:mixture-coupling}, $\vstar(x,t,y)=\E[X_1-X_0\mid X_t=x,t]$ for the coupling $I\sim p^{(h)}(y)$, $X_1=x^I$. The weights $\wih{i}$ are smooth, positive and sum to one, so by Lemma~\ref{lem:wellposed} the flow $(\Phi_t)_{t<1}$ exists and
+    \begin{equation}
+        \partial_tp_t+\nabla\!\cdot\big(p_t\vstar\big)=0,\qquad p_0=\pi_0,
+        \label{eq:pf:endpoint:2}
+    \end{equation}
+    has a unique solution. Both $(\Phi_t)_\#\pi_0$ and $\law(X_t)$ (by superposition) solve \eqref{eq:pf:endpoint:2}, hence
+    \begin{align*}
+        (\Phi_t)_\#\pi_0 &= \law(X_t) =: p_t .
+    \end{align*}
+    Since $X_t=(1-t)X_0+tx^I\to x^I$ a.s.,
+    \begin{align*}
+        p_1 &= \lim_{t\uparrow1}p_t \\
+        &= \law(x^I) \\
+        &= \sum_i\pih{i}(y)\,\delta_{x^i}.\qedhere
+    \end{align*}
 \end{proof}
 
 \subsection{Proof of Corollary~\ref{cor:zerobw}}
@@ -1077,11 +1110,12 @@ recovers Proposition~\ref{prop:collapse}.
 \end{quote}
 
 \begin{proof}[Proof of Corollary~\ref{cor:zerobw}]
-For $i\ne i^\star$,
-\begin{equation*}
-\frac{K_h(y-y^i)}{K_h(y-y^{i^\star})}=\exp\Big[-\frac{|y-y^i|^2-|y-y^{i^\star}|^2}{2h^2}\Big]\xrightarrow[h\to0]{}0,
-\end{equation*}
-so $p_i^{(h)}(y)\to\mathbf 1\{i=i^\star\}$, and $p_h^{\mathrm{gen}}\Rightarrow\delta_{x^{i^\star}}$ by Theorem~\ref{thm:endpoint}.
+    For $i\ne i^\star$,
+    \begin{align*}
+        \frac{\KK{i}}{\KK{i^\star}} &= \exp\Big[-\frac{|y-y^i|^2-|y-y^{i^\star}|^2}{2h^2}\Big] \\
+        &\xrightarrow[h\to0]{} 0,
+    \end{align*}
+    so $\pih{i}(y)\to\ind\{i=i^\star\}$, and $p_h^{\mathrm{gen}}\Rightarrow\delta_{x^{i^\star}}$ by Theorem~\ref{thm:endpoint}.
 \end{proof}
 
 \subsection{Proof of Corollary~\ref{cor:infbw}}
@@ -1094,11 +1128,12 @@ $p_h^{\mathrm{gen}}(\cdot\mid y)\Rightarrow p_1^{\mathrm{unc}}$.
 \end{quote}
 
 \begin{proof}[Proof of Corollary~\ref{cor:infbw}]
-Uniformly in $i$, $K_h(y-y^i)=(2\pi h^2)^{-k/2}\big[1+O(h^{-2})\big]$; the prefactor cancels,
-\begin{equation*}
-p_i^{(h)}(y)=\frac{1+O(h^{-2})}{N+O(h^{-2})}\longrightarrow\frac1N,
-\end{equation*}
-so $p_1\to\frac1N\sum_i\delta_{x^i}=\rhohat_X$ by Theorem~\ref{thm:endpoint}.
+    Uniformly in $i$, $\KK{i}=(2\pi h^2)^{-k/2}\big[1+O(h^{-2})\big]$. The prefactor cancels:
+    \begin{align*}
+        \pih{i}(y) &= \frac{1+O(h^{-2})}{N+O(h^{-2})} \\
+        &\longrightarrow \frac1N .
+    \end{align*}
+    By Theorem~\ref{thm:endpoint}, $p_1\to\frac1N\sum_i\delta_{x^i}=\rhohat_X$.
 \end{proof}
 
 \subsection{Proof of Proposition~\ref{prop:moments}}
@@ -1113,19 +1148,18 @@ generated moments must be compared. $\tr\Covh(y)$ need not be monotone in $h$.
 \end{quote}
 
 \begin{proof}[Proof of Proposition~\ref{prop:moments}]
-By Theorem~\ref{thm:endpoint} the endpoint law is $\sum_ip_i^{(h)}\delta_{x^i}$, so
-\begin{equation*}
-\bar x_h(y)=\sum_ip_i^{(h)}x^i,\qquad
-\Covh(y)=\sum_ip_i^{(h)}(x^i-\bar x_h)(x^i-\bar x_h)^\top .
-\end{equation*}
-Non-monotonicity: take $k=d=1$, $y=0$, $(y^i,x^i)=(0,0),(1,10),(10,0)$. Then
-\begin{equation*}
-\begin{split}
-\tr\Covh&\to0\ (h\to0),\qquad\tr\Covh=24.90\ (h=2),\\
-\tr\Covh&\to\tr\Xhat=\tfrac{200}{9}=22.22\ (h\to\infty),
-\end{split}
-\end{equation*}
-with $p^{(h)}\to(1,0,0)$, $p^{(2)}=(0.531,\,0.469,\,2{\times}10^{-6})$, $p^{(h)}\to(\frac13,\frac13,\frac13)$ (Corollaries~\ref{cor:zerobw}, \ref{cor:infbw}).
+    By Theorem~\ref{thm:endpoint} the endpoint law is $\sum_i\pih{i}\delta_{x^i}$, so
+    \begin{align*}
+        \bar x_h(y) &= \sum_i\pih{i}x^i, \\
+        \Covh(y) &= \sum_i\pih{i}(x^i-\bar x_h)(x^i-\bar x_h)^\top .
+    \end{align*}
+    For non-monotonicity take $k=d=1$, $y=0$ and $(y^i,x^i)=(0,0),(1,10),(10,0)$. Then
+    \begin{align*}
+        h\to0: &\qquad p^{(h)}\to(1,0,0), && \tr\Covh\to0, \\
+        h=2: &\qquad p^{(h)}=(0.531,\,0.469,\,2{\times}10^{-6}), && \tr\Covh=24.90, \\
+        h\to\infty: &\qquad p^{(h)}\to(\tfrac13,\tfrac13,\tfrac13), && \tr\Covh\to\tr\Xhat=\tfrac{200}{9}=22.22
+    \end{align*}
+    (Corollaries~\ref{cor:zerobw}, \ref{cor:infbw}).
 \end{proof}
 
 \subsection{Proof of Proposition~\ref{prop:atomicity}}
@@ -1144,11 +1178,12 @@ W_2^2\big(p_h^{\mathrm{gen}}(\cdot\mid y),\,p(\cdot\mid y)\big)\ \ge\
 \end{quote}
 
 \begin{proof}[Proof of Proposition~\ref{prop:atomicity}]
-By Theorem~\ref{thm:endpoint}, $p_h^{\mathrm{gen}}=\sum_ip_i^{(h)}\delta_{x^i}$, so $\operatorname{supp}p_h^{\mathrm{gen}}\subseteq\{x^i\}$. For any coupling $(X,X')$ of $p_h^{\mathrm{gen}}$ and $p(\cdot\mid y)$, $X\in\{x^i\}$ a.s., so
-\begin{equation*}
-\E|X-X'|^2\ge\E\operatorname{dist}(X',\{x^i\})^2=\int\operatorname{dist}(x,\{x^i\})^2\,p(x\mid y)\,dx=:F(y).
-\end{equation*}
-Taking the infimum over couplings gives \eqref{eq:w2floor}. $F$ does not involve $h$, and $F(y)>0$ since $\{x^i\}$ is $p(\cdot\mid y)$-null.
+    By Theorem~\ref{thm:endpoint}, $p_h^{\mathrm{gen}}=\sum_i\pih{i}\delta_{x^i}$, so $\supp\,p_h^{\mathrm{gen}}\subseteq\{x^i\}$. For any coupling $(X,X')$ of $p_h^{\mathrm{gen}}$ and $p(\cdot\mid y)$, $X\in\{x^i\}$ a.s., so
+    \begin{align*}
+        \E|X-X'|^2 &\ge \E\dist(X',\{x^i\})^2 \\
+        &= \int\dist(x,\{x^i\})^2\,p(x\mid y)\,dx =: F(y).
+    \end{align*}
+    Taking the infimum over couplings gives \eqref{eq:w2floor}. $F$ does not involve $h$, and $F(y)>0$ since $\{x^i\}$ is $p(\cdot\mid y)$-null.
 \end{proof}
 
 \subsection{Proof of Proposition~\ref{prop:tgtnoise}}
@@ -1173,25 +1208,42 @@ $1/(1-t)$ blow-up of $(\star)$ disappears.
 \end{quote}
 
 \begin{proof}[Proof of Proposition~\ref{prop:tgtnoise}]
-Given $I=i$, $r:=x-tx^i=(1-t)X_0+t\rho\xi\sim\N(0,s_t^2I_d)$ with $s_t^2=(1-t)^2+t^2\rho^2$, so $p(x\mid I=i,t)=\varphi_{s_t}(x-tx^i)$ and, as in Proposition~\ref{prop:kernel-field},
-\begin{equation*}
-w_i=\Pr(I=i\mid X_t=x,t,\widetilde Y=y)\propto\varphi_{s_t}(x-tx^i)\,K_h(y-y^i).
-\end{equation*}
-$(X_0,\xi,r)$ is jointly Gaussian: $\E[X_0\mid r]=\frac{1-t}{s_t^2}r$, $\E[\xi\mid r]=\frac{t\rho}{s_t^2}r$. With $U=x^i+\rho\xi-X_0$,
-\begin{equation}
-\E[U\mid X_t=x,t,I=i]=x^i+\frac{t\rho^2-(1-t)}{s_t^2}\,(x-tx^i),
-\label{eq:pf:tgtnoise:4}
-\end{equation}
-so by Proposition~\ref{prop:projection}
-\begin{equation}
-\vstar(x,t,y)=\sum_iw_i\Big[x^i+\frac{t\rho^2-(1-t)}{s_t^2}\,(x-tx^i)\Big].
-\label{eq:tgtfield}
-\end{equation}
-For the coupling $I\sim p^{(h)}(y)$, $X_0\sim\pi_0$, $\xi\sim\N(0,I_d)$ independent, $X_1=x^I+\rho\xi$, the index posterior is $\propto p_i^{(h)}\varphi_{s_t}(x-tx^i)\propto w_i$ and \eqref{eq:pf:tgtnoise:4} holds, so its conditional velocity is $\vstar$. As in the proof of Theorem~\ref{thm:endpoint}, and since $X_t\to X_1$ a.s.,
-\begin{equation*}
-p_1=\mathrm{Law}(x^I+\rho\xi)=\sum_ip_i^{(h)}(y)\,\N(x^i,\rho^2I_d),
-\end{equation*}
-with mean $\bar x_h(y)$ and covariance $\rho^2I_d+\Covh(y)$ (total covariance). It is absolutely continuous, so \eqref{eq:w2floor} does not apply. Since $s_1=\rho>0$, $\frac{t\rho^2-(1-t)}{s_t^2}\to1$ and $\vstar$ is bounded on bounded sets up to $t=1$.
+    Given $I=i$,
+    \begin{align*}
+        r:=x-tx^i &= (1-t)X_0+t\rho\xi \\
+        &\sim \N(0,s_t^2I_d), \qquad s_t^2=(1-t)^2+t^2\rho^2,
+    \end{align*}
+    so $p(x\mid I=i,t)=\varphi_{s_t}(x-tx^i)$ and, as in Proposition~\ref{prop:kernel-field},
+    \begin{align*}
+        w_i &= \Pr(I=i\mid X_t=x,t,\widetilde Y=y) \\
+        &\propto \varphi_{s_t}(x-tx^i)\,\KK{i}.
+    \end{align*}
+    Since $(X_0,\xi,r)$ is jointly Gaussian,
+    \begin{align*}
+        \E[X_0\mid r] &= \frac{1-t}{s_t^2}\,r, \\
+        \E[\xi\mid r] &= \frac{t\rho}{s_t^2}\,r,
+    \end{align*}
+    and with $U=x^i+\rho\xi-X_0$,
+    \begin{equation}
+        \E[U\mid X_t=x,t,I=i] = x^i+\frac{t\rho^2-(1-t)}{s_t^2}\,(x-tx^i).
+        \label{eq:pf:tgtnoise:4}
+    \end{equation}
+    By Proposition~\ref{prop:projection},
+    \begin{equation}
+        \vstar(x,t,y) = \sum_iw_i\Big[x^i+\frac{t\rho^2-(1-t)}{s_t^2}\,(x-tx^i)\Big].
+        \label{eq:tgtfield}
+    \end{equation}
+    For the coupling $I\sim p^{(h)}(y)$, $X_0\sim\pi_0$, $\xi\sim\N(0,I_d)$ independent, $X_1=x^I+\rho\xi$, the index posterior is $\propto \pih{i}\varphi_{s_t}(x-tx^i)\propto w_i$ and \eqref{eq:pf:tgtnoise:4} holds, so its conditional velocity is $\vstar$. As in the proof of Theorem~\ref{thm:endpoint}, and since $X_t\to X_1$ a.s.,
+    \begin{align*}
+        p_1 &= \law(x^I+\rho\xi) \\
+        &= \sum_i\pih{i}(y)\,\N(x^i,\rho^2I_d),
+    \end{align*}
+    with
+    \begin{align*}
+        \text{mean} &= \bar x_h(y), \\
+        \Cov &= \rho^2I_d+\Covh(y).
+    \end{align*}
+    It is absolutely continuous, so \eqref{eq:w2floor} does not apply. Since $s_1=\rho>0$, $\frac{t\rho^2-(1-t)}{s_t^2}\to1$, and $\vstar$ is bounded on bounded sets up to $t=1$.
 \end{proof}
 
 \subsection{Proof of Proposition~\ref{prop:prop17}}
@@ -1211,18 +1263,36 @@ p_1^{\mathrm{cond}}(\cdot\mid y^i)=\delta_{x^i}\quad\text{for every }\sigma\ge0.
 \end{quote}
 
 \begin{proof}[Proof of Proposition~\ref{prop:prop17}]
-Given $I=i$ (pinned by $Y=y^i$), $r:=x-tx^i=(1-t)X_0+\gamma Z\sim\N(0,s_t^2I_d)$, $s_t^2=(1-t)^2+\gamma^2$; $\Cov(X_0,r)=(1-t)I_d$, $\Cov(Z,r)=\gamma I_d$, so $\E[X_0\mid r]=\frac{1-t}{s_t^2}r$, $\E[Z\mid r]=\frac{\gamma}{s_t^2}r$. With $\dot X_t=x^i-X_0+\dot\gamma Z$,
-\begin{equation*}
-v_\sigma^\star(x,t,y^i)=x^i+\frac{-(1-t)+\dot\gamma\gamma}{s_t^2}\,r,\qquad
-\dot\gamma\gamma=\tfrac12(\gamma^2)'=\tfrac{\sigma^2}2(1-2t),
-\end{equation*}
-which is (a) with $c(t)=\frac{-(1-t)+\frac{\sigma^2}2(1-2t)}{s_t^2}$; and $(s_t^2)'=-2(1-t)+2\dot\gamma\gamma=2s_t^2c(t)$, so $c=\frac12(\log s_t^2)'$.
+    Given $I=i$ (pinned by $Y=y^i$),
+    \begin{align*}
+        r:=x-tx^i &= (1-t)X_0+\gamma Z \\
+        &\sim \N(0,s_t^2I_d), \qquad s_t^2=(1-t)^2+\gamma^2,
+    \end{align*}
+    with $\Cov(X_0,r)=(1-t)I_d$ and $\Cov(Z,r)=\gamma I_d$, so
+    \begin{align*}
+        \E[X_0\mid r] &= \frac{1-t}{s_t^2}\,r, \\
+        \E[Z\mid r] &= \frac{\gamma}{s_t^2}\,r.
+    \end{align*}
+    Since $\dot X_t=x^i-X_0+\dot\gamma Z$,
+    \begin{align*}
+        v_\sigma^\star(x,t,y^i) &= x^i+\frac{-(1-t)+\dot\gamma\gamma}{s_t^2}\,r, \\
+        \dot\gamma\gamma &= \tfrac12(\gamma^2)' = \tfrac{\sigma^2}2(1-2t),
+    \end{align*}
+    which is (a) with $c(t)=\frac{-(1-t)+\frac{\sigma^2}2(1-2t)}{s_t^2}$. Moreover
+    \begin{align*}
+        (s_t^2)' &= -2(1-t)+2\dot\gamma\gamma \\
+        &= 2s_t^2\,c(t),
+    \end{align*}
+    so $c=\frac12(\log s_t^2)'$.
 
-(b) $u_t=x_t-tx^i$ satisfies $\dot u_t=c(t)u_t$, so
-\begin{equation*}
-u_t=x_0\exp\!\big(\tfrac12[\log s_t^2-\log s_0^2]\big)=s_t\,x_0,\qquad x_t=tx^i+s_tx_0 .
-\end{equation*}
-(c) $s_t^2=(1-t)[(1-t)+\sigma^2t]$, so $s_1=0$ and $x_t\to x^i$ for all $x_0$, $\sigma\ge0$.
+    (b) $u_t=x_t-tx^i$ satisfies $\dot u_t=c(t)u_t$, so
+    \begin{align*}
+        u_t &= x_0\exp\!\big(\tfrac12[\log s_t^2-\log s_0^2]\big) \\
+        &= s_t\,x_0,
+    \end{align*}
+    that is, $x_t=tx^i+s_tx_0$.
+
+    (c) $s_t^2=(1-t)\big[(1-t)+\sigma^2t\big]$, so $s_1=0$ and $x_t\to x^i$ for all $x_0$ and $\sigma\ge0$.
 \end{proof}
 
 \subsection{Proof of Corollary~\ref{cor:prop18}}
@@ -1238,14 +1308,20 @@ $\sigma>0$.
 \end{corollary}
 
 \begin{proof}[Proof of Corollary~\ref{cor:prop18}]
-Endpoint: Proposition~\ref{prop:prop17}(c). For $\sigma=0$, $\dot X_t=X_1-X_0$ and $\inf_vL_0=0$ (Proposition~\ref{prop:collapse}). For $\sigma>0$, $\inf_vL_\sigma=\E\Var(\dot X_t\mid X_t,t,Y)$; with $u=(-1,\dot\gamma)$, $w=(1-t,\gamma)$, $|w|^2=s_t^2$, $u\cdot w=c\,s_t^2$,
-\begin{equation*}
-\Var(\dot X_t\mid r,I=i)=|u|^2-\frac{(u\cdot w)^2}{|w|^2}=1+\dot\gamma^2-c(t)^2s_t^2 .
-\end{equation*}
-It vanishes iff $u\parallel w$, i.e.\ $\dot\gamma(1-t)=-\gamma$; with $\gamma=\sigma\sqrt{t(1-t)}$ this is $1-2t=-2t$, impossible. So $\inf_vL_\sigma>0$. Finally
-\begin{equation*}
-(1-t)\,c(t)=\frac{-(1-t)+\frac{\sigma^2}2(1-2t)}{(1-t)+\sigma^2t}\longrightarrow-1\ (\sigma=0),\qquad-\tfrac{\sigma^2/2}{\sigma^2}=-\tfrac12\ (\sigma>0).\qedhere
-\end{equation*}
+    The endpoint is Proposition~\ref{prop:prop17}(c). For $\sigma=0$, $\dot X_t=X_1-X_0$ and $\inf_vL_0=0$ (Proposition~\ref{prop:collapse}). For $\sigma>0$, $\inf_vL_\sigma=\E\Var(\dot X_t\mid X_t,t,Y)$. With $u=(-1,\dot\gamma)$, $w=(1-t,\gamma)$, $|w|^2=s_t^2$ and $u\cdot w=c\,s_t^2$,
+    \begin{align*}
+        \Var(\dot X_t\mid r,I=i) &= |u|^2-\frac{(u\cdot w)^2}{|w|^2} \\
+        &= 1+\dot\gamma^2-c(t)^2s_t^2 .
+    \end{align*}
+    It vanishes iff $u\parallel w$, i.e.\ $\dot\gamma(1-t)=-\gamma$. With $\gamma=\sigma\sqrt{t(1-t)}$ this reads $1-2t=-2t$, which is impossible; hence $\inf_vL_\sigma>0$. Finally
+    \begin{align*}
+        (1-t)\,c(t) &= \frac{-(1-t)+\frac{\sigma^2}2(1-2t)}{(1-t)+\sigma^2t} \\
+        &\longrightarrow
+        \begin{cases}
+            -1, & \sigma=0, \\
+            -\tfrac12, & \sigma>0 .
+        \end{cases}\qedhere
+    \end{align*}
 \end{proof}
 
 \subsection{Proof of Proposition~\ref{prop:factors}}
@@ -1262,11 +1338,17 @@ interchangeable.
 \end{quote}
 
 \begin{proof}[Proof of Proposition~\ref{prop:factors}]
-Label factor: $p_h^{\mathrm{gen}}=\sum_ip_i^{(h)}\delta_{x^i}$ depends on $h$ through $K_h(y-y^i)$, and tends to $\delta_{x^{i^\star}}$ ($h\to0$, unique nearest label) and to $\rhohat_X$ ($h\to\infty$) by Corollaries~\ref{cor:zerobw}, \ref{cor:infbw}: distinct laws. Spatial factor: for $h=0$ and any $\sigma\ge0$,
-\begin{equation*}
-\N\big(tx^i,(1-t)^2I_d\big)\longrightarrow\N\big(tx^i,s_t^2I_d\big)\ \ \forall i,\qquad p_1^{\mathrm{cond}}(\cdot\mid y^i)=\delta_{x^i}\ \ \forall\sigma
-\end{equation*}
-(Proposition~\ref{prop:prop17}(c)).
+    Label factor: $p_h^{\mathrm{gen}}=\sum_i\pih{i}\delta_{x^i}$ depends on $h$ through $\KK{i}$, and by Corollaries~\ref{cor:zerobw}, \ref{cor:infbw}
+    \begin{align*}
+        p_h^{\mathrm{gen}} &\Rightarrow \delta_{x^{i^\star}} \quad (h\to0,\ \text{unique nearest label}), \\
+        p_h^{\mathrm{gen}} &\Rightarrow \rhohat_X \quad (h\to\infty),
+    \end{align*}
+    which are distinct. Spatial factor: for $h=0$ and any $\sigma\ge0$,
+    \begin{align*}
+        \N\big(tx^i,(1-t)^2I_d\big) &\longrightarrow \N\big(tx^i,s_t^2I_d\big) \quad \forall i, \\
+        p_1^{\mathrm{cond}}(\cdot\mid y^i) &= \delta_{x^i} \quad \forall\sigma
+    \end{align*}
+    (Proposition~\ref{prop:prop17}(c)).
 \end{proof}
 
 \subsection{Proof of Proposition~\ref{prop:expansion}}
@@ -1306,61 +1388,72 @@ heteroscedastic counterexample are discussed in Appendix~\ref{app:proofs}.
 \end{proposition}
 
 \begin{proof}[Proof of Proposition~\ref{prop:expansion}]
-Let $s=\nabla\log\rho_Y(y)$, $q_h\propto K_h(y-\cdot)\rho_Y$, $\E_h[f]=\E[K_h(y-Y)f]/\E[K_h(y-Y)]$ and $u=(Y-y)/h$. As $N\to\infty$, $\Covh\to\Cov_h^{\mathrm{pop}}:=\Cov_h[X]$ (LLN, Slutsky), and by total covariance
-\begin{equation}
-\Cov_h^{\mathrm{pop}}=\E_h[\Sigma(Y)]+\Cov_h[\mu(Y)].
-\label{eq:pf:expansion:2}
-\end{equation}
-Substituting $y'=y+hu$, $K_h(y-y')=h^{-k}\varphi(u)$, and Taylor expanding $\rho_Y$,
-\begin{equation}
-\tilde q_h(u)=\frac{\varphi(u)\rho_Y(y+hu)}{\int\varphi\,\rho_Y(y+h\cdot)}=\varphi(u)\big[1+h\,s^\top u+O(h^2)\big].
-\label{eq:pf:expansion:3}
-\end{equation}
-With $\E_\varphi[u]=0$, $\E_\varphi[uu^\top]=I_k$, $\E_\varphi[u_au_bu_c]=0$, $\E_\varphi[u_au_bu_cu_d]=\delta_{ab}\delta_{cd}+\delta_{ac}\delta_{bd}+\delta_{ad}\delta_{bc}$,
-\begin{equation}
-\E_{\tilde q_h}[u]=h\,s+O(h^2),\qquad
-\E_{\tilde q_h}[uu^\top]=I_k+O(h^2),\qquad
-\Cov_{\tilde q_h}[u]=I_k+O(h^2).
-\label{eq:pf:expansion:6}
-\end{equation}
+    Let $s=\nabla\log\rho_Y(y)$, $q_h\propto K_h(y-\cdot)\rho_Y$, $\E_h[f]=\E[K_h(y-Y)f]/\E[K_h(y-Y)]$ and $u=(Y-y)/h$. As $N\to\infty$, $\Covh\to\Cov_h^{\mathrm{pop}}:=\Cov_h[X]$ (LLN, Slutsky), and by total covariance
+    \begin{equation}
+        \Cov_h^{\mathrm{pop}} = \E_h[\Sigma(Y)]+\Cov_h[\mu(Y)].
+        \label{eq:pf:expansion:2}
+    \end{equation}
+    Substituting $y'=y+hu$, $K_h(y-y')=h^{-k}\varphi(u)$, and Taylor expanding $\rho_Y$,
+    \begin{equation}
+    \begin{split}
+        \tilde q_h(u) &= \frac{\varphi(u)\rho_Y(y+hu)}{\int\varphi\,\rho_Y(y+h\cdot)} \\
+        &= \varphi(u)\big[1+h\,s^\top u+O(h^2)\big].
+    \end{split}
+    \label{eq:pf:expansion:3}
+    \end{equation}
+    With $\E_\varphi[u]=0$, $\E_\varphi[uu^\top]=I_k$, $\E_\varphi[u_au_bu_c]=0$ and $\E_\varphi[u_au_bu_cu_d]=\delta_{ab}\delta_{cd}+\delta_{ac}\delta_{bd}+\delta_{ad}\delta_{bc}$,
+    \begin{equation}
+    \begin{split}
+        \E_{\tilde q_h}[u] &= h\,s+O(h^2), \\
+        \E_{\tilde q_h}[uu^\top] &= I_k+O(h^2), \\
+        \Cov_{\tilde q_h}[u] &= I_k+O(h^2).
+    \end{split}
+    \label{eq:pf:expansion:6}
+    \end{equation}
 
-\emph{Within-group.} $\Sigma\equiv\Sigma(y)$ on $B(y,r)$, and outside
-\begin{equation*}
-\int_{|u|>r/h}(1+|y+hu|^{2m})\varphi(u)\,du\le C\,e^{-r^2/4h^2}=o(h^p)\ \ \forall p,
-\end{equation*}
-so $\E_h[\Sigma(Y)]=\Sigma(y)+O(h^4)$. Without homoscedasticity, for $\Sigma\in C^2$, \eqref{eq:pf:expansion:6} gives
-\begin{equation*}
-\E_h[\Sigma(Y)]=\Sigma+h^2\big[\nabla\Sigma\cdot s+\tfrac12\tr\nabla^2\Sigma\big]+o(h^2),
-\end{equation*}
-of the order of $h^2JJ^\top$: e.g.\ $k=d=1$, $Y\sim\mathrm{Unif}(-2,2)$, $X\mid Y=y\sim\N(0,1+y^2)$ has $J\equiv0$ and $\Covh(y)=\Sigma(y)+h^2$.
+    \emph{Within-group.} $\Sigma\equiv\Sigma(y)$ on $B(y,r)$, and outside
+    \begin{align*}
+        \int_{|u|>r/h}(1+|y+hu|^{2m})\varphi(u)\,du &\le C\,e^{-r^2/4h^2} \\
+        &= o(h^p) \quad \forall p,
+    \end{align*}
+    so $\E_h[\Sigma(Y)]=\Sigma(y)+O(h^4)$. Without homoscedasticity, for $\Sigma\in C^2$, \eqref{eq:pf:expansion:6} gives
+    \begin{align*}
+        \E_h[\Sigma(Y)] &= \Sigma+h\,\nabla\Sigma\cdot\E[u]+\tfrac{h^2}2\nabla^2\Sigma\cdot\E[uu^\top]+o(h^2) \\
+        &= \Sigma+h^2\big[\nabla\Sigma\cdot s+\tfrac12\tr\nabla^2\Sigma\big]+o(h^2),
+    \end{align*}
+    of the order of $h^2JJ^\top$. For example $k=d=1$, $Y\sim\mathrm{Unif}(-2,2)$, $X\mid Y=y\sim\N(0,1+y^2)$ has $J\equiv0$ and $\Covh(y)=\Sigma(y)+h^2$.
 
-\emph{Between-group.} Since $\mu\in C^3$,
-\begin{equation*}
-\begin{split}
-\mu(y+hu)&=\mu(y)+hJu+\tfrac{h^2}2Q(u)+R_h(u),\\
-Q(u)_a&=\sum_{b,c}\partial^2_{bc}\mu_a(y)u_bu_c,\qquad|R_h|\le\tfrac{M_3}6h^3|u|^3 .
-\end{split}
-\end{equation*}
-The moments of $\tilde q_h$ are bounded for $h\le1$, so the covariances involving $R_h$ are $O(h^4),O(h^5),O(h^6)$ and
-\begin{equation*}
-\Cov_h[\mu(Y)]=h^2J\,\Cov[u]\,J^\top+h^3\big[J\,\Cov(u,Q)+\mathrm{sym}\big]+h^4\Cov[Q]+O(h^4).
-\end{equation*}
-By \eqref{eq:pf:expansion:3}, $\E_{\tilde q_h}[u_au_bu_c]=h\,[s_c\delta_{ab}+s_b\delta_{ac}+s_a\delta_{bc}]+O(h^2)$, so $\Cov(u,Q)=O(h)$, and with \eqref{eq:pf:expansion:6}
-\begin{equation}
-\Cov_h[\mu(Y)]=h^2JJ^\top+O(h^4),\qquad
-\Cov_h^{\mathrm{pop}}=\Sigma(y)+h^2JJ^\top+O(h^4).
-\label{eq:pf:expansion:1}
-\end{equation}
+    \emph{Between-group.} Since $\mu\in C^3$,
+    \begin{align*}
+        \mu(y+hu) &= \mu(y)+hJu+\tfrac{h^2}2Q(u)+R_h(u), \\
+        Q(u)_a &= \sum_{b,c}\partial^2_{bc}\mu_a(y)\,u_bu_c, \\
+        |R_h(u)| &\le \tfrac{M_3}6\,h^3|u|^3 .
+    \end{align*}
+    The moments of $\tilde q_h$ are bounded for $h\le1$, so the covariances involving $R_h$ are $O(h^4)$, $O(h^5)$, $O(h^6)$, and
+    \begin{align*}
+        \Cov_h[\mu(Y)] &= h^2J\,\Cov[u]\,J^\top+h^3\big[J\,\Cov(u,Q)+\mathrm{sym}\big] \\
+        &\quad+h^4\Cov[Q]+O(h^4).
+    \end{align*}
+    By \eqref{eq:pf:expansion:3}, $\E_{\tilde q_h}[u_au_bu_c]=h\,[s_c\delta_{ab}+s_b\delta_{ac}+s_a\delta_{bc}]+O(h^2)$, so $\Cov(u,Q)=O(h)$; with \eqref{eq:pf:expansion:6},
+    \begin{equation}
+    \begin{split}
+        \Cov_h[\mu(Y)] &= h^2JJ^\top+O(h^4), \\
+        \Cov_h^{\mathrm{pop}} &= \Sigma(y)+h^2JJ^\top+O(h^4).
+    \end{split}
+    \label{eq:pf:expansion:1}
+    \end{equation}
 
-\emph{Fluctuation.} With $S_N=\frac1N\sum_jK_h(y-y^j)$, $T_N=\frac1N\sum_jK_h(y-y^j)x^j$, $\bar x_h=T_N/S_N$,
-\begin{equation*}
-\Var\big(K_h(y-Y)\big)=\Theta(h^{-k}),\qquad\Var\big(K_h(y-Y)XX^\top\big)=\Theta(h^{-k})
-\end{equation*}
-(the latter uses $m_4$ bounded near $y$: the only use of (iv)), so $S_N,T_N=\E[\cdot]+O_P(\sqrt{h^{-k}/N})$ and, by Slutsky,
-\begin{equation*}
-\bar x_h=\E_h[X]+O_P\big((Nh^k)^{-1/2}\big),\qquad\Covh=\Cov_h^{\mathrm{pop}}+O_P\big((Nh^k)^{-1/2}\big).
-\end{equation*}
-With \eqref{eq:pf:expansion:1} this is \eqref{eq:expansion}.
+    \emph{Fluctuation.} With $S_N=\frac1N\sum_j\KK{j}$, $T_N=\frac1N\sum_j\KK{j}x^j$ and $\bar x_h=T_N/S_N$,
+    \begin{align*}
+        \Var\big(K_h(y-Y)\big) &= \Theta(h^{-k}), \\
+        \Var\big(K_h(y-Y)XX^\top\big) &= \Theta(h^{-k}),
+    \end{align*}
+    the latter using $m_4$ bounded near $y$ (the only use of (iv)). Hence $S_N,T_N=\E[\cdot]+O_P(\sqrt{h^{-k}/N})$ and, by Slutsky,
+    \begin{align*}
+        \bar x_h &= \E_h[X]+O_P\big((Nh^k)^{-1/2}\big), \\
+        \Covh &= \Cov_h^{\mathrm{pop}}+O_P\big((Nh^k)^{-1/2}\big).
+    \end{align*}
+    With \eqref{eq:pf:expansion:1} this is \eqref{eq:expansion}.
 \end{proof}
 
 \subsection{Proof of Proposition~\ref{prop:nwrate}}
@@ -1403,27 +1496,33 @@ what makes its relative influence vanish; without it the result does not apply t
 \end{proposition}
 
 \begin{proof}[Proof of Proposition~\ref{prop:nwrate}]
-Under Assumption~\ref{as:design}, $K$ bounded and symmetric with $\int K=1$, $h\to0$, $Nh^k\to\infty$ \citep[\S1.5--1.6]{tsybakov2009nonparametric}, \citep[Ch.~5]{gyorfi2002distribution}, with $\mu_2(K)=\int u_1^2K$, $R(K)=\int K^2$,
-\begin{equation*}
-\mathrm{Bias}=\tfrac{h^2}2\mu_2(K)\,b(y)+o(h^2),\qquad
-\Var=\tfrac{R(K)\,\Sigma(y)}{Nh^k\rho_Y(y)}+o\big((Nh^k)^{-1}\big).
-\end{equation*}
-Hence $\mathrm{MSE}=c_1h^4+c_2(Nh^k)^{-1}+o(\cdot)$ with $c_1=\frac14\mu_2(K)^2|b(y)|^2$, and
-\begin{equation*}
-\tfrac{d}{dh}\mathrm{MSE}=4c_1h^3-c_2\,k\,N^{-1}h^{-k-1}=0\iff h^{k+4}=\frac{c_2k}{4c_1N},
-\end{equation*}
-a minimum: $h^\star\asymp N^{-1/(k+4)}$ ($c_1,c_2>0$).
+    Under Assumption~\ref{as:design}, with $K$ bounded and symmetric, $\int K=1$, $h\to0$, $Nh^k\to\infty$ \citep[\S1.5--1.6]{tsybakov2009nonparametric}, \citep[Ch.~5]{gyorfi2002distribution}, and $\mu_2(K)=\int u_1^2K$, $R(K)=\int K^2$,
+    \begin{align*}
+        \mathrm{Bias} &= \tfrac{h^2}2\,\mu_2(K)\,b(y)+o(h^2), \\
+        \Var &= \frac{R(K)\,\Sigma(y)}{Nh^k\rho_Y(y)}+o\big((Nh^k)^{-1}\big).
+    \end{align*}
+    Hence $\mathrm{MSE}=c_1h^4+c_2(Nh^k)^{-1}+o(\cdot)$ with $c_1=\frac14\mu_2(K)^2|b(y)|^2$, and
+    \begin{align*}
+        \frac{d}{dh}\mathrm{MSE} &= 4c_1h^3-c_2\,k\,N^{-1}h^{-k-1} = 0 \\
+        &\iff h^{k+4}=\frac{c_2\,k}{4c_1N},
+    \end{align*}
+    a minimum, so $h^\star\asymp N^{-1/(k+4)}$ ($c_1,c_2>0$).
 
-Linear-Gaussian instance: $\mu(y')=By'$, and in $y'$, $K_h(y-y')\rho_Y(y')\propto\N\big(\Sigma_Y(\Sigma_Y+h^2I_k)^{-1}y,\,\cdot\big)$, so
-\begin{equation*}
-\begin{split}
-\bar x_h(y)&=\frac{\E[\mu(Y)K_h(y-Y)]}{\E[K_h(y-Y)]}=B\,\Sigma_Y(\Sigma_Y+h^2I_k)^{-1}y,\\
-\bar x_h(y)-By&=-B\,h^2(\Sigma_Y+h^2I_k)^{-1}y=-h^2B\Sigma_Y^{-1}y+O(h^4),
-\end{split}
-\end{equation*}
-which is \eqref{eq:lgbias}; with $\Delta\mu=0$, $\nabla\log\rho_Y=-\Sigma_Y^{-1}y$: $b(y)=-2B\Sigma_Y^{-1}y$ (checked in \texttt{scripts/verify\_nw\_bias\_affine.py}).
+    Linear-Gaussian instance: $\mu(y')=By'$ and, in $y'$, $K_h(y-y')\rho_Y(y')\propto\N\big(\Sigma_Y(\Sigma_Y+h^2I_k)^{-1}y,\,\cdot\big)$. Therefore
+    \begin{align*}
+        \bar x_h(y) &= \frac{\E[\mu(Y)K_h(y-Y)]}{\E[K_h(y-Y)]} \\
+        &= B\,\Sigma_Y(\Sigma_Y+h^2I_k)^{-1}y, \\
+        \bar x_h(y)-By &= -B\,h^2(\Sigma_Y+h^2I_k)^{-1}y \\
+        &= -h^2B\Sigma_Y^{-1}y+O(h^4),
+    \end{align*}
+    which is \eqref{eq:lgbias}. With $\Delta\mu=0$ and $\nabla\log\rho_Y=-\Sigma_Y^{-1}y$, $b(y)=-2B\Sigma_Y^{-1}y$ (checked in \texttt{scripts/verify\_nw\_bias\_affine.py}).
 
-Design points: at $y=y^i$ the weight of $j=i$ is $K_h(0)/\sum_jK_h(y^i-y^j)=\Theta\big((Nh^k)^{-1}\big)\to0$; if $Nh^k\not\to\infty$ it does not vanish (Corollary~\ref{cor:zerobw}: it tends to $1$).
+    Design points: at $y=y^i$ the weight of $j=i$ is
+    \begin{align*}
+        \frac{K_h(0)}{\sum_jK_h(y^i-y^j)} &= \Theta\big((Nh^k)^{-1}\big) \\
+        &\to 0 .
+    \end{align*}
+    If $Nh^k\not\to\infty$ it does not vanish (Corollary~\ref{cor:zerobw}: it tends to $1$).
 \end{proof}
 
 \subsection{Proof of Proposition~\ref{prop:liplb}}
@@ -1437,19 +1536,19 @@ $\E[|v(X_t,t,y^i)-f_i(X_t,t)|^2\mid I=i]\ge d\,[1-L(1-t)]_+^2$.
 \end{quote}
 
 \begin{proof}[Proof of Proposition~\ref{prop:liplb}]
-Let $X,X'$ be i.i.d.\ $\N(tx^i,(1-t)^2I_d)$ and $e=f_i-v$. Then
-\begin{equation*}
-\E|f_i(X)-f_i(X')|^2=\frac{\E|X-X'|^2}{(1-t)^2}=2d,\qquad
-\E|v(X)-v(X')|^2\le L^2\,\E|X-X'|^2=2dL^2(1-t)^2,
-\end{equation*}
-\begin{equation*}
-\E|e(X)-e(X')|^2=2\E|e(X)|^2-2\big|\E e(X)\big|^2\le2\,\E|e(X)|^2 .
-\end{equation*}
-The triangle inequality in $L^2(\Omega)$ for $f_i(X)-f_i(X')=[e(X)-e(X')]+[v(X)-v(X')]$ gives
-\begin{equation*}
-\sqrt{2d}\le\sqrt{2\,\E|e(X)|^2}+\sqrt{2d}\,L(1-t)\ \Longrightarrow\ \E|e(X)|^2\ge d\,[1-L(1-t)]_+^2 .
-\end{equation*}
-(The identity for $\E|e(X)-e(X')|^2$, not the bound $4\E|e|^2$, keeps the constant $d$.)
+    Let $X,X'$ be i.i.d.\ $\N(tx^i,(1-t)^2I_d)$ and $e=f_i-v$. Then
+    \begin{align*}
+        \E|f_i(X)-f_i(X')|^2 &= \frac{\E|X-X'|^2}{(1-t)^2} = 2d, \\
+        \E|v(X)-v(X')|^2 &\le L^2\,\E|X-X'|^2 = 2dL^2(1-t)^2, \\
+        \E|e(X)-e(X')|^2 &= 2\E|e(X)|^2-2\big|\E e(X)\big|^2 \\
+        &\le 2\,\E|e(X)|^2 .
+    \end{align*}
+    The triangle inequality in $L^2(\Omega)$ for $f_i(X)-f_i(X')=[e(X)-e(X')]+[v(X)-v(X')]$ gives
+    \begin{align*}
+        \sqrt{2d} &\le \sqrt{2\,\E|e(X)|^2}+\sqrt{2d}\,L(1-t), \\
+        \E|e(X)|^2 &\ge d\,[1-L(1-t)]_+^2 .
+    \end{align*}
+    (The identity for $\E|e(X)-e(X')|^2$, rather than the bound $4\E|e|^2$, keeps the constant $d$.)
 \end{proof}
 
 \subsection{Proof of Corollary~\ref{cor:floor}}
@@ -1470,10 +1569,16 @@ $\operatorname{Lip}_xv(\cdot,t,y^i)\le L(t)$, the same pointwise bound integrate
 \end{quote}
 
 \begin{proof}[Proof of Corollary~\ref{cor:floor}]
-$\int_0^{1/L}(1-Ls)^2\,ds=\big[s-Ls^2+\tfrac{L^2s^3}3\big]_0^{1/L}=\frac1{3L}$. Proposition~\ref{prop:liplb} holds for every $i$, $v\in\mathcal F_L$ and $t\ge1-1/L$; averaging over $I$ and $t$,
-\begin{equation*}
-\inf_{v\in\mathcal F_L}L_0(v)\ge d\int_{1-1/L}^1[1-L(1-t)]^2\,dt=\frac d{3L}.\qedhere
-\end{equation*}
+    We have
+    \begin{align*}
+        \int_0^{1/L}(1-Ls)^2\,ds &= \Big[s-Ls^2+\tfrac{L^2s^3}3\Big]_0^{1/L} \\
+        &= \frac1{3L}.
+    \end{align*}
+    Proposition~\ref{prop:liplb} holds for every $i$, every $v\in\mathcal F_L$ and $t\ge1-1/L$; averaging over $I$ and $t$,
+    \begin{align*}
+        \inf_{v\in\mathcal F_L}L_0(v) &\ge d\int_{1-1/L}^1[1-L(1-t)]^2\,dt \\
+        &= \frac d{3L}.\qedhere
+    \end{align*}
 \end{proof}
 
 \subsection{Proof of Proposition~\ref{prop:cfg}}
@@ -1502,11 +1607,17 @@ conditional law absolutely continuous.
 \end{proposition}
 
 \begin{proof}[Proof of Proposition~\ref{prop:cfg}]
-By Propositions~\ref{prop:kernel-field}, \ref{prop:uncond}, $\vstar=\sum_iw_i^{(h)}\frac{x^i-x}{1-t}$ and $v_{\mathrm{unc}}^\star=\sum_iq_i\frac{x^i-x}{1-t}$. In $v_w=(1+w)\vstar-w\,v_{\mathrm{unc}}^\star$ the $x$-terms give $-(1+w)x+wx=-x$, so $v_w=\frac{m_w-x}{1-t}$ with coefficients $(1+w)w_i^{(h)}-wq_i$ summing to $1$: $m_w\in\mathcal A$. For the orthogonal projection $\Pi$ onto $\mathcal A$ (affine, $\Pi m_w=m_w$),
-\begin{equation*}
-\dot q_t=-\frac{q_t}{1-t}\quad\Longrightarrow\quad q_t=(1-t)\,q_0 ,
-\end{equation*}
-so $\operatorname{dist}(x_t,\mathcal A)\to0$ and, $\mathcal A$ being closed, the endpoint law is supported in $\mathcal A$. Well-posedness: $|m_w|\le(1+2w)\max_i|x^i|$, so \eqref{eq:vgrowth} holds with $M\to(1+2w)M$.
+    By Propositions~\ref{prop:kernel-field} and~\ref{prop:uncond},
+    \begin{align*}
+        \vstar &= \sum_i\wih{i}\,\fat{i}, \\
+        v_{\mathrm{unc}}^\star &= \sum_iq_i\,\fat{i}.
+    \end{align*}
+    In $v_w=(1+w)\vstar-w\,v_{\mathrm{unc}}^\star$ the $x$-terms give $-(1+w)x+wx=-x$, so $v_w=\frac{m_w-x}{1-t}$ with coefficients $(1+w)\wih{i}-wq_i$ summing to $1$; thus $m_w\in\mathcal A$. For the orthogonal projection $\Pi$ onto $\mathcal A$ (affine, $\Pi m_w=m_w$),
+    \begin{align*}
+        \dot q_t &= -\frac{q_t}{1-t} \\
+        \Longrightarrow\ q_t &= (1-t)\,q_0 ,
+    \end{align*}
+    so $\dist(x_t,\mathcal A)\to0$ and, $\mathcal A$ being closed, the endpoint law is supported in $\mathcal A$. Well-posedness: $|m_w|\le(1+2w)\max_i|x^i|$, so \eqref{eq:vgrowth} holds with $M\to(1+2w)M$.
 \end{proof}
 
 \subsection{Proof of Proposition~\ref{prop:nearduplicate}}
@@ -1531,20 +1642,31 @@ $|C|^{-1}\sum_{i\in C}\delta_{x^i}$, and $n_{\mathrm{eff}}\to|C|$.
 \end{quote}
 
 \begin{proof}[Proof of Proposition~\ref{prop:nearduplicate}]
-Let $K_i=c\,e^{-|y-y^i|^2/2h^2}$.
-(a)
-\begin{equation*}
-\sum_{j\notin C}p_j^{(h)}\le\frac{\sum_{j\notin C}K_j}{\sum_{i\in C}K_i}\le\frac{(N-|C|)\,e^{-\Delta^2/2h^2}}{|C|\,e^{-\varepsilon^2/2h^2}}=\eta .
-\end{equation*}
-(b) For $i,i'\in C$,
-\begin{equation*}
-\frac{p_i^{(h)}}{p_{i'}^{(h)}}=\frac{K_i}{K_{i'}}=\exp\frac{|y-y^{i'}|^2-|y-y^i|^2}{2h^2}\le e^{\varepsilon^2/2h^2}=\kappa .
-\end{equation*}
-(c) Let $S=\sum_{i\in C}p_i^{(h)}$. By (b), $|C|\,p_i^{(h)}\le\kappa S$, so
-\begin{equation*}
-\sum_{i\in C}(p_i^{(h)})^2\le S\max_{i\in C}p_i^{(h)}\le\frac\kappa{|C|},\qquad\sum_{j\notin C}(p_j^{(h)})^2\le\eta^2,
-\end{equation*}
-and $n_{\mathrm{eff}}=\big(\sum_ip_i^{(h)2}\big)^{-1}\ge\frac{|C|}{\kappa+|C|\eta^2}$. As $\varepsilon/h\to0$, $\Delta/h\to\infty$: $\kappa\to1$, $\eta\to0$, $S\ge1-\eta\to1$ and $p_i/p_{i'}\in[\kappa^{-1},\kappa]$, so the posterior tends to the uniform law on $C$ and, by Theorem~\ref{thm:endpoint}, the endpoint law to $|C|^{-1}\sum_{i\in C}\delta_{x^i}$. Also $\sum_ip_i^{2}\ge S^2/|C|$ gives $n_{\mathrm{eff}}\le|C|/S^2\to|C|$.
+    Let $K_i=c\,e^{-|y-y^i|^2/2h^2}$.
+
+    (a)
+    \begin{align*}
+        \sum_{j\notin C}\pih{j} &\le \frac{\sum_{j\notin C}K_j}{\sum_{i\in C}K_i} \\
+        &\le \frac{(N-|C|)\,e^{-\Delta^2/2h^2}}{|C|\,e^{-\eps^2/2h^2}} = \eta .
+    \end{align*}
+
+    (b) For $i,i'\in C$,
+    \begin{align*}
+        \frac{\pih{i}}{\pih{i'}} &= \frac{K_i}{K_{i'}} = \exp\frac{|y-y^{i'}|^2-|y-y^i|^2}{2h^2} \\
+        &\le e^{\eps^2/2h^2} = \kappa .
+    \end{align*}
+
+    (c) Let $S=\sum_{i\in C}\pih{i}$. By (b), $|C|\,\pih{i}\le\kappa S$, so
+    \begin{align*}
+        \sum_{i\in C}(\pih{i})^2 &\le S\max_{i\in C}\pih{i} \le \frac\kappa{|C|}, \\
+        \sum_{j\notin C}(\pih{j})^2 &\le \eta^2,
+    \end{align*}
+    and
+    \begin{align*}
+        n_{\mathrm{eff}} &= \Big(\sum_i(\pih{i})^2\Big)^{-1} \\
+        &\ge \frac{|C|}{\kappa+|C|\eta^2}.
+    \end{align*}
+    As $\eps/h\to0$ and $\Delta/h\to\infty$: $\kappa\to1$, $\eta\to0$, $S\ge1-\eta\to1$ and $p_i/p_{i'}\in[\kappa^{-1},\kappa]$, so the posterior tends to the uniform law on $C$ and, by Theorem~\ref{thm:endpoint}, the endpoint law to $|C|^{-1}\sum_{i\in C}\delta_{x^i}$. Also $\sum_i(\pih{i})^2\ge S^2/|C|$ gives $n_{\mathrm{eff}}\le|C|/S^2\to|C|$.
 \end{proof}
 
 \subsection{Proof of Proposition~\ref{prop:cfgatom}}
@@ -1563,38 +1685,50 @@ atom to $x^*$ is unique, and write $i^*=\arg\min_j|x^*-x^j|$. Then
 \end{quote}
 
 \begin{proof}[Proof of Proposition~\ref{prop:cfgatom}]
-Suppose $m_w(x_t,t)\to m^*\ne x^*$; put $u=\frac{m^*-x^*}{|m^*-x^*|}$, $c=\frac{|m^*-x^*|}2$. For $t\ge t_0$, $\langle m_w-x_t,u\rangle\ge c$, so
-\begin{equation*}
-\frac d{dt}\langle x_t,u\rangle=\frac{\langle m_w-x_t,u\rangle}{1-t}\ge\frac c{1-t}
-\ \Longrightarrow\ \langle x_t,u\rangle\ge\langle x_{t_0},u\rangle+c\log\tfrac{1-t_0}{1-t}\to+\infty,
-\end{equation*}
-contradicting $x_t\to x^*$. Hence
-\begin{equation}
-m_w(x_t,t)\to m^*\ \Longrightarrow\ m^*=x^*.
-\label{eq:pf:cfgatom:1}
-\end{equation}
-$w_j^{(h)}$ and $q_j$ both have the form (Lemma~\ref{lem:cov})
-\begin{equation*}
-\alpha_j=\frac{c_j\,e^{-|x-tx^j|^2/2(1-t)^2}}{\sum_lc_l\,e^{-|x-tx^l|^2/2(1-t)^2}},\qquad c_j=K_h(y-y^j)\ \text{resp.}\ \tfrac1N .
-\end{equation*}
-As $x_t\to x^*$ and the nearest atom $x^{i^*}$ is unique,
-\begin{equation*}
-|x_t-tx^j|^2-|x_t-tx^{i^*}|^2\to2\kappa_j>0\ \Longrightarrow\ \frac{\alpha_j}{\alpha_{i^*}}\le\frac{c_j}{c_{i^*}}\,e^{-\kappa_j/2(1-t)^2}\to0,
-\end{equation*}
-so $\alpha_{i^*}\to1$ and $\sum_j\alpha_jx^j\to x^{i^*}$, for both families with the same $i^*$.
+    Suppose $m_w(x_t,t)\to m^*\ne x^*$ and put $u=\frac{m^*-x^*}{|m^*-x^*|}$, $c=\frac{|m^*-x^*|}2$. For $t\ge t_0$, $\langle m_w-x_t,u\rangle\ge c$, so
+    \begin{align*}
+        \frac d{dt}\langle x_t,u\rangle &= \frac{\langle m_w-x_t,u\rangle}{1-t} \\
+        &\ge \frac c{1-t}, \\
+        \langle x_t,u\rangle &\ge \langle x_{t_0},u\rangle+c\log\frac{1-t_0}{1-t} \\
+        &\to +\infty,
+    \end{align*}
+    contradicting $x_t\to x^*$. Hence
+    \begin{equation}
+        m_w(x_t,t)\to m^* \ \Longrightarrow\ m^*=x^* .
+        \label{eq:pf:cfgatom:1}
+    \end{equation}
+    Both $\wih{j}$ and $q_j$ have the form (Lemma~\ref{lem:cov})
+    \begin{equation*}
+        \alpha_j = \frac{c_j\,e^{-|x-tx^j|^2/2(1-t)^2}}{\sum_lc_l\,e^{-|x-tx^l|^2/2(1-t)^2}},
+        \qquad c_j=\KK{j}\ \text{resp.}\ \tfrac1N .
+    \end{equation*}
+    As $x_t\to x^*$ and the nearest atom $x^{i^*}$ is unique,
+    \begin{align*}
+        |x_t-tx^j|^2-|x_t-tx^{i^*}|^2 &\to 2\kappa_j>0, \\
+        \frac{\alpha_j}{\alpha_{i^*}} &\le \frac{c_j}{c_{i^*}}\,e^{-\kappa_j/2(1-t)^2} \\
+        &\to 0,
+    \end{align*}
+    so $\alpha_{i^*}\to1$ and $\sum_j\alpha_jx^j\to x^{i^*}$, for both families with the same $i^*$.
 
-(a) $h>0$: $m_w=(1+w)\bar x_h-w\,\bar x_{\mathrm{unc}}\to(1+w)x^{i^*}-w\,x^{i^*}=x^{i^*}$, so $x^*=x^{i^*}$ by \eqref{eq:pf:cfgatom:1}.
+    (a) $h>0$:
+    \begin{align*}
+        m_w &= (1+w)\,\bar x_h-w\,\bar x_{\mathrm{unc}} \\
+        &\to (1+w)\,x^{i^*}-w\,x^{i^*} = x^{i^*},
+    \end{align*}
+    so $x^*=x^{i^*}$ by \eqref{eq:pf:cfgatom:1}.
 
-(b) $h=0$: the conditional mean is $x^i$ (Proposition~\ref{prop:collapse}(a)) and $\bar x_{\mathrm{unc}}\to x^{i^*}$, so by \eqref{eq:pf:cfgatom:1}
-\begin{equation}
-x^*=(1+w)\,x^i-w\,x^{i^*}.
-\label{eq:cfgfixed}
-\end{equation}
-Let $i^*\ne i$. If $w=0$, $x^*=x^i$ and $i^*=i$ (uniqueness), a contradiction. If $w>0$, $x^*-x^i=w(x^i-x^{i^*})$ and $x^*-x^{i^*}=(1+w)(x^i-x^{i^*})$, so
-\begin{equation*}
-|x^*-x^i|=w\,|x^i-x^{i^*}|<(1+w)\,|x^i-x^{i^*}|=|x^*-x^{i^*}|,
-\end{equation*}
-contradicting the definition of $i^*$. Hence $i^*=i$ and $x^*=x^i$.
+    (b) $h=0$: the conditional mean is $x^i$ (Proposition~\ref{prop:collapse}(a)) and $\bar x_{\mathrm{unc}}\to x^{i^*}$, so by \eqref{eq:pf:cfgatom:1}
+    \begin{equation}
+        x^* = (1+w)\,x^i-w\,x^{i^*}.
+        \label{eq:cfgfixed}
+    \end{equation}
+    Let $i^*\ne i$. If $w=0$, $x^*=x^i$ and $i^*=i$ by uniqueness, a contradiction. If $w>0$, $x^*-x^i=w\,(x^i-x^{i^*})$ and $x^*-x^{i^*}=(1+w)(x^i-x^{i^*})$, so
+    \begin{align*}
+        |x^*-x^i| &= w\,|x^i-x^{i^*}| \\
+        &< (1+w)\,|x^i-x^{i^*}| \\
+        &= |x^*-x^{i^*}|,
+    \end{align*}
+    contradicting the definition of $i^*$. Hence $i^*=i$ and $x^*=x^i$.
 \end{proof}
 
 \begin{remark}
@@ -1672,33 +1806,54 @@ Consequently:
 \end{quote}
 
 \begin{proof}[Proof of Proposition~\ref{prop:survival}]
-$e_0=0$, and $\vstarz$ is affine in $x$ with linear part $-\frac1{1-t}I_d$, so
-\begin{equation*}
-\dot e_t=\Delta(x^v_t,t)+\big[\vstarz(x^v_t,t,y^i)-\vstarz(x^\star_t,t,y^i)\big]=\Delta(x^v_t,t)-\frac{e_t}{1-t}.
-\end{equation*}
-Hence, a.e.,
-\begin{equation*}
-\frac d{dt}\Big[\frac{e_t}{1-t}\Big]=\frac{\dot e_t}{1-t}+\frac{e_t}{(1-t)^2}=\frac{\Delta(x^v_t,t)}{1-t},
-\end{equation*}
-and integrating with $e_0=0$ gives \eqref{eq:survival-id}; the triangle inequality gives \eqref{eq:survival}.
+    We have $e_0=0$, and $\vstarz$ is affine in $x$ with linear part $-\frac1{1-t}I_d$, so
+    \begin{align*}
+        \dot e_t &= \Delta(x^v_t,t)+\big[\vstarz(x^v_t,t,y^i)-\vstarz(x^\star_t,t,y^i)\big] \\
+        &= \Delta(x^v_t,t)-\frac{e_t}{1-t}.
+    \end{align*}
+    Hence, a.e.,
+    \begin{align*}
+        \frac d{dt}\Big[\frac{e_t}{1-t}\Big] &= \frac{\dot e_t}{1-t}+\frac{e_t}{(1-t)^2} \\
+        &= \frac{\Delta(x^v_t,t)}{1-t},
+    \end{align*}
+    and integrating with $e_0=0$ gives \eqref{eq:survival-id}; the triangle inequality gives \eqref{eq:survival}.
 
-(a) By Cauchy--Schwarz,
-\begin{equation*}
-|e_t|\le(1-t)\Big(\int_0^t|\Delta|^2\Big)^{1/2}\Big(\int_0^t\frac{ds}{(1-s)^2}\Big)^{1/2}\le(1-t)\,\varepsilon\sqrt{\tfrac t{1-t}}=\varepsilon\sqrt{t(1-t)}\le\varepsilon\sqrt{1-t}.
-\end{equation*}
-(b) $\int_0^t(1-s)^{-1-a}ds=\frac1a\big((1-t)^{-a}-1\big)$, so $|e_t|\le\frac ca\big((1-t)^{1-a}-(1-t)\big)$, which is $c\,t\le c$ for $a=1$, and tends to $0$, $c$, $+\infty$ for $a<1$, $a=1$, $a>1$.
+    (a) By Cauchy--Schwarz,
+    \begin{align*}
+        |e_t| &\le (1-t)\Big(\int_0^t|\Delta|^2\Big)^{1/2}\Big(\int_0^t\frac{ds}{(1-s)^2}\Big)^{1/2} \\
+        &\le (1-t)\,\eps\sqrt{\tfrac t{1-t}} \\
+        &= \eps\sqrt{t(1-t)} \\
+        &\le \eps\sqrt{1-t}.
+    \end{align*}
 
-(c) For $\Delta=c(1-t)^{-a}u$, $|u|=1$, the integrand is trajectory-free:
-\begin{equation*}
-e_t=\begin{cases}\frac ca\big((1-t)^{1-a}-(1-t)\big)u,&a>0,\\[2pt]-c\,(1-t)\log(1-t)\,u,&a=0,\end{cases}
-\end{equation*}
-which is \eqref{eq:survival-sharp}. The direction is fixed, so \eqref{eq:survival} is an equality, and with $\epsilon=1-t$, $|e_t|=\frac ca(\epsilon^{1-a}-\epsilon)\to0,\ c,\ \infty$. Also $v=\vstarz+\Delta$ is locally Lipschitz with $L_\Delta=0$, so Assumption~\ref{as:lipschitz} holds.
+    (b) Since $\int_0^t(1-s)^{-1-a}ds=\frac1a\big((1-t)^{-a}-1\big)$,
+    \begin{align*}
+        |e_t| &\le \frac ca\big((1-t)^{1-a}-(1-t)\big) \\
+        &= c\,t \le c \qquad (a=1),
+    \end{align*}
+    and the bound tends to $0$, $c$, $+\infty$ for $a<1$, $a=1$, $a>1$.
 
-(d) With $I(t)=\int_0^t\frac{\Delta(x^v_s,s)}{1-s}ds$, $e_t=(1-t)I(t)$ and
-\begin{equation*}
-e_t-e_\star=(1-t)\Big[I(t)-\frac{e_\star}{1-t}\Big],
-\end{equation*}
-so $e_t\to e_\star\iff I(t)=\frac{e_\star}{1-t}+o\big((1-t)^{-1}\big)$: \eqref{eq:survival-conv}. The four cases are the behaviours of $(1-t)I(t)$.
+    (c) For $\Delta=c(1-t)^{-a}u$, $|u|=1$, the integrand is trajectory-free:
+    \begin{equation*}
+        e_t =
+        \begin{cases}
+            \dfrac ca\big((1-t)^{1-a}-(1-t)\big)\,u, & a>0, \\[6pt]
+            -c\,(1-t)\log(1-t)\,u, & a=0,
+        \end{cases}
+    \end{equation*}
+    which is \eqref{eq:survival-sharp}. The direction is fixed, so \eqref{eq:survival} is an equality, and with $\epsilon=1-t$,
+    \begin{align*}
+        |e_t| &= \frac ca\big(\epsilon^{1-a}-\epsilon\big) \\
+        &\to 0,\ c,\ \infty \qquad (a<1,\ a=1,\ a>1).
+    \end{align*}
+    Also $v=\vstarz+\Delta$ is locally Lipschitz with $L_\Delta=0$, so Assumption~\ref{as:lipschitz} holds.
+
+    (d) With $I(t)=\int_0^t\frac{\Delta(x^v_s,s)}{1-s}\,ds$,
+    \begin{align*}
+        e_t &= (1-t)\,I(t), \\
+        e_t-e_\star &= (1-t)\Big[I(t)-\frac{e_\star}{1-t}\Big],
+    \end{align*}
+    so $e_t\to e_\star$ iff $I(t)=\frac{e_\star}{1-t}+o\big((1-t)^{-1}\big)$, which is \eqref{eq:survival-conv}. The four cases are the behaviours of $(1-t)I(t)$.
 \end{proof}
 
 \subsection{Proof of Corollary~\ref{cor:lossform}}
@@ -1726,20 +1881,32 @@ $\big(\E|x^v_{1-\delta}-x^i|^2\big)^{1/2}\le e^{L_\Delta}\sqrt{\mathcal L_i(v)\d
 \end{quote}
 
 \begin{proof}[Proof of Corollary~\ref{cor:lossform}]
-$U=\vstarz(X_t,t,y^i)$ a.s.\ (Proposition~\ref{prop:collapse}(a)), so
-\begin{equation*}
-\mathcal L_i(v)=\int_0^1\ell(s)^2ds,\qquad\ell(s)^2=\E_{X_0}|\Delta(x^\star_s,s)|^2 .
-\end{equation*}
-Taking $L^2(X_0)$ norms in \eqref{eq:survival} (Minkowski) and using Assumption~\ref{as:lipschitz},
-\begin{equation*}
-\mathcal E(t)\le(1-t)\int_0^t\frac{\|\Delta(x^v_s,s)\|_{L^2}}{1-s}\,ds,\qquad
-\|\Delta(x^v_s,s)\|_{L^2}\le\ell(s)+L_\Delta\,\mathcal E(s).
-\end{equation*}
-With $F=\frac{\mathcal E}{1-t}$ and $G=\int_0^t\frac{\ell(s)}{1-s}ds$: $F(t)\le G(t)+L_\Delta\int_0^tF$, so by Gr\"onwall ($G$ nondecreasing) $F\le G\,e^{L_\Delta t}$. By Cauchy--Schwarz,
-\begin{equation*}
-G(t)\le\Big(\int_0^t\ell^2\Big)^{1/2}\Big(\int_0^t\frac{ds}{(1-s)^2}\Big)^{1/2}\le\sqrt{\mathcal L_i(v)}\,\sqrt{\tfrac t{1-t}},
-\end{equation*}
-so $\mathcal E(t)=(1-t)F\le e^{L_\Delta t}\sqrt{\mathcal L_i(v)}\sqrt{t(1-t)}$, which is \eqref{eq:lossform} ($t=1-\delta$). Finally $|x^\star_{1-\delta}-x^i|=\delta\,|X_0-x^i|$, and the triangle inequality in $L^2(X_0)$ gives the last display.
+    $U=\vstarz(X_t,t,y^i)$ a.s.\ (Proposition~\ref{prop:collapse}(a)), so
+    \begin{align*}
+        \mathcal L_i(v) &= \int_0^1\ell(s)^2\,ds, \\
+        \ell(s)^2 &= \E_{X_0}|\Delta(x^\star_s,s)|^2 .
+    \end{align*}
+    Taking $L^2(X_0)$ norms in \eqref{eq:survival} (Minkowski) and using Assumption~\ref{as:lipschitz},
+    \begin{align*}
+        \mathcal E(t) &\le (1-t)\int_0^t\frac{\|\Delta(x^v_s,s)\|_{L^2}}{1-s}\,ds, \\
+        \|\Delta(x^v_s,s)\|_{L^2} &\le \ell(s)+L_\Delta\,\mathcal E(s).
+    \end{align*}
+    With $F=\frac{\mathcal E}{1-t}$ and $G=\int_0^t\frac{\ell(s)}{1-s}\,ds$,
+    \begin{align*}
+        F(t) &\le G(t)+L_\Delta\int_0^tF(s)\,ds \\
+        \Longrightarrow\ F(t) &\le G(t)\,e^{L_\Delta t},
+    \end{align*}
+    by Gr\"onwall ($G$ is nondecreasing). By Cauchy--Schwarz,
+    \begin{align*}
+        G(t) &\le \Big(\int_0^t\ell^2\Big)^{1/2}\Big(\int_0^t\frac{ds}{(1-s)^2}\Big)^{1/2} \\
+        &\le \sqrt{\mathcal L_i(v)}\,\sqrt{\tfrac t{1-t}},
+    \end{align*}
+    so
+    \begin{align*}
+        \mathcal E(t) &= (1-t)\,F(t) \\
+        &\le e^{L_\Delta t}\sqrt{\mathcal L_i(v)}\,\sqrt{t(1-t)},
+    \end{align*}
+    which is \eqref{eq:lossform} ($t=1-\delta$). Finally $|x^\star_{1-\delta}-x^i|=\delta\,|X_0-x^i|$, and the triangle inequality in $L^2(X_0)$ gives the last display.
 \end{proof}
 
 \section{Finite-sample memorisation and exact non-representability}
@@ -1765,13 +1932,18 @@ $\Pr[\exists\,t\in(0,1):\ell_i(t)=\ell_j(t)]=0$.
 $\Pr[\exists\,t_i,t_j\in(0,1),\,t_i\ne t_j:\ell_i(t_i)=\ell_j(t_j)]=0$.
 \end{lemma}
 \begin{proof}[Proof of Lemma~\ref{lem:nonintersect}]
-(a) $\ell_i(\hat t)=\ell_j(\hat t)\iff z^j=z^i+\frac{1-\hat t}{\hat t}(x_0^i-x_0^j)$. With $s=\frac{1-t}t\in(0,\infty)$,
-\begin{equation*}
-\{\exists\,t:\ell_i(t)=\ell_j(t)\}=\{z^j\in R\},\qquad R=\{z^i+s\,(x_0^i-x_0^j):s>0\}.
-\end{equation*}
-$R$ is a half-line (a point if $x_0^i=x_0^j$), hence Lebesgue-null for $d\ge2$; $z^j\perp(x_0^i,x_0^j,z^i)$ has an absolutely continuous law, so the probability is $0$. A union bound over pairs finishes (a).
+    (a) We have $\ell_i(\hat t)=\ell_j(\hat t)$ iff $z^j=z^i+\frac{1-\hat t}{\hat t}(x_0^i-x_0^j)$. With $s=\frac{1-t}t\in(0,\infty)$,
+    \begin{align*}
+        \{\exists\,t:\ell_i(t)=\ell_j(t)\} &= \{z^j\in R\}, \\
+        R &= \{z^i+s\,(x_0^i-x_0^j):s>0\}.
+    \end{align*}
+    $R$ is a half-line (a point if $x_0^i=x_0^j$), hence Lebesgue-null for $d\ge2$; $z^j\perp(x_0^i,x_0^j,z^i)$ has an absolutely continuous law, so the probability is $0$. A union bound over pairs finishes (a).
 
-(b) $z^j\in\big\{[(1-t_i)x_0^i+t_iz^i-(1-t_j)x_0^j]/t_j:(t_i,t_j)\in(0,1)^2\big\}$, a countable union of Lipschitz images of bounded planar sets, of Hausdorff dimension $\le2<d$, hence null.
+    (b) Here
+    \begin{equation*}
+        z^j\in\Big\{\big[(1-t_i)x_0^i+t_iz^i-(1-t_j)x_0^j\big]/t_j:\ (t_i,t_j)\in(0,1)^2\Big\},
+    \end{equation*}
+    a countable union of Lipschitz images of bounded planar sets, of Hausdorff dimension $\le2<d$, hence null.
 \end{proof}
 
 \begin{proposition}[A memorising field always exists on a fixed finite unconditional batch]
@@ -1790,11 +1962,16 @@ $\inf_v L_{\mathrm{unc}}(v)>0$ at the population level whenever the $z^i$ are no
 all equal (Proposition~\ref{prop:uncond}).
 \end{proposition}
 \begin{proof}[Proof of Proposition~\ref{prop:memorize}]
-By Lemma~\ref{lem:nonintersect}(a)--(b) and a union bound over $\binom N2$ pairs, a.s.\ the segments $\{\ell_i(t)\}$ are pairwise disjoint, so $(X_t^{(i,j)},t^{(i,j)})$ never coincide across $i$ and $i(x,t)$ is defined on the sample. Set
-\begin{equation*}
-v(x,t)=z^{i(x,t)}-x_0^{i(x,t)}\ \text{on the sample},\qquad v=0\ \text{elsewhere}.
-\end{equation*}
-Then $v(X_t^{(i,j)},t^{(i,j)})=z^i-x_0^i$ for all $(i,j)$, and $L_{\mathrm{MC}}^{\mathrm{unc}}(v)=0$.
+    By Lemma~\ref{lem:nonintersect}(a)--(b) and a union bound over $\binom N2$ pairs, a.s.\ the segments $\{\ell_i(t)\}$ are pairwise disjoint, so $(X_t^{(i,j)},t^{(i,j)})$ never coincide across $i$ and $i(x,t)$ is defined on the sample. Set
+    \begin{align*}
+        v(x,t) &= z^{i(x,t)}-x_0^{i(x,t)} \quad\text{on the sample}, \\
+        v(x,t) &= 0 \quad\text{elsewhere}.
+    \end{align*}
+    Then
+    \begin{align*}
+        v\big(X_t^{(i,j)},t^{(i,j)}\big) &= z^i-x_0^i \quad\forall(i,j), \\
+        L_{\mathrm{MC}}^{\mathrm{unc}}(v) &= 0 .\qedhere
+    \end{align*}
 \end{proof}
 
 \begin{remark}[Why SGD does not land here]
@@ -1826,11 +2003,12 @@ GELU/SiLU, softplus, and every activation used in our experiments). Then
 $\sup_{t\in[0,1)}|f_\theta(t)-g(t)|=\infty$.
 \end{remark}
 \begin{proof}[Proof of Remark~\ref{lem:norepr}]
-$f_\theta$ is a composition of finitely many affine maps and Lipschitz activations, hence $K$-Lipschitz with $K<\infty$. For $t_0\in[0,1)$,
-\begin{equation*}
-|f_\theta(t)|\le|f_\theta(t_0)|+K|t-t_0|\le|f_\theta(t_0)|+K\qquad(t\in[0,1)),
-\end{equation*}
-so $f_\theta$ is bounded on $[0,1)$, while $g(t)=\frac1{1-t}\to\infty$: $\sup_{t\in[0,1)}|f_\theta(t)-g(t)|=\infty$.
+    $f_\theta$ is a composition of finitely many affine maps and Lipschitz activations, hence $K$-Lipschitz with $K<\infty$. For $t_0\in[0,1)$,
+    \begin{align*}
+        |f_\theta(t)| &\le |f_\theta(t_0)|+K\,|t-t_0| \\
+        &\le |f_\theta(t_0)|+K \qquad (t\in[0,1)),
+    \end{align*}
+    so $f_\theta$ is bounded on $[0,1)$, whereas $g(t)=\frac1{1-t}\to\infty$. Hence $\sup_{t\in[0,1)}|f_\theta(t)-g(t)|=\infty$.
 \end{proof}
 
 For $x\ne x^i$ fixed, $t\mapsto v_0^\star(x,t,y^i)=(x^i-x)/(1-t)$ has exactly this
