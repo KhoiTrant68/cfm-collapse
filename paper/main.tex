@@ -30,6 +30,8 @@
 \newtheorem{theorem}{Theorem}
 \newtheorem{lemma}{Lemma}
 \newtheorem{corollary}{Corollary}
+\theoremstyle{definition}
+\newtheorem{assumption}{Assumption}
 \theoremstyle{remark}
 \newtheorem{remark}{Remark}
 
@@ -208,20 +210,19 @@ and the two consequences only it supplies. Table~\ref{tab:related} adds four lin
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.95\textwidth]{fig_flow_portrait.png}
+\includegraphics[width=0.88\textwidth]{fig_flow_portrait.png}
 \caption{The mechanism in trajectory space, on one condition of the real EXP-1 instance
 ($d{=}2$, $N{=}200$): $160$ draws of $x_0$, the paths they follow, where they land.
-(a,~b) the \emph{trained} network at two checkpoints of one run---still a posterior
-sampler at $1000$ iterations, and by $200000$ sending $96\%$ of its paths to the single
-atom the label identifies (Proposition~\ref{prop:collapse}), so this is an optimiser
-collapsing and not only a limit. (c) the population optimum at the $h^\star$ where
-$\tr\Covh=\tr\Sigmapost$ \emph{exactly}: marker area is Theorem~\ref{thm:endpoint}'s
-weight $p_i^{(h)}$, the variance is right and the law is still atomic, with a
-Wasserstein floor no $h$ removes (Proposition~\ref{prop:atomicity}); that panel is this
-paper's title. (d) only moving the support leaves the atoms
-(Proposition~\ref{prop:tgtnoise}). Figures~\ref{fig:traintraj}
-and~\ref{fig:interventions} add the checkpoints between (a) and (b), and the two
-interventions that do not help.}
+(a,~b) one \emph{trained} network at two checkpoints---a posterior sampler at $1000$
+iterations, sending $96\%$ of its paths to the identified atom by $200000$
+(Proposition~\ref{prop:collapse}), so this is an optimiser collapsing and not only a
+limit. (c) the population optimum at the $h^\star$ where $\tr\Covh=\tr\Sigmapost$
+\emph{exactly}: marker area is Theorem~\ref{thm:endpoint}'s weight $p_i^{(h)}$, the
+variance is right and the law is still atomic, with a floor no $h$ removes
+(Proposition~\ref{prop:atomicity}); that panel is this paper's title. (d) only moving
+the support leaves the atoms (Proposition~\ref{prop:tgtnoise}).
+Figures~\ref{fig:traintraj} and~\ref{fig:interventions} add the checkpoints in between,
+and the interventions that do not help.}
 \label{fig:mechanism}
 \end{figure}
 
@@ -245,18 +246,26 @@ predictions.
 
 Fix a training set $\D=\{(x^i,y^i)\}_{i=1}^N$ with $x^i\in\R^d$, $y^i\in\R^k$,
 empirical joint law $\rhohat_{XY}$ and marginal $\rhohat_X=\frac1N\sum_i\delta_{x^i}$.
-The training set is deterministic; randomness comes only from
-$I\sim\mathrm{Unif}\{1,\dots,N\}$, $X_0\sim\pi_0=\N(0,I_d)$ and
-$t\sim\mathrm{Unif}(0,1)$, drawn independently, together with label noise
-$\varepsilon\sim\N(0,I_k)$ when $h>0$. Set $X_1=x^I$ and, for the deterministic linear
-interpolant, $X_t=(1-t)X_0+tX_1$ with $U:=\dot X_t=X_1-X_0$. The smoothed label is
+Draw $I\sim\mathrm{Unif}\{1,\dots,N\}$, $X_0\sim\pi_0=\N(0,I_d)$,
+$t\sim\mathrm{Unif}(0,1)$ and, when $h>0$, $\varepsilon\sim\N(0,I_k)$, independently.
+Set $X_1=x^I$ and $X_t=(1-t)X_0+tX_1$ with $U:=\dot X_t=X_1-X_0$. The smoothed label is
 $\widetilde Y=y^I+h\varepsilon$ with Gaussian kernel
 $K_h(u)=(2\pi h^2)^{-k/2}\exp(-|u|^2/2h^2)$, and the objective is
 \begin{equation}
 L_h(v)=\E\big[\,|U-v(X_t,t,\widetilde Y)|^2\,\big],
 \label{eq:objective}
 \end{equation}
-written $L_0$ when $h=0$ and $\widetilde Y=Y=y^I$. Let $\bar x=\frac1N\sum_i x^i$ and
+written $L_0$ when $h=0$ and $\widetilde Y=Y=y^I$.
+
+\begin{assumption}[Standing]
+\label{as:standing}
+\emph{(i)} $\D$ is fixed: the expectation in \eqref{eq:objective} is over
+$(I,X_0,t,\varepsilon)$ only. \emph{(ii)} The interpolant is the deterministic linear one
+above, unless a noisy one is introduced explicitly. \emph{(iii)} Labels identify:
+$y^i\neq y^j$ for $i\neq j$, so $Y=y^i$ determines $I=i$ at $h=0$.
+\end{assumption}
+
+Let $\bar x=\frac1N\sum_i x^i$ and
 $\Xhat=\frac1N\sum_i(x^i-\bar x)(x^i-\bar x)^\top$. In the linear-Gaussian instance used
 experimentally, $y=Ax+\eta$ with $\eta\sim\N(0,\sigma_{\mathrm{obs}}^2I_k)$, giving a
 Gaussian analytic posterior with covariance $\Sigmapost$.
@@ -265,10 +274,11 @@ Gaussian analytic posterior with covariance $\Sigmapost$.
 \section{Theory}
 \label{sec:theory}
 
-\emph{Scope marker.} This section characterises the exact population minimiser over
-$L^2$-measurable vector fields for the empirical data law, with $\D$ \emph{fixed};
-Propositions~\ref{prop:expansion} and~\ref{prop:nwrate} are the deliberate exception,
-treating $\D$ as an i.i.d.\ sample and asymptotic in $N$. All proofs, and three
+\emph{Scope marker.} Everything here is under Assumption~\ref{as:standing} and
+characterises the exact population minimiser over $L^2$-measurable vector fields for the
+empirical data law, with $\D$ \emph{fixed}; Propositions~\ref{prop:expansion}
+and~\ref{prop:nwrate} are the deliberate exception, relaxing (i) to a random design
+under Assumption~\ref{as:design} and asymptotic in $N$. All proofs, and three
 conventions they rely on, are in Appendix~\ref{app:proofs}. The projection identity
 underlying everything is the standard $L^2$ decomposition behind every flow-matching
 objective \citep{lipman2023flow,albergo2023building,liu2023rectified}.
@@ -291,13 +301,12 @@ $p_1=\lim_{t\uparrow1}p_t$.
 \subsection{Hard conditioning: exact collapse}
 \label{sec:theory-hard}
 
-The base case is a raw, unsmoothed label ($h=0$) identifying its training example
-uniquely: what does the conditional expectation of Proposition~\ref{prop:projection}
-collapse to once the conditioning event pins down a single index?
+What does the conditional expectation of Proposition~\ref{prop:projection} collapse to
+once the conditioning event pins down a single index?
 
 \begin{proposition}[Exact conditional collapse; $h=0$]
 \label{prop:collapse}
-Assume $y^1,\dots,y^N$ are pairwise distinct. Then
+Let $h=0$. Then
 (a) $v_0^\star(x,t,y^i)=(x^i-x)/(1-t)$ for $t<1$;
 (b) $\inf_v L_0(v)=0$;
 (c) the ODE $\dot x_t=(x^i-x_t)/(1-t)$ has the explicit solution
@@ -488,8 +497,8 @@ $s_t^2:=(1-t)^2+\gamma(t)^2=(1-t)[(1-t)+\sigma^2t]$, so $s_0=1$ and $s_1=0$.
 
 \begin{proposition}[Closed form and endpoint invariance in $\sigma$]
 \label{prop:prop17}
-Let $h=0$ with distinct labels and $v_\sigma^\star=\E[\dot X_t\mid X_t,t,Y]$ for
-target \eqref{eq:c2target}. Then for $t<1$:
+Let $h=0$ and $v_\sigma^\star=\E[\dot X_t\mid X_t,t,Y]$ for target
+\eqref{eq:c2target}. Then for $t<1$:
 (a) $v_\sigma^\star(x,t,y^i)=x^i+c(t)(x-tx^i)$ with
 $c(t)=\frac{-(1-t)+\frac{\sigma^2}2(1-2t)}{s_t^2}=\frac12\frac{d}{dt}\log s_t^2$;
 (b) the flow is $x_t=t\,x^i+s_t\,x_0$; and
@@ -684,7 +693,7 @@ Theorem~\ref{thm:endpoint} predicts to be $1$.
 
 \begin{figure}[!t]
 \centering
-\includegraphics[width=0.64\textwidth]{fig_cifar_ddpm_tracking.png}
+\includegraphics[width=0.58\textwidth]{fig_cifar_ddpm_tracking.png}
 \caption{Measured against predicted conditional variance, per condition, on the CIFAR-10
 DDPM run ($48$ conditions, $M{=}256$). Crosses: one evaluation condition each; dashed:
 the identity, Theorem~\ref{thm:endpoint}'s $\beta=1$; solid: the fitted slope, with its
@@ -718,10 +727,9 @@ optimisation has come, not that the theorem fails.
 
 
 \paragraph{Three supporting measurements} are in Appendix~\ref{app:exp4}: atomicity,
-exact for the population minimiser, does not survive training ($1.000$, $0.829$, $0.717$,
-$0.620$ on an atom at $h=0,4,5,6$); $n_{\mathrm{eff}}$ rather than $h$ governs the
-discrepancy; and across three fresh instances the aggregate ratio is stable only where
-the reference has range.
+exact for the population minimiser, does not survive training ($38\%$ of samples are
+off-atom at $h{=}6$); $n_{\mathrm{eff}}$ rather than $h$ governs the discrepancy; and
+the aggregate ratio is stable only where the reference has range.
 
 \FloatBarrier
 
@@ -732,20 +740,18 @@ the reference has range.
 \paragraph{A proved property that the trained model does not inherit.}
 Proposition~\ref{prop:atomicity} is exact for the object the theory describes and only
 approximate for the object practitioners train, with the gap widening in $h$: the
-clearest instance here of the population/finite-network distinction biting, since
-elsewhere the two agree in direction while here they disagree about a statement that is
-either true or false. Collapse is moreover \emph{optimisation-paced}, and that gap we
-bound away from one explanation rather than explain: Corollary~\ref{cor:floor}'s
-Lipschitz floor sits $\sim\!50\times$ below the $h{=}0$ plateau (Appendix~\ref{sec:aux}).
+clearest instance of the population/finite-network distinction biting, since elsewhere
+the two agree in direction while here they disagree about a statement that is either
+true or false. Collapse is moreover \emph{optimisation-paced}, and that gap we bound
+away from one explanation rather than explain (Appendix~\ref{sec:aux}).
 
 \paragraph{Scale, and a remedy of limited reach.} EXP-1/EXP-2 are $d\le10$ synthetic
 problems and EXP-3's MNIST runs use one small U-Net; at $35.75$M parameters on CIFAR-10
 hard-conditioning collapse is unambiguous but the $h>0$ agreement is only partial, so
 Theorem~\ref{thm:endpoint} is confirmed there in direction and not in magnitude. Beyond
-that scale, and for text-conditional models whose label space carries no natural kernel,
+that scale, and for text-conditional label spaces carrying no natural kernel,
 persistence is a claim we do not establish; endpoint smoothing's benefit is likewise
-bounded by the obstruction it removes---small in exactly the regime we study most---and
-degrades with dimension.
+bounded by the obstruction it removes, small in exactly the regime we study most.
 
 % ==========================================================================
 \section{Conclusion}
@@ -753,9 +759,8 @@ degrades with dimension.
 
 Conditional collapse is the zero-bandwidth limit of a kernel-weighted empirical
 conditional flow, and label smoothing makes that flow exact kernel regression over the
-training atoms---which neither it nor interpolant noise ever leaves. Only endpoint
-smoothing does, and only as far as the floor it removes is large
-(Appendix~\ref{app:remedies} places all four).
+training atoms, which neither it nor interpolant noise leaves. Only endpoint smoothing
+does, as far as the floor it removes is large (Appendix~\ref{app:remedies}).
 
 \label{endmain}
 \subsection*{Reproducibility statement}
@@ -1055,21 +1060,30 @@ by averaging this per-index target over the index posterior just computed:
 which is \eqref{eq:kernel-field}.
 \end{proof}
 
+\begin{assumption}[Random design, at a query point $y$]
+\label{as:design}
+The pairs $(x^j,y^j)$ are i.i.d.\ with marginal label density $\rho_Y$; write
+$\mu(y)=\E[X\mid Y=y]$, $\Sigma(y)=\Cov(X\mid Y=y)$, $J(y)=\partial\mu/\partial y$ and
+$m_4(y)=\E[\|X\|^4\mid Y=y]$. Fix $y$ in the interior of $\operatorname{supp}(\rho_Y)$
+and a ball $B(y,r)$ contained in that interior. On $B(y,r)$:
+\begin{enumerate}[label=(\roman*),leftmargin=2em,itemsep=1pt]
+\item $\rho_Y$ is positive and $C^2$;
+\item $\mu$ is $C^3$, with $M_3:=\sup_{B(y,r)}\|\nabla^3\mu\|<\infty$;
+\item $\Sigma(\cdot)$ is \emph{constant} (homoscedasticity);
+\item $m_4$ is bounded.
+\end{enumerate}
+Globally, $\rho_Y$ is bounded and $|\mu(y')|+\|\Sigma(y')\|+m_4(y')\le C(1+|y'|^m)$ for
+some $C,m$.
+\end{assumption}
+
+Item~(iv) is not implied by (i)--(iii): those bound the conditional mean and covariance,
+whereas $\Covh$ is a quadratic functional of $X$ whose \emph{variance} is what the
+stochastic term must control. It is the hypothesis the standard kernel-smoothing rate
+assumes, and Step~4 below is the only place it is used.
+
 \begin{proposition}[Bandwidth expansion of the conditional covariance; random design]
 \label{prop:expansion}
-Let $(x^j,y^j)$ be i.i.d.\ with marginal label density $\rho_Y$, $\Sigma(y)=\Cov(X\mid Y=y)$
-and $J(y)=\partial\mu/\partial y$. Fix a query point $y$ in the interior of
-$\operatorname{supp}(\rho_Y)$ and a ball $B(y,r)$ contained in that interior, on which
-we assume: $\rho_Y$ is positive and $C^2$; $\mu$ is $C^3$ with
-$M_3:=\sup_{B(y,r)}\|\nabla^3\mu\|<\infty$; and $\Sigma(\cdot)$ is \emph{constant}.
-Assume also the global tail conditions that $\rho_Y$ is bounded and that
-$|\mu(y')|+\|\Sigma(y')\|\le C(1+|y'|^m)$ for some $C,m$. The stochastic term carries one
-further hypothesis: the fourth conditional moment $m_4(y'):=\E[\|X\|^4\mid Y=y']$ is
-bounded on $B(y,r)$ and satisfies the same polynomial growth globally. It is not implied
-by the hypotheses above---they bound the conditional mean and covariance, whereas
-$\Covh$ is a quadratic functional of $X$ whose \emph{variance} is what Step~4 must
-control---and it is what the standard kernel-smoothing rate assumes. Then, pointwise at this $y$,
-as $Nh^k\to\infty,h\to0$,
+Under Assumption~\ref{as:design}, pointwise at $y$, as $Nh^k\to\infty$ and $h\to0$,
 \begin{equation}
 \Covh(y)=\Sigma(y)+h^2 J(y)J(y)^\top+O(h^4)+O_P\big((Nh^k)^{-1/2}\big),
 \label{eq:expansion}
