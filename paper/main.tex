@@ -55,10 +55,9 @@ Does Not Restore the Posterior}
 
 \begin{abstract}
 Finite-data conditional flow matching can become nearly deterministic after
-overtraining, but the population mechanism and the effect of label smoothing are
-unclear. We analyse the exact $L^2$ population minimiser of the conditional
-flow-matching objective with a fixed empirical dataset and a deterministic linear
-interpolant. If a label identifies one training example, the minimiser transports every
+overtraining. We derive the exact endpoint law of its population minimiser (fixed
+empirical dataset, deterministic linear interpolant, all square-integrable fields) and
+use it to audit label smoothing. If a label identifies one training example, the minimiser transports every
 source draw to that atom, giving zero conditional variance and zero loss. Adding
 Gaussian noise to the label instead makes the endpoint law an exact
 Nadaraya--Watson mixture over training atoms. Its moments give a parameter-free
@@ -102,11 +101,11 @@ and reading a kernel out of a finite-support flow is not new either
 \citet{smola2026support} read the \emph{spatial} factor
 $\pi_0(\tfrac{x-tx^i}{1-t})$ of the index posterior as a Nadaraya--Watson smoother of
 bandwidth $1-t$---the spatial factor of the same posterior that we factor in
-\eqref{eq:kernel-field}. Our contribution is narrower and endpoint-level: we make the
-\emph{label} factor $K_h(y-y^i)$ explicit, its bandwidth is a modelling choice rather
-than a consequence of the clock, and we derive the conditional endpoint law, moment
-reference, and their audit consequences. Thus we do not claim a new generic kernel
-identity; we identify what the conditional factor changes and what it cannot change.
+\eqref{eq:kernel-field}. Our contribution is endpoint-level: the \emph{label} factor $K_h(y-y^i)$, whose
+bandwidth is a modelling choice rather than a consequence of the clock, survives to
+$t=1$ and fixes the exact conditional endpoint law, its moment reference, an obstruction
+that no $h$ removes, and a separation of label, interpolant, guidance and endpoint
+noise. We do not claim a new generic kernel identity.
 On the other side, Gaussian noise on a conditioning
 signal is standard practice and not something we propose: it is the conditioning
 augmentation of \citet{ho2022cascaded}, which \citet{sadat2024cads} anneal at inference
@@ -537,9 +536,10 @@ $e_t$ for its trajectory's deviation from the exact one,
 Proposition~\ref{prop:survival} is the identity $e_t=(1-t)I(t)$ with
 $I(t):=\int_0^t\Delta(x^v_s,s)(1-s)^{-1}ds$, from which $\lim_{t\uparrow1}e_t=e_\star$
 \emph{iff} $I(t)=e_\star/(1-t)+o((1-t)^{-1})$. The collapsed field is self-enforcing: its
-linear part $-\tfrac1{1-t}I_d$ contracts at a diverging rate, so an error of size
-$c(1-t)^{-a}$ leaves a deviation that vanishes for $a<1$, equals exactly $c$ at $a=1$ and
-is unbounded for $a>1$---a trichotomy realised by explicit fields, not merely permitted.
+linear part $-\tfrac1{1-t}I_d$ contracts at a diverging rate, so the constant
+error $c(1-t)^{-a}u$ leaves a deviation that vanishes for $a<1$, equals $c$ at $a=1$ and is
+unbounded for $a>1$ (the bound is attained, so this is realised); for $a>1$ the bound alone
+constrains nothing.
 A model can retain conditional variance only by carrying an endpoint-scale
 \emph{accumulated} error, which closes a loop the paper had open, since
 Remark~\ref{lem:norepr} observes that no finite network with globally Lipschitz
@@ -3829,9 +3829,10 @@ property that makes it inert.}
 \caption{Proposition~\ref{prop:survival} and Corollary~\ref{cor:lossform}, drawn.
 \textbf{(a)} the deviation $|e_t|$ from the collapsed trajectory for velocity errors
 growing like $c(1-t)^{-a}$. The exact field's linear part is $-\tfrac{1}{1-t}I_d$, a
-contraction whose strength diverges, so an error only reaches the endpoint if it
-diverges at the same rate: $a<1$ is driven to zero, $a=1$ is the separatrix and
-flattens at the error's own coefficient $c$, and $a>1$ grows without bound. The
+contraction whose strength diverges, so a deviation reaches the endpoint only if the
+accumulated error does: $a<1$ is driven to zero, $a=1$ is the separatrix and
+flattens at the error's own coefficient $c$, and $a>1$ grows without bound (for these
+explicit errors, where the bound is an equality; the bound alone constrains nothing). The
 curves are the closed form
 $|e_t|=\tfrac{c}{a}\big((1-t)^{1-a}-(1-t)\big)$---the bound
 \eqref{eq:survival} attained with equality---and the open markers are the ODE
