@@ -48,6 +48,16 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+import sys as _sys
+from pathlib import Path as _Path
+
+_sys.path.insert(0, str(_Path(__file__).resolve().parents[1]))
+from scripts.figstyle import use_paper_style  # noqa: E402
+
+use_paper_style()
+# these legends sit over data and were laid out with a frame
+plt.rcParams.update({"legend.frameon": True, "legend.framealpha": 0.92})
+
 FIGS = Path("paper/figures")
 OI = {"black": "#000000", "orange": "#E69F00", "sky": "#56B4E9", "green": "#009E73",
       "blue": "#0072B2", "vermillion": "#D55E00", "purple": "#CC79A7"}

@@ -63,30 +63,6 @@ def fig_optimality_gap():
     print("wrote fig_optgap.png")
 
 
-def fig_posterior_distance():
-    df = pd.read_csv(ROOT / "posterior_distance_exp1.csv").sort_values("h")
-    x = np.arange(len(df)); labels = [f"{h:g}" for h in df["h"]]
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 4.2))
-    ax1.errorbar(x, df["mmd_to_post"], yerr=df["mmd_std"], marker="o",
-                 color=OI["blue"], capsize=3, label="MMD to true posterior")
-    ax1.axhline(0, color=OI["vermillion"], ls="--", lw=1.5,
-                label="continuous-posterior target (0)")
-    ax1.set_xticks(x); ax1.set_xticklabels(labels)
-    ax1.set_xlabel("label-noise bandwidth $h$"); ax1.set_ylabel("MMD to posterior")
-    ax1.set_title("(a) MMD falls with $h$ but never reaches 0")
-    ax1.legend(fontsize=9); style(ax1)
-
-    ax2.plot(x, df["sinkhorn_to_post"], marker="s", color=OI["green"],
-             label="Sinkhorn to posterior")
-    ax2.axhline(df["sinkhorn_to_post"].min(), color="#888888", ls=":", lw=1.2)
-    ax2.set_xticks(x); ax2.set_xticklabels(labels)
-    ax2.set_xlabel("label-noise bandwidth $h$"); ax2.set_ylabel("Sinkhorn distance")
-    ax2.set_title("(b) Sinkhorn plateaus above 0 (atomicity floor)")
-    ax2.legend(fontsize=9); style(ax2)
-    fig.tight_layout(); fig.savefig(OUT / "fig_posterior_distance.png"); plt.close(fig)
-    print("wrote fig_posterior_distance.png")
-
-
 def fig_lipschitz():
     df = pd.read_csv(ROOT / "lipschitz.csv").sort_values("t")
     x = np.arange(len(df)); labels = [f"{t:g}" for t in df["t"]]
@@ -289,7 +265,6 @@ def fig_gap_diagnostic_h01():
 
 if __name__ == "__main__":
     fig_optimality_gap()
-    fig_posterior_distance()
     fig_lipschitz()
     fig_p7_summary()
     fig_exp2_curves()

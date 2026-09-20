@@ -46,6 +46,17 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+import sys as _sys
+from pathlib import Path as _Path
+
+_sys.path.insert(0, str(_Path(__file__).resolve().parents[1]))
+from scripts.figstyle import use_paper_style  # noqa: E402
+
+use_paper_style()
+# this figure's annotations were laid out at the default sizes
+plt.rcParams.update({"font.size": 10, "axes.titlesize": 10.5, "axes.labelsize": 10, "legend.fontsize": 8.5, "legend.frameon": True, "legend.framealpha": 0.92,
+                     "xtick.labelsize": 9, "ytick.labelsize": 9})
+
 RAW = Path("results/exp1/_theory/raw")
 OUT = Path("paper/figures/fig_posterior_distance.png")
 OI = {"black": "#000000", "orange": "#E69F00", "sky": "#56B4E9", "green": "#009E73",

@@ -114,13 +114,15 @@ smoothing reproduces `Cov_h + rho^2 I`, and that the plotted weights `p_i^(h)`, 
 gives byte-identical PNGs. Run scripts from the repository root as modules
 (`uv run python -m scripts.make_flow_portraits`).
 
-Scripts that still use their own default styling and have not been moved to `figstyle.py`
-(their PNGs are unchanged): `make_theory_figures.py`, `make_mechanism_figure.py`,
-`make_factorisation_figure.py`, `make_p1p4_figure.py`, `make_posterior_distance_figure.py`,
-`make_seed_split_figure.py`, `beta_trajectory.py`, `visualize_collapse_2d.py`,
-`visualize_gmm_2d.py`, the `analyze_*.py` plots, and the MNIST/CIFAR-10 training grids
-(`fig_exp3_grid*`, `fig_exp3_cifar_grid*`). `make_paper_figures.py` was moved (its PNGs are
-re-rendered at 200 dpi instead of 150).
+Scripts on `figstyle.py` (call `use_paper_style()`): `make_paper_figures`, `make_theory_figures`,
+`make_p1p4_figure`, `make_posterior_distance_figure`, `make_seed_split_figure` and the flow / image /
+EXP-2 / expansion scripts above. The last four of these predate the shared style and their
+annotations were laid out on framed legends and default font sizes, so they keep those two
+settings after the call. Still on their own default styling (their PNGs are unchanged): `make_mechanism_figure`,
+`make_factorisation_figure`, `beta_trajectory`, `visualize_collapse_2d`, `visualize_gmm_2d`, the `analyze_*.py` plots, and the MNIST/CIFAR-10 training grids (`fig_exp3_grid*`, `fig_exp3_cifar_grid*`),
+which are written by `src/train_exp3.py`. `fig_posterior_distance.png` is written only by
+`make_posterior_distance_figure.py`; `make_paper_figures.py` used to overwrite it with an older two-panel
+version and no longer does.
 
 ### Checking the body length without pdflatex
 
