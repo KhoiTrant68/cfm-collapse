@@ -2043,100 +2043,141 @@ affine hull---holds unconditionally, by the exact identity $q_t=(1-t)q_0$.
 \end{remark}
 
 \begin{proof}[Proof of Proposition~\ref{prop:survival}]
-Both trajectories start at $x_0$, so $e_0=0$. Since
-$\vstarz(x,t,y^i)=(x^i-x)/(1-t)$ is affine in $x$ with linear part
-$-\tfrac{1}{1-t}I_d$,
+\emph{Step 1: the error obeys a contracting ODE.} Both trajectories start at $x_0$, so
+$e_0=0$. By Proposition~\ref{prop:collapse}(a), $\vstarz(x,t,y^i)=(x^i-x)/(1-t)$ is
+affine in $x$ with linear part $-\tfrac1{1-t}I_d$, so
 \begin{equation}
 \dot e_t=v(x^v_t,t,y^i)-\vstarz(x^\star_t,t,y^i)
 =\Delta(x^v_t,t)+\big[\vstarz(x^v_t,t,y^i)-\vstarz(x^\star_t,t,y^i)\big]
 =\Delta(x^v_t,t)-\frac{e_t}{1-t}.
-\label{eq:survival-ode}
+\label{eq:pf:survival:1}
 \end{equation}
-The bracketed term is a \emph{contraction}, which is what makes the estimate go the
-way it does. Rather than estimate $|e_t|$ directly we solve \eqref{eq:survival-ode}:
-$(1-t)^{-1}$ is an integrating factor, since on $[0,T]$ for any $T<1$ the map
-$t\mapsto e_t/(1-t)$ is absolutely continuous and, a.e.,
-\[
+The bracketed term is a \emph{contraction}, which is what makes the estimate go the way
+it does.
+
+\emph{Step 2: the identity and the bound.} Rather than estimate $|e_t|$ directly we
+solve \eqref{eq:pf:survival:1}. $(1-t)^{-1}$ is an integrating factor: on $[0,T]$ for any
+$T<1$ the map $t\mapsto e_t/(1-t)$ is absolutely continuous and, a.e.,
+\begin{equation}
 \frac{d}{dt}\Big[\frac{e_t}{1-t}\Big]
 =\frac{\dot e_t}{1-t}+\frac{e_t}{(1-t)^2}
 =\frac{\Delta(x^v_t,t)}{1-t}-\frac{e_t}{(1-t)^2}+\frac{e_t}{(1-t)^2}
 =\frac{\Delta(x^v_t,t)}{1-t},
-\]
-the two $e_t$ terms cancelling exactly. Integrating from $0$ to $t$ against $e_0=0$
-and multiplying by $(1-t)$ gives the identity \eqref{eq:survival-id}, and
-\eqref{eq:survival} follows by the triangle inequality for the integral. Note this is
-an equality before norms are taken, which is what parts (c) and (d) use.
+\label{eq:pf:survival:2}
+\end{equation}
+the two $e_t$ terms cancelling exactly by \eqref{eq:pf:survival:1}. Integrating
+\eqref{eq:pf:survival:2} from $0$ to $t$ against $e_0=0$ and multiplying by $(1-t)$ gives
+the identity \eqref{eq:survival-id}, and \eqref{eq:survival} follows by the triangle
+inequality for the integral. This is an equality before norms are taken, which is what
+parts (c) and (d) use.
 
-(a) By Cauchy--Schwarz applied to \eqref{eq:survival},
-\[
+\emph{Step 3: part (a), bounded errors do not survive.} By Cauchy--Schwarz applied to
+\eqref{eq:survival}, and $\int_0^t(1-s)^{-2}ds=\frac1{1-t}-1=\frac t{1-t}$,
+\begin{equation}
 |e_t|\le(1-t)\Big(\int_0^t|\Delta|^2ds\Big)^{1/2}
 \Big(\int_0^t\frac{ds}{(1-s)^2}\Big)^{1/2}
-\le(1-t)\,\varepsilon\,\Big(\frac{1}{1-t}-1\Big)^{1/2}
-=\varepsilon\sqrt{(1-t)\,t},
-\]
-using $\int_0^t(1-s)^{-2}ds=\frac{1}{1-t}-1=\frac{t}{1-t}$. Setting $t=1-\delta$
-gives $|e_{1-\delta}|\le\varepsilon\sqrt{\delta(1-\delta)}\le\varepsilon\sqrt\delta$.
+\le(1-t)\,\varepsilon\,\Big(\frac{t}{1-t}\Big)^{1/2}
+=\varepsilon\sqrt{(1-t)\,t}.
+\label{eq:pf:survival:3}
+\end{equation}
+Setting $t=1-\delta$ in \eqref{eq:pf:survival:3} gives
+$|e_{1-\delta}|\le\varepsilon\sqrt{\delta(1-\delta)}\le\varepsilon\sqrt\delta$.
 
-(b) For $a>0$, $\int_0^t(1-s)^{-1-a}ds=\frac{1}{a}\big((1-t)^{-a}-1\big)$, so
-\eqref{eq:survival} gives
-$|e_t|\le\frac{c}{a}\big((1-t)^{1-a}-(1-t)\big)$; at $a=1$ this is
+\emph{Step 4: part (b), what the bound gives.} For $a>0$,
+\begin{equation}
+\int_0^t(1-s)^{-1-a}ds=\frac1a\big((1-t)^{-a}-1\big),
+\label{eq:pf:survival:4}
+\end{equation}
+so \eqref{eq:survival} with $|\Delta|\le c(1-s)^{-a}$ gives
+$|e_t|\le\frac ca\big((1-t)^{1-a}-(1-t)\big)$; at $a=1$ this is
 $c\big(1-(1-t)\big)=c\,t\le c$. As $t\uparrow1$ the right-hand side tends to $0$ when
-$a<1$, to $c$ when $a=1$, and to $+\infty$ when $a>1$; only the first two are
-statements about $e_t$.
+$a<1$, to $c$ when $a=1$, and to $+\infty$ when $a>1$; only the first two are statements
+about $e_t$.
 
-(c) With $\Delta(x,t)=c(1-t)^{-a}u$ the integrand of \eqref{eq:survival-id} does not
-depend on the trajectory, so the identity evaluates directly. For $a>0$,
-\[
+\emph{Step 5: part (c), the bound is attained.} With $\Delta(x,t)=c(1-t)^{-a}u$ the
+integrand of \eqref{eq:survival-id} does not depend on the trajectory, so the identity
+evaluates directly. For $a>0$, by \eqref{eq:pf:survival:4},
+\begin{equation}
 e_t=(1-t)\,c\,u\int_0^t(1-s)^{-1-a}ds
-=(1-t)\,c\,u\,\frac{(1-t)^{-a}-1}{a}
-=\frac{c}{a}\big((1-t)^{1-a}-(1-t)\big)u ,
-\]
+=\frac ca\big((1-t)^{1-a}-(1-t)\big)u ,
+\label{eq:pf:survival:5}
+\end{equation}
 and for $a=0$, $\int_0^t(1-s)^{-1}ds=-\log(1-t)$ gives
 $e_t=-c(1-t)\log(1-t)\,u$. Both are \eqref{eq:survival-sharp}, and taking norms shows
 \eqref{eq:survival} holds with equality since $|u|=1$ and the integrand keeps a fixed
-direction. Writing $\varepsilon=1-t$, $|e_t|=\frac{c}{a}(\varepsilon^{1-a}-\varepsilon)$
-has limit $0$ for $a<1$ (both powers vanish), limit $c$ for $a=1$ (the expression is
-$c(1-\varepsilon)$ exactly), and limit $+\infty$ for $a>1$ (since
-$\varepsilon^{1-a}\to\infty$). The field $v=\vstarz+\Delta$ is locally Lipschitz in
-$x$ on $\{t<1\}$ because $\vstarz$ is and $\Delta$ is constant in $x$; the same
-constancy gives $L_\Delta=0$, so this family also satisfies the hypothesis of
-Corollary~\ref{cor:lossform}.
+direction. Writing $\epsilon=1-t$, $|e_t|=\frac ca(\epsilon^{1-a}-\epsilon)$ has limit $0$
+for $a<1$ (both powers vanish), limit $c$ for $a=1$ (the expression is $c(1-\epsilon)$
+exactly), and limit $+\infty$ for $a>1$ (since $\epsilon^{1-a}\to\infty$). Finally
+$v=\vstarz+\Delta$ is locally Lipschitz in $x$ on $\{t<1\}$ because $\vstarz$ is and
+$\Delta$ is constant in $x$; the same constancy gives $L_\Delta=0$, so this family also
+satisfies Assumption~\ref{as:lipschitz}.
 
-(d) Immediate from \eqref{eq:survival-id}: the two quantities whose limits are
-compared are equal for every $t<1$, so one limit exists and equals $L$ exactly when
-the other does.
+\emph{Step 6: part (d), what a surviving deviation requires.} With
+$I(t)=\int_0^t\Delta(x^v_s,s)(1-s)^{-1}ds$, \eqref{eq:survival-id} reads $e_t=(1-t)I(t)$
+for every $t<1$, hence
+\begin{equation}
+e_t-e_\star=(1-t)\Big[I(t)-\frac{e_\star}{1-t}\Big].
+\label{eq:pf:survival:6}
+\end{equation}
+The left-hand side of \eqref{eq:pf:survival:6} tends to $0$ exactly when the bracket is
+$o\big((1-t)^{-1}\big)$, which is \eqref{eq:survival-conv}. The four cases listed in (d)
+are the four possible behaviours of $(1-t)I(t)=e_t$ itself (tends to $0$, tends to
+$e_\star\ne0$, has norm tending to $\infty$, or stays bounded without converging), so
+they are exhaustive. This proves Proposition~\ref{prop:survival}.
 \end{proof}
 
 \begin{proof}[Proof of Corollary~\ref{cor:lossform}]
-Since $U=\vstarz(X_t,t,y^i)$ almost surely (Proposition~\ref{prop:collapse}(a)),
-the loss is exactly the error's own $L^2$ norm along the interpolant:
-$\mathcal L_i(v)=\int_0^1\ell(s)^2ds$ with
-$\ell(s)^2:=\E_{X_0}|\Delta(x^\star_s,s)|^2$, where $x^\star_s=(1-s)X_0+sx^i$ has the
-law of $X_s$ by construction. Both trajectories are pushforwards of the same $X_0$,
-which is what lets the two expectations be compared at all.
+\emph{Step 1: the loss is the error's own norm.} By Proposition~\ref{prop:collapse}(a),
+$U=\vstarz(X_t,t,y^i)$ almost surely, so $|v(X_t,t,y^i)-U|=|\Delta(X_t,t)|$ and
+\begin{equation}
+\mathcal L_i(v)=\int_0^1\ell(s)^2ds,\qquad
+\ell(s)^2:=\E_{X_0}\big|\Delta(x^\star_s,s)\big|^2,
+\label{eq:pf:lossform:1}
+\end{equation}
+where $x^\star_s=(1-s)X_0+sx^i$ has the law of $X_s$ by construction. Both
+trajectories are pushforwards of the same $X_0$, which is what lets the two
+expectations be compared at all.
 
-Take $L^2(X_0)$ norms in \eqref{eq:survival}. By Minkowski's integral inequality the
-norm passes inside the $ds$ integral, so
-\[
+\emph{Step 2: Minkowski.} Take $L^2(X_0)$ norms in \eqref{eq:survival}. By Minkowski's
+integral inequality the norm passes inside the $ds$ integral, so
+\begin{equation}
 \mathcal E(t)\;\le\;(1-t)\int_0^t\frac{\big\|\Delta(x^v_s,s)\big\|_{L^2}}{1-s}\,ds .
-\]
-By the Lipschitz hypothesis, $|\Delta(x^v_s,s)|\le|\Delta(x^\star_s,s)|
-+L_\Delta|x^v_s-x^\star_s|$ pointwise, hence
-$\|\Delta(x^v_s,s)\|_{L^2}\le\ell(s)+L_\Delta\mathcal E(s)$ by the triangle
-inequality. Writing $F(t):=\mathcal E(t)/(1-t)$ and $G(t):=\int_0^t\ell(s)(1-s)^{-1}ds$,
-\[
-F(t)\;\le\;G(t)+L_\Delta\int_0^t\frac{\mathcal E(s)}{1-s}\,ds\;=\;G(t)+L_\Delta\int_0^tF(s)\,ds .
-\]
-$G$ is nondecreasing, so Gr\"onwall's inequality in integral form gives
-$F(t)\le G(t)e^{L_\Delta t}$. By Cauchy--Schwarz,
-$G(t)\le\big(\int_0^t\ell^2\big)^{1/2}\big(\int_0^t(1-s)^{-2}ds\big)^{1/2}
-\le\sqrt{\mathcal L_i(v)}\,\sqrt{t/(1-t)}$, and multiplying by $(1-t)$ yields
-\eqref{eq:lossform}. Setting $t=1-\delta$ and bounding $1-\delta\le1$ gives the
-truncated form.
+\label{eq:pf:lossform:2}
+\end{equation}
 
-For the last display, $x^\star_{1-\delta}=\delta X_0+(1-\delta)x^i$, so
-$|x^\star_{1-\delta}-x^i|=\delta|X_0-x^i|$, and the triangle inequality in
-$L^2(X_0)$ adds that to $\mathcal E(1-\delta)$.
+\emph{Step 3: closing the inequality with Assumption~\ref{as:lipschitz}.} Pointwise,
+$|\Delta(x^v_s,s)|\le|\Delta(x^\star_s,s)|+L_\Delta|x^v_s-x^\star_s|$, hence by the
+triangle inequality in $L^2(X_0)$,
+\begin{equation}
+\|\Delta(x^v_s,s)\|_{L^2}\le\ell(s)+L_\Delta\,\mathcal E(s).
+\label{eq:pf:lossform:3}
+\end{equation}
+Write $F(t):=\mathcal E(t)/(1-t)$ and $G(t):=\int_0^t\ell(s)(1-s)^{-1}ds$. Inserting
+\eqref{eq:pf:lossform:3} into \eqref{eq:pf:lossform:2},
+\begin{equation}
+F(t)\;\le\;G(t)+L_\Delta\int_0^t\frac{\mathcal E(s)}{1-s}\,ds
+\;=\;G(t)+L_\Delta\int_0^tF(s)\,ds .
+\label{eq:pf:lossform:4}
+\end{equation}
+
+\emph{Step 4: Gr\"onwall.} $G$ is nondecreasing, so Gr\"onwall's inequality in integral
+form applied to \eqref{eq:pf:lossform:4} gives $F(t)\le G(t)\,e^{L_\Delta t}$.
+
+\emph{Step 5: the bound on $G$.} By Cauchy--Schwarz and \eqref{eq:pf:lossform:1},
+\begin{equation}
+G(t)\le\Big(\int_0^t\ell^2\Big)^{1/2}\Big(\int_0^t(1-s)^{-2}ds\Big)^{1/2}
+\le\sqrt{\mathcal L_i(v)}\,\sqrt{t/(1-t)} .
+\label{eq:pf:lossform:5}
+\end{equation}
+Multiplying $F(t)\le G(t)e^{L_\Delta t}$ by $(1-t)$ and using \eqref{eq:pf:lossform:5}
+yields the first bound in \eqref{eq:lossform}; setting $t=1-\delta$ and bounding
+$1-\delta\le1$ gives the truncated form.
+
+\emph{Step 6: the second moment about the atom.} Since
+$x^\star_{1-\delta}=\delta X_0+(1-\delta)x^i$, we have
+$|x^\star_{1-\delta}-x^i|=\delta|X_0-x^i|$. The triangle inequality in $L^2(X_0)$ adds
+this to $\mathcal E(1-\delta)$, which is the last display of the statement. This proves
+Corollary~\ref{cor:lossform}.
 \end{proof}
 
 \section{Finite-sample memorisation and exact non-representability}
@@ -2161,28 +2202,42 @@ $\Pr[\exists\,t\in(0,1):\ell_i(t)=\ell_j(t)]=0$.
 (b) If $d>2$: for any fixed $i\ne j$,
 $\Pr[\exists\,t_i,t_j\in(0,1),\,t_i\ne t_j:\ell_i(t_i)=\ell_j(t_j)]=0$.
 \end{lemma}
-\begin{proof}
-(a) For a \emph{fixed} $\hat t\in(0,1)$, $\ell_i(\hat t)=\ell_j(\hat t)$ solves to
-$z^j=z^i+\tfrac{1-\hat t}{\hat t}(x_0^i-x_0^j)$, which pins $z^j$ to a single
-\emph{point}, not to a subspace; and that point moves with $\hat t$, so a fixed-$\hat t$
-argument does not by itself control the event ``$\exists t$''. Take the union
-directly instead. Conditionally on $(x_0^i,x_0^j,z^i)$,
-\[
-\{\exists\,t\in(0,1):\ell_i(t)=\ell_j(t)\}
-=\Big\{z^j\in R\Big\},\qquad
-R:=\big\{z^i+s\,(x_0^i-x_0^j)\ :\ s\in(0,\infty)\big\},
-\]
-since $s=(1-t)/t$ is a bijection from $(0,1)$ onto $(0,\infty)$. $R$ is a half-line,
-hence contained in a one-dimensional affine subspace of $\R^d$ and Lebesgue-null for
-$d\ge2$ (if $x_0^i=x_0^j$, which happens with probability $0$, $R$ is the single point
-$z^i$, still null). As $\rho_1$ is absolutely continuous and $z^j$ is independent of
-$(x_0^i,x_0^j,z^i)$, the conditional probability is $0$, and integrating preserves it.
-A union bound over the finitely many pairs $(i,j)$ finishes (a). (b) With $t_i\ne t_j$
-both free the same union argument gives
-$z^j\in\{[(1-t_i)x_0^i+t_iz^i-(1-t_j)x_0^j]/t_j:(t_i,t_j)\in(0,1)^2\}$, the image of a
-two-dimensional parameter set under a map that is smooth on compact subsets, hence a
-countable union of Lipschitz images of bounded planar sets; each has Hausdorff dimension
-at most $2$ and so is Lebesgue-null when $d>2$. The rest is identical.
+\begin{proof}[Proof of Lemma~\ref{lem:nonintersect}]
+\emph{Step 1: part (a), why a fixed time is not enough.} For a \emph{fixed}
+$\hat t\in(0,1)$, $\ell_i(\hat t)=\ell_j(\hat t)$ solves to
+\begin{equation}
+z^j=z^i+\tfrac{1-\hat t}{\hat t}\,(x_0^i-x_0^j),
+\label{eq:pf:nonintersect:1}
+\end{equation}
+which pins $z^j$ to a single \emph{point}, not to a subspace; and that point moves with
+$\hat t$, so a fixed-$\hat t$ argument does not by itself control the event
+``$\exists t$''. We therefore take the union over $t$ directly.
+
+\emph{Step 2: part (a), the union is a null half-line.} Conditionally on
+$(x_0^i,x_0^j,z^i)$, and since $s=(1-t)/t$ is a bijection from $(0,1)$ onto
+$(0,\infty)$, \eqref{eq:pf:nonintersect:1} gives
+\begin{equation}
+\{\exists\,t\in(0,1):\ell_i(t)=\ell_j(t)\}=\{z^j\in R\},\qquad
+R:=\big\{z^i+s\,(x_0^i-x_0^j):s\in(0,\infty)\big\}.
+\label{eq:pf:nonintersect:2}
+\end{equation}
+$R$ is a half-line, hence contained in a one-dimensional affine subspace of $\R^d$ and
+Lebesgue-null for $d\ge2$ (if $x_0^i=x_0^j$, which has probability $0$, $R$ is the single
+point $z^i$, still null). As $\rho_1$ is absolutely continuous and $z^j$ is independent of
+$(x_0^i,x_0^j,z^i)$, the conditional probability of \eqref{eq:pf:nonintersect:2} is $0$,
+and integrating preserves it. A union bound over the finitely many pairs $(i,j)$
+finishes (a).
+
+\emph{Step 3: part (b).} With $t_i\ne t_j$ both free, the same union argument places
+$z^j$ in
+\begin{equation}
+\Big\{\big[(1-t_i)x_0^i+t_iz^i-(1-t_j)x_0^j\big]/t_j\ :\ (t_i,t_j)\in(0,1)^2\Big\},
+\label{eq:pf:nonintersect:3}
+\end{equation}
+the image of a two-dimensional parameter set under a map that is smooth on compact
+subsets, hence a countable union of Lipschitz images of bounded planar sets. Each has
+Hausdorff dimension at most $2$ and so is Lebesgue-null when $d>2$; the rest is identical
+to Step~2. This proves Lemma~\ref{lem:nonintersect}.
 \end{proof}
 
 \begin{proposition}[A memorising field always exists on a fixed finite unconditional batch]
@@ -2200,15 +2255,23 @@ $v$ attains $L_{\mathrm{MC}}^{\mathrm{unc}}(v)=0$---even though
 $\inf_v L_{\mathrm{unc}}(v)>0$ at the population level whenever the $z^i$ are not
 all equal (Proposition~\ref{prop:uncond}).
 \end{proposition}
-\begin{proof}
-By Lemma~\ref{lem:nonintersect}(a)--(b), union-bounded over the $\binom N2$ pairs,
-almost surely no two of the $N$ full segments $\{\ell_i(t):t\in(0,1)\}$ intersect at
-all, so in particular the $Nm$ sampled points $(X_t^{(i,j)},t^{(i,j)})$ never
-collide across different $i$. On this full-measure event $(z,t)\mapsto i$ is well
-defined on the sample, so setting
-$v(z,t):=z^{i(z,t)}-x_0^{i(z,t)}$ on the sample and $v:=0$ elsewhere gives
-$v(X_t^{(i,j)},t^{(i,j)})=z^i-x_0^i$ exactly for every sampled $(i,j)$, so every
-summand of $L_{\mathrm{MC}}^{\mathrm{unc}}$ vanishes.
+\begin{proof}[Proof of Proposition~\ref{prop:memorize}]
+\emph{Step 1: no collisions.} By Lemma~\ref{lem:nonintersect}(a)--(b), union-bounded
+over the $\binom N2$ pairs, almost surely no two of the $N$ full segments
+$\{\ell_i(t):t\in(0,1)\}$ intersect at all. In particular the $Nm$ sampled points
+$(X_t^{(i,j)},t^{(i,j)})$ never collide across different $i$.
+
+\emph{Step 2: a lookup table.} On this full-measure event $(x,t)\mapsto i$ is well
+defined on the sample, say $i(x,t)$, so we may set
+\begin{equation}
+v(x,t):=z^{i(x,t)}-x_0^{i(x,t)}\ \text{on the sample},\qquad v:=0\ \text{elsewhere}.
+\label{eq:pf:memorize:1}
+\end{equation}
+
+\emph{Step 3: zero empirical loss.} By \eqref{eq:pf:memorize:1},
+$v(X_t^{(i,j)},t^{(i,j)})=z^i-x_0^i$ exactly for every sampled $(i,j)$, so every summand
+of $L_{\mathrm{MC}}^{\mathrm{unc}}$ vanishes and
+$L_{\mathrm{MC}}^{\mathrm{unc}}(v)=0$. This proves Proposition~\ref{prop:memorize}.
 \end{proof}
 
 \begin{remark}[Why SGD does not land here]
@@ -2239,14 +2302,22 @@ and globally Lipschitz activations (this covers ReLU, leaky-ReLU, tanh, sigmoid,
 GELU/SiLU, softplus, and every activation used in our experiments). Then
 $\sup_{t\in[0,1)}|f_\theta(t)-g(t)|=\infty$.
 \end{remark}
-\begin{proof}
-A finite composition of affine maps (finite weight matrices, hence finite operator
-norm) and globally Lipschitz activations is globally Lipschitz on $\R$, with
-constant equal to the product of the finitely many layer constants. A Lipschitz
-function is bounded on any bounded set: fixing $t_0\in[0,1)$,
-$|f_\theta(t)|\le|f_\theta(t_0)|+K|t-t_0|\le|f_\theta(t_0)|+K$ for all $t\in[0,1)$,
-so $\sup_{t\in[0,1)}|f_\theta(t)|<\infty$. But $g(t)\to\infty$ as $t\uparrow1$, so
-$g$ is unbounded on $[0,1)$, hence so is $f_\theta-g$.
+\begin{proof}[Proof of Remark~\ref{lem:norepr}]
+\emph{Step 1: the network is globally Lipschitz.} A finite composition of affine maps
+(finite weight matrices, hence finite operator norm) and globally Lipschitz activations
+is globally Lipschitz on $\R$, with constant $K$ equal to the product of the finitely
+many layer constants.
+
+\emph{Step 2: it is bounded on $[0,1)$.} Fixing $t_0\in[0,1)$, Step~1 gives
+\begin{equation}
+|f_\theta(t)|\le|f_\theta(t_0)|+K|t-t_0|\le|f_\theta(t_0)|+K\qquad\text{for all }t\in[0,1),
+\label{eq:pf:norepr:1}
+\end{equation}
+so $\sup_{t\in[0,1)}|f_\theta(t)|<\infty$.
+
+\emph{Step 3: conclusion.} But $g(t)=1/(1-t)\to\infty$ as $t\uparrow1$, so $g$ is
+unbounded on $[0,1)$, and by \eqref{eq:pf:norepr:1} so is $f_\theta-g$. Hence
+$\sup_{t\in[0,1)}|f_\theta(t)-g(t)|=\infty$, which is the remark.
 \end{proof}
 
 For $x\ne x^i$ fixed, $t\mapsto v_0^\star(x,t,y^i)=(x^i-x)/(1-t)$ has exactly this
