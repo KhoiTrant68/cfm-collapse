@@ -136,6 +136,11 @@ slack in points. Tectonic's own build falls back to Latin Modern and overstates 
 page, so `check_paper.py` run against a plain Tectonic build fails the page limit and counts
 five "undefined" font-shape warnings that are not reference problems.
 
+Measured against MiKTeX 26.5 (`pdflatex`, `bibtex`, `pdflatex` x2 in `paper/`) on 2026-09-21: the main text ends
+on page 9 with between 10 and 20 pt to spare, about one line. The Times-metric proxy above said 60--80 pt, so it
+overstates the slack by roughly five lines: use it to compare two versions, and keep `--pad` results
+under about 20 pt before trusting them. `check_paper.py --baseline` passes with the real build.
+
 ## Adversarial-pairing ablation (2026-09-01)
 
 New Experiments subsection (`sec:adversarial`, after EXP-1, before the P5/P6 sweeps):
