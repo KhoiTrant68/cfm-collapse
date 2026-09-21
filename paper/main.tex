@@ -161,9 +161,8 @@ lines.}
   therefore report the across-condition slope $\beta$ of $\log\tr\Cov$ on
   $\log\tr\Covh$, for which theory predicts $\beta=1$. On CIFAR-10 at $35.75$M
   parameters the two disagree: aggregate agreement is $1.15$ while $\beta=-0.156$.
-  Neither is a certificate alone, since $\tr\Cov=10\,\tr\Covh$ has slope $1$ and is off
-  by an order of magnitude. Nothing here is specific to flow matching, and the caution
-  applies to our own headline statistic.
+  Neither is a certificate alone: $\tr\Cov=10\,\tr\Covh$ has slope $1$ and is off by an
+  order of magnitude.
 \item \textbf{Two remedies.} Label noise changes the population endpoint; interpolant
   noise does not, at any noise level (Propositions~\ref{prop:prop17}
   and~\ref{prop:factors}). The obstruction in item~3 says what a remedy must do, which
@@ -256,8 +255,9 @@ $\inf_v L_h=\E[\Var(U\mid X_t,t,\widetilde Y)]$. \proofin{apx:pf-projection}
 Lemmas~\ref{lem:cov} and~\ref{lem:wellposed} (appendix) justify the conditional
 expectations and show the flows are well posed with no further assumption: for $t<1$ the
 map $X_0\mapsto X_t$ is an invertible affine change of variables with positive conditional
-density, and every field below is locally Lipschitz on $\R^d\times[0,1)$, so endpoint laws
-are weak limits $p_1=\lim_{t\uparrow1}p_t$.
+density, and every field below is locally Lipschitz on $\R^d\times[0,1)$, so the flows are well
+posed there. Each endpoint law $p_1$ is the weak limit of the marginals at fixed $y$,
+shown to exist case by case (appendix, ``Three conventions'').
 
 \subsection{Hard conditioning: exact collapse}
 \label{sec:theory-hard}
@@ -475,7 +475,7 @@ Part~(b) gives the flow in closed form and (c) follows because $s_1=0$, so no
 integrator and no early stopping enter the argument: the endpoint is fixed by the
 interpolant itself. The reason is structural. Any admissible schedule has $\gamma(1)=0$,
 since otherwise the path never reaches the data, and that is the condition that removes
-the noise at the endpoint. Interpolant noise cannot succeed in principle
+the noise at the endpoint. For every schedule with $\gamma(1)=0$, interpolant noise cannot change the endpoint law
 (Remark~\ref{rem:notsampler} and Figure~\ref{fig:interpolant}, appendix).
 Corollary~\ref{cor:prop18} records what it does change: it raises the irreducible error
 and halves the Lipschitz blow-up rate, and neither touches $p_1$.
@@ -498,9 +498,8 @@ orthogonal to $\mathcal A:=\operatorname{aff}\{x^1,\dots,x^N\}$ obeys $q_t=(1-t)
 The guided endpoint law is therefore supported in $\mathcal A$ for every $w$ and every
 initial law, so when $N\le d$ that support is Lebesgue-null and no guidance weight makes
 the conditional law absolutely continuous. That is a statement about dimension and is
-empty when $N>d$. Integrating the exact guided field shows more: endpoints land on the
-atoms themselves, and larger $w$ changes which atom is reached
-(Proposition~\ref{prop:cfgatom}).
+empty when $N>d$. If the guided trajectory converges and the nearest atom is unique, the endpoint is that
+atom, and larger $w$ changes which atom is reached (Proposition~\ref{prop:cfgatom}).
 
 The four interventions thus fall into an order: inert (interpolant noise, at every noise
 level), atom-preserving (guidance), reweighting (label smoothing, so the atomicity ceiling
@@ -518,18 +517,19 @@ $e_t=(1-t)I(t)$ with $I(t):=\int_0^t\Delta(x^v_s,s)(1-s)^{-1}ds$, so
 $\lim_{t\uparrow1}e_t=e_\star$ iff $I(t)=e_\star/(1-t)+o((1-t)^{-1})$. The linear part
 $-\tfrac1{1-t}I_d$ of the collapsed field contracts at a diverging rate, so the constant
 error $c(1-t)^{-a}u$ leaves a deviation that vanishes for $a<1$, equals $c$ at $a=1$ and is
-unbounded for $a>1$ (the bound is attained, so this is realised); for $a>1$ the bound alone
-constrains nothing.
-A model can therefore retain conditional variance only through an endpoint-scale
-accumulated error. This connects to Remark~\ref{lem:norepr}, which observes that no finite
+unbounded for $a>1$ (the bound is attained, so this is realised, with infinite loss for $a\ge\frac12$); for
+$a>1$ the bound alone constrains nothing.
+A trajectory can therefore retain a deviation only through an endpoint-scale accumulated
+error. This connects to Remark~\ref{lem:norepr}, which observes that no finite
 network with globally Lipschitz activations represents $1/(1-t)$ pointwise. The converse
 constrains $I$ and not $\Delta$ pointwise, and we claim no pointwise version. A Lipschitz
-hypothesis on the error, not on the field, converts the estimate into the training loss:
+hypothesis on the error converts the estimate into the training loss:
 Corollary~\ref{cor:lossform} bounds the root-mean-square deviation at truncation
-$1-\delta$ by $e^{L_\Delta}\sqrt{\mathcal L_i(v)\,\delta}$. The retained deviation is
-bounded by the loss the optimiser has not yet removed, and stopping early is the only
-other lever. On EXP-1's checkpoints the slope is $0.485$ at $R^2=0.998$, against the
-predicted $\tfrac12$
+$1-\delta$ by $e^{L_\Delta}\sqrt{\mathcal L_i(v)\,\delta}$. The hypothesis is demanding:
+$\nabla_xv^\star=-I_d/(1-t)$, so a model with $\operatorname{Lip}_xv\le K$ has
+$L_\Delta\ge\delta^{-1}-K$, and the bound is informative only for fields that reproduce
+the linear part of $(\star)$. On EXP-1's checkpoints the empirical slope is $0.485$ at
+$R^2=0.998$, against $\tfrac12$
 (Appendix~\ref{app:survival}, where the constant is loose by $25\times$ and unused).
 
 \subsection{Finite capacity, finite samples, and scope}
@@ -547,7 +547,7 @@ $N$ at fixed architecture (the population optimum collapses for every finite $N$
 non-collapsing $N{=}5000$ run probes representation and optimisation), how it depends on
 $\sigma_{\mathrm{obs}}$ (the theory implies no monotonicity), whether $\tr\Covh$ is
 monotone in $h$, or what the finite-sample error bars are. Results in that second list
-are marked empirical and are not called predictions that matched or failed. The theory
+are marked empirical. The theory
 predicts the destination, not the speed. The phenomenon practitioners report is temporal
 and their question is when to stop, so a characterisation of the collapse time in $N$, $d$
 and capacity is the main thing missing here.
@@ -848,7 +848,7 @@ limit.
     \begin{equation*}
         \partial_s\psi+v\cdot\nabla\psi=0,\qquad\psi(\cdot,T)=\varphi .
     \end{equation*}
-    Then
+    The weak form extends to such time-dependent test functions by mollification in $s$, since $v$ is bounded on compacts \citep[Ch.~8]{ambrosio2008gradient}. Then
     \begin{align*}
         \frac{d}{ds}\int\psi(\cdot,s)\,d\mu_s &= \int\big(\partial_s\psi+v\cdot\nabla\psi\big)\,d\mu_s \\
         &= 0,
@@ -1064,7 +1064,7 @@ w_i^{(h)}=\frac{\pi_0\!\big(\tfrac{x-tx^i}{1-t}\big)K_h(y-y^i)}
 
 \begin{proof}[Proof of Proposition~\ref{prop:kernel-field}]
     It suffices to compute the posterior of the index $I$ given $(X_t,\widetilde Y)$.
-    Given $I=i$, $X_t=(1-t)X_0+tx^i$ and $\widetilde Y=y^i+h\eps$ with $X_0\perp\eps$. By Bayes and Lemma~\ref{lem:cov},
+    Given $I=i$, $X_t=(1-t)X_0+tx^i$ and $\widetilde Y=y^i+h\eps$ with $X_0\perp\eps$, so $X_t$ and $\widetilde Y$ are conditionally independent and their joint density factorises. By Bayes and Lemma~\ref{lem:cov},
     \begin{align*}
         \Pr(I=i\mid X_t=x,t,\widetilde Y=y) &= \frac{\src{i}\KK{i}}{\sum_j\src{j}\KK{j}} \\
         &= \wih{i},
@@ -1088,7 +1088,7 @@ p_h^{\mathrm{gen}}(\cdot\mid y)=\sum_{i=1}^N p_i^{(h)}(y)\,\delta_{x^i}.
 \end{quote}
 
 \begin{proof}[Proof of Theorem~\ref{thm:endpoint}]
-    The marginals of the coupling below solve the continuity equation of the flow, so they equal the flow's marginals, and they converge to $\law(x^I)$.
+    The marginals of the coupling below solve the continuity equation of the flow, so they equal the flow's marginals, and they converge to $\law(x^I)$. Here $p_h^{\mathrm{gen}}(\cdot\mid y):=\lim_{t\uparrow1}(\Phi_t)_\#\pi_0$ for the flow $\Phi$ of $\vstar(\cdot,\cdot,y)$.
     By Lemma~\ref{lem:mixture-coupling}, $\vstar(x,t,y)=\E[X_1-X_0\mid X_t=x,t]$ for the coupling $I\sim p^{(h)}(y)$, $X_1=x^I$. The weights $\wih{i}$ are smooth, positive and sum to one, so by Lemma~\ref{lem:wellposed} the flow $(\Phi_t)_{t<1}$ exists and
     \begin{equation}
         \partial_tp_t+\nabla\!\cdot\big(p_t\vstar\big)=0,\qquad p_0=\pi_0,
@@ -1800,7 +1800,9 @@ Consequently:
   \end{equation*}
   so \eqref{eq:survival} holds with equality for every $t<1$. Therefore
   $\lim_{t\uparrow1}|e_t|$ is $0$ for $a<1$, is exactly $c$ for $a=1$, and is $+\infty$
-  for $a>1$: the trichotomy is realised and not merely permitted;
+  for $a>1$: the trichotomy is realised and not merely permitted. These fields have
+  $\mathcal L_i=\infty$ for $a\ge\frac12$, so the trichotomy concerns pathwise errors and
+  not models with finite loss;
 \item \emph{(what a surviving deviation requires)} write
   $I(t):=\int_0^t\Delta(x^v_s,s)(1-s)^{-1}ds$ for the accumulated weighted error, so
   that \eqref{eq:survival-id} reads $e_t=(1-t)I(t)$. Then for any $\Delta$ and any
@@ -1815,8 +1817,8 @@ Consequently:
   $|I(t)|=o((1-t)^{-1})$ then $e_t\to0$; if $(1-t)I(t)$ converges to some
   $e_\star\ne0$---equivalently, if $I$ sits at that scale \emph{with a limiting
   direction}---then $e_t\to e_\star$; if $(1-t)|I(t)|\to\infty$ then $|e_t|\to\infty$
-  and there is no endpoint; and if $(1-t)I(t)$ stays bounded without converging, $e_t$
-  has no limit either. In particular a nonzero endpoint deviation \emph{requires} the
+  and there is no endpoint; and if $e_t=(1-t)I(t)$ has no limit in $\R^d\cup\{\infty\}$,
+  bounded or not, there is no endpoint either. In particular a nonzero endpoint deviation \emph{requires} the
   accumulated weighted error to attain exactly the $(1-t)^{-1}$ scale, and to do so in a
   direction that does not cancel: growing more slowly than that scale is annihilated
   by the factor $(1-t)$, whatever the pointwise behaviour of $\Delta$ that produced it.
@@ -1904,6 +1906,7 @@ $\big(\E|x^v_{1-\delta}-x^i|^2\big)^{1/2}\le e^{L_\Delta}\sqrt{\mathcal L_i(v)\d
         \mathcal L_i(v) &= \int_0^1\ell(s)^2\,ds, \\
         \ell(s)^2 &= \E_{X_0}|\Delta(x^\star_s,s)|^2 .
     \end{align*}
+    Assume that $x^v$ exists on $[0,T]$ for $\pi_0$-a.e.\ $X_0$, with $T\ge1-\delta$. A pathwise Gr\"onwall gives $|e_t|\le e^{L_\Delta t}\int_0^t|\Delta(x^\star_s,s)|\,ds$, which is in $L^2(X_0)$ because $\ell\in L^2(0,1)$, so $\mathcal E(t)<\infty$.
     Taking $L^2(X_0)$ norms in \eqref{eq:survival} (Minkowski) and using Assumption~\ref{as:lipschitz},
     \begin{align*}
         \mathcal E(t) &\le (1-t)\int_0^t\frac{\|\Delta(x^v_s,s)\|_{L^2}}{1-s}\,ds, \\
@@ -1968,7 +1971,7 @@ $\Pr[\exists\,t_i,t_j\in(0,1),\,t_i\ne t_j:\ell_i(t_i)=\ell_j(t_j)]=0$.
 \label{prop:memorize}
 Fix $N$ unconditional pairs $\{(x_0^i,z^i)\}_{i=1}^N$ as in Lemma~\ref{lem:nonintersect}
 with $d>2$ and the $z^i$ pairwise distinct a.s., and sample $m$ time points
-$t^{(i,j)}\in(0,1)$, $j=1,\dots,m$, independently across $(i,j)$. Let
+$t^{(i,j)}\sim\mathrm{Unif}(0,1)$, $j=1,\dots,m$, independently across $(i,j)$. Let
 $X_t^{(i,j)}=(1-t^{(i,j)})x_0^i+t^{(i,j)}z^i$ and
 \[
 L_{\mathrm{MC}}^{\mathrm{unc}}(v)=\frac1{Nm}\sum_{i=1}^N\sum_{j=1}^m
@@ -2327,7 +2330,10 @@ $x$ and $t<1$''. What we exhibit in each case is a distinguished \emph{continuou
 version: the weights in \eqref{eq:kernel-field} are ratios of everywhere-positive
 smooth functions (Lemma~\ref{lem:cov}), so the formula defines a continuous field on
 $\R^d\times[0,1)$, and every pointwise claim is a claim about that version. Any other
-minimiser agrees with it a.e., which is all the flow sees. \emph{(ii) Endpoints.}
+minimiser agrees with it a.e.\ in $(x,t,y)$. A query $y$ is a null slice, so at fixed
+$h>0$ it is the choice of the version continuous in $(x,t,y)$ that fixes the field at
+$y$, and we use it throughout. At $h=0$ and $y=y^i$ the label has positive mass and
+there is no such choice. \emph{(ii) Endpoints.}
 $p_1$ always denotes the weak limit $\lim_{t\uparrow1}p_t$, never a value attained at
 $t=1$; the field is undefined there. We establish that the limit exists wherever we use
 it, each time from almost-sure convergence of the interpolant rather than by appeal to a
@@ -2586,7 +2592,9 @@ Consequently:
   \end{equation}
   so \eqref{eq:survival} holds with equality for every $t<1$. Therefore
   $\lim_{t\uparrow1}|e_t|$ is $0$ for $a<1$, is exactly $c$ for $a=1$, and is $+\infty$
-  for $a>1$: the trichotomy is realised and not merely permitted;
+  for $a>1$: the trichotomy is realised and not merely permitted. These fields have
+  $\mathcal L_i=\infty$ for $a\ge\frac12$, so the trichotomy concerns pathwise errors and
+  not models with finite loss;
 \item \emph{(what a surviving deviation requires)} write
   $I(t):=\int_0^t\Delta(x^v_s,s)(1-s)^{-1}ds$ for the accumulated weighted error, so
   that \eqref{eq:survival-id} reads $e_t=(1-t)I(t)$. Then for any $\Delta$ and any
@@ -2602,8 +2610,8 @@ Consequently:
   $|I(t)|=o((1-t)^{-1})$ then $e_t\to0$; if $(1-t)I(t)$ converges to some
   $e_\star\ne0$---equivalently, if $I$ sits at that scale \emph{with a limiting
   direction}---then $e_t\to e_\star$; if $(1-t)|I(t)|\to\infty$ then $|e_t|\to\infty$
-  and there is no endpoint; and if $(1-t)I(t)$ stays bounded without converging, $e_t$
-  has no limit either. In particular a nonzero endpoint deviation \emph{requires} the
+  and there is no endpoint; and if $e_t=(1-t)I(t)$ has no limit in $\R^d\cup\{\infty\}$,
+  bounded or not, there is no endpoint either. In particular a nonzero endpoint deviation \emph{requires} the
   accumulated weighted error to attain exactly the $(1-t)^{-1}$ scale, and to do so in a
   direction that does not cancel: growing more slowly than that scale is annihilated
   by the factor $(1-t)$, whatever the pointwise behaviour of $\Delta$ that produced it.
@@ -2634,7 +2642,7 @@ quantity shrinking.
 
 The bound as stated is pathwise, integrating along the model's own trajectory, which is
 not a quantity anyone measures. It converts into the training loss with one extra
-hypothesis, weaker than it first looks.
+hypothesis, and it is a strong one (see below).
 
 \begin{assumption}[Lipschitz error]
 \label{as:lipschitz}
@@ -2666,20 +2674,21 @@ $\big(\E|x^v_{1-\delta}-x^i|^2\big)^{1/2}\le e^{L_\Delta}\sqrt{\mathcal L_i(v)\d
 \end{corollary}
 
 Note which Lipschitz constant is assumed: that of the \emph{error} $\Delta$, not of the
-field, whose constant $1/(1-t)$ diverges by construction. The distinction is what keeps
-the hypothesis from excluding the phenomenon---an error $c\,(1-t)^{-1}u$, the kind
-part~(b) identifies as the only kind that survives, is constant in $x$ and has
-$L_\Delta=0$, so a model may diverge from the field at the field's own rate while its
-error stays smooth in space. What \eqref{eq:lossform} then says is that the conditional
-standard deviation retained at truncation $1-\delta$ is at most
-$e^{L_\Delta}\sqrt{\mathcal L_i\delta}$: loss and truncation enter symmetrically, both
-as square roots, so collapse is loss-controlled in a precise sense (the retained
-deviation is bounded by the loss the optimiser has not yet removed) and stopping early
-is the only other lever. Appendix~\ref{app:survival} reports the bound's measured
-tightness over sixteen configurations and tests the $\sqrt{\mathcal L_i}$ scaling on
+field, whose constant $1/(1-t)$ diverges by construction. An error $c\,(1-t)^{-1}u$, the
+kind part~(b) identifies as the only kind that survives, is constant in $x$ and has
+$L_\Delta=0$. The hypothesis is nonetheless strong. It is equivalent to
+$\|\nabla_xv+(1-t)^{-1}I\|\le L_\Delta$, so a model with $\operatorname{Lip}_xv\le K$
+satisfies it on $[0,T]$ only if $L_\Delta\ge(1-T)^{-1}-K$. For a bounded-Lipschitz
+network and $T=1-\delta$ the bound is of order $e^{1/\delta}$ and says nothing, and the
+corollary is a statement about fields that reproduce the linear part of $(\star)$. For
+such fields, \eqref{eq:lossform} says that the conditional standard deviation retained
+at truncation $1-\delta$ is at most $e^{L_\Delta}\sqrt{\mathcal L_i\delta}$: loss and
+truncation enter symmetrically, both as square roots. Appendix~\ref{app:survival} reports the bound's measured
+tightness over sixteen configurations and reports the $\sqrt{\mathcal L_i}$ scaling on
 EXP-1's own checkpoints, where the slope is $0.429$ ($R^2=0.99$) over six checkpoints
-and $0.485$ ($R^2=0.998$) over the last three, against the predicted $\tfrac12$; the
-constant is loose by a factor of $25$ and we do not use it. One limit remains: the bound
+and $0.485$ ($R^2=0.998$) over the last three, against $\tfrac12$. That is an empirical
+scaling and not a test of the bound, whose hypothesis these networks do not meet with a
+moderate constant; the constant is loose by a factor of $25$ and we do not use it. One limit remains: the bound
 constrains how much variance can survive, not what the surviving law looks like.
 
 % ==========================================================================
@@ -3051,7 +3060,8 @@ integrates the two flows and recovers $|e_t|=0.7071$ to five decimals.
 \paragraph{Tightness of Corollary~\ref{cor:lossform}.} We report the bound's tightness
 rather than assert it: over sixteen configurations (spatially constant and linear
 errors, magnitudes growing like $(1-t)^{-a}$ for $a\in\{0,\tfrac12,1\}$, and two
-truncations) it holds everywhere, with the measured deviation between $1.9$ and $27$
+truncations, with $\mathcal L_i$ estimated on a finite sample, since it is infinite for
+$a\ge\frac12$) it holds everywhere, with the measured deviation between $1.9$ and $27$
 times below the bound (\texttt{scripts/verify\_error\_survival.py}). The slack tracks
 $L_\Delta$, as the $e^{L_\Delta}$ factor says it should: it is smallest for errors
 constant in space, where that factor is $1$, and largest for the steepest linear error
@@ -3068,11 +3078,13 @@ three (where collapse is actually running) it is $0.485$ at $R^2=0.998$
 earliest checkpoints are excluded and reported separately: at $10^2$ and
 $3\times10^2$ iterations the model is still leaving its initialisation, holds data-scale
 variance, and is not collapsing at all, so it is not in the regime the corollary
-describes. The prefactor is $e^{L_\Delta}\approx25$ and is near-constant across the
-collapse ($23.9\to26.0$), which is what the bound predicts for an error whose spatial
-Lipschitz constant is not changing much; it holds here with $L_\Delta\ge3.2$, consistent
-with the empirical Lipschitz constants of Figure~\ref{fig:lipschitz}. We put this no
-more strongly than it deserves: the observed scaling is \emph{consistent} with the
+describes. The implied prefactor is $e^{L_\Delta}\approx25$ and is near-constant across the
+collapse ($23.9\to26.0$). We do not identify the implied $L_\Delta\ge3.2$ with a measured
+Lipschitz constant. Since $\nabla_xv^\star=-I_d/(1-t)$, a network with
+$\operatorname{Lip}_xv\le K$ has $L_\Delta\ge(1-T)^{-1}-K$, which at $\delta=10^{-3}$ is
+of order $10^3$, so Assumption~\ref{as:lipschitz} does not hold for these networks with a
+moderate constant and the slope below is an empirical scaling, not a verification of the
+bound. We put it no more strongly than that: the observed scaling is \emph{consistent} with the
 $\tfrac12$ exponent the bound predicts, on one problem and one training trajectory,
 which is not a demonstration that optimisation must follow it. The constant is loose by
 a factor of $25$ and we do not use it at all. This is also where ``optimisation-paced''
@@ -3829,13 +3841,13 @@ to $\infty$ above, and every truncation passes through the same point $(1,c)$.
 $\sqrt{\mathcal L}$ at fixed truncation; the measured slope over the six checkpoints
 from $10^3$ on is $0.429$ at $R^2=0.99$, and $0.485$ over the last three, against the
 predicted $\tfrac12$. The offset is the constant the bound does not pin down,
-$e^{L_\Delta}\approx25$, i.e.\ the inequality holds here with $L_\Delta\ge3.2$. The
-exponent is the corollary's content, and the measured exponent is consistent with the
-predicted $\tfrac12$ scaling; the constant is loose. The
+$e^{L_\Delta}\approx25$; the bound is loose, and the corollary's hypothesis does not
+hold for this network with a moderate $L_\Delta$ (Appendix~\ref{app:survival}), so the
+slope is an empirical scaling consistent with $\tfrac12$ and not a test of the bound. The
 practical reading of all three panels is that a bounded error is annihilated by the
 flow, so a model can keep conditional variance only by failing to reproduce the
 blow-up (the failure Remark~\ref{lem:norepr} says a finite Lipschitz network cannot
-avoid) and the rate at which it stops failing is set by the loss.}
+avoid) and, empirically, the loss tracks how far it has stopped failing.}
 \label{fig:survival}
 \end{figure}
 
