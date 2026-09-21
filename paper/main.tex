@@ -366,7 +366,7 @@ These are the moments of the law in Theorem~\ref{thm:endpoint}, and every experi
 is measured against them. For labels that are close but not equal,
 Proposition~\ref{prop:nearduplicate} shows that a usable bandwidth exists when
 clusters are tight relative to their separation, and that inside that window
-$n_{\mathrm{eff}}$ counts the cluster and not the dataset: near-duplicate labels buy
+$n_{\mathrm{eff}}=1/\sum_i(p_i^{(h)})^2$ counts the cluster and not the dataset: near-duplicate labels buy
 effective sample size, not continuity.
 
 \begin{proposition}[Label smoothing never leaves the training set]
@@ -447,7 +447,7 @@ opposite conclusions.
 \label{sec:theory-noise}
 
 Another place to inject randomness is the interpolant path itself. This never changes the
-population endpoint, at any noise level. Replace the interpolant by $X_t=(1-t)X_0+tX_1+\gamma(t)Z$ with
+population endpoint at $h=0$, at any noise level. Replace the interpolant by $X_t=(1-t)X_0+tX_1+\gamma(t)Z$ with
 $Z\sim\N(0,I_d)$ independent and $\gamma(t)=\sigma\sqrt{t(1-t)}$, so
 $\gamma(0)=\gamma(1)=0$. A single $Z$ defines the whole trajectory, and the pathwise-derivative target is
 \begin{equation}
@@ -461,7 +461,7 @@ $s_t^2:=(1-t)^2+\gamma(t)^2=(1-t)[(1-t)+\sigma^2t]$, so $s_0=1$ and $s_1=0$.
 \begin{proposition}[Closed form and endpoint invariance in $\sigma$]
 \label{prop:prop17}
 Let $h=0$ and $v_\sigma^\star=\E[\dot X_t\mid X_t,t,Y]$ for target
-\eqref{eq:c2target}. Then for $t<1$:
+\eqref{eq:c2target}. Then for $t\in(0,1)$:
 (a) $v_\sigma^\star(x,t,y^i)=x^i+c(t)(x-tx^i)$ with
 $c(t)=\frac{-(1-t)+\frac{\sigma^2}2(1-2t)}{s_t^2}=\frac12\frac{d}{dt}\log s_t^2$;
 (b) the flow is $x_t=t\,x^i+s_t\,x_0$; and
@@ -608,9 +608,8 @@ smoothing removes the obstruction without improving the fit: the best cell of th
 $(h,\rho)$ sweep is $h{=}0.5,\rho{=}0$ in both metrics. It helps only where the atoms are
 sparse enough for the floor to dominate, and the gain grows with the floor at fixed $d$
 but not across $d$ (Table~\ref{tab:floor}): like kernel density estimation, it is
-defeated by dimension. Interpolant noise changes nothing,
-the generated variance being $0.367\pm0.146$ against $0.372\pm0.140$ for the
-mis-specified target, as \eqref{eq:invariance} predicts.
+defeated by dimension. Interpolant noise changes nothing: the generated variance is $0.367\pm0.146$ with
+the corrected target, as \eqref{eq:invariance} predicts (Table~\ref{tab:p7i}).
 
 \label{sec:exp23}%
 \paragraph{Beyond the Gaussian case.} \emph{EXP-2 (Gaussian mixture).} A 4-mode GMM prior with a rank-deflating linear
@@ -1253,6 +1252,7 @@ $1/(1-t)$ blow-up of $(\star)$ disappears.
         \vstar(x,t,y) = \sum_iw_i\Big[x^i+\frac{t\rho^2-(1-t)}{s_t^2}\,(x-tx^i)\Big].
         \label{eq:tgtfield}
     \end{equation}
+    The field \eqref{eq:tgtfield} is smooth on $\R^d\times[0,1]$ with at most linear growth, so the flow is global and the uniqueness argument of Lemma~\ref{lem:wellposed}(c) applies verbatim.
     For the coupling $I\sim p^{(h)}(y)$, $X_0\sim\pi_0$, $\xi\sim\N(0,I_d)$ independent, $X_1=x^I+\rho\xi$, the index posterior is $\propto \pih{i}\varphi_{s_t}(x-tx^i)\propto w_i$ and \eqref{eq:pf:tgtnoise:4} holds, so its conditional velocity is $\vstar$. As in the proof of Theorem~\ref{thm:endpoint}, and since $X_t\to X_1$ a.s.,
     \begin{align*}
         p_1 &= \law(x^I+\rho\xi) \\
@@ -1272,7 +1272,7 @@ $1/(1-t)$ blow-up of $(\star)$ disappears.
 \begin{quote}\small
 \noindent\textbf{Proposition~\ref{prop:prop17}} (Closed form and endpoint invariance in $\sigma$).
 Let $h=0$ and $v_\sigma^\star=\E[\dot X_t\mid X_t,t,Y]$ for target
-\eqref{eq:c2target}. Then for $t<1$:
+\eqref{eq:c2target}. Then for $t\in(0,1)$:
 (a) $v_\sigma^\star(x,t,y^i)=x^i+c(t)(x-tx^i)$ with
 $c(t)=\frac{-(1-t)+\frac{\sigma^2}2(1-2t)}{s_t^2}=\frac12\frac{d}{dt}\log s_t^2$;
 (b) the flow is $x_t=t\,x^i+s_t\,x_0$; and
@@ -1613,7 +1613,7 @@ v_w(x,t)=\frac{m_w(x,t)-x}{1-t},\qquad
 m_w(x,t)=\sum_i\Big[(1+w)w_i^{(h)}(x,t,y)-w\,q_i(x,t)\Big]x^i,
 \label{eq:cfgfield}
 \end{equation}
-whose coefficients sum to $1$ but are in general \emph{not} nonnegative; hence
+where $q_i$ are the unconditional index weights of Proposition~\ref{prop:uncond}. The coefficients sum to $1$ but are in general \emph{not} nonnegative; hence
 $m_w(x,t)\in\mathcal A:=\operatorname{aff}\{x^1,\dots,x^N\}$ for every $(x,t)$. Let
 $\Pi$ be the orthogonal projection onto $\mathcal A$ and $q_t:=x_t-\Pi x_t$. Then along
 any solution of $\dot x_t=v_w(x_t,t)$,
@@ -1621,8 +1621,8 @@ any solution of $\dot x_t=v_w(x_t,t)$,
 q_t=(1-t)\,q_0 ,
 \label{eq:cfgorth}
 \end{equation}
-so $q_t\to0$ and the endpoint law of the guided flow is supported in $\mathcal A$, for
-every $w$ and every initial law. In particular, if $N\le d$ then $\dim\mathcal A\le
+so $q_t\to0$ and every weak limit of the guided flow's marginals is supported in $\mathcal A$,
+for every $w$ and every initial law. In particular, if $N\le d$ then $\dim\mathcal A\le
 N-1<d$, so $\mathcal A$ is Lebesgue-null and \emph{no} guidance weight makes the
 conditional law absolutely continuous.
 \end{proposition}
@@ -1638,7 +1638,7 @@ conditional law absolutely continuous.
         \dot q_t &= -\frac{q_t}{1-t} \\
         \Longrightarrow\ q_t &= (1-t)\,q_0 ,
     \end{align*}
-    so $\dist(x_t,\mathcal A)\to0$ and, $\mathcal A$ being closed, the endpoint law is supported in $\mathcal A$. Well-posedness: $|m_w|\le(1+2w)\max_i|x^i|$, so \eqref{eq:vgrowth} holds with $M\to(1+2w)M$.
+    so $\dist(x_t,\mathcal A)\to0$ and, $\mathcal A$ being closed, the endpoint law is supported in $\mathcal A$. Well-posedness: $|m_w|\le(1+2w)\max_i|x^i|$, so \eqref{eq:vgrowth} holds with $M\to(1+2w)M$. For a fixed $p_0\in\mathcal A$ and $R=(1+2w)M+|p_0|$, integrating $\frac d{dt}\frac{\Pi x_t-p_0}{1-t}=\frac{m_w-p_0}{(1-t)^2}$ gives $|\Pi x_t-p_0|\le(1-t)|\Pi x_0-p_0|+Rt$, so the trajectories are bounded, the marginals are tight, weak limits exist along subsequences, and each is supported in $\mathcal A$.
 \end{proof}
 
 \subsection{Proof of Proposition~\ref{prop:nearduplicate}}
@@ -1755,8 +1755,7 @@ atom to $x^*$ is unique, and write $i^*=\arg\min_j|x^*-x^j|$. Then
 \begin{remark}
 The uniqueness hypothesis excludes only $x^*$ equidistant from two atoms. When it
 fails, the weights concentrate on the set of nearest atoms and the argument yields
-$x^*$ in their convex hull; the conclusion that the limit lies in the training set's
-convex hull, rather than at a vertex, is all that survives. Note also what
+$x^*$ in their affine hull (in their convex hull for $w=0$), which is all that survives. Note also what
 Proposition~\ref{prop:cfgatom} assumes and Proposition~\ref{prop:cfg} does not: that
 the trajectory converges. Proposition~\ref{prop:cfg}'s conclusion (support in the
 affine hull) holds unconditionally, by the exact identity $q_t=(1-t)q_0$.
@@ -2470,13 +2469,14 @@ exact guided field, is stronger: endpoints land on the atoms themselves, to inte
 accuracy, at every $w$ we tried, and increasing $w$ changes \emph{which} atom is
 reached rather than whether an atom is reached
 (\texttt{scripts/verify\_cfg\_affine.py}; the identity \eqref{eq:cfgorth} is
-reproduced to six decimal places for $h\in\{0,0.7\}$ and $w\in\{0,3,12\}$). Proposition~\ref{prop:cfgatom} proves it, assuming only that the trajectory
-converges at all.
+reproduced to six decimal places for $h\in\{0,0.7\}$ and $w\in\{0,3,12\}$). Proposition~\ref{prop:cfgatom} proves it pathwise for every convergent trajectory whose
+limit has a unique nearest atom; that almost every trajectory converges, and avoids the
+non-generic ties, is what the numerics support and we do not prove.
 
 % ---- near-duplicate commentary ----
 This is the regime that occurs in practice (captions or labels that are close but
 not identical) and it makes the bandwidth window explicit. Both conditions can hold
-at once exactly when $\varepsilon\ll h\ll\Delta$, so a usable $h$ exists precisely when
+at once exactly when $\varepsilon\ll h\ll\Delta$, so a usable $h$ exists when
 clusters are tight relative to their separation; inside that window the model behaves as
 though conditioned on the cluster, with $n_{\mathrm{eff}}$ counting the cluster and not
 the dataset. Note what does \emph{not} improve: the endpoint law is still a finite sum
@@ -2968,9 +2968,11 @@ is compatible with a purely atomic law---and needs no help from OT.
 \emph{corrected} target \eqref{eq:c2target} (verified by four closed-form checks) the
 generated variance is unchanged from that obtained with the mis-specified $X_1-X_0$
 target ($0.367\pm0.146$ vs.\ $0.372\pm0.140$ at $\sigma{=}0.1$; Table~\ref{tab:p7i},
-appendix) and stays far below the posterior---exactly as \eqref{eq:invariance}
-predicts, the endpoint law being $\delta_{x^i}$ for every $\sigma$ whether or not the
-target is correct.
+appendix) and stays far below the posterior. Equation~\eqref{eq:invariance} covers the
+corrected target, whose endpoint law is $\delta_{x^i}$ for every $\sigma$. The
+mis-specified target ends at $x^i+\sigma^{2/(1-\sigma^2)}X_0$, a spread of about $0.01$ at
+$\sigma=0.1$, so the two rows agree here because both are dominated by the gap to the
+training data and not because \eqref{eq:invariance} applies to the old target.
 
 The informative regime is $h{=}4$, where the reference moves over $4.57$ decades. There
 $\beta=0.481\pm0.037$ with $R^2=0.785$ across $48$ conditions: the model preserves the
@@ -4099,7 +4101,9 @@ $\|\text{mean}-\mu_{\mathrm{post}}\|$, corrected target (5 seeds) & 0.649 & 0.64
 \bottomrule
 \end{tabular}
 \caption{Interpolant-noise contrast. Correcting the target leaves the result unchanged
-within seed noise---a confirmation of Proposition~\ref{prop:prop17}(c), not a failure.}
+within seed noise. Proposition~\ref{prop:prop17}(c) covers the corrected target; the old
+target ends at $x^i+\sigma^{2/(1-\sigma^2)}X_0$, a spread of $0.01$ at $\sigma=0.1$ and $0.07$
+at $\sigma=0.3$.}
 \label{tab:p7i}
 \end{table}
 
