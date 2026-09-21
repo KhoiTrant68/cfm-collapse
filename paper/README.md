@@ -141,6 +141,22 @@ on page 9 with between 10 and 20 pt to spare, about one line. The Times-metric p
 overstates the slack by roughly five lines: use it to compare two versions, and keep `--pad` results
 under about 20 pt before trusting them. `check_paper.py --baseline` passes with the real build.
 
+## Added 2026-09-22: exact figures, proof audit, and the instance-versus-optimisation kit
+
+- `fig_collapse_time.png` (appendix, `fig:collapsetime`): `scripts/make_collapse_time_figure.py`. Exact,
+  no training. Panel (b) also draws the heuristic `t_c/(1-t_c) = 2 sqrt(log N / d)`, which is labelled
+  unproved in the text. Numbers in `results/collapse_time/collapse_time.json`.
+- `fig_velocity_field.png` (appendix, `fig:velocityfield`): `scripts/make_velocity_field_figure.py`. Exact.
+- `docs/audit/proof_audit.md` records four independent read-throughs of every result, what each found, and
+  which paper edit answered it. The reviewers' numerical check scripts are in `docs/audit/group1..4`.
+  `scripts/verify_paper_numbers.py` passes 116 of 116 checks after those edits.
+- Running the figure scripts on Windows needs the VC runtime for torch; `figstyle.py` imports torch, so an
+  `OSError` there means the runtime is missing, not that the script is wrong.
+- Kaggle kit for the one experiment the paper concedes it lacks (does the CIFAR spread come from the instance
+  or from training?): `configs/exp3_cifar_ddpm_split.yaml` (adds `problem_seed`, default equal to `seed`, so
+  no existing run changes), `scripts/kaggle_split.sh`, `scripts/analyze_variance_split.py`. Rehearse with
+  `SMOKE=1`; the analysis was tested on synthetic files only, no result exists yet.
+
 ## Adversarial-pairing ablation (2026-09-01)
 
 New Experiments subsection (`sec:adversarial`, after EXP-1, before the P5/P6 sweeps):

@@ -1,0 +1,51 @@
+# Instance variance versus optimisation variance, CIFAR-10 inpainting, DDPM U-Net (35.75M).
+#
+# The three-instance runs in the paper redraw the mask, the training subset and the training
+# randomness together, so their spread cannot say which of the two it comes from. This config
+# is the same problem with the two seeds separable:
+#
+#   problem_seed   the training subset and the observation (InpaintingProblem.create)
+#   seed           weight initialisation, minibatch order, noise draws
+#
+# Run a 2 x 2 grid (problem_seed in {0,1}) x (seed in {0,1}) with scripts/kaggle_split.sh.
+# Runs that share problem_seed differ only in optimisation; runs that share seed differ only
+# in the instance. 20000 iterations at batch 128 is a third of the paper's budget: enough to be
+# well into collapse (tr Cov has fallen by a factor of about 100 by then) and cheap enough
+# for one Kaggle session to hold two runs. The comparison is at equal budget, so it does not
+# depend on reaching the paper's 60000.
+run_name: exp3_cifar_ddpm_split
+seed: 0
+problem_seed: 0
+device: auto
+
+data:
+  N: 2000
+  dataset: cifar10
+  mask_kind: bottom_half
+  source_std: 1.0
+  data_root: data
+
+model:
+  arch: ddpm
+  base: 128
+  ch_mult: [1, 2, 2, 2]
+  num_res_blocks: 2
+  attn_resolutions: [16]
+  temb_dim: 512
+  dropout: 0.0
+
+train:
+  max_iters: 20000
+  batch_size: 128
+  lr: 0.0002
+  y_noise_h: 4.0        # the informative bandwidth; 0 is the hard-conditioning control
+  amp: true
+  checkpoints: [500, 2000, 8000, 20000]
+
+eval:
+  n_conditions: 8
+  M: 16
+  n_steps: 50
+  ode_eps: 0.001
+  grid_conditions: 4
+  grid_M: 6

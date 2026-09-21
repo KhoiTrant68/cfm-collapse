@@ -247,7 +247,7 @@ def train(cfg: dict, out_root: str | Path, resume: str | Path | None = None,
     dump_config(cfg, run_dir / "config.yaml")
 
     dc = cfg["data"]
-    problem = InpaintingProblem.create(N=dc["N"], seed=cfg["seed"],
+    problem = InpaintingProblem.create(N=dc["N"], seed=cfg.get("problem_seed", cfg["seed"]),
                                        data_root=dc.get("data_root", "data"),
                                        mask_kind=dc.get("mask_kind", "bottom_half"),
                                        dataset=dc.get("dataset", "mnist"),
