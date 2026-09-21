@@ -550,7 +550,8 @@ non-collapsing $N{=}5000$ run probes representation and optimisation), how it de
 $\sigma_{\mathrm{obs}}$ (the theory implies no monotonicity), how $\tr\Covh$ varies
 with $h$ on a given instance, or what the finite-sample error bars are. Results in that second list
 are marked empirical. The theory
-predicts the destination, not the speed. The phenomenon practitioners report is temporal
+predicts the destination, not the speed (Figure~\ref{fig:collapsetime}, appendix, computes
+when the index posterior commits). The phenomenon practitioners report is temporal
 and their question is when to stop, so a characterisation of the collapse time in $N$, $d$
 and capacity is the main thing missing here.
 
@@ -2267,6 +2268,50 @@ $h$ is a modelling choice. Everything this paper extracts comes from the right-h
 factor, which is what separates it from a reading of the left one
 \citep{smola2026support}.}
 \label{fig:factorisation}
+\end{figure}
+
+\paragraph{When does the flow commit?} Theorem~\ref{thm:endpoint} gives the
+destination and not the speed. Along exact trajectories the effective number of atoms
+$n_{\mathrm{eff}}(t)=1/\sum_iw_i^2$ of the index posterior falls from the size of the
+label window, which $h$ sets, to one. Figure~\ref{fig:collapsetime}(a) shows this on the
+EXP-1 instance: the label factor sets where each curve starts and the spatial factor
+brings every curve to one by $1-t\approx0.03$. Panel~(b) computes, for standard Gaussian
+atoms, the time $t_c$ at which the spatial factor alone has selected one atom (median
+$n_{\mathrm{eff}}\le2$). It falls from $0.86$--$0.97$ at $d=2$ to $0.06$ at $d=3072$, so
+at image dimensions the flow commits within the first tenth of its clock. The dotted
+curve $t_c/(1-t_c)=2\sqrt{\log N/d}$ comes from a Gaussian-fluctuation argument that we do
+not prove; it is a heuristic that tracks the computed values, not a result of this paper.
+This is the flow-matching counterpart of the collapse time of \citet{biroli2024dynamical},
+computed for the exact field.
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.98\textwidth]{fig_collapse_time.png}
+\caption{When the index posterior commits to one atom, from exact trajectories of the
+population flow (no training). (a)~$n_{\mathrm{eff}}$ against $1-t$ on the EXP-1 instance
+($d{=}2$, $N{=}200$) for three bandwidths and the unconditional field; lines are medians
+over $160$ source draws, bands the $10$--$90\%$ range. The label factor sets the start,
+the spatial factor the end. (b)~Collapse time $t_c$ of the spatial factor against
+dimension for Gaussian atoms and three dataset sizes; dotted, a heuristic scaling.}
+\label{fig:collapsetime}
+\end{figure}
+
+\paragraph{The optimal field, drawn.} Figure~\ref{fig:velocityfield} plots
+$\vstar(x,t,y)=\sum_iw_i(x^i-x)/(1-t)$ on the same instance. At $h=0$ every arrow points
+at the one atom the label identifies, at every time. At $h=h^\star$, where
+$\tr\Covh=\tr\Sigmapost$, the field points at many atoms at $t=0.5$ and commits to the
+nearest of them by $t=0.9$, so the smoothed flow is still a partition of the plane into
+basins of attraction of the atoms.
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.98\textwidth]{fig_velocity_field.png}
+\caption{The population velocity field on the EXP-1 instance at $t=0.5$ and $t=0.9$. Arrows
+have unit length and are coloured by the atom of largest weight, with opacity given by
+that weight; black dots are the atoms, with area proportional to the label weight
+$p_i^{(h)}(y)$. (a,b)~$h=0$: one atom attracts everywhere. (c,d)~$h=h^\star\approx0.70$:
+the field commits atom by atom as $t\to1$.}
+\label{fig:velocityfield}
 \end{figure}
 
 % ---- related-work comparison table ----
