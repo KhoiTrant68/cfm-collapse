@@ -93,7 +93,7 @@ square-integrable vector fields, and the endpoint law of its flow.
 
 Two lines of work are close to this. That the empirical minimiser memorises is well
 established
-\citep{pidstrigach2022manifolds,gu2023memorization,kadkhodaie2024generalization,biroli2023diffusion,kamb2024creativity,buchanan2025edge},
+\citep{pidstrigach2022manifolds,gu2023memorization,kadkhodaie2024generalization,biroli2023diffusion,kamb2024creativity,buchanan2025edge,gao2024flow,bertrand2025closed},
 and reading a kernel out of a finite-support flow is not new either
 \citep{scarvelis2025closedform,chen2026scoresmoothing}. \citet{smola2026support} read the
 \emph{spatial} factor $\pi_0(\tfrac{x-tx^i}{1-t})$ of the index posterior as a
@@ -103,7 +103,8 @@ modelling choice and not a consequence of the clock, and it survives to $t=1$, w
 fixes the conditional endpoint law. We do not claim a new generic kernel identity.
 Gaussian noise on a conditioning signal is standard practice: it is the conditioning
 augmentation of \citet{ho2022cascaded}, which \citet{sadat2024cads} anneal at inference
-to restore conditional diversity.
+to restore conditional diversity. \citet{pfrommer2025conditional} find the same smoothness in the conditioning variable as
+an inductive bias of trained models; here it is imposed and its endpoint law is exact.
 
 The endpoint law turns conditioning noise from a heuristic into a Nadaraya--Watson
 mixture over the training atoms (Theorem~\ref{thm:endpoint}). It gives a reference curve
@@ -534,11 +535,9 @@ predicted $\tfrac12$
 \subsection{Finite capacity, finite samples, and scope}
 \label{sec:scope}
 
-Two further results stay in the appendices and are not claimed here: a loss floor
-$d/(3L)$ from a uniform Lipschitz bound, about $50\times$ below the observed plateau
-(Corollary~\ref{cor:floor}), and two representability results for a randomly drawn finite
-unconditional batch (Appendix~\ref{sec:theory-d2}), which the conditional statements do
-not need.
+A loss floor $d/(3L)$ from a uniform Lipschitz bound, about $50\times$ below the observed
+plateau (Corollary~\ref{cor:floor}), and two representability results for an unconditional
+batch (Appendix~\ref{sec:theory-d2}) stay in the appendices and are not claimed here.
 
 The population theory proves consequences for the empirical minimiser
 (Propositions~\ref{prop:collapse}--\ref{prop:tgtnoise},
@@ -1064,6 +1063,7 @@ w_i^{(h)}=\frac{\pi_0\!\big(\tfrac{x-tx^i}{1-t}\big)K_h(y-y^i)}
 \end{quote}
 
 \begin{proof}[Proof of Proposition~\ref{prop:kernel-field}]
+    It suffices to compute the posterior of the index $I$ given $(X_t,\widetilde Y)$.
     Given $I=i$, $X_t=(1-t)X_0+tx^i$ and $\widetilde Y=y^i+h\eps$ with $X_0\perp\eps$. By Bayes and Lemma~\ref{lem:cov},
     \begin{align*}
         \Pr(I=i\mid X_t=x,t,\widetilde Y=y) &= \frac{\src{i}\KK{i}}{\sum_j\src{j}\KK{j}} \\
@@ -1088,6 +1088,7 @@ p_h^{\mathrm{gen}}(\cdot\mid y)=\sum_{i=1}^N p_i^{(h)}(y)\,\delta_{x^i}.
 \end{quote}
 
 \begin{proof}[Proof of Theorem~\ref{thm:endpoint}]
+    The marginals of the coupling below solve the continuity equation of the flow, so they equal the flow's marginals, and they converge to $\law(x^I)$.
     By Lemma~\ref{lem:mixture-coupling}, $\vstar(x,t,y)=\E[X_1-X_0\mid X_t=x,t]$ for the coupling $I\sim p^{(h)}(y)$, $X_1=x^I$. The weights $\wih{i}$ are smooth, positive and sum to one, so by Lemma~\ref{lem:wellposed} the flow $(\Phi_t)_{t<1}$ exists and
     \begin{equation}
         \partial_tp_t+\nabla\!\cdot\big(p_t\vstar\big)=0,\qquad p_0=\pi_0,
@@ -1193,6 +1194,7 @@ and this lower bound does not depend on $h$.
 \end{quote}
 
 \begin{proof}[Proof of Proposition~\ref{prop:atomicity}]
+    Any coupling with an atomic law moves each posterior draw at least to its nearest atom, and that bound involves the atoms alone.
     By Theorem~\ref{thm:endpoint}, $p_h^{\mathrm{gen}}=\sum_i\pih{i}\delta_{x^i}$, so $\supp\,p_h^{\mathrm{gen}}\subseteq\{x^i\}$. For any coupling $(X,X')$ of $p_h^{\mathrm{gen}}$ and $p(\cdot\mid y)$, $X\in\{x^i\}$ a.s., so
     \begin{align*}
         \E|X-X'|^2 &\ge \E\dist(X',\{x^i\})^2 \\
@@ -2277,6 +2279,15 @@ reweighting all of them\\
 \citet{chen2026scoresmoothing} & unconditional & smoothing the empirical score as the
 escape from memorisation & smoothing the \emph{label}, and the exact endpoint law it
 induces\\
+\citet{gao2024flow}; \citet{bertrand2025closed} & unconditional & the closed-form
+optimal velocity is a weighted average of the directions $x^i-x$ and its flow reaches only
+training points; generalisation appears when the network fails to approximate it & the
+\emph{conditional} closed form, and what conditioning noise does to the endpoint law
+rather than to the field\\
+\citet{pfrommer2025conditional} & conditional & trained conditional models are smooth in
+the conditioning variable and deviate from the denoising path (``self-guidance'') &
+the exact population counterpart: noise on the label gives a kernel over the atoms, with
+a moment reference and an atomicity floor\\
 \citet{smola2026support} & conditional & the \emph{spatial} factor
 $\pi_0(\tfrac{x-tx^i}{1-t})$ is a Nadaraya--Watson smoother with bandwidth the flow
 time $1-t$, sharpening to nearest-neighbour as $t\to1$ & the \emph{label} factor
