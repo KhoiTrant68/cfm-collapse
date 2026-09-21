@@ -240,7 +240,7 @@ Everything in this section holds under Assumption~\ref{as:standing} and concerns
 population minimiser over $L^2$-measurable vector fields for the empirical data law, with
 $\D$ fixed. Propositions~\ref{prop:expansion} and~\ref{prop:nwrate} are the exception:
 they relax (i) to a random design under Assumption~\ref{as:design} and let $N\to\infty$.
-All proofs, and three conventions they rely on, are in Appendix~\ref{app:proofs}. The
+All proofs, and three conventions they rely on, are in Appendix~\ref{app:deferred}. The
 projection identity below is the standard $L^2$ decomposition behind flow-matching
 objectives \citep{lipman2023flow,albergo2023building,liu2023rectified}.
 
@@ -268,7 +268,7 @@ Proposition~\ref{prop:projection} collapses:
 \begin{proposition}[Exact conditional collapse; $h=0$]
 \label{prop:collapse}
 Let $h=0$. Then
-(a) $v_0^\star(x,t,y^i)=(x^i-x)/(1-t)$ for $t<1$;
+(a) $v_0^\star(x,t,y^i)=(x^i-x)/(1-t)$ for $t<1$ $(\star)$;
 (b) $\inf_v L_0(v)=0$;
 (c) the ODE $\dot x_t=(x^i-x_t)/(1-t)$ has the explicit solution
 $x_t=(1-t)x_0+tx^i$, so $x_t\to x^i$ for every $x_0$; and
@@ -277,7 +277,7 @@ $\Cov[p_1^{\mathrm{cond}}(\cdot\mid y^i)]=0$. \proofin{apx:pf-collapse}
 \end{proposition}
 If labels are not distinct, collapse is onto the label's empirical conditional
 support $|\mathcal I_y|^{-1}\sum_{i\in\mathcal I_y}\delta_{x^i}$ (Corollary~\ref{cor:repeated},
-appendix), a single atom exactly when the label is an identifier. The unconditional
+appendix), a single atom when the label is an identifier ($|\mathcal I_y|=1$). The unconditional
 minimiser, by contrast, mixes all $N$ atoms and reaches $\rhohat_X$
 (Proposition~\ref{prop:uncond}, appendix).
 
@@ -301,9 +301,9 @@ The often-cited observation $\tr\Cov\approx\tr\Xhat$ for the unconditional basel
 absence. Two empirical findings read the same way. Verbatim replication is common with
 text conditioning, rare without it, and reduced by randomising captions
 \citep{somepalli2023copying}; and uninformative random labels sharply increase
-memorisation \citep{gu2023memorization}. Proposition~\ref{prop:collapse} explains both:
-informativeness is irrelevant, and what matters is that the label identifies the example
-(Appendix~\ref{app:adv} tests this directly).
+memorisation \citep{gu2023memorization}. Proposition~\ref{prop:collapse} accounts for the
+label's part in both: informativeness is irrelevant, and what matters is that the label
+identifies the example (Appendix~\ref{app:adv} tests this directly).
 
 \subsection{Label smoothing is kernel regression}
 \label{sec:theory-kernel}
@@ -364,16 +364,16 @@ $\tr\Covh(y)$ need not be monotone in $h$. \proofin{apx:pf-moments}
 
 These are the moments of the law in Theorem~\ref{thm:endpoint}, and every experiment below
 is measured against them. For labels that are close but not equal,
-Proposition~\ref{prop:nearduplicate} shows that a usable bandwidth exists exactly when
+Proposition~\ref{prop:nearduplicate} shows that a usable bandwidth exists when
 clusters are tight relative to their separation, and that inside that window
 $n_{\mathrm{eff}}$ counts the cluster and not the dataset: near-duplicate labels buy
 effective sample size, not continuity.
 
 \begin{proposition}[Label smoothing never leaves the training set]
 \label{prop:atomicity}
-For every $h\in[0,\infty)$, $\operatorname{supp}(p_h^{\mathrm{gen}}(\cdot\mid y))
-\subseteq\{x^1,\dots,x^N\}$. Consequently, if the true posterior $p(\cdot\mid y)$ is
-absolutely continuous,
+For every $h>0$, and for $h=0$ at $y=y^i$, $\operatorname{supp}(p_h^{\mathrm{gen}}(\cdot\mid y))
+\subseteq\{x^1,\dots,x^N\}$. Consequently, if the true posterior $p(\cdot\mid y)$ puts no
+mass on $\{x^i\}$,
 \begin{equation}
 W_2^2\big(p_h^{\mathrm{gen}}(\cdot\mid y),\,p(\cdot\mid y)\big)\ \ge\
 \int\operatorname{dist}\big(x,\{x^i\}\big)^2\,p(x\mid y)\,dx\ >\ 0,
@@ -386,11 +386,12 @@ least to its nearest atom, and that bound involves the atoms alone, not $h$.
 This is the central caveat on any ``variance is restored at $h\approx0.1$'' claim:
 label smoothing redistributes weight over training atoms and never generates new
 samples, so matching $\tr\Covh$ matches a second moment and not the posterior. A remedy
-needs $h\to0$ and $N\to\infty$ together (Proposition~\ref{prop:nwrate}), not $h$ alone.
-Whether the floor matters depends on its size, governed by the rate factor $N^{-1/d}$:
+needs $h\to0$ and $N\to\infty$ together (Propositions~\ref{prop:expansion}
+and~\ref{prop:nwrate}, for the first two moments), not $h$ alone.
+Whether the floor matters depends on its size, governed by the rate factor $N^{-1/d}$ of $W_2$:
 $0.071$ at our $(d,N)=(2,200)$ default but $0.9975$ at $(3072,2000)$. Zador's theorem
-\citep[Ch.~6]{graf2000quantization} gives that rate for the optimal $N$-point quantiser
-and so bounds the floor from below. Whether i.i.d.\ atoms attain it is measured in
+\citep[Ch.~6]{graf2000quantization} gives that rate, asymptotically in $N$, for the optimal $N$-point quantiser
+and so points to a lower bound on the floor. Whether i.i.d.\ atoms attain it is measured in
 Appendix~\ref{app:deferred}: the obstruction is negligible where it is easy to measure
 and stays large relative to the posterior scale at image dimensions.
 
@@ -405,7 +406,7 @@ the three places to inject noise (label, path, endpoint), only the endpoint does
 \begin{proposition}[Endpoint smoothing]
 \label{prop:tgtnoise}
 Replace the endpoint by $X_1=x^I+\rho\,\xi$ with $\xi\sim\N(0,I_d)$ independent of
-$(I,X_0,\varepsilon)$ and redrawn every step, keeping label bandwidth $h\ge0$. Write
+$(I,X_0,\varepsilon)$ and redrawn every step, keeping label bandwidth $h>0$. Write
 $s_t^2=(1-t)^2+t^2\rho^2$. Then $\vstar$ is again a weighted average of per-atom
 fields, now with spatial weights $\varphi_{s_t}(x-tx^i)$ in place of
 $\pi_0(\tfrac{x-tx^i}{1-t})$ (explicitly, \eqref{eq:tgtfield} in the appendix), and
@@ -430,8 +431,8 @@ where $h$ alone matches at most one.
 
 One place in this paper leaves the fixed-$\D$ setting. It asks what $\Covh$ converges to
 when the training set is an i.i.d.\ sample and $N\to\infty$, the only regime in which
-label smoothing is more than a reweighting. Under a pointwise homoscedastic regularity
-hypothesis, Proposition~\ref{prop:expansion} (appendix) gives
+label smoothing is more than a reweighting. Under local homoscedasticity ($\Sigma$ constant near $y$), $h\to0$ and $Nh^{k+4}\to\infty$,
+Proposition~\ref{prop:expansion} (appendix) gives
 $\Covh(y)=\Sigma(y)+h^2J(y)J(y)^\top+O(h^4)+O_P((Nh^k)^{-1/2})$. The between-group
 inflation $h^2\|J\|_F^2$ produces the over-smoothing branch of the empirical U-curve and
 is a parameter-free prediction in the linear-Gaussian model, where $\mu$ is affine. It
@@ -475,8 +476,9 @@ Part~(b) gives the flow in closed form and (c) follows because $s_1=0$, so no
 integrator and no early stopping enter the argument: the endpoint is fixed by the
 interpolant itself. The reason is structural. Any admissible schedule has $\gamma(1)=0$,
 since otherwise the path never reaches the data, and that is the condition that removes
-the noise at the endpoint. For every schedule with $\gamma(1)=0$, interpolant noise cannot change the endpoint law
-(Remark~\ref{rem:notsampler} and Figure~\ref{fig:interpolant}, appendix).
+the noise at the endpoint. For $\gamma=\sigma\sqrt{t(1-t)}$ interpolant noise cannot change the endpoint law, and
+any schedule with $\gamma(1)=0$ has $X_t\to x^I$ (Remark~\ref{rem:notsampler} and
+Figure~\ref{fig:interpolant}, appendix).
 Corollary~\ref{cor:prop18} records what it does change: it raises the irreducible error
 and halves the Lipschitz blow-up rate, and neither touches $p_1$.
 Proposition~\ref{prop:factors} locates the difference: the two noises multiply different
@@ -495,11 +497,11 @@ $v_w:=(1+w)\vstar(\cdot,\cdot,y)-w\,v_{\mathrm{unc}}^\star$ at weight $w\ge0$,
 Proposition~\ref{prop:cfg} (appendix) shows that $v_w(x,t)=(m_w(x,t)-x)/(1-t)$ with
 $m_w$ an affine combination of the atoms, and that the trajectory's component
 orthogonal to $\mathcal A:=\operatorname{aff}\{x^1,\dots,x^N\}$ obeys $q_t=(1-t)q_0$.
-The guided endpoint law is therefore supported in $\mathcal A$ for every $w$ and every
+Any guided endpoint law is therefore supported in $\mathcal A$, for every $w$ and every
 initial law, so when $N\le d$ that support is Lebesgue-null and no guidance weight makes
 the conditional law absolutely continuous. That is a statement about dimension and is
 empty when $N>d$. If the guided trajectory converges and the nearest atom is unique, the endpoint is that
-atom, and larger $w$ changes which atom is reached (Proposition~\ref{prop:cfgatom}).
+atom (Proposition~\ref{prop:cfgatom}); larger $w$ is observed to change which one.
 
 The four interventions thus fall into an order: inert (interpolant noise, at every noise
 level), atom-preserving (guidance), reweighting (label smoothing, so the atomicity ceiling
@@ -530,7 +532,7 @@ $\nabla_xv^\star=-I_d/(1-t)$, so a model with $\operatorname{Lip}_xv\le K$ has
 $L_\Delta\ge\delta^{-1}-K$, and the bound is informative only for fields that reproduce
 the linear part of $(\star)$. On EXP-1's checkpoints the empirical slope is $0.485$ at
 $R^2=0.998$, against $\tfrac12$
-(Appendix~\ref{app:survival}, where the constant is loose by $25\times$ and unused).
+(Appendix~\ref{app:survival}; the fit implies a prefactor $e^{L_\Delta}\approx25$, which we do not use).
 
 \subsection{Finite capacity, finite samples, and scope}
 \label{sec:scope}
@@ -545,8 +547,8 @@ Corollaries~\ref{cor:zerobw}--\ref{cor:infbw}). It does not determine the number
 steps needed to approach the optimum. Nor does it settle how observed collapse depends on
 $N$ at fixed architecture (the population optimum collapses for every finite $N$, and a
 non-collapsing $N{=}5000$ run probes representation and optimisation), how it depends on
-$\sigma_{\mathrm{obs}}$ (the theory implies no monotonicity), whether $\tr\Covh$ is
-monotone in $h$, or what the finite-sample error bars are. Results in that second list
+$\sigma_{\mathrm{obs}}$ (the theory implies no monotonicity), how $\tr\Covh$ varies
+with $h$ on a given instance, or what the finite-sample error bars are. Results in that second list
 are marked empirical. The theory
 predicts the destination, not the speed. The phenomenon practitioners report is temporal
 and their question is when to stop, so a characterisation of the collapse time in $N$, $d$
@@ -583,7 +585,7 @@ against $0.389\pm0.032$ unconditionally from a common $\approx0.11$ baseline, so
 flows memorise, as Corollary~\ref{cor:distinction} says, and the conditional one more
 strongly. At held-out conditions the variance collapses as at training labels while the
 distance to $\mu_{\mathrm{post}}(y)$ grows from $0.12$ to $0.87$: nearest-atom collapse,
-not generalisation (Corollary~\ref{cor:zerobw}). And permuting $Y$ against $X$ leaves the
+not generalisation (cf.\ Corollary~\ref{cor:zerobw}). And permuting $Y$ against $X$ leaves the
 collapse intact while that distance grows, so the law follows the arbitrary
 label-to-example assignment and not any relation between $x$ and $y$.
 
@@ -917,7 +919,7 @@ $\inf_v L_h=\E[\Var(U\mid X_t,t,\widetilde Y)]$.
 \begin{quote}\small
 \noindent\textbf{Proposition~\ref{prop:collapse}} (Exact conditional collapse; $h=0$).
 Let $h=0$. Then
-(a) $v_0^\star(x,t,y^i)=(x^i-x)/(1-t)$ for $t<1$;
+(a) $v_0^\star(x,t,y^i)=(x^i-x)/(1-t)$ for $t<1$ $(\star)$;
 (b) $\inf_v L_0(v)=0$;
 (c) the ODE $\dot x_t=(x^i-x_t)/(1-t)$ has the explicit solution
 $x_t=(1-t)x_0+tx^i$, so $x_t\to x^i$ for every $x_0$; and
@@ -1183,9 +1185,9 @@ $\tr\Covh(y)$ need not be monotone in $h$.
 
 \begin{quote}\small
 \noindent\textbf{Proposition~\ref{prop:atomicity}} (Label smoothing never leaves the training set).
-For every $h\in[0,\infty)$, $\operatorname{supp}(p_h^{\mathrm{gen}}(\cdot\mid y))
-\subseteq\{x^1,\dots,x^N\}$. Consequently, if the true posterior $p(\cdot\mid y)$ is
-absolutely continuous,
+For every $h>0$, and for $h=0$ at $y=y^i$, $\operatorname{supp}(p_h^{\mathrm{gen}}(\cdot\mid y))
+\subseteq\{x^1,\dots,x^N\}$. Consequently, if the true posterior $p(\cdot\mid y)$ puts no
+mass on $\{x^i\}$,
 \begin{equation*}
 W_2^2\big(p_h^{\mathrm{gen}}(\cdot\mid y),\,p(\cdot\mid y)\big)\ \ge\
 \int\operatorname{dist}\big(x,\{x^i\}\big)^2\,p(x\mid y)\,dx\ >\ 0,
@@ -1209,7 +1211,7 @@ and this lower bound does not depend on $h$.
 \begin{quote}\small
 \noindent\textbf{Proposition~\ref{prop:tgtnoise}} (Endpoint smoothing).
 Replace the endpoint by $X_1=x^I+\rho\,\xi$ with $\xi\sim\N(0,I_d)$ independent of
-$(I,X_0,\varepsilon)$ and redrawn every step, keeping label bandwidth $h\ge0$. Write
+$(I,X_0,\varepsilon)$ and redrawn every step, keeping label bandwidth $h>0$. Write
 $s_t^2=(1-t)^2+t^2\rho^2$. Then $\vstar$ is again a weighted average of per-atom
 fields, now with spatial weights $\varphi_{s_t}(x-tx^i)$ in place of
 $\pi_0(\tfrac{x-tx^i}{1-t})$ (explicitly, \eqref{eq:tgtfield} in the appendix), and
@@ -1319,7 +1321,7 @@ p_1^{\mathrm{cond}}(\cdot\mid y^i)=\delta_{x^i}\quad\text{for every }\sigma\ge0.
 \label{cor:prop18}
 Interpolant noise does not change the population endpoint law
 \eqref{eq:invariance} for any $\sigma$; it \emph{does} raise the irreducible error
-($\inf_v L_\sigma>0$ for $\sigma>0$, whereas $\inf_v L_0=0$) and halves the Lipschitz
+($\inf_v L_\sigma=+\infty$ for $\sigma>0$, whereas $\inf_v L_0=0$) and halves the Lipschitz
 blow-up rate: $\lim_{t\uparrow1}(1-t)|c(t)|=1$ for $\sigma=0$ and $\tfrac12$ for
 $\sigma>0$.
 \end{corollary}
@@ -1330,7 +1332,7 @@ $\sigma>0$.
         \Var(\dot X_t\mid r,I=i) &= |u|^2-\frac{(u\cdot w)^2}{|w|^2} \\
         &= 1+\dot\gamma^2-c(t)^2s_t^2 .
     \end{align*}
-    It vanishes iff $u\parallel w$, i.e.\ $\dot\gamma(1-t)=-\gamma$. With $\gamma=\sigma\sqrt{t(1-t)}$ this reads $1-2t=-2t$, which is impossible; hence $\inf_vL_\sigma>0$. Finally
+    Near $t=0$, $c$ is bounded and $\dot\gamma^2\sim\sigma^2/(4t)$, so $\int_0^1\Var\,dt=+\infty$ and $\inf_vL_\sigma=+\infty$. Then $v_\sigma^\star$ is the conditional mean of the pathwise target, not an $L^2$-minimiser. Finally
     \begin{align*}
         (1-t)\,c(t) &= \frac{-(1-t)+\frac{\sigma^2}2(1-2t)}{(1-t)+\sigma^2t} \\
         &\longrightarrow
@@ -1395,7 +1397,7 @@ assumes, and the fluctuation estimate in the proof of Proposition~\ref{prop:expa
 
 \begin{proposition}[Bandwidth expansion of the conditional covariance; random design]
 \label{prop:expansion}
-Under Assumption~\ref{as:design}, pointwise at $y$, as $Nh^k\to\infty$ and $h\to0$,
+Under Assumption~\ref{as:design}, pointwise at $y$, as $Nh^k\to\infty$ and $h\to0$ (the $h^2$ term is identifiable only if $Nh^{k+4}\to\infty$),
 \begin{equation}
 \Covh(y)=\Sigma(y)+h^2 J(y)J(y)^\top+O(h^4)+O_P\big((Nh^k)^{-1/2}\big),
 \label{eq:expansion}
@@ -1463,10 +1465,10 @@ heteroscedastic counterexample are discussed in Appendix~\ref{app:proofs}.
 
     \emph{Fluctuation.} With $S_N=\frac1N\sum_j\KK{j}$, $T_N=\frac1N\sum_j\KK{j}x^j$ and $\bar x_h=T_N/S_N$,
     \begin{align*}
-        \Var\big(K_h(y-Y)\big) &= \Theta(h^{-k}), \\
-        \Var\big(K_h(y-Y)XX^\top\big) &= \Theta(h^{-k}),
+        \Var\big(K_h(y-Y)\big) &= O(h^{-k}), \\
+        \Var\big(K_h(y-Y)XX^\top\big) &= O(h^{-k}),
     \end{align*}
-    the latter using $m_4$ bounded near $y$ (the only use of (iv)). Hence $S_N,T_N=\E[\cdot]+O_P(\sqrt{h^{-k}/N})$, with $\E[K_h(y-Y)]\to\rho_Y(y)>0$, and by Slutsky
+    the latter using $m_4$ bounded near $y$ (the only use of (iv)). Hence $S_N,T_N=\E[\cdot]+O_P(\sqrt{h^{-k}/N})$, with $\E[K_h(y-Y)]\to\rho_Y(y)>0$, and by the delta method
     \begin{align*}
         \bar x_h &= \E_h[X]+O_P\big((Nh^k)^{-1/2}\big), \\
         \Covh &= \Cov_h^{\mathrm{pop}}+O_P\big((Nh^k)^{-1/2}\big).
@@ -1535,12 +1537,12 @@ what makes its relative influence vanish; without it the result does not apply t
     \end{align*}
     which is \eqref{eq:lgbias}. With $\Delta\mu=0$ and $\nabla\log\rho_Y=-\Sigma_Y^{-1}y$, $b(y)=-2B\Sigma_Y^{-1}y$ (checked in \texttt{scripts/verify\_nw\_bias\_affine.py}).
 
-    Design points: at $y=y^i$ the weight of $j=i$ is
+    Design points, with $\rho_Y(y^i)$ bounded away from $0$: at $y=y^i$ the weight of $j=i$ is
     \begin{align*}
         \frac{K_h(0)}{\sum_jK_h(y^i-y^j)} &= \Theta\big((Nh^k)^{-1}\big) \\
         &\to 0 .
     \end{align*}
-    If $Nh^k\not\to\infty$ it does not vanish (Corollary~\ref{cor:zerobw}: it tends to $1$).
+    If $Nh^k\not\to\infty$ it does not vanish, and it tends to $1$ when $Nh^k\to0$ (Corollary~\ref{cor:zerobw}).
 \end{proof}
 
 \subsection{Proof of Proposition~\ref{prop:liplb}}
@@ -1889,7 +1891,7 @@ Assumption~\ref{as:lipschitz}, let
 \]
 be the flow-matching loss at index $i$, and write
 $\mathcal E(t):=\big(\E_{X_0}|x^v_t-x^\star_t|^2\big)^{1/2}$ for the root-mean-square
-deviation over initial conditions. Then for $t\le T$,
+deviation over initial conditions. Then for $t\le T$, and for $\delta$ with $1-\delta\le T$,
 \begin{equation*}
 \mathcal E(t)\;\le\;e^{L_\Delta t}\,\sqrt{\mathcal L_i(v)}\;\sqrt{t(1-t)},
 \qquad\text{so}\qquad
@@ -2302,8 +2304,8 @@ memorisation at CIFAR and FFHQ scale, empirically & \emph{why}: informativeness 
 irrelevant, identification is everything
 (Proposition~\ref{prop:collapse}), which our shuffled-label experiment tests directly\\
 \citet{somepalli2023copying} & text & replication is common with text conditioning and
-rare without it; randomising captions mitigates & that this asymmetry \emph{is}
-Eq.~\eqref{eq:distinction}, and that caption randomisation is label smoothing in the
+rare without it; randomising captions mitigates & the conditional side of this
+asymmetry, Eq.~\eqref{eq:distinction}, and that caption randomisation is label smoothing in the
 sense of Theorem~\ref{thm:endpoint}\\
 \citet{ho2022cascaded}; \citet{sadat2024cads} & conditional & conditioning noise as
 practice; annealed at inference to restore conditional diversity & that the restored
@@ -2661,7 +2663,7 @@ Assumption~\ref{as:lipschitz}, let
 \]
 be the flow-matching loss at index $i$, and write
 $\mathcal E(t):=\big(\E_{X_0}|x^v_t-x^\star_t|^2\big)^{1/2}$ for the root-mean-square
-deviation over initial conditions. Then for $t\le T$,
+deviation over initial conditions. Then for $t\le T$, and for $\delta$ with $1-\delta\le T$,
 \begin{equation}
 \mathcal E(t)\;\le\;e^{L_\Delta t}\,\sqrt{\mathcal L_i(v)}\;\sqrt{t(1-t)},
 \qquad\text{so}\qquad
@@ -2688,7 +2690,7 @@ tightness over sixteen configurations and reports the $\sqrt{\mathcal L_i}$ scal
 EXP-1's own checkpoints, where the slope is $0.429$ ($R^2=0.99$) over six checkpoints
 and $0.485$ ($R^2=0.998$) over the last three, against $\tfrac12$. That is an empirical
 scaling and not a test of the bound, whose hypothesis these networks do not meet with a
-moderate constant; the constant is loose by a factor of $25$ and we do not use it. One limit remains: the bound
+moderate constant; the fit implies a prefactor of about $25$, which we do not use. One limit remains: the bound
 constrains how much variance can survive, not what the surviving law looks like.
 
 % ==========================================================================
@@ -3086,8 +3088,8 @@ of order $10^3$, so Assumption~\ref{as:lipschitz} does not hold for these networ
 moderate constant and the slope below is an empirical scaling, not a verification of the
 bound. We put it no more strongly than that: the observed scaling is \emph{consistent} with the
 $\tfrac12$ exponent the bound predicts, on one problem and one training trajectory,
-which is not a demonstration that optimisation must follow it. The constant is loose by
-a factor of $25$ and we do not use it at all. This is also where ``optimisation-paced''
+which is not a demonstration that optimisation must follow it. The fitted prefactor
+of $25$ is not used anywhere. This is also where ``optimisation-paced''
 stops being a turn of phrase and becomes a measurement.
 
 
