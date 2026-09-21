@@ -561,9 +561,9 @@ and capacity is the main thing missing here.
 $d{=}2,\,k{=}1,\,N{=}200,\,\sigma_{\mathrm{obs}}{=}0.1$ with a 4-layer width-128 MLP,
 Adam, RK4 integration stopping at $t{=}1{-}10^{-3}$, and $M{=}1000$ samples at 20
 training and 8 held-out conditions; full settings are in Appendix~\ref{app:exp}. We do
-\emph{not} early-stop: overtraining is the object of study. Sweeps use five seeds, and
-the seed controls \emph{both} the problem instance and the training randomness, so every
-error bar (a population standard deviation) mixes the two; Appendix~\ref{sec:seedsplit}
+not early-stop, since overtraining is what we study. Sweeps use five seeds, and the seed
+controls both the problem instance and the training randomness, so every error bar (a
+population standard deviation) mixes the two; Appendix~\ref{sec:seedsplit}
 separates them and finds the instance carries $78\%$.
 
 \subsection{Synthetic instances: the exact-theory quantities}
@@ -574,65 +574,64 @@ report the four exact-theory observables. Past the good-calibration phase the co
 generated variance collapses from $\approx\Sigmapost$ toward $0$ (P1), the velocity field
 approaches $(x^i-x)/(1-t)$ (P2), the generated mean moves from $\mu_{\mathrm{post}}$
 toward $x^i$ (P3), and the unconditional baseline keeps data-scale variance (P4). The
-variance tracks the true posterior up to $\sim\!10^4$ iterations---a correct Bayesian
-sampler, which is exactly why early stopping works \citep{physicscfm2026}---and then
-collapses, stalling near $0.40$ at $2\times10^5$; that residual is an \emph{optimisation}
-gap and not a failure of Proposition~\ref{prop:collapse}, since all four observables keep
-descending with the loss. Three measurements sharpen this (Appendix~\ref{app:exp4}): the
+variance tracks the true posterior up to $\sim\!10^4$ iterations, a correct Bayesian
+sampler, which is why early stopping works \citep{physicscfm2026}. It then collapses,
+stalling near $0.40$ at $2\times10^5$. That residual is an optimisation gap and not a
+failure of Proposition~\ref{prop:collapse}, since all four observables keep descending
+with the loss. Three measurements sharpen this (Appendix~\ref{app:exp4}). The
 memorisation ratio of \citet{yoon2023memorization} reaches $0.650\pm0.033$ conditionally
-against $0.389\pm0.032$ unconditionally from a common $\approx0.11$ baseline, so
-\emph{both} flows memorise as Corollary~\ref{cor:distinction} says and the conditional
-one more strongly; at held-out conditions the variance collapses as at training labels
-while the distance to $\mu_{\mathrm{post}}(y)$ grows from $0.12$ to $0.87$---nearest-atom
-collapse, not generalisation (Corollary~\ref{cor:zerobw}); and permuting $Y$ against $X$
-leaves the collapse intact while that distance \emph{grows}, so the law tracks the
-arbitrary label-to-example assignment rather than any relation between $x$ and $y$.
+against $0.389\pm0.032$ unconditionally from a common $\approx0.11$ baseline, so both
+flows memorise, as Corollary~\ref{cor:distinction} says, and the conditional one more
+strongly. At held-out conditions the variance collapses as at training labels while the
+distance to $\mu_{\mathrm{post}}(y)$ grows from $0.12$ to $0.87$: nearest-atom collapse,
+not generalisation (Corollary~\ref{cor:zerobw}). And permuting $Y$ against $X$ leaves the
+collapse intact while that distance grows, so the law follows the arbitrary
+label-to-example assignment and not any relation between $x$ and $y$.
 
 \label{sec:p7}%
 \paragraph{On synthetic MLPs, label smoothing tracks the kernel reference (P7).} This is our strongest
-empirical confirmation of the theory, and it turns on using the right reference: $\Covh$,
-not $\Sigmapost$. Over 20 conditions ($M{=}1000$, 5 seeds) the generated variance tracks
-$\Covh$ at every bandwidth---ratio-to-kernel $=1.002\pm0.050$, $0.994\pm0.039$ and
-$1.011\pm0.022$ at $h=0.05,0.1,0.5$ (Figure~\ref{fig:p7summary},
-Table~\ref{tab:p7kernel})---agreement with the \emph{endpoint-law reference} in this
-setting, with the field agreeing too. That $h\approx0.1$ ``perfectly
-restores'' the posterior variance is a misreading: $\tr\Cov$ merely crosses $\Sigmapost$
-there because $\Sigmapost\approx\Covh|_{h=0.1}$ for this problem. Three consequences
+empirical confirmation of the theory, and it depends on using the right reference,
+$\Covh$ and not $\Sigmapost$. Over 20 conditions ($M{=}1000$, 5 seeds) the generated
+variance tracks $\Covh$ at every bandwidth: ratio-to-kernel $=1.002\pm0.050$,
+$0.994\pm0.039$ and $1.011\pm0.022$ at $h=0.05,0.1,0.5$ (Figure~\ref{fig:p7summary},
+Table~\ref{tab:p7kernel}), with the field agreeing too. That $h\approx0.1$ ``perfectly
+restores'' the posterior variance is a misreading: $\tr\Cov$ crosses $\Sigmapost$ there
+only because $\Sigmapost\approx\Covh|_{h=0.1}$ for this problem. Three consequences
 follow (Appendices~\ref{sec:aux} and~\ref{app:tgt}). The law stays atomic even at the
 best-matching $h$ ($n_{\mathrm{eff}}\approx26/200$), so matching variance is not
 recovering the posterior. The floor \eqref{eq:w2floor} is small here, $F=0.0353$ or
-$3.5\%$ of $\tr\Sigmapost$, while the \emph{population-optimal} atomic law already scores
-below the trained model in MMD---so the MMD curves are not measuring atomicity at all.
-And endpoint smoothing removes the obstruction without improving the fit: the best cell
-of the $(h,\rho)$ sweep is $h{=}0.5,\rho{=}0$ in both metrics.
-It helps only where the atoms are sparse enough for the floor to dominate, and the gain
-grows with the floor at fixed $d$ but \emph{not} across $d$ (Table~\ref{tab:floor}): like
-kernel density estimation, it is defeated by dimension. Interpolant noise changes nothing,
+$3.5\%$ of $\tr\Sigmapost$, while the population-optimal atomic law already scores below
+the trained model in MMD, so the MMD curves do not measure atomicity. And endpoint
+smoothing removes the obstruction without improving the fit: the best cell of the
+$(h,\rho)$ sweep is $h{=}0.5,\rho{=}0$ in both metrics. It helps only where the atoms are
+sparse enough for the floor to dominate, and the gain grows with the floor at fixed $d$
+but not across $d$ (Table~\ref{tab:floor}): like kernel density estimation, it is
+defeated by dimension. Interpolant noise changes nothing,
 the generated variance being $0.367\pm0.146$ against $0.372\pm0.140$ for the
 mis-specified target, as \eqref{eq:invariance} predicts.
 
 \label{sec:exp23}%
 \paragraph{Beyond the Gaussian case.} \emph{EXP-2 (Gaussian mixture).} A 4-mode GMM prior with a rank-deflating linear
-observation gives a genuinely \emph{bimodal} analytic posterior. Up to $\sim\!10^4$
-iterations mode coverage is $1.0$ and the MMD near zero---a calibrated sampler---after
-which coverage falls to $0.72$ and the MMD grows to $\sim0.25$, while the share of late
-samples nearest the $x^i$-containing mode rises from $\approx0.5$ to as much as $1.000$:
-selective memorisation (Figs.~\ref{fig:exp2curves} and~\ref{fig:exp23qual}).
-\emph{EXP-3 (image inpainting).} Masking the lower half of $32\times32$ MNIST
-($N{=}500$), over three seeds the inpainted-region pixel variance drops $\sim100\times$ by
-iteration $15000$ ($0.137\pm0.021\to(1.17\pm0.12)\times10^{-3}$) and the
-nearest-training-image distance falls to $(0.77\pm0.26)\times10^{-3}$: completions diverse
-at iteration 200 are identical by 15000 (Fig.~\ref{fig:exp3prog}). A single small-U-Net
-CIFAR-10 trajectory shows the same qualitative decrease, $0.142\to0.0087$; we treat it
-as corroboration rather than a replication estimate.
+observation gives a bimodal analytic posterior. Up to $\sim\!10^4$ iterations mode
+coverage is $1.0$ and the MMD near zero, a calibrated sampler. After that coverage falls
+to $0.72$ and the MMD grows to $\sim0.25$, while the share of late samples nearest the
+$x^i$-containing mode rises from $\approx0.5$ to as much as $1.000$: selective
+memorisation (Figs.~\ref{fig:exp2curves} and~\ref{fig:exp23qual}).
+\emph{EXP-3 (image inpainting).} Masking the lower half of $32\times32$ MNIST ($N{=}500$),
+over three seeds the inpainted-region pixel variance drops $\sim100\times$ by iteration
+$15000$ ($0.137\pm0.021\to(1.17\pm0.12)\times10^{-3}$) and the nearest-training-image
+distance falls to $(0.77\pm0.26)\times10^{-3}$: completions that are diverse at iteration
+200 are identical by 15000 (Fig.~\ref{fig:exp3prog}). A single small-U-Net CIFAR-10
+trajectory shows the same qualitative decrease, $0.142\to0.0087$; we treat it as
+corroboration, not a replication estimate.
 
 \FloatBarrier
 
 \subsection{Realistic capacity: CIFAR-10 with a 35.75M-parameter DDPM U-Net}
 \label{sec:cifarddpm}
 
-Everything above is $d\le10$ synthetic or a $0.5$M U-Net, so the standing objection is
-that the mechanism is an artefact of small capacity. We train a standard DDPM U-Net
+Everything above is $d\le10$ synthetic or a $0.5$M U-Net, so one objection is that the
+mechanism is an artefact of small capacity. We train a standard DDPM U-Net
 ($35.75$M parameters) on CIFAR-10 bottom-half inpainting, $N{=}2000$, $d{=}3072$,
 $k{=}1536$, for $60000$ iterations at batch $128$, evaluating $48$ conditions at
 $M{=}256$ samples each. Each bandwidth is repeated on three independently redrawn
@@ -644,14 +643,14 @@ from $179.1$ at iteration $500$ to $0.431$ at $60000$, a factor of $415$; all $4
 conditions have $n_{\mathrm{eff}}=1.00$, the generated mean identifies the correct
 training image at $48/48$, and the memorisation ratio is $1.000$. Across the three
 redrawn instances, final $\tr\Cov$ is $0.409$--$0.467$ and every evaluated condition has
-$n_{\mathrm{eff}}=1.00$. Thus hard-conditioning collapse is robust at this scale, while
-the experiment does not separate instance variation from optimisation variation.
+$n_{\mathrm{eff}}=1.00$. Hard-conditioning collapse is therefore robust at this scale, although the experiment
+does not separate instance variation from optimisation variation.
 
-\paragraph{Label smoothing ($h>0$): a deliberately partial test.}
-Table~\ref{tab:cifarddpm} reports both the aggregate ratio $\tr\Cov/\tr\Covh$ and the
-more stringent OLS slope $\beta$ of $\log\tr\Cov$ on $\log\tr\Covh$ \emph{across
-conditions}; the population endpoint law predicts $\beta=1$. This tests whether the
-finite model preserves the conditional variation in the reference, not merely its level.
+\paragraph{Label smoothing ($h>0$): a partial test.}
+Table~\ref{tab:cifarddpm} reports the aggregate ratio $\tr\Cov/\tr\Covh$ and the stricter
+OLS slope $\beta$ of $\log\tr\Cov$ on $\log\tr\Covh$ across conditions; the population
+endpoint law predicts $\beta=1$. The slope tests whether the finite model preserves the
+conditional variation in the reference, and not only its level.
 
 \begin{figure}[!t]
 \centering
@@ -660,23 +659,22 @@ finite model preserves the conditional variation in the reference, not merely it
 DDPM run ($48$ conditions, $M{=}256$). Crosses: one evaluation condition each; dashed:
 the identity, Theorem~\ref{thm:endpoint}'s $\beta=1$; solid: the fitted slope, with its
 standard error printed in the panel. The panels share
-one axis range, so the collapse of the predictor's spread---$4.57$ decades at $h{=}4$ to
-$0.74$ at $h{=}6$---is visible, and the right-hand cloud sits on the identity line while
-having no slope. By the level, agreement improves with $h$ (median ratio $5.30$, $1.38$,
+one axis range, so the collapse of the predictor's spread, from $4.57$ decades at $h{=}4$
+to $0.74$ at $h{=}6$, is visible: the right-hand cloud sits on the identity line but has
+no slope. By the level, agreement improves with $h$ (median ratio $5.30$, $1.38$,
 $1.15$); by the slope, tracking disappears ($0.481$, $0.349$, $-0.156$ at $h=4,5,6$;
 standard errors and bootstrap intervals in Table~\ref{tab:cifarddpm}).}
 \label{fig:cifartrack}
 \end{figure}
 
-The two statistics disagree, and the disagreement is informative. At $h{=}6$ the median
-ratio is $1.15$, while $\beta=-0.156$: the reference spans only $0.74$ decades across
-conditions, so level agreement is compatible with ignoring conditional variation. Where
-the reference has range ($4.57$ decades at $h{=}4$), $\beta=0.481\pm0.037$ with
-$R^2=0.785$. The model preserves the predicted ordering but compresses its dynamic range,
-recovering roughly half of the population exponent. The checkpoint trajectory rises over
-the available budget, but it does \emph{not} establish $\beta\to1$. We therefore report
-the DDPM smoothing result as partial, and use the exact endpoint law as an audit target
-rather than as a fitted-model claim.
+The two statistics disagree. At $h{=}6$ the median ratio is $1.15$ while $\beta=-0.156$:
+the reference spans only $0.74$ decades across conditions, so agreement in level is
+compatible with ignoring conditional variation. Where the reference has range ($4.57$
+decades at $h{=}4$), $\beta=0.481\pm0.037$ with $R^2=0.785$. The model preserves the
+predicted ordering but compresses its dynamic range, recovering roughly half of the
+population exponent. The checkpoint trajectory rises over the available budget, but it
+does not establish $\beta\to1$. We therefore report the DDPM smoothing result as partial
+and use the exact endpoint law as an audit target, not as a claim about the fitted model.
 
 
 \paragraph{Three supporting measurements} are in Appendix~\ref{app:exp4}: atomicity,
@@ -692,29 +690,29 @@ the aggregate ratio is stable only where the reference has range.
 
 \paragraph{A proved property that the trained model does not inherit.}
 Proposition~\ref{prop:atomicity} is exact for the object the theory describes and only
-approximate for the object practitioners train, with the gap widening in $h$: the
-clearest instance of the population/finite-network distinction biting, since elsewhere
-the two agree in direction while here they disagree about a statement that is either
-true or false. Collapse is moreover \emph{optimisation-paced}, and that gap we bound
-away from one explanation rather than explain (Appendix~\ref{sec:aux}).
+approximate for the object practitioners train, and the gap widens with $h$. Elsewhere the
+population and the trained network agree in direction; here they disagree about a
+statement that is either true or false. Collapse is also paced by optimisation, and we
+rule out one explanation of that pace without supplying another (Appendix~\ref{sec:aux}).
 
 \paragraph{Scale, replication, and a remedy of limited reach.} EXP-1/EXP-2 are $d\le10$
 synthetic problems and EXP-3's MNIST runs use one small U-Net. At $35.75$M parameters on
 CIFAR-10, hard-conditioning collapse replicates across three redrawn instances, but
-those runs confound instance and optimisation randomness; the $h>0$ agreement is partial,
-not a quantitative confirmation of Theorem~\ref{thm:endpoint}. Beyond this scale, and
-for text-conditional label spaces carrying no natural kernel, persistence is a claim we
-do not establish. Endpoint smoothing's benefit is likewise bounded by the obstruction it
-removes, small in exactly the regime we study most.
+those runs confound instance and optimisation randomness, and the $h>0$ agreement is
+partial and not a quantitative confirmation of Theorem~\ref{thm:endpoint}. We do not
+establish persistence beyond this scale, or for text-conditional label spaces with no
+natural kernel. Endpoint smoothing's benefit is bounded by the obstruction it removes,
+which is small in the regime we study most.
 
 % ==========================================================================
 \section{Conclusion}
 \label{sec:conclusion}
 
 Conditional collapse is the zero-bandwidth limit of a kernel-weighted empirical
-conditional flow, and label smoothing makes that flow exact kernel regression over the
-training atoms, which neither it nor interpolant noise leaves. Only endpoint smoothing
-does, as far as the floor it removes is large (Appendix~\ref{app:remedies}).
+conditional flow. Label smoothing makes that flow kernel regression over the training
+atoms, and neither it nor interpolant noise leaves them. Only endpoint smoothing does,
+and it helps to the extent that the floor it removes is large
+(Appendix~\ref{app:remedies}).
 
 \label{endmain}
 \subsection*{Reproducibility statement}
@@ -738,12 +736,11 @@ used.
 This work trains small models on synthetic linear-Gaussian and Gaussian-mixture data
 and on the public MNIST and CIFAR-10 datasets. No human subjects, personally identifiable
 information, or other sensitive data are used or generated. The paper's contribution
-is a precise theoretical and empirical account of an existing memorisation phenomenon
-in conditional generative models, which bears directly on the data-privacy and
-copyright concerns around deployed diffusion/flow models raised in
-Section~\ref{sec:intro}; by characterising the mechanism exactly, we aim to help
-downstream work design principled mitigations rather than to facilitate
-memorisation. We are not aware of any other ethical concerns raised by this
+is a theoretical and empirical account of an existing memorisation phenomenon in
+conditional generative models, which bears on the data-privacy and copyright concerns
+around deployed diffusion and flow models raised in Section~\ref{sec:intro}. By
+characterising the mechanism, we aim to help downstream work design mitigations, not to
+facilitate memorisation. We are not aware of any other ethical concerns raised by this
 submission.
 
 \subsection*{AI use statement}
