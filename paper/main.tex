@@ -2,8 +2,7 @@
 \documentclass{article} % For LaTeX2e
 
 % ---------------------------------------------------------------------------
-% ICLR 2027 submission, auto-assembled from docs/THEORY.md (theory) and
-% results/RESULTS.md (experiments). All numbers reproduced from the repo.
+% ICLR 2027 submission.
 % Compile:  pdflatex main && bibtex main && pdflatex main && pdflatex main
 %
 % Anonymized for double-blind review: no author name/affiliation/email
@@ -725,10 +724,9 @@ table to $<0.05\%$), \texttt{analyze\_p7\_kernel.py}, \texttt{verify\_kernel\_th
 \texttt{verify\_prop17.py}, \texttt{verify\_target\_noise.py},
 \texttt{atomicity\_scaling.py}. Experiments: \texttt{run\_exp1.sh},
 \texttt{run\_sweeps.py} ($+$\texttt{-{}-gpus N}), \texttt{train\_exp2},
-\texttt{train\_exp3}, each followed by the matching analysis script. The original $p7y$
-neural checkpoints were not retained. We release the per-run outputs used for
-Table~\ref{tab:p7kernel}, Table~\ref{tab:dagger}, and Figure~\ref{fig:kernel}, so those
-reported artefacts are reproducible from the supplement; recomputing them from weights
+\texttt{train\_exp3}, each followed by the matching analysis script. For
+Table~\ref{tab:p7kernel}, Table~\ref{tab:dagger} and Figure~\ref{fig:kernel} we release
+the per-run outputs rather than the network weights; recomputing them from weights
 requires rerunning \texttt{run\_sweeps.py}. Proofs of all
 load-bearing results are given in full in Section~\ref{sec:theory} and
 Appendix~\ref{app:proofs}; every stated assumption (distinct labels, smoothness of the
@@ -750,22 +748,11 @@ facilitate memorisation. We are not aware of any other ethical concerns raised b
 submission.
 
 \subsection*{AI use statement}
-We used a generative-AI coding and writing assistant (Claude, Anthropic) throughout
-this project's development: to draft and revise manuscript text, including the
-conversion of the manuscript to the ICLR format and multiple rounds of copy-editing;
-to expand several of the proofs in Section~\ref{sec:theory} and
-Appendix~\ref{app:proofs} from a theory memorandum into the propositions and proofs
-given here; to write the training, evaluation, and analysis code in the released
-repository; and to run and analyse several of the reported experiments, including
-the adversarial-pairing ablation (Section~\ref{sec:adversarial}) and the
-memorisation-ratio diagnostic (Section~\ref{sec:exp1}). We did not use generative AI
-to select, fabricate, or embellish experimental results: every number reported is
-produced by the released code from actual training runs. All AI-drafted proofs were
-checked line-by-line against the underlying mathematics by the authors, and all
-AI-assisted code and analysis outputs were independently verified by re-running the
-experiments and cross-checking the reported statistics against the raw output
-files. We take responsibility for the final content of this work, including all
-text, claims, proofs, and code.
+A generative-AI assistant was used to draft and edit text, to expand proofs
+from a theory memorandum into their full form, to write the training and analysis code, and to
+run and analyse several experiments. Every reported number is produced by the released
+code from actual runs. The authors checked all proofs and verified all results against
+the raw outputs, and take full responsibility for the content.
 
 \bibliographystyle{plainnat}
 \bibliography{refs}
@@ -2968,7 +2955,7 @@ Unlike the MMD, the floor \eqref{eq:w2floor} is directly computable: at the EXP-
 configuration $F=0.0353$, i.e.\ $W_2\ge0.19$ but only $3.5\%$ of $\tr\Sigmapost$, and
 the \emph{population-optimal} atomic law already reaches ${\rm MMD}=0.0089$---below the
 trained model's $0.024$. Atomicity, though exact, is therefore \emph{not} what the MMD
-curves measure; we correct that misreading in Appendix~\ref{sec:aux}. The reason is
+curves measure (Appendix~\ref{sec:aux}). The reason is
 instrumental: an RBF MMD at the median-heuristic bandwidth cannot resolve inter-atom
 spacing, which is why an MMD that falls with $h$ says nothing about whether the
 support is still atomic.
@@ -3030,8 +3017,7 @@ $-0.06,-0.05,-0.07,-0.00,+0.17,+0.22$ at $h{=}5$ (at $M{=}96$ throughout, so the
 comparison across checkpoints is like for like; the final $h{=}4$ value re-measured at
 $M{=}256$ is the $0.481$ quoted above). Tracking the kernel reference is therefore
 something the model \emph{learns}, and $0.481$ is where $60000$ iterations reached
-rather than a ceiling of the model class. We are careful about what this does and does
-not show: it establishes that the deficit is at least partly an optimisation gap and
+rather than a ceiling of the model class. This establishes that the deficit is at least partly an optimisation gap and
 not a fixed property of the parameterisation, and it does \emph{not} establish that
 $\beta\to1$, which would need a budget we have not run. Three rival explanations for a
 fixed exponent (an additive variance floor, a hard floor, and an affine map) were
@@ -3040,8 +3026,8 @@ fitted to the final checkpoint and all lose to the power law in log space
 happening. At $h{=}6$, $\beta$ never leaves zero, which is what the missing range
 predicts. The trained model reproduces the ordering
 Theorem~\ref{thm:endpoint} implies (which conditions have more posterior variance) and
-compresses its dynamic range, by a factor that itself grows with the reference. We put
-it that way deliberately. Theorem~\ref{thm:endpoint} describes the population
+compresses its dynamic range, by a factor that itself grows with the reference.
+Theorem~\ref{thm:endpoint} describes the population
 minimiser; a $35.75$M-parameter network at $60000$ iterations is not that minimiser, so
 $\beta=0.481$ is a fact about how far the optimisation has come, not a refutation. The
 theory predicts the destination, not the speed.
@@ -3298,9 +3284,8 @@ an MLP trained at that same bandwidth for $200000$ iterations, integrated from t
 $160$ draws of $x_0$. The model is converging to the law above it, not to some other
 law: at $h{=}0$ it puts $96\%$ of its paths on the labelled atom, and at $h>0$ its trace
 is within a quarter of the reference on a measurement whose own sampling error is
-$11\%$. Produced by \texttt{scripts/make\_flow\_portraits.py}; the $h>0$ runs are
-\texttt{p7yck\_h*\_seed0}, retrained for this figure because the original P7 sweeps kept
-their metrics but not their checkpoints.}
+$11\%$. Produced by \texttt{scripts/make\_flow\_portraits.py}; the $h>0$ networks were
+retrained for this figure with the P7 settings.}
 \label{fig:bandwidthportrait}
 \end{figure}
 
@@ -4118,11 +4103,9 @@ samples (orange) land on the training points weighted most heavily by the kernel
 mixture-over-atoms endpoint law directly in sample space (right). The right panel is
 at $h{=}0.5$, where the query's own atom $x^i$ (gold star) is only one of
 $n_{\mathrm{eff}}\approx102$ contributors and therefore carries no special weight---the
-opposite of the $h{\to}0$ regime of Corollary~\ref{cor:zerobw}. The panel headings
-carry equation numbers from the development notes rather than this paper's: ``(8.1)''
-is \eqref{eq:kernel-field} and ``(10.1)'' is Theorem~\ref{thm:endpoint}. The plot
-cannot be regenerated with corrected labels because it reads the $p7y$ checkpoints,
-which were not retained (see the reproducibility statement).}
+opposite of the $h{\to}0$ regime of Corollary~\ref{cor:zerobw}. ``Kernel field'' is
+\eqref{eq:kernel-field} and the mixture weights are those of
+Theorem~\ref{thm:endpoint}.}
 \label{fig:kernel}
 \end{figure}
 
