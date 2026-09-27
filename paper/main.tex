@@ -38,9 +38,9 @@
 % --- shorthands: paper/math_commands.tex ------------------------------------
 \input{math_commands}
 
-\title{Conditional Flow Matching:\\
-Kernel Smoothing over Atoms\\
-Does Not Restore the Posterior}
+\title{Auditing Conditional Flow Matching:\\
+Label Smoothing Is Kernel Regression\\
+over Training Atoms}
 
 % Authors must not appear in the submitted version; the iclr2027_conference
 % style hides \author automatically and prints "Anonymous authors" as long as
@@ -61,7 +61,8 @@ label smoothing. When a label identifies one training example, the minimiser sen
 source draw to that example, so the conditional variance and the loss are zero. Adding
 Gaussian noise to the label turns the endpoint law into a Nadaraya--Watson mixture over
 the training atoms. Its moments give a reference curve for a trained model, but its
-support stays atomic, so matching a conditional variance does not recover the posterior.
+support stays atomic, so at the optimum matching a conditional variance does not recover
+the posterior.
 The same law separates three interventions: label noise reweights the mixture,
 interpolant noise leaves the endpoint law unchanged, and endpoint noise moves the
 support. In five-seed synthetic experiments an MLP follows the reference; collapse also
@@ -146,6 +147,8 @@ lines.}
   unconditional model is which empirical measure is memorised, not whether memorisation
   happens. It is also not overfitting of a finite batch: $y^i$ identifies the atom
   deterministically, so the collapse is already present in the population minimiser.
+  Such identifying conditions are the norm in inverse problems and inpainting; shared
+  class labels are covered by Corollary~\ref{cor:repeated}.
 \item \textbf{Label smoothing.} Conditioning noise is an existing technique
   \citep{ho2022cascaded,sadat2024cads}. We show that it makes the population endpoint a
   Nadaraya--Watson mixture \citep{nadaraya1964estimating,watson1964smooth} over the
@@ -163,7 +166,7 @@ lines.}
   parameters the two disagree: the median per-condition ratio is $1.15$ while
   $\beta=-0.156$.
   Neither is a certificate alone: $\tr\Cov=10\,\tr\Covh$ has slope $1$ and is off by an
-  order of magnitude.
+  order of magnitude. Appendix~\ref{app:audit} collects the audit as one procedure.
 \item \textbf{Two remedies.} Label noise changes the population endpoint; interpolant
   noise does not, at any noise level (Propositions~\ref{prop:prop17}
   and~\ref{prop:factors}). The obstruction in item~3 says what a remedy must do, which
@@ -197,11 +200,9 @@ do not help.}
 
 In one line, conditional collapse is the zero-bandwidth limit of a kernel-weighted
 empirical conditional flow, and label smoothing moves along that limit without leaving
-the training atoms (Figure~\ref{fig:mechanism}). This gives an exact conditional
-reference law. It separates recovering a posterior moment from recovering a posterior,
-and it exposes agreement statistics whose denominator barely varies.
-Section~\ref{sec:scope} marks the boundary: the theory describes an empirical population
-minimiser, not the network that SGD reaches.
+the training atoms (Figure~\ref{fig:mechanism}). Section~\ref{sec:scope} marks the
+boundary: the theory describes an empirical population minimiser, not the network that
+SGD reaches.
 
 % ==========================================================================
 \section{Setup and notation}
@@ -591,9 +592,11 @@ label-to-example assignment and not any relation between $x$ and $y$.
 \paragraph{On synthetic MLPs, label smoothing tracks the kernel reference (P7).} This is our strongest
 empirical confirmation of the theory, and it depends on using the right reference,
 $\Covh$ and not $\Sigmapost$. Over 20 conditions ($M{=}1000$, 5 seeds) the generated
-variance tracks $\Covh$ at every bandwidth: ratio-to-kernel $=1.002\pm0.050$,
-$0.994\pm0.039$ and $1.011\pm0.022$ at $h=0.05,0.1,0.5$ (Figure~\ref{fig:p7summary},
-Table~\ref{tab:p7kernel}), with the field agreeing too. That $h\approx0.1$ ``perfectly
+variance tracks $\Covh$: ratio-to-kernel $=1.002\pm0.050$, $0.994\pm0.039$ and
+$1.011\pm0.022$ at $h=0.05,0.1,0.5$ (Figure~\ref{fig:p7summary},
+Table~\ref{tab:p7kernel}), with the field agreeing too. At $h{=}0.01$
+($n_{\mathrm{eff}}\approx3.5$) the reference is near-degenerate and the ratio unstable,
+$1.308\pm0.376$. That $h\approx0.1$ ``perfectly
 restores'' the posterior variance is a misreading: $\tr\Cov$ crosses $\Sigmapost$ there
 only because $\Sigmapost\approx\Covh|_{h=0.1}$ for this problem. Three consequences
 follow (Appendices~\ref{sec:aux} and~\ref{app:tgt}). The law stays atomic even at the
@@ -2748,6 +2751,46 @@ constrains how much variance can survive, not what the surviving law looks like.
 % ==========================================================================
 \section{Additional experimental results}
 \label{app:exp}
+
+\subsection{An audit protocol for conditional flows}
+\label{app:audit}
+
+The diagnostics used throughout Section~\ref{sec:experiments} are collected below as
+one procedure. It needs the training set and samples from the trained model, and no
+retraining; the reference costs $O(CN(k+d))$ for $C$ conditions.
+
+\begin{center}
+\fbox{\begin{minipage}{0.94\textwidth}\small
+\textbf{Audit.} \emph{Input:} training set $\D=\{(x^i,y^i)\}_{i=1}^N$; the bandwidth $h$
+used in training ($h=0$ for hard conditioning); a trained sampler; evaluation conditions
+$y_1,\dots,y_C$; $M$ samples per condition.
+\begin{enumerate}[leftmargin=1.6em,itemsep=1pt,topsep=3pt]
+\item \emph{Reference, per condition.} Weights
+  $p_i^{(h)}(y_c)=K_h(y_c-y^i)/\sum_jK_h(y_c-y^j)$, computed in log space
+  (at $h=0$ and $y_c=y^i$, $p^{(h)}=e_i$); effective sample size
+  $n_{\mathrm{eff}}=1/\sum_i(p_i^{(h)})^2$; reference mean $\bar x_h(y_c)$ and trace
+  $\tr\Covh(y_c)$ (Proposition~\ref{prop:moments}).
+\item \emph{Measurement, per condition.} Draw $M$ samples; record $\tr\Cov$, the
+  generated mean, and the on-atom fraction: the share of samples $\hat x$ with
+  $\|\hat x-x^{(1)}\|^2\le\frac19\|\hat x-x^{(2)}\|^2$, where $x^{(1)},x^{(2)}$ are the two
+  nearest training points \citep{yoon2023memorization}.
+\item \emph{Level.} Report the aggregate ratio $\sum_c\tr\Cov/\sum_c\tr\Covh$ and the
+  median per-condition ratio with a bootstrap interval. Never average per-condition
+  ratios: their denominators can be arbitrarily small (Table~\ref{tab:seed3}).
+\item \emph{Range.} Report how many decades $\log_{10}\tr\Covh$ spans across conditions.
+  With little range, agreement in level is uninformative: at $0.74$ decades (CIFAR-10,
+  $h{=}6$) the median ratio is $1.15$ while the slope has the wrong sign and $R^2=0.135$.
+\item \emph{Tracking.} Fit $\beta$, the OLS slope of $\log\tr\Cov$ on $\log\tr\Covh$
+  across conditions, with its standard error and $R^2$; the population optimum gives
+  $\beta=1$.
+\end{enumerate}
+\emph{Reading.} $\beta\approx1$ with aggregate ratio $\approx1$: the model is near the
+population optimum for this $h$, whose law is atomic and carries the floor
+\eqref{eq:w2floor}. An on-atom fraction near $1$: samples are training examples.
+$\tr\Cov\approx\tr\Sigmapost$ on its own certifies nothing, since for a suitable $h$
+it holds for an atomic law (Section~\ref{sec:p7}).
+\end{minipage}}
+\end{center}
 
 \subsection{Material deferred from Section~\ref{sec:experiments}}
 \label{app:exp4}
