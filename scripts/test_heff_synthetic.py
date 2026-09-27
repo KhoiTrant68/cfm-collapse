@@ -4,7 +4,7 @@ Hypothesis (h_eff): a trained conditional flow behaves like the exact kernel ref
 of Theorem 10 at ONE effective bandwidth h_eff >= h per checkpoint, shared by all
 evaluation conditions, and h_eff falls towards h as training proceeds.
 
-For each run heff_p7y_h{h}_seed0 and each saved checkpoint this draws M samples at the
+For each run heff_p7y_h{h}_seed{s} and each saved checkpoint this draws M samples at the
 20 training conditions used throughout EXP-1 and fits h_eff to the per-condition
 generated trace, in log space, over a log-spaced grid. It is scored against
 
@@ -17,7 +17,10 @@ sees: at bandwidth h' the reference mean is x_bar_{h'}(y) (Theorem 10), so the
 bandwidth that best explains the means should agree with the one fitted to the
 variances if the hypothesis is right.
 
-Reads:  results/exp1/heff_p7y_h*_seed0/{config.yaml,checkpoints/}
+Uncertainty: both bandwidths are bootstrapped over the evaluation conditions
+(resampled with replacement), which gives a 95% interval for each.
+
+Reads:  results/exp1/heff_p7y_h*_seed*/{config.yaml,checkpoints/}
 Writes: results/exp1/_heff/heff_synthetic.json
 
 Usage:
@@ -37,7 +40,8 @@ from src.models.mlp_velocity import build_model
 from src.problems.linear_gaussian import LinearGaussianProblem
 from src.utils import load_yaml
 
-RUNS = sorted(Path("results/exp1").glob("heff_p7y_h*_seed0"))
+RUNS = sorted(Path("results/exp1").glob("heff_p7y_h*_seed*"))
+N_BOOT = 500
 OUT = Path("results/exp1/_heff/heff_synthetic.json")
 GRID = np.exp(np.linspace(np.log(3e-3), np.log(5.0), 240))
 
@@ -101,9 +105,20 @@ def main() -> None:
 
             sse = ((ly[None, :] - np.log(tr_ref)) ** 2).sum(1)
             g = int(np.argmin(sse))
-            mean_err = np.linalg.norm(mu_m[None] - mu_ref, axis=2).mean(1)   # (grid,)
+            me_c = np.linalg.norm(mu_m[None] - mu_ref, axis=2)                 # (grid, cond)
+            mean_err = me_c.mean(1)                                            # (grid,)
             g_mean = int(np.argmin(mean_err))
-            res = {"h": h, "iter": it, "h_eff": float(GRID[g]),
+            se_c = (ly[None, :] - np.log(tr_ref)) ** 2                          # (grid, cond)
+            brng = np.random.default_rng(it + 1000 * cfg["seed"])
+            bh, bm = [], []
+            for _ in range(N_BOOT):
+                b = brng.integers(0, len(idx), len(idx))
+                bh.append(GRID[int(np.argmin(se_c[:, b].sum(1)))])
+                bm.append(GRID[int(np.argmin(me_c[:, b].mean(1)))])
+            res = {"run": run.name, "seed": int(cfg["seed"]), "h": h, "iter": it,
+                   "h_eff": float(GRID[g]),
+                   "h_eff_ci": [float(np.percentile(bh, 2.5)), float(np.percentile(bh, 97.5))],
+                   "h_means_ci": [float(np.percentile(bm, 2.5)), float(np.percentile(bm, 97.5))],
                    "h_eff_at_edge": g in (0, len(GRID) - 1),
                    "h_from_means": float(GRID[g_mean]),
                    "trace_measured_mean": float(tr_m.mean()),
@@ -124,8 +139,9 @@ def main() -> None:
                     "rmse_log_theory": float(np.sqrt(((ly - lref) ** 2).mean())),
                     "rmse_log_scale": float(np.sqrt(((ly - lref - np.log(c)) ** 2).mean()))})
             out.append(res)
-            print(f"h={h:<5g} it={it:>6d}  h_eff={res['h_eff']:.4f}  "
-                  f"h_means={res['h_from_means']:.4f}  R2(h_eff)={res['r2_heff']:.3f}  "
+            print(f"s{cfg['seed']} h={h:<5g} it={it:>6d}  h_eff={res['h_eff']:.4f} "
+                  f"[{res['h_eff_ci'][0]:.4f},{res['h_eff_ci'][1]:.4f}]  "
+                  f"h_means={res['h_from_means']:.4f} [{res['h_means_ci'][0]:.4f},{res['h_means_ci'][1]:.4f}]  R2(h_eff)={res['r2_heff']:.3f}  "
                   + (f"R2 theory/scale/power={res['r2_theory']:.3f}/{res['r2_scale']:.3f}/"
                      f"{res['r2_power']:.3f}  " if h > 0 else "")
                   + f"mean err @h {res['mean_err_at_h']:.3f} @h_eff {res['mean_err_at_heff']:.3f}",
