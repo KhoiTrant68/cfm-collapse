@@ -14,3 +14,4 @@
 # working tree -- because PDFs are already compressed and do not delta-compress.
 # Commit it deliberately with `git add -f paper/main.pdf` at a milestone if wanted.
 main.pdf
+workshop.pdf
