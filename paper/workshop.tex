@@ -273,10 +273,9 @@ is trained on bottom-half inpainting, $N{=}2000$, $d{=}3072$, $k{=}1536$, for $6
 iterations at batch $128$ and learning rate $2\times10^{-4}$, and evaluated on $48$
 conditions at $M{=}256$. Bandwidths are set against the nearest-neighbour distance in
 condition space (median $12.6$); $h\in\{4,5,6\}$ spans $n_{\mathrm{eff}}$ from about $2$
-to $75$. At $h{=}0$, $\tr\Cov$ falls from $179.1$ to $0.431$, every condition has
-$n_{\mathrm{eff}}=1.00$, the generated mean identifies the correct training image at
-$48/48$ conditions, and all samples are on-atom; three redrawn instances give
-$0.409$--$0.467$.
+to $75$. At $h{=}0$, $\tr\Cov$ falls from $179.1$ to $0.431$, the generated mean identifies the
+correct training image at $48/48$ conditions, and all samples are on-atom; three redrawn
+instances give $0.409$--$0.467$.
 
 Table~\ref{tab:cifar} applies the audit with $h>0$. At $h{=}6$ a variance check would
 pass: the median ratio is $1.15$. The audit does not: the reference spans only $0.74$
