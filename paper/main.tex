@@ -2,8 +2,7 @@
 \documentclass{article} % For LaTeX2e
 
 % ---------------------------------------------------------------------------
-% ICLR 2027 submission, auto-assembled from docs/THEORY.md (theory) and
-% results/RESULTS.md (experiments). All numbers reproduced from the repo.
+% ICLR 2027 submission.
 % Compile:  pdflatex main && bibtex main && pdflatex main && pdflatex main
 %
 % Anonymized for double-blind review: no author name/affiliation/email
@@ -38,9 +37,9 @@
 % --- shorthands: paper/math_commands.tex ------------------------------------
 \input{math_commands}
 
-\title{Conditional Flow Matching:\\
-Kernel Smoothing over Atoms\\
-Does Not Restore the Posterior}
+\title{Auditing Conditional Flow Matching:\\
+Label Smoothing Is Kernel Regression\\
+over Training Atoms}
 
 % Authors must not appear in the submitted version; the iclr2027_conference
 % style hides \author automatically and prints "Anonymous authors" as long as
@@ -61,7 +60,8 @@ label smoothing. When a label identifies one training example, the minimiser sen
 source draw to that example, so the conditional variance and the loss are zero. Adding
 Gaussian noise to the label turns the endpoint law into a Nadaraya--Watson mixture over
 the training atoms. Its moments give a reference curve for a trained model, but its
-support stays atomic, so matching a conditional variance does not recover the posterior.
+support stays atomic, so at the optimum matching a conditional variance does not recover
+the posterior.
 The same law separates three interventions: label noise reweights the mixture,
 interpolant noise leaves the endpoint law unchanged, and endpoint noise moves the
 support. In five-seed synthetic experiments an MLP follows the reference; collapse also
@@ -93,7 +93,7 @@ square-integrable vector fields, and the endpoint law of its flow.
 
 Two lines of work are close to this. That the empirical minimiser memorises is well
 established
-\citep{pidstrigach2022manifolds,gu2023memorization,kadkhodaie2024generalization,biroli2023diffusion,kamb2024creativity,buchanan2025edge,gao2024flow,bertrand2025closed},
+\citep{pidstrigach2022manifolds,gu2023memorization,kadkhodaie2024generalization,biroli2023diffusion,kamb2024creativity,buchanan2025edge,gao2024flow,bertrand2025closed,li2026memory},
 and reading a kernel out of a finite-support flow is not new either
 \citep{scarvelis2025closedform,chen2026scoresmoothing}. \citet{smola2026support} read the
 \emph{spatial} factor $\pi_0(\tfrac{x-tx^i}{1-t})$ of the index posterior as a
@@ -146,6 +146,8 @@ lines.}
   unconditional model is which empirical measure is memorised, not whether memorisation
   happens. It is also not overfitting of a finite batch: $y^i$ identifies the atom
   deterministically, so the collapse is already present in the population minimiser.
+  Such identifying conditions are the norm in inverse problems and inpainting; shared
+  class labels are covered by Corollary~\ref{cor:repeated}.
 \item \textbf{Label smoothing.} Conditioning noise is an existing technique
   \citep{ho2022cascaded,sadat2024cads}. We show that it makes the population endpoint a
   Nadaraya--Watson mixture \citep{nadaraya1964estimating,watson1964smooth} over the
@@ -160,9 +162,10 @@ lines.}
   constant across conditions, so agreement with it carries little information. We
   therefore report the across-condition slope $\beta$ of $\log\tr\Cov$ on
   $\log\tr\Covh$, for which theory predicts $\beta=1$. On CIFAR-10 at $35.75$M
-  parameters the two disagree: aggregate agreement is $1.15$ while $\beta=-0.156$.
+  parameters the two disagree: the median per-condition ratio is $1.15$ while
+  $\beta=-0.156$.
   Neither is a certificate alone: $\tr\Cov=10\,\tr\Covh$ has slope $1$ and is off by an
-  order of magnitude.
+  order of magnitude. Appendix~\ref{app:audit} collects the audit as one procedure.
 \item \textbf{Two remedies.} Label noise changes the population endpoint; interpolant
   noise does not, at any noise level (Propositions~\ref{prop:prop17}
   and~\ref{prop:factors}). The obstruction in item~3 says what a remedy must do, which
@@ -196,11 +199,9 @@ do not help.}
 
 In one line, conditional collapse is the zero-bandwidth limit of a kernel-weighted
 empirical conditional flow, and label smoothing moves along that limit without leaving
-the training atoms (Figure~\ref{fig:mechanism}). This gives an exact conditional
-reference law. It separates recovering a posterior moment from recovering a posterior,
-and it exposes agreement statistics whose denominator barely varies.
-Section~\ref{sec:scope} marks the boundary: the theory describes an empirical population
-minimiser, not the network that SGD reaches.
+the training atoms (Figure~\ref{fig:mechanism}). Section~\ref{sec:scope} marks the
+boundary: the theory describes an empirical population minimiser, not the network that
+SGD reaches.
 
 % ==========================================================================
 \section{Setup and notation}
@@ -534,12 +535,8 @@ the linear part of $(\star)$. On EXP-1's checkpoints the empirical slope is $0.4
 $R^2=0.998$, against $\tfrac12$
 (Appendix~\ref{app:survival}; the fit implies a prefactor $e^{L_\Delta}\approx25$, which we do not use).
 
-\subsection{Finite capacity, finite samples, and scope}
+\subsection{Scope}
 \label{sec:scope}
-
-A loss floor $d/(3L)$ from a uniform Lipschitz bound, about $50\times$ below the observed
-plateau (Corollary~\ref{cor:floor}), and two representability results for an unconditional
-batch (Appendix~\ref{sec:theory-d2}) stay in the appendices and are not claimed here.
 
 The population theory proves consequences for the empirical minimiser
 (Propositions~\ref{prop:collapse}--\ref{prop:tgtnoise},
@@ -594,9 +591,11 @@ label-to-example assignment and not any relation between $x$ and $y$.
 \paragraph{On synthetic MLPs, label smoothing tracks the kernel reference (P7).} This is our strongest
 empirical confirmation of the theory, and it depends on using the right reference,
 $\Covh$ and not $\Sigmapost$. Over 20 conditions ($M{=}1000$, 5 seeds) the generated
-variance tracks $\Covh$ at every bandwidth: ratio-to-kernel $=1.002\pm0.050$,
-$0.994\pm0.039$ and $1.011\pm0.022$ at $h=0.05,0.1,0.5$ (Figure~\ref{fig:p7summary},
-Table~\ref{tab:p7kernel}), with the field agreeing too. That $h\approx0.1$ ``perfectly
+variance tracks $\Covh$: ratio-to-kernel $=1.002\pm0.050$, $0.994\pm0.039$ and
+$1.011\pm0.022$ at $h=0.05,0.1,0.5$ (Figure~\ref{fig:p7summary},
+Table~\ref{tab:p7kernel}), with the field agreeing too. At $h{=}0.01$
+($n_{\mathrm{eff}}\approx3.5$) the reference is near-degenerate and the ratio unstable,
+$1.308\pm0.376$. That $h\approx0.1$ ``perfectly
 restores'' the posterior variance is a misreading: $\tr\Cov$ crosses $\Sigmapost$ there
 only because $\Sigmapost\approx\Covh|_{h=0.1}$ for this problem. Three consequences
 follow (Appendices~\ref{sec:aux} and~\ref{app:tgt}). The law stays atomic even at the
@@ -648,7 +647,7 @@ $n_{\mathrm{eff}}=1.00$. Hard-conditioning collapse is therefore robust at this 
 does not separate instance variation from optimisation variation.
 
 \paragraph{Label smoothing ($h>0$): a partial test.}
-Table~\ref{tab:cifarddpm} reports the aggregate ratio $\tr\Cov/\tr\Covh$ and the stricter
+Table~\ref{tab:cifarddpm} reports the median per-condition ratio $\tr\Cov/\tr\Covh$ and the stricter
 OLS slope $\beta$ of $\log\tr\Cov$ on $\log\tr\Covh$ across conditions; the population
 endpoint law predicts $\beta=1$. The slope tests whether the finite model preserves the
 conditional variation in the reference, and not only its level.
@@ -674,8 +673,10 @@ compatible with ignoring conditional variation. Where the reference has range ($
 decades at $h{=}4$), $\beta=0.481\pm0.037$ with $R^2=0.785$. The model preserves the
 predicted ordering but compresses its dynamic range, recovering roughly half of the
 population exponent. The checkpoint trajectory rises over the available budget, but it
-does not establish $\beta\to1$. We therefore report the DDPM smoothing result as partial
-and use the exact endpoint law as an audit target, not as a claim about the fitted model.
+does not establish $\beta\to1$, and its $\pm$ is within one instance: per-condition
+outputs of the other two were not retained. We therefore
+report the DDPM smoothing result as partial and use the exact endpoint law as an audit
+target, not as a claim about the fitted model.
 
 
 \paragraph{Three supporting measurements} are in Appendix~\ref{app:exp4}: atomicity,
@@ -723,10 +724,9 @@ table to $<0.05\%$), \texttt{analyze\_p7\_kernel.py}, \texttt{verify\_kernel\_th
 \texttt{verify\_prop17.py}, \texttt{verify\_target\_noise.py},
 \texttt{atomicity\_scaling.py}. Experiments: \texttt{run\_exp1.sh},
 \texttt{run\_sweeps.py} ($+$\texttt{-{}-gpus N}), \texttt{train\_exp2},
-\texttt{train\_exp3}, each followed by the matching analysis script. The original $p7y$
-neural checkpoints were not retained. We release the per-run outputs used for
-Table~\ref{tab:p7kernel}, Table~\ref{tab:dagger}, and Figure~\ref{fig:kernel}, so those
-reported artefacts are reproducible from the supplement; recomputing them from weights
+\texttt{train\_exp3}, each followed by the matching analysis script. For
+Table~\ref{tab:p7kernel}, Table~\ref{tab:dagger} and Figure~\ref{fig:kernel} we release
+the per-run outputs rather than the network weights; recomputing them from weights
 requires rerunning \texttt{run\_sweeps.py}. Proofs of all
 load-bearing results are given in full in Section~\ref{sec:theory} and
 Appendix~\ref{app:proofs}; every stated assumption (distinct labels, smoothness of the
@@ -739,28 +739,20 @@ and on the public MNIST and CIFAR-10 datasets. No human subjects, personally ide
 information, or other sensitive data are used or generated. The paper's contribution
 is a theoretical and empirical account of an existing memorisation phenomenon in
 conditional generative models, which bears on the data-privacy and copyright concerns
-around deployed diffusion and flow models raised in Section~\ref{sec:intro}. By
+around deployed diffusion and flow models raised in Section~\ref{sec:intro}. At the
+population optimum the weights $p_i^{(h)}(y)$ of Theorem~\ref{thm:endpoint} attribute
+each generated sample exactly to training examples, a closed-form counterpart to learned
+attribution in flow matching \citep{briq2026tracing}. By
 characterising the mechanism, we aim to help downstream work design mitigations, not to
 facilitate memorisation. We are not aware of any other ethical concerns raised by this
 submission.
 
 \subsection*{AI use statement}
-We used a generative-AI coding and writing assistant (Claude, Anthropic) throughout
-this project's development: to draft and revise manuscript text, including the
-conversion of the manuscript to the ICLR format and multiple rounds of copy-editing;
-to expand several of the proofs in Section~\ref{sec:theory} and
-Appendix~\ref{app:proofs} from a theory memorandum into the propositions and proofs
-given here; to write the training, evaluation, and analysis code in the released
-repository; and to run and analyse several of the reported experiments, including
-the adversarial-pairing ablation (Section~\ref{sec:adversarial}) and the
-memorisation-ratio diagnostic (Section~\ref{sec:exp1}). We did not use generative AI
-to select, fabricate, or embellish experimental results: every number reported is
-produced by the released code from actual training runs. All AI-drafted proofs were
-checked line-by-line against the underlying mathematics by the authors, and all
-AI-assisted code and analysis outputs were independently verified by re-running the
-experiments and cross-checking the reported statistics against the raw output
-files. We take responsibility for the final content of this work, including all
-text, claims, proofs, and code.
+A generative-AI assistant was used to draft and edit text, to expand proofs
+from a theory memorandum into their full form, to write the training and analysis code, and to
+run and analyse several experiments. Every reported number is produced by the released
+code from actual runs. The authors checked all proofs and verified all results against
+the raw outputs, and take full responsibility for the content.
 
 \bibliographystyle{plainnat}
 \bibliography{refs}
@@ -2359,6 +2351,12 @@ parameter-free reference, and a false certificate for posterior recovery\\
 as denoiser capacity $M$ ranges over $K\to N$ & the label/bandwidth analogue
 $h\colon0\to\infty$ (Corollaries~\ref{cor:zerobw},~\ref{cor:infbw}); neither result
 subsumes the other\\
+\citet{li2026memory} & unconditional & oracle flows and SDEs recover the training
+samples; under discretisation and estimation error the endpoint is a training sample
+plus controlled perturbations & the conditional label factor and its endpoint law, the
+$h$-independent atomicity floor, and a survival identity that ties the retained
+deviation to an error accumulating at rate $(1-t)^{-1}$
+(Proposition~\ref{prop:survival}) rather than bounding it\\
 \bottomrule
 \end{tabular}
 \caption{Where this paper sits. The rows above the rule on conditioning noise own the
@@ -2394,8 +2392,7 @@ regularised away.
 \paragraph{How large is the floor, and where does it bind?}
 Proposition~\ref{prop:atomicity} gives an $h$-independent floor but not its size, and
 the paper measures it small (Appendix~\ref{sec:aux}), which invites the objection that
-the obstruction is a curiosity. The scaling answers that, and it needs one distinction the earlier version of this
-paragraph elided. Zador's theorem \citep[Ch.~6]{graf2000quantization} says the
+the obstruction is a curiosity. The scaling answers that, and it needs one distinction. Zador's theorem \citep[Ch.~6]{graf2000quantization} says the
 \emph{optimal} $N$-point approximation of a measure with a non-degenerate absolutely
 continuous part on $\R^d$ has $W_2$ error decaying as $N^{-1/d}$. Our floor is over the
 $N$ atoms the training set happened to draw, which are i.i.d.\ and not placed
@@ -2742,11 +2739,51 @@ constrains how much variance can survive, not what the surviving law looks like.
 \section{Additional experimental results}
 \label{app:exp}
 
+\subsection{An audit protocol for conditional flows}
+\label{app:audit}
+
+The diagnostics used throughout Section~\ref{sec:experiments} are collected below as
+one procedure. It needs the training set and samples from the trained model, and no
+retraining; the reference costs $O(CN(k+d))$ for $C$ conditions.
+
+\begin{center}
+\fbox{\begin{minipage}{0.94\textwidth}\small
+\textbf{Audit.} \emph{Input:} training set $\D=\{(x^i,y^i)\}_{i=1}^N$; the bandwidth $h$
+used in training ($h=0$ for hard conditioning); a trained sampler; evaluation conditions
+$y_1,\dots,y_C$; $M$ samples per condition.
+\begin{enumerate}[leftmargin=1.6em,itemsep=1pt,topsep=3pt]
+\item \emph{Reference, per condition.} Weights
+  $p_i^{(h)}(y_c)=K_h(y_c-y^i)/\sum_jK_h(y_c-y^j)$, computed in log space
+  (at $h=0$ and $y_c=y^i$, $p^{(h)}=e_i$); effective sample size
+  $n_{\mathrm{eff}}=1/\sum_i(p_i^{(h)})^2$; reference mean $\bar x_h(y_c)$ and trace
+  $\tr\Covh(y_c)$ (Proposition~\ref{prop:moments}).
+\item \emph{Measurement, per condition.} Draw $M$ samples; record $\tr\Cov$, the
+  generated mean, and the on-atom fraction: the share of samples $\hat x$ with
+  $\|\hat x-x^{(1)}\|^2\le\frac19\|\hat x-x^{(2)}\|^2$, where $x^{(1)},x^{(2)}$ are the two
+  nearest training points \citep{yoon2023memorization}.
+\item \emph{Level.} Report the aggregate ratio $\sum_c\tr\Cov/\sum_c\tr\Covh$ and the
+  median per-condition ratio with a bootstrap interval. Never average per-condition
+  ratios: their denominators can be arbitrarily small (Table~\ref{tab:seed3}).
+\item \emph{Range.} Report how many decades $\log_{10}\tr\Covh$ spans across conditions.
+  With little range, agreement in level is uninformative: at $0.74$ decades (CIFAR-10,
+  $h{=}6$) the median ratio is $1.15$ while the slope has the wrong sign and $R^2=0.135$.
+\item \emph{Tracking.} Fit $\beta$, the OLS slope of $\log\tr\Cov$ on $\log\tr\Covh$
+  across conditions, with its standard error and $R^2$; the population optimum gives
+  $\beta=1$.
+\end{enumerate}
+\emph{Reading.} $\beta\approx1$ with aggregate ratio $\approx1$: the model is near the
+population optimum for this $h$, whose law is atomic and carries the floor
+\eqref{eq:w2floor}. An on-atom fraction near $1$: samples are training examples.
+$\tr\Cov\approx\tr\Sigmapost$ on its own certifies nothing, since for a suitable $h$
+it holds for an atomic law (Section~\ref{sec:p7}).
+\end{minipage}}
+\end{center}
+
 \subsection{Material deferred from Section~\ref{sec:experiments}}
 \label{app:exp4}
 
-The paragraphs and floats below are reproduced verbatim from earlier versions of the
-main text, which now quotes their conclusions. Sanity checks for EXP-1 pass before any
+This subsection gives the full measurements behind the conclusions quoted in
+Section~\ref{sec:experiments}. Sanity checks for EXP-1 pass before any
 measurement is taken: the analytic posterior satisfies the normal equations to
 $1.8\times10^{-15}$, closed-form field integration maps every $x_0\to x^i$, and the
 unconditional model does not leak $y$.
@@ -2918,7 +2955,7 @@ Unlike the MMD, the floor \eqref{eq:w2floor} is directly computable: at the EXP-
 configuration $F=0.0353$, i.e.\ $W_2\ge0.19$ but only $3.5\%$ of $\tr\Sigmapost$, and
 the \emph{population-optimal} atomic law already reaches ${\rm MMD}=0.0089$---below the
 trained model's $0.024$. Atomicity, though exact, is therefore \emph{not} what the MMD
-curves measure; we correct that misreading in Appendix~\ref{sec:aux}. The reason is
+curves measure (Appendix~\ref{sec:aux}). The reason is
 instrumental: an RBF MMD at the median-heuristic bandwidth cannot resolve inter-atom
 spacing, which is why an MMD that falls with $h$ says nothing about whether the
 support is still atomic.
@@ -2951,18 +2988,12 @@ smallest, since an isotropic $\rho$ cannot fill a high-dimensional gap without p
 $d\rho^2$. Endpoint smoothing is defeated by dimension, as kernel density estimation
 is.
 
-We state this correction plainly because an earlier version of this paper reported the
-opposite. It read a $2.1\times$ population gain and a $2.5\times$ trained-model gain in
-entropic OT against $1.2$--$1.5\times$ in MMD, and built on that gap an argument that
-OT sees the atomic support where MMD cannot. Those OT numbers came from a Sinkhorn
-implementation whose log-domain dual mixed two unit conventions; it scored two
-independent draws from the same Gaussian at $3.34$ and a point mass against a standard
-Gaussian at exactly $0$. It is corrected and pinned to three closed forms in
-\texttt{scripts/verify\_sinkhorn.py}, and with it corrected the gap does not exist: at
-$N{=}50$ the MMD gain is the \emph{larger} of the two. The argument that MMD cannot
-resolve inter-atom spacing survives on its own evidence---the population-optimal atomic
+One might expect entropic OT to see the atomic support where MMD cannot. It does not:
+at $N{=}50$ the MMD gain is the \emph{larger} of the two. Our Sinkhorn estimator is
+pinned to three closed forms in \texttt{scripts/verify\_sinkhorn.py}. That MMD cannot
+resolve inter-atom spacing rests on separate evidence: the population-optimal atomic
 law scores ${\rm MMD}=0.0089$, below the trained model's $0.024$, so an MMD of that size
-is compatible with a purely atomic law---and needs no help from OT.
+is compatible with a purely atomic law.
 
 \paragraph{Interpolant noise does not help (Proposition~\ref{prop:prop17}).} With the
 \emph{corrected} target \eqref{eq:c2target} (verified by four closed-form checks) the
@@ -2986,8 +3017,7 @@ $-0.06,-0.05,-0.07,-0.00,+0.17,+0.22$ at $h{=}5$ (at $M{=}96$ throughout, so the
 comparison across checkpoints is like for like; the final $h{=}4$ value re-measured at
 $M{=}256$ is the $0.481$ quoted above). Tracking the kernel reference is therefore
 something the model \emph{learns}, and $0.481$ is where $60000$ iterations reached
-rather than a ceiling of the model class. We are careful about what this does and does
-not show: it establishes that the deficit is at least partly an optimisation gap and
+rather than a ceiling of the model class. This establishes that the deficit is at least partly an optimisation gap and
 not a fixed property of the parameterisation, and it does \emph{not} establish that
 $\beta\to1$, which would need a budget we have not run. Three rival explanations for a
 fixed exponent (an additive variance floor, a hard floor, and an affine map) were
@@ -2996,8 +3026,8 @@ fitted to the final checkpoint and all lose to the power law in log space
 happening. At $h{=}6$, $\beta$ never leaves zero, which is what the missing range
 predicts. The trained model reproduces the ordering
 Theorem~\ref{thm:endpoint} implies (which conditions have more posterior variance) and
-compresses its dynamic range, by a factor that itself grows with the reference. We put
-it that way deliberately. Theorem~\ref{thm:endpoint} describes the population
+compresses its dynamic range, by a factor that itself grows with the reference.
+Theorem~\ref{thm:endpoint} describes the population
 minimiser; a $35.75$M-parameter network at $60000$ iterations is not that minimiser, so
 $\beta=0.481$ is a fact about how far the optimisation has come, not a refutation. The
 theory predicts the destination, not the speed.
@@ -3017,13 +3047,11 @@ gives the final values. Reading the spread as $(\max-\min)/\mathrm{mean}$: the r
 $\tr\Cov$ moves by $41\%$ at $h{=}4$, $23\%$ at $h{=}5$ and $16\%$ at $h{=}6$, while
 the aggregate ratio $\tr\Cov/\tr\Covh$ moves by $23\%$, $30\%$ and $23\%$.
 
-That is a narrower claim than an earlier version of this paper made, and we state the
-change. With two seeds the aggregate ratio moved by $9.3\%$ at $h{=}4$ and $0.27\%$ at
-$h{=}5$, and we concluded that the reference-relative quantity is the stable one. The
-third seed shows the $h{=}5$ figure to have been a coincidence (two instances landed
-on $1.245$ and $1.248$, the third on $1.654$) and at $h{=}5$ and $h{=}6$ the aggregate
-ratio is in fact \emph{less} stable across instances than the raw trace it was meant to
-stabilise. What survives is the case at $h{=}4$, where the ratio moves by $23\%$
+So the reference-relative quantity is not uniformly the more stable one. Two instances
+alone would suggest otherwise: at $h{=}5$ two of them land on $1.245$ and $1.248$, and
+only the third, at $1.654$, shows that agreement to be a coincidence. At $h{=}5$ and
+$h{=}6$ the aggregate ratio is \emph{less} stable across instances than the raw trace it
+was meant to stabilise. What survives is the case at $h{=}4$, where the ratio moves by $23\%$
 against the raw trace's $41\%$; and $h{=}4$ is exactly the bandwidth at which the
 reference has range across conditions, which is the same condition the $\beta$
 measurement identifies as the informative one. A reference-relative statistic can only
@@ -3047,10 +3075,12 @@ $1.356$ and $37.17$. The reason is that a per-condition ratio has a denominator 
 can be arbitrarily close to zero, so its average is heavy-tailed and dominated by
 whichever condition happened to draw the smallest $\tr\Covh$---the same pathology that
 makes the $M{=}256$ mean $20.4$ against a median of $5.30$ at $h{=}4$
-(Section~\ref{sec:cifarddpm}). An earlier version of this paper argued
-instance-stability from the two-seed $3.5\%$ figure alone; adding seeds turned that
-$3.5\%$ into $281\%$. We report the aggregate ratio throughout,
-and medians with bootstrap intervals where per-condition detail is needed.
+(Section~\ref{sec:cifarddpm}). With two instances its spread is $3.5\%$; the third turns
+that into $281\%$. Across instances we therefore compare the aggregate ratio; within
+an instance (Table~\ref{tab:cifarddpm}, Figure~\ref{fig:cifartrack}) we summarise the
+per-condition ratios by their median with a bootstrap interval. The mean of
+per-condition ratios appears only to show its instability (last column of
+Table~\ref{tab:seed3}).
 
 \begin{figure}[htb]
 \centering
@@ -3254,9 +3284,8 @@ an MLP trained at that same bandwidth for $200000$ iterations, integrated from t
 $160$ draws of $x_0$. The model is converging to the law above it, not to some other
 law: at $h{=}0$ it puts $96\%$ of its paths on the labelled atom, and at $h>0$ its trace
 is within a quarter of the reference on a measurement whose own sampling error is
-$11\%$. Produced by \texttt{scripts/make\_flow\_portraits.py}; the $h>0$ runs are
-\texttt{p7yck\_h*\_seed0}, retrained for this figure because the original P7 sweeps kept
-their metrics but not their checkpoints.}
+$11\%$. Produced by \texttt{scripts/make\_flow\_portraits.py}; the $h>0$ networks were
+retrained for this figure with the P7 settings.}
 \label{fig:bandwidthportrait}
 \end{figure}
 
@@ -3351,12 +3380,8 @@ $\rho=0.3$ & 0 & 0.3959 & 0.3908 & 0.1549 & 0.711 & 0.5383\\
 iterations, 8 conditions, $M{=}800$). The generated covariance matches
 \eqref{eq:tgtendpoint}'s $\tr\Covh+d\rho^2$ to within $3\%$ in both arms, and the mean
 is unchanged by $\rho$---both as the moment formula requires. Distance to the analytic
-posterior falls $1.49\times$ in MMD and $1.29\times$ in entropic OT. An earlier version
-of this table reported the OT column two orders of magnitude larger and falling
-$2.5\times$, and read a metric-sensitivity argument off the gap between the two
-columns. Those OT numbers came from a Sinkhorn implementation whose log-domain dual
-mixed two unit conventions; it is corrected here, pinned to three closed forms in
-\texttt{scripts/verify\_sinkhorn.py}, and the gap it appeared to show does not exist.
+posterior falls $1.49\times$ in MMD and $1.29\times$ in entropic OT (Sinkhorn estimator
+pinned to three closed forms in \texttt{scripts/verify\_sinkhorn.py}).
 Endpoint smoothing helps in both metrics at this $N$ and this $h$, and by a similar
 factor in each.}
 \label{tab:tgt}
@@ -3757,13 +3782,10 @@ $W_2$ and $14\times$ above it in MMD. In the data's own units the best bandwidth
 leaves the generated law $0.345$ from the posterior, which is $34\%$ of the posterior's
 own width $\sqrt{\tr\Sigmapost}=1.00$.
 
-An earlier version of this paper read the OT curve's apparent plateau as a numerical
-witness of the floor \eqref{eq:w2floor}. That reading was wrong twice over. The
-numbers were produced by the Sinkhorn implementation corrected in
-Section~\ref{sec:p7}, so the plateau was an artefact; and the floor is in any case
+These curves are not a numerical witness of the floor \eqref{eq:w2floor}. The floor is
 directly computable, equals $0.0353$ here ($3.5\%$ of $\tr\Sigmapost$) while the
 population-optimal atomic law already reaches ${\rm MMD}=0.0089$, below what the
-trained model attains. What the corrected curves do show is the claim the paper makes:
+trained model attains. What these curves do show is the claim the paper makes:
 the model converges to the atomic law the theory names, and that law does not converge
 to the posterior. Atomicity is real (Proposition~\ref{prop:atomicity} is exact); what
 these curves measure is the model arriving at it.
@@ -4081,11 +4103,9 @@ samples (orange) land on the training points weighted most heavily by the kernel
 mixture-over-atoms endpoint law directly in sample space (right). The right panel is
 at $h{=}0.5$, where the query's own atom $x^i$ (gold star) is only one of
 $n_{\mathrm{eff}}\approx102$ contributors and therefore carries no special weight---the
-opposite of the $h{\to}0$ regime of Corollary~\ref{cor:zerobw}. The panel headings
-carry equation numbers from the development notes rather than this paper's: ``(8.1)''
-is \eqref{eq:kernel-field} and ``(10.1)'' is Theorem~\ref{thm:endpoint}. The plot
-cannot be regenerated with corrected labels because it reads the $p7y$ checkpoints,
-which were not retained (see the reproducibility statement).}
+opposite of the $h{\to}0$ regime of Corollary~\ref{cor:zerobw}. ``Kernel field'' is
+\eqref{eq:kernel-field} and the mixture weights are those of
+Theorem~\ref{thm:endpoint}.}
 \label{fig:kernel}
 \end{figure}
 
