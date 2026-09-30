@@ -357,9 +357,9 @@ $\beta$ reaches only $0.38$. The on-atom fraction at training conditions ranks t
 held-out extraction rate at $0.97$. Calibration holds in a window: the nominal 90\%
 region covers $0.86$--$0.88$ of held-out $x^\star$ for $h_{\mathrm{eff}}\in[0.1,0.4)$,
 where $\Covh$ matches $\Sigmapost$, against $0.54$ for $h_{\mathrm{eff}}\in[0.02,0.05)$
-and $0.34$ below $0.02$ (Table~\ref{tab:calib}). A sampler stops being a posterior
-sampler when its effective bandwidth leaves the window, which can be read off a
-checkpoint without knowing the posterior.
+and $0.34$ below $0.02$ (Table~\ref{tab:calib}). Locating that window used the
+posterior; $h_{\mathrm{eff}}$ itself needs only the training set, so once the window is
+established on a validation set, a checkpoint can be monitored without it.
 
 \begin{table}[t]
 \centering\small

@@ -652,9 +652,9 @@ $0.90$ (median within a run also $0.90$); the tracking slope $\beta$ reaches $0.
 on-atom fraction at training conditions ranks the held-out extraction rate at $0.97$.
 Calibration holds in a window: coverage of the nominal 90\% region is $0.86$--$0.88$ for
 $h_{\mathrm{eff}}\in[0.1,0.4)$, where $\Covh$ matches $\Sigmapost$, and falls to $0.54$
-and $0.34$ for $h_{\mathrm{eff}}\in[0.02,0.05)$ and below $0.02$. A sampler has stopped
-being a posterior sampler when its effective bandwidth leaves that window, which can be
-read off a checkpoint without the posterior.
+and $0.34$ for $h_{\mathrm{eff}}\in[0.02,0.05)$ and below $0.02$. Locating that window
+used the posterior; $h_{\mathrm{eff}}$ itself needs only the training set, so once the
+window is established on a validation set, a checkpoint can be monitored without it.
 
 \begin{figure}[t]
 \centering

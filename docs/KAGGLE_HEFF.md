@@ -104,6 +104,43 @@ the 2k-60k results already in the repo untouched.
 Output size grows to ~13 archived checkpoints per run (~11 GB for both), inside
 Kaggle's 20 GB notebook output.
 
+## 2c. A second dataset: MNIST
+
+`configs/exp3_mnist_ddpm_heff.yaml` runs the same protocol on MNIST bottom-half
+inpainting (same U-Net, N = 2000). Bandwidths are set against the condition-space
+geometry (median nearest-neighbour distance 6.35): h = 2.5 and 3.0 give median n_eff
+1.8 and 6.7 and a reference spanning 2.4 and 1.2 decades. MNIST downloads by itself.
+
+```
+!curl -sL -o /tmp/h.sh https://raw.githubusercontent.com/KhoiTrant68/cfm-collapse/main/scripts/kaggle_heff.sh
+!CONFIG=configs/exp3_mnist_ddpm_heff.yaml PREFIX=exp3_mnist_heff RUNS="2.5:0 2.5:1" bash /tmp/h.sh
+```
+
+then `RUNS="2.5:2 3:0"` and `RUNS="3:1 3:2"`, each pair continued with `PREV=` like the
+CIFAR-10 runs (keep the same `CONFIG` and `PREFIX`).
+
+## 2d. Calibration at image scale on the finished runs (analysis only)
+
+Does h_eff predict calibration beyond the synthetic problem? No reference posterior is
+needed: for a held-out *test* image, its hidden half is a draw from the true conditional
+law given its observed half, so a calibrated sampler must place it like one of its own
+draws (per-pixel PIT uniform, 90% intervals covering 90%).
+`scripts/calib_image_checkpoints.py` measures that at every archived checkpoint, on 64
+test images with 64 samples each, plus the extraction rate.
+
+The six 60k runs are finished, so a session only analyses them: attach the **part-2
+output** of a pair (it holds the checkpoints up to 60000) and run
+
+```
+!curl -sL -o /tmp/h.sh https://raw.githubusercontent.com/KhoiTrant68/cfm-collapse/main/scripts/kaggle_heff.sh
+!ANALYSIS=calib PREV=/kaggle/input RUNS="4:0 4:1" bash /tmp/h.sh
+```
+
+(`RUNS="4:2 5:0"` and `RUNS="5:1 5:2"` with the session-B and session-C part-2 outputs.)
+Training is skipped because the runs are at their target; expect roughly 30-60 minutes
+per pair. The zip carries `heff/calib_<run>.json`. For new runs, `ANALYSIS=both` does both
+analyses in the session that finishes training.
+
 ## 3. What comes back
 
 Each session writes `/kaggle/working/heff-results-<timestamp>.zip` (small): per run
