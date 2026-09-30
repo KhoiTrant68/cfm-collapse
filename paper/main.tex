@@ -64,7 +64,9 @@ variances gives $h_{\mathrm{eff}}$; fitting it to the per-condition means, separ
 gives the same bandwidth within 95\% intervals at $48/48$ checkpoints of 15 synthetic
 runs and at $31/36$ of six CIFAR-10 runs with a $35.75$M-parameter DDPM U-Net. In both,
 $h_{\mathrm{eff}}$ falls with training and ends just above $h$ ($1.08h$ synthetic,
-$1.13$--$1.34h$ on CIFAR-10 at $60$k iterations). The same law ranks interventions:
+$1.13$--$1.34h$ on CIFAR-10 at $60$k iterations). Where the posterior is known,
+$h_{\mathrm{eff}}$ read from training conditions ranks held-out credible-region coverage
+with Spearman $0.90$. The same law ranks interventions:
 interpolant noise leaves the endpoint unchanged, label noise reweights the atoms, and
 only endpoint noise moves the support. Scope: identifying conditions, as in inverse
 problems and inpainting.
@@ -153,7 +155,8 @@ lines.}
   variances and recovered independently from its per-condition means, and
   $h_{\mathrm{eff}}$ falls towards $h$ as training proceeds (Section~\ref{sec:heff};
   48/48 synthetic and 31/36 CIFAR-10 checkpoints). What looked like partial agreement
-  with the reference at $h$ is agreement with the reference at a larger bandwidth.
+  with the reference at $h$ is agreement with the reference at a larger bandwidth, and
+  $h_{\mathrm{eff}}$ predicts held-out posterior coverage (Spearman $0.90$).
 \item \textbf{An audit.} Level agreement with the reference is uninformative when the
   reference barely varies across conditions: on CIFAR-10 the median ratio is $1.15$
   while the across-condition slope is $\beta=-0.156$. The audit (Appendix~\ref{app:audit})
@@ -507,18 +510,12 @@ $0.485$ against $\tfrac12$, Appendix~\ref{app:survival}).
 \subsection{Scope}
 \label{sec:scope}
 
-The population theory proves consequences for the empirical minimiser
-(Propositions~\ref{prop:collapse}--\ref{prop:tgtnoise},
-Corollaries~\ref{cor:zerobw}--\ref{cor:infbw}). It does not determine the number of SGD
-steps needed to approach the optimum. Nor does it settle how observed collapse depends on
-$N$ at fixed architecture (the population optimum collapses for every finite $N$, and a
-non-collapsing $N{=}5000$ run probes representation and optimisation), how it depends on
-$\sigma_{\mathrm{obs}}$ (the theory implies no monotonicity), how $\tr\Covh$ varies
-with $h$ on a given instance, or what the finite-sample error bars are. The theory
-predicts the destination, not the speed (Figure~\ref{fig:collapsetime}, appendix, computes
-when the index posterior commits). The phenomenon practitioners report is temporal
-and their question is when to stop, so a characterisation of the collapse time in $N$, $d$
-and capacity is the main thing missing here.
+The theory describes the empirical minimiser, not how many SGD steps reach it, nor how
+observed collapse depends on $N$ at fixed architecture (a non-collapsing $N{=}5000$ run
+probes representation and optimisation), on $\sigma_{\mathrm{obs}}$, or on $h$ on a
+given instance. It predicts the destination, not the speed
+(Figure~\ref{fig:collapsetime}, appendix); Section~\ref{sec:heff} measures how far a
+trained model has gone.
 
 % ==========================================================================
 \section{Experiments}
@@ -645,6 +642,19 @@ falls between $10^4$ and $10^5$ iterations in 12/12 runs and settles just above 
 $2\times10^5$), so the residual variance read as an optimisation gap in
 Section~\ref{sec:exp1} is a bandwidth that has not reached zero. At $h{=}0.5$
 ($n_{\mathrm{eff}}\approx100$) it is poorly identified (9/15 intervals overlap).
+
+\paragraph{$h_{\mathrm{eff}}$ predicts calibration.} The posterior is known here, so we
+measured at every checkpoint ($\ge3000$ iterations, 75 in all) the coverage of the 50\%
+and 90\% credible regions of the generated samples at 100 held-out pairs $(x^\star,y^\star)$,
+and the share of held-out samples that are training points. $h_{\mathrm{eff}}$, read
+from the training conditions alone, ranks the held-out 90\% coverage with Spearman
+$0.90$ (median within a run also $0.90$); the tracking slope $\beta$ reaches $0.38$. The
+on-atom fraction at training conditions ranks the held-out extraction rate at $0.97$.
+Calibration holds in a window: coverage of the nominal 90\% region is $0.86$--$0.88$ for
+$h_{\mathrm{eff}}\in[0.1,0.4)$, where $\Covh$ matches $\Sigmapost$, and falls to $0.54$
+and $0.34$ for $h_{\mathrm{eff}}\in[0.02,0.05)$ and below $0.02$. A sampler has stopped
+being a posterior sampler when its effective bandwidth leaves that window, which can be
+read off a checkpoint without the posterior.
 
 \begin{figure}[t]
 \centering
