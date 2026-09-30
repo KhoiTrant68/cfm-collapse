@@ -48,7 +48,10 @@ per-condition variances gives $h_{\mathrm{eff}}$; fitting it to the per-conditio
 separately, gives the same bandwidth within 95\% intervals at $48/48$ checkpoints of 15
 synthetic runs and $31/36$ of six CIFAR-10 runs with a $35.75$M-parameter U-Net. In
 both, $h_{\mathrm{eff}}$ falls monotonically with training and ends at $1.08h$
-(synthetic) and $1.13$--$1.34h$ (CIFAR-10, $60$k iterations). The account turns the
+(synthetic) and $1.13$--$1.34h$ (CIFAR-10, $60$k iterations). Where the posterior is
+known, $h_{\mathrm{eff}}$ read from the training conditions ranks the coverage of
+posterior credible regions at held-out conditions with Spearman $0.90$, and the sampler
+stays calibrated while $h_{\mathrm{eff}}$ stays in a window. The account turns the
 memorisation of a conditional sampler into one number that can be read off a
 checkpoint.
 \end{abstract}
@@ -343,6 +346,40 @@ $2\times10^5$ for $h\ge0.05$); at $h=0$ it keeps falling ($0.011\pm0.006$). The
 residual variance that looks like an optimisation gap at $h=0$ is a bandwidth that has
 not reached zero. At $h=0.5$ the reference has little range ($n_{\mathrm{eff}}\approx100$)
 and $h_{\mathrm{eff}}$ is poorly identified (intervals overlap at 9/15 checkpoints).
+
+\paragraph{$h_{\mathrm{eff}}$ predicts calibration.} The posterior is known here, so at
+every checkpoint from 3000 iterations (75 in all) we measured the coverage of the 50\%
+and 90\% credible regions of the generated samples at 100 held-out pairs
+$(x^\star,y^\star)$, and the share of held-out samples that are training points.
+$h_{\mathrm{eff}}$, read from the training conditions alone, ranks the held-out 90\%
+coverage with Spearman $0.90$ (median within a run also $0.90$); the tracking slope
+$\beta$ reaches only $0.38$. The on-atom fraction at training conditions ranks the
+held-out extraction rate at $0.97$. Calibration holds in a window: the nominal 90\%
+region covers $0.86$--$0.88$ of held-out $x^\star$ for $h_{\mathrm{eff}}\in[0.1,0.4)$,
+where $\Covh$ matches $\Sigmapost$, against $0.54$ for $h_{\mathrm{eff}}\in[0.02,0.05)$
+and $0.34$ below $0.02$ (Table~\ref{tab:calib}). A sampler stops being a posterior
+sampler when its effective bandwidth leaves the window, which can be read off a
+checkpoint without knowing the posterior.
+
+\begin{table}[t]
+\centering\small
+\begin{tabular}{lcccccc}
+\toprule
+$h_{\mathrm{eff}}$ & $<0.02$ & $[0.02,0.05)$ & $[0.05,0.1)$ & $[0.1,0.2)$ & $[0.2,0.4)$ &
+$\ge0.4$\\
+\midrule
+checkpoints & 9 & 9 & 14 & 20 & 5 & 18\\
+90\% coverage (nominal $0.90$) & 0.34 & 0.54 & 0.79 & \textbf{0.86} & \textbf{0.88} & 0.94\\
+calibration error & 0.94 & 0.63 & 0.22 & \textbf{0.10} & \textbf{0.10} & 0.16\\
+\bottomrule
+\end{tabular}
+\caption{Held-out calibration against $h_{\mathrm{eff}}$ on the linear-Gaussian problem
+(15 runs, 75 checkpoints, 100 held-out pairs each). Calibration error is
+$|c_{50}-0.5|+|c_{90}-0.9|$ for the coverages $c_{50},c_{90}$ of the 50\% and 90\%
+regions. Too small an $h_{\mathrm{eff}}$ under-covers (collapse); too large
+over-covers.}
+\label{tab:calib}
+\end{table}
 
 \begin{figure}[t]
 \centering
