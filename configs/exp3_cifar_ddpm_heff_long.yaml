@@ -1,0 +1,54 @@
+# EXP-3, CIFAR-10 DDPM U-Net at h = 4, continued from 60000 to 240000 iterations.
+#
+# Why: over 60000 iterations h_eff falls towards h but is still 1.13-1.34 h at the end
+# of every run (results/exp3/_heff), and two runs level off while the others keep
+# falling. Whether h_eff has a floor above h or converges slowly decides how the
+# central claim is worded; only a longer budget can tell.
+#
+# How: the h = 4 runs of session A (exp3_cifar_heff_h4_s0, _s1) left a resumable
+# checkpoint at 60000 with Adam's moments, the AMP scaler and both RNG streams. The
+# learning rate is constant (no schedule), so continuing that checkpoint under this
+# config is the same run as a 240000-iteration one from the start. The run names are
+# the same as in session A so scripts/kaggle_heff.sh restores them from PREV:
+#     CONFIG=configs/exp3_cifar_ddpm_heff_long.yaml MIN_ITER=90000 \
+#         PREV=<session A output> RUNS="4:0 4:1" bash kaggle_heff.sh
+#
+# Everything else is exp3_cifar_ddpm_heff.yaml unchanged.
+run_name: exp3_cifar_heff
+seed: 0
+device: auto
+
+data:
+  N: 2000
+  dataset: cifar10
+  mask_kind: bottom_half
+  source_std: 1.0
+  data_root: data
+
+model:
+  arch: ddpm
+  base: 128
+  ch_mult: [1, 2, 2, 2]
+  num_res_blocks: 2
+  attn_resolutions: [16]
+  temb_dim: 512
+  dropout: 0.0
+
+train:
+  max_iters: 240000
+  batch_size: 128
+  lr: 0.0002
+  y_noise_h: 4.0
+  amp: true
+  checkpoints: [500, 2000, 5000, 10000, 20000, 30000, 40000, 60000,
+                90000, 120000, 160000, 200000, 240000]
+  save_checkpoints: [2000, 5000, 10000, 20000, 30000, 40000, 60000,
+                     90000, 120000, 160000, 200000, 240000]
+
+eval:
+  n_conditions: 8
+  M: 16
+  n_steps: 50
+  ode_eps: 0.001
+  grid_conditions: 4
+  grid_M: 6

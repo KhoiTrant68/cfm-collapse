@@ -16,8 +16,11 @@
 #     SMOKE=0            1 = a few-minute rehearsal on the real model and data
 #     M=128  NCOND=48    samples and conditions for the h_eff analysis
 #     REPO=""            offline only: an attached copy of the repo
+#     CONFIG=configs/exp3_cifar_ddpm_heff.yaml   ..._heff_long.yaml continues the
+#                        session-A runs from 60000 to 240000
+#     MIN_ITER=0         analyse only checkpoints at or after this iteration
 #
-# When a run reaches 60000 iterations, the session measures h_eff at every
+# When a run reaches its max_iters, the session measures h_eff at every
 # archived checkpoint on the GPU it already has and zips the JSON. Checkpoints
 # (~430 MB each) stay in /kaggle/working and travel to the next session as the
 # notebook's output; they never go in the zip.
@@ -34,7 +37,8 @@ M="${M:-128}"
 NCOND="${NCOND:-48}"
 OUTDIR="${OUTDIR:-/kaggle/working}"
 WORK="${WORK:-$OUTDIR/cfm-collapse}"
-CONFIG="configs/exp3_cifar_ddpm_heff.yaml"
+CONFIG="${CONFIG:-configs/exp3_cifar_ddpm_heff.yaml}"
+MIN_ITER="${MIN_ITER:-0}"
 STAMP="$(date +%Y%m%d-%H%M%S)"
 mkdir -p "$OUTDIR"
 LOG="$OUTDIR/heff-session-${STAMP}.log"
@@ -46,6 +50,7 @@ fi
 exec > >(tee -a "$LOG") 2>&1
 echo "=== cfm-collapse h_eff session ${STAMP} ==="
 echo "runs=[$RUNS] prev=${PREV:-<none>} hours=$HOURS smoke=$SMOKE M=$M conditions=$NCOND"
+echo "config=$CONFIG min_iter=$MIN_ITER"
 
 # --------------------------------------------------------------------------- #
 # 1. environment and code
@@ -156,7 +161,7 @@ if [ "$SMOKE" = "1" ]; then
 else
   echo "--- training (budget ${HOURS} h, ${NGPU} GPU(s)) ---"
   run_all
-  TARGET=60000
+  TARGET=$(python -c "import yaml; print(yaml.safe_load(open('$CONFIG', encoding='utf-8'))['train']['max_iters'])")
 fi
 
 # --------------------------------------------------------------------------- #
@@ -179,7 +184,7 @@ for name in "${ANALYSE[@]}"; do
   gpu=0; [ "$NGPU" -gt 1 ] && gpu=$(( k % NGPU )); k=$((k + 1))
   ( CUDA_VISIBLE_DEVICES=$gpu python -u -m scripts.heff_cifar_checkpoints \
       --work "$WORK/results/exp3" --runs "$name" --M "$M" --n-conditions "$NCOND" \
-      --out "$WORK/results/exp3/_heff" > "$OUTDIR/heff-${name}-${STAMP}.log" 2>&1
+      --min-iter "$MIN_ITER" --out "$WORK/results/exp3/_heff" > "$OUTDIR/heff-${name}-${STAMP}.log" 2>&1
     echo "[$name] h_eff analysis returned $?"; cat "$OUTDIR/heff-${name}-${STAMP}.log" ) &
   if [ "$NGPU" -gt 1 ]; then pids+=($!); else wait $!; fi
 done
