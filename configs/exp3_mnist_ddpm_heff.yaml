@@ -1,0 +1,48 @@
+# A second image dataset for the effective-bandwidth measurement: MNIST bottom-half
+# inpainting with the same 35.75M-parameter DDPM U-Net and protocol as
+# exp3_cifar_ddpm_heff.yaml.
+#
+# Bandwidths are set against the condition-space geometry, as for CIFAR-10: the median
+# nearest-neighbour distance between observed halves is 6.35 (N = 2000, seed 0). The
+# usable window is narrow: median n_eff is 1.1 at h = 2, 1.8 at h = 2.5, 6.7 at h = 3 and
+# 183 at h = 4, and the reference spans 2.4 and 1.2 decades across 48 conditions at
+# h = 2.5 and 3. The pair h in {2.5, 3} plays the role of h in {4, 5} on CIFAR-10.
+#
+# Run with scripts/kaggle_heff.sh:
+#     CONFIG=configs/exp3_mnist_ddpm_heff.yaml PREFIX=exp3_mnist_heff RUNS="2.5:0 2.5:1"
+run_name: exp3_mnist_heff
+seed: 0
+device: auto
+
+data:
+  N: 2000
+  dataset: mnist
+  mask_kind: bottom_half
+  source_std: 1.0
+  data_root: data
+
+model:
+  arch: ddpm
+  base: 128
+  ch_mult: [1, 2, 2, 2]
+  num_res_blocks: 2
+  attn_resolutions: [16]
+  temb_dim: 512
+  dropout: 0.0
+
+train:
+  max_iters: 60000
+  batch_size: 128
+  lr: 0.0002
+  y_noise_h: 2.5
+  amp: true
+  checkpoints: [500, 2000, 5000, 10000, 20000, 30000, 40000, 60000]
+  save_checkpoints: [2000, 5000, 10000, 20000, 30000, 40000, 60000]
+
+eval:
+  n_conditions: 8
+  M: 16
+  n_steps: 50
+  ode_eps: 0.001
+  grid_conditions: 4
+  grid_M: 6

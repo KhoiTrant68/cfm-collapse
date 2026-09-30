@@ -19,6 +19,10 @@
 #     CONFIG=configs/exp3_cifar_ddpm_heff.yaml   ..._heff_long.yaml continues the
 #                        session-A runs from 60000 to 240000
 #     MIN_ITER=0         analyse only checkpoints at or after this iteration
+#     PREFIX=exp3_cifar_heff   run-name prefix; exp3_mnist_heff with the MNIST config
+#     ANALYSIS=heff      heff | calib | both: h_eff fit, posterior-free calibration on
+#                        held-out test images (scripts/calib_image_checkpoints.py), or both
+#     NTEST=64 MCAL=64   test images and samples per image for the calibration analysis
 #
 # When a run reaches its max_iters, the session measures h_eff at every
 # archived checkpoint on the GPU it already has and zips the JSON. Checkpoints
@@ -39,12 +43,15 @@ OUTDIR="${OUTDIR:-/kaggle/working}"
 WORK="${WORK:-$OUTDIR/cfm-collapse}"
 CONFIG="${CONFIG:-configs/exp3_cifar_ddpm_heff.yaml}"
 MIN_ITER="${MIN_ITER:-0}"
+ANALYSIS="${ANALYSIS:-heff}"     # heff | calib | both
+NTEST="${NTEST:-64}"             # held-out test images for the calibration analysis
+MCAL="${MCAL:-64}"               # samples per test image
 STAMP="$(date +%Y%m%d-%H%M%S)"
 mkdir -p "$OUTDIR"
 LOG="$OUTDIR/heff-session-${STAMP}.log"
-PREFIX="exp3_cifar_heff"
+PREFIX="${PREFIX:-exp3_cifar_heff}"
 if [ "$SMOKE" = "1" ]; then
-  PREFIX="smoke_heff"; HOURS="0.3"; M=8; NCOND=4
+  PREFIX="smoke_heff"; HOURS="0.3"; M=8; NCOND=4; NTEST=4; MCAL=8
 fi
 
 exec > >(tee -a "$LOG") 2>&1
@@ -182,10 +189,20 @@ done
 pids=(); k=0
 for name in "${ANALYSE[@]}"; do
   gpu=0; [ "$NGPU" -gt 1 ] && gpu=$(( k % NGPU )); k=$((k + 1))
-  ( CUDA_VISIBLE_DEVICES=$gpu python -u -m scripts.heff_cifar_checkpoints \
-      --work "$WORK/results/exp3" --runs "$name" --M "$M" --n-conditions "$NCOND" \
-      --min-iter "$MIN_ITER" --out "$WORK/results/exp3/_heff" > "$OUTDIR/heff-${name}-${STAMP}.log" 2>&1
-    echo "[$name] h_eff analysis returned $?"; cat "$OUTDIR/heff-${name}-${STAMP}.log" ) &
+  ( LOGA="$OUTDIR/heff-${name}-${STAMP}.log"; : > "$LOGA"
+    if [ "$ANALYSIS" = "heff" ] || [ "$ANALYSIS" = "both" ]; then
+      CUDA_VISIBLE_DEVICES=$gpu python -u -m scripts.heff_cifar_checkpoints \
+        --work "$WORK/results/exp3" --runs "$name" --M "$M" --n-conditions "$NCOND" \
+        --min-iter "$MIN_ITER" --out "$WORK/results/exp3/_heff" >> "$LOGA" 2>&1
+      echo "[$name] h_eff analysis returned $?"
+    fi
+    if [ "$ANALYSIS" = "calib" ] || [ "$ANALYSIS" = "both" ]; then
+      CUDA_VISIBLE_DEVICES=$gpu python -u -m scripts.calib_image_checkpoints \
+        --work "$WORK/results/exp3" --runs "$name" --n-test "$NTEST" --M "$MCAL" \
+        --min-iter "$MIN_ITER" --out "$WORK/results/exp3/_heff" >> "$LOGA" 2>&1
+      echo "[$name] calibration analysis returned $?"
+    fi
+    cat "$LOGA" ) &
   if [ "$NGPU" -gt 1 ]; then pids+=($!); else wait $!; fi
 done
 for p in "${pids[@]}"; do wait "$p"; done
