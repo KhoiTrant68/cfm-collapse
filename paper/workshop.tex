@@ -28,9 +28,8 @@
 
 \input{math_commands}
 
-\title{Auditing Conditional Flow Matching:\\
-Label Smoothing Is Kernel Regression\\
-over Training Atoms}
+\title{Trained Conditional Flows Memorise\\
+at an Effective Bandwidth}
 
 \author{Anonymous authors \\ Paper under double-blind review}
 
@@ -38,19 +37,20 @@ over Training Atoms}
 \maketitle
 
 \begin{abstract}
-Conditional flow matching trained too long on a finite dataset returns training
-examples instead of posterior samples. We characterise the population minimiser exactly.
-When a condition identifies one training example, every source draw is sent to that
-example. Gaussian label smoothing turns the endpoint law into a Nadaraya--Watson mixture
-over the training atoms, so the model's conditional moments have a reference computable
-from the training set alone, but the support never leaves the atoms. We turn this into
-an audit: compare a trained model with the exact reference by level and by the
-across-condition slope $\beta$, and never read ``variance restored'' as ``posterior
-restored''. On a synthetic problem an MLP matches the reference to within seed noise
-(mean ratio $0.994$--$1.011$) at every bandwidth where it is not degenerate. On
-CIFAR-10 with a $35.75$M-parameter U-Net, hard conditioning cuts the conditional
-variance $415$-fold, and at one bandwidth the level agrees ($1.15$) while the slope has
-the wrong sign, which the audit flags and a variance check would not.
+A conditional flow trained on finite data behaves like Nadaraya--Watson regression over
+its training examples at a single effective bandwidth $h_{\mathrm{eff}}$, which
+training shrinks towards the bandwidth $h$ of the label noise it was given. The
+reference comes from exact theory: with the training set fixed, the population
+minimiser sends a condition that identifies one example to that example, and label
+smoothing at bandwidth $h$ turns its endpoint law into a Nadaraya--Watson mixture of the
+training atoms, atomic at every $h$. Fitting that reference to a trained model's
+per-condition variances gives $h_{\mathrm{eff}}$; fitting it to the per-condition means,
+separately, gives the same bandwidth within 95\% intervals at $48/48$ checkpoints of 15
+synthetic runs and $31/36$ of six CIFAR-10 runs with a $35.75$M-parameter U-Net. In
+both, $h_{\mathrm{eff}}$ falls monotonically with training and ends at $1.08h$
+(synthetic) and $1.13$--$1.34h$ (CIFAR-10, $60$k iterations). The account turns the
+memorisation of a conditional sampler into one number that can be read off a
+checkpoint.
 \end{abstract}
 
 % ==========================================================================
@@ -65,19 +65,22 @@ empirical minimiser memorises is known in the unconditional case
 We ask what the conditional minimiser does, and what a practitioner's usual fix,
 Gaussian noise on the condition \citep{ho2022cascaded,sadat2024cads}, actually buys.
 
-The answer is exact and has one practical consequence. With the training set fixed:
+This is an analysis of model behaviour, built on exact theory. With the training set
+fixed:
 \begin{itemize}[leftmargin=1.4em,itemsep=1pt,topsep=2pt]
 \item a condition that identifies its example gives an endpoint law $\delta_{x^i}$ with
   zero variance and zero loss (Proposition~\ref{prop:collapse});
 \item label smoothing at bandwidth $h$ gives the Nadaraya--Watson mixture
-  $\sum_ip_i^{(h)}(y)\delta_{x^i}$ (Theorem~\ref{thm:endpoint}), whose moments are a
-  parameter-free reference for a trained model;
-\item that law is atomic at every $h$, with a Wasserstein floor independent of $h$
-  (Proposition~\ref{prop:atomicity}); only noise on the endpoint moves the support.
+  $\sum_ip_i^{(h)}(y)\delta_{x^i}$ (Theorem~\ref{thm:endpoint}), atomic at every $h$
+  with a Wasserstein floor independent of $h$ (Proposition~\ref{prop:atomicity});
+\item \textbf{a trained model follows that mixture at one effective bandwidth}
+  $h_{\mathrm{eff}}$, shared by all conditions and identified independently by the
+  generated variances and the generated means; $h_{\mathrm{eff}}$ falls towards $h$
+  as training proceeds (Section~\ref{sec:heff}).
 \end{itemize}
-The consequence is an audit protocol (Section~\ref{sec:audit}) that separates a model
-reaching the population optimum from one recovering the posterior, and that exposes
-agreement statistics whose reference barely varies across conditions.
+The first two results are the population optimum; the third says how far a finite
+network has gone towards it, and makes memorisation a single number read off a
+checkpoint (Section~\ref{sec:audit}).
 \citet{smola2026support} read the spatial factor of the same index posterior as a kernel
 smoother in time; we use the label factor, whose bandwidth is a modelling choice and
 survives to $t=1$.
@@ -188,13 +191,27 @@ $\Covh(y)+\rho^2I_d$.
 \end{proposition}
 
 % ==========================================================================
-\section{An audit protocol}
+\section{Measuring a trained model: effective bandwidth and audit}
 \label{sec:audit}
 
-Theorem~\ref{thm:endpoint} gives, for any trained conditional flow, the conditional
-moments it would have at the population optimum. The procedure below compares a model
-with that reference. It needs the training set and model samples, no retraining, and
-$O(CN(k+d))$ work for $C$ conditions.
+Theorem~\ref{thm:endpoint} gives, for any bandwidth $h'$, the conditional moments
+$\bar x_{h'}(y)$ and $\tr\mathrm{Cov}_{h'}(y)$ that the population optimum would have.
+A trained model need not sit at its own training bandwidth, so we ask which bandwidth
+it sits at. Given the per-condition generated trace $T_c$ and mean $m_c$ at conditions
+$y_1,\dots,y_C$,
+\begin{equation}
+h_{\mathrm{eff}}=\arg\min_{h'}\sum_c\big(\log T_c-\log\tr\mathrm{Cov}_{h'}(y_c)\big)^2,
+\qquad
+h_{\mathrm{mean}}=\arg\min_{h'}\sum_c\big\|m_c-\bar x_{h'}(y_c)\big\|,
+\label{eq:heff}
+\end{equation}
+each over a log-spaced grid and with a bootstrap interval over conditions. One number
+has to explain all $C$ conditions, and the two estimates use disjoint statistics, so
+$h_{\mathrm{mean}}\approx h_{\mathrm{eff}}$ is an out-of-sample check that the model is
+a Nadaraya--Watson mixture at all rather than merely having the right variance. Both
+need the reference to vary across conditions: when it barely does (large $h$), no
+bandwidth is identified. The procedure below collects the measurements; it needs the
+training set and model samples, no retraining, and $O(CN(k+d))$ work per bandwidth.
 
 \begin{center}
 \fbox{\begin{minipage}{0.96\textwidth}\small
@@ -212,10 +229,14 @@ conditioning); a trained sampler; conditions $y_1,\dots,y_C$; $M$ samples each.
 \item \emph{Range.} The number of decades $\log_{10}\tr\Covh$ spans across conditions.
 \item \emph{Tracking.} $\beta$, the OLS slope of $\log\tr\Cov$ on $\log\tr\Covh$, with
   its standard error and $R^2$. The optimum gives $\beta=1$.
+\item \emph{Effective bandwidth.} $h_{\mathrm{eff}}$ and $h_{\mathrm{mean}}$ of
+  \eqref{eq:heff} with bootstrap intervals; report whether the intervals overlap.
 \end{enumerate}
-\emph{Reading.} Level and slope near $1$: the model is near the optimum for this $h$,
-whose law is atomic (Proposition~\ref{prop:atomicity}). Level near $1$ with little
-range: uninformative. On-atom fraction near $1$: the samples are training examples.
+\emph{Reading.} $h_{\mathrm{mean}}\approx h_{\mathrm{eff}}$: the model is a
+Nadaraya--Watson mixture at $h_{\mathrm{eff}}$, and $h_{\mathrm{eff}}/h$ says how far
+training has taken it towards the optimum for its $h$, whose law is atomic
+(Proposition~\ref{prop:atomicity}). Level near $1$ with little range: uninformative.
+On-atom fraction near $1$: the samples are training examples.
 $\tr\Cov\approx\tr\Sigmapost$ alone certifies nothing.
 \end{minipage}}
 \end{center}
@@ -282,10 +303,9 @@ pass: the median ratio is $1.15$. The audit does not: the reference spans only $
 decades, $\beta=-0.156$ and $R^2=0.135$, so the model ignores which conditions should
 have more variance. At $h{=}4$, where the reference has range, the model keeps the
 ordering at about half the predicted exponent. Its on-atom fraction also falls with $h$,
-so the network leaves the atoms the population law is confined to. Measured over
-checkpoints, $\beta$ is near zero for $8000$ iterations and still rising at the end of
-the budget, so the gap is at least partly an optimisation gap; we do not know whether
-$\beta$ reaches $1$.
+so the network leaves the atoms the population law is confined to. Section~\ref{sec:heff}
+explains the partial slope: the network follows the reference, but at a bandwidth
+larger than $h$.
 
 \begin{table}[t]
 \centering\small
@@ -305,30 +325,81 @@ instance). The level improves with $h$ while tracking disappears.}
 \label{tab:cifar}
 \end{table}
 
+\subsection{Trained models sit at an effective bandwidth}
+\label{sec:heff}
+
+\paragraph{Synthetic.} Fifteen runs ($h\in\{0,0.01,0.05,0.1,0.5\}$, three seeds each,
+each seed a fresh instance) were trained with their weights kept at eight checkpoints,
+and \eqref{eq:heff} was evaluated at each from $M{=}1000$ samples at the 20 conditions
+(Figure~\ref{fig:heffsyn}). Where the reference varies across conditions
+($h\le0.1$, from $10^4$ iterations; 48 checkpoints) the variance-fitted and
+mean-implied bandwidths agree within their 95\% intervals at all 48 (log correlation
+$0.97$, median ratio $1.03$). With one parameter, $h_{\mathrm{eff}}$ explains the
+per-condition variances better than the two-parameter power law behind $\beta$ (median
+log-space $R^2$ $0.86$ against $0.79$; a constant multiple of $\Covh$, also one
+parameter, reaches $0.66$). $h_{\mathrm{eff}}$ falls between $10^4$ and $10^5$
+iterations in all 12 runs and settles just above $h$ ($1.08h$ on average at
+$2\times10^5$ for $h\ge0.05$); at $h=0$ it keeps falling ($0.011\pm0.006$). The
+residual variance that looks like an optimisation gap at $h=0$ is a bandwidth that has
+not reached zero. At $h=0.5$ the reference has little range ($n_{\mathrm{eff}}\approx100$)
+and $h_{\mathrm{eff}}$ is poorly identified (intervals overlap at 9/15 checkpoints).
+
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.62\textwidth]{fig_cifar_ddpm_tracking.png}
-\caption{Measured against predicted conditional variance per condition on CIFAR-10.
-Dashed: $\beta=1$; solid: fitted slope. As $h$ grows the reference loses range and the
-cloud sits on the identity with no slope.}
-\label{fig:cifar}
+\includegraphics[width=\textwidth]{fig_heff_synthetic.png}
+\caption{Linear-Gaussian problem, three seeds per bandwidth. (a) $h_{\mathrm{eff}}$
+falls with training and stops just above the training bandwidth $h$ (dashed); line:
+geometric mean over seeds, band: range. Checkpoints before 3000 iterations, where no
+bandwidth fits, are omitted. (b) The bandwidth fitted to the variances against the one
+implied by the means, with 95\% bootstrap intervals: two disjoint statistics give one
+bandwidth. Open markers ($h=0.5$): the reference barely varies and
+$h_{\mathrm{eff}}$ is poorly identified.}
+\label{fig:heffsyn}
+\end{figure}
+
+\paragraph{CIFAR-10.} Six runs of the published setup ($h\in\{4,5\}$, three instances
+each) were re-trained with weights kept at 2k--60k and analysed at $M{=}128$, 48
+conditions (Figure~\ref{fig:heffcifar}). The re-runs reproduce the published ones:
+$h_{\mathrm{eff}}=4.79$ and $5.81$ at 60k for seed 0, against $4.80$ and $5.75$.
+From 5k iterations on, the two bandwidths agree within their intervals at 31/36
+checkpoints; four of the five misses are at $h=5$ at 5k--10k, where
+$h_{\mathrm{eff}}$ is still $7$--$10$, and one is at 20k.
+$h_{\mathrm{eff}}$ falls monotonically in 5/6 runs and ends at $1.13$--$1.34h$; in four
+runs it is still falling at 60k and in two it has levelled off, so whether it has a
+floor above $h$ is open. The tracking slope rises as $h_{\mathrm{eff}}/h$ approaches
+$1$ in 5/6 runs, reaching $0.66$ at $h_{\mathrm{eff}}=1.13h$. At image scale
+$h_{\mathrm{eff}}$ is not a better fit to the per-condition variances than the power
+law: from 30k on the two are comparable (median $R^2$ better for $h_{\mathrm{eff}}$ in
+3/6 runs), and before 20k it is mostly worse.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{fig_heff_cifar.png}
+\caption{CIFAR-10, DDPM U-Net, three instances per bandwidth. (a, b) $h_{\mathrm{eff}}$
+from the variances (filled) and the bandwidth implied by the means (open), with 95\%
+intervals, against training iteration; dashed: training $h$; cross: the published run
+at 60k. From 5k on the two agree and fall towards $h$ without reaching it. (c) The
+tracking slope $\beta$ against $h_{\mathrm{eff}}/h$; training proceeds to the right.}
+\label{fig:heffcifar}
 \end{figure}
 
 % ==========================================================================
 \section{Limitations and conclusion}
 
-The theory describes the empirical population minimiser, not the network SGD reaches:
-on CIFAR-10 $38\%$ of samples leave the atoms at $h{=}6$, so atomicity is a property of
-the optimum that a trained model need not inherit. The theory predicts where training
-goes, not when it gets there, and practitioners mainly need the second. Our image
-experiments use one mask and $N{=}2000$, and labels without a natural kernel, such as
-text, are outside scope.
+The exact results describe the population minimiser; the effective bandwidth is an
+empirical description of trained models, supported by the agreement of two disjoint
+statistics but without a theory of how $h_{\mathrm{eff}}$ depends on training time,
+capacity or $N$. It is identified only where the reference varies across conditions,
+and at image scale it fits the variances no better than a two-parameter power law.
+Whether $h_{\mathrm{eff}}$ reaches $h$ or stops above it is open; it needs runs well
+beyond $6\times10^4$ iterations. Our image experiments use one mask and
+$N{=}2000$, and labels without a natural kernel, such as text, are outside scope.
 
-Within that scope the picture is exact. Conditional collapse is the zero-bandwidth limit
-of a kernel-weighted empirical flow; label smoothing moves along that limit without
-leaving the training atoms; only endpoint noise leaves them. The resulting reference
-makes the audit of Section~\ref{sec:audit} possible, and on CIFAR-10 it catches an
-agreement in variance that a variance check would have accepted.
+Within that scope: conditional collapse is the zero-bandwidth limit of a
+kernel-weighted empirical flow, label smoothing moves along that limit without leaving
+the training atoms, and a trained network travels the same family of laws at a
+bandwidth that training shrinks. That makes the memorisation of a conditional sampler
+one number that can be read off a checkpoint.
 
 \subsection*{Reproducibility statement}
 All numbers are produced by code in the supplementary material (anonymized); the
