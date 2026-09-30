@@ -78,10 +78,12 @@ def reference_grid(Xf, Yv, idx, grid, device):
 
 
 @torch.no_grad()
-def analyse_run(work: Path, run: str, M: int, n_cond: int, device, out: Path) -> dict | None:
+def analyse_run(work: Path, run: str, M: int, n_cond: int, device, out: Path,
+                min_iter: int = 0) -> dict | None:
     root = work / run
     cfg = load_yaml(root / "config.yaml")
-    ckpts = sorted((p for p in root.glob("checkpoints/ckpt_*.pt") if p.stem != "ckpt_resume"),
+    ckpts = sorted((p for p in root.glob("checkpoints/ckpt_*.pt")
+                    if p.stem != "ckpt_resume" and int(p.stem.split("_")[1]) >= min_iter),
                    key=lambda p: int(p.stem.split("_")[1]))
     if not ckpts:
         print(f"[skip] {run}: no archived checkpoints")
@@ -159,7 +161,10 @@ def analyse_run(work: Path, run: str, M: int, n_cond: int, device, out: Path) ->
     result = {"run": run, "h": h, "seed": int(cfg["seed"]), "M": M,
               "conditions": idx, "grid": GRID.tolist(), "checkpoints": rows}
     out.mkdir(parents=True, exist_ok=True)
-    path = out / f"heff_{run}.json"
+    # Analysing only the later checkpoints of a continued run must not overwrite the
+    # file that holds the earlier ones.
+    suffix = f"_from{min_iter // 1000}k" if min_iter > 0 else ""
+    path = out / f"heff_{run}{suffix}.json"
     path.write_text(json.dumps(result, indent=1), encoding="utf-8")
     print(f"  wrote {path}")
     return result
@@ -173,10 +178,13 @@ def main() -> None:
     ap.add_argument("--n-conditions", type=int, default=48)
     ap.add_argument("--out", default="results/exp3/_heff")
     ap.add_argument("--device", default="auto")
+    ap.add_argument("--min-iter", type=int, default=0,
+                    help="analyse only archived checkpoints at or after this iteration")
     args = ap.parse_args()
     device = get_device(args.device)
     for run in args.runs:
-        analyse_run(Path(args.work), run, args.M, args.n_conditions, device, Path(args.out))
+        analyse_run(Path(args.work), run, args.M, args.n_conditions, device, Path(args.out),
+                    min_iter=args.min_iter)
 
 
 if __name__ == "__main__":

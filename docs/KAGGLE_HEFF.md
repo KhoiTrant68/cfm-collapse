@@ -76,6 +76,34 @@ Settings, all optional: `HOURS`, `DATA=<dir holding cifar-10-batches-py>`,
 `M` (default 128) and `NCOND` (default 48) for the analysis, `REPO` for an offline
 session with the repo attached.
 
+## 2b. The long run: h = 4 continued to 240000 iterations
+
+Over 60000 iterations h_eff falls towards h but ends at 1.13-1.34 h in every run, and
+two runs level off while the others keep falling. Whether h_eff has a floor above h
+decides how the central claim is worded. `configs/exp3_cifar_ddpm_heff_long.yaml`
+continues the two session-A runs (`exp3_cifar_heff_h4_s0`, `_s1`) from their 60000
+checkpoint to 240000. The learning rate is constant and the checkpoint carries Adam,
+the AMP scaler and both RNG streams, so this is the same run as one trained to 240000
+from the start, and it saves the first 60000 iterations (~9 h per run).
+
+Attach **the output of session A part 2** (the version that ended with
+`ALL RUNS COMPLETE` for `4:0 4:1`; its checkpoints go up to 60000) and run:
+
+```
+!curl -sL -o /tmp/h.sh https://raw.githubusercontent.com/KhoiTrant68/cfm-collapse/main/scripts/kaggle_heff.sh
+!CONFIG=configs/exp3_cifar_ddpm_heff_long.yaml MIN_ITER=90000 PREV=/kaggle/input/<session-A-part-2-output> RUNS="4:0 4:1" bash /tmp/h.sh
+```
+
+The log should show `resuming from ... (iteration 60000 of 240000`. 180000 more
+iterations at ~1.8 it/s is ~28 h per run, both runs side by side: about four sessions
+at `HOURS=7.5`. Continue each with `PREV=` pointing at the previous session's output and
+the same `CONFIG`, `MIN_ITER` and `RUNS`. `MIN_ITER=90000` analyses only the new
+checkpoints (90k-240k, ~1.2 h per run) and writes `heff_<run>_from90k.json`, leaving
+the 2k-60k results already in the repo untouched.
+
+Output size grows to ~13 archived checkpoints per run (~11 GB for both), inside
+Kaggle's 20 GB notebook output.
+
 ## 3. What comes back
 
 Each session writes `/kaggle/working/heff-results-<timestamp>.zip` (small): per run
