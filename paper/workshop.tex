@@ -50,8 +50,9 @@ synthetic runs and $31/36$ of six CIFAR-10 runs with a $35.75$M-parameter U-Net.
 both, $h_{\mathrm{eff}}$ falls monotonically with training and ends at $1.08h$
 (synthetic) and $1.13$--$1.34h$ (CIFAR-10, $60$k iterations). Where the posterior is
 known, $h_{\mathrm{eff}}$ read from the training conditions ranks the coverage of
-posterior credible regions at held-out conditions with Spearman $0.90$, and the sampler
-stays calibrated while $h_{\mathrm{eff}}$ stays in a window. The account turns the
+posterior credible regions at held-out conditions with Spearman $0.92$, better than the
+training loss or the iteration and also at a fixed iteration, and the sampler stays
+calibrated while $h_{\mathrm{eff}}$ stays in a window. The account turns the
 memorisation of a conditional sampler into one number that can be read off a
 checkpoint.
 \end{abstract}
@@ -347,19 +348,55 @@ residual variance that looks like an optimisation gap at $h=0$ is a bandwidth th
 not reached zero. At $h=0.5$ the reference has little range ($n_{\mathrm{eff}}\approx100$)
 and $h_{\mathrm{eff}}$ is poorly identified (intervals overlap at 9/15 checkpoints).
 
-\paragraph{$h_{\mathrm{eff}}$ predicts calibration.} The posterior is known here, so at
-every checkpoint from 3000 iterations (75 in all) we measured the coverage of the 50\%
-and 90\% credible regions of the generated samples at 100 held-out pairs
-$(x^\star,y^\star)$, and the share of held-out samples that are training points.
-$h_{\mathrm{eff}}$, read from the training conditions alone, ranks the held-out 90\%
-coverage with Spearman $0.90$ (median within a run also $0.90$); the tracking slope
-$\beta$ reaches only $0.38$. The on-atom fraction at training conditions ranks the
-held-out extraction rate at $0.97$. Calibration holds in a window: the nominal 90\%
-region covers $0.86$--$0.88$ of held-out $x^\star$ for $h_{\mathrm{eff}}\in[0.1,0.4)$,
-where $\Covh$ matches $\Sigmapost$, against $0.54$ for $h_{\mathrm{eff}}\in[0.02,0.05)$
-and $0.34$ below $0.02$ (Table~\ref{tab:calib}). Locating that window used the
-posterior; $h_{\mathrm{eff}}$ itself needs only the training set, so once the window is
-established on a validation set, a checkpoint can be monitored without it.
+\paragraph{$h_{\mathrm{eff}}$ predicts calibration beyond training progress.} The
+posterior is known here, so at every checkpoint from 3000 iterations (75 in all) we
+measured, at 100 held-out pairs $(x^\star,y^\star)$, the coverage of the 90\% region of
+the generated samples, a posterior-free PIT error (the share of samples below $x^\star$
+per coordinate must be uniform), and the share of samples that are training points; 30
+further pairs serve as validation. Both $h_{\mathrm{eff}}$ and coverage fall with
+training, so the question is whether $h_{\mathrm{eff}}$ says more than training time
+does. Table~\ref{tab:baselines} answers it: $h_{\mathrm{eff}}$ ranks the 90\% coverage
+better than the training loss, the raw generated variance and the iteration, keeps its
+rank correlation when the iteration (and $h$) are partialled out, and leads across runs
+at a fixed iteration. On an eight-mode Gaussian-mixture posterior in $d{=}8$ (10 runs)
+the result repeats, with a stronger link to the PIT error ($-0.67$), and $h_{\mathrm{eff}}$
+and $h_{\mathrm{mean}}$ agree at log correlation $0.96$. Calibration holds in a window: the
+nominal 90\% region covers $0.86$--$0.88$ of held-out $x^\star$ for
+$h_{\mathrm{eff}}\in[0.1,0.4)$, where $\Covh$ matches $\Sigmapost$, against $0.54$ for
+$[0.02,0.05)$ and $0.34$ below (Table~\ref{tab:calib}). Locating that window used the
+posterior; taking the target $h_{\mathrm{eff}}$ from other seeds' validation pairs
+instead halves the PIT error of stopping at the last checkpoint ($0.034$ against $0.076$;
+$0.017$ against $0.037$ on the mixture), but is no better than the same rule on the
+iteration count. Two limits: on the 2-D problem $h_{\mathrm{eff}}$ predicts coverage,
+i.e.\ collapse, far better than the PIT error ($-0.28$), and the on-atom fraction, not
+$h_{\mathrm{eff}}$, predicts extraction ($0.95$).
+
+\begin{table}[t]
+\centering\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lcccccccc}
+\toprule
+& \multicolumn{4}{c}{linear-Gaussian, $d{=}2$ (75 checkpoints)} &
+\multicolumn{4}{c}{Gaussian mixture, $d{=}8$ (50 checkpoints)}\\
+\cmidrule(lr){2-5}\cmidrule(l){6-9}
+predictor & pooled & $\mid$ iter & $\mid$ iter, $h$ & fixed iter &
+pooled & $\mid$ iter & $\mid$ iter, $h$ & fixed iter\\
+\midrule
+$h_{\mathrm{eff}}$ & \textbf{0.92} & \textbf{0.90} & \textbf{0.69} & \textbf{0.82} &
+\textbf{0.91} & \textbf{0.91} & 0.61 & \textbf{0.90}\\
+training loss & 0.85 & 0.82 & 0.42 & 0.75 & 0.88 & 0.81 & \textbf{0.62} & 0.81\\
+raw trace & 0.76 & 0.73 & 0.32 & 0.70 & 0.69 & 0.70 & 0.41 & 0.71\\
+iteration & $-0.42$ & --- & --- & --- & $-0.66$ & --- & --- & ---\\
+$\beta$ & 0.34 & 0.54 & $-0.19$ & 0.61 & 0.29 & 0.61 & $-0.45$ & 0.66\\
+\bottomrule
+\end{tabular}
+\caption{Spearman correlation of each statistic, computed from the training set and
+the model alone, with the held-out 90\% coverage: pooled; partialling out
+$\log$(iteration); partialling out $\log$(iteration) and the training bandwidth $h$;
+and averaged across runs at a fixed iteration. $h_{\mathrm{eff}}$ is not a proxy for
+training time.}
+\label{tab:baselines}
+\end{table}
 
 \begin{table}[t]
 \centering\small

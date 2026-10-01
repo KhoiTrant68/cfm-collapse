@@ -66,7 +66,8 @@ runs and at $31/36$ of six CIFAR-10 runs with a $35.75$M-parameter DDPM U-Net. I
 $h_{\mathrm{eff}}$ falls with training and ends just above $h$ ($1.08h$ synthetic,
 $1.13$--$1.34h$ on CIFAR-10 at $60$k iterations). Where the posterior is known,
 $h_{\mathrm{eff}}$ read from training conditions ranks held-out credible-region coverage
-with Spearman $0.90$. The same law ranks interventions:
+(Spearman $0.92$) better than the training loss or the iteration, also at a fixed
+iteration. The same law ranks interventions:
 interpolant noise leaves the endpoint unchanged, label noise reweights the atoms, and
 only endpoint noise moves the support. Scope: identifying conditions, as in inverse
 problems and inpainting.
@@ -156,7 +157,8 @@ lines.}
   $h_{\mathrm{eff}}$ falls towards $h$ as training proceeds (Section~\ref{sec:heff};
   48/48 synthetic and 31/36 CIFAR-10 checkpoints). What looked like partial agreement
   with the reference at $h$ is agreement with the reference at a larger bandwidth, and
-  $h_{\mathrm{eff}}$ predicts held-out posterior coverage (Spearman $0.90$).
+  $h_{\mathrm{eff}}$ predicts held-out posterior coverage beyond what training time or
+  loss explain (Spearman $0.92$; $0.90$ with the iteration partialled out).
 \item \textbf{An audit.} Level agreement with the reference is uninformative when the
   reference barely varies across conditions: on CIFAR-10 the median ratio is $1.15$
   while the across-condition slope is $\beta=-0.156$. The audit (Appendix~\ref{app:audit})
@@ -643,18 +645,26 @@ $2\times10^5$), so the residual variance read as an optimisation gap in
 Section~\ref{sec:exp1} is a bandwidth that has not reached zero. At $h{=}0.5$
 ($n_{\mathrm{eff}}\approx100$) it is poorly identified (9/15 intervals overlap).
 
-\paragraph{$h_{\mathrm{eff}}$ predicts calibration.} The posterior is known here, so we
-measured at every checkpoint ($\ge3000$ iterations, 75 in all) the coverage of the 50\%
-and 90\% credible regions of the generated samples at 100 held-out pairs $(x^\star,y^\star)$,
-and the share of held-out samples that are training points. $h_{\mathrm{eff}}$, read
-from the training conditions alone, ranks the held-out 90\% coverage with Spearman
-$0.90$ (median within a run also $0.90$); the tracking slope $\beta$ reaches $0.38$. The
-on-atom fraction at training conditions ranks the held-out extraction rate at $0.97$.
-Calibration holds in a window: coverage of the nominal 90\% region is $0.86$--$0.88$ for
-$h_{\mathrm{eff}}\in[0.1,0.4)$, where $\Covh$ matches $\Sigmapost$, and falls to $0.54$
-and $0.34$ for $h_{\mathrm{eff}}\in[0.02,0.05)$ and below $0.02$. Locating that window
-used the posterior; $h_{\mathrm{eff}}$ itself needs only the training set, so once the
-window is established on a validation set, a checkpoint can be monitored without it.
+\paragraph{$h_{\mathrm{eff}}$ predicts calibration beyond training progress.} The
+posterior is known here, so at every checkpoint ($\ge3000$ iterations, 75 in all) we
+measured, at 100 held-out pairs $(x^\star,y^\star)$, the coverage of the 90\% region of
+the generated samples, a posterior-free PIT error, and the extraction rate.
+$h_{\mathrm{eff}}$, read from the training conditions alone, ranks the 90\% coverage
+with Spearman $0.92$, ahead of the training loss ($0.85$), the raw generated variance
+($0.76$), $\beta$ ($0.34$) and the iteration ($-0.42$). It keeps $0.90$ after
+partialling out the iteration, $0.69$ after partialling out the iteration and $h$ (loss:
+$0.42$), and $0.82$ across runs at a fixed iteration, so it is not a proxy for training
+time. On an eight-mode Gaussian-mixture posterior in $d{=}8$ (10 runs) the result
+repeats ($0.91$ pooled, $0.91$ given the iteration, $0.90$ at fixed iteration; PIT error
+$-0.67$), with $h_{\mathrm{eff}}$ and $h_{\mathrm{mean}}$ at log correlation $0.96$. The
+nominal 90\% region covers $0.86$--$0.88$ for $h_{\mathrm{eff}}\in[0.1,0.4)$, where $\Covh$
+matches $\Sigmapost$, and $0.54$ and $0.34$ for $[0.02,0.05)$ and below. Locating that
+window used the posterior; taking the target $h_{\mathrm{eff}}$ from other seeds'
+validation pairs instead halves the PIT error of stopping at the last checkpoint ($0.034$
+against $0.076$; $0.017$ against $0.037$ on the mixture), but is no better than the same
+rule on the iteration count. Two limits: on the 2-D problem $h_{\mathrm{eff}}$ predicts
+coverage, i.e.\ collapse, far better than the PIT error ($-0.28$), and the on-atom
+fraction, not $h_{\mathrm{eff}}$, predicts extraction ($0.95$).
 
 \begin{figure}[t]
 \centering

@@ -1,0 +1,351 @@
+{
+ "n": 75,
+ "pooled": {
+  "h_eff": {
+   "test_coverage_90": 0.9162706343137584,
+   "test_calibration_error": -0.6424662315802591,
+   "test_pit_error": -0.276894079619831,
+   "test_extraction": -0.6038941304143198
+  },
+  "h_mean": {
+   "test_coverage_90": 0.9174232512265754,
+   "test_calibration_error": -0.6441388610888705,
+   "test_pit_error": -0.27470902504212463,
+   "test_extraction": -0.6112822842024934
+  },
+  "trace_raw": {
+   "test_coverage_90": 0.7636814411918263,
+   "test_calibration_error": -0.5284055878944753,
+   "test_pit_error": -0.08994374071166834,
+   "test_extraction": -0.4230440967283073
+  },
+  "train_loss": {
+   "test_coverage_90": 0.8492881611255128,
+   "test_calibration_error": -0.5796664801001284,
+   "test_pit_error": -0.297470110036756,
+   "test_extraction": -0.5818207681365576
+  },
+  "iter": {
+   "test_coverage_90": -0.4146566903093478,
+   "test_calibration_error": 0.43875184302276227,
+   "test_pit_error": 0.2782887517828178,
+   "test_extraction": 0.9615918523310275
+  },
+  "on_atom_train": {
+   "test_coverage_90": -0.6150240710164404,
+   "test_calibration_error": 0.5742840439000029,
+   "test_pit_error": 0.3058222734320545,
+   "test_extraction": 0.9486269461615908
+  },
+  "beta": {
+   "test_coverage_90": 0.3404842371622836,
+   "test_calibration_error": -0.13692348520612796,
+   "test_pit_error": -0.255237565990553,
+   "test_extraction": 0.2732425673798278
+  }
+ },
+ "partial_iter": {
+  "h_eff": {
+   "test_coverage_90": 0.898232346801183,
+   "test_calibration_error": -0.5491945135742188,
+   "test_pit_error": -0.1714951398531301,
+   "test_extraction": -0.6138210579001333
+  },
+  "h_mean": {
+   "test_coverage_90": 0.8999337705113979,
+   "test_calibration_error": -0.549796562647951,
+   "test_pit_error": -0.1673274055400164,
+   "test_extraction": -0.6191489252232217
+  },
+  "trace_raw": {
+   "test_coverage_90": 0.7329403521491826,
+   "test_calibration_error": -0.45740913456781934,
+   "test_pit_error": -0.002411428360172303,
+   "test_extraction": -0.460107572465644
+  },
+  "train_loss": {
+   "test_coverage_90": 0.8151529194139878,
+   "test_calibration_error": -0.47429517228488316,
+   "test_pit_error": -0.1992694895799517,
+   "test_extraction": -0.5821493596626753
+  },
+  "iter": {
+   "test_coverage_90": NaN,
+   "test_calibration_error": NaN,
+   "test_pit_error": NaN,
+   "test_extraction": NaN
+  },
+  "on_atom_train": {
+   "test_coverage_90": -0.6478507700710608,
+   "test_calibration_error": 0.48032037056683474,
+   "test_pit_error": 0.1321665561978386,
+   "test_extraction": 0.6084634974326484
+  },
+  "beta": {
+   "test_coverage_90": 0.5407599847049191,
+   "test_calibration_error": -0.3128377858092756,
+   "test_pit_error": -0.32600315075255726,
+   "test_extraction": -0.37676579876129307
+  }
+ },
+ "partial_iter_h": {
+  "h_eff": {
+   "test_coverage_90": 0.688252713421034,
+   "test_calibration_error": -0.210165844138658,
+   "test_pit_error": 0.05618702074695028,
+   "test_extraction": -0.40000490419651646
+  },
+  "h_mean": {
+   "test_coverage_90": 0.676078708978486,
+   "test_calibration_error": -0.20300543220885706,
+   "test_pit_error": 0.07092939282029376,
+   "test_extraction": -0.4094134651950683
+  },
+  "trace_raw": {
+   "test_coverage_90": 0.3231911853516582,
+   "test_calibration_error": -0.10241689021417422,
+   "test_pit_error": 0.2673670131756845,
+   "test_extraction": -0.15977037948059195
+  },
+  "train_loss": {
+   "test_coverage_90": 0.41501273708124525,
+   "test_calibration_error": -0.06337277737750446,
+   "test_pit_error": 0.00748338188165913,
+   "test_extraction": -0.33970356743281616
+  },
+  "iter": {
+   "test_coverage_90": NaN,
+   "test_calibration_error": NaN,
+   "test_pit_error": NaN,
+   "test_extraction": NaN
+  },
+  "on_atom_train": {
+   "test_coverage_90": -0.2157653405646669,
+   "test_calibration_error": 0.18603200175141257,
+   "test_pit_error": -0.0478540940029083,
+   "test_extraction": 0.42352548461865147
+  },
+  "beta": {
+   "test_coverage_90": -0.18707019696515348,
+   "test_calibration_error": -0.010390833297212944,
+   "test_pit_error": -0.332293035239667,
+   "test_extraction": -0.07868685119245572
+  }
+ },
+ "partial_loss": {
+  "h_eff": {
+   "test_coverage_90": 0.7009356478926316,
+   "test_calibration_error": -0.34948572133515976,
+   "test_pit_error": -0.048776296998343516,
+   "test_extraction": -0.25647863531150156
+  },
+  "h_mean": {
+   "test_coverage_90": 0.7461444075547703,
+   "test_calibration_error": -0.36712617730301056,
+   "test_pit_error": -0.06216650117192665,
+   "test_extraction": -0.2961062719465086
+  },
+  "trace_raw": {
+   "test_coverage_90": 0.24108381007451182,
+   "test_calibration_error": -0.1216679460625908,
+   "test_pit_error": 0.27166422605753193,
+   "test_extraction": 0.10355990278286116
+  },
+  "train_loss": {
+   "test_coverage_90": NaN,
+   "test_calibration_error": NaN,
+   "test_pit_error": NaN,
+   "test_extraction": NaN
+  },
+  "iter": {
+   "test_coverage_90": -0.05600696075144603,
+   "test_calibration_error": 0.23967188241241053,
+   "test_pit_error": 0.1675514079586248,
+   "test_extraction": 0.9616145031853285
+  },
+  "on_atom_train": {
+   "test_coverage_90": -0.1387957201355186,
+   "test_calibration_error": 0.3135644717129883,
+   "test_pit_error": 0.15282074946225516,
+   "test_extraction": 0.9239844463725305
+  },
+  "beta": {
+   "test_coverage_90": 0.2885046768998372,
+   "test_calibration_error": -0.04407051119334579,
+   "test_pit_error": -0.24679160829349142,
+   "test_extraction": 0.46083781044387667
+  }
+ },
+ "fixed_iter": {
+  "h_eff": {
+   "test_coverage_90": 0.8217340274243593,
+   "test_calibration_error": -0.5162885941136492,
+   "test_pit_error": -0.12809007596982544,
+   "test_extraction": -0.5344766588286121
+  },
+  "h_mean": {
+   "test_coverage_90": 0.8585761214633685,
+   "test_calibration_error": -0.5178414116421778,
+   "test_pit_error": -0.14037614058162232,
+   "test_extraction": -0.5556248643015802
+  },
+  "trace_raw": {
+   "test_coverage_90": 0.6997153412876854,
+   "test_calibration_error": -0.43323951082948453,
+   "test_pit_error": 0.046428571428571416,
+   "test_extraction": -0.4807142857142856
+  },
+  "train_loss": {
+   "test_coverage_90": 0.7479771168945213,
+   "test_calibration_error": -0.4153402196785917,
+   "test_pit_error": -0.1542857142857142,
+   "test_extraction": -0.45999999999999985
+  },
+  "iter": {
+   "test_coverage_90": NaN,
+   "test_calibration_error": NaN,
+   "test_pit_error": NaN,
+   "test_extraction": NaN
+  },
+  "on_atom_train": {
+   "test_coverage_90": -0.7239398803803347,
+   "test_calibration_error": 0.527195223204789,
+   "test_pit_error": 0.17999999999999997,
+   "test_extraction": 0.6178571428571428
+  },
+  "beta": {
+   "test_coverage_90": 0.6051333001762531,
+   "test_calibration_error": -0.3608391608391609,
+   "test_pit_error": -0.29930069930069936,
+   "test_extraction": -0.4069930069930071
+  }
+ },
+ "stopping": {
+  "oracle (best test)": {
+   "error": 0.028263157894736844,
+   "coverage_90": 0.8726666666666667,
+   "picked_iters": [
+    10000,
+    10000,
+    3000,
+    10000,
+    10000,
+    3000,
+    30000,
+    200000,
+    30000,
+    30000,
+    3000,
+    30000,
+    3000,
+    10000,
+    3000
+   ]
+  },
+  "last checkpoint": {
+   "error": 0.07591228070175439,
+   "coverage_90": 0.6240000000000002,
+   "picked_iters": [
+    200000,
+    200000,
+    200000,
+    200000,
+    200000,
+    200000,
+    200000,
+    200000,
+    200000,
+    200000,
+    200000,
+    200000,
+    200000,
+    200000,
+    200000
+   ]
+  },
+  "validation on this run (30 pairs)": {
+   "error": 0.041105263157894735,
+   "coverage_90": 0.8213333333333332,
+   "picked_iters": [
+    10000,
+    10000,
+    10000,
+    30000,
+    30000,
+    200000,
+    30000,
+    100000,
+    10000,
+    100000,
+    3000,
+    10000,
+    30000,
+    30000,
+    30000
+   ]
+  },
+  "h_eff transferred from other seeds": {
+   "error": 0.03443859649122807,
+   "coverage_90": 0.8413333333333334,
+   "picked_iters": [
+    30000,
+    10000,
+    3000,
+    30000,
+    10000,
+    10000,
+    100000,
+    200000,
+    100000,
+    30000,
+    3000,
+    200000,
+    30000,
+    3000,
+    3000
+   ]
+  },
+  "train loss transferred": {
+   "error": 0.036859649122807016,
+   "coverage_90": 0.8473333333333334,
+   "picked_iters": [
+    10000,
+    3000,
+    30000,
+    10000,
+    3000,
+    200000,
+    30000,
+    10000,
+    200000,
+    200000,
+    100000,
+    200000,
+    10000,
+    3000,
+    30000
+   ]
+  },
+  "iteration transferred": {
+   "error": 0.03696491228070176,
+   "coverage_90": 0.836,
+   "picked_iters": [
+    10000,
+    30000,
+    30000,
+    10000,
+    30000,
+    30000,
+    10000,
+    30000,
+    30000,
+    10000,
+    30000,
+    30000,
+    10000,
+    30000,
+    30000
+   ]
+  }
+ }
+}
