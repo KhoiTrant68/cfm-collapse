@@ -259,5 +259,8 @@ if [ "$DONEALL" = "1" ]; then
   echo "ALL RUNS COMPLETE: ${NAMES[*]}"
 else
   echo "NOT FINISHED. Save this version, attach its output as a dataset, and re-run:"
-  echo "    !PREV=/kaggle/input/<that-dataset> RUNS=\"$RUNS\" bash /tmp/h.sh"
+  echo "    !CONFIG=$CONFIG PREFIX=$PREFIX MIN_ITER=$MIN_ITER ANALYSIS=$ANALYSIS PREV=/kaggle/input RUNS=\"$RUNS\" bash /tmp/h.sh"
+  echo "(attach only that output, or set PREV to its full path; check first with"
+  echo "    !find /kaggle/input -maxdepth 8 -name ckpt_resume.pt"
+  echo " which must list one checkpoint per run)"
 fi
