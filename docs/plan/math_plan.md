@@ -129,3 +129,18 @@ s(t). Drop if it does not match the synthetic s(t) within a factor.
   bandwidth at every t, h_eff falls to h, s(t) ~ t^(-1/beta). Gaussian kernel stalls.
   Not explained: p = 1.3 of the networks (model p ~ 2.2, data barely separate them),
   the 1.08h gap, and the mapping from kernel time to iterations.
+
+### Round 3 (after the simulated review of 2026-10-02)
+
+- Theorem `thm:calib` generalised: (a) for any prior and forward map; (b) a prior-free
+  bound |coverage - alpha| <= TV(N(0, sigma^2), N(0, sigma^2 + h^2)) <= sqrt(k/8) h^2/sigma^2,
+  checked on two mixture posteriors (`scripts/theory_t3_general.py`, nearly tight at
+  h = sigma/2); (c) the Gaussian over-coverage; (d) the finite effective sample.
+- Proposition `prop:filtered` (main text): a label-averaged field keeps the atoms; checked
+  by integrating its flow (`scripts/theory_t2_filtered.py`). Its endpoint weights equal the
+  label-averaged weights only for s <= h; for s >> h the flow re-concentrates them.
+- Proposition `prop:heffid` now states the global sublevel-set localisation.
+- Main text refocused: interventions (old 3.3-3.6) moved to appendix `app:interventions`;
+  section 4.1/4.3 inconsistency fixed; 50% coverage reported.
+- Image-scale calibration: pipeline ready (`kaggle_heff.sh ANALYSIS=calib`,
+  `scripts/analyze_calib_image.py`); needs a GPU session.

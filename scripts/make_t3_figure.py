@@ -1,8 +1,8 @@
 """Figure for T3: the calibration window predicted from the effective bandwidth.
 
 (a) Coverage of the nominal 90% region against bandwidth on the linear-Gaussian problem
-    (seed 0): the infinite-data smoothed posterior (T3.b, over-coverage for h > 0), the
-    local model with the finite effective sample (T3.c, collapse branch at small h), and
+    (seed 0): the infinite-data smoothed posterior (Theorem 2c, over-coverage for h > 0), the
+    local model with the finite effective sample (Theorem 2d, collapse branch at small h), and
     the measured coverage of every trained checkpoint placed at its h_eff (all seeds).
 (b) Coverage predicted by the local model at h_eff against the measured coverage, with
     the exact coverage of the finite reference law at h_eff for comparison.
@@ -44,8 +44,8 @@ def main() -> None:
     use_paper_style()
     fig, (a1, a2) = plt.subplots(1, 2, figsize=(10.0, 4.0), gridspec_kw={"width_ratios": [1.3, 1]})
     a1.axhline(0.9, color=COLORS["theory"], ls=":", lw=1.0)
-    a1.plot(hs, inf_c, color=OI["sky"], lw=2.0, label="smoothed posterior, $N\\to\\infty$ (T3.b)")
-    a1.plot(hs, loc_c, color=COLORS["theory"], lw=2.0, label="finite effective sample (T3.c)")
+    a1.plot(hs, inf_c, color=OI["sky"], lw=2.0, label="smoothed posterior, $N\\to\\infty$ (Thm. 2c)")
+    a1.plot(hs, loc_c, color=COLORS["theory"], lw=2.0, label="finite effective sample (Thm. 2d)")
     for h in sorted({r["h"] for r in rows}):
         rs = [r for r in rows if r["h"] == h]
         a1.scatter([r["h_eff"] for r in rs], [r["measured_cov_90"] for r in rs], s=26,
@@ -62,7 +62,7 @@ def main() -> None:
     a2.plot([0, 1], [0, 1], color=COLORS["theory"], ls="--", lw=1.0)
     a2.scatter([r["local_cov_90"] for r in rows], [r["measured_cov_90"] for r in rows], s=24,
                color=OI["vermillion"], edgecolors="white", linewidths=0.7, zorder=3,
-               label="theory at $h_{\\mathrm{eff}}$ (T3.c)")
+               label="theory at $h_{\\mathrm{eff}}$ (Thm. 2d)")
     a2.scatter([r["ref_cov_90"] for r in rows], [r["measured_cov_90"] for r in rows], s=22,
                facecolors="none", edgecolors=OI["blue"], linewidths=1.0, zorder=2,
                label="reference law at $h_{\\mathrm{eff}}$")
