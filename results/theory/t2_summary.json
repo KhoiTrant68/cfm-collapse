@@ -1,0 +1,26 @@
+{
+ "gaussian": {
+  "mean_s_slope": -0.05198660006764917,
+  "n_slope": 5,
+  "median_p": 3.9051002093914056,
+  "median_r2": 0.8427995151769291,
+  "median_abs_log_mean_vs_var": 0.1862405247551835,
+  "converged_to_h": "0/6"
+ },
+ "matern32": {
+  "mean_s_slope": -0.28581495754884173,
+  "n_slope": 6,
+  "median_p": 2.787790966138505,
+  "median_r2": 0.9496767206195545,
+  "median_abs_log_mean_vs_var": 0.09312026237759151,
+  "converged_to_h": "5/6"
+ },
+ "laplace": {
+  "mean_s_slope": -0.3981686676835923,
+  "n_slope": 6,
+  "median_p": 2.1600763273115584,
+  "median_r2": 0.9660062402638245,
+  "median_abs_log_mean_vs_var": 0.10864030610719011,
+  "converged_to_h": "6/6"
+ }
+}

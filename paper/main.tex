@@ -724,11 +724,11 @@ variances no better than the power law (comparable from 30k on, mostly worse bef
 
 \paragraph{What is proved and what is measured.} Proposition~\ref{prop:heffid} says when
 $h_{\mathrm{eff}}$ is identified and Theorem~\ref{thm:calib} what calibration a bandwidth
-buys; neither says which bandwidth training reaches, how that depends on capacity or $N$,
-or whether $h_{\mathrm{eff}}$ stops above $h$ (open beyond $6\times10^4$ iterations). The
-theorem assumes a Gaussian posterior. At image scale $h_{\mathrm{eff}}$ fits the
-variances no better than a two-parameter power law, and atomicity is not inherited
-($38\%$ of CIFAR-10 samples off-atom at $h{=}6$). The synthetic problems have
+buys. A spectral-bias model (Appendix~\ref{app:specbias}) reproduces the fall of
+$h_{\mathrm{eff}}$ to $h$, but not the networks' rates or their gap above $h$ (open
+beyond $6\times10^4$ iterations). The theorem assumes a Gaussian posterior. At image
+scale $h_{\mathrm{eff}}$ fits the variances no better than a power law, and atomicity is
+not inherited. The synthetic problems have
 $d\le10$; the image experiments use one mask and $N{=}2000$, with instance and
 optimisation randomness confounded; label spaces with no natural kernel are out of scope.
 
@@ -2931,6 +2931,85 @@ mixture), but is no better than the same rule on the iteration count. Two limits
 the 2-D problem $h_{\mathrm{eff}}$ predicts coverage, i.e.\ collapse, far better than
 the PIT error ($-0.28$), and the on-atom fraction, not $h_{\mathrm{eff}}$, predicts
 extraction ($0.95$).
+
+\subsection{A spectral-bias model of the effective bandwidth}
+\label{app:specbias}
+
+Proposition~\ref{prop:heffid} and Theorem~\ref{thm:calib} say when $h_{\mathrm{eff}}$ is
+identified and what it implies, not why training produces it. We test the simplest
+mechanism: a learner that resolves the label only gradually. The trained field depends
+on $y$ through the conditional moments $f^\star(y)=\E[\phi(X)\mid\widetilde Y=y]$,
+$\phi(x)\in\{x,|x|^2\}$, which at bandwidth $h$ are the Nadaraya--Watson moments of
+Theorem~\ref{thm:endpoint}. Suppose they are learned by kernel gradient flow in
+$L^2(\rho_h)$, $\rho_h$ the law of $\widetilde Y$, from the unconditional moments
+$c=\E\phi(X)$:
+\begin{equation}
+\partial_tf_t=-T_k(f_t-f^\star),\quad f_0=c,
+\qquad\text{so}\qquad
+f_t=c+(I-e^{-tT_k})(f^\star-c),
+\label{eq:kgf}
+\end{equation}
+with $(T_kg)(y)=\E_{\rho_h}[k(y,Z)g(Z)]$. This is
+the linearised dynamics of a network whose dependence on $y$ is governed by a fixed
+kernel $k$ \citep{jacot2018neural}, which learns low frequencies first
+\citep{rahaman2019spectral}.
+
+\begin{proposition}[Resolution under kernel gradient flow]
+\label{prop:specbias}
+(a) Let $h=0$ and $k$ be strictly positive definite on the distinct labels
+$\{y^i\}$. Then at every condition $y^j$, $f_t(y^j)\to f^\star(y^j)$ exponentially fast,
+so the model's mean tends to $x^j$ and its variance to $0$: it reaches the reference
+at $h$, with no floor. (b) Let $\rho$ be Lebesgue measure on $\R$ (a uniform label
+density) and $\hat k(\omega)=a|\omega|^{-\beta}$. Then $f_t-c$ is $f^\star-c$ filtered by
+$\hat\varphi_t(\omega)=G\big(\omega\,(at)^{-1/\beta}\big)$, $G(u)=1-e^{-|u|^{-\beta}}$: a
+low-pass filter of fixed shape whose resolution scale is $s(t)=(at)^{-1/\beta}$.
+\end{proposition}
+
+\begin{proof}
+(a) $\rho_0$ is uniform on $N$ points, so $L^2(\rho_0)\cong\R^N$ and $T_k$ is the matrix
+$K/N$, $K_{ij}=k(y^i,y^j)$, positive definite with smallest eigenvalue $\lambda_{\min}>0$;
+hence $\|f_t-f^\star\|\le e^{-t\lambda_{\min}/N}\|f^\star-c\|$ in $\R^N$, which bounds
+every coordinate. At $y^j$ the hard-conditioning moments are $f^\star(y^j)=(x^j,|x^j|^2)$,
+so the mean tends to $x^j$ and the variance $|x^j|^2-|x^j|^2=0$.
+(b) With $\rho$ Lebesgue, $T_k$ is convolution with $k$, the Fourier multiplier
+$\hat k(\omega)$, so $e^{-tT_k}$ is the multiplier $e^{-ta|\omega|^{-\beta}}$ and
+$I-e^{-tT_k}$ the multiplier
+$1-e^{-ta|\omega|^{-\beta}}=G(\omega(at)^{-1/\beta})$.
+\end{proof}
+
+Part (b) is an idealisation: the label law is not uniform, and $\hat k$ is a power law
+only at high frequency (Laplace kernel: $\beta=2$; Mat\'ern-$3/2$: $\beta=4$; Gaussian:
+exponential decay, $\beta=\infty$). We therefore compute \eqref{eq:kgf} exactly on the
+actual EXP-1 training sets ($\rho_h$ by 15-point Gauss--Hermite quadrature around each
+label, three seeds, $\ell\in\{0.3,1\}\times\mathrm{sd}(y)$) and apply the estimator
+\eqref{eq:heff} at the 20 conditions (\texttt{theory\_t2\_resolution.py},
+Figure~\ref{fig:t2}). Three findings. \emph{The model is a Nadaraya--Watson mixture at
+one bandwidth at every $t$}: under the Laplace kernel the median log-space $R^2$ of the
+fit is $0.97$ and $h_{\mathrm{mean}}$ and $h_{\mathrm{eff}}$ differ by a median $11\%$
+(Mat\'ern: $0.95$, $9\%$), as for the trained networks. \emph{$h_{\mathrm{eff}}$ falls to
+$h$}, in 6/6 Laplace and 5/6 Mat\'ern configurations, as (a) predicts for $h=0$.
+\emph{The rate is set by the spectrum}: $s(t)$ falls with log-log slope $-0.40$
+(Laplace; $-1/\beta=-0.5$) and $-0.29$ (Mat\'ern; $-0.25$), while under the Gaussian
+kernel it barely moves ($-0.05$) and $h_{\mathrm{eff}}$ never reaches $h$ (0/6).
+
+The model leaves two things open. Its additive exponent is $p\approx2.2$ (Laplace; $2.8$
+Mat\'ern), against $p=1.3$ fitted to the networks, but the network data hardly
+distinguish the two (log RMSE $0.352$ at $p=1.3$ against $0.366$ at $p=2$). And it
+predicts no floor, whereas $h_{\mathrm{eff}}$ settles at $1.08h$ on the synthetic runs;
+whether that gap is optimisation (Adam, a finite learning rate) or feature learning,
+which kernel gradient flow excludes, is not settled here. Nor does kernel time map to
+iterations outside the lazy regime, so we do not compare rates with training curves.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.94\textwidth]{fig_t2_resolution.png}
+\caption{Kernel gradient flow \eqref{eq:kgf} on the EXP-1 training set (seed 0,
+$\ell=\mathrm{sd}(y)$). (a) $s(t)$, the effective bandwidth at $h=0$: power-law decay
+with the slope of Proposition~\ref{prop:specbias}(b) (dotted: $-1/\beta$) for kernels
+with power-law spectra, stagnation for the Gaussian kernel. (b) Under the Laplace
+kernel $h_{\mathrm{eff}}$ falls and converges to each training bandwidth $h$ (dashed).}
+\label{fig:t2}
+\end{figure}
 
 \subsection{An audit protocol for conditional flows}
 \label{app:audit}
