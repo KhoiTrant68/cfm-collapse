@@ -5,7 +5,8 @@
 % ICLR 2027 workshop version: four pages of main text, references and appendix
 % unlimited. The conference version is main.tex; every number here is quoted
 % from it. Anonymized for double-blind review.
-% GENERATED from workshop_src.tex by scripts/build_workshop.py: do not edit.
+% This file is the source: scripts/build_workshop.py fills the %%BLOCK%% lines
+% from main.tex and writes workshop.tex. Edit this file, not workshop.tex.
 % Compile:  pdflatex workshop && bibtex workshop && pdflatex workshop x2
 % ---------------------------------------------------------------------------
 
@@ -323,100 +324,9 @@ proof of Theorem~\ref{thm:endpoint}, $p_1=\law(x^J+\rho\xi)=\sum_ip_i^{(h)}\N(x^
 with mean $\bar x_h$ and covariance $\Covh+\rho^2I_d$.
 \end{proof}
 
-\begin{proof}[Proof of Proposition~\ref{prop:heffid}]
-Fix $y$ and write $p_i=p_i^{(h)}(y)=e^{-D_i/2h^2}/Z$ with $Z=\sum_je^{-D_j/2h^2}$.
-\emph{Derivatives.} $\partial_h\log e^{-D_i/2h^2}=D_i/h^3$ and
-$\partial_h\log Z=\sum_jp_jD_j/h^3=:\bar D/h^3$, so
-\begin{equation}
-\partial_hp_i=p_i\,(D_i-\bar D)/h^3 .
-\end{equation}
-Hence for any $f$ not depending on $h$,
-$\partial_h\sum_ip_if(x^i)=\sum_ip_i(D_i-\bar D)f(x^i)/h^3=\Cov_p(f(x^i),D_i)/h^3$. With
-$f(x)=x$ this is the first identity. For the second,
-$\tr\Covh=\sum_ip_i|x^i|^2-|\bar x_h|^2$, so
-\begin{align*}
-h^3\partial_h\tr\Covh
-&=\Cov_p(|x^i|^2,D_i)-2\,\bar x_h\cdot\Cov_p(x^i,D_i)
-=\Cov_p\big(|x^i|^2-2\bar x_h\cdot x^i+|\bar x_h|^2,\,D_i\big),
-\end{align*}
-since adding the constant $|\bar x_h|^2$ does not change a covariance, and the first
-argument is $|x^i-\bar x_h|^2$.
-\emph{Large $h$.} As $h\to\infty$, $p_i=1/N+O(h^{-2})$ uniformly in $i$, $\bar x_h\to\bar x$,
-and both arguments of the covariance are bounded, so
-$h^3\partial_h\tr\Covh\to\frac1N\sum_i(|x^i-\bar x|^2-m)(D_i-\bar D_\infty)$ with $m$ and
-$\bar D_\infty$ the unweighted means; the error is $O(h^{-2})$.
-\emph{Stability.} Take $h^\star\in\mathcal H$ (on a grid, replace $e$ by the misfit at
-the grid point nearest $h^\star$). By optimality of $\hat h$,
-$|F(\hat h)-F(h^\star)-e|=|\log T-F(\hat h)|\le|\log T-F(h^\star)|=|e|$, so
-$|F(\hat h)-F(h^\star)|\le2|e|$, which is the first claim. If that set lies in
-$\mathcal I$, then $\hat h\in\mathcal I$, and by the mean-value theorem applied to
-the scalar function $u\cdot F$ on the segment between $h^\star$ and $\hat h$,
-$|F(\hat h)-F(h^\star)|\ge|u\cdot(F(\hat h)-F(h^\star))|=|u\cdot F'(\xi)|\,|\hat h-h^\star|
-\ge\kappa|\hat h-h^\star|$ for some $\xi\in\mathcal I$. Combining the two gives
-$|\hat h-h^\star|\le2|e|/\kappa$. The argument uses only that $\hat h$ minimises a
-distance to a curve, so it applies verbatim to $h_{\mathrm{mean}}$ and $G$.
-\end{proof}
+%%BLOCK:proof_heffid%%
 
-In part (c) write $s_h^2=\sigma^2+h^2$, $\Sigma_h=(\Sigma_x^{-1}+A^\top A/s_h^2)^{-1}$, $\Gamma_h=\Sigma_hA^\top/s_h^2$ and $\mu_h(y)=\Sigma_h\Sigma_x^{-1}\mu_x+\Gamma_hy$ for the prior $\N(\mu_x,\Sigma_x)$ and $g(x)=Ax$; then $\pi_h(\cdot\mid y)=\N(\mu_h(y),\Sigma_h)$, and the claim of (c) is $X-\mu_h(Y)\sim\N(0,\Sigma_h-h^2\Gamma_h\Gamma_h^\top)$.
-
-\begin{proof}[Proof of Theorem~\ref{thm:calib}]
-\emph{(a)} Let $\widetilde Y=Y+h\varepsilon$ with $\varepsilon\sim\N(0,I_k)$ independent;
-given $X=x$, $\widetilde Y\sim\N(g(x),s_h^2I_k)$, so $\widetilde Y$ has the everywhere
-positive density $p_{\widetilde Y}(y)=\E\,\N(y;g(X),s_h^2I_k)$. For a bounded continuous
-$\varphi$, by Theorem~\ref{thm:endpoint},
-\begin{equation*}
-\int\varphi\,dp_1^{(h)}(\cdot\mid y)
-=\frac{\frac1N\sum_iK_h(y-y^i)\varphi(x^i)}{\frac1N\sum_iK_h(y-y^i)}
-\xrightarrow{\text{a.s.}}
-\frac{\E[K_h(y-Y)\varphi(X)]}{\E[K_h(y-Y)]}
-\end{equation*}
-by the strong law of large numbers, since $K_h$ is bounded and the denominator's limit is
-positive. Conditioning on $X$ and using $\int K_h(y-y')\N(y';g(x),\sigma^2I)\,dy'=
-\N(y;g(x),s_h^2I)$, the numerator is $\E[\varphi(X)\N(y;g(X),s_h^2I)]
-=p_{\widetilde Y}(y)\,\E[\varphi(X)\mid\widetilde Y=y]$ and the denominator is
-$p_{\widetilde Y}(y)$. Taking $\varphi$ in a countable convergence-determining class gives
-weak convergence almost surely.
-
-\emph{(b)} Given $X=x$, $Y\sim\N(g(x),\sigma^2I_k)$ and $\widetilde Y\sim\N(g(x),s_h^2I_k)$,
-so the total variation between the laws of $(X,Y)$ and $(X,\widetilde Y)$ is
-$\E_X\,\mathrm{TV}(\N(g(X),\sigma^2I),\N(g(X),s_h^2I))=\tau_h$, by translation
-invariance. The function $(x,y)\mapsto\ind\{x\in R(y)\}$ takes values in $[0,1]$, so its
-expectations under the two laws differ by at most $\tau_h$. By Pinsker's inequality and
-$\mathrm{KL}(\N(0,\sigma^2I_k)\,\|\,\N(0,s_h^2I_k))=\frac k2(r-1-\log r)$ with
-$r=\sigma^2/s_h^2=1/(1+u)$, $u=h^2/\sigma^2$, we get $\tau_h^2\le\frac k4(r-1-\log r)
-=\frac k4\big(\log(1+u)-\frac u{1+u}\big)\le\frac k8u^2$, the last step because the
-bracket vanishes at $u=0$ and has derivative $u/(1+u)^2\le u$. Finally, if
-$\pi_h(R(y)\mid y)=\alpha$ for every $y$, then
-$\Pr(X\in R(\widetilde Y))=\E[\pi_h(R(\widetilde Y)\mid\widetilde Y)]=\alpha$.
-
-\emph{(c)} $\widetilde Y=AX+\tilde\eta$ with $\tilde\eta\sim\N(0,s_h^2I_k)$, so Gaussian
-conditioning gives $\pi_h(\cdot\mid y)=\N(\mu_h(y),\Sigma_h)$. $\mu_h$ is affine,
-$\mu_h(\widetilde Y)-\mu_h(Y)=h\Gamma_h\varepsilon$, and
-$X-\mu_h(\widetilde Y)\sim\N(0,\Sigma_h)$. Since $X-\mu_h(Y)$ is a function of $(X,\eta)$,
-which is independent of $\varepsilon$,
-\begin{equation*}
-\Sigma_h=\Cov\big(X-\mu_h(Y)-h\Gamma_h\varepsilon\big)=\Cov\big(X-\mu_h(Y)\big)+h^2\Gamma_h\Gamma_h^\top,
-\end{equation*}
-and $X-\mu_h(Y)$ is Gaussian with mean $\E X-\mu_h(\E Y)=0$, which is the claim. Write
-$z=\Sigma_h^{-1/2}(X-\mu_h(Y))\sim\N(0,I-h^2MM^\top)$ with
-$M=\Sigma_h^{-1/2}\Gamma_h$. The eigenvalues $\lambda_j$ of $I-h^2MM^\top$ lie in $[0,1]$, so
-$|z|^2\overset{d}{=}\sum_j\lambda_jg_j^2\le\sum_jg_j^2\sim\chi^2_d$ for i.i.d.\ standard
-normal $g_j$, and $\Pr(|z|^2\le q_\alpha)\ge\Pr(\chi^2_d\le q_\alpha)=\alpha$. If $h>0$
-and $A\ne0$ then $\Gamma_h\ne0$, some $\lambda_j<1$, the inequality between the two sums is
-strict on an event of positive probability that intersects $\{\chi^2_d>q_\alpha\}$ with
-positive probability, and the coverage is strictly larger than $\alpha$.
-
-\emph{(d)} Let $a_i$ be i.i.d.\ with mean $m$ and covariance $S$ and $\sum_iw_i=1$. Then
-$\Cov(\sum_iw_ia_i)=\sum_iw_i^2S=S/n_{\mathrm{eff}}$, and with $\bar a=\sum_iw_ia_i$,
-\begin{equation*}
-\E\sum_iw_i(a_i-\bar a)(a_i-\bar a)^\top
-=\E\sum_iw_i(a_i-m)(a_i-m)^\top-\E(\bar a-m)(\bar a-m)^\top
-=S-S/n_{\mathrm{eff}} .
-\end{equation*}
-If $n_{\mathrm{eff}}=1$, one weight is $1$, the weighted covariance is $0$, the region is
-the single point $\bar a$, and an absolutely continuous $x^\star$ falls in it with
-probability $0$.
-\end{proof}
+%%BLOCK:proof_calib%%
 
 The numerical checks of every part are in \texttt{scripts/theory\_t1\_check.py},
 \texttt{theory\_t3\_coverage.py} and \texttt{theory\_t3\_general.py}.
@@ -496,126 +406,6 @@ tracking slope $\beta$ against $h_{\mathrm{eff}}/h$; training proceeds to the ri
 \section{Where the bandwidth comes from}
 \label{app:specbias}
 
-
-Proposition~\ref{prop:heffid} and Theorem~\ref{thm:calib} say when $h_{\mathrm{eff}}$ is
-identified and what it implies, not why training produces it. We test the simplest
-mechanism: a learner that resolves the label only gradually. The trained field depends
-on $y$ through the conditional moments $f^\star(y)=\E[\phi(X)\mid\widetilde Y=y]$,
-$\phi(x)\in\{x,|x|^2\}$, which at bandwidth $h$ are the Nadaraya--Watson moments of
-Theorem~\ref{thm:endpoint}. Suppose they are learned by kernel gradient flow in
-$L^2(\rho_h)$, $\rho_h$ the law of $\widetilde Y$, from the unconditional moments
-$c=\E\phi(X)$:
-\begin{equation}
-\partial_tf_t=-T_k(f_t-f^\star),\quad f_0=c,
-\qquad\text{so}\qquad
-f_t=c+(I-e^{-tT_k})(f^\star-c),
-\label{eq:kgf}
-\end{equation}
-with $(T_kg)(y)=\E_{\rho_h}[k(y,Z)g(Z)]$. This is
-the linearised dynamics of a network whose dependence on $y$ is governed by a fixed
-kernel $k$ \citep{jacot2018neural}, which learns low frequencies first
-\citep{rahaman2019spectral}.
-
-\begin{proposition}[Resolution under kernel gradient flow]
-\label{prop:specbias}
-(a) Let $h=0$ and $k$ be strictly positive definite on the distinct labels
-$\{y^i\}$. Then at every condition $y^j$, $f_t(y^j)\to f^\star(y^j)$ exponentially fast,
-so the model's mean tends to $x^j$ and its variance to $0$: it reaches the reference
-at $h$, with no floor. (b) Let $\rho$ be Lebesgue measure on $\R$ (a uniform label
-density) and $\hat k(\omega)=a|\omega|^{-\beta}$. Then $f_t-c$ is $f^\star-c$ filtered by
-$\hat\varphi_t(\omega)=G\big(\omega\,(at)^{-1/\beta}\big)$, $G(u)=1-e^{-|u|^{-\beta}}$: a
-low-pass filter of fixed shape whose resolution scale is $s(t)=(at)^{-1/\beta}$.
-\end{proposition}
-
-\begin{proof}
-(a) $\rho_0$ is uniform on $N$ points, so $L^2(\rho_0)\cong\R^N$ and $T_k$ is the matrix
-$K/N$, $K_{ij}=k(y^i,y^j)$, with $K$ positive definite and smallest eigenvalue
-$\lambda_{\min}>0$, and self-adjoint for the uniform weights;
-hence $\|f_t-f^\star\|\le e^{-t\lambda_{\min}/N}\|f^\star-c\|$ in $\R^N$, which bounds
-every coordinate. At $y^j$ the hard-conditioning moments are $f^\star(y^j)=(x^j,|x^j|^2)$,
-so the mean tends to $x^j$ and the variance $|x^j|^2-|x^j|^2=0$.
-(b) With $\rho$ Lebesgue, $T_k$ is convolution with $k$, the Fourier multiplier
-$\hat k(\omega)$, so $e^{-tT_k}$ is the multiplier $e^{-ta|\omega|^{-\beta}}$ and
-$I-e^{-tT_k}$ the multiplier
-$1-e^{-ta|\omega|^{-\beta}}=G(\omega(at)^{-1/\beta})$.
-\end{proof}
-
-Part (b) is an idealisation: the label law is not uniform, and $\hat k$ is a power law
-only at high frequency (Laplace kernel: $\beta=2$; Mat\'ern-$3/2$: $\beta=4$; Gaussian:
-exponential decay, $\beta=\infty$). We therefore compute \eqref{eq:kgf} exactly on the
-actual EXP-1 training sets ($\rho_h$ by 15-point Gauss--Hermite quadrature around each
-label, three seeds, $\ell\in\{0.3,1\}\times\mathrm{sd}(y)$) and apply the estimator
-\eqref{eq:heff} at the 20 conditions (\texttt{theory\_t2\_resolution.py},
-Figure~\ref{fig:t2}). Three findings. \emph{The model is a Nadaraya--Watson mixture at
-one bandwidth at every $t$}: under the Laplace kernel the median log-space $R^2$ of the
-fit is $0.97$ and $h_{\mathrm{mean}}$ and $h_{\mathrm{eff}}$ differ by a median $11\%$
-(Mat\'ern: $0.95$, $9\%$), as for the trained networks. \emph{$h_{\mathrm{eff}}$ falls to
-$h$}, in 6/6 Laplace and 5/6 Mat\'ern configurations, as (a) predicts for $h=0$.
-\emph{The rate is set by the spectrum}: $s(t)$ falls with log-log slope $-0.40$
-(Laplace; $-1/\beta=-0.5$) and $-0.29$ (Mat\'ern; $-0.25$), while under the Gaussian
-kernel it barely moves ($-0.05$) and $h_{\mathrm{eff}}$ never reaches $h$ (0/6).
-
-\paragraph{From moments to the field.} The model above acts on moments. At the level of
-the field, a learner that resolves the label only to the law $\varphi$ of a perturbation
-$u$ replaces $\vstar$ by its label average $v_\varphi$, and Proposition~\ref{prop:filtered} says that this keeps the atoms.
-
-\begin{proposition}[Label resolution reweights the atoms and never moves them]
-\label{prop:filtered}
-Let $h>0$, $\varphi$ a probability measure on $\R^k$ and
-$v_\varphi(x,t,y)=\int\vstar(x,t,y-u)\,\varphi(du)$. (a) $v_\varphi=\sum_i\tilde
-w_i(x,t,y)(x^i-x)/(1-t)$ with $\tilde w_i\ge0$, $\sum_i\tilde w_i=1$, and $\tilde
-w_i(x,0,y)=q_i(y):=\int p_i^{(h)}(y-u)\,\varphi(du)$. (b) If a trajectory of $v_\varphi$
-converges as $t\to1$ to a point with a unique nearest training atom, that point is the
-atom. Hence if $\pi_0$-almost every trajectory converges to such a point, the endpoint
-law of $v_\varphi$ is $\sum_i\tilde q_i(y)\delta_{x^i}$ for some weights $\tilde q(y)$.
-\end{proposition}
-
-\begin{proof}[Proof of Proposition~\ref{prop:filtered}]
-\label{apx:pf-filtered}
-(a) By the proof of Theorem~\ref{thm:endpoint}, $\vstar(x,t,y')=\sum_iw_i(x,t,y')(x^i-x)/(1-t)$
-with $w_i=a_ib_i/\sum_ja_jb_j$, $a_i=\pi_0(\frac{x-tx^i}{1-t})$, $b_i=K_h(y'-y^i)$;
-averaging over $y'=y-u$ gives $\tilde w_i=\int w_i(x,t,y-u)\varphi(du)$, which is
-nonnegative and sums to one. At $t=0$ all $a_i$ equal $\pi_0(x)$, so $w_i=p_i^{(h)}(y')$.
-(b) Let $x_t\to\bar x$, with $x^i$ the unique nearest atom to $\bar x$ and
-$\gamma=\min_{j\ne i}(|\bar x-x^j|^2-|\bar x-x^i|^2)>0$. For $t$ close to $1$,
-$|x_t-tx^j|^2-|x_t-tx^i|^2\ge\gamma/2$, so
-$a_j/a_i\le e^{-\gamma/(4(1-t)^2)}\to0$. Since $w_j\le\min\{1,(a_j/a_i)(b_j/b_i)\}$ and
-$b_i>0$ everywhere, dominated convergence gives $\tilde w_j(x_t,t,y)\to0$ for $j\ne i$,
-so $m_t:=\sum_j\tilde w_jx^j\to x^i$. Along the trajectory
-$\dot x_t=(m_t-x_t)/(1-t)$ with $m_t-x_t\to x^i-\bar x$. If $x^i\ne\bar x$, then
-$(x^i-\bar x)\cdot\dot x_t\ge|x^i-\bar x|^2/(2(1-t))$ for $t$ near $1$, whose integral
-diverges, contradicting convergence. So $\bar x=x^i$.
-\end{proof}
-
-So a learner whose only defect is label resolution reweights the training atoms and
-never leaves them; leaving them, as $38\%$ of CIFAR-10 samples do at $h{=}6$, needs an
-error in the spatial dependence of the field. Integrating the flow of $v_\varphi$ exactly
-on the EXP-1 training set (Gaussian $\varphi$ of scale $s$, five conditions, 300
-trajectories each; \texttt{theory\_t2\_filtered.py}) confirms that every endpoint is an
-atom (distance $\le0.003$). The endpoint weights are \emph{not} simply the label-averaged
-weights $q$: they agree within Monte Carlo error when $s\le h$ (total variation $0.11$
-and $0.14$ against floors $0.09$ and $0.13$ at $s=h=0.05$ and $0.1$), but for $s\gg h$
-the flow re-concentrates them, halving the endpoint variance ($0.46$ against $1.14$ at
-$h=0.01$, $s=0.05$). A label-resolution limit is therefore not equivalent to extra label
-noise at the level of the field, and the additive law has no reason to be exact.
-
-The model leaves two things open. Its additive exponent is $p\approx2.2$ (Laplace; $2.8$
-Mat\'ern; $2.8$ for the label-averaged weights $q$), against $p=1.3$ fitted to the networks, but the network data hardly
-distinguish the two (log RMSE $0.352$ at $p=1.3$ against $0.366$ at $p=2$). And it
-predicts no floor, whereas $h_{\mathrm{eff}}$ settles at $1.08h$ on the synthetic runs;
-whether that gap is optimisation (Adam, a finite learning rate) or feature learning,
-which kernel gradient flow excludes, is not settled here. Nor does kernel time map to
-iterations outside the lazy regime, so we do not compare rates with training curves.
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.94\textwidth]{fig_t2_resolution.png}
-\caption{Kernel gradient flow \eqref{eq:kgf} on the EXP-1 training set (seed 0,
-$\ell=\mathrm{sd}(y)$). (a) $s(t)$, the effective bandwidth at $h=0$: power-law decay
-with the slope of Proposition~\ref{prop:specbias}(b) (dotted: $-1/\beta$) for kernels
-with power-law spectra, stagnation for the Gaussian kernel. (b) Under the Laplace
-kernel $h_{\mathrm{eff}}$ falls and converges to each training bandwidth $h$ (dashed).}
-\label{fig:t2}
-\end{figure}
+%%BLOCK:specbias%%
 
 \end{document}
