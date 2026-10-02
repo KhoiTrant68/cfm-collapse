@@ -2968,7 +2968,8 @@ low-pass filter of fixed shape whose resolution scale is $s(t)=(at)^{-1/\beta}$.
 
 \begin{proof}
 (a) $\rho_0$ is uniform on $N$ points, so $L^2(\rho_0)\cong\R^N$ and $T_k$ is the matrix
-$K/N$, $K_{ij}=k(y^i,y^j)$, positive definite with smallest eigenvalue $\lambda_{\min}>0$;
+$K/N$, $K_{ij}=k(y^i,y^j)$, with $K$ positive definite and smallest eigenvalue
+$\lambda_{\min}>0$, and self-adjoint for the uniform weights;
 hence $\|f_t-f^\star\|\le e^{-t\lambda_{\min}/N}\|f^\star-c\|$ in $\R^N$, which bounds
 every coordinate. At $y^j$ the hard-conditioning moments are $f^\star(y^j)=(x^j,|x^j|^2)$,
 so the mean tends to $x^j$ and the variance $|x^j|^2-|x^j|^2=0$.
