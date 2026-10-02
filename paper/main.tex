@@ -157,8 +157,8 @@ lines.}
   that mixture at one bandwidth $h_{\mathrm{eff}}$, fitted to its per-condition
   variances and recovered independently from its per-condition means, and
   $h_{\mathrm{eff}}$ falls towards $h$ as training proceeds (Section~\ref{sec:heff};
-  48/48 synthetic and 31/36 CIFAR-10 checkpoints). What looked like partial agreement
-  with the reference at a larger bandwidth. We prove when $h_{\mathrm{eff}}$ is
+  48/48 synthetic and 31/36 CIFAR-10 checkpoints). Partial agreement with the reference
+  at $h$ is agreement at a larger bandwidth. We prove when $h_{\mathrm{eff}}$ is
   identified (Proposition~\ref{prop:heffid}) and what calibration a bandwidth implies
   (Theorem~\ref{thm:calib}); from $h_{\mathrm{eff}}$ alone, the theorem predicts the
   held-out coverage of 75 trained checkpoints with $R^2=0.90$.
@@ -240,7 +240,8 @@ Everything in this section holds under Assumption~\ref{as:standing} and concerns
 population minimiser over $L^2$-measurable vector fields for the empirical data law, with
 $\D$ fixed. Propositions~\ref{prop:expansion} and~\ref{prop:nwrate} are the exception:
 they relax (i) to a random design under Assumption~\ref{as:design} and let $N\to\infty$.
-All proofs, and three conventions they rely on, are in Appendix~\ref{app:deferred}. The
+Proofs are in Appendix~\ref{app:proofs}, three conventions they rely on in
+Appendix~\ref{app:deferred}. The
 projection identity below is the standard $L^2$ decomposition behind flow-matching
 objectives \citep{lipman2023flow,albergo2023building,liu2023rectified}.
 
