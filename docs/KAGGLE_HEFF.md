@@ -141,6 +141,18 @@ Training is skipped because the runs are at their target; expect roughly 30-60 m
 per pair. The zip carries `heff/calib_<run>.json`. For new runs, `ANALYSIS=both` does both
 analyses in the session that finishes training.
 
+Back home, put the `calib_<run>.json` files next to `heff_<run>.json` in
+`results/exp3/_heff/` and run
+
+```
+uv run --with scipy python scripts/analyze_calib_image.py --dir results/exp3/_heff
+```
+
+It joins the two by iteration and reports, pooled over runs, the Spearman correlation of
+h_eff (and h_eff/h, pixel sd, iteration) with 90% coverage, PIT error and extraction,
+plus the correlation with the iteration partialled out: the synthetic test of the paper,
+now at image scale and without a known posterior.
+
 ## 3. What comes back
 
 Each session writes `/kaggle/working/heff-results-<timestamp>.zip` (small): per run

@@ -390,24 +390,32 @@ reference law at any bandwidth has a closed form, and its calibration can be com
 
 \begin{theorem}[Calibration of the reference law]
 \label{thm:calib}
-Let $x\sim\N(\mu_x,\Sigma_x)$, $y=Ax+\eta$, $\eta\sim\N(0,\sigma^2I_k)$, and write
-$s_h^2=\sigma^2+h^2$, $\Sigma_h=(\Sigma_x^{-1}+A^\top A/s_h^2)^{-1}$,
-$\Gamma_h=\Sigma_hA^\top/s_h^2$, $\mu_h(y)=\Sigma_h\Sigma_x^{-1}\mu_x+\Gamma_hy$.
+Let $X\sim\pi$ and $Y=g(X)+\eta$, $\eta\sim\N(0,\sigma^2I_k)$, with $\pi$ and $g$
+arbitrary, and let $\pi_h(\cdot\mid y)$ be the law of $X$ given $\widetilde Y=Y+h\varepsilon=y$,
+a posterior under label noise of variance $s_h^2=\sigma^2+h^2$.
 (a) For fixed $h>0$ and an i.i.d.\ training set, $p_1^{(h)}(\cdot\mid y)\Rightarrow
-\N(\mu_h(y),\Sigma_h)$ as $N\to\infty$: the posterior of $x$ given a label with noise
-variance $s_h^2$.
-(b) For $(x^\star,y^\star)$ from the model, $x^\star-\mu_h(y^\star)\sim
-\N(0,\Sigma_h-h^2\Gamma_h\Gamma_h^\top)$, so the level-$\alpha$ region of $\N(\mu_h,\Sigma_h)$
-covers $x^\star$ with probability at least $\alpha$, strictly if $h>0$ and $A\neq0$.
-(c) For weights $w$ and atoms i.i.d.\ with covariance $S$, the weighted mean has
+\pi_h(\cdot\mid y)$ as $N\to\infty$.
+(b) For any rule $y\mapsto R(y)$ of regions,
+$|\Pr(X\in R(Y))-\Pr(X\in R(\widetilde Y))|\le\tau_h:=
+\mathrm{TV}\big(\N(0,\sigma^2I_k),\N(0,s_h^2I_k)\big)\le\sqrt{k/8}\;h^2/\sigma^2$. If
+$R(y)$ is a level-$\alpha$ region of $\pi_h(\cdot\mid y)$, the second probability is
+$\alpha$: for every prior, the reference law's coverage is within $\tau_h$ of $\alpha$.
+(c) If $\pi=\N(\mu_x,\Sigma_x)$ and $g(x)=Ax$, then $\pi_h(\cdot\mid y)=\N(\mu_h(y),\Sigma_h)$
+with $\Sigma_h=(\Sigma_x^{-1}+A^\top A/s_h^2)^{-1}$, $\Gamma_h=\Sigma_hA^\top/s_h^2$,
+$\mu_h(y)=\Sigma_h\Sigma_x^{-1}\mu_x+\Gamma_hy$, and $X-\mu_h(Y)\sim
+\N(0,\Sigma_h-h^2\Gamma_h\Gamma_h^\top)$: the level-$\alpha$ ellipsoid covers with
+probability at least $\alpha$, strictly if $h>0$ and $A\neq0$.
+(d) For weights $w$ and atoms i.i.d.\ with covariance $S$, the weighted mean has
 covariance $S/n_{\mathrm{eff}}$ and the weighted covariance has mean
 $(1-1/n_{\mathrm{eff}})S$, $n_{\mathrm{eff}}=1/\sum_iw_i^2$; at $n_{\mathrm{eff}}=1$ the
 region is degenerate and covers with probability $0$. (Proof: Appendix~\ref{app:proofs}.)
 \end{theorem}
 
-Part (b) gives the right edge of the window (over-coverage from smoothing) and part
-(c) the left edge (collapse as $n_{\mathrm{eff}}\to1$). Modelling the atoms near
-$y^\star$ as draws of $\N(\mu_h,\Sigma_h)$ with the actual kernel weights, (c) predicts
+Parts (b) and (c) give the right edge of the window: for any prior, smoothing moves
+coverage by at most $\tau_h=O(h^2/\sigma^2)$, and for a Gaussian posterior it
+over-covers. Part (d) gives the left edge (collapse as $n_{\mathrm{eff}}\to1$). Modelling
+the atoms near $y^\star$ as draws of $\N(\mu_h,\Sigma_h)$ with the actual kernel weights,
+(d) predicts
 the held-out 90\% coverage of all 75 checkpoints from $h_{\mathrm{eff}}$ alone with
 $R^2=0.90$; the exact finite reference law at $h_{\mathrm{eff}}$ reaches $R^2=0.93$
 (Figure~\ref{fig:t3}). The theorem thus turns the empirical window of
@@ -417,10 +425,10 @@ Table~\ref{tab:calib} into a prediction.
 \centering
 \includegraphics[width=\textwidth]{fig_t3_coverage.png}
 \caption{Theorem~\ref{thm:calib} on the linear-Gaussian problem. (a) Coverage of the
-nominal 90\% region against bandwidth: infinite-data limit (b), over-covering for $h>0$;
-finite effective sample (c), collapsing at small bandwidth (both for seed 0); dots:
+nominal 90\% region against bandwidth: infinite-data limit (c), over-covering for $h>0$;
+finite effective sample (d), collapsing at small bandwidth (both for seed 0); dots:
 trained checkpoints of all seeds at their $h_{\mathrm{eff}}$. (b) Coverage predicted
-from $h_{\mathrm{eff}}$ alone against the measured coverage, for the theory (c) and for
+from $h_{\mathrm{eff}}$ alone against the measured coverage, for the theory (d) and for
 the exact finite reference law.}
 \label{fig:t3}
 \end{figure}
@@ -650,9 +658,9 @@ distance to a curve, so it applies verbatim to $h_{\mathrm{mean}}$ and $G$.
 
 \begin{proof}[Proof of Theorem~\ref{thm:calib}]
 \emph{(a)} Let $\widetilde Y=Y+h\varepsilon$ with $\varepsilon\sim\N(0,I_k)$ independent;
-$\widetilde Y=AX+\tilde\eta$ with $\tilde\eta\sim\N(0,s_h^2I_k)$, so the standard
-Gaussian conditioning formula gives $X\mid\widetilde Y=y\sim\N(\mu_h(y),\Sigma_h)$. For a
-bounded continuous $\varphi$, by Theorem~\ref{thm:endpoint},
+given $X=x$, $\widetilde Y\sim\N(g(x),s_h^2I_k)$, so $\widetilde Y$ has the everywhere
+positive density $p_{\widetilde Y}(y)=\E\,\N(y;g(X),s_h^2I_k)$. For a bounded continuous
+$\varphi$, by Theorem~\ref{thm:endpoint},
 \begin{equation*}
 \int\varphi\,dp_1^{(h)}(\cdot\mid y)
 =\frac{\frac1N\sum_iK_h(y-y^i)\varphi(x^i)}{\frac1N\sum_iK_h(y-y^i)}
@@ -660,19 +668,34 @@ bounded continuous $\varphi$, by Theorem~\ref{thm:endpoint},
 \frac{\E[K_h(y-Y)\varphi(X)]}{\E[K_h(y-Y)]}
 \end{equation*}
 by the strong law of large numbers, since $K_h$ is bounded and the denominator's limit is
-positive. The right-hand side is $\int\varphi(x)\,\pi(x)\,\N(y;Ax,s_h^2I)\,dx$ divided by
-its value at $\varphi\equiv1$, because $\int K_h(y-y')\N(y';Ax,\sigma^2I)\,dy'=
-\N(y;Ax,s_h^2I)$; that is $\E[\varphi(X)\mid\widetilde Y=y]$. Taking $\varphi$ in a
-countable convergence-determining class gives weak convergence almost surely.
+positive. Conditioning on $X$ and using $\int K_h(y-y')\N(y';g(x),\sigma^2I)\,dy'=
+\N(y;g(x),s_h^2I)$, the numerator is $\E[\varphi(X)\N(y;g(X),s_h^2I)]
+=p_{\widetilde Y}(y)\,\E[\varphi(X)\mid\widetilde Y=y]$ and the denominator is
+$p_{\widetilde Y}(y)$. Taking $\varphi$ in a countable convergence-determining class gives
+weak convergence almost surely.
 
-\emph{(b)} $\mu_h$ is affine, $\mu_h(\widetilde Y)-\mu_h(Y)=h\Gamma_h\varepsilon$, and
+\emph{(b)} Given $X=x$, $Y\sim\N(g(x),\sigma^2I_k)$ and $\widetilde Y\sim\N(g(x),s_h^2I_k)$,
+so the total variation between the laws of $(X,Y)$ and $(X,\widetilde Y)$ is
+$\E_X\,\mathrm{TV}(\N(g(X),\sigma^2I),\N(g(X),s_h^2I))=\tau_h$, by translation
+invariance. The function $(x,y)\mapsto\ind\{x\in R(y)\}$ takes values in $[0,1]$, so its
+expectations under the two laws differ by at most $\tau_h$. By Pinsker's inequality and
+$\mathrm{KL}(\N(0,\sigma^2I_k)\,\|\,\N(0,s_h^2I_k))=\frac k2(r-1-\log r)$ with
+$r=\sigma^2/s_h^2=1/(1+u)$, $u=h^2/\sigma^2$, we get $\tau_h^2\le\frac k4(r-1-\log r)
+=\frac k4\big(\log(1+u)-\frac u{1+u}\big)\le\frac k8u^2$, the last step because the
+bracket vanishes at $u=0$ and has derivative $u/(1+u)^2\le u$. Finally, if
+$\pi_h(R(y)\mid y)=\alpha$ for every $y$, then
+$\Pr(X\in R(\widetilde Y))=\E[\pi_h(R(\widetilde Y)\mid\widetilde Y)]=\alpha$.
+
+\emph{(c)} $\widetilde Y=AX+\tilde\eta$ with $\tilde\eta\sim\N(0,s_h^2I_k)$, so Gaussian
+conditioning gives $\pi_h(\cdot\mid y)=\N(\mu_h(y),\Sigma_h)$. $\mu_h$ is affine,
+$\mu_h(\widetilde Y)-\mu_h(Y)=h\Gamma_h\varepsilon$, and
 $X-\mu_h(\widetilde Y)\sim\N(0,\Sigma_h)$. Since $X-\mu_h(Y)$ is a function of $(X,\eta)$,
 which is independent of $\varepsilon$,
 \begin{equation*}
 \Sigma_h=\Cov\big(X-\mu_h(Y)-h\Gamma_h\varepsilon\big)=\Cov\big(X-\mu_h(Y)\big)+h^2\Gamma_h\Gamma_h^\top,
 \end{equation*}
 and $X-\mu_h(Y)$ is Gaussian with mean $\E X-\mu_h(\E Y)=0$, which is the claim. Write
-$z=\Sigma_h^{-1/2}(x^\star-\mu_h(y^\star))\sim\N(0,I-h^2MM^\top)$ with
+$z=\Sigma_h^{-1/2}(X-\mu_h(Y))\sim\N(0,I-h^2MM^\top)$ with
 $M=\Sigma_h^{-1/2}\Gamma_h$. The eigenvalues $\lambda_j$ of $I-h^2MM^\top$ lie in $[0,1]$, so
 $|z|^2\overset{d}{=}\sum_j\lambda_jg_j^2\le\sum_jg_j^2\sim\chi^2_d$ for i.i.d.\ standard
 normal $g_j$, and $\Pr(|z|^2\le q_\alpha)\ge\Pr(\chi^2_d\le q_\alpha)=\alpha$. If $h>0$
@@ -680,7 +703,7 @@ and $A\ne0$ then $\Gamma_h\ne0$, some $\lambda_j<1$, the inequality between the 
 strict on an event of positive probability that intersects $\{\chi^2_d>q_\alpha\}$ with
 positive probability, and the coverage is strictly larger than $\alpha$.
 
-\emph{(c)} Let $a_i$ be i.i.d.\ with mean $m$ and covariance $S$ and $\sum_iw_i=1$. Then
+\emph{(d)} Let $a_i$ be i.i.d.\ with mean $m$ and covariance $S$ and $\sum_iw_i=1$. Then
 $\Cov(\sum_iw_ia_i)=\sum_iw_i^2S=S/n_{\mathrm{eff}}$, and with $\bar a=\sum_iw_ia_i$,
 \begin{equation*}
 \E\sum_iw_i(a_i-\bar a)(a_i-\bar a)^\top

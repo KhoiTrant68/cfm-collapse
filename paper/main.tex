@@ -65,9 +65,10 @@ gives the same bandwidth within 95\% intervals at $48/48$ checkpoints of 15 synt
 runs and at $31/36$ of six CIFAR-10 runs with a $35.75$M-parameter DDPM U-Net. In both,
 $h_{\mathrm{eff}}$ falls with training and ends just above $h$ ($1.08h$ synthetic,
 $1.13$--$1.34h$ on CIFAR-10 at $60$k iterations). We prove that the bandwidth is
-identified where the reference varies, and that in the linear-Gaussian model it sets
-calibration: smoothing over-covers, a vanishing effective sample collapses coverage to
-zero. From $h_{\mathrm{eff}}$ alone this predicts the held-out coverage of trained
+identified where the reference varies and that it sets calibration: for any prior,
+smoothing moves coverage by at most a total-variation term of order $h^2/\sigma^2$
+(over-covering when the posterior is Gaussian), and a vanishing effective sample
+collapses coverage to zero. From $h_{\mathrm{eff}}$ alone this predicts the held-out coverage of trained
 models ($R^2=0.90$), ranking it better than the training loss or the iteration. The
 same law ranks interventions:
 interpolant noise leaves the endpoint unchanged, label noise reweights the atoms, and
@@ -160,8 +161,11 @@ lines.}
   48/48 synthetic and 31/36 CIFAR-10 checkpoints). Partial agreement with the reference
   at $h$ is agreement at a larger bandwidth. We prove when $h_{\mathrm{eff}}$ is
   identified (Proposition~\ref{prop:heffid}) and what calibration a bandwidth implies
-  (Theorem~\ref{thm:calib}); from $h_{\mathrm{eff}}$ alone, the theorem predicts the
-  held-out coverage of 75 trained checkpoints with $R^2=0.90$.
+  for any prior (Theorem~\ref{thm:calib}); from $h_{\mathrm{eff}}$ alone, the theorem
+  predicts the held-out coverage of 75 trained checkpoints with $R^2=0.90$. A model of
+  limited label resolution reproduces the fall of $h_{\mathrm{eff}}$ to $h$, and limited
+  resolution provably reweights the atoms without moving them
+  (Propositions~\ref{prop:specbias} and~\ref{prop:filtered}).
 \item \textbf{An audit.} Level agreement with the reference is uninformative when the
   reference barely varies across conditions: on CIFAR-10 the median ratio is $1.15$
   while the across-condition slope is $\beta=-0.156$. The audit (Appendix~\ref{app:audit})
@@ -396,132 +400,20 @@ and so points to a lower bound on the floor. Whether i.i.d.\ atoms attain it is 
 Appendix~\ref{app:deferred}: the obstruction is negligible where it is easy to measure
 and stays large relative to the posterior scale at image dimensions.
 
-\subsection{Escaping the obstruction: smoothing the endpoint}
-\label{sec:theory-remedy}
+\subsection{Where noise helps, and what the theory does not cover}
+\label{sec:interventions}
 
-Proposition~\ref{prop:atomicity} rules out any remedy leaving the endpoint law on the
-training atoms: label smoothing, and trivially the interpolant noise of
-Section~\ref{sec:theory-noise}, since $\gamma(1)=0$. A remedy must move the support. Of
-the three places to inject noise (label, path, endpoint), only the endpoint does.
-
-\begin{proposition}[Endpoint smoothing]
-\label{prop:tgtnoise}
-Replace the endpoint by $X_1=x^I+\rho\,\xi$ with $\xi\sim\N(0,I_d)$ independent of
-$(I,X_0,\varepsilon)$ and redrawn every step, keeping label bandwidth $h>0$. Write
-$s_t^2=(1-t)^2+t^2\rho^2$. Then $\vstar$ is again a weighted average of per-atom
-fields, now with spatial weights $\varphi_{s_t}(x-tx^i)$ in place of
-$\pi_0(\tfrac{x-tx^i}{1-t})$ (explicitly, \eqref{eq:tgtfield} in the appendix), and
-the endpoint law is
-\begin{equation}
-p_1(\cdot\mid y)=\sum_i p_i^{(h)}(y)\,\N(x^i,\rho^2I_d),
-\qquad
-\bar x=\bar x_h(y),\quad \Cov=\Covh(y)+\rho^2I_d.
-\label{eq:tgtendpoint}
-\end{equation}
-For every $\rho>0$ this law is absolutely continuous, so \eqref{eq:w2floor} does not
-apply to it; moreover $s_1=\rho>0$, so $\vstar$ extends continuously to $t=1$ and the
-$1/(1-t)$ blow-up of $(\star)$ disappears. \proofin{apx:pf-tgtnoise}
-\end{proposition}
-
-Two caveats, both quantified in Section~\ref{sec:exp1}. Removing a lower bound does not
-reduce the distance: \eqref{eq:tgtendpoint} is a kernel density estimate that pays
-$+\rho^2I_d$ of variance for its continuity, and the gain is bounded by the obstruction
-removed. And $h$ sets $\bar x_h$ and $\Covh$ while $\rho$ shifts the covariance, so
-together they can match the posterior's first and second moments with a continuous law,
-where $h$ alone matches at most one.
-
-One place in this paper leaves the fixed-$\D$ setting. It asks what $\Covh$ converges to
-when the training set is an i.i.d.\ sample and $N\to\infty$, the only regime in which
-label smoothing is more than a reweighting. Under local homoscedasticity ($\Sigma$ constant near $y$), $h\to0$ and $Nh^{k+4}\to\infty$,
-Proposition~\ref{prop:expansion} (appendix) gives
-$\Covh(y)=\Sigma(y)+h^2J(y)J(y)^\top+O(h^4)+O_P((Nh^k)^{-1/2})$. The between-group
-inflation $h^2\|J\|_F^2$ produces the over-smoothing branch of the empirical U-curve and
-is a parameter-free prediction in the linear-Gaussian model, where $\mu$ is affine. It
-should not be expected to describe an image model, and the across-condition slope of
-$0.481$ in Section~\ref{sec:cifarddpm} is what that failure to transfer looks like.
-Proposition~\ref{prop:nwrate} gives the companion Nadaraya--Watson rates for
-$\bar x_h(y)$ and records that queries at $y=y^i$ are design points, so the $h\to0$ limit
-there differs from the fixed-$N$ collapse of Corollary~\ref{cor:zerobw}: same symbol,
-opposite conclusions.
-
-\subsection{Stochastic interpolant noise does not help}
-\label{sec:theory-noise}
-
-Another place to inject randomness is the interpolant path itself. This never changes the
-population endpoint at $h=0$, at any noise level. Replace the interpolant by $X_t=(1-t)X_0+tX_1+\gamma(t)Z$ with
-$Z\sim\N(0,I_d)$ independent and $\gamma(t)=\sigma\sqrt{t(1-t)}$, so
-$\gamma(0)=\gamma(1)=0$. A single $Z$ defines the whole trajectory, and the pathwise-derivative target is
-\begin{equation}
-\dot X_t=X_1-X_0+\dot\gamma(t)Z,\qquad
-\dot\gamma(t)=\frac{\sigma(1-2t)}{2\sqrt{t(1-t)}};
-\label{eq:c2target}
-\end{equation}
-regressing on $X_1-X_0$ alone would be a different objective. Write
-$s_t^2:=(1-t)^2+\gamma(t)^2=(1-t)[(1-t)+\sigma^2t]$, so $s_0=1$ and $s_1=0$.
-
-\begin{proposition}[Closed form and endpoint invariance in $\sigma$]
-\label{prop:prop17}
-Let $h=0$ and $v_\sigma^\star=\E[\dot X_t\mid X_t,t,Y]$ for target
-\eqref{eq:c2target}. Then for $t\in(0,1)$:
-(a) $v_\sigma^\star(x,t,y^i)=x^i+c(t)(x-tx^i)$ with
-$c(t)=\frac{-(1-t)+\frac{\sigma^2}2(1-2t)}{s_t^2}=\frac12\frac{d}{dt}\log s_t^2$;
-(b) the flow is $x_t=t\,x^i+s_t\,x_0$; and
-(c) since $s_1=0$,
-\begin{equation}
-p_1^{(0)}(\cdot\mid y^i)=\delta_{x^i}\quad\text{for every }\sigma\ge0.
-\label{eq:invariance}
-\end{equation} \proofin{apx:pf-prop17}
-\end{proposition}
-
-Part~(b) gives the flow in closed form and (c) follows because $s_1=0$, so no
-integrator and no early stopping enter the argument: the endpoint is fixed by the
-interpolant itself. The reason is structural. Any admissible schedule has $\gamma(1)=0$,
-since otherwise the path never reaches the data, and that is the condition that removes
-the noise at the endpoint. For $\gamma=\sigma\sqrt{t(1-t)}$ interpolant noise cannot change the endpoint law, and
-any schedule with $\gamma(1)=0$ has $X_t\to x^I$ (Remark~\ref{rem:notsampler} and
-Figure~\ref{fig:interpolant}, appendix).
-Corollary~\ref{cor:prop18} records what it does change: it raises the irreducible error
-and halves the Lipschitz blow-up rate, and neither touches $p_1$.
-Proposition~\ref{prop:factors} locates the difference: the two noises multiply different
-factors of the same index posterior, and only the label factor survives to $t=1$. This
-separates the mechanism from the unconditional ``resample-$x_0$'' remedy of
-\citet{gradvar2025}, which works through attainability and not through the population
-optimum.
-
-\subsection{Classifier-free guidance does not escape either}
-\label{sec:theory-cfg}
-
-For the guided field $v_w:=(1+w)\vstar-w\,v_{\mathrm{unc}}^\star$, the trajectory's
-component orthogonal to $\operatorname{aff}\{x^1,\dots,x^N\}$ decays as $(1-t)$, so every
-guided endpoint law lies in the affine hull of the atoms, a null set when $N\le d$, and
-a convergent guided trajectory with a unique nearest atom ends on it
-(Propositions~\ref{prop:cfg} and~\ref{prop:cfgatom}, appendix).
-
-The four interventions thus fall into an order: inert (interpolant noise, at every noise
-level), atom-preserving (guidance), reweighting (label smoothing, so the atomicity ceiling
-still binds), and support-moving (endpoint smoothing, at $+\rho^2I_d$ of variance).
-
-\subsection{What survives the flow, and what paces the collapse}
-\label{sec:survival}
-
-For a model with velocity error $\Delta$ against $(\star)$, the deviation of its
-trajectory from the exact one is $e_t=(1-t)I(t)$ with
-$I(t)=\int_0^t\Delta(x_s,s)(1-s)^{-1}ds$ (Proposition~\ref{prop:survival}, appendix): the
-collapsed field contracts at a diverging rate, so a deviation survives to the endpoint
-only through an error accumulating at rate $(1-t)^{-1}$. Under a Lipschitz hypothesis on
-the error that holds only for fields reproducing the linear part of $(\star)$, it is
-bounded by the loss not yet removed (Corollary~\ref{cor:lossform}; empirical slope
-$0.485$ against $\tfrac12$, Appendix~\ref{app:survival}).
-
-\subsection{Scope}
-\label{sec:scope}
-
-The theory describes the empirical minimiser, not how many SGD steps reach it, nor how
-observed collapse depends on $N$ at fixed architecture (a non-collapsing $N{=}5000$ run
-probes representation and optimisation), on $\sigma_{\mathrm{obs}}$, or on $h$ on a
-given instance. It predicts the destination, not the speed
-(Figure~\ref{fig:collapsetime}, appendix); Section~\ref{sec:heff} measures how far a
-trained model has gone.
+Proposition~\ref{prop:atomicity} rules out any remedy that leaves the endpoint on the
+training atoms. Appendix~\ref{app:interventions} classifies the places to inject
+randomness by what they do to the endpoint law: interpolant noise is inert at every noise
+level (Proposition~\ref{prop:prop17}), classifier-free guidance keeps the atoms
+(Propositions~\ref{prop:cfg} and~\ref{prop:cfgatom}), label noise reweights them
+(Theorem~\ref{thm:endpoint}), and only endpoint noise moves the support, at
+$+\rho^2I_d$ of variance (Proposition~\ref{prop:tgtnoise}). The same appendix gives the
+$N\to\infty$ expansion of $\Covh$ (Proposition~\ref{prop:expansion}) and how a velocity
+error survives the collapsing flow (Proposition~\ref{prop:survival}). All of this
+describes the empirical minimiser, not how fast training reaches it;
+Section~\ref{sec:heff} measures how far a trained model has gone.
 
 % ==========================================================================
 \section{Experiments}
@@ -546,9 +438,9 @@ approaches $(x^i-x)/(1-t)$, the generated mean moves from $\mu_{\mathrm{post}}$
 toward $x^i$, and the unconditional baseline keeps data-scale variance. The
 variance tracks the true posterior up to $\sim\!10^4$ iterations, a correct Bayesian
 sampler, which is why early stopping works \citep{physicscfm2026}. It then collapses,
-stalling near $0.40$ at $2\times10^5$. That residual is an optimisation gap and not a
-failure of Proposition~\ref{prop:collapse}, since all four observables keep descending
-with the loss. Three measurements sharpen this (Appendix~\ref{app:exp4}). The
+stalling near $0.40$ at $2\times10^5$. That residual is not a failure of
+Proposition~\ref{prop:collapse}: all four observables keep descending with the loss,
+and Section~\ref{sec:heff} reads it as an effective bandwidth still above zero. Three measurements sharpen this (Appendix~\ref{app:exp4}). The
 memorisation ratio of \citet{yoon2023memorization} reaches $0.650\pm0.033$ conditionally
 against $0.389\pm0.032$ unconditionally from a common $\approx0.11$ baseline, so both
 flows memorise, as Corollary~\ref{cor:distinction} says, and the conditional one more
@@ -643,9 +535,10 @@ $\partial_h\bar x_h(y)=h^{-3}\Cov_p(x^i,D_i)$ and
 $\partial_h\tr\Covh(y)=h^{-3}\Cov_p(|x^i-\bar x_h(y)|^2,D_i)$, and
 $h^3\partial_h\tr\Covh(y)$ tends to the unweighted covariance of $|x^i-\bar x|^2$ and $D_i$
 as $h\to\infty$. Let $F(h)=(\log\tr\mathrm{Cov}_h(y_c))_{c\le C}$, let the measured log
-traces be $F(h^\star)+e$, and let $\hat h$ minimise $|\log T-F(h)|$ over an interval
-$\mathcal I\ni h^\star$. If $u\cdot F'(h)\ge\kappa>0$ on $\mathcal I$ for a unit vector
-$u$, then $|\hat h-h^\star|\le2|e|/\kappa$; likewise for $h_{\mathrm{mean}}$ with
+traces be $F(h^\star)+e$, and let $\hat h$ minimise $|\log T-F(h)|$ over a set $\mathcal H$
+of bandwidths. Then $\hat h\in\{h\in\mathcal H:|F(h)-F(h^\star)|\le2|e|\}$. If this set
+lies in an interval $\mathcal I\ni h^\star$ on which $u\cdot F'\ge\kappa>0$ for a unit
+vector $u$, then $|\hat h-h^\star|\le2|e|/\kappa$; likewise for $h_{\mathrm{mean}}$ with
 $G(h)=(\bar x_h(y_c))_c$. \proofin{apx:pf-heffid}
 \end{proposition}
 
@@ -662,8 +555,8 @@ $1.03$), and with one parameter it fits the per-condition variances better than 
 two-parameter power law behind $\beta$. It
 falls between $10^4$ and $10^5$ iterations in 12/12 runs and settles just above $h$
 ($1.08h$ on average for $h\ge0.05$); at $h{=}0$ it keeps falling ($0.011\pm0.006$ at
-$2\times10^5$), so the residual variance read as an optimisation gap in
-Section~\ref{sec:exp1} is a bandwidth that has not reached zero. At $h{=}0.5$
+$2\times10^5$), so the residual variance of Section~\ref{sec:exp1} is a bandwidth
+that has not reached zero. At $h{=}0.5$
 ($n_{\mathrm{eff}}\approx100$) it is poorly identified (9/15 intervals overlap).
 
 \paragraph{Calibration is set by the bandwidth.} Where the posterior is known, the
@@ -671,26 +564,36 @@ coverage of a sampler's credible regions can be computed for the reference law i
 
 \begin{theorem}[Calibration of the reference law]
 \label{thm:calib}
-Let $x\sim\N(\mu_x,\Sigma_x)$, $y=Ax+\eta$, $\eta\sim\N(0,\sigma^2I_k)$, and write
-$s_h^2=\sigma^2+h^2$, $\Sigma_h=(\Sigma_x^{-1}+A^\top A/s_h^2)^{-1}$,
-$\Gamma_h=\Sigma_hA^\top/s_h^2$, $\mu_h(y)=\Sigma_h\Sigma_x^{-1}\mu_x+\Gamma_hy$.
+Let $X\sim\pi$ and $Y=g(X)+\eta$, $\eta\sim\N(0,\sigma^2I_k)$, with $\pi$ and $g$
+arbitrary, and let $\pi_h(\cdot\mid y)$ be the law of $X$ given $\widetilde Y=Y+h\varepsilon=y$,
+a posterior under label noise of variance $s_h^2=\sigma^2+h^2$.
 (a) For fixed $h>0$ and an i.i.d.\ training set, $p_1^{(h)}(\cdot\mid y)\Rightarrow
-\N(\mu_h(y),\Sigma_h)$ as $N\to\infty$: the posterior of $x$ given a label with noise
-variance $s_h^2$.
-(b) For $(x^\star,y^\star)$ from the model, $x^\star-\mu_h(y^\star)\sim
-\N(0,\Sigma_h-h^2\Gamma_h\Gamma_h^\top)$, so the level-$\alpha$ region of $\N(\mu_h,\Sigma_h)$
-covers $x^\star$ with probability at least $\alpha$, strictly if $h>0$ and $A\neq0$.
-(c) For weights $w$ and atoms i.i.d.\ with covariance $S$, the weighted mean has
+\pi_h(\cdot\mid y)$ as $N\to\infty$.
+(b) For any rule $y\mapsto R(y)$ of regions,
+$|\Pr(X\in R(Y))-\Pr(X\in R(\widetilde Y))|\le\tau_h:=
+\mathrm{TV}\big(\N(0,\sigma^2I_k),\N(0,s_h^2I_k)\big)\le\sqrt{k/8}\;h^2/\sigma^2$. If
+$R(y)$ is a level-$\alpha$ region of $\pi_h(\cdot\mid y)$, the second probability is
+$\alpha$: for every prior, the reference law's coverage is within $\tau_h$ of $\alpha$.
+(c) If $\pi=\N(\mu_x,\Sigma_x)$ and $g(x)=Ax$, then $\pi_h(\cdot\mid y)=\N(\mu_h(y),\Sigma_h)$
+with $\Sigma_h=(\Sigma_x^{-1}+A^\top A/s_h^2)^{-1}$, $\Gamma_h=\Sigma_hA^\top/s_h^2$,
+$\mu_h(y)=\Sigma_h\Sigma_x^{-1}\mu_x+\Gamma_hy$, and $X-\mu_h(Y)\sim
+\N(0,\Sigma_h-h^2\Gamma_h\Gamma_h^\top)$: the level-$\alpha$ ellipsoid covers with
+probability at least $\alpha$, strictly if $h>0$ and $A\neq0$.
+(d) For weights $w$ and atoms i.i.d.\ with covariance $S$, the weighted mean has
 covariance $S/n_{\mathrm{eff}}$ and the weighted covariance has mean
 $(1-1/n_{\mathrm{eff}})S$, $n_{\mathrm{eff}}=1/\sum_iw_i^2$; at $n_{\mathrm{eff}}=1$ the
 region is degenerate and covers with probability $0$. \proofin{apx:pf-calib}
 \end{theorem}
 
-The theorem gives both ends of a calibration window: over-coverage from smoothing (b) and
-collapse from a vanishing effective sample (c). Modelling the atoms near $y^\star$ as
-draws of $\N(\mu_h,\Sigma_h)$ with the actual weights, (c) predicts the held-out 90\%
+The theorem gives both ends of a calibration window. Smoothing costs at most $\tau_h$
+of coverage for any prior (b), and over-covers when the posterior is Gaussian (c); a
+vanishing effective sample collapses coverage (d). Modelling the atoms near $y^\star$
+as draws of $\N(\mu_h,\Sigma_h)$ with the actual weights, (d) predicts the held-out 90\%
 coverage of all 75 trained checkpoints from their $h_{\mathrm{eff}}$ alone with
-$R^2=0.90$ (Figure~\ref{fig:t3}). As a ranking, $h_{\mathrm{eff}}$ (Spearman $0.92$)
+$R^2=0.90$ (Figure~\ref{fig:t3}; $0.59$ for the 50\% region, where the weights'
+dispersion matters more). Part (b) makes the right edge prior-free: on two mixture
+posteriors the reference law over-covers by at most $\tau_h$, a bound that is nearly
+tight at $h=\sigma/2$ (Appendix~\ref{apx:pf-calib}). As a ranking, $h_{\mathrm{eff}}$ (Spearman $0.92$)
 beats the training loss ($0.85$) and keeps $0.90$ with the iteration partialled out, also
 on an eight-mode mixture posterior ($0.91$, $0.91$); it predicts collapse, not the PIT
 error or extraction (Appendix~\ref{app:calibdetails}).
@@ -699,10 +602,10 @@ error or extraction (Appendix~\ref{app:calibdetails}).
 \centering
 \includegraphics[width=0.94\textwidth]{fig_t3_coverage.png}
 \caption{Theorem~\ref{thm:calib} on the linear-Gaussian problem. (a) Coverage of the
-nominal 90\% region against bandwidth: infinite-data limit (b), over-covering for $h>0$;
-finite effective sample (c), collapsing at small bandwidth (both for seed 0); dots:
+nominal 90\% region against bandwidth: infinite-data limit (c), over-covering for $h>0$;
+finite effective sample (d), collapsing at small bandwidth (both for seed 0); dots:
 trained checkpoints of all seeds at their $h_{\mathrm{eff}}$. (b) Coverage predicted
-from $h_{\mathrm{eff}}$ alone against the measured coverage, for the theory (c) and for
+from $h_{\mathrm{eff}}$ alone against the measured coverage, for the theory (d) and for
 the exact finite reference law.}
 \label{fig:t3}
 \end{figure}
@@ -719,6 +622,43 @@ variances no better than the power law (comparable from 30k on, mostly worse bef
 
 \FloatBarrier
 
+\paragraph{Where the bandwidth comes from.} Two models of an imperfect learner bracket
+these measurements (Appendix~\ref{app:specbias}). If the label dependence of the
+conditional moments is learned by kernel gradient flow, the model is a
+Nadaraya--Watson mixture at one bandwidth at every time (median log-space $R^2$ $0.97$),
+$h_{\mathrm{eff}}$ falls to $h$, and for a kernel spectrum $|\omega|^{-\beta}$ the
+resolution shrinks as $t^{-1/\beta}$ (Proposition~\ref{prop:specbias}; measured slopes
+$-0.40$ and $-0.29$ against $-\frac12$ and $-\frac14$; Figure~\ref{fig:t2}). If instead
+the field itself is averaged over nearby labels, the atoms survive:
+
+\begin{proposition}[Label resolution reweights the atoms and never moves them]
+\label{prop:filtered}
+Let $h>0$, $\varphi$ a probability measure on $\R^k$ and
+$v_\varphi(x,t,y)=\int\vstar(x,t,y-u)\,\varphi(du)$. (a) $v_\varphi=\sum_i\tilde
+w_i(x,t,y)(x^i-x)/(1-t)$ with $\tilde w_i\ge0$, $\sum_i\tilde w_i=1$, and $\tilde
+w_i(x,0,y)=q_i(y):=\int p_i^{(h)}(y-u)\,\varphi(du)$. (b) If a trajectory of $v_\varphi$
+converges as $t\to1$ to a point with a unique nearest training atom, that point is the
+atom. Hence if $\pi_0$-almost every trajectory converges to such a point, the endpoint
+law of $v_\varphi$ is $\sum_i\tilde q_i(y)\delta_{x^i}$ for some weights $\tilde q(y)$.
+\proofin{apx:pf-filtered}
+\end{proposition}
+
+Limited label resolution therefore reweights the atoms but cannot produce the off-atom
+samples seen on CIFAR-10, which need an error in the spatial dependence of the field.
+Neither model reproduces the networks' additive exponent ($p\approx1.3$ against
+$2.2$--$2.8$) or their stop above $h$.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.94\textwidth]{fig_t2_resolution.png}
+\caption{Kernel gradient flow \eqref{eq:kgf} on the EXP-1 training set (seed 0,
+$\ell=\mathrm{sd}(y)$). (a) $s(t)$, the effective bandwidth at $h=0$: power-law decay
+with the slope of Proposition~\ref{prop:specbias}(b) (dotted: $-1/\beta$) for kernels
+with power-law spectra, stagnation for the Gaussian kernel. (b) Under the Laplace
+kernel $h_{\mathrm{eff}}$ falls and converges to each training bandwidth $h$ (dashed).}
+\label{fig:t2}
+\end{figure}
+
 % ==========================================================================
 \section{Limitations}
 \label{sec:limitations}
@@ -727,7 +667,7 @@ variances no better than the power law (comparable from 30k on, mostly worse bef
 $h_{\mathrm{eff}}$ is identified and Theorem~\ref{thm:calib} what calibration a bandwidth
 buys. A spectral-bias model (Appendix~\ref{app:specbias}) reproduces the fall of
 $h_{\mathrm{eff}}$ to $h$, but not the networks' rates or their gap above $h$ (open
-beyond $6\times10^4$ iterations). The theorem assumes a Gaussian posterior. At image
+beyond $6\times10^4$ iterations). Theorem~\ref{thm:calib}(c) is Gaussian; (b) only bounds the deviation. At image
 scale $h_{\mathrm{eff}}$ fits the variances no better than a power law, and atomicity is
 not inherited. The synthetic problems have
 $d\le10$; the image experiments use one mask and $N{=}2000$, with instance and
@@ -749,7 +689,8 @@ All numbers reported are produced by code included in the supplementary material
 table to $<0.05\%$), \texttt{analyze\_p7\_kernel.py}, \texttt{verify\_kernel\_theory.py},
 \texttt{verify\_prop17.py}, \texttt{verify\_target\_noise.py},
 \texttt{atomicity\_scaling.py}, \texttt{theory\_t1\_check.py},
-\texttt{theory\_t3\_coverage.py}. Experiments: \texttt{run\_exp1.sh},
+\texttt{theory\_t3\_coverage.py}, \texttt{theory\_t3\_general.py},
+\texttt{theory\_t2\_resolution.py}, \texttt{theory\_t2\_filtered.py}. Experiments: \texttt{run\_exp1.sh},
 \texttt{run\_sweeps.py} ($+$\texttt{-{}-gpus N}), \texttt{train\_exp2},
 \texttt{train\_exp3}, each followed by the matching analysis script. For
 Table~\ref{tab:p7kernel}, Table~\ref{tab:dagger} and Figure~\ref{fig:kernel} we release
@@ -1977,9 +1918,11 @@ argument is $|x^i-\bar x_h|^2$.
 and both arguments of the covariance are bounded, so
 $h^3\partial_h\tr\Covh\to\frac1N\sum_i(|x^i-\bar x|^2-m)(D_i-\bar D_\infty)$ with $m$ and
 $\bar D_\infty$ the unweighted means; the error is $O(h^{-2})$.
-\emph{Stability.} By optimality of $\hat h$,
+\emph{Stability.} Take $h^\star\in\mathcal H$ (on a grid, replace $e$ by the misfit at
+the grid point nearest $h^\star$). By optimality of $\hat h$,
 $|F(\hat h)-F(h^\star)-e|=|\log T-F(\hat h)|\le|\log T-F(h^\star)|=|e|$, so
-$|F(\hat h)-F(h^\star)|\le2|e|$. On the other hand, by the mean-value theorem applied to
+$|F(\hat h)-F(h^\star)|\le2|e|$, which is the first claim. If that set lies in
+$\mathcal I$, then $\hat h\in\mathcal I$, and by the mean-value theorem applied to
 the scalar function $u\cdot F$ on the segment between $h^\star$ and $\hat h$,
 $|F(\hat h)-F(h^\star)|\ge|u\cdot(F(\hat h)-F(h^\star))|=|u\cdot F'(\xi)|\,|\hat h-h^\star|
 \ge\kappa|\hat h-h^\star|$ for some $\xi\in\mathcal I$. Combining the two gives
@@ -2002,9 +1945,9 @@ $h\le0.1$, which is why $h{=}0.5$ synthetic and $h{=}6$ on CIFAR-10 are poorly i
 
 \begin{proof}[Proof of Theorem~\ref{thm:calib}]
 \emph{(a)} Let $\widetilde Y=Y+h\varepsilon$ with $\varepsilon\sim\N(0,I_k)$ independent;
-$\widetilde Y=AX+\tilde\eta$ with $\tilde\eta\sim\N(0,s_h^2I_k)$, so the standard
-Gaussian conditioning formula gives $X\mid\widetilde Y=y\sim\N(\mu_h(y),\Sigma_h)$. For a
-bounded continuous $\varphi$, by Theorem~\ref{thm:endpoint},
+given $X=x$, $\widetilde Y\sim\N(g(x),s_h^2I_k)$, so $\widetilde Y$ has the everywhere
+positive density $p_{\widetilde Y}(y)=\E\,\N(y;g(X),s_h^2I_k)$. For a bounded continuous
+$\varphi$, by Theorem~\ref{thm:endpoint},
 \begin{equation*}
 \int\varphi\,dp_1^{(h)}(\cdot\mid y)
 =\frac{\frac1N\sum_iK_h(y-y^i)\varphi(x^i)}{\frac1N\sum_iK_h(y-y^i)}
@@ -2012,19 +1955,34 @@ bounded continuous $\varphi$, by Theorem~\ref{thm:endpoint},
 \frac{\E[K_h(y-Y)\varphi(X)]}{\E[K_h(y-Y)]}
 \end{equation*}
 by the strong law of large numbers, since $K_h$ is bounded and the denominator's limit is
-positive. The right-hand side is $\int\varphi(x)\,\pi(x)\,\N(y;Ax,s_h^2I)\,dx$ divided by
-its value at $\varphi\equiv1$, because $\int K_h(y-y')\N(y';Ax,\sigma^2I)\,dy'=
-\N(y;Ax,s_h^2I)$; that is $\E[\varphi(X)\mid\widetilde Y=y]$. Taking $\varphi$ in a
-countable convergence-determining class gives weak convergence almost surely.
+positive. Conditioning on $X$ and using $\int K_h(y-y')\N(y';g(x),\sigma^2I)\,dy'=
+\N(y;g(x),s_h^2I)$, the numerator is $\E[\varphi(X)\N(y;g(X),s_h^2I)]
+=p_{\widetilde Y}(y)\,\E[\varphi(X)\mid\widetilde Y=y]$ and the denominator is
+$p_{\widetilde Y}(y)$. Taking $\varphi$ in a countable convergence-determining class gives
+weak convergence almost surely.
 
-\emph{(b)} $\mu_h$ is affine, $\mu_h(\widetilde Y)-\mu_h(Y)=h\Gamma_h\varepsilon$, and
+\emph{(b)} Given $X=x$, $Y\sim\N(g(x),\sigma^2I_k)$ and $\widetilde Y\sim\N(g(x),s_h^2I_k)$,
+so the total variation between the laws of $(X,Y)$ and $(X,\widetilde Y)$ is
+$\E_X\,\mathrm{TV}(\N(g(X),\sigma^2I),\N(g(X),s_h^2I))=\tau_h$, by translation
+invariance. The function $(x,y)\mapsto\ind\{x\in R(y)\}$ takes values in $[0,1]$, so its
+expectations under the two laws differ by at most $\tau_h$. By Pinsker's inequality and
+$\mathrm{KL}(\N(0,\sigma^2I_k)\,\|\,\N(0,s_h^2I_k))=\frac k2(r-1-\log r)$ with
+$r=\sigma^2/s_h^2=1/(1+u)$, $u=h^2/\sigma^2$, we get $\tau_h^2\le\frac k4(r-1-\log r)
+=\frac k4\big(\log(1+u)-\frac u{1+u}\big)\le\frac k8u^2$, the last step because the
+bracket vanishes at $u=0$ and has derivative $u/(1+u)^2\le u$. Finally, if
+$\pi_h(R(y)\mid y)=\alpha$ for every $y$, then
+$\Pr(X\in R(\widetilde Y))=\E[\pi_h(R(\widetilde Y)\mid\widetilde Y)]=\alpha$.
+
+\emph{(c)} $\widetilde Y=AX+\tilde\eta$ with $\tilde\eta\sim\N(0,s_h^2I_k)$, so Gaussian
+conditioning gives $\pi_h(\cdot\mid y)=\N(\mu_h(y),\Sigma_h)$. $\mu_h$ is affine,
+$\mu_h(\widetilde Y)-\mu_h(Y)=h\Gamma_h\varepsilon$, and
 $X-\mu_h(\widetilde Y)\sim\N(0,\Sigma_h)$. Since $X-\mu_h(Y)$ is a function of $(X,\eta)$,
 which is independent of $\varepsilon$,
 \begin{equation*}
 \Sigma_h=\Cov\big(X-\mu_h(Y)-h\Gamma_h\varepsilon\big)=\Cov\big(X-\mu_h(Y)\big)+h^2\Gamma_h\Gamma_h^\top,
 \end{equation*}
 and $X-\mu_h(Y)$ is Gaussian with mean $\E X-\mu_h(\E Y)=0$, which is the claim. Write
-$z=\Sigma_h^{-1/2}(x^\star-\mu_h(y^\star))\sim\N(0,I-h^2MM^\top)$ with
+$z=\Sigma_h^{-1/2}(X-\mu_h(Y))\sim\N(0,I-h^2MM^\top)$ with
 $M=\Sigma_h^{-1/2}\Gamma_h$. The eigenvalues $\lambda_j$ of $I-h^2MM^\top$ lie in $[0,1]$, so
 $|z|^2\overset{d}{=}\sum_j\lambda_jg_j^2\le\sum_jg_j^2\sim\chi^2_d$ for i.i.d.\ standard
 normal $g_j$, and $\Pr(|z|^2\le q_\alpha)\ge\Pr(\chi^2_d\le q_\alpha)=\alpha$. If $h>0$
@@ -2032,7 +1990,7 @@ and $A\ne0$ then $\Gamma_h\ne0$, some $\lambda_j<1$, the inequality between the 
 strict on an event of positive probability that intersects $\{\chi^2_d>q_\alpha\}$ with
 positive probability, and the coverage is strictly larger than $\alpha$.
 
-\emph{(c)} Let $a_i$ be i.i.d.\ with mean $m$ and covariance $S$ and $\sum_iw_i=1$. Then
+\emph{(d)} Let $a_i$ be i.i.d.\ with mean $m$ and covariance $S$ and $\sum_iw_i=1$. Then
 $\Cov(\sum_iw_ia_i)=\sum_iw_i^2S=S/n_{\mathrm{eff}}$, and with $\bar a=\sum_iw_ia_i$,
 \begin{equation*}
 \E\sum_iw_i(a_i-\bar a)(a_i-\bar a)^\top
@@ -2046,9 +2004,148 @@ probability $0$.
 
 Each part is checked by simulation in \texttt{scripts/theory\_t3\_coverage.py}: the
 large-$N$ mixture against $(\mu_h,\Sigma_h)$ (mean error $\le0.017$, covariance error
-$\le0.7\%$ at $N=4\times10^5$); the identity of (b) to $10^{-15}$ and the coverage of
-$\N(\mu_h,\Sigma_h)$ against Monte Carlo to $0.002$; and the two identities of (c) to
-$10^{-3}$.
+$\le0.7\%$ at $N=4\times10^5$); the identity of (c) to $10^{-15}$ and the coverage of
+$\N(\mu_h,\Sigma_h)$ against Monte Carlo to $0.002$; and the two identities of (d) to
+$10^{-3}$. Part (b) is checked in \texttt{scripts/theory\_t3\_general.py} with
+exact highest-density regions of the mixture posteriors of EXP-2 ($d=2$ with a
+projection, and $d=8$; 1000 pairs per cell, $h/\sigma\in\{0,\frac12,1,2,4\}$): the
+coverage at clean and at noisy labels differs by at most $0.96\,\tau_h$ (at
+$h=\sigma/2$) and by much less at larger $h$, the coverage at noisy labels is within
+$0.031$ of $\alpha$, and the coverage at clean labels is at least $\alpha$ in every
+cell, so the over-coverage of (c) persists for these non-Gaussian posteriors.
+
+\section{Interventions, the large-sample limit, and approximate fields}
+\label{app:interventions}
+
+This appendix holds the statements summarised in Section~\ref{sec:interventions};
+their proofs are in Appendix~\ref{app:proofs}.
+
+\subsection{Escaping the obstruction: smoothing the endpoint}
+\label{sec:theory-remedy}
+
+Proposition~\ref{prop:atomicity} rules out any remedy leaving the endpoint law on the
+training atoms: label smoothing, and trivially the interpolant noise of
+Section~\ref{sec:theory-noise}, since $\gamma(1)=0$. A remedy must move the support. Of
+the three places to inject noise (label, path, endpoint), only the endpoint does.
+
+\begin{proposition}[Endpoint smoothing]
+\label{prop:tgtnoise}
+Replace the endpoint by $X_1=x^I+\rho\,\xi$ with $\xi\sim\N(0,I_d)$ independent of
+$(I,X_0,\varepsilon)$ and redrawn every step, keeping label bandwidth $h>0$. Write
+$s_t^2=(1-t)^2+t^2\rho^2$. Then $\vstar$ is again a weighted average of per-atom
+fields, now with spatial weights $\varphi_{s_t}(x-tx^i)$ in place of
+$\pi_0(\tfrac{x-tx^i}{1-t})$ (explicitly, \eqref{eq:tgtfield} in the appendix), and
+the endpoint law is
+\begin{equation}
+p_1(\cdot\mid y)=\sum_i p_i^{(h)}(y)\,\N(x^i,\rho^2I_d),
+\qquad
+\bar x=\bar x_h(y),\quad \Cov=\Covh(y)+\rho^2I_d.
+\label{eq:tgtendpoint}
+\end{equation}
+For every $\rho>0$ this law is absolutely continuous, so \eqref{eq:w2floor} does not
+apply to it; moreover $s_1=\rho>0$, so $\vstar$ extends continuously to $t=1$ and the
+$1/(1-t)$ blow-up of $(\star)$ disappears. \proofin{apx:pf-tgtnoise}
+\end{proposition}
+
+Two caveats, both quantified in Section~\ref{sec:exp1}. Removing a lower bound does not
+reduce the distance: \eqref{eq:tgtendpoint} is a kernel density estimate that pays
+$+\rho^2I_d$ of variance for its continuity, and the gain is bounded by the obstruction
+removed. And $h$ sets $\bar x_h$ and $\Covh$ while $\rho$ shifts the covariance, so
+together they can match the posterior's first and second moments with a continuous law,
+where $h$ alone matches at most one.
+
+One place in this paper leaves the fixed-$\D$ setting. It asks what $\Covh$ converges to
+when the training set is an i.i.d.\ sample and $N\to\infty$, the only regime in which
+label smoothing is more than a reweighting. Under local homoscedasticity ($\Sigma$ constant near $y$), $h\to0$ and $Nh^{k+4}\to\infty$,
+Proposition~\ref{prop:expansion} (appendix) gives
+$\Covh(y)=\Sigma(y)+h^2J(y)J(y)^\top+O(h^4)+O_P((Nh^k)^{-1/2})$. The between-group
+inflation $h^2\|J\|_F^2$ produces the over-smoothing branch of the empirical U-curve and
+is a parameter-free prediction in the linear-Gaussian model, where $\mu$ is affine. It
+should not be expected to describe an image model, and the across-condition slope of
+$0.481$ in Section~\ref{sec:cifarddpm} is what that failure to transfer looks like.
+Proposition~\ref{prop:nwrate} gives the companion Nadaraya--Watson rates for
+$\bar x_h(y)$ and records that queries at $y=y^i$ are design points, so the $h\to0$ limit
+there differs from the fixed-$N$ collapse of Corollary~\ref{cor:zerobw}: same symbol,
+opposite conclusions.
+
+\subsection{Stochastic interpolant noise does not help}
+\label{sec:theory-noise}
+
+Another place to inject randomness is the interpolant path itself. This never changes the
+population endpoint at $h=0$, at any noise level. Replace the interpolant by $X_t=(1-t)X_0+tX_1+\gamma(t)Z$ with
+$Z\sim\N(0,I_d)$ independent and $\gamma(t)=\sigma\sqrt{t(1-t)}$, so
+$\gamma(0)=\gamma(1)=0$. A single $Z$ defines the whole trajectory, and the pathwise-derivative target is
+\begin{equation}
+\dot X_t=X_1-X_0+\dot\gamma(t)Z,\qquad
+\dot\gamma(t)=\frac{\sigma(1-2t)}{2\sqrt{t(1-t)}};
+\label{eq:c2target}
+\end{equation}
+regressing on $X_1-X_0$ alone would be a different objective. Write
+$s_t^2:=(1-t)^2+\gamma(t)^2=(1-t)[(1-t)+\sigma^2t]$, so $s_0=1$ and $s_1=0$.
+
+\begin{proposition}[Closed form and endpoint invariance in $\sigma$]
+\label{prop:prop17}
+Let $h=0$ and $v_\sigma^\star=\E[\dot X_t\mid X_t,t,Y]$ for target
+\eqref{eq:c2target}. Then for $t\in(0,1)$:
+(a) $v_\sigma^\star(x,t,y^i)=x^i+c(t)(x-tx^i)$ with
+$c(t)=\frac{-(1-t)+\frac{\sigma^2}2(1-2t)}{s_t^2}=\frac12\frac{d}{dt}\log s_t^2$;
+(b) the flow is $x_t=t\,x^i+s_t\,x_0$; and
+(c) since $s_1=0$,
+\begin{equation}
+p_1^{(0)}(\cdot\mid y^i)=\delta_{x^i}\quad\text{for every }\sigma\ge0.
+\label{eq:invariance}
+\end{equation} \proofin{apx:pf-prop17}
+\end{proposition}
+
+Part~(b) gives the flow in closed form and (c) follows because $s_1=0$, so no
+integrator and no early stopping enter the argument: the endpoint is fixed by the
+interpolant itself. The reason is structural. Any admissible schedule has $\gamma(1)=0$,
+since otherwise the path never reaches the data, and that is the condition that removes
+the noise at the endpoint. For $\gamma=\sigma\sqrt{t(1-t)}$ interpolant noise cannot change the endpoint law, and
+any schedule with $\gamma(1)=0$ has $X_t\to x^I$ (Remark~\ref{rem:notsampler} and
+Figure~\ref{fig:interpolant}, appendix).
+Corollary~\ref{cor:prop18} records what it does change: it raises the irreducible error
+and halves the Lipschitz blow-up rate, and neither touches $p_1$.
+Proposition~\ref{prop:factors} locates the difference: the two noises multiply different
+factors of the same index posterior, and only the label factor survives to $t=1$. This
+separates the mechanism from the unconditional ``resample-$x_0$'' remedy of
+\citet{gradvar2025}, which works through attainability and not through the population
+optimum.
+
+\subsection{Classifier-free guidance does not escape either}
+\label{sec:theory-cfg}
+
+For the guided field $v_w:=(1+w)\vstar-w\,v_{\mathrm{unc}}^\star$, the trajectory's
+component orthogonal to $\operatorname{aff}\{x^1,\dots,x^N\}$ decays as $(1-t)$, so every
+guided endpoint law lies in the affine hull of the atoms, a null set when $N\le d$, and
+a convergent guided trajectory with a unique nearest atom ends on it
+(Propositions~\ref{prop:cfg} and~\ref{prop:cfgatom}, appendix).
+
+The four interventions thus fall into an order: inert (interpolant noise, at every noise
+level), atom-preserving (guidance), reweighting (label smoothing, so the atomicity ceiling
+still binds), and support-moving (endpoint smoothing, at $+\rho^2I_d$ of variance).
+
+\subsection{What survives the flow, and what paces the collapse}
+\label{sec:survival}
+
+For a model with velocity error $\Delta$ against $(\star)$, the deviation of its
+trajectory from the exact one is $e_t=(1-t)I(t)$ with
+$I(t)=\int_0^t\Delta(x_s,s)(1-s)^{-1}ds$ (Proposition~\ref{prop:survival}, appendix): the
+collapsed field contracts at a diverging rate, so a deviation survives to the endpoint
+only through an error accumulating at rate $(1-t)^{-1}$. Under a Lipschitz hypothesis on
+the error that holds only for fields reproducing the linear part of $(\star)$, it is
+bounded by the loss not yet removed (Corollary~\ref{cor:lossform}; empirical slope
+$0.485$ against $\tfrac12$, Appendix~\ref{app:survival}).
+
+\subsection{Scope}
+\label{sec:scope}
+
+The theory describes the empirical minimiser, not how many SGD steps reach it, nor how
+observed collapse depends on $N$ at fixed architecture (a non-collapsing $N{=}5000$ run
+probes representation and optimisation), on $\sigma_{\mathrm{obs}}$, or on $h$ on a
+given instance. It predicts the destination, not the speed
+(Figure~\ref{fig:collapsetime}, appendix); Section~\ref{sec:heff} measures how far a
+trained model has gone.
 
 \section{Finite-sample memorisation and exact non-representability}
 \label{sec:theory-d2}
@@ -2913,14 +3010,14 @@ $-0.67$), with $h_{\mathrm{eff}}$ and $h_{\mathrm{mean}}$ at log correlation $0.
 
 \paragraph{The window.} The nominal 90\% region covers $0.86$--$0.88$ for
 $h_{\mathrm{eff}}\in[0.1,0.4)$, where $\Covh$ matches $\Sigmapost$, and $0.54$ and $0.34$
-for $[0.02,0.05)$ and below. Theorem~\ref{thm:calib} accounts for both edges: part (b)
-bounds the coverage from below by $\alpha$ at large bandwidth, part (c) sends it to zero
+for $[0.02,0.05)$ and below. Theorem~\ref{thm:calib} accounts for both edges: part (c)
+bounds the coverage from below by $\alpha$ at large bandwidth, part (d) sends it to zero
 as $n_{\mathrm{eff}}\to1$. Applied with the actual kernel weights at $h_{\mathrm{eff}}$
 (the local model of Section~\ref{sec:heff}), it predicts the measured 90\% coverage with
 $R^2=0.90$, mean absolute error $0.051$ and Spearman $0.89$; the exact finite reference
 law at $h_{\mathrm{eff}}$ does so with $R^2=0.93$, and the two predictions agree with
 each other at $R^2=0.97$. Replacing the actual weights by their effective sample size
-alone (a plug-in of (c) that ignores weight fluctuations) gives only $R^2=0.61$: at small
+alone (a plug-in of (d) that ignores weight fluctuations) gives only $R^2=0.61$: at small
 $n_{\mathrm{eff}}$ the dispersion of the weights, not just their number, sets the
 coverage. At the 50\% level the corresponding values are $0.59$ (local model) and $0.68$
 (reference law).
@@ -2994,24 +3091,48 @@ $h$}, in 6/6 Laplace and 5/6 Mat\'ern configurations, as (a) predicts for $h=0$.
 (Laplace; $-1/\beta=-0.5$) and $-0.29$ (Mat\'ern; $-0.25$), while under the Gaussian
 kernel it barely moves ($-0.05$) and $h_{\mathrm{eff}}$ never reaches $h$ (0/6).
 
+\paragraph{From moments to the field.} The model above acts on moments. At the level of
+the field, a learner that resolves the label only to the law $\varphi$ of a perturbation
+$u$ replaces $\vstar$ by its label average, and that keeps the atoms.
+
+\begin{proof}[Proof of Proposition~\ref{prop:filtered}]
+\label{apx:pf-filtered}
+(a) By Proposition~\ref{prop:kernel-field}, $\vstar(x,t,y')=\sum_iw_i(x,t,y')(x^i-x)/(1-t)$
+with $w_i=a_ib_i/\sum_ja_jb_j$, $a_i=\pi_0(\frac{x-tx^i}{1-t})$, $b_i=K_h(y'-y^i)$;
+averaging over $y'=y-u$ gives $\tilde w_i=\int w_i(x,t,y-u)\varphi(du)$, which is
+nonnegative and sums to one. At $t=0$ all $a_i$ equal $\pi_0(x)$, so $w_i=p_i^{(h)}(y')$.
+(b) Let $x_t\to\bar x$, with $x^i$ the unique nearest atom to $\bar x$ and
+$\gamma=\min_{j\ne i}(|\bar x-x^j|^2-|\bar x-x^i|^2)>0$. For $t$ close to $1$,
+$|x_t-tx^j|^2-|x_t-tx^i|^2\ge\gamma/2$, so
+$a_j/a_i\le e^{-\gamma/(4(1-t)^2)}\to0$. Since $w_j\le\min\{1,(a_j/a_i)(b_j/b_i)\}$ and
+$b_i>0$ everywhere, dominated convergence gives $\tilde w_j(x_t,t,y)\to0$ for $j\ne i$,
+so $m_t:=\sum_j\tilde w_jx^j\to x^i$. Along the trajectory
+$\dot x_t=(m_t-x_t)/(1-t)$ with $m_t-x_t\to x^i-\bar x$. If $x^i\ne\bar x$, then
+$(x^i-\bar x)\cdot\dot x_t\ge|x^i-\bar x|^2/(2(1-t))$ for $t$ near $1$, whose integral
+diverges, contradicting convergence. So $\bar x=x^i$.
+\end{proof}
+
+So a learner whose only defect is label resolution reweights the training atoms and
+never leaves them; leaving them, as $38\%$ of CIFAR-10 samples do at $h{=}6$, needs an
+error in the spatial dependence of the field. Integrating the flow of $v_\varphi$ exactly
+on the EXP-1 training set (Gaussian $\varphi$ of scale $s$, five conditions, 300
+trajectories each; \texttt{theory\_t2\_filtered.py}) confirms that every endpoint is an
+atom (distance $\le0.003$). The endpoint weights are \emph{not} simply the label-averaged
+weights $q$: they agree within Monte Carlo error when $s\le h$ (total variation $0.11$
+and $0.14$ against floors $0.09$ and $0.13$ at $s=h=0.05$ and $0.1$), but for $s\gg h$
+the flow re-concentrates them, halving the endpoint variance ($0.46$ against $1.14$ at
+$h=0.01$, $s=0.05$). A label-resolution limit is therefore not equivalent to extra label
+noise at the level of the field, and the additive law has no reason to be exact.
+
 The model leaves two things open. Its additive exponent is $p\approx2.2$ (Laplace; $2.8$
-Mat\'ern), against $p=1.3$ fitted to the networks, but the network data hardly
+Mat\'ern; $2.8$ for the label-averaged weights $q$), against $p=1.3$ fitted to the networks, but the network data hardly
 distinguish the two (log RMSE $0.352$ at $p=1.3$ against $0.366$ at $p=2$). And it
 predicts no floor, whereas $h_{\mathrm{eff}}$ settles at $1.08h$ on the synthetic runs;
 whether that gap is optimisation (Adam, a finite learning rate) or feature learning,
 which kernel gradient flow excludes, is not settled here. Nor does kernel time map to
 iterations outside the lazy regime, so we do not compare rates with training curves.
 
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.94\textwidth]{fig_t2_resolution.png}
-\caption{Kernel gradient flow \eqref{eq:kgf} on the EXP-1 training set (seed 0,
-$\ell=\mathrm{sd}(y)$). (a) $s(t)$, the effective bandwidth at $h=0$: power-law decay
-with the slope of Proposition~\ref{prop:specbias}(b) (dotted: $-1/\beta$) for kernels
-with power-law spectra, stagnation for the Gaussian kernel. (b) Under the Laplace
-kernel $h_{\mathrm{eff}}$ falls and converges to each training bandwidth $h$ (dashed).}
-\label{fig:t2}
-\end{figure}
+
 
 \subsection{An audit protocol for conditional flows}
 \label{app:audit}
