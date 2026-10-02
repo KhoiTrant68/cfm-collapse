@@ -113,3 +113,19 @@ s(t). Drop if it does not match the synthetic s(t) within a factor.
 4. T3.d prediction of measured coverage.
 5. Write theorems and proofs; figures; compile; commit; PR; merge.
 6. T2 if time remains.
+
+---
+
+## Status (2026-10-02)
+
+- T1: done. Proposition `prop:heffid` in section 4.3, proof in the appendix,
+  checks in `scripts/theory_t1_check.py` -> `results/theory/t1_check.json`.
+- T3: done. Theorem `thm:calib` in section 4.3, proof in the appendix, checks and
+  prediction (R^2 0.90 local model, 0.93 reference law) in
+  `scripts/theory_t3_coverage.py`, figure `fig_t3_coverage.png`.
+- T2: partial. Kernel gradient flow of the conditional moments in label space
+  (`scripts/theory_t2_resolution.py`, appendix `app:specbias`, Proposition
+  `prop:specbias`): under power-law-spectrum kernels the model is an NW mixture at one
+  bandwidth at every t, h_eff falls to h, s(t) ~ t^(-1/beta). Gaussian kernel stalls.
+  Not explained: p = 1.3 of the networks (model p ~ 2.2, data barely separate them),
+  the 1.08h gap, and the mapping from kernel time to iterations.
