@@ -64,10 +64,12 @@ variances gives $h_{\mathrm{eff}}$; fitting it to the per-condition means, separ
 gives the same bandwidth within 95\% intervals at $48/48$ checkpoints of 15 synthetic
 runs and at $31/36$ of six CIFAR-10 runs with a $35.75$M-parameter DDPM U-Net. In both,
 $h_{\mathrm{eff}}$ falls with training and ends just above $h$ ($1.08h$ synthetic,
-$1.13$--$1.34h$ on CIFAR-10 at $60$k iterations). Where the posterior is known,
-$h_{\mathrm{eff}}$ read from training conditions ranks held-out credible-region coverage
-(Spearman $0.92$) better than the training loss or the iteration, also at a fixed
-iteration. The same law ranks interventions:
+$1.13$--$1.34h$ on CIFAR-10 at $60$k iterations). We prove that the bandwidth is
+identified where the reference varies, and that in the linear-Gaussian model it sets
+calibration: smoothing over-covers, a vanishing effective sample collapses coverage to
+zero. From $h_{\mathrm{eff}}$ alone this predicts the held-out coverage of trained
+models ($R^2=0.90$), ranking it better than the training loss or the iteration. The
+same law ranks interventions:
 interpolant noise leaves the endpoint unchanged, label noise reweights the atoms, and
 only endpoint noise moves the support. Scope: identifying conditions, as in inverse
 problems and inpainting.
@@ -156,9 +158,10 @@ lines.}
   variances and recovered independently from its per-condition means, and
   $h_{\mathrm{eff}}$ falls towards $h$ as training proceeds (Section~\ref{sec:heff};
   48/48 synthetic and 31/36 CIFAR-10 checkpoints). What looked like partial agreement
-  with the reference at $h$ is agreement with the reference at a larger bandwidth, and
-  $h_{\mathrm{eff}}$ predicts held-out posterior coverage beyond what training time or
-  loss explain (Spearman $0.92$; $0.90$ with the iteration partialled out).
+  with the reference at a larger bandwidth. We prove when $h_{\mathrm{eff}}$ is
+  identified (Proposition~\ref{prop:heffid}) and what calibration a bandwidth implies
+  (Theorem~\ref{thm:calib}); from $h_{\mathrm{eff}}$ alone, the theorem predicts the
+  held-out coverage of 75 trained checkpoints with $R^2=0.90$.
 \item \textbf{An audit.} Level agreement with the reference is uninformative when the
   reference barely varies across conditions: on CIFAR-10 the median ratio is $1.15$
   while the across-condition slope is $\beta=-0.156$. The audit (Appendix~\ref{app:audit})
@@ -193,8 +196,8 @@ family of laws at a bandwidth that training shrinks.
 
 \paragraph{What to verify.} The endpoint law, Theorem~\ref{thm:endpoint} (proof in
 Appendix~\ref{apx:pf-endpoint}; a numerical check is in the supplementary
-\texttt{proof\_checks/}); the effective bandwidth, \eqref{eq:heff} and
-Figures~\ref{fig:heffsyn} and~\ref{fig:heffcifar}; the synthetic audit,
+\texttt{proof\_checks/}); the effective bandwidth, \eqref{eq:heff},
+Theorem~\ref{thm:calib} and Figure~\ref{fig:t3}; the synthetic audit,
 Table~\ref{tab:p7kernel}; the procedure, Appendix~\ref{app:audit}.
 
 % ==========================================================================
@@ -630,58 +633,82 @@ h_{\mathrm{mean}}=\arg\min_{h'}\sum_c\big\|m_c-\bar x_{h'}(y_c)\big\|,
 over a log-spaced grid, each with a 95\% bootstrap interval over conditions. One number
 must explain every condition, and the two estimates use disjoint statistics, so
 $h_{\mathrm{mean}}\approx h_{\mathrm{eff}}$ is an out-of-sample check that the model is
-a Nadaraya--Watson mixture at all. Both need the reference to vary across conditions.
+a Nadaraya--Watson mixture at all. When is the bandwidth identified?
+
+\begin{proposition}[Identifiability of the effective bandwidth]
+\label{prop:heffid}
+Let $D_i(y)=|y-y^i|^2$ and $\Cov_p$ the covariance over $i$ under $p^{(h)}(y)$. Then
+$\partial_h\bar x_h(y)=h^{-3}\Cov_p(x^i,D_i)$ and
+$\partial_h\tr\Covh(y)=h^{-3}\Cov_p(|x^i-\bar x_h(y)|^2,D_i)$, and
+$h^3\partial_h\tr\Covh(y)$ tends to the unweighted covariance of $|x^i-\bar x|^2$ and $D_i$
+as $h\to\infty$. Let $F(h)=(\log\tr\mathrm{Cov}_h(y_c))_{c\le C}$, let the measured log
+traces be $F(h^\star)+e$, and let $\hat h$ minimise $|\log T-F(h)|$ over an interval
+$\mathcal I\ni h^\star$. If $u\cdot F'(h)\ge\kappa>0$ on $\mathcal I$ for a unit vector
+$u$, then $|\hat h-h^\star|\le2|e|/\kappa$; likewise for $h_{\mathrm{mean}}$ with
+$G(h)=(\bar x_h(y_c))_c$. \proofin{apx:pf-heffid}
+\end{proposition}
+
+So $\kappa=O(h^{-3})$ at large $h$, where no bandwidth is identified. The bound holds
+at all 75 synthetic checkpoints and ranks their bootstrap widths with Spearman $0.91$;
+on CIFAR-10, $\kappa$ falls from $17$ at $h{=}3$ to $0.38$ and $0.13$ at $h{=}5,6$.
 
 \paragraph{Synthetic.} Fifteen linear-Gaussian runs ($h\in\{0,0.01,0.05,0.1,0.5\}$, three
-seeds) were retrained with weights kept at eight checkpoints (Figure~\ref{fig:heffsyn}).
+seeds) were retrained with weights kept at eight checkpoints (Figure~\ref{fig:heffsyn},
+appendix).
 Where the reference varies ($h\le0.1$, from $10^4$ iterations; 48 checkpoints) the two
 bandwidths agree within their intervals at all 48 (log correlation $0.97$, median ratio
-$1.03$). With one parameter, $h_{\mathrm{eff}}$ explains the per-condition variances
-better than the two-parameter power law behind $\beta$ (median log-space $R^2$ $0.86$
-against $0.79$; a constant multiple of $\Covh$, also one parameter, reaches $0.66$). It
+$1.03$), and with one parameter it fits the per-condition variances better than the
+two-parameter power law behind $\beta$. It
 falls between $10^4$ and $10^5$ iterations in 12/12 runs and settles just above $h$
 ($1.08h$ on average for $h\ge0.05$); at $h{=}0$ it keeps falling ($0.011\pm0.006$ at
 $2\times10^5$), so the residual variance read as an optimisation gap in
 Section~\ref{sec:exp1} is a bandwidth that has not reached zero. At $h{=}0.5$
 ($n_{\mathrm{eff}}\approx100$) it is poorly identified (9/15 intervals overlap).
 
-\paragraph{$h_{\mathrm{eff}}$ predicts calibration beyond training progress.} The
-posterior is known here, so at every checkpoint ($\ge3000$ iterations, 75 in all) we
-measured, at 100 held-out pairs $(x^\star,y^\star)$, the coverage of the 90\% region of
-the generated samples, a posterior-free PIT error, and the extraction rate.
-$h_{\mathrm{eff}}$, read from the training conditions alone, ranks the 90\% coverage
-with Spearman $0.92$, ahead of the training loss ($0.85$), the raw generated variance
-($0.76$), $\beta$ ($0.34$) and the iteration ($-0.42$). It keeps $0.90$ after
-partialling out the iteration, $0.69$ after partialling out the iteration and $h$ (loss:
-$0.42$), and $0.82$ across runs at a fixed iteration, so it is not a proxy for training
-time. On an eight-mode Gaussian-mixture posterior in $d{=}8$ (10 runs) the result
-repeats ($0.91$ pooled, $0.91$ given the iteration, $0.90$ at fixed iteration; PIT error
-$-0.67$), with $h_{\mathrm{eff}}$ and $h_{\mathrm{mean}}$ at log correlation $0.96$. The
-nominal 90\% region covers $0.86$--$0.88$ for $h_{\mathrm{eff}}\in[0.1,0.4)$, where $\Covh$
-matches $\Sigmapost$, and $0.54$ and $0.34$ for $[0.02,0.05)$ and below. Locating that
-window used the posterior; taking the target $h_{\mathrm{eff}}$ from other seeds'
-validation pairs instead halves the PIT error of stopping at the last checkpoint ($0.034$
-against $0.076$; $0.017$ against $0.037$ on the mixture), but is no better than the same
-rule on the iteration count. Two limits: on the 2-D problem $h_{\mathrm{eff}}$ predicts
-coverage, i.e.\ collapse, far better than the PIT error ($-0.28$), and the on-atom
-fraction, not $h_{\mathrm{eff}}$, predicts extraction ($0.95$).
+\paragraph{Calibration is set by the bandwidth.} Where the posterior is known, the
+coverage of a sampler's credible regions can be computed for the reference law itself.
+
+\begin{theorem}[Calibration of the reference law]
+\label{thm:calib}
+Let $x\sim\N(\mu_x,\Sigma_x)$, $y=Ax+\eta$, $\eta\sim\N(0,\sigma^2I_k)$, and write
+$s_h^2=\sigma^2+h^2$, $\Sigma_h=(\Sigma_x^{-1}+A^\top A/s_h^2)^{-1}$,
+$\Gamma_h=\Sigma_hA^\top/s_h^2$, $\mu_h(y)=\Sigma_h\Sigma_x^{-1}\mu_x+\Gamma_hy$.
+(a) For fixed $h>0$ and an i.i.d.\ training set, $p_1^{(h)}(\cdot\mid y)\Rightarrow
+\N(\mu_h(y),\Sigma_h)$ as $N\to\infty$: the posterior of $x$ given a label with noise
+variance $s_h^2$.
+(b) For $(x^\star,y^\star)$ from the model, $x^\star-\mu_h(y^\star)\sim
+\N(0,\Sigma_h-h^2\Gamma_h\Gamma_h^\top)$, so the level-$\alpha$ region of $\N(\mu_h,\Sigma_h)$
+covers $x^\star$ with probability at least $\alpha$, strictly if $h>0$ and $A\neq0$.
+(c) For weights $w$ and atoms i.i.d.\ with covariance $S$, the weighted mean has
+covariance $S/n_{\mathrm{eff}}$ and the weighted covariance has mean
+$(1-1/n_{\mathrm{eff}})S$, $n_{\mathrm{eff}}=1/\sum_iw_i^2$; at $n_{\mathrm{eff}}=1$ the
+region is degenerate and covers with probability $0$. \proofin{apx:pf-calib}
+\end{theorem}
+
+The theorem gives both ends of a calibration window: over-coverage from smoothing (b) and
+collapse from a vanishing effective sample (c). Modelling the atoms near $y^\star$ as
+draws of $\N(\mu_h,\Sigma_h)$ with the actual weights, (c) predicts the held-out 90\%
+coverage of all 75 trained checkpoints from their $h_{\mathrm{eff}}$ alone with
+$R^2=0.90$ (Figure~\ref{fig:t3}). As a ranking, $h_{\mathrm{eff}}$ (Spearman $0.92$)
+beats the training loss ($0.85$) and keeps $0.90$ with the iteration partialled out, also
+on an eight-mode mixture posterior ($0.91$, $0.91$); it predicts collapse, not the PIT
+error or extraction (Appendix~\ref{app:calibdetails}).
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.84\textwidth]{fig_heff_synthetic.png}
-\caption{Linear-Gaussian problem, three seeds per bandwidth. (a) $h_{\mathrm{eff}}$
-falls with training and stops just above the training bandwidth $h$ (dashed); line:
-geometric mean over seeds, band: range. (b) The bandwidth fitted to the variances
-against the one implied by the means, with 95\% bootstrap intervals: two disjoint
-statistics give one bandwidth. Open markers ($h{=}0.5$): the reference barely varies
-and $h_{\mathrm{eff}}$ is poorly identified.}
-\label{fig:heffsyn}
+\includegraphics[width=0.94\textwidth]{fig_t3_coverage.png}
+\caption{Theorem~\ref{thm:calib} on the linear-Gaussian problem. (a) Coverage of the
+nominal 90\% region against bandwidth: infinite-data limit (b), over-covering for $h>0$;
+finite effective sample (c), collapsing at small bandwidth (both for seed 0); dots:
+trained checkpoints of all seeds at their $h_{\mathrm{eff}}$. (b) Coverage predicted
+from $h_{\mathrm{eff}}$ alone against the measured coverage, for the theory (c) and for
+the exact finite reference law.}
+\label{fig:t3}
 \end{figure}
 
 \paragraph{CIFAR-10.} Six runs of the setup above ($h\in\{4,5\}$, three instances each)
 were retrained with weights kept at 2k--60k and analysed at $M{=}128$
-(Figure~\ref{fig:heffcifar}). They reproduce the published runs ($h_{\mathrm{eff}}=4.79$
-and $5.81$ at 60k for seed 0, against $4.80$ and $5.75$). From 5k on the two bandwidths
+(Figure~\ref{fig:heffcifar}, appendix). From 5k on the two bandwidths
 agree at 31/36 checkpoints; four of the five misses are at $h{=}5$ at 5k--10k.
 $h_{\mathrm{eff}}$ falls monotonically in 5/6 runs and ends at $1.13$--$1.34h$; it is
 still falling at 60k in four runs and has levelled off in two, so whether it has a floor
@@ -689,36 +716,21 @@ above $h$ is open. $\beta$ rises as $h_{\mathrm{eff}}/h$ approaches $1$ in 5/6 r
 reaching $0.66$ at $1.13h$. At this scale $h_{\mathrm{eff}}$ fits the per-condition
 variances no better than the power law (comparable from 30k on, mostly worse before).
 
-\begin{figure}[t]
-\centering
-\includegraphics[width=\textwidth]{fig_heff_cifar.png}
-\caption{CIFAR-10, DDPM U-Net, three instances per bandwidth. (a, b) $h_{\mathrm{eff}}$
-from the variances (filled) and the bandwidth implied by the means (open), with 95\%
-intervals; dashed: training $h$; cross: the published run at 60k. From 5k on the two
-agree and fall towards $h$ without reaching it. (c) $\beta$ against
-$h_{\mathrm{eff}}/h$; training proceeds to the right.}
-\label{fig:heffcifar}
-\end{figure}
-
 \FloatBarrier
 
 % ==========================================================================
 \section{Limitations}
 \label{sec:limitations}
 
-\paragraph{An empirical account without its own theory.} The exact results describe the
-population minimiser. The effective bandwidth describes trained models and rests on the
-agreement of two disjoint statistics, not on a theory of how $h_{\mathrm{eff}}$ depends
-on training time, capacity or $N$. It is identified only where the reference varies
-across conditions (not at $h{=}0.5$ synthetic or $h{=}6$ on CIFAR-10), and at image
-scale it fits the variances no better than a two-parameter power law. Whether it reaches
-$h$ or stops above it is open, and needs runs well beyond $6\times10^4$ iterations.
-Atomicity (Proposition~\ref{prop:atomicity}) is exact at the optimum but not inherited:
-$38\%$ of CIFAR-10 samples are off-atom at $h{=}6$.
-
-\paragraph{Scale and scope.} The synthetic problems have $d\le10$; the image experiments
-use one mask and $N{=}2000$, with instance and optimisation randomness confounded.
-Label spaces with no natural kernel, such as text, are outside scope.
+\paragraph{What is proved and what is measured.} Proposition~\ref{prop:heffid} says when
+$h_{\mathrm{eff}}$ is identified and Theorem~\ref{thm:calib} what calibration a bandwidth
+buys; neither says which bandwidth training reaches, how that depends on capacity or $N$,
+or whether $h_{\mathrm{eff}}$ stops above $h$ (open beyond $6\times10^4$ iterations). The
+theorem assumes a Gaussian posterior. At image scale $h_{\mathrm{eff}}$ fits the
+variances no better than a two-parameter power law, and atomicity is not inherited
+($38\%$ of CIFAR-10 samples off-atom at $h{=}6$). The synthetic problems have
+$d\le10$; the image experiments use one mask and $N{=}2000$, with instance and
+optimisation randomness confounded; label spaces with no natural kernel are out of scope.
 
 % ==========================================================================
 \section{Conclusion}
@@ -727,7 +739,7 @@ Label spaces with no natural kernel, such as text, are outside scope.
 Label smoothing makes a conditional flow kernel regression over its training atoms,
 which only endpoint smoothing leaves (Appendix~\ref{app:remedies}); a trained network
 travels the same laws at an effective bandwidth that training shrinks, so its
-memorisation is one number read off a checkpoint.
+memorisation and its calibration are set by one number read off a checkpoint.
 
 \label{endmain}
 \subsection*{Reproducibility statement}
@@ -735,7 +747,8 @@ All numbers reported are produced by code included in the supplementary material
 (anonymized for review). Theory checks: \texttt{test\_kernel\_theory.py} (reference
 table to $<0.05\%$), \texttt{analyze\_p7\_kernel.py}, \texttt{verify\_kernel\_theory.py},
 \texttt{verify\_prop17.py}, \texttt{verify\_target\_noise.py},
-\texttt{atomicity\_scaling.py}. Experiments: \texttt{run\_exp1.sh},
+\texttt{atomicity\_scaling.py}, \texttt{theory\_t1\_check.py},
+\texttt{theory\_t3\_coverage.py}. Experiments: \texttt{run\_exp1.sh},
 \texttt{run\_sweeps.py} ($+$\texttt{-{}-gpus N}), \texttt{train\_exp2},
 \texttt{train\_exp3}, each followed by the matching analysis script. For
 Table~\ref{tab:p7kernel}, Table~\ref{tab:dagger} and Figure~\ref{fig:kernel} we release
@@ -1937,6 +1950,105 @@ $\big(\E|x^v_{1-\delta}-x^i|^2\big)^{1/2}\le e^{L_\Delta}\sqrt{\mathcal L_i(v)\d
     which is \eqref{eq:lossform} ($t=1-\delta$). Finally $|x^\star_{1-\delta}-x^i|=\delta\,|X_0-x^i|$, and the triangle inequality in $L^2(X_0)$ gives the last display.
 \end{proof}
 
+\subsection{Proof of Proposition~\ref{prop:heffid}}
+\label{apx:pf-heffid}
+
+\begin{proof}[Proof of Proposition~\ref{prop:heffid}]
+Fix $y$ and write $p_i=p_i^{(h)}(y)=e^{-D_i/2h^2}/Z$ with $Z=\sum_je^{-D_j/2h^2}$.
+\emph{Derivatives.} $\partial_h\log e^{-D_i/2h^2}=D_i/h^3$ and
+$\partial_h\log Z=\sum_jp_jD_j/h^3=:\bar D/h^3$, so
+\begin{equation}
+\partial_hp_i=p_i\,(D_i-\bar D)/h^3 .
+\label{eq:pf:heffid:1}
+\end{equation}
+Hence for any $f$ not depending on $h$,
+$\partial_h\sum_ip_if(x^i)=\sum_ip_i(D_i-\bar D)f(x^i)/h^3=\Cov_p(f(x^i),D_i)/h^3$. With
+$f(x)=x$ this is the first identity. For the second,
+$\tr\Covh=\sum_ip_i|x^i|^2-|\bar x_h|^2$, so
+\begin{align*}
+h^3\partial_h\tr\Covh
+&=\Cov_p(|x^i|^2,D_i)-2\,\bar x_h\cdot\Cov_p(x^i,D_i)
+=\Cov_p\big(|x^i|^2-2\bar x_h\cdot x^i+|\bar x_h|^2,\,D_i\big),
+\end{align*}
+since adding the constant $|\bar x_h|^2$ does not change a covariance, and the first
+argument is $|x^i-\bar x_h|^2$.
+\emph{Large $h$.} As $h\to\infty$, $p_i=1/N+O(h^{-2})$ uniformly in $i$, $\bar x_h\to\bar x$,
+and both arguments of the covariance are bounded, so
+$h^3\partial_h\tr\Covh\to\frac1N\sum_i(|x^i-\bar x|^2-m)(D_i-\bar D_\infty)$ with $m$ and
+$\bar D_\infty$ the unweighted means; the error is $O(h^{-2})$.
+\emph{Stability.} By optimality of $\hat h$,
+$|F(\hat h)-F(h^\star)-e|=|\log T-F(\hat h)|\le|\log T-F(h^\star)|=|e|$, so
+$|F(\hat h)-F(h^\star)|\le2|e|$. On the other hand, by the mean-value theorem applied to
+the scalar function $u\cdot F$ on the segment between $h^\star$ and $\hat h$,
+$|F(\hat h)-F(h^\star)|\ge|u\cdot(F(\hat h)-F(h^\star))|=|u\cdot F'(\xi)|\,|\hat h-h^\star|
+\ge\kappa|\hat h-h^\star|$ for some $\xi\in\mathcal I$. Combining the two gives
+$|\hat h-h^\star|\le2|e|/\kappa$. The argument uses only that $\hat h$ minimises a
+distance to a curve, so it applies verbatim to $h_{\mathrm{mean}}$ and $G$.
+\end{proof}
+
+The identities are checked against centred finite differences in
+\texttt{scripts/theory\_t1\_check.py} (relative error below $10^{-9}$ for
+$h\in[0.02,1]$), together with the $O(h^{-2})$ convergence of the large-$h$ limit
+(relative deviation $0.47$, $0.03$, $3\times10^{-3}$, $3\times10^{-4}$ at
+$h=3,10,30,100$) and the bound against the bootstrap interval widths of all synthetic
+checkpoints. On the CIFAR-10 training set ($N{=}2000$, 48 conditions)
+$\kappa=17.1$, $3.8$, $0.38$, $0.13$ at $h=3,4,5,6$; on the linear-Gaussian runs the
+median $\kappa$ at $h_{\mathrm{eff}}$ is $1.4$ for $h{=}0.5$ against $5$--$33$ for
+$h\le0.1$, which is why $h{=}0.5$ synthetic and $h{=}6$ on CIFAR-10 are poorly identified.
+
+\subsection{Proof of Theorem~\ref{thm:calib}}
+\label{apx:pf-calib}
+
+\begin{proof}[Proof of Theorem~\ref{thm:calib}]
+\emph{(a)} Let $\widetilde Y=Y+h\varepsilon$ with $\varepsilon\sim\N(0,I_k)$ independent;
+$\widetilde Y=AX+\tilde\eta$ with $\tilde\eta\sim\N(0,s_h^2I_k)$, so the standard
+Gaussian conditioning formula gives $X\mid\widetilde Y=y\sim\N(\mu_h(y),\Sigma_h)$. For a
+bounded continuous $\varphi$, by Theorem~\ref{thm:endpoint},
+\begin{equation*}
+\int\varphi\,dp_1^{(h)}(\cdot\mid y)
+=\frac{\frac1N\sum_iK_h(y-y^i)\varphi(x^i)}{\frac1N\sum_iK_h(y-y^i)}
+\xrightarrow{\text{a.s.}}
+\frac{\E[K_h(y-Y)\varphi(X)]}{\E[K_h(y-Y)]}
+\end{equation*}
+by the strong law of large numbers, since $K_h$ is bounded and the denominator's limit is
+positive. The right-hand side is $\int\varphi(x)\,\pi(x)\,\N(y;Ax,s_h^2I)\,dx$ divided by
+its value at $\varphi\equiv1$, because $\int K_h(y-y')\N(y';Ax,\sigma^2I)\,dy'=
+\N(y;Ax,s_h^2I)$; that is $\E[\varphi(X)\mid\widetilde Y=y]$. Taking $\varphi$ in a
+countable convergence-determining class gives weak convergence almost surely.
+
+\emph{(b)} $\mu_h$ is affine, $\mu_h(\widetilde Y)-\mu_h(Y)=h\Gamma_h\varepsilon$, and
+$X-\mu_h(\widetilde Y)\sim\N(0,\Sigma_h)$. Since $X-\mu_h(Y)$ is a function of $(X,\eta)$,
+which is independent of $\varepsilon$,
+\begin{equation*}
+\Sigma_h=\Cov\big(X-\mu_h(Y)-h\Gamma_h\varepsilon\big)=\Cov\big(X-\mu_h(Y)\big)+h^2\Gamma_h\Gamma_h^\top,
+\end{equation*}
+and $X-\mu_h(Y)$ is Gaussian with mean $\E X-\mu_h(\E Y)=0$, which is the claim. Write
+$z=\Sigma_h^{-1/2}(x^\star-\mu_h(y^\star))\sim\N(0,I-h^2MM^\top)$ with
+$M=\Sigma_h^{-1/2}\Gamma_h$. The eigenvalues $\lambda_j$ of $I-h^2MM^\top$ lie in $[0,1]$, so
+$|z|^2\overset{d}{=}\sum_j\lambda_jg_j^2\le\sum_jg_j^2\sim\chi^2_d$ for i.i.d.\ standard
+normal $g_j$, and $\Pr(|z|^2\le q_\alpha)\ge\Pr(\chi^2_d\le q_\alpha)=\alpha$. If $h>0$
+and $A\ne0$ then $\Gamma_h\ne0$, some $\lambda_j<1$, the inequality between the two sums is
+strict on an event of positive probability that intersects $\{\chi^2_d>q_\alpha\}$ with
+positive probability, and the coverage is strictly larger than $\alpha$.
+
+\emph{(c)} Let $a_i$ be i.i.d.\ with mean $m$ and covariance $S$ and $\sum_iw_i=1$. Then
+$\Cov(\sum_iw_ia_i)=\sum_iw_i^2S=S/n_{\mathrm{eff}}$, and with $\bar a=\sum_iw_ia_i$,
+\begin{equation*}
+\E\sum_iw_i(a_i-\bar a)(a_i-\bar a)^\top
+=\E\sum_iw_i(a_i-m)(a_i-m)^\top-\E(\bar a-m)(\bar a-m)^\top
+=S-S/n_{\mathrm{eff}} .
+\end{equation*}
+If $n_{\mathrm{eff}}=1$, one weight is $1$, the weighted covariance is $0$, the region is
+the single point $\bar a$, and an absolutely continuous $x^\star$ falls in it with
+probability $0$.
+\end{proof}
+
+Each part is checked by simulation in \texttt{scripts/theory\_t3\_coverage.py}: the
+large-$N$ mixture against $(\mu_h,\Sigma_h)$ (mean error $\le0.017$, covariance error
+$\le0.7\%$ at $N=4\times10^5$); the identity of (b) to $10^{-15}$ and the coverage of
+$\N(\mu_h,\Sigma_h)$ against Monte Carlo to $0.002$; and the two identities of (c) to
+$10^{-3}$.
+
 \section{Finite-sample memorisation and exact non-representability}
 \label{sec:theory-d2}
 
@@ -2751,6 +2863,74 @@ constrains how much variance can survive, not what the surviving law looks like.
 % ==========================================================================
 \section{Additional experimental results}
 \label{app:exp}
+
+\subsection{Effective bandwidth and calibration: details}
+\label{app:calibdetails}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.84\textwidth]{fig_heff_synthetic.png}
+\caption{Linear-Gaussian problem, three seeds per bandwidth. (a) $h_{\mathrm{eff}}$
+falls with training and stops just above the training bandwidth $h$ (dashed); line:
+geometric mean over seeds, band: range. (b) The bandwidth fitted to the variances
+against the one implied by the means, with 95\% bootstrap intervals: two disjoint
+statistics give one bandwidth. Open markers ($h{=}0.5$): the reference barely varies
+and $h_{\mathrm{eff}}$ is poorly identified, as Proposition~\ref{prop:heffid} predicts.}
+\label{fig:heffsyn}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{fig_heff_cifar.png}
+\caption{CIFAR-10, DDPM U-Net, three instances per bandwidth. (a, b) $h_{\mathrm{eff}}$
+from the variances (filled) and the bandwidth implied by the means (open), with 95\%
+intervals; dashed: training $h$; cross: the published run at 60k. From 5k on the two
+agree and fall towards $h$ without reaching it. (c) $\beta$ against
+$h_{\mathrm{eff}}/h$; training proceeds to the right.}
+\label{fig:heffcifar}
+\end{figure}
+
+\paragraph{Fit quality.} On the linear-Gaussian runs, $h_{\mathrm{eff}}$ explains the
+per-condition variances with median log-space $R^2$ $0.86$, against $0.79$ for the
+two-parameter power law behind $\beta$; a constant multiple of $\Covh$, also one
+parameter, reaches $0.66$. The six CIFAR-10 reruns reproduce the published runs
+($h_{\mathrm{eff}}=4.79$ and $5.81$ at 60k for seed 0, against $4.80$ and $5.75$).
+
+\paragraph{Protocol.} At every synthetic checkpoint with at least $3000$ iterations (75
+in all) we measured, at 100 held-out pairs $(x^\star,y^\star)$, the coverage of the 90\%
+region of the generated samples, a posterior-free PIT error, and the extraction rate.
+$h_{\mathrm{eff}}$ is read from the training conditions only.
+
+\paragraph{Baselines and confounds.} $h_{\mathrm{eff}}$ ranks the 90\% coverage with
+Spearman $0.92$, ahead of the training loss ($0.85$), the raw generated variance
+($0.76$), $\beta$ ($0.34$) and the iteration ($-0.42$). It keeps $0.90$ after
+partialling out the iteration, $0.69$ after partialling out the iteration and $h$ (loss:
+$0.42$), and $0.82$ across runs at a fixed iteration, so it is not a proxy for training
+time. On an eight-mode Gaussian-mixture posterior in $d{=}8$ (10 runs) the result
+repeats ($0.91$ pooled, $0.91$ given the iteration, $0.90$ at fixed iteration; PIT error
+$-0.67$), with $h_{\mathrm{eff}}$ and $h_{\mathrm{mean}}$ at log correlation $0.96$.
+
+\paragraph{The window.} The nominal 90\% region covers $0.86$--$0.88$ for
+$h_{\mathrm{eff}}\in[0.1,0.4)$, where $\Covh$ matches $\Sigmapost$, and $0.54$ and $0.34$
+for $[0.02,0.05)$ and below. Theorem~\ref{thm:calib} accounts for both edges: part (b)
+bounds the coverage from below by $\alpha$ at large bandwidth, part (c) sends it to zero
+as $n_{\mathrm{eff}}\to1$. Applied with the actual kernel weights at $h_{\mathrm{eff}}$
+(the local model of Section~\ref{sec:heff}), it predicts the measured 90\% coverage with
+$R^2=0.90$, mean absolute error $0.051$ and Spearman $0.89$; the exact finite reference
+law at $h_{\mathrm{eff}}$ does so with $R^2=0.93$, and the two predictions agree with
+each other at $R^2=0.97$. Replacing the actual weights by their effective sample size
+alone (a plug-in of (c) that ignores weight fluctuations) gives only $R^2=0.61$: at small
+$n_{\mathrm{eff}}$ the dispersion of the weights, not just their number, sets the
+coverage. At the 50\% level the corresponding values are $0.59$ (local model) and $0.68$
+(reference law).
+
+\paragraph{Stopping rules.} Locating the window used the posterior. Taking the target
+$h_{\mathrm{eff}}$ from other seeds' validation pairs instead halves the PIT error of
+stopping at the last checkpoint ($0.034$ against $0.076$; $0.017$ against $0.037$ on the
+mixture), but is no better than the same rule on the iteration count. Two limits: on
+the 2-D problem $h_{\mathrm{eff}}$ predicts coverage, i.e.\ collapse, far better than
+the PIT error ($-0.28$), and the on-atom fraction, not $h_{\mathrm{eff}}$, predicts
+extraction ($0.95$).
 
 \subsection{An audit protocol for conditional flows}
 \label{app:audit}
