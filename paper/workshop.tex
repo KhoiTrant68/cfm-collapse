@@ -213,8 +213,22 @@ each over a log-spaced grid and with a bootstrap interval over conditions. One n
 has to explain all $C$ conditions, and the two estimates use disjoint statistics, so
 $h_{\mathrm{mean}}\approx h_{\mathrm{eff}}$ is an out-of-sample check that the model is
 a Nadaraya--Watson mixture at all rather than merely having the right variance. Both
-need the reference to vary across conditions: when it barely does (large $h$), no
-bandwidth is identified. The procedure below collects the measurements; it needs the
+need the reference to vary across conditions, which the following makes precise.
+
+\begin{proposition}[Identifiability of the effective bandwidth]
+\label{prop:heffid}
+Let $D_i(y)=|y-y^i|^2$ and $\Cov_p$ the covariance over $i$ under $p^{(h)}(y)$. Then
+$\partial_h\bar x_h(y)=h^{-3}\Cov_p(x^i,D_i)$ and
+$\partial_h\tr\Covh(y)=h^{-3}\Cov_p(|x^i-\bar x_h(y)|^2,D_i)$, and
+$h^3\partial_h\tr\Covh(y)$ tends to the unweighted covariance of $|x^i-\bar x|^2$ and $D_i$
+as $h\to\infty$. Let $F(h)=(\log\tr\mathrm{Cov}_h(y_c))_{c\le C}$, let the measured log
+traces be $F(h^\star)+e$, and let $\hat h$ minimise $|\log T-F(h)|$ over an interval
+$\mathcal I\ni h^\star$. If $u\cdot F'(h)\ge\kappa>0$ on $\mathcal I$ for a unit vector
+$u$, then $|\hat h-h^\star|\le2|e|/\kappa$; likewise for $h_{\mathrm{mean}}$ with
+$G(h)=(\bar x_h(y_c))_c$. (Proof: Appendix~\ref{app:proofs}.)
+\end{proposition}
+
+So $\kappa=O(h^{-3})$ at large $h$, where no bandwidth is identified. The procedure below collects the measurements; it needs the
 training set and model samples, no retraining, and $O(CN(k+d))$ work per bandwidth.
 
 \begin{center}
@@ -371,6 +385,46 @@ iteration count. Two limits: on the 2-D problem $h_{\mathrm{eff}}$ predicts cove
 i.e.\ collapse, far better than the PIT error ($-0.28$), and the on-atom fraction, not
 $h_{\mathrm{eff}}$, predicts extraction ($0.95$).
 
+\paragraph{Why a window: a calibration theorem.} In the linear-Gaussian model the
+reference law at any bandwidth has a closed form, and its calibration can be computed.
+
+\begin{theorem}[Calibration of the reference law]
+\label{thm:calib}
+Let $x\sim\N(\mu_x,\Sigma_x)$, $y=Ax+\eta$, $\eta\sim\N(0,\sigma^2I_k)$, and write
+$s_h^2=\sigma^2+h^2$, $\Sigma_h=(\Sigma_x^{-1}+A^\top A/s_h^2)^{-1}$,
+$\Gamma_h=\Sigma_hA^\top/s_h^2$, $\mu_h(y)=\Sigma_h\Sigma_x^{-1}\mu_x+\Gamma_hy$.
+(a) For fixed $h>0$ and an i.i.d.\ training set, $p_1^{(h)}(\cdot\mid y)\Rightarrow
+\N(\mu_h(y),\Sigma_h)$ as $N\to\infty$: the posterior of $x$ given a label with noise
+variance $s_h^2$.
+(b) For $(x^\star,y^\star)$ from the model, $x^\star-\mu_h(y^\star)\sim
+\N(0,\Sigma_h-h^2\Gamma_h\Gamma_h^\top)$, so the level-$\alpha$ region of $\N(\mu_h,\Sigma_h)$
+covers $x^\star$ with probability at least $\alpha$, strictly if $h>0$ and $A\neq0$.
+(c) For weights $w$ and atoms i.i.d.\ with covariance $S$, the weighted mean has
+covariance $S/n_{\mathrm{eff}}$ and the weighted covariance has mean
+$(1-1/n_{\mathrm{eff}})S$, $n_{\mathrm{eff}}=1/\sum_iw_i^2$; at $n_{\mathrm{eff}}=1$ the
+region is degenerate and covers with probability $0$. (Proof: Appendix~\ref{app:proofs}.)
+\end{theorem}
+
+Part (b) gives the right edge of the window (over-coverage from smoothing) and part
+(c) the left edge (collapse as $n_{\mathrm{eff}}\to1$). Modelling the atoms near
+$y^\star$ as draws of $\N(\mu_h,\Sigma_h)$ with the actual kernel weights, (c) predicts
+the held-out 90\% coverage of all 75 checkpoints from $h_{\mathrm{eff}}$ alone with
+$R^2=0.90$; the exact finite reference law at $h_{\mathrm{eff}}$ reaches $R^2=0.93$
+(Figure~\ref{fig:t3}). The theorem thus turns the empirical window of
+Table~\ref{tab:calib} into a prediction.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{fig_t3_coverage.png}
+\caption{Theorem~\ref{thm:calib} on the linear-Gaussian problem. (a) Coverage of the
+nominal 90\% region against bandwidth: infinite-data limit (b), over-covering for $h>0$;
+finite effective sample (c), collapsing at small bandwidth (both for seed 0); dots:
+trained checkpoints of all seeds at their $h_{\mathrm{eff}}$. (b) Coverage predicted
+from $h_{\mathrm{eff}}$ alone against the measured coverage, for the theory (c) and for
+the exact finite reference law.}
+\label{fig:t3}
+\end{figure}
+
 \begin{table}[t]
 \centering\small
 \setlength{\tabcolsep}{4pt}
@@ -460,11 +514,11 @@ tracking slope $\beta$ against $h_{\mathrm{eff}}/h$; training proceeds to the ri
 % ==========================================================================
 \section{Limitations and conclusion}
 
-The exact results describe the population minimiser; the effective bandwidth is an
-empirical description of trained models, supported by the agreement of two disjoint
-statistics but without a theory of how $h_{\mathrm{eff}}$ depends on training time,
-capacity or $N$. It is identified only where the reference varies across conditions,
-and at image scale it fits the variances no better than a two-parameter power law.
+The population results and Proposition~\ref{prop:heffid} and Theorem~\ref{thm:calib}
+are proved; which bandwidth training reaches, and how it depends on training time,
+capacity or $N$, is measured, not proved, and the calibration theorem assumes a
+Gaussian posterior. At image scale $h_{\mathrm{eff}}$ fits the variances no better
+than a two-parameter power law.
 Whether $h_{\mathrm{eff}}$ reaches $h$ or stops above it is open; it needs runs well
 beyond $6\times10^4$ iterations. Our image experiments use one mask and
 $N{=}2000$, and labels without a natural kernel, such as text, are outside scope.
@@ -473,7 +527,7 @@ Within that scope: conditional collapse is the zero-bandwidth limit of a
 kernel-weighted empirical flow, label smoothing moves along that limit without leaving
 the training atoms, and a trained network travels the same family of laws at a
 bandwidth that training shrinks. That makes the memorisation of a conditional sampler
-one number that can be read off a checkpoint.
+one number that can be read off a checkpoint, and that number sets its calibration.
 
 \subsection*{Reproducibility statement}
 All numbers are produced by code in the supplementary material (anonymized); the
@@ -560,4 +614,81 @@ proof of Theorem~\ref{thm:endpoint}, $p_1=\law(x^J+\rho\xi)=\sum_ip_i^{(h)}\N(x^
 with mean $\bar x_h$ and covariance $\Covh+\rho^2I_d$.
 \end{proof}
 
+
+
+\begin{proof}[Proof of Proposition~\ref{prop:heffid}]
+Fix $y$ and write $p_i=p_i^{(h)}(y)=e^{-D_i/2h^2}/Z$ with $Z=\sum_je^{-D_j/2h^2}$.
+\emph{Derivatives.} $\partial_h\log e^{-D_i/2h^2}=D_i/h^3$ and
+$\partial_h\log Z=\sum_jp_jD_j/h^3=:\bar D/h^3$, so
+\begin{equation}
+\partial_hp_i=p_i\,(D_i-\bar D)/h^3 .
+\end{equation}
+Hence for any $f$ not depending on $h$,
+$\partial_h\sum_ip_if(x^i)=\sum_ip_i(D_i-\bar D)f(x^i)/h^3=\Cov_p(f(x^i),D_i)/h^3$. With
+$f(x)=x$ this is the first identity. For the second,
+$\tr\Covh=\sum_ip_i|x^i|^2-|\bar x_h|^2$, so
+\begin{align*}
+h^3\partial_h\tr\Covh
+&=\Cov_p(|x^i|^2,D_i)-2\,\bar x_h\cdot\Cov_p(x^i,D_i)
+=\Cov_p\big(|x^i|^2-2\bar x_h\cdot x^i+|\bar x_h|^2,\,D_i\big),
+\end{align*}
+since adding the constant $|\bar x_h|^2$ does not change a covariance, and the first
+argument is $|x^i-\bar x_h|^2$.
+\emph{Large $h$.} As $h\to\infty$, $p_i=1/N+O(h^{-2})$ uniformly in $i$, $\bar x_h\to\bar x$,
+and both arguments of the covariance are bounded, so
+$h^3\partial_h\tr\Covh\to\frac1N\sum_i(|x^i-\bar x|^2-m)(D_i-\bar D_\infty)$ with $m$ and
+$\bar D_\infty$ the unweighted means; the error is $O(h^{-2})$.
+\emph{Stability.} By optimality of $\hat h$,
+$|F(\hat h)-F(h^\star)-e|=|\log T-F(\hat h)|\le|\log T-F(h^\star)|=|e|$, so
+$|F(\hat h)-F(h^\star)|\le2|e|$. On the other hand, by the mean-value theorem applied to
+the scalar function $u\cdot F$ on the segment between $h^\star$ and $\hat h$,
+$|F(\hat h)-F(h^\star)|\ge|u\cdot(F(\hat h)-F(h^\star))|=|u\cdot F'(\xi)|\,|\hat h-h^\star|
+\ge\kappa|\hat h-h^\star|$ for some $\xi\in\mathcal I$. Combining the two gives
+$|\hat h-h^\star|\le2|e|/\kappa$. The argument uses only that $\hat h$ minimises a
+distance to a curve, so it applies verbatim to $h_{\mathrm{mean}}$ and $G$.
+\end{proof}
+
+\begin{proof}[Proof of Theorem~\ref{thm:calib}]
+\emph{(a)} Let $\widetilde Y=Y+h\varepsilon$ with $\varepsilon\sim\N(0,I_k)$ independent;
+$\widetilde Y=AX+\tilde\eta$ with $\tilde\eta\sim\N(0,s_h^2I_k)$, so the standard
+Gaussian conditioning formula gives $X\mid\widetilde Y=y\sim\N(\mu_h(y),\Sigma_h)$. For a
+bounded continuous $\varphi$, by Theorem~\ref{thm:endpoint},
+\begin{equation*}
+\int\varphi\,dp_1^{(h)}(\cdot\mid y)
+=\frac{\frac1N\sum_iK_h(y-y^i)\varphi(x^i)}{\frac1N\sum_iK_h(y-y^i)}
+\xrightarrow{\text{a.s.}}
+\frac{\E[K_h(y-Y)\varphi(X)]}{\E[K_h(y-Y)]}
+\end{equation*}
+by the strong law of large numbers, since $K_h$ is bounded and the denominator's limit is
+positive. The right-hand side is $\int\varphi(x)\,\pi(x)\,\N(y;Ax,s_h^2I)\,dx$ divided by
+its value at $\varphi\equiv1$, because $\int K_h(y-y')\N(y';Ax,\sigma^2I)\,dy'=
+\N(y;Ax,s_h^2I)$; that is $\E[\varphi(X)\mid\widetilde Y=y]$. Taking $\varphi$ in a
+countable convergence-determining class gives weak convergence almost surely.
+
+\emph{(b)} $\mu_h$ is affine, $\mu_h(\widetilde Y)-\mu_h(Y)=h\Gamma_h\varepsilon$, and
+$X-\mu_h(\widetilde Y)\sim\N(0,\Sigma_h)$. Since $X-\mu_h(Y)$ is a function of $(X,\eta)$,
+which is independent of $\varepsilon$,
+\begin{equation*}
+\Sigma_h=\Cov\big(X-\mu_h(Y)-h\Gamma_h\varepsilon\big)=\Cov\big(X-\mu_h(Y)\big)+h^2\Gamma_h\Gamma_h^\top,
+\end{equation*}
+and $X-\mu_h(Y)$ is Gaussian with mean $\E X-\mu_h(\E Y)=0$, which is the claim. Write
+$z=\Sigma_h^{-1/2}(x^\star-\mu_h(y^\star))\sim\N(0,I-h^2MM^\top)$ with
+$M=\Sigma_h^{-1/2}\Gamma_h$. The eigenvalues $\lambda_j$ of $I-h^2MM^\top$ lie in $[0,1]$, so
+$|z|^2\overset{d}{=}\sum_j\lambda_jg_j^2\le\sum_jg_j^2\sim\chi^2_d$ for i.i.d.\ standard
+normal $g_j$, and $\Pr(|z|^2\le q_\alpha)\ge\Pr(\chi^2_d\le q_\alpha)=\alpha$. If $h>0$
+and $A\ne0$ then $\Gamma_h\ne0$, some $\lambda_j<1$, the inequality between the two sums is
+strict on an event of positive probability that intersects $\{\chi^2_d>q_\alpha\}$ with
+positive probability, and the coverage is strictly larger than $\alpha$.
+
+\emph{(c)} Let $a_i$ be i.i.d.\ with mean $m$ and covariance $S$ and $\sum_iw_i=1$. Then
+$\Cov(\sum_iw_ia_i)=\sum_iw_i^2S=S/n_{\mathrm{eff}}$, and with $\bar a=\sum_iw_ia_i$,
+\begin{equation*}
+\E\sum_iw_i(a_i-\bar a)(a_i-\bar a)^\top
+=\E\sum_iw_i(a_i-m)(a_i-m)^\top-\E(\bar a-m)(\bar a-m)^\top
+=S-S/n_{\mathrm{eff}} .
+\end{equation*}
+If $n_{\mathrm{eff}}=1$, one weight is $1$, the weighted covariance is $0$, the region is
+the single point $\bar a$, and an absolutely continuous $x^\star$ falls in it with
+probability $0$.
+\end{proof}
 \end{document}
