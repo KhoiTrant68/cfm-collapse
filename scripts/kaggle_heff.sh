@@ -73,6 +73,11 @@ if not torch.cuda.is_available():
     print("gpu: NONE -- enable the accelerator (GPU T4 x2)")
 PY
 echo "gpus available: $NGPU"
+if [ "$NGPU" = "0" ] && [ "$SMOKE" != "1" ] && [ "${ALLOW_CPU:-0}" != "1" ]; then
+  echo "ERROR: no GPU. Settings -> Accelerator -> GPU T4 x2, then run again."
+  echo "       (A CPU session trains at ~0.02 it/s and would waste the quota.)"
+  exit 2
+fi
 
 if [ -z "$REPO" ]; then
   rm -rf "$OUTDIR/repo"
@@ -126,6 +131,23 @@ for name in "${NAMES[@]}"; do
     fi
   fi
 done
+if [ "$ANALYSIS" = "calib" ] && [ "$SMOKE" != "1" ]; then
+  MISSING=()
+  for name in "${NAMES[@]}"; do
+    ls "$WORK/results/exp3/$name/checkpoints/"*.pt >/dev/null 2>&1 || MISSING+=("$name")
+  done
+  if [ "${#MISSING[@]}" -gt 0 ]; then
+    echo "ERROR: ANALYSIS=calib only analyses finished runs, and these were not found"
+    echo "       under PREV=${PREV:-<unset>}: ${MISSING[*]}"
+    echo "       Attach the part-2 output that holds them (Add Input -> Your Work ->"
+    echo "       the notebook -> the output version that ended at 60000 iterations)."
+    echo "       Run directories visible now:"
+    find "${PREV:-/kaggle/input}" -maxdepth 8 -type d -path "*/exp3/*" -name "${PREFIX}_*" \
+      -not -path "*/checkpoints*" 2>/dev/null | sed 's/^/         /' | head -20
+    echo "       (none listed = nothing attached, or the wrong output version)"
+    exit 2
+  fi
+fi
 
 # --------------------------------------------------------------------------- #
 # 4. train, one run per GPU
