@@ -242,15 +242,23 @@ def fig_gap_diagnostic_h01():
         print("  [skip] fig_gap_diagnostic_h01: no h=0.1 runs found")
         return
     all_ = pd.concat(rows)
+    # Two ratios, and they answer different questions. The aggregate (traces summed
+    # over conditions, one ratio per seed) is the estimator the audit recommends; the
+    # mean of per-condition ratios measures per-condition agreement and is
+    # ill-conditioned where a reference trace is small.
+    all_ = all_.assign(agg=all_["trace_cov_mean"] / all_["trace_cov_kernel_mean"])
     g = all_.groupby("iter")
     it = np.array(sorted(all_["iter"].unique()), float)
     ratio = g["ratio_to_kernel_mean"].median().values
+    agg = g["agg"].median().values
     merr = g["mean_err_kernel_mean"].median().values
 
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 4.0))
     ax1.axhline(1.0, color=OI["black"], lw=1.0, ls="--", label="kernel optimum")
+    ax1.plot(it, agg, "s-", color=OI["blue"],
+             label=r"aggregate $\sum_c\mathrm{tr}\,\mathrm{Cov}\,/\,\sum_c\mathrm{tr}\,\mathrm{Cov}_h$")
     ax1.plot(it, ratio, "o-", color=OI["green"],
-             label=r"$\mathrm{tr}\,\mathrm{Cov}\,/\,\mathrm{tr}\,\mathrm{Cov}_h$")
+             label=r"mean of per-condition $\mathrm{tr}\,\mathrm{Cov}\,/\,\mathrm{tr}\,\mathrm{Cov}_h$")
     ax1.set_xscale("log"); ax1.set_ylabel("ratio to kernel covariance")
     ax1.set_ylim(0.9, 1.8)
     ax2.plot(it, merr, "o-", color=OI["green"])

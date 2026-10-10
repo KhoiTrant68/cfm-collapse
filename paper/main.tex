@@ -406,7 +406,7 @@ and stays large relative to the posterior scale at image dimensions.
 Proposition~\ref{prop:atomicity} rules out any remedy that leaves the endpoint on the
 training atoms. Appendix~\ref{app:interventions} classifies the places to inject
 randomness by what they do to the endpoint law: interpolant noise is inert at every noise
-level (Proposition~\ref{prop:prop17}), classifier-free guidance keeps the atoms
+level (Proposition~\ref{prop:prop17}), classifier-free guidance \citep{ho2022classifier} keeps the atoms
 (Propositions~\ref{prop:cfg} and~\ref{prop:cfgatom}), label noise reweights them
 (Theorem~\ref{thm:endpoint}), and only endpoint noise moves the support, at
 $+\rho^2I_d$ of variance (Proposition~\ref{prop:tgtnoise}). The same appendix gives the
@@ -476,7 +476,7 @@ the corrected target, as \eqref{eq:invariance} predicts (Table~\ref{tab:p7i}).
 \label{sec:exp23}%
 \paragraph{Beyond the Gaussian case.} \emph{Gaussian mixture (EXP-2):} with a bimodal
 analytic posterior, mode coverage is $1.0$ up to $\sim\!10^4$ iterations, then falls to
-$0.72$ while the MMD grows to $\sim0.25$ and the share of samples nearest the
+$0.72$ while the MMD grows to $\sim0.24$ and the share of samples nearest the
 $x^i$-containing mode rises from $\approx0.5$ to $1.000$
 (Figs.~\ref{fig:exp2curves},~\ref{fig:exp23qual}). \emph{MNIST inpainting (EXP-3,
 $N{=}500$, three seeds):} the inpainted-region variance falls from $0.137\pm0.021$ to
@@ -494,13 +494,14 @@ mechanism is an artefact of small capacity. We train a standard DDPM U-Net
 ($35.75$M parameters) on CIFAR-10 bottom-half inpainting, $N{=}2000$, $d{=}3072$,
 $k{=}1536$, for $60000$ iterations at batch $128$, evaluating $48$ conditions at
 $M{=}256$ samples each. Each bandwidth is repeated on three independently redrawn
-instances, which vary the mask, training subset, and training randomness together
-(Appendix~\ref{app:exp4}).
+instances, which vary the training subset and the training randomness together; the
+mask is the bottom half throughout (Appendix~\ref{app:exp4}).
 
-\paragraph{Hard conditioning ($h{=}0$).} On the displayed instance, $\tr\Cov$ falls
-from $179.1$ at iteration $500$ to $0.431$ at $60000$, a factor of $415$; the memorisation ratio is $1.000$ and the generated mean identifies
+\paragraph{Hard conditioning ($h{=}0$).} On the displayed instance, the training-time
+estimate of $\tr\Cov$ (8 conditions) falls from $179.1$ at iteration $500$ to $0.431$ at
+$60000$, a factor of $415$ ($0.458$ re-measured); the memorisation ratio is $1.000$ and the generated mean identifies
 the correct training image at $48/48$ conditions. Across the three redrawn instances,
-final $\tr\Cov$ is $0.409$--$0.467$. Hard-conditioning collapse is therefore robust at this scale, although the experiment
+final $\tr\Cov$ is $0.409$--$0.467$ on the same estimator. Hard-conditioning collapse is therefore robust at this scale, although the experiment
 does not separate instance variation from optimisation variation.
 
 \paragraph{Label smoothing ($h>0$) against the reference at $h$.} The OLS slope $\beta$ of
@@ -524,9 +525,11 @@ h_{\mathrm{mean}}=\arg\min_{h'}\sum_c\big\|m_c-\bar x_{h'}(y_c)\big\|,
 \label{eq:heff}
 \end{equation}
 over a log-spaced grid, each with a 95\% bootstrap interval over conditions. One number
-must explain every condition, and the two estimates use disjoint statistics, so
-$h_{\mathrm{mean}}\approx h_{\mathrm{eff}}$ is an out-of-sample check that the model is
-a Nadaraya--Watson mixture at all. When is the bandwidth identified?
+must explain every condition, and the two estimates use disjoint statistics. Their
+agreement alone does not single out the Gaussian kernel: Laplace, Cauchy and kNN
+references over the same atoms pass it almost as often. Fit quality does: the Gaussian reference
+fits the variances best at 36/48 checkpoints, and a non-atomic posterior reference
+cannot fit them ($R^2=-0.12$; Table~\ref{tab:families}). When is the bandwidth identified?
 
 \begin{proposition}[Identifiability of the effective bandwidth]
 \label{prop:heffid}
@@ -692,7 +695,8 @@ table to $<0.05\%$), \texttt{analyze\_p7\_kernel.py}, \texttt{verify\_kernel\_th
 \texttt{theory\_t3\_coverage.py}, \texttt{theory\_t3\_general.py},
 \texttt{theory\_t2\_resolution.py}, \texttt{theory\_t2\_filtered.py}. Experiments: \texttt{run\_exp1.sh},
 \texttt{run\_sweeps.py} ($+$\texttt{-{}-gpus N}), \texttt{train\_exp2},
-\texttt{train\_exp3}, each followed by the matching analysis script. For
+\texttt{train\_exp3}, each followed by the matching analysis script;
+\texttt{heff\_family\_test.py} for Table~\ref{tab:families}. For
 Table~\ref{tab:p7kernel}, Table~\ref{tab:dagger} and Figure~\ref{fig:kernel} we release
 the per-run outputs rather than the network weights; recomputing them from weights
 requires rerunning \texttt{run\_sweeps.py}. Proofs of all
@@ -2003,10 +2007,10 @@ probability $0$.
 \end{proof}
 
 Each part is checked by simulation in \texttt{scripts/theory\_t3\_coverage.py}: the
-large-$N$ mixture against $(\mu_h,\Sigma_h)$ (mean error $\le0.017$, covariance error
-$\le0.7\%$ at $N=4\times10^5$); the identity of (c) to $10^{-15}$ and the coverage of
+large-$N$ mixture against $(\mu_h,\Sigma_h)$ (mean error $\le0.018$, covariance error
+$\le0.75\%$ at $N=4\times10^5$); the identity of (c) to $10^{-15}$ and the coverage of
 $\N(\mu_h,\Sigma_h)$ against Monte Carlo to $0.002$; and the two identities of (d) to
-$10^{-3}$. Part (b) is checked in \texttt{scripts/theory\_t3\_general.py} with
+$2\times10^{-3}$. Part (b) is checked in \texttt{scripts/theory\_t3\_general.py} with
 exact highest-density regions of the mixture posteriors of EXP-2 ($d=2$ with a
 projection, and $d=8$; 1000 pairs per cell, $h/\sigma\in\{0,\frac12,1,2,4\}$): the
 coverage at clean and at noisy labels differs by at most $0.96\,\tau_h$ (at
@@ -2115,7 +2119,8 @@ optimum.
 \subsection{Classifier-free guidance does not escape either}
 \label{sec:theory-cfg}
 
-For the guided field $v_w:=(1+w)\vstar-w\,v_{\mathrm{unc}}^\star$, the trajectory's
+For the classifier-free guided field \citep{ho2022classifier}
+$v_w:=(1+w)\vstar-w\,v_{\mathrm{unc}}^\star$, the trajectory's
 component orthogonal to $\operatorname{aff}\{x^1,\dots,x^N\}$ decays as $(1-t)$, so every
 guided endpoint law lies in the affine hull of the atoms, a null set when $N\le d$, and
 a convergent guided trajectory with a unique nearest atom ends on it
@@ -2994,6 +2999,55 @@ two-parameter power law behind $\beta$; a constant multiple of $\Covh$, also one
 parameter, reaches $0.66$. The six CIFAR-10 reruns reproduce the published runs
 ($h_{\mathrm{eff}}=4.79$ and $5.81$ at 60k for seed 0, against $4.80$ and $5.75$).
 
+\paragraph{Which reference family.}
+\label{app:families}
+Agreement of $h_{\mathrm{eff}}$ and $h_{\mathrm{mean}}$ shows that the means and the
+variances are explained by one member of the reference family. It does not show that
+the family is the right one. We therefore refit the same samples (the 48 checkpoints of
+Section~\ref{sec:heff}, $M{=}1000$ at 20 conditions) under five families, each with one
+scale $s$ and the same estimator \eqref{eq:heff}. Four are mixtures over the training
+atoms with weights $w_i\propto e^{-|y-y^i|^2/2s^2}$ (Gaussian, the reference of
+Theorem~\ref{thm:endpoint}), $e^{-|y-y^i|/s}$ (Laplace), $(1+|y-y^i|^2/s^2)^{-1}$
+(Cauchy), and uniform weights on the $s$ nearest labels (kNN). The fifth is not atomic:
+the linear-Gaussian posterior with observation noise $s$, whose covariance does not
+depend on $y$. The Gaussian family reproduces the published fit exactly (the same
+$h_{\mathrm{eff}}$ at 120/120 checkpoints).
+
+\begin{table}[htb]
+\centering\small
+\begin{tabular}{lcccc}
+\toprule
+reference family & intervals agree & median $R^2$ & best variance fit & best mean prediction\\
+\midrule
+Gaussian (Theorem~\ref{thm:endpoint}) & 48/48 & $\mathbf{0.86}$ & $\mathbf{36}$/48 & $\mathbf{41}$/48\\
+Laplace & 45/48 & $0.82$ & 9/48 & 5/48\\
+Cauchy & 43/48 & $0.65$ & 3/48 & 1/48\\
+kNN & 48/48 & $0.36$ & 0/48 & 1/48\\
+posterior (not atomic) & 42/48 & $-0.12$ & --- & ---\\
+\bottomrule
+\end{tabular}
+\caption{The 48 synthetic checkpoints of Section~\ref{sec:heff} refitted under five
+reference families. ``Intervals agree'': the 95\% bootstrap intervals of the scales
+fitted to the variances and to the means overlap. ``Best variance fit'': lowest log-space
+misfit among the four atomic families. ``Best mean prediction'': the scale fitted to the
+variances predicts the means best. The posterior family's optimum lies at the edge of the
+grid at 37/48 checkpoints. Script: \texttt{scripts/heff\_family\_test.py}.}
+\label{tab:families}
+\end{table}
+
+Interval agreement does not separate the families (Table~\ref{tab:families}): kNN passes
+it at all 48 checkpoints and Laplace at 45. Fit quality does. Paired at each checkpoint,
+the Gaussian reference has the lower variance misfit than Laplace at 36/48 checkpoints
+and in 9/12 runs (median log-RMSE difference $0.020$, 95\% bootstrap interval $[0.011,
+0.024]$), than Cauchy at 41/48 and than kNN at 48/48. Its variance-fitted scale also
+predicts the means best at 41/48. The non-atomic posterior cannot reproduce the
+variation of the variance across conditions at all ($R^2=-0.12$): that variation is a
+property of the finite set of atoms. The evidence is therefore for a mixture over the
+training atoms whose weights are best described by the Gaussian kernel of the label
+noise, with the Laplace kernel a close second. At $h{=}0.5$, where the reference barely
+varies, the Gaussian family still fits the variances best (14/15) but its intervals agree
+at only 9/15, as Proposition~\ref{prop:heffid} predicts.
+
 \paragraph{Protocol.} At every synthetic checkpoint with at least $3000$ iterations (75
 in all) we measured, at 100 held-out pairs $(x^\star,y^\star)$, the coverage of the 90\%
 region of the generated samples, a posterior-free PIT error, and the extraction rate.
@@ -3001,7 +3055,7 @@ $h_{\mathrm{eff}}$ is read from the training conditions only.
 
 \paragraph{Baselines and confounds.} $h_{\mathrm{eff}}$ ranks the 90\% coverage with
 Spearman $0.92$, ahead of the training loss ($0.85$), the raw generated variance
-($0.76$), $\beta$ ($0.34$) and the iteration ($-0.42$). It keeps $0.90$ after
+($0.76$), $\beta$ ($0.34$) and the iteration ($-0.41$). It keeps $0.90$ after
 partialling out the iteration, $0.69$ after partialling out the iteration and $h$ (loss:
 $0.42$), and $0.82$ across runs at a fixed iteration, so it is not a proxy for training
 time. On an eight-mode Gaussian-mixture posterior in $d{=}8$ (10 runs) the result
@@ -3118,7 +3172,7 @@ never leaves them; leaving them, as $38\%$ of CIFAR-10 samples do at $h{=}6$, ne
 error in the spatial dependence of the field. Integrating the flow of $v_\varphi$ exactly
 on the EXP-1 training set (Gaussian $\varphi$ of scale $s$, five conditions, 300
 trajectories each; \texttt{theory\_t2\_filtered.py}) confirms that every endpoint is an
-atom (distance $\le0.003$). The endpoint weights are \emph{not} simply the label-averaged
+atom (distance $\le0.0032$). The endpoint weights are \emph{not} simply the label-averaged
 weights $q$: they agree within Monte Carlo error when $s\le h$ (total variation $0.11$
 and $0.14$ against floors $0.09$ and $0.13$ at $s=h=0.05$ and $0.1$), but for $s\gg h$
 the flow re-concentrates them, halving the endpoint variance ($0.46$ against $1.14$ at
@@ -3186,7 +3240,7 @@ unconditional model does not leak $y$.
 
 \paragraph{The collapse, checkpoint by checkpoint.} Figure~\ref{fig:traintraj} is
 Figure~\ref{fig:mechanism}(b) as it forms: the same condition, the same $160$ draws of
-$x_0$, integrated through six checkpoints of one run and then through the exact
+$x_0$, integrated through five checkpoints of one run and then through the exact
 population field. The generated trace falls $1.19\to1.16\to0.92\to0.87\to0.13$ against
 the posterior's $1.00$ while the number of distinct atoms reached falls $72\to3$, and
 the population optimum is the limit of that sequence rather than a separate regime.
@@ -3208,14 +3262,20 @@ covariance and how many distinct training atoms the $160$ paths reach. Produced 
 
 \paragraph{Measurement conventions dropped from the main text for space.} Every
 across-seed $\pm$ in this paper is a \emph{population} standard deviation (denominator
-$n$, not $n{-}1$), applied consistently throughout; at $n{=}5$ the sample standard
+$n$, not $n{-}1$), except in Tables~\ref{tab:seedsplit} and~\ref{tab:nsweep3}, whose
+captions say so; at $n{=}5$ the sample standard
 deviation is larger by $\sqrt{5/4}\approx1.12$, so a reader preferring that convention
-should widen each interval by about $11\%$. On the CIFAR-10 DDPM run, the trace of a
-covariance estimated from $M$ samples carries a relative sampling error of about
-$\sqrt{2/(M-1)}$: $8.9\%$ at the $M{=}256$ used for evaluation but $36\%$ at the
-$M{=}16$ logged during training, which is why every reported value is re-measured from
-checkpoints. At $h{=}0$ the final $\tr\Cov$ is $0.431$ on the training-time estimator
-and $0.458$ re-measured at $M{=}256$. And on the early-stopping measurement of
+should widen each interval by about $12\%$. On the CIFAR-10 DDPM run, the trace of a
+covariance estimated from $M$ samples carries a relative sampling error of at most
+$\sqrt{2/(M-1)}$ (attained for a rank-one covariance): $8.9\%$ at the $M{=}256$ used for
+evaluation but $36\%$ at the $M{=}16$ logged during training, over only $8$ conditions.
+Table~\ref{tab:cifarddpm}, Figure~\ref{fig:cifartrack} and the $h_{\mathrm{eff}}$ fits
+are re-measured from checkpoints; the three-instance comparison of
+Table~\ref{tab:seed3} and the $h{=}0$ trajectory of Section~\ref{sec:cifarddpm} use the
+training-time estimator, because seeds 1 and 2 were not re-evaluated. Where
+both exist (seed 0) they differ in the aggregate ratio by $4.7\%$, $15\%$ and $1.8\%$ at
+$h=4,5,6$ ($2.255$ against $2.154$, $1.245$ against $1.461$, $1.181$ against $1.202$),
+and at $h{=}0$ the final $\tr\Cov$ is $0.431$ against $0.458$. And on the early-stopping measurement of
 Appendix~\ref{app:remedies}: at $h{=}4$ the aggregate ratio never reaches $1$ within the
 budget, falling only to $2.26$.
 
@@ -3342,7 +3402,9 @@ $h=0.05,0.1,0.5$ (Figure~\ref{fig:p7summary}; Table~\ref{tab:p7kernel}, appendix
 gives all entries). This is a verification of the \emph{endpoint law}, stronger than
 a velocity-field check. At $h{=}0.01$ the ratio is high and unstable
 ($1.308\pm0.376$) because $n_{\mathrm{eff}}\approx3.5$ leaves $\Covh$ near-degenerate
-for many conditions; the ratio of mean traces, $0.673/0.583=1.15$, is closer to $1$.
+for many conditions, most of all in the two seeds with $n_{\mathrm{eff}}\approx2.2$
+($1.48$ and $1.96$, against $0.92$--$1.10$ for the other three); pooled over seeds, the
+ratio of mean traces, $0.673/0.583=1.15$, is closer to $1$.
 
 
 
@@ -3351,7 +3413,7 @@ posterior variance: $\tr\Cov$ merely crosses $\Sigmapost\approx1.02$ near $h{=}0
 because for this problem $\Sigmapost\approx\Covh|_{h=0.1}\approx1.00$---a coincidence.
 The correct target is $\Covh$, which the model attains at \emph{every} $h$. The field
 itself agrees: $v_\theta$ matches the kernel minimiser \eqref{eq:kernel-field}
-$2$--$4\times$ better than the single-atom field $(\star)$ at every $h$, and the gap
+$1.9$--$4.8\times$ better than the single-atom field $(\star)$ at every $h$, and the gap
 widens with $h$ (Table~\ref{tab:dagger} and Figure~\ref{fig:kernel}, appendix).
 
 \paragraph{Atomicity caveat (empirical confirmation of
@@ -3389,7 +3451,7 @@ that matters the payment exceeds the purchase.
 The remedy is not useless everywhere. Retraining EXP-1 at $N{=}50$ (where the $d{=}2$
 floor is largest, $F/\tr\Sigmapost=0.19$) with $h{=}0.1$ and $\rho\in\{0,0.3\}$, the
 generated $\tr\Cov$ matches \eqref{eq:tgtendpoint}'s $\tr\Covh+d\rho^2$ to within
-$3\%$ in both arms, the mean is unchanged, and the distance to the posterior does fall:
+$3.1\%$ on average in both arms ($6\%$ in the worst seed), the mean is unchanged, and the distance to the posterior does fall:
 $1.49\times$ in MMD and $1.29\times$ in entropic OT, in the same direction in each seed
 (Appendix~\ref{app:tgt}). So where the atoms are sparse enough for the floor to
 dominate, filling the gaps helps a little. Table~\ref{tab:floor} sweeps $(d,N)$ and
@@ -3434,8 +3496,8 @@ $\beta\to1$, which would need a budget we have not run. Three rival explanations
 fixed exponent (an additive variance floor, a hard floor, and an affine map) were
 fitted to the final checkpoint and all lose to the power law in log space
 ($R^2$ $0.42$, $0.24$, $0.28$ against $0.78$ at $h{=}4$), so an offset is not what is
-happening. At $h{=}6$, $\beta$ never leaves zero, which is what the missing range
-predicts. The trained model reproduces the ordering
+happening. At $h{=}6$, $\beta$ never becomes positive ($-0.20\pm0.06$ at $60000$),
+which is what the missing range predicts. The trained model reproduces the ordering
 Theorem~\ref{thm:endpoint} implies (which conditions have more posterior variance) and
 compresses its dynamic range, by a factor that itself grows with the reference.
 Theorem~\ref{thm:endpoint} describes the population
@@ -3451,16 +3513,18 @@ how many training atoms it actually pools; conditions whose kernel weight concen
 one or two atoms are the ones the model overshoots, at any $h$.
 
 \paragraph{Reproducibility across problem instances.} Every bandwidth was run at three
-seeds, each redrawing the mask, the training subset and all training randomness, so
-each seed is a different problem and not merely a different run: at $h{=}4$,
+seeds, each redrawing the training subset and all training randomness (the mask is
+fixed), so each seed is a different problem and not merely a different run: at $h{=}4$,
 $n_{\mathrm{eff}}$ is $2.36$, $2.77$ and $2.10$ across the three. Table~\ref{tab:seed3}
-gives the final values. Reading the spread as $(\max-\min)/\mathrm{mean}$: the raw
+gives the final values, on the training-time estimator (8 conditions at $M{=}16$; see
+Appendix~\ref{app:exp4} for how far it is from the $M{=}256$ re-measurement). Reading the spread as $(\max-\min)/\mathrm{mean}$: the raw
 $\tr\Cov$ moves by $41\%$ at $h{=}4$, $23\%$ at $h{=}5$ and $16\%$ at $h{=}6$, while
 the aggregate ratio $\tr\Cov/\tr\Covh$ moves by $23\%$, $30\%$ and $23\%$.
 
-So the reference-relative quantity is not uniformly the more stable one. Two instances
-alone would suggest otherwise: at $h{=}5$ two of them land on $1.245$ and $1.248$, and
-only the third, at $1.654$, shows that agreement to be a coincidence. At $h{=}5$ and
+So the reference-relative quantity is not uniformly the more stable one. At $h{=}5$ two
+instances land on $1.245$ and $1.248$ and the third on $1.654$, but the first moves to
+$1.461$ when re-measured at $48$ conditions and $M{=}256$, so at this bandwidth the
+estimator's own error is of the size of the spread being read. At $h{=}5$ and
 $h{=}6$ the aggregate ratio is \emph{less} stable across instances than the raw trace it
 was meant to stabilise. What survives is the case at $h{=}4$, where the ratio moves by $23\%$
 against the raw trace's $41\%$; and $h{=}4$ is exactly the bandwidth at which the
@@ -3500,7 +3564,7 @@ condition. For the first $8000$ iterations the model does not track the kernel
 reference at any bandwidth. After that $\beta$ rises at $h{=}4$ and $h{=}5$ and has not
 levelled off by the end of the run, so the gap to the predicted $\beta=1$ is at least
 partly an optimisation gap rather than a property of the model class. At $h{=}6$ it
-stays at zero, which is what a reference with almost no range across conditions
+never becomes positive, which is what a reference with almost no range across conditions
 predicts. Error bars are standard errors of the slope.}
 \label{fig:betatraj}
 \end{figure}
@@ -3526,7 +3590,7 @@ $6$ & $406.4$ / $1.181$ & $347.1$ / $0.924$ & $364.9$ / $1.166$ & $50$--$93$ &
 \bottomrule
 \end{tabular}
 \caption{Three seeds of the CIFAR-10 DDPM sweep at $60000$ iterations, each a fresh
-problem instance. Bold marks the more stable of the raw trace and the aggregate ratio
+problem instance, on the training-time estimator ($8$ conditions, $M{=}16$). Bold marks the more stable of the raw trace and the aggregate ratio
 on each row. The aggregate ratio wins only at $h{=}4$, the bandwidth where the kernel
 reference varies across conditions; where the reference is nearly constant, dividing by
 it adds noise instead of removing it. The last column is why the paper does not use the
@@ -3612,15 +3676,17 @@ configuration & width & depth & optimiser & $\tr\Cov$ at $2\times10^5$ \\
 \midrule
 baseline & 128 & 4 & Adam & $0.396\pm0.127$ \\
 \midrule
-narrower & 32 & 4 & Adam & $0.657\pm0.058$ \\
-         & 64 & 4 & Adam & $0.526\pm0.058$ \\
-wider    & 256 & 4 & Adam & $0.403\pm0.079$ \\
-shallower& 128 & 2 & Adam & $0.860\pm0.156$ \\
-deeper   & 128 & 6 & Adam & $0.407\pm0.127$ \\
-SGD      & 128 & 4 & SGD(m=0.9) & $0.711\pm0.193$ \\
+narrower & 32 & 4 & Adam & $0.657\pm0.041$ \\
+         & 64 & 4 & Adam & $0.526\pm0.041$ \\
+wider    & 256 & 4 & Adam & $0.403\pm0.056$ \\
+shallower& 128 & 2 & Adam & $0.860\pm0.110$ \\
+deeper   & 128 & 6 & Adam & $0.407\pm0.090$ \\
+SGD      & 128 & 4 & SGD(m=0.9) & $0.711\pm0.136$ \\
 \bottomrule
 \end{tabular}
-\caption{Architecture/optimiser ablation on EXP-1 (2 seeds each), same
+\caption{Architecture/optimiser ablation on EXP-1 (2 seeds each; with two seeds the
+$\pm$ is half their difference, so ``within seed noise'' below is a reading, not a
+test), same
 $2\times10^5$-iteration budget as Table~\ref{tab:exp1}. Collapse speed increases
 with capacity but saturates beyond roughly the baseline's size (width $256$ and
 depth $6$ both land within seed noise of the width-$128$/depth-$4$ baseline,
@@ -3707,7 +3773,7 @@ Theorem~\ref{thm:endpoint} and Proposition~\ref{prop:tgtnoise} directly, so it b
 what any trained model could achieve and is independent of optimisation. For each
 $(d,N)$ we draw the analytic posterior at six training labels, compute the floor
 $F=\E_{x\sim p(\cdot\mid y)}\operatorname{dist}(x,\{x^i\})^2$ of \eqref{eq:w2floor}
-exactly, and report the best MMD to that posterior over $h$ (atomic, $\rho=0$) and
+by Monte Carlo over $800$ posterior draws per label, and report the best MMD to that posterior over $h$ (atomic, $\rho=0$) and
 over $(h,\rho)$ (endpoint-smoothed). Script:
 \texttt{scripts/atomicity\_scaling.py}; the single-configuration sweep behind the
 numbers quoted in Section~\ref{sec:p7} is \texttt{scripts/verify\_target\_noise.py}.
@@ -3731,18 +3797,19 @@ atomic & gain from $\rho$ & atomic & gain from $\rho$ & \emph{est.\ floor}\\
 \bottomrule
 \end{tabular}
 \caption{The atomicity obstruction, quantified at the population optimum. $F$ is the
-exact bound of \eqref{eq:w2floor}, computed in closed form and so free of any
-estimator; its relative size follows the $N^{-2/d}$ nearest-atom scaling. ``Gain from
+bound of \eqref{eq:w2floor}, a Monte Carlo average of nearest-atom distances over
+posterior draws, which needs no generative-model or distance estimator; its relative
+size follows the $N^{-2/d}$ nearest-atom scaling. ``Gain from
 $\rho$'' is the best score over $h$ alone divided by the best over $(h,\rho)$. The
 last column is what the OT estimator returns for two independent $M$-sample draws
 from the \emph{same} posterior (\texttt{scripts/verify\_ot\_resolution.py}): the
 divergence does not vanish at finite $M$, and a difference smaller than that floor is
 not a measurement. Read against it, the OT \emph{levels} are resolved on every
-row---by $4$ to $40\times$ at $d{=}2$ and by $1.8$ to $2.3\times$ in higher
+row---by $4$ to $40\times$ at $d{=}2$ and by $1.8$ to $3.0\times$ in higher
 dimension---and they confirm that the atomic law's distance to the posterior grows
-with $F$. The OT \emph{gains}, however, are $0.00$--$2.35$ in absolute terms against
-floors of $0.014$--$4.27$, so they are below resolution at every row and we do not
-read them; the endpoint-smoothing gain is taken from the MMD column, which needs no
+with $F$. The OT \emph{gains}, however, are about $0.00$--$0.03$ in absolute terms at
+$d{=}2$, the order of the floor there ($0.014$--$0.020$), and $0.4$--$2.4$ in higher
+dimension against floors of $0.62$--$4.27$, so we do not read them; the endpoint-smoothing gain is taken from the MMD column, which needs no
 such correction. One reading survives and is the one that matters: at fixed $d{=}2$
 the MMD gain grows monotonically with the floor ($1.01\to1.02\to1.24\times$ as $N$
 falls from $1000$ to $50$), but \emph{across} $d$ it does not---$d{=}10$ has the
@@ -3764,7 +3831,7 @@ Section~\ref{sec:p7}. Both arms use the EXP-1 architecture and schedule unchange
 $N{=}50$ and $h{=}0.1$, differing only in $\rho$
 (\texttt{configs/exp1\_target\_noise.yaml}, \texttt{train.target\_noise\_rho});
 analysis by \texttt{scripts/analyze\_target\_noise.py}. The measured $\tr\Cov$ tracks
-$\tr\Covh+d\rho^2$ per seed as well as on average, and the improvement in both
+$\tr\Covh+d\rho^2$ per seed to within $6\%$ and on average to within $3.1\%$, and the improvement in both
 distances is in the same direction in each seed separately---the aggregate is not
 carried by one run. Seed variation is large in absolute terms (seed 0's problem
 instance is markedly harder than seed 1's), which is why the ratio, not the level, is
@@ -3788,7 +3855,8 @@ $\rho=0.3$ & 0 & 0.3959 & 0.3908 & 0.1549 & 0.711 & 0.5383\\
 \end{tabular}
 \caption{Endpoint smoothing in a trained model ($N{=}50$, $h{=}0.1$, $2\times10^5$
 iterations, 8 conditions, $M{=}800$). The generated covariance matches
-\eqref{eq:tgtendpoint}'s $\tr\Covh+d\rho^2$ to within $3\%$ in both arms, and the mean
+\eqref{eq:tgtendpoint}'s $\tr\Covh+d\rho^2$ to within $3.1\%$ on average in both arms
+and $6\%$ in every seed, and the mean
 is unchanged by $\rho$---both as the moment formula requires. Distance to the analytic
 posterior falls $1.49\times$ in MMD and $1.29\times$ in entropic OT (Sinkhorn estimator
 pinned to three closed forms in \texttt{scripts/verify\_sinkhorn.py}).
@@ -3802,7 +3870,7 @@ factor in each.}
 
 Table~\ref{tab:heldout} gives the per-seed numbers behind the held-out paragraph of
 Section~\ref{sec:exp1}. Four of the five seeds behave alike---held-out $\tr\Cov$ ends
-within a factor of $\sim\!2$ of the training-condition value, i.e.\ the same collapse,
+within a factor of $3.5$ of the training-condition value (within $15\%$ for two of them), i.e.\ the same collapse,
 onto the nearest memorised atom rather than onto the posterior of that $y$
 (Corollary~\ref{cor:zerobw}). Seed 0 is the exception: its held-out ODE integration
 diverges between $10^5$ and $2\times10^5$ iterations, which is why we report medians
@@ -3883,8 +3951,8 @@ collapse ratio & 0.472 & 0.390 & 0.328 & 0.331\\
 \bottomrule
 \end{tabular}
 \caption{P5 (empirical), 5 seeds. The between-$\sigma_{\mathrm{obs}}$ spread in the
-ratio ($0.33$--$0.47$, range $\sim0.14$) is \emph{smaller} than the between-seed std
-at each point ($0.11$--$0.24$): the sweep is flat within seed noise. This is
+ratio ($0.33$--$0.47$, range $\sim0.14$) is comparable to the between-seed std of the
+ratio at each point ($0.11$--$0.15$): the sweep is flat within seed noise. This is
 consistent with an identification-through-$y$ mechanism that operates for every
 $\sigma_{\mathrm{obs}}>0$; the theory implies no monotonicity, so flatness is not a
 falsification.}
@@ -4081,8 +4149,8 @@ at loss $0.010$          & $3.15\times10^{-4}$ & $6.16\times10^{-4}$ & $5.80\tim
 Panel A is the fixed-budget sweep: slope $+0.90$ in $\log N$, spread $14.9\times$.
 Panel B holds the per-image gradient exposure fixed instead: slope $-0.29$, spread
 $2.3\times$. Panel C lines the runs up by training loss, interpolating over every
-checkpoint of every run at that $N$. Parenthesised digits are the standard deviation
-over 3 seeds in the last digits shown; panels B and C use a single seed per point,
+checkpoint of every run at that $N$. Parenthesised digits are the sample standard
+deviation ($n{-}1$) over 3 seeds in the last digits shown; panels B and C use a single seed per point,
 so the $N{=}100$ gap in B (whose run is also the least converged, loss $0.0159$) is
 best read together with C rather than alone.}
 \label{tab:nsweep3}
@@ -4187,8 +4255,8 @@ is what the same estimators return for two independent $M{=}1000$ draws from the
 $\sum_ip_i^{(h)}\delta_{x^i}$, the law Theorem~\ref{thm:endpoint} says the model
 converges to. The measured curves track that prediction closely at every
 $h\ge0.05$ (at $h{=}0.5$, $\sqrt{S_\varepsilon}=0.345$ measured against $0.333$
-predicted) and the prediction itself stops $4.6\times$ above the sampling floor in
-$W_2$ and $14\times$ above it in MMD. In the data's own units the best bandwidth
+predicted) and the prediction itself stops $4.4\times$ above the sampling floor in
+$W_2$ (the measured curve $4.6\times$) and $14\times$ above it in MMD. In the data's own units the best bandwidth
 leaves the generated law $0.345$ from the posterior, which is $34\%$ of the posterior's
 own width $\sqrt{\tr\Sigmapost}=1.00$.
 
@@ -4229,7 +4297,10 @@ representation floor that no budget can. We test this directly by extending the
 $h{=}0.1$ run to $10^6$ iterations under the cosine schedule of
 Section~\ref{sec:exp1}, over 5 seeds (Table~\ref{tab:gaph01},
 Figure~\ref{fig:gaph01}). The covariance reaches the kernel optimum early and stays
-there ($\tr\Cov/\tr\Covh = 1.65 \to 1.00$ by $10^5$, then flat to $10^6$), while the
+there. In aggregate it is within $5\%$ of the optimum from the first checkpoint, because
+at $h{=}0.1$ the reference trace is close to $\tr\Sigmapost$, which a still-calibrated
+early sampler matches; what training adds is agreement condition by condition (the mean
+of per-condition ratios falls $1.65\to1.00$ by $10^5$, then flat to $10^6$). Meanwhile the
 mean error $\|\text{mean}-\bar x_h\|$ keeps falling, $0.188 \to 0.0534$ at $10^5$
 $\to 0.0220$ at $10^6$: a further factor $2.4$ over the last decade of budget, with
 no sign of a floor. A representation limit would show as a plateau; none appears
@@ -4253,23 +4324,27 @@ Table~\ref{tab:gaph01} reports.
 \toprule
 iteration & $10^2$ & $10^4$ & $10^5$ & $4\times10^5$ & $10^6$\\
 \midrule
-$\tr\Cov/\tr\Covh$        & $1.649$ & $1.062$ & $1.002$ & $0.997$ & $1.004$\\
+aggregate $\tr\Cov/\tr\Covh$ & $1.045$ & $1.036$ & $0.991$ & $0.990$ & $0.996$\\
+mean of per-condition ratios & $1.649$ & $1.062$ & $1.002$ & $0.997$ & $1.004$\\
 $\|\text{mean}-\bar x_h\|$ & $0.188$ & $0.151$ & $0.0534$ & $0.0314$ & $0.0220$\\
 $\tr\Cov$                  & $1.091$ & $1.087$ & $1.035$ & $1.018$ & $1.056$\\
 \bottomrule
 \end{tabular}
 \caption{EXP-1 at $h{=}0.1$, extended to $10^6$ iterations (median over 5 seeds;
-$\tr\Sigmapost=1.004$). The covariance matches the kernel optimum from $10^5$ on;
+median $\tr\Sigmapost=1.015$). The aggregate ratio sums the traces over conditions
+(Appendix~\ref{app:audit}); the mean of per-condition ratios measures agreement condition
+by condition. The covariance matches the kernel optimum on both from $10^5$ on;
 the mean error is still decreasing at the end of the budget. At $h{=}0$ under the
 same schedule and seeds, $\tr\Cov$ instead falls $1.087\to0.115$ and $n_{\rm eff}=1$
 throughout---full collapse---whereas here $n_{\rm eff}=25.1$ (median; $13.7$--$43.9$
 across seeds) and is a property of $(X,Y,h)$ alone, not of training. The two small
 increases in the mean-error row ($10^5\!\to\!2{\times}10^5$ and
 $4\!\times\!10^5\!\to\!7{\times}10^5$, not shown) are within seed noise. Per seed at
-$10^6$ the mean error is $0.019$--$0.026$; the ratio is $0.99$--$1.03$ for four seeds
-and $2.85$ for seed~4, whose draw of $A$ gives a near-degenerate $\Covh$ and so an
-ill-conditioned ratio---the mean error, which does not divide by a small number, is
-well behaved on that seed too.}
+$10^6$ the mean error is $0.019$--$0.026$ and the aggregate ratio $0.99$--$1.01$; the
+mean of per-condition ratios is $0.99$--$1.03$ for four seeds and $2.85$ for seed~4,
+whose draw of $A$ gives a near-degenerate $\Covh$ at some conditions and so an
+ill-conditioned per-condition ratio---its aggregate ratio is $0.987$, and the mean
+error, which does not divide by a small number, is well behaved on that seed too.}
 \label{tab:gaph01}
 \end{table}
 
@@ -4277,8 +4352,9 @@ well behaved on that seed too.}
 \centering
 \includegraphics[width=0.85\textwidth]{fig_gap_diagnostic_h01.png}
 \caption{EXP-1 at $h{=}0.1$ over $10^6$ iterations (median of 5 seeds). Left: the
-covariance ratio to the Proposition~\ref{prop:moments} optimum settles at $1$ by
-$10^5$. Right: the distance from the generated mean to $\bar x_h$ keeps decreasing
+covariance ratio to the Proposition~\ref{prop:moments} optimum. The aggregate ratio is
+near $1$ from the start; the mean of per-condition ratios, which measures agreement
+condition by condition, settles at $1$ by $10^5$. Right: the distance from the generated mean to $\bar x_h$ keeps decreasing
 to the end of the budget---no representation floor is visible.}
 \label{fig:gaph01}
 \end{figure}
@@ -4401,9 +4477,10 @@ $h$ & $\Covh$ (Thm~\ref{thm:endpoint}) & $\Sigmapost$ & generated $\tr\Cov$ &
 tracks the exact kernel target $\Covh$ to within seed noise
 (ratio-to-kernel $\approx1.00$, std $\le0.05$)---a verification of the \emph{endpoint
 law}, stronger than a velocity-field check. $^{\dagger}$At $h{=}0.01$ ($n_{\mathrm{eff}}
-\approx3.5$, single-atom regime) $\Covh$ is near-degenerate for many conditions, so the
-per-condition ratio is unstable and high; the ratio of mean traces $0.673/0.583{=}1.15$
-is closer to $1$.}
+\approx3.5$, single-atom regime) $\Covh$ is near-degenerate for many conditions, and the
+per-seed ratio is unstable and high: the two seeds with $n_{\mathrm{eff}}\approx2.2$ give
+$1.48$ and $1.96$, the other three $0.92$--$1.10$. Pooled over seeds, the ratio of mean
+traces $0.673/0.583{=}1.15$ is closer to $1$.}
 \label{tab:p7kernel}
 \end{table}
 
@@ -4493,12 +4570,15 @@ $h$ & rel.\ error vs.\ \textbf{kernel} \eqref{eq:kernel-field} & rel.\ error vs.
 0.50 & $\mathbf{0.164\pm0.025}$ & $0.791\pm0.070$ & $0.16\pm0.02$\\
 \bottomrule
 \end{tabular}
-\caption{Velocity-field match (5 seeds). $v_\theta$ is $2$--$4\times$ closer to the
+\caption{Velocity-field match (5 seeds). $v_\theta$ is $1.9$--$4.8\times$ closer to the
 kernel field than to the collapsed field at every $h$. Assigning generated samples to
 the nearest atom recovers the weights $p_i^{(h)}\propto K_h$ with total variation
 $0.16$--$0.31$. At $h{=}0.5$ the generated variance $1.29$ \emph{overshoots}
-$\Sigmapost{=}1.02$, matching the $+h^2\|J\|_F^2$ term of Proposition~\ref{prop:expansion}
-($\|J\|_F^2=0.4031$, exact).}
+$\Sigmapost{=}1.02$ and follows the finite-$N$ reference $\tr\Covh=1.28$
+(Theorem~\ref{thm:endpoint}). The $N\to\infty$ term $h^2\|J\|_F^2$ of
+Proposition~\ref{prop:expansion} explains only part of it: $\|J\|_F^2$ ranges over
+$0.38$--$4.46$ across the five seeds' operators $A$, and for seed 0 ($\|J\|_F^2=0.4031$)
+the expansion gives $1.10$ against a measured $1.29$.}
 \label{tab:dagger}
 \end{table}
 

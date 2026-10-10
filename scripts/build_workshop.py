@@ -52,8 +52,13 @@ def main() -> None:
                     + "\n\n" + stmt)
     sb = sb.replace(r"By Proposition~\ref{prop:kernel-field},",
                     r"By the proof of Theorem~\ref{thm:endpoint},")
+    # The reference-family control (Table tab:families): paragraph, table and reading,
+    # cut whole so the numbers cannot drift between the two versions.
+    families = cut(m, r"\paragraph{Which reference family.}",
+                   r"as Proposition~\ref{prop:heffid} predicts.")
     blocks = {"proof_heffid": heffid, "proof_calib": calib,
-              "specbias": sb.rstrip() + "\n\n" + env_with_label(m, "figure", "fig:t2")}
+              "specbias": sb.rstrip() + "\n\n" + env_with_label(m, "figure", "fig:t2"),
+              "families": families}
 
     out = src.replace("This file is the source: scripts/build_workshop.py fills the %%BLOCK%% lines\n"
                       "% from main.tex and writes workshop.tex. Edit this file, not workshop.tex.",
