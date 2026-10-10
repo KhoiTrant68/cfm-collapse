@@ -129,7 +129,8 @@ h_{\mathrm{mean}}=\arg\min_{h'}\sum_c\big\|m_c-\bar x_{h'}(y_c)\big\|.
 \label{eq:heff}
 \end{equation}
 The two use disjoint statistics, so $h_{\mathrm{mean}}\approx h_{\mathrm{eff}}$ checks
-that the model is an NW mixture at all.
+that the model is a mixture over the training atoms at all; other atomic references pass
+that check too, and the Gaussian one wins on fit quality (Table~\ref{tab:families}).
 
 \begin{proposition}[Identifiability]
 \label{prop:heffid}
@@ -151,7 +152,7 @@ falls with training and stops just above the training bandwidth $h$ (dashed); li
 geometric mean over seeds, band: range. Checkpoints before 3000 iterations, where no
 bandwidth fits, are omitted. (b) The bandwidth fitted to the variances against the one
 implied by the means, with 95\% bootstrap intervals: two disjoint statistics give one
-bandwidth. Open markers ($h=0.5$): the reference barely varies and
+bandwidth (Table~\ref{tab:families} for other reference families). Open markers ($h=0.5$): the reference barely varies and
 $h_{\mathrm{eff}}$ is poorly identified.}
 \label{fig:heffsyn}
 \end{figure}
@@ -200,7 +201,7 @@ Modelling the atoms near a held-out $y^\star$ as draws of $\pi_h$ with the actua
 weights, (d) predicts the held-out 90\% coverage of all 75 synthetic checkpoints from
 their $h_{\mathrm{eff}}$ alone with $R^2=0.90$ (Figure~\ref{fig:t3}). As a ranking,
 $h_{\mathrm{eff}}$ (Spearman $0.92$) beats the training loss ($0.85$) and the iteration
-($-0.42$), keeps $0.90$ with the iteration partialled out, and repeats on an eight-mode
+($-0.41$), keeps $0.90$ with the iteration partialled out, and repeats on an eight-mode
 mixture posterior ($0.91$; Table~\ref{tab:baselines}). On the mixture the
 bound (b) holds and is nearly tight at $h=\sigma/2$.
 
@@ -219,7 +220,7 @@ $h_{\mathrm{eff}}$ & \textbf{0.92} & \textbf{0.90} & \textbf{0.69} & \textbf{0.8
 \textbf{0.91} & \textbf{0.91} & 0.61 & \textbf{0.90}\\
 training loss & 0.85 & 0.82 & 0.42 & 0.75 & 0.88 & 0.81 & \textbf{0.62} & 0.81\\
 raw trace & 0.76 & 0.73 & 0.32 & 0.70 & 0.69 & 0.70 & 0.41 & 0.71\\
-iteration & $-0.42$ & --- & --- & --- & $-0.66$ & --- & --- & ---\\
+iteration & $-0.41$ & --- & --- & --- & $-0.66$ & --- & --- & ---\\
 $\beta$ & 0.34 & 0.54 & $-0.19$ & 0.61 & 0.29 & 0.61 & $-0.45$ & 0.66\\
 \bottomrule
 \end{tabular}
@@ -242,6 +243,7 @@ known ($d\le8$); at image scale $h_{\mathrm{eff}}$ fits the variances no better 
 power law. Within that scope, the memorisation and calibration of a conditional sampler
 are set by one number read off a checkpoint.
 
+\label{endmain}
 \subsection*{Reproducibility and AI use statements}
 All numbers are produced by code in the supplementary material (anonymized), and full
 proofs are in Appendix~\ref{app:proofs}. A generative-AI assistant was used to draft and
@@ -493,6 +495,55 @@ tracking slope $\beta$ against $h_{\mathrm{eff}}/h$; training proceeds to the ri
 \label{fig:heffcifar}
 \end{figure}
 
+\paragraph{Which reference family.}
+\label{app:families}
+Agreement of $h_{\mathrm{eff}}$ and $h_{\mathrm{mean}}$ shows that the means and the
+variances are explained by one member of the reference family. It does not show that
+the family is the right one. We therefore refit the same samples (the 48 checkpoints of
+Section~\ref{sec:heff}, $M{=}1000$ at 20 conditions) under five families, each with one
+scale $s$ and the same estimator \eqref{eq:heff}. Four are mixtures over the training
+atoms with weights $w_i\propto e^{-|y-y^i|^2/2s^2}$ (Gaussian, the reference of
+Theorem~\ref{thm:endpoint}), $e^{-|y-y^i|/s}$ (Laplace), $(1+|y-y^i|^2/s^2)^{-1}$
+(Cauchy), and uniform weights on the $s$ nearest labels (kNN). The fifth is not atomic:
+the linear-Gaussian posterior with observation noise $s$, whose covariance does not
+depend on $y$. The Gaussian family reproduces the published fit exactly (the same
+$h_{\mathrm{eff}}$ at 120/120 checkpoints).
+
+\begin{table}[htb]
+\centering\small
+\begin{tabular}{lcccc}
+\toprule
+reference family & intervals agree & median $R^2$ & best variance fit & best mean prediction\\
+\midrule
+Gaussian (Theorem~\ref{thm:endpoint}) & 48/48 & $\mathbf{0.86}$ & $\mathbf{36}$/48 & $\mathbf{41}$/48\\
+Laplace & 45/48 & $0.82$ & 9/48 & 5/48\\
+Cauchy & 43/48 & $0.65$ & 3/48 & 1/48\\
+kNN & 48/48 & $0.36$ & 0/48 & 1/48\\
+posterior (not atomic) & 42/48 & $-0.12$ & --- & ---\\
+\bottomrule
+\end{tabular}
+\caption{The 48 synthetic checkpoints of Section~\ref{sec:heff} refitted under five
+reference families. ``Intervals agree'': the 95\% bootstrap intervals of the scales
+fitted to the variances and to the means overlap. ``Best variance fit'': lowest log-space
+misfit among the four atomic families. ``Best mean prediction'': the scale fitted to the
+variances predicts the means best. The posterior family's optimum lies at the edge of the
+grid at 37/48 checkpoints. Script: \texttt{scripts/heff\_family\_test.py}.}
+\label{tab:families}
+\end{table}
+
+Interval agreement does not separate the families (Table~\ref{tab:families}): kNN passes
+it at all 48 checkpoints and Laplace at 45. Fit quality does. Paired at each checkpoint,
+the Gaussian reference has the lower variance misfit than Laplace at 36/48 checkpoints
+and in 9/12 runs (median log-RMSE difference $0.020$, 95\% bootstrap interval $[0.011,
+0.024]$), than Cauchy at 41/48 and than kNN at 48/48. Its variance-fitted scale also
+predicts the means best at 41/48. The non-atomic posterior cannot reproduce the
+variation of the variance across conditions at all ($R^2=-0.12$): that variation is a
+property of the finite set of atoms. The evidence is therefore for a mixture over the
+training atoms whose weights are best described by the Gaussian kernel of the label
+noise, with the Laplace kernel a close second. At $h{=}0.5$, where the reference barely
+varies, the Gaussian family still fits the variances best (14/15) but its intervals agree
+at only 9/15, as Proposition~\ref{prop:heffid} predicts.
+
 \section{Where the bandwidth comes from}
 \label{app:specbias}
 
@@ -592,7 +643,7 @@ never leaves them; leaving them, as $38\%$ of CIFAR-10 samples do at $h{=}6$, ne
 error in the spatial dependence of the field. Integrating the flow of $v_\varphi$ exactly
 on the EXP-1 training set (Gaussian $\varphi$ of scale $s$, five conditions, 300
 trajectories each; \texttt{theory\_t2\_filtered.py}) confirms that every endpoint is an
-atom (distance $\le0.003$). The endpoint weights are \emph{not} simply the label-averaged
+atom (distance $\le0.0032$). The endpoint weights are \emph{not} simply the label-averaged
 weights $q$: they agree within Monte Carlo error when $s\le h$ (total variation $0.11$
 and $0.14$ against floors $0.09$ and $0.13$ at $s=h=0.05$ and $0.1$), but for $s\gg h$
 the flow re-concentrates them, halving the endpoint variance ($0.46$ against $1.14$ at

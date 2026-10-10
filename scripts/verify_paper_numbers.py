@@ -304,6 +304,126 @@ print(f"  {'OK ' if _nolimit else 'BAD'} "
       f"arg spread={max(_args) - min(_args):<10.3g}")
 ok, fail = ok + _nolimit, fail + (not _nolimit)
 
+print("\nWhich reference family (Table tab:families, scripts/heff_family_test.py)")
+# Interval agreement is what the paper used to call an out-of-sample check; it does
+# not separate the families, so the table carries the fit-quality columns as well.
+fam = json.loads(pathlib.Path("results/exp1/_heff/heff_families.json")
+                 .read_text(encoding="utf-8"))
+f48 = fam["summary"]["h<=0.1, iter>=1e4 (the paper's 48)"]
+for f, agree, r2med in (("gauss", 48, 0.86), ("laplace", 45, 0.82), ("cauchy", 43, 0.65),
+                        ("knn", 48, 0.36), ("posterior", 42, -0.12)):
+    check(f"{f}: intervals agree (of 48)", agree, f48[f]["overlap"])
+    check(f"{f}: median log-space R^2", r2med, f48[f]["median_r2_var"], 1e-2)
+for f, best, bestm in (("gauss", 36, 41), ("laplace", 9, 5), ("cauchy", 3, 1),
+                       ("knn", 0, 1)):
+    check(f"{f}: best variance fit (of 48)", best, f48["best_variance_fit_counts"][f])
+    check(f"{f}: best mean prediction (of 48)", bestm, f48["best_cross_prediction_counts"][f])
+check("posterior optimum at grid edge (of 48)", 37, f48["posterior"]["at_edge"])
+_rows = [r for r in fam["rows"] if r["h"] <= 0.1 and r["iter"] >= 10000]
+_d = np.array([r["laplace"]["rmse_log"] - r["gauss"]["rmse_log"] for r in _rows])
+check("gauss beats laplace (checkpoints of 48)", 36, int((_d > 0).sum()))
+check("gauss vs laplace median log-RMSE gap", 0.020, float(np.median(_d)), 5e-2)
+_runs = sorted({r["run"] for r in _rows})
+_rd = [np.mean([r["laplace"]["rmse_log"] - r["gauss"]["rmse_log"]
+                for r in _rows if r["run"] == u]) for u in _runs]
+check("gauss beats laplace (runs of 12)", 9, sum(x > 0 for x in _rd))
+_pl = fam["summary"]["paired_vs_gauss_48"]["laplace"]
+check("gauss vs laplace gap, 95% CI low", 0.011, _pl["median_gap_ci95"][0], 5e-2)
+check("gauss vs laplace gap, 95% CI high", 0.024, _pl["median_gap_ci95"][1], 5e-2)
+for f, n in (("cauchy", 41), ("knn", 48)):
+    check(f"gauss beats {f} (checkpoints of 48)", n,
+          sum(r[f]["rmse_log"] > r["gauss"]["rmse_log"] for r in _rows))
+_pub = {(r["run"], r["iter"]): r["h_eff"] for r in json.loads(
+    pathlib.Path("results/exp1/_heff/heff_synthetic.json").read_text(encoding="utf-8"))}
+check("gauss family reproduces published h_eff (of 120)", 120,
+      sum(abs(np.log(r["gauss"]["s_var"] / _pub[(r["run"], r["iter"])])) < 1e-9
+          for r in fam["rows"]))
+f05 = fam["summary"]["h=0.5, iter>=3000"]
+check("h=0.5: gauss best variance fit (of 15)", 14, f05["best_variance_fit_counts"]["gauss"])
+check("h=0.5: gauss intervals agree (of 15)", 9, f05["gauss"]["overlap"])
+
+print("\nNumbers introduced by the 2026-10-11 corrections (docs/review/paper_verification_2026-10-10.md)")
+# CIFAR: the training-time estimator against the M=256 re-evaluation, seed 0.
+for h, want in (("4", 4.7), ("5", 15), ("6", 1.8)):
+    agg_re = float(np.mean(reev[h]["trace_cov"]) / np.mean(reev[h]["trace_cov_kernel"]))
+    agg_log = aggregate_ratio(f"h{h}")
+    check(f"h={h} |log / re-eval - 1| (%)", want, abs(agg_log / agg_re - 1) * 100,
+          0.05 / max(1.0, want) if want < 10 else 0.5 / want)
+    check(f"h={h} re-evaluated aggregate", {"4": 2.154, "5": 1.461, "6": 1.202}[h], agg_re, 2e-3)
+check("beta h=6 at 60000, standard error", 0.06,
+      next(r for r in bt if r["h"] == 6 and r["iter"] == 60000)["se"], 0.1)
+
+# EXP-1 ablation, population SD over its two seeds.
+for k, want in (("width32", 0.041), ("width64", 0.041), ("width256", 0.056),
+                ("depth2", 0.110), ("depth6", 0.090), ("sgd", 0.136)):
+    vals = [pd.read_csv(f).query("group == 'train'").set_index("iter").loc[200000, "trace_cov_mean"]
+            for f in sorted(glob.glob(f"results/exp1/ablation_{k}_seed[01]/raw/metrics.csv"))]
+    check(f"ablation {k} population SD", want, float(np.std(vals)), 1.5e-2)
+
+# Table tab:gaph01, the aggregate row, and seed 4's aggregate at 1e6.
+_g = [pd.read_csv(f).query("group == 'train'").set_index("iter")
+      for f in sorted(glob.glob("results/exp1/exp1_ext_sched_h01_seed[0-4]/raw/metrics.csv"))]
+for it, want in ((100, 1.045), (10000, 1.036), (100000, 0.991), (400000, 0.990), (1000000, 0.996)):
+    check(f"h=0.1 aggregate ratio @{it} (median)", want,
+          float(np.median([d.loc[it, "trace_cov_mean"] / d.loc[it, "trace_cov_kernel_mean"] for d in _g])), 1e-3)
+check("h=0.1 seed 4 aggregate ratio @1e6", 0.987,
+      float(_g[4].loc[1000000, "trace_cov_mean"] / _g[4].loc[1000000, "trace_cov_kernel_mean"]), 1e-3)
+check("h=0.1 median tr Sigma_post", 1.015, float(np.median([d["trace_post"].iloc[0] for d in _g])), 1e-3)
+
+# Table tab:p7kernel footnote, per-seed ratio at h=0.01.
+_p7 = pd.read_csv("results/exp1/_theory/raw/p7_kernel.csv")
+_r = _p7[_p7["h"] == 0.01].set_index("seed")["ratio_to_kernel"]
+check("h=0.01 seed 0 ratio", 1.48, float(_r[0]), 5e-3)
+check("h=0.01 seed 4 ratio", 1.96, float(_r[4]), 5e-3)
+check("h=0.01 other seeds, low", 0.92, float(_r[[1, 2, 3]].min()), 5e-3)
+check("h=0.01 other seeds, high", 1.10, float(_r[[1, 2, 3]].max()), 5e-3)
+# Table tab:dagger caption: ||J||^2 across seeds, and seed 0's expansion vs measured.
+_j = _p7[_p7["h"] == 0.5].set_index("seed")
+check("||J||^2 smallest seed", 0.38, float(_j["j_fro_sq"].min()), 1e-2)
+check("||J||^2 largest seed", 4.46, float(_j["j_fro_sq"].max()), 1e-2)
+check("seed 0 expansion at h=0.5", 1.10, float(_j.loc[0, "trace_expansion"]), 1e-2)
+check("seed 0 measured at h=0.5", 1.29, float(_j.loc[0, "trace_meas"]), 1e-2)
+check("5-seed tr Cov_h at h=0.5", 1.28, float(_p7[_p7["h"] == 0.5]["trace_kernel"].mean()), 1e-2)
+# Velocity-field factor, closer to the kernel field than to (star).
+_kv = pd.read_csv("results/exp1/_theory/raw/kernel_verification.csv").groupby("h")
+_fac = (_kv["rel_err_vs_star"].mean() / _kv["rel_err_vs_kernel"].mean())
+check("velocity-field factor, smallest", 1.9, float(_fac.min()), 2e-2)
+check("velocity-field factor, largest", 4.8, float(_fac.max()), 2e-2)
+# Endpoint smoothing: per-arm and per-seed agreement with tr Cov_h + d rho^2.
+_tn = pd.read_csv("results/exp1/_theory/raw/target_noise_trained.csv").set_index("arm")
+check("rho arms, worst mean deviation (%)", 3.1,
+      float((abs(_tn["trace_cov"] / _tn["predicted"] - 1)).max() * 100), 2e-2)
+check("rho arms, worst per-seed deviation (%)", 6.0,
+      max(abs(0.5870 / 0.6236 - 1), abs(0.2176 / 0.2108 - 1)) * 100, 3e-2)
+# P5: between-seed SD of the collapse ratio.
+_p5 = json.loads(pathlib.Path("results/exp1/_sweeps/summary.json").read_text(encoding="utf-8"))["P5"]
+_rsd = [s / t for s, t in zip(_p5["trace_cov_std"], _p5["trace_post"])]
+check("P5 ratio SD, smallest", 0.11, min(_rsd), 2e-2)
+check("P5 ratio SD, largest", 0.15, max(_rsd), 2e-2)
+# Held-out: largest train/held-out factor among seeds 1-4, and the two within 15%.
+_tr = [0.547, 0.450, 0.417, 0.162]; _ho = [0.212, 0.429, 0.364, 0.564]
+_fx = [max(a / b, b / a) for a, b in zip(_tr, _ho)]
+check("held-out factor, largest (seeds 1-4)", 3.5, max(_fx), 1e-2)
+check("held-out seeds within 15%", 2, sum(f <= 1.15 for f in _fx))
+# Small corrections.
+_a = json.loads(pathlib.Path("results/exp1/_heff/audit_v2_analysis.json").read_text(encoding="utf-8"))
+check("Spearman of iteration with coverage", -0.41, _a["pooled"]["iter"]["test_coverage_90"], 1e-2)
+check("EXP-2 final MMD", 0.24, json.loads(pathlib.Path("results/exp2/_analysis/summary.json")
+      .read_text(encoding="utf-8"))["final_mmd"]["mean"], 3e-2)
+_t3 = json.loads(pathlib.Path("results/theory/t3_coverage.json").read_text(encoding="utf-8"))
+good = (max(r["mean_err"] for r in _t3["t3a"]) <= 0.018
+        and max(r["cov_rel_err"] for r in _t3["t3a"]) <= 0.0075
+        and abs(_t3["t3c"]["Var_mean_over_S"] - _t3["t3c"]["pred_Var_mean_over_S"]) <= 2e-3
+        and abs(_t3["t3c"]["E_cov_over_S"] - _t3["t3c"]["pred_E_cov_over_S"]) <= 2e-3)
+print(f"  {'OK ' if good else 'BAD'} {'T3 thresholds (0.018, 0.75%, 2e-3)':44s}")
+ok, fail = ok + good, fail + (not good)
+_t2f = json.loads(pathlib.Path("results/theory/t2_filtered.json").read_text(encoding="utf-8"))
+check("filtered flow: worst endpoint distance to an atom", 0.0032,
+      max(r["max_endpoint_dist_to_atom"] for r in _t2f["flow"]), 2e-2)
+_ref = pd.read_csv("results/exp1/_theory/raw/posterior_reference_scales.csv").set_index("h")
+check("atomic prediction over sampling floor, W2", 4.4,
+      float(np.sqrt(_ref.loc[0.5, "sinkhorn_atomic"] / _ref.loc[0.5, "sinkhorn_floor"])), 1e-2)
+
 print("\nsanity: strings the new text depends on")
 for s in (r"\label{sec:cifarddpm}", r"\label{tab:cifarddpm}",
           r"\label{fig:cifartrack}", r"\label{sec:p6exposure}",

@@ -130,7 +130,8 @@ h_{\mathrm{mean}}=\arg\min_{h'}\sum_c\big\|m_c-\bar x_{h'}(y_c)\big\|.
 \label{eq:heff}
 \end{equation}
 The two use disjoint statistics, so $h_{\mathrm{mean}}\approx h_{\mathrm{eff}}$ checks
-that the model is an NW mixture at all.
+that the model is a mixture over the training atoms at all; other atomic references pass
+that check too, and the Gaussian one wins on fit quality (Table~\ref{tab:families}).
 
 \begin{proposition}[Identifiability]
 \label{prop:heffid}
@@ -152,7 +153,7 @@ falls with training and stops just above the training bandwidth $h$ (dashed); li
 geometric mean over seeds, band: range. Checkpoints before 3000 iterations, where no
 bandwidth fits, are omitted. (b) The bandwidth fitted to the variances against the one
 implied by the means, with 95\% bootstrap intervals: two disjoint statistics give one
-bandwidth. Open markers ($h=0.5$): the reference barely varies and
+bandwidth (Table~\ref{tab:families} for other reference families). Open markers ($h=0.5$): the reference barely varies and
 $h_{\mathrm{eff}}$ is poorly identified.}
 \label{fig:heffsyn}
 \end{figure}
@@ -201,7 +202,7 @@ Modelling the atoms near a held-out $y^\star$ as draws of $\pi_h$ with the actua
 weights, (d) predicts the held-out 90\% coverage of all 75 synthetic checkpoints from
 their $h_{\mathrm{eff}}$ alone with $R^2=0.90$ (Figure~\ref{fig:t3}). As a ranking,
 $h_{\mathrm{eff}}$ (Spearman $0.92$) beats the training loss ($0.85$) and the iteration
-($-0.42$), keeps $0.90$ with the iteration partialled out, and repeats on an eight-mode
+($-0.41$), keeps $0.90$ with the iteration partialled out, and repeats on an eight-mode
 mixture posterior ($0.91$; Table~\ref{tab:baselines}). On the mixture the
 bound (b) holds and is nearly tight at $h=\sigma/2$.
 
@@ -220,7 +221,7 @@ $h_{\mathrm{eff}}$ & \textbf{0.92} & \textbf{0.90} & \textbf{0.69} & \textbf{0.8
 \textbf{0.91} & \textbf{0.91} & 0.61 & \textbf{0.90}\\
 training loss & 0.85 & 0.82 & 0.42 & 0.75 & 0.88 & 0.81 & \textbf{0.62} & 0.81\\
 raw trace & 0.76 & 0.73 & 0.32 & 0.70 & 0.69 & 0.70 & 0.41 & 0.71\\
-iteration & $-0.42$ & --- & --- & --- & $-0.66$ & --- & --- & ---\\
+iteration & $-0.41$ & --- & --- & --- & $-0.66$ & --- & --- & ---\\
 $\beta$ & 0.34 & 0.54 & $-0.19$ & 0.61 & 0.29 & 0.61 & $-0.45$ & 0.66\\
 \bottomrule
 \end{tabular}
@@ -243,6 +244,7 @@ known ($d\le8$); at image scale $h_{\mathrm{eff}}$ fits the variances no better 
 power law. Within that scope, the memorisation and calibration of a conditional sampler
 are set by one number read off a checkpoint.
 
+\label{endmain}
 \subsection*{Reproducibility and AI use statements}
 All numbers are produced by code in the supplementary material (anonymized), and full
 proofs are in Appendix~\ref{app:proofs}. A generative-AI assistant was used to draft and
@@ -402,6 +404,8 @@ at 60k. From 5k on the two agree and fall towards $h$ without reaching it. (c) T
 tracking slope $\beta$ against $h_{\mathrm{eff}}/h$; training proceeds to the right.}
 \label{fig:heffcifar}
 \end{figure}
+
+%%BLOCK:families%%
 
 \section{Where the bandwidth comes from}
 \label{app:specbias}
