@@ -1,7 +1,7 @@
 """Claim at main.tex l.2914-2917: endpoint is delta_{x^i} 'whether or not the target is correct' (target X1-X0 without gammadot*Z).
 Population field for the mis-specified target: v'(x,t)=x^i-(1-t)/s_t^2 (x-t x^i).  Its flow: u=x-t x^i, u' = -(1-t)/s^2 u."""
 import numpy as np
-from scipy.integrate import solve_ivp, quad
+from scipy.integrate import solve_ivp
 xi_ = 1.3
 for sig in [0.0, 0.1, 0.3, 0.7, 1.0]:
     s2 = lambda t: (1 - t) ** 2 + sig ** 2 * t * (1 - t)

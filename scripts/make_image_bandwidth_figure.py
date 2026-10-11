@@ -23,7 +23,7 @@ import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 import numpy as np
 
-from scripts.figstyle import COLORS, panel_tag, save, use_paper_style
+from scripts.figstyle import panel_tag, save, use_paper_style
 
 RUNS = {0.0: "exp3_cifar_ddpm_h0", 4.0: "exp3_cifar_ddpm_h4",
         5.0: "exp3_cifar_ddpm_h5", 6.0: "exp3_cifar_ddpm_h6"}

@@ -1,4 +1,4 @@
-"""The index posterior, factor by factor -- the paper's structural claim, drawn.
+r"""The index posterior, factor by factor -- the paper's structural claim, drawn.
 
 Everything in this paper follows from one identity: the posterior over which
 training atom the flow is heading for factorises as

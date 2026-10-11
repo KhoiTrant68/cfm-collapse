@@ -7,8 +7,9 @@ For each checkpoint of a run, Monte-Carlo estimate on the SAME batch:
                = E[Var(U | X_t, t, Ytilde)]                   (Prop 1)
     gap        = L(v_theta) - L(v_h*)   >= 0
 
-v_h* is the exact conditional-mean minimiser, evaluated via kernel_field (which
-uses BOTH the spatial source factor and the label kernel, eq. 8.1). For h=0 the
+v_h* is the exact conditional-mean minimiser, evaluated with the formula of
+kernel_field (BOTH the spatial source factor and the label kernel, eq. 8.1) but
+with a separate query per row, see _vhstar_batch. For h=0 the
 minimiser is exact and L(v_h*) = 0 (Prop 4b), so gap = L(v_theta) -- the quantity
 already logged. The new information is at h > 0.
 
@@ -27,13 +28,11 @@ except Exception:
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 import torch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from src.metrics.kernel_theory import kernel_field  # noqa: E402
 from src.models.mlp_velocity import build_model  # noqa: E402
 from src.problems.linear_gaussian import LinearGaussianProblem  # noqa: E402
 from src.utils import load_yaml  # noqa: E402
@@ -73,9 +72,7 @@ def losses_at(model, X, Y, h, gen):
         e = min(s + cs, B)
         v_th = model(x_t[s:e], t[s:e], y_tilde[s:e])
         l_theta += float(((U[s:e] - v_th) ** 2).sum())
-        # v_h*: exact minimiser via kernel_field per-sample query y_tilde[j]
-        # (queries differ per row, so loop is unavoidable but cheap vectorised
-        #  inside kernel_field over atoms). Use a sub-batch python loop.
+        # v_h*: the exact minimiser at each row's own query y_tilde[j].
         v_star = _vhstar_batch(x_t[s:e], t[s:e], y_tilde[s:e], X, Y, h)
         l_star += float(((U[s:e] - v_star) ** 2).sum())
     return l_theta / B, l_star / B

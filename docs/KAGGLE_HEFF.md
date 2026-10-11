@@ -40,9 +40,9 @@ the zip**: its `bench.txt` is the throughput to plan the sessions on.
 
 ## 2. The runs
 
-Each entry of `RUNS` is `<h>:<seed>`; the seed redraws the training subset and mask as
-well as the training randomness, as in the published three-instance runs. In order of
-priority:
+Each entry of `RUNS` is `<h>:<seed>`; the seed redraws the training subset as well as
+the training randomness (the mask is the fixed bottom half), as in the published
+three-instance runs. In order of priority:
 
 | Session | `RUNS` | Why |
 |---|---|---|

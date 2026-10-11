@@ -165,8 +165,8 @@ def main():
     ax3.set_title("generated samples land on kernel-weighted train pts")
     ax3.legend(fontsize=7); ax3.set_aspect("equal", "datalim"); ax3.grid(alpha=0.3)
 
-    fig.suptitle("Numerical verification: label smoothing is exactly kernel regression
-(the kernel-field proposition and the endpoint theorem)")
+    fig.suptitle("Numerical verification: label smoothing is exactly kernel regression\n"
+                 "(the kernel-field proposition and the endpoint theorem)")
     fig.tight_layout(); fig.savefig(out / "kernel_theory_verification.png", dpi=140)
     print(f"\nwrote {out_raw / 'kernel_verification.csv'} and {out / 'kernel_theory_verification.png'}")
 

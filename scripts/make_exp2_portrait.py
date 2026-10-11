@@ -32,7 +32,6 @@ from src.problems.gmm import GMMProblem
 from src.utils import load_yaml
 
 import matplotlib.pyplot as plt
-from matplotlib.lines import Line2D
 from matplotlib.patches import Ellipse
 
 RUN = Path("results/exp2/exp2b_gmm_seed0_mr")

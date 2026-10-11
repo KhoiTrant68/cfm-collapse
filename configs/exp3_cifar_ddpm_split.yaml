@@ -1,8 +1,8 @@
 # Instance variance versus optimisation variance, CIFAR-10 inpainting, DDPM U-Net (35.75M).
 #
-# The three-instance runs in the paper redraw the mask, the training subset and the training
-# randomness together, so their spread cannot say which of the two it comes from. This config
-# is the same problem with the two seeds separable:
+# The three-instance runs in the paper redraw the training subset and the training randomness
+# together (the mask is the fixed bottom half in every run), so their spread cannot say
+# which of the two it comes from. This config is the same problem with the two seeds separable:
 #
 #   problem_seed   the training subset and the observation (InpaintingProblem.create)
 #   seed           weight initialisation, minibatch order, noise draws

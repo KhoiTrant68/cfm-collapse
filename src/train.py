@@ -33,7 +33,7 @@ if _nt:
 from .flows.cfm import CFMTrainer
 from .flows.interpolants import LinearInterpolant
 from .flows.ode_solver import generate_samples
-from .metrics.kernel_theory import cov_expansion, kernel_moments
+from .metrics.kernel_theory import kernel_moments
 from .metrics.memorization import memorization_ratio
 from .metrics.posterior_stats import posterior_sample_stats, sample_covariance_trace
 from .metrics.velocity_error import velocity_error_vs_closed_form

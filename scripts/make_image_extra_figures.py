@@ -19,10 +19,9 @@ from __future__ import annotations
 from pathlib import Path
 
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 
-from scripts.figstyle import COLORS, OI, panel_tag, predicted_rule, save, use_paper_style
+from scripts.figstyle import OI, panel_tag, predicted_rule, save, use_paper_style
 from scripts.make_image_bandwidth_figure import N_COLS, cells
 
 HEADERS = ["observed"] + ["completion"] * 6 + ["true", "nearest\ntrain image"]

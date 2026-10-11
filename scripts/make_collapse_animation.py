@@ -34,7 +34,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 
-from src.metrics.kernel_theory import kernel_field, kernel_weights, kernel_moments
+from src.metrics.kernel_theory import kernel_field, kernel_moments
 from src.problems.linear_gaussian import LinearGaussianProblem
 
 OUT = Path("paper/figures/anim_collapse.gif")

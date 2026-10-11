@@ -24,7 +24,6 @@ import argparse
 import concurrent.futures as cf
 import os
 import subprocess
-import sys
 import time
 from pathlib import Path
 

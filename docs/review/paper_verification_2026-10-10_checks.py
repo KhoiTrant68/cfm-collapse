@@ -4,7 +4,7 @@ scripts/verify_paper_numbers.py. Reads only saved outputs under results/.
 Run from the repo root:
     uv run python docs/review/paper_verification_2026-10-10_checks.py
 """
-import glob, json, pathlib, re
+import json, pathlib, re
 import numpy as np
 import pandas as pd
 

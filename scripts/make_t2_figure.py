@@ -17,7 +17,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 
-from scripts.figstyle import COLORS, H_COLORS, OI, save, style, use_paper_style
+from scripts.figstyle import H_COLORS, OI, save, style, use_paper_style
 
 SRC = Path("results/theory/t2_resolution.json")
 SUM = Path("results/theory/t2_summary.json")

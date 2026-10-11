@@ -21,7 +21,6 @@ import json
 import math
 from pathlib import Path
 
-import numpy as np
 import torch
 from scipy.stats import chi2
 

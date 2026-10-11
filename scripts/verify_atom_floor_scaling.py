@@ -1,4 +1,4 @@
-"""Does the atomicity floor over *i.i.d.* training atoms really scale like N^(-2/d)?
+r"""Does the atomicity floor over *i.i.d.* training atoms really scale like N^(-2/d)?
 
 The paper attributes the floor's scaling to Zador's theorem. Zador is about the
 OPTIMAL N-point quantiser -- the infimum of E dist(X,S)^2 over all N-point sets S --

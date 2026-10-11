@@ -10,8 +10,8 @@
 #
 # Everything is exp3_cifar_ddpm.yaml unchanged: same N, mask, architecture,
 # learning rate, batch and budget. The bandwidth, the seed (which redraws the
-# training subset and mask as well as the training randomness) and the run name
-# are set per run by scripts/kaggle_heff.sh:
+# training subset as well as the training randomness; the mask is the fixed bottom
+# half) and the run name are set per run by scripts/kaggle_heff.sh:
 #     --set run_name=exp3_cifar_heff_h4_s0 seed=0 train.y_noise_h=4.0
 #
 # Cost: seven archived checkpoints at ~430 MB each (a resumable checkpoint carries

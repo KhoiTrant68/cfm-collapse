@@ -23,8 +23,8 @@ import torch
 
 import sys as _sys
 _sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from scripts.figstyle import COLORS, OI, panel_tag, save, use_paper_style  # noqa: E402
-from src.metrics.kernel_theory import kernel_field, kernel_moments, kernel_weights  # noqa: E402
+from scripts.figstyle import panel_tag, save, use_paper_style  # noqa: E402
+from src.metrics.kernel_theory import kernel_moments, kernel_weights  # noqa: E402
 from src.problems.linear_gaussian import LinearGaussianProblem  # noqa: E402
 
 use_paper_style()
