@@ -1,7 +1,7 @@
 """Figure and pooled summary for T2 (spectral-bias model of h_eff).
 
 (a) s(t) = h_eff at h = 0 against kernel time for the three kernels (seed 0, ell = sd(y)),
-    with the predicted slopes -1/beta (Laplace beta = 2, Matern-3/2 beta = 4).
+    with the predicted slopes -1/zeta (Laplace zeta = 2, Matern-3/2 zeta = 4).
 (b) h_eff(t) for each training bandwidth h under the Laplace kernel (seed 0): it falls and
     converges to h (dashed), as a strictly positive-definite kernel must.
 
@@ -22,8 +22,8 @@ from scripts.figstyle import H_COLORS, OI, save, style, use_paper_style
 SRC = Path("results/theory/t2_resolution.json")
 SUM = Path("results/theory/t2_summary.json")
 KC = {"gaussian": OI["sky"], "matern32": OI["orange"], "laplace": OI["vermillion"]}
-KL = {"gaussian": "Gaussian (exponential spectrum)", "matern32": "Matérn-3/2 ($\\beta=4$)",
-      "laplace": "Laplace ($\\beta=2$)"}
+KL = {"gaussian": "Gaussian (exponential spectrum)", "matern32": "Matérn-3/2 ($\\zeta=4$)",
+      "laplace": "Laplace ($\\zeta=2$)"}
 
 
 def main() -> None:
@@ -56,7 +56,7 @@ def main() -> None:
         a1.plot(t, 0.6 * (t / t[0]) ** (-1 / beta), color=KC[kind], ls=":", lw=1.2)
     a1.set_xscale("log"); a1.set_yscale("log")
     a1.set_xlabel("kernel time $t$"); a1.set_ylabel("$s(t)=h_{\\mathrm{eff}}$ at $h=0$")
-    a1.set_title("(a) resolution shrinks as $t^{-1/\\beta}$", loc="left")
+    a1.set_title("(a) resolution shrinks as $t^{-1/\\zeta}$", loc="left")
     a1.legend(loc="lower left", fontsize=8)
     style(a1)
 

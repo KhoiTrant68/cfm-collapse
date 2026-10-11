@@ -424,6 +424,79 @@ _ref = pd.read_csv("results/exp1/_theory/raw/posterior_reference_scales.csv").se
 check("atomic prediction over sampling floor, W2", 4.4,
       float(np.sqrt(_ref.loc[0.5, "sinkhorn_atomic"] / _ref.loc[0.5, "sinkhorn_floor"])), 1e-2)
 
+print("\nNumbers introduced by the round-6 revision (docs/review/simulated_review_round6_2026-10-11.md)")
+# The endpoint-smoothed family and the split by h (Table tab:families, bottom).
+_er = f48["gauss_rho"]
+check("endpoint-smoothed: 0 in rho interval (of 48)", 41, _er["rho_ci_includes_zero"])
+check("endpoint-smoothed: max d rho^2 / trace", 0.08, _er["max_share_of_trace"], 5e-2)
+check("endpoint-smoothed: held-out lower (of 48)", 10, _er["loo_better_than_gauss"])
+check("endpoint-smoothed: held-out equal (of 48)", 21, _er["loo_equal_to_gauss"])
+for hv, gb, lb, r2g, r2l, ci0, mx, lo, eq in (
+        ("0", 7, 3, 0.82, 0.75, 9, 0.06, 6, 4), ("0.01", 8, 3, 0.82, 0.81, 10, 0.08, 1, 5),
+        ("0.05", 11, 1, 0.94, 0.91, 12, 0.03, 1, 6), ("0.1", 10, 2, 0.95, 0.95, 10, 0.07, 2, 6)):
+    s_ = fam["summary"][f"h={hv}, iter>=1e4 (of the 48)"]
+    check(f"h={hv}: gauss / laplace best (of 12)", gb * 100 + lb,
+          s_["best_variance_fit_counts"]["gauss"] * 100 + s_["best_variance_fit_counts"]["laplace"])
+    check(f"h={hv}: median R^2 gauss", r2g, s_["gauss"]["median_r2_var"], 1e-2)
+    check(f"h={hv}: median R^2 laplace", r2l, s_["laplace"]["median_r2_var"], 1e-2)
+    check(f"h={hv}: 0 in rho interval (of 12)", ci0, s_["gauss_rho"]["rho_ci_includes_zero"])
+    check(f"h={hv}: max d rho^2 / trace", mx, s_["gauss_rho"]["max_share_of_trace"], 0.1)
+    check(f"h={hv}: held-out lower / equal", lo * 100 + eq,
+          s_["gauss_rho"]["loo_better_than_gauss"] * 100 + s_["gauss_rho"]["loo_equal_to_gauss"])
+check("h=0: median held-out gain", 0.0007,
+      fam["summary"]["h=0, iter>=1e4 (of the 48)"]["gauss_rho"]["median_loo_gain"], 0.1)
+# Run-level uncertainty of the coverage prediction.
+_u = json.loads(pathlib.Path("results/theory/t3_coverage_uncertainty.json").read_text(encoding="utf-8"))
+check("coverage R^2, run-resampled CI low", 0.85, _u["local_90"]["r2_ci95"][0], 1e-2)
+check("coverage R^2, run-resampled CI high", 0.93, _u["local_90"]["r2_ci95"][1], 1e-2)
+check("coverage R^2, binomial noise ceiling", 0.97, _u["noise_ceiling_r2_90"], 1e-2)
+check("reference-law R^2, CI low", 0.89, _u["ref_90"]["r2_ci95"][0], 1e-2)
+check("reference-law R^2, CI high", 0.96, _u["ref_90"]["r2_ci95"][1], 1e-2)
+# Image-scale held-out calibration (second training of the six h_eff runs).
+_ci = json.loads(pathlib.Path("results/exp3/_rerun/calib_image_summary.json").read_text(encoding="utf-8"))
+_sp, _pa = _ci["spearman"], _ci["partial_given_log_iter"]
+check("image: checkpoints", 42, _ci["n"])
+check("image: Spearman h_eff with coverage", 0.63, _sp["coverage_90"]["h_eff"], 1e-2)
+check("image: Spearman h_eff/h with coverage", 0.36, _sp["coverage_90"]["h_eff_over_h"], 2e-2)
+check("image: Spearman pixel sd with coverage", 0.98, _sp["coverage_90"]["pixel_sd"], 1e-2)
+check("image: partial h_eff | iteration", 0.59, _pa["coverage_90"]["h_eff"], 1e-2)
+check("image: partial pixel sd | iteration", 0.97, _pa["coverage_90"]["pixel_sd"], 1e-2)
+check("image: Spearman iteration with extraction", 0.98, _sp["extraction"]["log_iter"], 1e-2)
+_by = {}
+for r in _ci["rows"]:
+    _by.setdefault(r["iter"], []).append(r)
+for it, key, lo, hi in ((2000, "coverage_90", 0.91, 0.95), (20000, "coverage_90", 0.67, 0.78),
+                        (60000, "coverage_90", 0.72, 0.81), (60000, "extraction", 0.67, 0.76)):
+    v = [r[key] for r in _by[it]]
+    check(f"image: {key} at {it // 1000}k, low", lo, min(v), 1e-2)
+    check(f"image: {key} at {it // 1000}k, high", hi, max(v), 1e-2)
+# A calibrated sampler's coverage by the 5-95% quantile interval of M=64 draws.
+_g = np.random.default_rng(0).random((200000, 65))
+_lo, _hi = np.quantile(_g[:, :64], 0.05, axis=1), np.quantile(_g[:, :64], 0.95, axis=1)
+check("M=64 quantile interval, calibrated coverage", 0.873,
+      float(((_g[:, 64] >= _lo) & (_g[:, 64] <= _hi)).mean()), 5e-3)
+# The second rerun reproduces h_eff.
+_he = {}
+for f in sorted(glob.glob("results/exp3/_rerun/heff_exp3_cifar_heff_h*_s*.json")):
+    d = json.loads(pathlib.Path(f).read_text(encoding="utf-8"))
+    _he[(d["h"], d["seed"])] = d
+check("rerun h_eff at 60k, h=4 seed 0", 4.93,
+      [c["h_eff"] for c in _he[(4.0, 0)]["checkpoints"] if c["iter"] == 60000][0], 5e-3)
+check("rerun h_eff at 60k, h=5 seed 0", 5.65,
+      [c["h_eff"] for c in _he[(5.0, 0)]["checkpoints"] if c["iter"] == 60000][0], 5e-3)
+_ag = [not (c["h_eff_ci"][1] < c["h_means_ci"][0] or c["h_means_ci"][1] < c["h_eff_ci"][0])
+       for d in _he.values() for c in d["checkpoints"] if c["iter"] >= 5000]
+check("rerun: h_eff and h_mean agree from 5k (of 36)", 31, sum(_ag))
+_end = [c["h_eff"] / d["h"] for d in _he.values() for c in d["checkpoints"] if c["iter"] == 60000]
+check("rerun: h_eff/h at 60k, low", 1.13, min(_end), 1e-2)
+check("rerun: h_eff/h at 60k, high", 1.34, max(_end), 1e-2)
+# Prop heffid: the bound against the bootstrap half-widths.
+_t1 = json.loads(pathlib.Path("results/theory/t1_check.json").read_text(encoding="utf-8"))["width_vs_kappa"]
+check("heffid bound holds (of 75)", 75, round(_t1["bound_holds_fraction"] * _t1["n"]))
+check("heffid bound ranks widths, Spearman", 0.91, _t1["spearman_pred_vs_meas"], 1e-2)
+# Audit box: trace error at M=128.
+check("relative trace error at M=128 (%)", 12.5, 100 * np.sqrt(2 / 127), 5e-3)
+
 print("\nsanity: strings the new text depends on")
 for s in (r"\label{sec:cifarddpm}", r"\label{tab:cifarddpm}",
           r"\label{fig:cifartrack}", r"\label{sec:p6exposure}",

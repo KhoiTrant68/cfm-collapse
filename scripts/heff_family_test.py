@@ -24,6 +24,18 @@ Gaussian family: the scale fitted to the log variances, the scale fitted to the 
 log-space R^2 of the variance fit, and how well the variance-fitted reference predicts
 the means (mean error at s_var divided by the best achievable mean error).
 
+The posterior family cannot fail informatively: its trace is the same at every
+condition, so its log-space R^2 is at most 0 by construction. The non-atomic competitor
+that can fail is the endpoint-smoothed mixture of Proposition `prop:tgtnoise`,
+
+    gauss_rho  sum_i p_i^(s)(y) N(x_i, rho^2 I_d):  trace tr Cov_s(y) + d rho^2,
+               mean x_bar_s(y)
+
+which nests the Gaussian at rho = 0. It is fitted over (s, rho) to the log variances and
+compared with the Gaussian by leave-one-condition-out error, so the extra parameter buys
+nothing unless it predicts held-out conditions better. rho-hat at 0 means the variances
+are explained by the atoms alone.
+
 Two stages, so the fit can run anywhere numpy does:
 
     python -m scripts.heff_family_test --stage sample   # torch: draw samples, save stats
@@ -50,6 +62,7 @@ PUBLISHED = Path("results/exp1/_heff/heff_synthetic.json")
 N_BOOT = 500
 GRID = np.exp(np.linspace(np.log(3e-3), np.log(5.0), 240))     # as test_heff_synthetic
 FAMILIES = ("gauss", "laplace", "cauchy", "knn", "posterior")
+RHO_GRID = np.concatenate([[0.0], np.exp(np.linspace(np.log(1e-3), np.log(3.0), 48))])
 
 
 # --------------------------------------------------------------------------- #
@@ -208,6 +221,37 @@ def fit_one(scales, tr_ref, mu_ref, tr_m, mu_m, rng):
             "r2_var_at_smean": r2(ly, lref[gm])}
 
 
+def loo_rmse(se: np.ndarray) -> float:
+    """Leave-one-condition-out log-RMSE. se: (..., n_cond) squared log misfits over a
+    parameter grid; each condition is predicted by the grid point that fits the others."""
+    flat = se.reshape(-1, se.shape[-1])
+    total = flat.sum(1)
+    errs = [flat[int(np.argmin(total - flat[:, c])), c] for c in range(flat.shape[1])]
+    return float(np.sqrt(np.mean(errs)))
+
+
+def fit_rho(scales, tr_ref, tr_m, d: int, rng) -> dict:
+    """The endpoint-smoothed family: trace tr_ref(s) + d rho^2, fitted over (s, rho)."""
+    ly = np.log(tr_m)
+    lref = np.log(np.maximum(tr_ref[:, None, :] + d * RHO_GRID[None, :, None] ** 2, 1e-300))
+    se = (ly[None, None, :] - lref) ** 2                            # (n_s, n_rho, n_cond)
+    flat = se.reshape(-1, len(ly))
+    g = int(np.argmin(flat.sum(1)))
+    gs, gr = np.unravel_index(g, se.shape[:2])
+    counts = np.stack([np.bincount(rng.integers(0, len(ly), len(ly)), minlength=len(ly))
+                       for _ in range(N_BOOT)], axis=1)            # (n_cond, N_BOOT)
+    gb = np.argmin(flat @ counts, axis=0)
+    rho_b = RHO_GRID[np.unravel_index(gb, se.shape[:2])[1]]
+    se_gauss = se[:, 0, :]
+    return {"s": float(scales[gs]), "rho": float(RHO_GRID[gr]),
+            "rho_ci": [float(np.percentile(rho_b, 2.5)), float(np.percentile(rho_b, 97.5))],
+            "rho_zero_share": float(np.mean(rho_b == 0.0)),
+            "share_of_trace": float(d * RHO_GRID[gr] ** 2 / np.mean(tr_m)),
+            "rmse_log": float(np.sqrt(flat[g].mean())),
+            "r2_var": r2(ly, lref[gs, gr]),
+            "loo_rmse": loo_rmse(se), "loo_rmse_gauss": loo_rmse(se_gauss)}
+
+
 def fit_stage() -> None:
     z = np.load(STATS, allow_pickle=False)
     rows = []
@@ -223,6 +267,8 @@ def fit_stage() -> None:
             row = {"run": run, "seed": int(seed), "h": float(h), "iter": int(it)}
             for f in FAMILIES:
                 row[f] = fit_one(*tabs[f], tr_m, mu_m, np.random.default_rng(rng.integers(2**32)))
+            row["gauss_rho"] = fit_rho(tabs["gauss"][0], tabs["gauss"][1], tr_m, X.shape[1],
+                                       np.random.default_rng(rng.integers(2**32)))
             rows.append(row)
 
     # sanity: the gauss family must reproduce the published fit on the same samples
@@ -254,13 +300,26 @@ def fit_stage() -> None:
         out["best_variance_fit_counts"] = {f: best.count(f) for f in atomic}
         bestm = [min(atomic, key=lambda f: r[f]["mean_err_at_svar"]) for r in S]
         out["best_cross_prediction_counts"] = {f: bestm.count(f) for f in atomic}
+        g = [r["gauss_rho"] for r in S]
+        loo_gap = np.array([x["loo_rmse_gauss"] - x["loo_rmse"] for x in g])  # >0: rho helps
+        out["gauss_rho"] = {
+            "rho_hat_zero": int(sum(x["rho"] == 0.0 for x in g)),
+            "rho_ci_includes_zero": int(sum(x["rho_ci"][0] == 0.0 for x in g)),
+            "median_rho": float(np.median([x["rho"] for x in g])),
+            "median_share_of_trace": float(np.median([x["share_of_trace"] for x in g])),
+            "max_share_of_trace": float(np.max([x["share_of_trace"] for x in g])),
+            "loo_better_than_gauss": int((loo_gap > 1e-12).sum()),
+            "loo_equal_to_gauss": int((np.abs(loo_gap) <= 1e-12).sum()),
+            "median_loo_gain": float(np.median(loo_gap))}
         return name, out
 
     summary = dict([
         subset("h<=0.1, iter>=1e4 (the paper's 48)", lambda r: r["h"] <= 0.1 and r["iter"] >= 10000),
         subset("iter>=3000 (the paper's 75)", lambda r: r["iter"] >= 3000),
         subset("h=0.5, iter>=3000", lambda r: r["h"] == 0.5 and r["iter"] >= 3000),
-    ])
+    ] + [subset(f"h={hv:g}, iter>=1e4 (of the 48)",
+                lambda r, hv=hv: r["h"] == hv and r["iter"] >= 10000)
+         for hv in (0.0, 0.01, 0.05, 0.1)])
 
     # Paired, per checkpoint, on the 48: is the Gaussian misfit lower than each rival's?
     # Bootstrap over checkpoints for the median gap; runs count as the coarser unit.
@@ -298,6 +357,12 @@ def fit_stage() -> None:
                   f"{v['at_edge']:>4d}")
         print(f"  lowest variance misfit: {s['best_variance_fit_counts']}")
         print(f"  best mean prediction from the variance fit: {s['best_cross_prediction_counts']}")
+        gr = s["gauss_rho"]
+        print(f"  endpoint-smoothed (gauss+rho): rho-hat = 0 at {gr['rho_hat_zero']}/{s['n']}, "
+              f"CI includes 0 at {gr['rho_ci_includes_zero']}/{s['n']}, median d rho^2 / trace "
+              f"{gr['median_share_of_trace']:.3f} (max {gr['max_share_of_trace']:.3f}); "
+              f"held-out error lower than Gaussian at {gr['loo_better_than_gauss']}/{s['n']}, "
+              f"equal at {gr['loo_equal_to_gauss']}")
     print(f"\nSaved: {OUT}")
 
 
