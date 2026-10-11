@@ -287,7 +287,7 @@ def train(cfg: dict, out_root: str | Path) -> Path:
     print(f"[{cfg['run_name']}] device={device} conditional={conditional} "
           f"N={dc['N']} d={problem.d} k={problem.k} sigma_obs={dc['sigma_obs']} "
           f"width={cfg['model'].get('width')} depth={cfg['model'].get('depth')} "
-          f"optimizer={opt_name} lr={lr} lr_schedule={lr_schedule} "
+          f"optimizer={opt_name} lr={lr} lr_schedule={lr_schedule} weight_decay={wd} "
           f"shuffle_labels={dc.get('shuffle_labels', False)} "
           f"max_iters={max_iters} trace_post={problem.posterior_trace():.5f}")
 
