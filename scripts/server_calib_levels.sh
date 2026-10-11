@@ -1,13 +1,17 @@
 #!/usr/bin/env bash
 # Multi-level and PCA calibration (scripts/calib_image_levels.py) of CIFAR-10 re-runs on
-# the plain server, alongside scripts/server_cifar_queue.sh.
+# the plain server, after scripts/server_cifar_queue.sh.
 #
 #   bash scripts/server_calib_levels.sh <gpu> <run> [<run> ...]
 #
-# A run is analysed once the training queue has finished with it: its "size ...
-# results/exp3/<run>" line in logs/queue_gpu*.log is printed after the checkpoints are
-# stripped. Runs already finished start at once, so this can be launched while the
-# training queue is still running; it then shares the GPU with it.
+# By default nothing starts until that GPU's training queue has printed "queue on GPU
+# <gpu> finished". Sharing the GPU is a bad trade: on an L40, sampling next to a training
+# run slowed the training about 5x while the sampling itself ran at half speed, so the
+# two together got less done than one after the other.
+#
+# WAIT_QUEUE=0 starts at once instead; each run is then analysed as soon as the training
+# queue has finished with it (its "size ... results/exp3/<run>" line in
+# logs/queue_gpu*.log, printed after the checkpoints are stripped).
 #
 # N_TEST and M override the defaults (64 and 64, as in the queue's calibration step).
 set -uo pipefail
@@ -20,6 +24,9 @@ export PYTHONPATH=. PYTHONWARNINGS=ignore OMP_NUM_THREADS=8 CUDA_VISIBLE_DEVICES
 OUT=results/exp3/_rerun
 mkdir -p logs "$OUT"
 
+if [ "${WAIT_QUEUE:-1}" = "1" ]; then
+  until grep -qs "queue on GPU $GPU finished" "logs/queue_gpu$GPU.log"; do sleep 120; done
+fi
 for name in "$@"; do
   until grep -qs "results/exp3/$name\$" logs/queue_gpu*.log; do sleep 120; done
   echo "[$(date '+%F %T')] $name on GPU $GPU"
