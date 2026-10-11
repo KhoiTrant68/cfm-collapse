@@ -1,110 +1,120 @@
 # Work Order — cfm-collapse
 
-**Đọc `docs/THEORY.md` trước.** File này giả định bạn đã đọc nó. Mọi tham chiếu dạng
-"Prop 17", "Thm 10" đều trỏ vào đó.
+**Read `docs/THEORY.md` first.** This file assumes you have read it. Every reference of
+the form "Prop 17", "Thm 10" points there.
 
-**Nguyên tắc bất di bất dịch:** đây là dự án kiểm chứng lý thuyết. Không sửa số liệu,
-không chọn seed thuận lợi, không tinh chỉnh để ép ra kết quả mong muốn. Nếu số không
-khớp lý thuyết, báo cáo trung thực — đó là thông tin, không phải lỗi.
+**Non-negotiable rule:** this is a theory-verification project. Do not edit numbers, do
+not pick favourable seeds, do not tune to force the desired result. If a number does not
+match the theory, report it honestly: that is information, not a bug.
+
+> **Status (2026-10-11).** T1-T9 are done; see `results/RESULTS.md` for what each task
+> produced. This file is kept as the record of what was asked. Some of the numbers it
+> quotes were later revised: in particular, the §0 table below was computed before the
+> kernel module existed, and the values measured with `src/metrics/kernel_theory.py`
+> (RESULTS.md, P7 section) replace it.
 
 ---
 
-## 0. Phát hiện quan trọng nhất (đọc kỹ trước khi làm bất cứ việc gì)
+## 0. The most important finding (read carefully before doing anything)
 
-Theorem 10 cho một **đường tham chiếu chính xác, hữu hạn-N, không có tham số tự do**:
+Theorem 10 gives an **exact, finite-N reference with no free parameters**:
 
 ```
 Cov_h(y) = Σ_j p_j^(h)(y) (x^j − x̄_h)(x^j − x̄_h)ᵀ,   p_j^(h)(y) ∝ K_h(y − y^j)
 ```
 
-tính trực tiếp từ training set. Mình đã tính thử trên chính dữ liệu trong repo
-(`p7y_h*_seed0`, tại 200k iter, trung bình trên 20 điểm điều kiện):
+computed directly from the training set. I computed it on the data already in the repo
+(`p7y_h*_seed0`, at 200k iterations, averaged over 20 conditioning points):
 
-| h | `tr Cov_h` (Thm 10, chính xác) | đo được | `tr Σ_post` | n_eff |
+| h | `tr Cov_h` (Thm 10, exact) | measured | `tr Σ_post` | n_eff |
 |------|------|------|------|------|
 | 0.01 | 0.427 | 0.472 | 1.004 | 2.2 |
 | 0.05 | 0.973 | 0.800 | 1.004 | 8.2 |
 | 0.1  | **1.145** | **0.812** | 1.004 | 15.4 |
 | 0.5  | 1.244 | 1.218 | 1.004 | 61.9 |
 
-`n_eff = 1/Σ_j p_j²` = số nguyên tử training thực sự có trọng số.
+`n_eff = 1/Σ_j p_j²` = the number of training atoms that actually carry weight.
 
-**Ba hệ quả bắt buộc phải phản ánh vào RESULTS.md:**
+**Three consequences that must be reflected in RESULTS.md:**
 
-1. **Claim "khôi phục hoàn hảo tại h≈0.1" là sai.** Nó dựa trên việc so với
-   `tr Σ_post = 1.004`. Nhưng mục tiêu đúng của model tại `h=0.1` là `Cov_h = 1.145`,
-   và model đạt 0.812 — tức chỉ **71%** của population optimum. Không có "khôi phục
-   hoàn hảo"; có một khoảng cách representation/optimisation còn lại. Việc nó *tình cờ*
-   đi ngang qua `tr Σ_post` là trùng hợp, không phải thành công.
+1. **The claim "perfect restoration at h≈0.1" is wrong.** It rests on comparing with
+   `tr Σ_post = 1.004`. But the right target for the model at `h=0.1` is
+   `Cov_h = 1.145`, and the model reaches 0.812, i.e. only **71%** of the population
+   optimum. There is no "perfect restoration"; a representation/optimisation gap
+   remains. That it *happens* to cross `tr Σ_post` is a coincidence, not a success.
 
-2. **Lý thuyết kernel dự đoán tốt hơn hẳn baseline.** Ở `h=0.01` (0.427 vs 0.472) và
-   `h=0.5` (1.244 vs 1.218), Thm 10 khớp trong khi `Σ_post` lệch 2×. Đây là bằng chứng
-   mạnh nhất trong toàn bộ dự án — mạnh hơn `rel.err` của velocity field, vì nó test
-   **endpoint law**, không chỉ test trường vận tốc.
+2. **The kernel theory predicts far better than the baseline.** At `h=0.01`
+   (0.427 vs 0.472) and `h=0.5` (1.244 vs 1.218), Thm 10 matches while `Σ_post` is off
+   by 2×. This is the strongest evidence in the whole project, stronger than the
+   `rel.err` of the velocity field, because it tests the **endpoint law**, not only the
+   velocity field.
 
-3. **Ở `h=0.5`, variance vượt `Σ_post`** (1.22 > 1.00) đúng như số hạng `h²‖J‖²_F` của
-   Prop 15 dự đoán. `‖J‖²_F = 0.4031` (tính chính xác từ `A` đã lưu). Nhánh phải của
-   chữ U là over-smoothing, không phải nhiễu.
+3. **At `h=0.5` the variance exceeds `Σ_post`** (1.22 > 1.00), exactly as the
+   `h²‖J‖²_F` term of Prop 15 predicts. `‖J‖²_F = 0.4031` (computed exactly from the
+   saved `A`). The right branch of the U is over-smoothing, not noise.
 
-Tất cả task dưới đây đều xoay quanh việc khai thác đúng phát hiện này.
+Every task below is about exploiting this finding correctly.
 
 ---
 
-## 1. Trạng thái hiện tại
+## 1. Current state
 
-### Đã đạt được
+### Achieved
 
-**Lý thuyết** (sau khi có `docs/THEORY.md` — trước đó chưa có):
-- Toàn bộ population theory đã chặt, không còn giả định treo. `Lemma 3` chứng minh
-  well-posedness nên Prop 5 / Thm 10 không cần "assume the flow is well defined" nữa.
-- Bổ đề tương phản unconditional đã sửa đúng (Cor 6): unconditional **cũng** memorize
-  toàn bộ empirical support; khác biệt nằm ở conditional variance.
-- Prop 17 mới: nhiễu interpolant **không** đổi endpoint law với mọi σ — có nghiệm
-  đóng `x_t = t x^i + s_t x₀`, đã verify symbolic.
-- Prop 14 mới: `p_h^gen` atomic với mọi h ⇒ cận dưới `W₂` độc lập h.
-- Prop 15 mới: khai triển `Cov_h = Σ + h²JJᵀ + …`, cho EXP-1 có dạng đóng.
-- Prop 20/Cor 21: cận dưới representation, đại số đã kiểm.
+**Theory** (since `docs/THEORY.md` exists; it did not before):
+- The whole population theory is tight, with no dangling assumptions. `Lemma 3` proves
+  well-posedness, so Prop 5 / Thm 10 no longer need "assume the flow is well defined".
+- The unconditional contrast lemma is corrected (Cor 6): the unconditional model
+  **also** memorises the whole empirical support; the difference lies in the
+  conditional variance.
+- New Prop 17: interpolant noise does **not** change the endpoint law for any σ; it has
+  the closed-form solution `x_t = t x^i + s_t x₀`, verified symbolically.
+- New Prop 14: `p_h^gen` is atomic for every h ⇒ a `W₂` lower bound independent of h.
+- New Prop 15: the expansion `Cov_h = Σ + h²JJᵀ + …`, in closed form for EXP-1.
+- Prop 20/Cor 21: a representation lower bound, with the algebra checked.
 
-**Thực nghiệm** (đã có trong repo, tin cậy):
-- EXP-1: P1/P2/P3/P4 khớp; đối chứng unconditional rõ ràng; run mở rộng 1M iter cho
-  thấy `trace(Cov)`, `vel_err`, `‖mean−x^i‖`, `loss` cùng giảm — xác nhận chúng là một
-  hiện tượng.
-- Pha "Bayes đúng" tới ~10⁴ iter đo được — giải thích vì sao early stopping hoạt động.
-- P6 (quét N): đơn điệu rõ, 0.05 → 0.98.
-- EXP-2 (GMM): mode coverage 1.00 → 0.72, MMD tăng ~40×.
-- EXP-3 (MNIST): pixel-variance giảm ~100×, dist tới ảnh NN-train → 0.0005.
-- `sanity_checks.py`: residual 1.8e-15, không rò rỉ `y`. Giữ nguyên, chạy trong CI.
+**Experiments** (already in the repo, reliable):
+- EXP-1: P1/P2/P3/P4 match; the unconditional control is clear; the extended 1M-iteration
+  run shows `trace(Cov)`, `vel_err`, `‖mean−x^i‖` and `loss` falling together,
+  confirming that they are one phenomenon.
+- The "correct Bayes" phase up to ~10⁴ iterations is measurable, which explains why
+  early stopping works.
+- P6 (N sweep): clearly monotone, 0.05 → 0.98.
+- EXP-2 (GMM): mode coverage 1.00 → 0.72, MMD grows ~40×.
+- EXP-3 (MNIST): pixel variance falls ~100×, distance to the nearest training image →
+  0.0005.
+- `sanity_checks.py`: residual 1.8e-15, no `y` leak. Keep it as is, run it in CI.
 
-### Chưa đạt được
+### Not yet achieved
 
-| # | Vấn đề | Mức |
+| # | Problem | Severity |
 |---|---|---|
-| G1 | Claim P7 "khôi phục hoàn hảo" sai chuẩn tham chiếu (xem §0) | **Cao** |
-| G2 | Chưa có metric nào so với `Cov_h`; toàn bộ P7 so với `Σ_post` | **Cao** |
-| G3 | Target stochastic interpolant sai (thiếu `γ̇(t)Z`) | **Cao** |
-| G4 | Kết quả verify kernel `(†)/(‡)` chỉ có 1 file PNG, không có số trong RESULTS.md | **Cao** |
-| G5 | Chưa đo `L(v_θ) − L(v_h⋆)` (Question B) | Trung bình |
-| G6 | Chưa ước lượng Lipschitz ⇒ chưa tách được representation vs optimisation gap | Trung bình |
-| G7 | Chưa đo Sinkhorn/MMD tới posterior **thật** cho EXP-1 (chỉ có cho EXP-2) | Trung bình |
-| G8 | Sweep P5–P7 chỉ 2–3 seed, bảng không có error bar | Trung bình |
-| G9 | P5 bị mô tả là "prediction failed" — sai logic (xem Part E) | Trung bình |
-| G10 | §2.22 không có một trích dẫn nào | Trung bình |
-| G11 | EXP-3 chỉ 1 seed, N=500, chưa quét N | Thấp |
-| G12 | Run mở rộng diverge ~1M iter với lr cố định | Thấp |
+| G1 | The P7 claim "perfect restoration" uses the wrong reference (see §0) | **High** |
+| G2 | No metric compares with `Cov_h`; all of P7 compares with `Σ_post` | **High** |
+| G3 | The stochastic-interpolant target is wrong (missing `γ̇(t)Z`) | **High** |
+| G4 | The kernel verification results `(†)/(‡)` exist only as one PNG, with no numbers in RESULTS.md | **High** |
+| G5 | `L(v_θ) − L(v_h⋆)` not yet measured (Question B) | Medium |
+| G6 | No Lipschitz estimate yet ⇒ the representation and optimisation gaps cannot be separated | Medium |
+| G7 | No Sinkhorn/MMD to the **true** posterior for EXP-1 yet (only for EXP-2) | Medium |
+| G8 | The P5-P7 sweeps have only 2-3 seeds, and the tables have no error bars | Medium |
+| G9 | P5 is described as "prediction failed", which is a logical error (see Part E) | Medium |
+| G10 | §2.22 has no citation at all | Medium |
+| G11 | EXP-3 has only 1 seed, N=500, no N sweep yet | Low |
+| G12 | The extended run diverges near 1M iterations with a fixed LR | Low |
 
 ---
 
-## 2. Task
+## 2. Tasks
 
-Làm **theo thứ tự**. T1–T4 là cốt lõi; đừng bắt đầu T5+ trước khi T1–T4 xong.
+Work **in order**. T1-T4 are the core; do not start T5+ before T1-T4 are done.
 
 ---
 
-### T1 — Thêm module lý thuyết kernel + metric `Cov_h`  ⚠️ **ưu tiên cao nhất**
+### T1 — Add the kernel theory module + the `Cov_h` metric  ⚠️ **highest priority**
 
-**File mới:** `src/metrics/kernel_theory.py`
+**New file:** `src/metrics/kernel_theory.py`
 
-Implement, dùng log-sum-exp toàn bộ (bandwidth nhỏ sẽ tràn số nếu không):
+Implement, using log-sum-exp throughout (small bandwidths overflow otherwise):
 
 ```python
 def kernel_weights(y_q, Y, h):
@@ -112,230 +122,235 @@ def kernel_weights(y_q, Y, h):
     h == 0: point mass on argmin |y_q − y^j| (Corollary 11)."""
 
 def kernel_moments(y_q, X, Y, h):
-    """-> (x_bar, Cov, n_eff) theo Prop 13. n_eff = 1/sum(p**2)."""
+    """-> (x_bar, Cov, n_eff) per Prop 13. n_eff = 1/sum(p**2)."""
 
 def kernel_field(x, t, y_q, X, Y, h, source_std=1.0):
-    """v_h*(x,t,y_q) theo Prop 8, eq (8.1).  x:(P,d), t:(P,) -> (P,d)"""
+    """v_h*(x,t,y_q) per Prop 8, eq (8.1).  x:(P,d), t:(P,) -> (P,d)"""
 
 def cov_expansion(problem, h):
-    """Prop 15 dạng đóng cho linear-Gaussian:
+    """Prop 15 in closed form for the linear-Gaussian problem:
        tr Σ_post + h² ||J||_F²,  J = Σ_post Aᵀ / σ_obs².
-       Trả về (predicted_trace, J_fro_sq)."""
+       Returns (predicted_trace, J_fro_sq)."""
 ```
 
-**Ghép vào eval loop** (`src/train.py`, chỗ đang tính `trace_cov_mean`). Thêm cột vào
-`raw/metrics.csv`:
+**Wire it into the eval loop** (`src/train.py`, where `trace_cov_mean` is computed). Add
+columns to `raw/metrics.csv`:
 
 ```
-trace_cov_kernel      # tr Cov_h(y^i) từ Thm 10, chính xác
-n_eff                 # số nguyên tử hiệu dụng
-ratio_to_kernel       # trace_cov_mean / trace_cov_kernel   <-- metric CHÍNH mới
+trace_cov_kernel      # tr Cov_h(y^i) from Thm 10, exact
+n_eff                 # effective number of atoms
+ratio_to_kernel       # trace_cov_mean / trace_cov_kernel   <-- the new MAIN metric
 mean_err_kernel       # ||mean(samples) − x̄_h(y^i)||
 ```
 
-Giữ nguyên `trace_post`, `ratio_to_post` — nhưng **`ratio_to_kernel` mới là đại lượng
-đo mức đạt tới population optimum.** `ratio_to_post` chỉ còn là đại lượng phụ.
+Keep `trace_post` and `ratio_to_post`, but **`ratio_to_kernel` is now the quantity that
+measures how close the model gets to the population optimum.** `ratio_to_post` becomes a
+secondary quantity.
 
 **Acceptance:**
-- Test đơn vị: `h → 0` cho `kernel_weights` hội tụ về one-hot tại nearest label (Cor 11);
-  `h → ∞` hội tụ về `1/N` (Cor 12); `kernel_field(σ=0, h=0)` khớp
-  `closed_form_velocity` trong `src/flows/interpolants.py` tới `1e-6`.
-- Chạy lại eval trên checkpoint đã có (không cần train lại) và **tái hiện đúng bảng ở
-  §0**: 0.427 / 0.973 / 1.145 / 1.244. Sai lệch >1% nghĩa là có bug.
-- `cov_expansion` trả `‖J‖²_F = 0.4031` cho config mặc định `d=2,k=1,σ_obs=0.1`.
+- Unit tests: as `h → 0`, `kernel_weights` converges to one-hot at the nearest label
+  (Cor 11); as `h → ∞` it converges to `1/N` (Cor 12); `kernel_field(σ=0, h=0)` matches
+  `closed_form_velocity` in `src/flows/interpolants.py` to `1e-6`.
+- Re-run the eval on the existing checkpoints (no retraining needed) and **reproduce the
+  table in §0 exactly**: 0.427 / 0.973 / 1.145 / 1.244. A deviation above 1% means a bug.
+- `cov_expansion` returns `‖J‖²_F = 0.4031` for the default config `d=2,k=1,σ_obs=0.1`.
 
 ---
 
-### T2 — Sửa target stochastic interpolant + verify Prop 17
+### T2 — Fix the stochastic-interpolant target + verify Prop 17
 
 **File:** `src/flows/interpolants.py`
 
-Bug hiện tại: khi `sigma > 0`, `target` vẫn là `x1 - x0`. Đúng phải là (C.2):
+Current bug: when `sigma > 0`, `target` is still `x1 - x0`. It should be (C.2):
 
 ```
 γ(t)  = σ·sqrt(t(1−t))
 γ̇(t) = σ(1−2t) / (2·sqrt(t(1−t)))
-target = x1 − x0 + γ̇(t)·Z          # cùng Z đã dùng để tạo x_t
+target = x1 − x0 + γ̇(t)·Z          # the same Z used to build x_t
 ```
 
-Bắt buộc dùng **cùng** `Z` cho cả `x_t` và target. `γ̇` phân kỳ ở `t→0,1` (khả tích,
-bậc `|t(1−t)|^{-1/2}`); clamp `t ∈ [ε, 1−ε]`, `ε = 1e-4`, và **ghi comment rằng đây là
-xử lý kỳ dị có chủ đích**. Xoá đoạn docstring biện minh "close enough for qualitative
-comparison" — nó không đúng.
+The **same** `Z` must be used for both `x_t` and the target. `γ̇` diverges as `t→0,1`
+(integrably, of order `|t(1−t)|^{-1/2}`); clamp `t ∈ [ε, 1−ε]`, `ε = 1e-4`, and **add a
+comment saying this is a deliberate treatment of the singularity**. Delete the docstring
+passage justifying it as "close enough for qualitative comparison": it is not true.
 
-**File mới:** `scripts/verify_prop17.py` — kiểm nghiệm đóng, không cần mạng:
+**New file:** `scripts/verify_prop17.py`, closed-form checks, no network needed:
 
-1. `s_t² = (1−t)² + σ²t(1−t)`; kiểm `c(t) = ½·d/dt log s_t²` bằng sai phân số.
-2. Tích phân ODE `ẋ = x^i + c(t)(x − t x^i)` bằng RK4 từ nhiều `x₀`;
-   kiểm khớp `x_t = t x^i + s_t x₀` (Prop 17b) tới `1e-6`.
-3. Kiểm endpoint `x_{1−1e-3} → x^i` với `σ ∈ {0, 0.1, 0.3, 1.0}` — **bất biến theo σ**.
-4. Kiểm `(1−t)|c(t)| → 1` khi `σ=0` và `→ ½` khi `σ>0` (Cor 18).
+1. `s_t² = (1−t)² + σ²t(1−t)`; check `c(t) = ½·d/dt log s_t²` by finite differences.
+2. Integrate the ODE `ẋ = x^i + c(t)(x − t x^i)` with RK4 from many `x₀`; check it
+   matches `x_t = t x^i + s_t x₀` (Prop 17b) to `1e-6`.
+3. Check the endpoint `x_{1−1e-3} → x^i` for `σ ∈ {0, 0.1, 0.3, 1.0}`: **invariant in
+   σ**.
+4. Check `(1−t)|c(t)| → 1` when `σ=0` and `→ ½` when `σ>0` (Cor 18).
 
-**Acceptance:** cả 4 kiểm tra pass. Chạy lại `p7i_sig{0.1,0.3}` với target đã sửa,
-3 seed. **Dự đoán: variance vẫn KHÔNG được khôi phục** (Prop 17c) — nếu kết quả mới vẫn
-~0.4 thì đó là *xác nhận lý thuyết*, hãy báo cáo như vậy, không phải như một thất bại.
+**Acceptance:** all 4 checks pass. Re-run `p7i_sig{0.1,0.3}` with the corrected target,
+3 seeds. **Prediction: the variance is still NOT restored** (Prop 17c). If the new
+result is still ~0.4, that is a *confirmation of the theory*; report it as such, not as
+a failure.
 
 ---
 
-### T3 — Đưa số verify kernel vào manuscript
+### T3 — Put the kernel verification numbers in the manuscript
 
-**File:** `scripts/verify_kernel_theory.py` (đã có, mở rộng), `results/RESULTS.md`
+**Files:** `scripts/verify_kernel_theory.py` (exists, extend it), `results/RESULTS.md`
 
-Script hiện chỉ ghi PNG. Thêm:
-- Xuất `results/exp1/_theory/raw/kernel_verification.csv` với các cột
+The script currently writes only a PNG. Add:
+- Write `results/exp1/_theory/raw/kernel_verification.csv` with the columns
   `h, rel_err_vs_kernel, rel_err_vs_star, tv_mixture, n_eff, seed`.
-- Chạy trên **tất cả** `p7y_h*` × tất cả seed, không chỉ seed 0.
-- Sửa reference `§2.X` trong docstring thành `docs/THEORY.md Prop 8 / Thm 10`.
+- Run it on **all** `p7y_h*` × all seeds, not only seed 0.
+- Change the `§2.X` reference in the docstring to `docs/THEORY.md Prop 8 / Thm 10`.
 
-**Acceptance:** RESULTS.md có một bảng số thật cho `(†)` và `(‡)`, không chỉ hình.
-Kỳ vọng: `rel_err_vs_kernel < rel_err_vs_star` với mọi `h > 0`, và khoảng cách nới rộng
-khi `h` tăng.
+**Acceptance:** RESULTS.md has a table of real numbers for `(†)` and `(‡)`, not only a
+figure. Expected: `rel_err_vs_kernel < rel_err_vs_star` for every `h > 0`, with the gap
+widening as `h` grows.
 
 ---
 
-### T4 — Viết lại các claim trong RESULTS.md
+### T4 — Rewrite the claims in RESULTS.md
 
 **File:** `results/RESULTS.md`
 
-1. **Mục P7** — viết lại theo §0. Bảng mới phải có cột `Cov_h` (Thm 10) bên cạnh
-   `Σ_post` và giá trị đo. Bỏ chữ "khôi phục hoàn hảo". Thay bằng: model đạt 71%
-   population optimum tại `h=0.1`; phần còn lại là representation/optimisation gap.
+1. **P7 section**: rewrite according to §0. The new table must have a `Cov_h` (Thm 10)
+   column next to `Σ_post` and the measured value. Drop the words "perfect
+   restoration". Replace them with: the model reaches 71% of the population optimum at
+   `h=0.1`; the rest is a representation/optimisation gap.
 
-2. **Thêm caveat atomicity** (Prop 14) vào mục P7:
-   > Label smoothing tái phân bố trọng số trên các điểm training, không sinh mẫu mới.
-   > `p_h^gen` là atomic với mọi `h`, trong khi posterior thật liên tục — Prop 14 cho
-   > cận dưới `W₂` **độc lập với h**. Khớp trace covariance là khớp mô-men bậc hai,
-   > không phải khôi phục posterior. `n_eff` (bảng §0) cho thấy ngay cả `h=0.5` cũng
-   > chỉ có ~62/200 nguyên tử mang trọng số.
+2. **Add the atomicity caveat** (Prop 14) to the P7 section:
+   > Label smoothing redistributes weight over the training points; it does not generate
+   > new samples. `p_h^gen` is atomic for every `h`, while the true posterior is
+   > continuous: Prop 14 gives a `W₂` lower bound **independent of h**. Matching the
+   > covariance trace matches a second moment, not the posterior. `n_eff` (the §0 table)
+   > shows that even at `h=0.5` only ~62/200 atoms carry weight.
 
-3. **Mục P5** — bỏ nhãn "KHÔNG khớp". Dùng đúng câu chữ ở Part E:
-   > Lý thuyết population không xác định sự phụ thuộc của collapse vào `σ_obs`; kết quả
-   > phẳng quan sát được là một phát hiện thực nghiệm. Nó nhất quán với cơ chế
-   > định-danh-qua-`y`, vốn đúng với mọi `σ_obs > 0`.
+3. **P5 section**: drop the label "does NOT match". Use the exact wording of Part E:
+   > The population theory does not determine how the collapse depends on `σ_obs`; the
+   > flat result observed is an empirical finding. It is consistent with the
+   > identification-through-`y` mechanism, which holds for every `σ_obs > 0`.
 
-4. **Mục P6** — dùng câu chữ Part E: population optimum vẫn collapse với mọi N hữu hạn;
-   việc `N=5000` không sụp cho thấy khoảng cách giữa nghiệm chính xác và regime
-   representation/optimisation, **không** bác bỏ Prop 4.
+4. **P6 section**: use the Part E wording: the population optimum still collapses for
+   every finite N; that `N=5000` does not collapse shows the gap between the exact
+   solution and the representation/optimisation regime, and does **not** refute Prop 4.
 
-5. **Mục P4** — sửa diễn giải. Unconditional **có** memorize (Cor 6);
-   `trace(Cov) ≈ trace(Cov data)` chính là (6.1), không phải bằng chứng
-   "không memorize".
+5. **P4 section**: fix the interpretation. The unconditional model **does** memorise
+   (Cor 6); `trace(Cov) ≈ trace(Cov data)` is exactly (6.1), not evidence of "no
+   memorisation".
 
-**Acceptance:** không còn chỗ nào trong RESULTS.md gọi một đại lượng ở danh sách
-"không được xác định" (Part E) là "dự đoán lý thuyết" đã "khớp" hoặc "không khớp".
+**Acceptance:** nothing in RESULTS.md calls a quantity on the "not determined" list
+(Part E) a "theoretical prediction" that "matched" or "did not match".
 
 ---
 
-### T5 — Đo khoảng cách tới population optimum (Question B)
+### T5 — Measure the distance to the population optimum (Question B)
 
-**File mới:** `scripts/measure_optimality_gap.py`
+**New file:** `scripts/measure_optimality_gap.py`
 
-Với mỗi checkpoint, ước lượng bằng Monte-Carlo trên cùng batch:
+For each checkpoint, estimate by Monte Carlo on the same batch:
 
 ```
-L(v_θ)                                  # loss thực nghiệm
-L(v_h*)   = E[Var(U | X_t,t,Ỹ)]         # tính bằng kernel_field, = 0 khi h=0
+L(v_θ)                                  # the empirical loss
+L(v_h*)   = E[Var(U | X_t,t,Ỹ)]         # computed with kernel_field, = 0 when h=0
 gap       = L(v_θ) − L(v_h*)
 ```
 
-Với `h=0` thì `L(v_h*) = 0` (Prop 4b) nên `gap = L(v_θ)` — đây chính là đại lượng đã
-log sẵn. Giá trị mới nằm ở `h > 0`.
+At `h=0`, `L(v_h*) = 0` (Prop 4b), so `gap = L(v_θ)`, the quantity already logged. The
+new values are at `h > 0`.
 
-**Acceptance:** `gap ≥ 0` với mọi checkpoint (nếu âm ⇒ bug). Vẽ `gap` theo iteration
-cho từng `h`, đặt cạnh `ratio_to_kernel`.
-
----
-
-### T6 — Ước lượng Lipschitz, tách representation vs optimisation
-
-**File mới:** `scripts/estimate_lipschitz.py`
-
-Hai ước lượng, báo cáo cả hai:
-- **Cận dưới (thực nghiệm):** power iteration trên `∂v_θ/∂x` tại các `(x,t)` lấy mẫu
-  trên manifold, quét `t ∈ {0.5, 0.9, 0.99, 0.999}`. Báo `L(t)`, không chỉ `max_t`.
-- **Cận trên (thô):** tích spectral norm các lớp tuyến tính.
-
-So `d/(3L)` (Cor 21) với `L_trained` đã đo.
-
-**Acceptance:** một bảng `t | L(t) | d/(3L(t)) | L_trained`. Kết quả **dự kiến** là
-`d/(3L) ≪ L_trained` ⇒ kết luận: plateau chủ yếu là **optimisation gap**, không phải
-representation. Đây là kết luận sạch và có giá trị — hãy báo cáo thẳng kể cả khi nó
-làm Cor 21 thành không-bind. Ghi rõ trong RESULTS.md rằng Cor 21 là cận dưới, và cận
-dưới không bind thì không có nghĩa là lý thuyết sai.
+**Acceptance:** `gap ≥ 0` at every checkpoint (negative ⇒ bug). Plot `gap` against
+iteration for each `h`, next to `ratio_to_kernel`.
 
 ---
 
-### T7 — Thêm metric khoảng cách tới posterior thật cho EXP-1
+### T6 — Estimate the Lipschitz constant, separate representation from optimisation
 
-**File:** `src/metrics/distances.py` (đã có Sinkhorn/MMD cho EXP-2 — tái dùng)
+**New file:** `scripts/estimate_lipschitz.py`
 
-EXP-1 có posterior giải tích `N(μ_post(y), Σ_post)` nên lấy mẫu ground truth trực tiếp
-được. Thêm `sinkhorn_to_true_posterior` và `mmd_to_true_posterior` vào eval loop EXP-1.
+Two estimates, report both:
+- **Lower bound (empirical):** power iteration on `∂v_θ/∂x` at `(x,t)` sampled on the
+  manifold, sweeping `t ∈ {0.5, 0.9, 0.99, 0.999}`. Report `L(t)`, not only `max_t`.
+- **Upper bound (crude):** the product of the spectral norms of the linear layers.
 
-**Acceptance:** báo cáo cùng với trace covariance ở mục P7. Kỳ vọng theo Prop 14:
-khoảng cách này **không** về 0 tại bất kỳ `h` nào, kể cả `h` tối ưu cho trace covariance
-— đây là kiểm chứng trực tiếp cho cận dưới atomicity, và là bằng chứng cho thấy
-"khôi phục variance" ≠ "khôi phục posterior".
+Compare `d/(3L)` (Cor 21) with the measured `L_trained`.
 
----
-
-### T8 — Seed và error bar
-
-**File:** `scripts/run_sweeps.py`, `scripts/analyze_sweeps.py`
-
-Nâng lên **5 seed** cho toàn bộ P5, P6, P7y, P7i, d/k. Mọi bảng trong RESULTS.md báo
-`mean ± std`. Với P5, kiểm định luôn: chênh lệch giữa các `σ_obs` có vượt biến động
-giữa seed không? (Với `std ≈ 0.13` trên `mean ≈ 0.40`, nhiều khả năng là **không** —
-và điều đó cần nói ra.)
-
-**Acceptance:** không bảng nào trong RESULTS.md còn thiếu error bar.
+**Acceptance:** a table `t | L(t) | d/(3L(t)) | L_trained`. The **expected** result is
+`d/(3L) ≪ L_trained` ⇒ conclusion: the plateau is mainly an **optimisation gap**, not a
+representation gap. This is a clean and valuable conclusion; report it plainly even if it
+makes Cor 21 non-binding. State clearly in RESULTS.md that Cor 21 is a lower bound, and
+that a non-binding lower bound does not mean the theory is wrong.
 
 ---
 
-### T9 — Trích dẫn
+### T7 — Add a distance-to-the-true-posterior metric for EXP-1
 
-**File:** `docs/THEORY.md` §Positioning, `results/RESULTS.md`
+**File:** `src/metrics/distances.py` (already has Sinkhorn/MMD for EXP-2; reuse it)
 
-Thêm trích dẫn thật cho dòng literature memorization: Pidstrigach (2022); Gu et al.,
-*On Memorization in Diffusion Models*; Kadkhodaie et al. (2024); Biroli & Mézard;
-Kamb & Ganguli. Nêu rõ đóng góp riêng là 5 điểm ở cuối `docs/THEORY.md`, **không phải**
-bản thân quan sát "empirical minimizer memorizes".
+EXP-1 has the analytic posterior `N(μ_post(y), Σ_post)`, so ground-truth samples can be
+drawn directly. Add `sinkhorn_to_true_posterior` and `mmd_to_true_posterior` to the
+EXP-1 eval loop.
 
----
-
-### T10 — Tuỳ chọn, làm sau cùng
-
-- **T10a:** chạy lại EXP-1 mở rộng với cosine lr-decay để đạt collapse sâu hơn mà không
-  diverge. Đối chiếu `ratio_to_kernel` cuối cùng với 0.
-- **T10b:** held-out `y`: báo cáo **median + số ca phân kỳ**, không dùng mean (mean đang
-  bị chi phối bởi blow-up: 6e4 ± 1.2e5 là vô nghĩa).
-- **T10c:** EXP-3 thêm seed, quét `N ∈ {500, 5000}`.
-- **T10d:** thêm `n_eff` vào EXP-2/EXP-3 để nối mode coverage với lý thuyết kernel.
+**Acceptance:** report them with the covariance trace in the P7 section. Expected from
+Prop 14: this distance does **not** go to 0 at any `h`, including the `h` that is
+optimal for the covariance trace. This is a direct check of the atomicity lower bound,
+and evidence that "restoring the variance" ≠ "restoring the posterior".
 
 ---
 
-## 3. Ghi chú kỹ thuật
+### T8 — Seeds and error bars
 
-- **Ổn định số:** mọi tính toán kernel phải log-sum-exp. Với `h=0.01` và `k=1`, tỉ số
-  `K_h` giữa các nguyên tử vượt `1e300` dễ dàng.
-- **`h=0` trong `kernel_weights`:** không chia cho 0 — dùng nhánh point-mass tại nearest
-  label (Cor 11).
-- **Kỳ dị `t=1`:** giữ nguyên quy ước hiện có (`t_max=0.95` cho velocity error,
-  dừng ODE tại `1−1e-3`). Ghi comment là xử lý có chủ đích.
-- **Không train lại nếu không cần:** T1, T3, T5, T6 đều chạy được trên checkpoint đã có.
-  Chỉ T2 (target mới) và T8 (thêm seed) cần train.
-- **Reproducibility:** giữ nguyên quy ước fix seed + lưu `config.yaml` + `problem.json`
-  mỗi run.
+**Files:** `scripts/run_sweeps.py`, `scripts/analyze_sweeps.py`
+
+Raise every P5, P6, P7y, P7i and d/k sweep to **5 seeds**. Every table in RESULTS.md
+reports `mean ± std`. For P5, also test: does the difference between `σ_obs` values
+exceed the seed-to-seed variation? (With `std ≈ 0.13` on `mean ≈ 0.40`, most likely
+**not**, and that needs to be said.)
+
+**Acceptance:** no table in RESULTS.md lacks error bars.
 
 ---
 
-## 4. Định nghĩa "xong"
+### T9 — Citations
 
-1. `docs/THEORY.md` nằm trong repo, mọi mệnh đề đều có chứng minh, không còn "assume".
-2. `ratio_to_kernel` là metric chính trong mọi bảng P7; `ratio_to_post` chỉ là phụ.
-3. Bảng ở §0 tái hiện được bằng code trong repo (sai số <1%).
-4. Target stochastic interpolant đã sửa; `verify_prop17.py` pass; P7i chạy lại và được
-   báo cáo như **xác nhận** Prop 17c.
-5. Không claim nào trong RESULTS.md vi phạm quy tắc phát ngôn ở Part E.
-6. Mọi bảng có `mean ± std` trên ≥5 seed.
-7. Có trích dẫn cho literature memorization.
+**Files:** `docs/THEORY.md` §Positioning, `results/RESULTS.md`
+
+Add real citations for the memorisation literature: Pidstrigach (2022); Gu et al., *On
+Memorization in Diffusion Models*; Kadkhodaie et al. (2024); Biroli & Mézard; Kamb &
+Ganguli. State clearly that the original contribution is the 5 points at the end of
+`docs/THEORY.md`, **not** the observation "the empirical minimiser memorises" itself.
+
+---
+
+### T10 — Optional, do last
+
+- **T10a:** re-run the extended EXP-1 with cosine LR decay to reach a deeper collapse
+  without diverging. Compare the final `ratio_to_kernel` with 0.
+- **T10b:** held-out `y`: report the **median + the number of diverging cases**, not the
+  mean (the mean is dominated by blow-ups: 6e4 ± 1.2e5 is meaningless).
+- **T10c:** EXP-3: more seeds, sweep `N ∈ {500, 5000}`.
+- **T10d:** add `n_eff` to EXP-2/EXP-3 to connect mode coverage with the kernel theory.
+
+---
+
+## 3. Technical notes
+
+- **Numerical stability:** every kernel computation must use log-sum-exp. With `h=0.01`
+  and `k=1`, the ratio of `K_h` between atoms easily exceeds `1e300`.
+- **`h=0` in `kernel_weights`:** do not divide by 0; use the point-mass branch at the
+  nearest label (Cor 11).
+- **The `t=1` singularity:** keep the existing convention (`t_max=0.95` for the velocity
+  error, stop the ODE at `1−1e-3`). Comment that it is deliberate.
+- **Do not retrain unless needed:** T1, T3, T5 and T6 all run on the existing
+  checkpoints. Only T2 (the new target) and T8 (more seeds) need training.
+- **Reproducibility:** keep the convention of fixing the seed + saving `config.yaml` +
+  `problem.json` for every run.
+
+---
+
+## 4. Definition of "done"
+
+1. `docs/THEORY.md` is in the repo, every statement has a proof, no "assume" remains.
+2. `ratio_to_kernel` is the main metric in every P7 table; `ratio_to_post` is secondary.
+3. The §0 table is reproducible with code in the repo (error <1%).
+4. The stochastic-interpolant target is fixed; `verify_prop17.py` passes; P7i is re-run
+   and reported as a **confirmation** of Prop 17c.
+5. No claim in RESULTS.md violates the wording rule of Part E.
+6. Every table has `mean ± std` over ≥5 seeds.
+7. The memorisation literature is cited.

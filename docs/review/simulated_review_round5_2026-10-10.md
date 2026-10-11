@@ -320,7 +320,7 @@ also has gaps, including the classifier-free guidance paper itself.
 **W1. Novelty is overstated (Major).**
 - *Problem.*
   - Contribution 1 (L147–156) is presented as "an exact reference". Theorem `thm:endpoint`
-    is the unconditional closed form applied to the joint (x, ỹ) with a factorised index
+    is the unconditional closed form applied to the joint (x, noisy label) with a factorised index
     posterior.
   - Prop. `prop:atomicity` (support inside the atoms, plus a W₂ bound by nearest-atom
     distance) follows in two lines.

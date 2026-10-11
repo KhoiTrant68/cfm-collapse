@@ -363,7 +363,7 @@ clearly excluded by `0.120 +/- 0.054`. The tail from 700k->1M (very low lr)
 only improves 4/5 seeds. The memorisation ratio, `0.955 +/- 0.020`, is the
 tightest and most defensible number. Table 1 (`tab:exp1`) and the EXP-1
 discussion/figure (`fig:extended`, now `fig_extended_schedule.png`) were
-revised (2026-09-02, "sửa lại đi" pass) to lead with the same-seed comparison
+revised (2026-09-02, "revise it" pass) to lead with the same-seed comparison
 and flag the seed-variance/tail caveats instead of just reporting the 5-seed
 mean against the old value; the Limitations paragraph on the residual
 optimisation gap was revised to say the plateau is schedule-sensitive rather
