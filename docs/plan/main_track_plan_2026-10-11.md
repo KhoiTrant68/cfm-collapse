@@ -289,3 +289,59 @@ python scripts/test_heff_synthetic.py --glob "heff_floor_*" --out results/exp1/_
   T1 version to NeurIPS 2027 (May).
 - If G1–G3 all fail: the paper is an empirical "science of DL" paper. It then needs E7
   plus a third dataset or a latent-space model to be competitive.
+
+---
+
+## 6. Proof notes after a pilot (2026-10-11)
+
+`scripts/theory_t1_equivalent_kernel.py` (numpy; output in
+`results/theory/t1_equivalent_kernel.json`) runs T1's learner, kernel ridge regression of
+the atoms' moments started from the unconditional moments c, on the three real EXP-1
+designs at h=0. It also computes the continuum equivalent kernels. T1 splits into five
+lemmas of very different status.
+
+| Lemma | Statement | Pilot | Status |
+|---|---|---|---|
+| L1 positivity | k=1, exponential kernel e^{-\|y-y'\|/ℓ}, ridge λ>0: the implied atom weights are ≥0 and sum to 1, at every query and every λ | min weight > 0 on all 3 designs and all λ (1e-2 to 1e-6), queries outside the data included; Gaussian kernel for contrast: 8%–370% negative mass | **provable now** (proof below); likely a k=1 phenomenon |
+| L2 equivalent kernel, smoothing regime | for n_eff ≫ 1, the learned moments are NW at one bandwidth, with local scale (λ/(a p(y)))^{1/ζ} | one-bandwidth log-space R² 0.75–0.80 at n_eff≈10; density slope −0.45, −0.60, −0.63 against −0.50 | **known theory**: Silverman (1984); Sollich & Williams (NeurIPS 2004), *Using the equivalent kernel to understand Gaussian process regression*. Cite rather than claim |
+| L3 collapse regime | for n_eff ≲ 4, still NW at one bandwidth | **fails in the model**: R² 0.35–0.51 at n_eff≈3.7, negative at n_eff≈2; density slope erratic | **open, and the real target**: the trained networks at h=0 still fit NW with median R² 0.82 there (Table `tab:families`), so the networks are *more* Nadaraya–Watson than the kernel model in the regime that matters |
+| L4 floor | weight decay λ gives h_eff,∞ > h, scaling as λ^{1/ζ} | follows from L2 | easy given L2; E2a tests it on networks |
+| L5 gradient-flow form | the early-stopped learner is a positive smoother | continuum gradient-flow filter is signed (5% negative mass at ζ=2, 11% at ζ=4); ridge kernels are positive exactly for ζ ≤ 2 (Linnik), signed for ζ=3, 4 (3%, 6%) | state for the resolution scale only, or work with weight decay (ridge form) |
+
+**Proof of L1** (k=1, exponential kernel). The RKHS of e^{-|y-y'|/ℓ} is H¹(ℝ), with
+norm ∝ ∫(ℓ²f'² + f²).
+
+1. The minimiser of (1/N)∑(f(y^i)−z_i)² + λ‖f‖² solves a second-order equation
+   (−ℓ²∂² + 1)f ∝ ∑_i c_i (z_i − f(y^i)) δ_{y^i}, with c_i > 0.
+2. The weight of atom j is g_j = ∂f/∂z_j. It solves (L + V) g_j = c_j δ_{y^j}, with
+   L = −ℓ²∂² + 1 and V = ∑_i c_i δ_{y^i} ≥ 0 a point potential.
+3. The Green's function of L + V is positive for every nonnegative V (maximum principle;
+   Feynman–Kac in 1-D, where points have positive capacity). So g_j > 0.
+4. The weight left to c is 1 − ∑_j g_j. With z ≡ 1, (L+V)(1 − f₁) = 1 ≥ 0, so
+   1 − f₁ ≥ 0 by the same positivity.
+
+Hence the weights w = g + (1−∑g)/N are a probability vector. In k ≥ 2 the RKHS must have
+order > k/2. Its operator is then of order ≥ 4 and has no maximum principle, so expect
+signed weights there, as for the Gaussian kernel. This matters for CIFAR-10 (k=1536):
+positivity, hence atomic moments, is not automatic for a kernel learner.
+
+**What this changes in §2.**
+- T1(a), (b) and (c) in the smoothing regime are known equivalent-kernel theory applied
+  to the conditional moments. They make a short proposition plus L1, not a headline.
+- The main-track theorem has to be about the **collapse regime** (L3), where the label
+  resolution is comparable to the spacing of the training labels. That is where the
+  networks still behave like a one-bandwidth NW mixture and the kernel model does not.
+- Two candidate mechanisms, both testable before proving anything:
+  1. **The flow re-concentrates label-filtered weights.** Prop. `filtered` and the
+     halved variance at s ≫ h in App. `specbias` show this happens. A theorem for the
+     endpoint weights of a label-filtered field, e.g. that they are a tempered version of
+     q, would be new.
+  2. **Feature learning in the label input.** The SiLU network's NTK in y is smooth, so
+     its spectrum decays faster than any power. The Gaussian kernel model predicts that
+     h_eff never reaches h (App. `specbias`), and the networks contradict this.
+- **E3 decides between them and should run first.** Is the label-space NTK stable during
+  training, and is its spectrum polynomial?
+
+**Literature to check before claiming L1.** Positivity of first-order L-spline and
+Ornstein–Uhlenbeck GP smoothers; the total positivity of the exponential kernel is
+classical (Karlin, *Total Positivity*, 1968).
