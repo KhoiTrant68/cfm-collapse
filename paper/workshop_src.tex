@@ -44,15 +44,16 @@ at an Effective Bandwidth}
 With the training set fixed, the population minimiser of conditional flow matching
 sends a condition that identifies one example to that example, and Gaussian noise on
 the condition turns its endpoint into a Nadaraya--Watson mixture of the training atoms.
-We show that trained networks follow this mixture at one \emph{effective bandwidth}
+We show that trained networks follow this mixture (at image scale, its first two
+moments) at one \emph{effective bandwidth}
 $h_{\mathrm{eff}}$, fitted to their per-condition variances and recovered independently
 from their per-condition means (48/48 synthetic and 31/36 CIFAR-10 checkpoints), which
 training shrinks towards the bandwidth $h$ of the label noise. We prove when
 $h_{\mathrm{eff}}$ is identified and what calibration it implies: for any prior, label
 noise moves the coverage of the reference law by at most a total-variation term of
-order $h^2/\sigma^2$, and a vanishing effective sample collapses it to zero. From
-$h_{\mathrm{eff}}$ alone, the theorem predicts the held-out coverage of 75 trained
-checkpoints with $R^2=0.90$, ranking it better than the training loss or the iteration.
+order $\sqrt{k}\,h^2/\sigma^2$, and a vanishing effective sample collapses it to zero.
+From $h_{\mathrm{eff}}$ alone, the theorem predicts the held-out coverage of 75 trained
+synthetic checkpoints with $R^2=0.90$, ranking it better than the training loss or the iteration.
 \end{abstract}
 
 % ==========================================================================

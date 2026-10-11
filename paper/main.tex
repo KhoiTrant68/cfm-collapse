@@ -52,9 +52,11 @@ at an Effective Bandwidth}
 \maketitle
 
 \begin{abstract}
-A conditional flow trained on finite data behaves like Nadaraya--Watson regression over
-its training examples at a single effective bandwidth $h_{\mathrm{eff}}$, which
-training shrinks towards the bandwidth $h$ of the label noise it was given. The
+In low dimension, a conditional flow trained on finite data behaves like
+Nadaraya--Watson regression over its training examples at a single effective bandwidth
+$h_{\mathrm{eff}}$, which training shrinks towards the bandwidth $h$ of the label noise
+it was given; at image scale this holds for the first two moments but not for the
+support. The
 reference is exact: with the training set fixed, the population minimiser sends a
 condition that identifies one example to that example, with zero conditional variance
 and zero loss, and label smoothing at bandwidth $h$ turns its endpoint law into a
@@ -66,10 +68,12 @@ runs and at $31/36$ of six CIFAR-10 runs with a $35.75$M-parameter DDPM U-Net. I
 $h_{\mathrm{eff}}$ falls with training and ends just above $h$ ($1.08h$ synthetic,
 $1.13$--$1.34h$ on CIFAR-10 at $60$k iterations). We prove that the bandwidth is
 identified where the reference varies and that it sets calibration: for any prior,
-smoothing moves coverage by at most a total-variation term of order $h^2/\sigma^2$
+smoothing moves coverage by at most a total-variation term of order
+$\sqrt{k}\,h^2/\sigma^2$ for $k$-dimensional labels with observation noise $\sigma$
 (over-covering when the posterior is Gaussian), and a vanishing effective sample
-collapses coverage to zero. From $h_{\mathrm{eff}}$ alone this predicts the held-out coverage of trained
-models ($R^2=0.90$), ranking it better than the training loss or the iteration. The
+collapses coverage to zero. On synthetic posteriors ($d\le8$), $h_{\mathrm{eff}}$ alone
+predicts the held-out coverage of trained models ($R^2=0.90$ at $d{=}2$), ranking it
+better than the training loss or the iteration. The
 same law ranks interventions:
 interpolant noise leaves the endpoint unchanged, label noise reweights the atoms, and
 only endpoint noise moves the support. Scope: identifying conditions, as in inverse
