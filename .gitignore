@@ -239,5 +239,13 @@ cfm-results-*.zip
 session-*.log
 bench-*.txt
 
+# Session zips from scripts/kaggle_heff.sh, and their extracted folders. Same
+# reasoning as cfm-results-*: the numbers are re-derived into results/.
+heff-results-*/
+heff-results-*.zip
 
-references
+# Local PDFs of the cited papers (copyrighted; not redistributed).
+references/
+
+# Claude Code worktrees: per-session checkouts of this repository.
+.claude/worktrees/
