@@ -5,9 +5,10 @@
 #   bash scripts/server_calib_levels.sh <gpu> <run> [<run> ...]
 #
 # By default nothing starts until that GPU's training queue has printed "queue on GPU
-# <gpu> finished". Sharing the GPU is a bad trade: on an L40, sampling next to a training
-# run slowed the training about 5x while the sampling itself ran at half speed, so the
-# two together got less done than one after the other.
+# <gpu> finished". Sharing the GPU buys nothing: on an L40, sampling next to a training
+# run slowed each of the two about 2x (training 40k->60k took 3989 s instead of ~2400 s),
+# so together they got through about as much as one after the other, and the training
+# timings stay comparable across runs only if the GPU is not shared.
 #
 # WAIT_QUEUE=0 starts at once instead; each run is then analysed as soon as the training
 # queue has finished with it (its "size ... results/exp3/<run>" line in
