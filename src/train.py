@@ -250,12 +250,15 @@ def train(cfg: dict, out_root: str | Path) -> Path:
 
     opt_name = cfg["train"].get("optimizer", "adam").lower()
     lr = cfg["train"].get("lr", 1e-3)
+    # weight_decay > 0 switches Adam to AdamW (decoupled decay); 0 keeps plain Adam.
+    wd = float(cfg["train"].get("weight_decay", 0.0))
     if opt_name == "adam":
-        opt = torch.optim.Adam(model.parameters(), lr=lr)
+        opt = (torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=wd) if wd > 0
+               else torch.optim.Adam(model.parameters(), lr=lr))
     elif opt_name == "sgd":
         opt = torch.optim.SGD(
             model.parameters(), lr=lr,
-            momentum=cfg["train"].get("momentum", 0.9),
+            momentum=cfg["train"].get("momentum", 0.9), weight_decay=wd,
         )
     else:
         raise ValueError(f"Unknown train.optimizer={opt_name!r} (expected adam|sgd)")

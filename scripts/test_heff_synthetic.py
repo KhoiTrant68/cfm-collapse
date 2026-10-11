@@ -64,9 +64,18 @@ def reference(X, Y, idx, grid):
 
 @torch.no_grad()
 def main() -> None:
+    import argparse
+    global OUT
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--glob", default="heff_p7y_h*_seed*",
+                    help="run directories under results/exp1 to analyse")
+    ap.add_argument("--out", default=str(OUT))
+    a = ap.parse_args()
+    runs = sorted(Path("results/exp1").glob(a.glob))
+    OUT = Path(a.out)
     torch.set_num_threads(8)
     out = []
-    for run in RUNS:
+    for run in runs:
         cfg = load_yaml(run / "config.yaml")
         dc, ev = cfg["data"], cfg["eval"]
         ps = int(dc.get("problem_seed", cfg["seed"]))

@@ -83,6 +83,24 @@ def build_specs(iters: int) -> dict[str, list[tuple[str, list[str]]]]:
             dk.append((name, common + [f"seed={s}", f"data.d={d}", f"data.k={k}", f"run_name={name}"]))
     groups["dk"] = dk
 
+    # Floor of the effective bandwidth (docs/plan/main_track_plan_2026-10-11.md, E2).
+    # Each sweep changes one factor against the baseline heff_p7y_h{h}_seed{s}
+    # (Adam, constant lr 1e-3, no weight decay), which is not rerun.
+    floor = []
+    for h in [0, 0.05]:
+        for s in [0, 1, 2]:
+            base = common + [f"seed={s}", f"train.y_noise_h={h}"]
+            for wd in [1e-4, 1e-3, 1e-2]:
+                name = f"heff_floor_wd{wd}_h{h}_seed{s}"
+                floor.append((name, base + [f"train.weight_decay={wd}", f"run_name={name}"]))
+            for lr in [3e-4, 3e-3]:
+                name = f"heff_floor_lr{lr}_h{h}_seed{s}"
+                floor.append((name, base + [f"train.lr={lr}", f"run_name={name}"]))
+            name = f"heff_floor_cos_h{h}_seed{s}"
+            floor.append((name, base + ["train.lr_schedule=cosine", "train.lr_min=1e-6",
+                                        f"run_name={name}"]))
+    groups["floor"] = floor
+
     return groups
 
 
