@@ -55,8 +55,8 @@ at an Effective Bandwidth}
 In low dimension, a conditional flow trained on finite data behaves like
 Nadaraya--Watson regression over its training examples at a single effective bandwidth
 $h_{\mathrm{eff}}$, which training shrinks towards the bandwidth $h$ of the label noise
-it was given; at image scale this holds for the first two moments but not for the
-support. The
+it was given; at image scale this holds for the mean and the total variance but not
+for the support. The
 reference is exact: with the training set fixed, the population minimiser sends a
 condition that identifies one example to that example, with zero conditional variance
 and zero loss, and label smoothing at bandwidth $h$ turns its endpoint law into a
@@ -71,9 +71,10 @@ identified where the reference varies and that it sets calibration: for any prio
 smoothing moves coverage by at most a total-variation term of order
 $\sqrt{k}\,h^2/\sigma^2$ for $k$-dimensional labels with observation noise $\sigma$
 (over-covering when the posterior is Gaussian), and a vanishing effective sample
-collapses coverage to zero. On synthetic posteriors ($d\le8$), $h_{\mathrm{eff}}$ alone
+collapses coverage to zero. On synthetic posteriors ($d\le8$), $h_{\mathrm{eff}}$
 predicts the held-out coverage of trained models ($R^2=0.90$ at $d{=}2$), ranking it
-better than the training loss or the iteration. The
+better than the training loss or the iteration; at image scale the sample spread ranks
+it better. The
 same law ranks interventions:
 interpolant noise leaves the endpoint unchanged, label noise reweights the atoms, and
 only endpoint noise moves the support. Scope: identifying conditions, as in inverse
@@ -158,15 +159,17 @@ lines.}
   any bandwidth (Proposition~\ref{prop:moments}), and which stays atomic at every $h$
   with an $h$-independent Wasserstein floor (Proposition~\ref{prop:atomicity}):
   ``variance restored'' is not ``posterior restored''.
-\item \textbf{Trained models sit at an effective bandwidth.} A trained network follows
-  that mixture at one bandwidth $h_{\mathrm{eff}}$, fitted to its per-condition
-  variances and recovered independently from its per-condition means, and
+\item \textbf{Trained models sit at an effective bandwidth.} In low dimension a trained
+  network follows that mixture at one bandwidth $h_{\mathrm{eff}}$, fitted to its
+  per-condition variances and recovered independently from its per-condition means, and
   $h_{\mathrm{eff}}$ falls towards $h$ as training proceeds (Section~\ref{sec:heff};
-  48/48 synthetic and 31/36 CIFAR-10 checkpoints). Partial agreement with the reference
+  48/48 synthetic checkpoints); on CIFAR-10 this holds for the mean and the total
+  variance (31/36) but not for the support. Partial agreement with the reference
   at $h$ is agreement at a larger bandwidth. We prove when $h_{\mathrm{eff}}$ is
   identified (Proposition~\ref{prop:heffid}) and what calibration a bandwidth implies
-  for any prior (Theorem~\ref{thm:calib}); from $h_{\mathrm{eff}}$ alone, the theorem
-  predicts the held-out coverage of 75 trained checkpoints with $R^2=0.90$. A model of
+  for any prior (Theorem~\ref{thm:calib}); with the kernel weights at $h_{\mathrm{eff}}$
+  the theorem predicts the held-out coverage of 75 trained $d{=}2$ checkpoints with
+  $R^2=0.90$, while at image scale the sample spread ranks coverage better. A model of
   limited label resolution reproduces the fall of $h_{\mathrm{eff}}$ to $h$, and limited
   resolution provably reweights the atoms without moving them
   (Propositions~\ref{prop:specbias} and~\ref{prop:filtered}).
@@ -187,8 +190,9 @@ lines.}
 ($d{=}2$, $N{=}200$): $160$ draws of $x_0$, their paths and endpoints. (a,~b) One
 \emph{trained} network at two checkpoints. At $1000$ iterations it is a posterior
 sampler; at $200000$, $96\%$ of its paths reach the atom identified by the label
-(Proposition~\ref{prop:collapse}). (c) The population optimum at the $h^\star$ with
-$\tr\Covh=\tr\Sigmapost$; marker area is the weight $p_i^{(h)}$ of
+(Proposition~\ref{prop:collapse}). (c) The population optimum at the $h^\star=0.70$ with
+$\tr\Covh=\tr\Sigmapost$ at this condition (averaged over conditions the match is near
+$h=0.1$, Section~\ref{sec:p7}); marker area is the weight $p_i^{(h)}$ of
 Theorem~\ref{thm:endpoint}. The variance is right but the law is still atomic, with a
 floor no $h$ removes (Proposition~\ref{prop:atomicity}). (d) Only moving the support
 leaves the atoms (Proposition~\ref{prop:tgtnoise}). Figures~\ref{fig:traintraj}
@@ -397,12 +401,15 @@ label smoothing redistributes weight over training atoms and never generates new
 samples, so matching $\tr\Covh$ matches a second moment and not the posterior. A remedy
 needs $h\to0$ and $N\to\infty$ together (Propositions~\ref{prop:expansion}
 and~\ref{prop:nwrate}, for the first two moments), not $h$ alone.
-Whether the floor matters depends on its size, governed by the rate factor $N^{-1/d}$ of $W_2$:
-$0.071$ at our $(d,N)=(2,200)$ default but $0.9975$ at $(3072,2000)$. Zador's theorem
-\citep[Ch.~6]{graf2000quantization} gives that rate, asymptotically in $N$, for the optimal $N$-point quantiser
-and so points to a lower bound on the floor. Whether i.i.d.\ atoms attain it is measured in
-Appendix~\ref{app:deferred}: the obstruction is negligible where it is easy to measure
-and stays large relative to the posterior scale at image dimensions.
+Whether the floor matters depends on its size. Zador's theorem
+\citep[Ch.~6]{graf2000quantization} bounds it below by the optimal $N$-point quantiser,
+whose $W_2$ error decays as $N^{-1/d}$ in the dimension $d$ of the posterior's support:
+$0.071$ at our $(d,N)=(2,200)$ default, and $0.9975$ for a full-rank posterior at
+$(3072,2000)$; i.i.d.\ atoms attain the exponent where we measured it
+(Appendix~\ref{app:deferred}). For images the relevant $d$ is the intrinsic one, which
+we do not measure, and the trained CIFAR-10 model leaves the atoms
+(Section~\ref{sec:cifarddpm}), so the floor bounds the population minimiser, not that
+model.
 
 \subsection{Where noise helps, and what the theory does not cover}
 \label{sec:interventions}
@@ -531,9 +538,12 @@ h_{\mathrm{mean}}=\arg\min_{h'}\sum_c\big\|m_c-\bar x_{h'}(y_c)\big\|,
 over a log-spaced grid, each with a 95\% bootstrap interval over conditions. One number
 must explain every condition, and the two estimates use disjoint statistics. Their
 agreement alone does not single out the Gaussian kernel: Laplace, Cauchy and kNN
-references over the same atoms pass it almost as often. Fit quality does: the Gaussian reference
-fits the variances best at 36/48 checkpoints, and a non-atomic posterior reference
-cannot fit them ($R^2=-0.12$; Table~\ref{tab:families}). When is the bandwidth identified?
+references over the same atoms pass it almost as often. Fit quality does, though weakly
+where the smoothing is the network's own: the Gaussian reference fits the variances best
+at 36/48 checkpoints, 7/12 at $h{=}0$. Giving each atom a non-atomic spread
+$\N(x^i,\rho^2I_d)$ lowers the held-out error at 10/48 checkpoints and raises it at 17,
+and $\hat\rho=0$ lies inside its interval at 41/48: the variances are those of a mixture
+over the atoms (Table~\ref{tab:families}). When is the bandwidth identified?
 
 \begin{proposition}[Identifiability of the effective bandwidth]
 \label{prop:heffid}
@@ -542,15 +552,17 @@ $\partial_h\bar x_h(y)=h^{-3}\Cov_p(x^i,D_i)$ and
 $\partial_h\tr\Covh(y)=h^{-3}\Cov_p(|x^i-\bar x_h(y)|^2,D_i)$, and
 $h^3\partial_h\tr\Covh(y)$ tends to the unweighted covariance of $|x^i-\bar x|^2$ and $D_i$
 as $h\to\infty$. Let $F(h)=(\log\tr\mathrm{Cov}_h(y_c))_{c\le C}$, let the measured log
-traces be $F(h^\star)+e$, and let $\hat h$ minimise $|\log T-F(h)|$ over a set $\mathcal H$
-of bandwidths. Then $\hat h\in\{h\in\mathcal H:|F(h)-F(h^\star)|\le2|e|\}$. If this set
-lies in an interval $\mathcal I\ni h^\star$ on which $u\cdot F'\ge\kappa>0$ for a unit
-vector $u$, then $|\hat h-h^\star|\le2|e|/\kappa$; likewise for $h_{\mathrm{mean}}$ with
+traces be $F(h_{\mathrm{true}})+e$, and let $\hat h$ minimise $|\log T-F(h)|$ over a set
+$\mathcal H\ni h_{\mathrm{true}}$ of bandwidths. Then $\hat h\in\{h\in\mathcal
+H:|F(h)-F(h_{\mathrm{true}})|\le2|e|\}$. If this set lies in an interval $\mathcal I\ni
+h_{\mathrm{true}}$ on which $u\cdot F'\ge\kappa>0$ for a unit vector $u$, then $|\hat
+h-h_{\mathrm{true}}|\le2|e|/\kappa$; likewise for $h_{\mathrm{mean}}$ with
 $G(h)=(\bar x_h(y_c))_c$. \proofin{apx:pf-heffid}
 \end{proposition}
 
-So $\kappa=O(h^{-3})$ at large $h$, where no bandwidth is identified. The bound holds
-at all 75 synthetic checkpoints and ranks their bootstrap widths with Spearman $0.91$;
+So $\kappa=O(h^{-3})$ at large $h$, where no bandwidth is identified. With the fitted
+residual as $e$, the bound exceeds the bootstrap half-width at all 75 synthetic
+checkpoints and ranks those widths with Spearman $0.91$;
 on CIFAR-10, $\kappa$ falls from $17$ at $h{=}3$ to $0.38$ and $0.13$ at $h{=}5,6$.
 
 \paragraph{Synthetic.} Fifteen linear-Gaussian runs ($h\in\{0,0.01,0.05,0.1,0.5\}$, three
@@ -596,9 +608,10 @@ The theorem gives both ends of a calibration window. Smoothing costs at most $\t
 of coverage for any prior (b), and over-covers when the posterior is Gaussian (c); a
 vanishing effective sample collapses coverage (d). Modelling the atoms near $y^\star$
 as draws of $\N(\mu_h,\Sigma_h)$ with the actual weights, (d) predicts the held-out 90\%
-coverage of all 75 trained checkpoints from their $h_{\mathrm{eff}}$ alone with
-$R^2=0.90$ (Figure~\ref{fig:t3}; $0.59$ for the 50\% region, where the weights'
-dispersion matters more). Part (b) makes the right edge prior-free: on two mixture
+coverage of all 75 trained $d{=}2$ checkpoints from their $h_{\mathrm{eff}}$ with
+$R^2=0.90$, $[0.85,0.93]$ resampling runs, against a ceiling of $0.97$ set by the
+binomial noise of the measurement (Figure~\ref{fig:t3}; $0.59$ for the 50\% region,
+where the weights' dispersion matters more). Part (b) makes the right edge prior-free: on two mixture
 posteriors the reference law over-covers by at most $\tau_h$, a bound that is nearly
 tight at $h=\sigma/2$ (Appendix~\ref{apx:pf-calib}). As a ranking, $h_{\mathrm{eff}}$ (Spearman $0.92$)
 beats the training loss ($0.85$) and keeps $0.90$ with the iteration partialled out, also
@@ -612,7 +625,7 @@ error or extraction (Appendix~\ref{app:calibdetails}).
 nominal 90\% region against bandwidth: infinite-data limit (c), over-covering for $h>0$;
 finite effective sample (d), collapsing at small bandwidth (both for seed 0); dots:
 trained checkpoints of all seeds at their $h_{\mathrm{eff}}$. (b) Coverage predicted
-from $h_{\mathrm{eff}}$ alone against the measured coverage, for the theory (d) and for
+from $h_{\mathrm{eff}}$ against the measured coverage, for the theory (d) and for
 the exact finite reference law.}
 \label{fig:t3}
 \end{figure}
@@ -625,7 +638,12 @@ $h_{\mathrm{eff}}$ falls monotonically in 5/6 runs and ends at $1.13$--$1.34h$; 
 still falling at 60k in four runs and has levelled off in two, so whether it has a floor
 above $h$ is open. $\beta$ rises as $h_{\mathrm{eff}}/h$ approaches $1$ in 5/6 runs,
 reaching $0.66$ at $1.13h$. At this scale $h_{\mathrm{eff}}$ fits the per-condition
-variances no better than the power law (comparable from 30k on, mostly worse before).
+variances no better than the power law (comparable from 30k on, mostly worse before),
+and it does not set calibration. On a second training of the same six runs, the 90\%
+per-pixel coverage of 64 test-split images falls from $0.91$--$0.95$ at 2k to
+$0.67$--$0.78$ by 20k and ends at $0.72$--$0.81$ (a calibrated sampler scores $0.87$
+with $M{=}64$ draws), and the sample spread ranks it with Spearman $0.98$ against $0.63$
+for $h_{\mathrm{eff}}$ (Appendix~\ref{app:calibdetails}).
 
 \FloatBarrier
 
@@ -633,8 +651,8 @@ variances no better than the power law (comparable from 30k on, mostly worse bef
 these measurements (Appendix~\ref{app:specbias}). If the label dependence of the
 conditional moments is learned by kernel gradient flow, the model is a
 Nadaraya--Watson mixture at one bandwidth at every time (median log-space $R^2$ $0.97$),
-$h_{\mathrm{eff}}$ falls to $h$, and for a kernel spectrum $|\omega|^{-\beta}$ the
-resolution shrinks as $t^{-1/\beta}$ (Proposition~\ref{prop:specbias}; measured slopes
+$h_{\mathrm{eff}}$ falls to $h$, and for a kernel spectrum $|\omega|^{-\zeta}$ the
+resolution shrinks as $t^{-1/\zeta}$ (Proposition~\ref{prop:specbias}; measured slopes
 $-0.40$ and $-0.29$ against $-\frac12$ and $-\frac14$; Figure~\ref{fig:t2}). If instead
 the field itself is averaged over nearby labels, the atoms survive:
 
@@ -660,7 +678,7 @@ $2.2$--$2.8$) or their stop above $h$.
 \includegraphics[width=0.94\textwidth]{fig_t2_resolution.png}
 \caption{Kernel gradient flow \eqref{eq:kgf} on the EXP-1 training set (seed 0,
 $\ell=\mathrm{sd}(y)$). (a) $s(t)$, the effective bandwidth at $h=0$: power-law decay
-with the slope of Proposition~\ref{prop:specbias}(b) (dotted: $-1/\beta$) for kernels
+with the slope of Proposition~\ref{prop:specbias}(b) (dotted: $-1/\zeta$) for kernels
 with power-law spectra, stagnation for the Gaussian kernel. (b) Under the Laplace
 kernel $h_{\mathrm{eff}}$ falls and converges to each training bandwidth $h$ (dashed).}
 \label{fig:t2}
@@ -674,9 +692,11 @@ kernel $h_{\mathrm{eff}}$ falls and converges to each training bandwidth $h$ (da
 $h_{\mathrm{eff}}$ is identified and Theorem~\ref{thm:calib} what calibration a bandwidth
 buys. A spectral-bias model (Appendix~\ref{app:specbias}) reproduces the fall of
 $h_{\mathrm{eff}}$ to $h$, but not the networks' rates or their gap above $h$ (open
-beyond $6\times10^4$ iterations). Theorem~\ref{thm:calib}(c) is Gaussian; (b) only bounds the deviation. At image
-scale $h_{\mathrm{eff}}$ fits the variances no better than a power law, and atomicity is
-not inherited. The synthetic problems have
+beyond $6\times10^4$ iterations). Theorem~\ref{thm:calib}(c) is Gaussian; (b) only bounds
+the deviation, needs observation noise and is informative only for $h^2\sqrt k\ll\sigma^2$,
+so for noiseless inpainting the endpoint law, part (d) and the audit apply but (b) does
+not. At image scale $h_{\mathrm{eff}}$ fits the variances no better than a power law,
+does not predict coverage, and atomicity is not inherited. The synthetic problems have
 $d\le10$; the image experiments use one mask and $N{=}2000$, with instance and
 optimisation randomness confounded; label spaces with no natural kernel are out of scope.
 
@@ -686,8 +706,10 @@ optimisation randomness confounded; label spaces with no natural kernel are out 
 
 Label smoothing makes a conditional flow kernel regression over its training atoms,
 which only endpoint smoothing leaves (Appendix~\ref{app:remedies}); a trained network
-travels the same laws at an effective bandwidth that training shrinks, so its
-memorisation and its calibration are set by one number read off a checkpoint.
+travels the same laws at an effective bandwidth that training shrinks, exactly in low
+dimension and in its mean and total variance at image scale. That bandwidth places a
+checkpoint relative to its training set; in low dimension it also sets its calibration,
+while extraction is read from the on-atom fraction.
 
 \label{endmain}
 \subsection*{Reproducibility statement}
@@ -1456,7 +1478,7 @@ $K$ of the setup, $\bar x_h(y)$ is exactly the Nadaraya--Watson estimator of $\m
 \mathrm{Bias}=O(h^2),\qquad \Var=O\big((Nh^k)^{-1}\big),\qquad
 \mathrm{MSE}=O(h^4)+O\big((Nh^k)^{-1}\big),
 \]
-minimised at $h^\star\asymp N^{-1/(k+4)}$ \emph{provided the leading bias coefficient is
+minimised at $h_{\mathrm{opt}}\asymp N^{-1/(k+4)}$ \emph{provided the leading bias coefficient is
 nonzero}. That proviso is not decorative: the rate balances $c_1h^4$ against
 $c_2(Nh^k)^{-1}$ and needs $c_1,c_2>0$, with
 $c_1=\tfrac14\mu_2(K)^2|b(y)|^2$ for
@@ -1495,7 +1517,7 @@ what makes its relative influence vanish; without it the result does not apply t
         \frac{d}{dh}\mathrm{MSE} &= 4c_1h^3-c_2\,k\,N^{-1}h^{-k-1} = 0 \\
         &\iff h^{k+4}=\frac{c_2\,k}{4c_1N},
     \end{align*}
-    a minimum, so $h^\star\asymp N^{-1/(k+4)}$ ($c_1,c_2>0$).
+    a minimum, so $h_{\mathrm{opt}}\asymp N^{-1/(k+4)}$ ($c_1,c_2>0$).
 
     Linear-Gaussian instance: $\mu(y')=By'$ and, in $y'$, $K_h(y-y')\rho_Y(y')\propto\N\big(\Sigma_Y(\Sigma_Y+h^2I_k)^{-1}y,\,\cdot\big)$. Therefore
     \begin{align*}
@@ -1620,11 +1642,11 @@ $\varepsilon<\Delta$. For the Gaussian kernel of bandwidth $h$, put
 \[
 \eta:=\frac{N-|C|}{|C|}\exp\!\Big(\!-\frac{\Delta^2-\varepsilon^2}{2h^2}\Big),
 \qquad
-\kappa:=\exp\!\Big(\frac{\varepsilon^2}{2h^2}\Big)\ \ge 1 .
+\Lambda:=\exp\!\Big(\frac{\varepsilon^2}{2h^2}\Big)\ \ge 1 .
 \]
 Then \emph{(a)} $\sum_{j\notin C}p_j^{(h)}(y)\le\eta$; \emph{(b)}
-$p_i^{(h)}(y)/p_{i'}^{(h)}(y)\le\kappa$ for all $i,i'\in C$; and \emph{(c)}
-$n_{\mathrm{eff}}(y)\ge|C|/(\kappa+|C|\eta^2)$.
+$p_i^{(h)}(y)/p_{i'}^{(h)}(y)\le\Lambda$ for all $i,i'\in C$; and \emph{(c)}
+$n_{\mathrm{eff}}(y)\ge|C|/(\Lambda+|C|\eta^2)$.
 Consequently, as $\varepsilon/h\to0$ and $\Delta/h\to\infty$ the index posterior
 converges to the uniform law on $C$, the endpoint law to
 $|C|^{-1}\sum_{i\in C}\delta_{x^i}$, and $n_{\mathrm{eff}}\to|C|$.
@@ -1642,20 +1664,20 @@ $|C|^{-1}\sum_{i\in C}\delta_{x^i}$, and $n_{\mathrm{eff}}\to|C|$.
     (b) For $i,i'\in C$,
     \begin{align*}
         \frac{\pih{i}}{\pih{i'}} &= \frac{K_i}{K_{i'}} = \exp\frac{|y-y^{i'}|^2-|y-y^i|^2}{2h^2} \\
-        &\le e^{\eps^2/2h^2} = \kappa .
+        &\le e^{\eps^2/2h^2} = \Lambda .
     \end{align*}
 
-    (c) Let $S=\sum_{i\in C}\pih{i}$. By (b), $|C|\,\pih{i}\le\kappa S$, so
+    (c) Let $S=\sum_{i\in C}\pih{i}$. By (b), $|C|\,\pih{i}\le\Lambda S$, so
     \begin{align*}
-        \sum_{i\in C}(\pih{i})^2 &\le S\max_{i\in C}\pih{i} \le \frac\kappa{|C|}, \\
+        \sum_{i\in C}(\pih{i})^2 &\le S\max_{i\in C}\pih{i} \le \frac\Lambda{|C|}, \\
         \sum_{j\notin C}(\pih{j})^2 &\le \eta^2,
     \end{align*}
     and
     \begin{align*}
         n_{\mathrm{eff}} &= \Big(\sum_i(\pih{i})^2\Big)^{-1} \\
-        &\ge \frac{|C|}{\kappa+|C|\eta^2}.
+        &\ge \frac{|C|}{\Lambda+|C|\eta^2}.
     \end{align*}
-    As $\eps/h\to0$ and $\Delta/h\to\infty$: $\kappa\to1$, $\eta\to0$, $S\ge1-\eta\to1$ and $p_i/p_{i'}\in[\kappa^{-1},\kappa]$, so the posterior tends to the uniform law on $C$ and, by Theorem~\ref{thm:endpoint}, the endpoint law to $|C|^{-1}\sum_{i\in C}\delta_{x^i}$. Also $\sum_i(\pih{i})^2\ge S^2/|C|$ gives $n_{\mathrm{eff}}\le|C|/S^2\to|C|$.
+    As $\eps/h\to0$ and $\Delta/h\to\infty$: $\Lambda\to1$, $\eta\to0$, $S\ge1-\eta\to1$ and $p_i/p_{i'}\in[\Lambda^{-1},\Lambda]$, so the posterior tends to the uniform law on $C$ and, by Theorem~\ref{thm:endpoint}, the endpoint law to $|C|^{-1}\sum_{i\in C}\delta_{x^i}$. Also $\sum_i(\pih{i})^2\ge S^2/|C|$ gives $n_{\mathrm{eff}}\le|C|/S^2\to|C|$.
 \end{proof}
 
 \subsection{Proof of Proposition~\ref{prop:cfgatom}}
@@ -1926,15 +1948,15 @@ argument is $|x^i-\bar x_h|^2$.
 and both arguments of the covariance are bounded, so
 $h^3\partial_h\tr\Covh\to\frac1N\sum_i(|x^i-\bar x|^2-m)(D_i-\bar D_\infty)$ with $m$ and
 $\bar D_\infty$ the unweighted means; the error is $O(h^{-2})$.
-\emph{Stability.} Take $h^\star\in\mathcal H$ (on a grid, replace $e$ by the misfit at
-the grid point nearest $h^\star$). By optimality of $\hat h$,
-$|F(\hat h)-F(h^\star)-e|=|\log T-F(\hat h)|\le|\log T-F(h^\star)|=|e|$, so
-$|F(\hat h)-F(h^\star)|\le2|e|$, which is the first claim. If that set lies in
+\emph{Stability.} Write $h_\circ=h_{\mathrm{true}}\in\mathcal H$ (on a grid, replace $e$
+by the misfit at the grid point nearest $h_\circ$). By optimality of $\hat h$,
+$|F(\hat h)-F(h_\circ)-e|=|\log T-F(\hat h)|\le|\log T-F(h_\circ)|=|e|$, so
+$|F(\hat h)-F(h_\circ)|\le2|e|$, which is the first claim. If that set lies in
 $\mathcal I$, then $\hat h\in\mathcal I$, and by the mean-value theorem applied to
-the scalar function $u\cdot F$ on the segment between $h^\star$ and $\hat h$,
-$|F(\hat h)-F(h^\star)|\ge|u\cdot(F(\hat h)-F(h^\star))|=|u\cdot F'(\xi)|\,|\hat h-h^\star|
-\ge\kappa|\hat h-h^\star|$ for some $\xi\in\mathcal I$. Combining the two gives
-$|\hat h-h^\star|\le2|e|/\kappa$. The argument uses only that $\hat h$ minimises a
+the scalar function $u\cdot F$ on the segment between $h_\circ$ and $\hat h$,
+$|F(\hat h)-F(h_\circ)|\ge|u\cdot(F(\hat h)-F(h_\circ))|=|u\cdot F'(\xi)|\,|\hat h-h_\circ|
+\ge\kappa|\hat h-h_\circ|$ for some $\xi\in\mathcal I$. Combining the two gives
+$|\hat h-h_\circ|\le2|e|/\kappa$. The argument uses only that $\hat h$ minimises a
 distance to a curve, so it applies verbatim to $h_{\mathrm{mean}}$ and $G$.
 \end{proof}
 
@@ -2325,11 +2347,11 @@ $\varepsilon<\Delta$. For the Gaussian kernel of bandwidth $h$, put
 \[
 \eta:=\frac{N-|C|}{|C|}\exp\!\Big(\!-\frac{\Delta^2-\varepsilon^2}{2h^2}\Big),
 \qquad
-\kappa:=\exp\!\Big(\frac{\varepsilon^2}{2h^2}\Big)\ \ge 1 .
+\Lambda:=\exp\!\Big(\frac{\varepsilon^2}{2h^2}\Big)\ \ge 1 .
 \]
 Then \emph{(a)} $\sum_{j\notin C}p_j^{(h)}(y)\le\eta$; \emph{(b)}
-$p_i^{(h)}(y)/p_{i'}^{(h)}(y)\le\kappa$ for all $i,i'\in C$; and \emph{(c)}
-$n_{\mathrm{eff}}(y)\ge|C|/(\kappa+|C|\eta^2)$.
+$p_i^{(h)}(y)/p_{i'}^{(h)}(y)\le\Lambda$ for all $i,i'\in C$; and \emph{(c)}
+$n_{\mathrm{eff}}(y)\ge|C|/(\Lambda+|C|\eta^2)$.
 Consequently, as $\varepsilon/h\to0$ and $\Delta/h\to\infty$ the index posterior
 converges to the uniform law on $C$, the endpoint law to
 $|C|^{-1}\sum_{i\in C}\delta_{x^i}$, and $n_{\mathrm{eff}}\to|C|$.
@@ -2641,19 +2663,21 @@ logarithmic correction that the optimal quantiser does not pay---$F_N\,N/\log N$
 range while $F_N\,N$ drifts by $1.52\times$, so the i.i.d.\ floor there is
 $\Theta(\log N/N)$, not $\Theta(1/N)$. The gap is real but works against the sceptic:
 random atoms are \emph{worse} than optimal ones, so the obstruction is if anything
-larger than the quantisation rate suggests. In any case the exponent is the whole
-story:
+larger than the quantisation rate suggests. For a full-rank posterior the exponent is
+then the whole story:
 \[
 N^{-1/d}=0.071 \ \text{ at our default } (d,N)=(2,200),
 \quad
 N^{-1/d}=0.9975 \ \text{ at } (3072,2000).
 \]
 At $d{=}2$ two hundred atoms densely approximate the posterior, which is why we measure
-the floor and find it negligible; at image dimension the same number of atoms reduces
-the approximation error by a quarter of one percent. The atomicity obstruction is
-therefore not merely present but \emph{dominant} in exactly the regime where diversity
-is wanted, and negligible in the regime where it is easy to measure. We report both,
-and take this to be the reason the obstruction deserves the weight we give it.
+the floor and find it negligible; a full-rank posterior in $3072$ dimensions would keep
+the approximation error within a quarter of one percent of its one-atom value. Two
+things limit what this says about images. The exponent is set by the intrinsic
+dimension of the posterior's support, not the ambient one, and we do not measure it for
+CIFAR-10. And the trained image model does not reach the atoms ($38\%$ of samples
+off-atom at $h{=}6$, Section~\ref{sec:cifarddpm}), so the floor bounds the population
+minimiser, whose law it constrains exactly, rather than the network.
 
 % ---- guidance commentary ----
 \begin{proposition}[Guidance lands on a training atom]
@@ -3001,7 +3025,11 @@ $h_{\mathrm{eff}}/h$; training proceeds to the right.}
 per-condition variances with median log-space $R^2$ $0.86$, against $0.79$ for the
 two-parameter power law behind $\beta$; a constant multiple of $\Covh$, also one
 parameter, reaches $0.66$. The six CIFAR-10 reruns reproduce the published runs
-($h_{\mathrm{eff}}=4.79$ and $5.81$ at 60k for seed 0, against $4.80$ and $5.75$).
+($h_{\mathrm{eff}}=4.79$ and $5.81$ at 60k for seed 0, against $4.80$ and $5.75$). A
+second rerun of all six on another GPU, used for the image-scale calibration below,
+gives $4.93$ and $5.65$, the same 31/36 agreement and the same $1.13$--$1.34h$
+endpoints: $h_{\mathrm{eff}}$ is reproducible to a few percent across non-deterministic
+GPU runs.
 
 \paragraph{Which reference family.}
 \label{app:families}
@@ -3015,7 +3043,13 @@ Theorem~\ref{thm:endpoint}), $e^{-|y-y^i|/s}$ (Laplace), $(1+|y-y^i|^2/s^2)^{-1}
 (Cauchy), and uniform weights on the $s$ nearest labels (kNN). The fifth is not atomic:
 the linear-Gaussian posterior with observation noise $s$, whose covariance does not
 depend on $y$. The Gaussian family reproduces the published fit exactly (the same
-$h_{\mathrm{eff}}$ at 120/120 checkpoints).
+$h_{\mathrm{eff}}$ at 120/120 checkpoints). A sixth family, also not atomic but with a
+variance that depends on $y$, is the endpoint-smoothed law
+$\sum_ip_i^{(s)}(y)\N(x^i,\rho^2I_d)$ that noise of scale $\rho$ on the training
+endpoints produces at the optimum, with trace $\tr\mathrm{Cov}_s(y)+d\rho^2$; it nests
+the Gaussian at $\rho=0$, so it is fitted over
+$(s,\rho)$ and compared by leave-one-condition-out error, where the extra parameter
+counts only if it predicts conditions it was not fitted to.
 
 \begin{table}[htb]
 \centering\small
@@ -3030,12 +3064,34 @@ kNN & 48/48 & $0.36$ & 0/48 & 1/48\\
 posterior (not atomic) & 42/48 & $-0.12$ & --- & ---\\
 \bottomrule
 \end{tabular}
-\caption{The 48 synthetic checkpoints of Section~\ref{sec:heff} refitted under five
-reference families. ``Intervals agree'': the 95\% bootstrap intervals of the scales
-fitted to the variances and to the means overlap. ``Best variance fit'': lowest log-space
-misfit among the four atomic families. ``Best mean prediction'': the scale fitted to the
-variances predicts the means best. The posterior family's optimum lies at the edge of the
-grid at 37/48 checkpoints. Script: \texttt{scripts/heff\_family\_test.py}.}
+
+\vspace{6pt}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lcccccc}
+\toprule
+& \multicolumn{3}{c}{atomic families} & \multicolumn{3}{c}{endpoint-smoothed (not atomic)}\\
+\cmidrule(lr){2-4}\cmidrule(l){5-7}
+$h$ & G best & L best & med.\ $R^2$ G / L & $0\in$ CI of $\hat\rho$ &
+max $d\hat\rho^2/\tr$ & held-out vs G\\
+\midrule
+$0$ & 7/12 & 3/12 & 0.82 / 0.75 & 9/12 & 0.06 & 6 / 4 / 2\\
+$0.01$ & 8/12 & 3/12 & 0.82 / 0.81 & 10/12 & 0.08 & 1 / 5 / 6\\
+$0.05$ & 11/12 & 1/12 & 0.94 / 0.91 & 12/12 & 0.03 & 1 / 6 / 5\\
+$0.1$ & 10/12 & 2/12 & 0.95 / 0.95 & 10/12 & 0.07 & 2 / 6 / 4\\
+all & 36/48 & 9/48 & 0.86 / 0.82 & 41/48 & 0.08 & 10 / 21 / 17\\
+\bottomrule
+\end{tabular}
+\caption{The 48 synthetic checkpoints of Section~\ref{sec:heff} refitted under six
+reference families. Top: ``intervals agree'': the 95\% bootstrap intervals of the scales
+fitted to the variances and to the means overlap; ``best variance fit'': lowest log-space
+misfit among the four atomic families; ``best mean prediction'': the scale fitted to the
+variances predicts the means best. The posterior family's trace is the same at every
+condition, so its $R^2$ is at most $0$ by construction; its optimum lies at the edge of
+the grid at 37/48 checkpoints. Bottom, by training bandwidth: how often the Gaussian (G)
+and Laplace (L) references fit the variances best, and the endpoint-smoothed family
+fitted over $(s,\rho)$; ``held-out vs G'': checkpoints at which its
+leave-one-condition-out error is lower / equal / higher than the Gaussian's. Script:
+\texttt{scripts/heff\_family\_test.py}.}
 \label{tab:families}
 \end{table}
 
@@ -3044,11 +3100,18 @@ it at all 48 checkpoints and Laplace at 45. Fit quality does. Paired at each che
 the Gaussian reference has the lower variance misfit than Laplace at 36/48 checkpoints
 and in 9/12 runs (median log-RMSE difference $0.020$, 95\% bootstrap interval $[0.011,
 0.024]$), than Cauchy at 41/48 and than kNN at 48/48. Its variance-fitted scale also
-predicts the means best at 41/48. The non-atomic posterior cannot reproduce the
-variation of the variance across conditions at all ($R^2=-0.12$): that variation is a
-property of the finite set of atoms. The evidence is therefore for a mixture over the
-training atoms whose weights are best described by the Gaussian kernel of the label
-noise, with the Laplace kernel a close second. At $h{=}0.5$, where the reference barely
+predicts the means best at 41/48. The posterior family's $R^2=-0.12$ shows only that
+the trained variance varies across conditions, which a $y$-independent covariance cannot
+follow. The test that could fail is the endpoint-smoothed family, and it does not
+displace the atoms: $\hat\rho=0$ lies inside its bootstrap interval at 41/48 checkpoints,
+$d\hat\rho^2$ is at most $8\%$ of the trace, and its held-out error is lower than the
+Gaussian's at 10/48 checkpoints and higher at 17. Only at $h{=}0$ does it help at half
+the checkpoints, by a median $0.0007$ in log-RMSE. The evidence is therefore for a
+mixture over the training atoms whose weights are best described by the Gaussian
+kernel, with the Laplace kernel a close second. The preference is weakest where the
+smoothing is the network's own: the Gaussian fits best at 7/12 checkpoints at $h{=}0$,
+against 11/12 and 10/12 at $h=0.05$ and $0.1$, where it is also the kernel of the
+training noise. At $h{=}0.5$, where the reference barely
 varies, the Gaussian family still fits the variances best (14/15) but its intervals agree
 at only 9/15, as Proposition~\ref{prop:heffid} predicts.
 
@@ -3072,8 +3135,12 @@ for $[0.02,0.05)$ and below. Theorem~\ref{thm:calib} accounts for both edges: pa
 bounds the coverage from below by $\alpha$ at large bandwidth, part (d) sends it to zero
 as $n_{\mathrm{eff}}\to1$. Applied with the actual kernel weights at $h_{\mathrm{eff}}$
 (the local model of Section~\ref{sec:heff}), it predicts the measured 90\% coverage with
-$R^2=0.90$, mean absolute error $0.051$ and Spearman $0.89$; the exact finite reference
-law at $h_{\mathrm{eff}}$ does so with $R^2=0.93$, and the two predictions agree with
+$R^2=0.90$, mean absolute error $0.051$ and Spearman $0.89$. Nothing in the prediction
+is fitted to coverage, but the 75 checkpoints are nested in 15 runs: resampling runs
+gives $R^2\in[0.85,0.93]$ (95\%), and the binomial noise of 100 held-out pairs alone
+would cap it at $0.97$ (\texttt{scripts/t3\_coverage\_uncertainty.py}). The exact finite
+reference law at $h_{\mathrm{eff}}$ does so with $R^2=0.93$ ($[0.89,0.96]$), and the
+two predictions agree with
 each other at $R^2=0.97$. Replacing the actual weights by their effective sample size
 alone (a plug-in of (d) that ignores weight fluctuations) gives only $R^2=0.61$: at small
 $n_{\mathrm{eff}}$ the dispersion of the weights, not just their number, sets the
@@ -3087,6 +3154,24 @@ mixture), but is no better than the same rule on the iteration count. Two limits
 the 2-D problem $h_{\mathrm{eff}}$ predicts coverage, i.e.\ collapse, far better than
 the PIT error ($-0.28$), and the on-atom fraction, not $h_{\mathrm{eff}}$, predicts
 extraction ($0.95$).
+
+\paragraph{Image scale.} The same measurement needs no posterior on CIFAR-10: the
+bottom half of a test-split image is a draw from the true conditional law given its top
+half. At the 42 archived checkpoints of a second training of the six $h\in\{4,5\}$ runs
+of Section~\ref{sec:heff}, with 64 test images and $M{=}64$ draws each, we record per
+hidden pixel whether the true value falls in the 5--95\% quantile interval of the
+draws, together with the PIT error and the extraction rate
+(\texttt{scripts/calib\_image\_checkpoints.py}). With $M{=}64$ that interval covers a
+fresh draw from a calibrated sampler with probability $0.873$, not $0.90$, and the
+measurements are to be read against it. Coverage starts above it ($0.91$--$0.95$ at
+2k), falls to $0.67$--$0.78$ by 20k and partly recovers, to $0.72$--$0.81$ at 60k,
+while extraction rises to $0.67$--$0.76$. $h_{\mathrm{eff}}$, which falls nearly
+monotonically, cannot follow the recovery: it ranks coverage with Spearman $0.63$
+($0.59$ given the iteration; $h_{\mathrm{eff}}/h$: $0.36$), against $0.98$ ($0.97$) for
+the generated per-pixel standard deviation, which needs neither the training set nor a
+reference. Extraction follows the iteration ($0.98$). At image scale the bandwidth
+therefore locates the model relative to its training set, in its mean and total
+variance, but does not predict its per-pixel calibration.
 
 \subsection{A spectral-bias model of the effective bandwidth}
 \label{app:specbias}
@@ -3116,9 +3201,9 @@ kernel $k$ \citep{jacot2018neural}, which learns low frequencies first
 $\{y^i\}$. Then at every condition $y^j$, $f_t(y^j)\to f^\star(y^j)$ exponentially fast,
 so the model's mean tends to $x^j$ and its variance to $0$: it reaches the reference
 at $h$, with no floor. (b) Let $\rho$ be Lebesgue measure on $\R$ (a uniform label
-density) and $\hat k(\omega)=a|\omega|^{-\beta}$. Then $f_t-c$ is $f^\star-c$ filtered by
-$\hat\varphi_t(\omega)=G\big(\omega\,(at)^{-1/\beta}\big)$, $G(u)=1-e^{-|u|^{-\beta}}$: a
-low-pass filter of fixed shape whose resolution scale is $s(t)=(at)^{-1/\beta}$.
+density) and $\hat k(\omega)=a|\omega|^{-\zeta}$. Then $f_t-c$ is $f^\star-c$ filtered by
+$\hat\varphi_t(\omega)=G\big(\omega\,(at)^{-1/\zeta}\big)$, $G(u)=1-e^{-|u|^{-\zeta}}$: a
+low-pass filter of fixed shape whose resolution scale is $s(t)=(at)^{-1/\zeta}$.
 \end{proposition}
 
 \begin{proof}
@@ -3129,14 +3214,14 @@ hence $\|f_t-f^\star\|\le e^{-t\lambda_{\min}/N}\|f^\star-c\|$ in $\R^N$, which 
 every coordinate. At $y^j$ the hard-conditioning moments are $f^\star(y^j)=(x^j,|x^j|^2)$,
 so the mean tends to $x^j$ and the variance $|x^j|^2-|x^j|^2=0$.
 (b) With $\rho$ Lebesgue, $T_k$ is convolution with $k$, the Fourier multiplier
-$\hat k(\omega)$, so $e^{-tT_k}$ is the multiplier $e^{-ta|\omega|^{-\beta}}$ and
+$\hat k(\omega)$, so $e^{-tT_k}$ is the multiplier $e^{-ta|\omega|^{-\zeta}}$ and
 $I-e^{-tT_k}$ the multiplier
-$1-e^{-ta|\omega|^{-\beta}}=G(\omega(at)^{-1/\beta})$.
+$1-e^{-ta|\omega|^{-\zeta}}=G(\omega(at)^{-1/\zeta})$.
 \end{proof}
 
 Part (b) is an idealisation: the label law is not uniform, and $\hat k$ is a power law
-only at high frequency (Laplace kernel: $\beta=2$; Mat\'ern-$3/2$: $\beta=4$; Gaussian:
-exponential decay, $\beta=\infty$). We therefore compute \eqref{eq:kgf} exactly on the
+only at high frequency (Laplace kernel: $\zeta=2$; Mat\'ern-$3/2$: $\zeta=4$; Gaussian:
+exponential decay, $\zeta=\infty$). We therefore compute \eqref{eq:kgf} exactly on the
 actual EXP-1 training sets ($\rho_h$ by 15-point Gauss--Hermite quadrature around each
 label, three seeds, $\ell\in\{0.3,1\}\times\mathrm{sd}(y)$) and apply the estimator
 \eqref{eq:heff} at the 20 conditions (\texttt{theory\_t2\_resolution.py},
@@ -3146,7 +3231,7 @@ fit is $0.97$ and $h_{\mathrm{mean}}$ and $h_{\mathrm{eff}}$ differ by a median 
 (Mat\'ern: $0.95$, $9\%$), as for the trained networks. \emph{$h_{\mathrm{eff}}$ falls to
 $h$}, in 6/6 Laplace and 5/6 Mat\'ern configurations, as (a) predicts for $h=0$.
 \emph{The rate is set by the spectrum}: $s(t)$ falls with log-log slope $-0.40$
-(Laplace; $-1/\beta=-0.5$) and $-0.29$ (Mat\'ern; $-0.25$), while under the Gaussian
+(Laplace; $-1/\zeta=-0.5$) and $-0.29$ (Mat\'ern; $-0.25$), while under the Gaussian
 kernel it barely moves ($-0.05$) and $h_{\mathrm{eff}}$ never reaches $h$ (0/6).
 
 \paragraph{From moments to the field.} The model above acts on moments. At the level of
@@ -3224,12 +3309,21 @@ $y_1,\dots,y_C$; $M$ samples per condition.
 \item \emph{Tracking.} Fit $\beta$, the OLS slope of $\log\tr\Cov$ on $\log\tr\Covh$
   across conditions, with its standard error and $R^2$; the population optimum gives
   $\beta=1$.
+\item \emph{Bandwidth.} Fit $h_{\mathrm{eff}}$ and $h_{\mathrm{mean}}$ of \eqref{eq:heff}
+  over a log grid of bandwidths, with bootstrap intervals over conditions.
 \end{enumerate}
+\emph{Sizes.} $M\ge128$ and $C\ge48$, the smallest settings behind the CIFAR-10 numbers
+here: the trace from $M$ samples has relative error at most $\sqrt{2/(M-1)}$ ($12.5\%$
+at $M{=}128$), and the $M{=}16$, $C{=}8$ training-time estimator was off by up to
+$15\%$.\\
 \emph{Reading.} $\beta\approx1$ with aggregate ratio $\approx1$: the model is near the
 population optimum for this $h$, whose law is atomic and carries the floor
-\eqref{eq:w2floor}. An on-atom fraction near $1$: samples are training examples.
-$\tr\Cov\approx\tr\Sigmapost$ on its own certifies nothing, since for a suitable $h$
-it holds for an atomic law (Section~\ref{sec:p7}).
+\eqref{eq:w2floor}. $h_{\mathrm{eff}}\approx h_{\mathrm{mean}}$: one bandwidth explains
+the means and the variances; $h_{\mathrm{eff}}/h>1$: the model sits at a larger
+bandwidth than it was trained at, which is what a partial $\beta$ means. An on-atom
+fraction near $1$: samples are training examples. $\tr\Cov\approx\tr\Sigmapost$ on its
+own certifies nothing, since for a suitable $h$ it holds for an atomic law
+(Section~\ref{sec:p7}).
 \end{minipage}}
 \end{center}
 
@@ -3330,21 +3424,9 @@ aggregate ratio, since a per-condition denominator can be arbitrarily close to z
 even the aggregate survives only where the reference has range, the three instances
 giving $1.181$, $0.924$ and $1.166$ at $h{=}6$.
 
-Table~\ref{tab:exp1} reports the four exact-theory observables (curves in
-Figure~\ref{fig:p1p4}, appendix). As training proceeds past
-the good-calibration phase, the conditional generated variance collapses from
-$\approx\Sigmapost$ toward $0$ (P1), the velocity field approaches the collapsed
-closed form $(x^i-x)/(1-t)$ (P2), the generated mean moves from $\mu_{\mathrm{post}}$
-toward the training point $x^i$ (P3), and the unconditional baseline retains
-data-scale variance throughout (P4).
-
-
-
-The variance tracks the true posterior up to $\sim\!10^4$ iterations---the model is a
-correct Bayesian sampler in this phase, which is exactly why early stopping works
-\citep{physicscfm2026}---and then collapses, stalling near $0.40$ at $2\times10^5$.
-This residual is an \emph{optimisation} gap, not a failure of
-Proposition~\ref{prop:collapse}: all four observables keep descending with the loss.
+\paragraph{EXP-1 beyond $2\times10^5$ iterations.} Table~\ref{tab:exp1} and
+Figure~\ref{fig:p1p4} give the four observables of Section~\ref{sec:exp1} by iteration
+(P1--P4). The residual near $0.40$ at $2\times10^5$ keeps falling with the loss.
 At a \emph{fixed} learning rate, however, training eventually diverges near $10^6$
 iterations, since $(\star)$ steepens as $t\to1$ and a constant step becomes too large
 once the loss is small. A cosine schedule ($\text{lr}:10^{-3}\to10^{-6}$) removes that

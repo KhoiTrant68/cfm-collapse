@@ -1052,3 +1052,50 @@ reproducing the sensitivity gap between the two metrics.
 bounded by the size of the obstruction (small at exactly the d=2, N=200 configuration the
 paper studies most), it pays `+ρ²I_d` of variance for continuity, and it **degrades with
 dimension**. Not yet tested at scale, no ρ sweep on EXP-2/EXP-3, no anisotropic ρ tried.
+
+---
+
+## Round-6 revision: three checks on the effective-bandwidth claims (2026-10-11)
+
+Prompted by `docs/review/simulated_review_round6_2026-10-11.md`. All three are in the paper
+(Sec. 4.3, App. `app:calibdetails`, Table `tab:families`) and asserted by
+`scripts/verify_paper_numbers.py`.
+
+**1. A non-atomic competitor that can fail.** The posterior family of the family test has
+the same trace at every condition, so its R² ≤ 0 by construction. The endpoint-smoothed law
+`sum_i p_i^(s)(y) N(x_i, rho^2 I)` (trace `tr Cov_s + d rho^2`) varies with y and nests the
+Gaussian at rho = 0. Fitted over (s, rho) on the 48 synthetic checkpoints and compared by
+leave-one-condition-out error (`scripts/heff_family_test.py`):
+
+| h | Gaussian best / Laplace best | 0 in CI of rho-hat | max d rho^2 / trace | held-out vs Gaussian (lower / equal / higher) |
+|---|---|---|---|---|
+| 0 | 7 / 3 of 12 | 9/12 | 0.06 | 6 / 4 / 2 |
+| 0.01 | 8 / 3 | 10/12 | 0.08 | 1 / 5 / 6 |
+| 0.05 | 11 / 1 | 12/12 | 0.03 | 1 / 6 / 5 |
+| 0.1 | 10 / 2 | 10/12 | 0.07 | 2 / 6 / 4 |
+| all 48 | 36 / 9 | 41/48 | 0.08 | 10 / 21 / 17 |
+
+The variances are those of a mixture over the atoms. The Gaussian preference is weakest at
+h=0, where the smoothing is the network's own; at h=0 the extra spread helps at half the
+checkpoints, by a median 0.0007 in log-RMSE.
+
+**2. How sure is R² = 0.90?** Nothing in the coverage prediction is fitted to coverage, so
+there is nothing to cross-validate, but the 75 checkpoints are nested in 15 runs.
+Resampling runs: R² ∈ [0.85, 0.93] (reference law: 0.93, [0.89, 0.96]); the binomial noise
+of 100 held-out pairs alone caps R² at 0.97 (`scripts/t3_coverage_uncertainty.py`).
+
+**3. Image-scale calibration (negative).** At the 42 checkpoints of a second training of the
+six CIFAR-10 h_eff runs (h ∈ {4, 5}; `results/exp3/_rerun/`), 64 test-split images, M=64:
+- 90% per-pixel coverage: 0.91–0.95 at 2k, 0.67–0.78 by 20k, 0.72–0.81 at 60k. The 5–95%
+  quantile interval of 64 draws covers a calibrated sampler's fresh draw with probability
+  0.873, not 0.90.
+- Extraction rises to 0.67–0.76 and follows the iteration (Spearman 0.98).
+- Coverage is ranked by the generated pixel SD (0.98; 0.97 given the iteration), not by
+  h_eff (0.63; 0.59). At image scale h_eff locates the model relative to its training set
+  but does not predict its per-pixel calibration.
+
+The second training reproduces h_eff (4.93 and 5.65 at 60k for seed 0, against 4.79/4.80
+and 5.81/5.75; 31/36 agreement; 1.13–1.34h endpoints).
+
+Rank-based coverage at ten levels, per principal component and in a joint PC region
+(`scripts/calib_image_levels.py`) is running on the server for all twelve re-runs.

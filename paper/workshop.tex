@@ -43,16 +43,17 @@ at an Effective Bandwidth}
 With the training set fixed, the population minimiser of conditional flow matching
 sends a condition that identifies one example to that example, and Gaussian noise on
 the condition turns its endpoint into a Nadaraya--Watson mixture of the training atoms.
-We show that trained networks follow this mixture (at image scale, its first two
-moments) at one \emph{effective bandwidth}
+We show that trained networks follow this mixture (at image scale, its mean and total
+variance) at one \emph{effective bandwidth}
 $h_{\mathrm{eff}}$, fitted to their per-condition variances and recovered independently
 from their per-condition means (48/48 synthetic and 31/36 CIFAR-10 checkpoints), which
 training shrinks towards the bandwidth $h$ of the label noise. We prove when
 $h_{\mathrm{eff}}$ is identified and what calibration it implies: for any prior, label
 noise moves the coverage of the reference law by at most a total-variation term of
 order $\sqrt{k}\,h^2/\sigma^2$, and a vanishing effective sample collapses it to zero.
-From $h_{\mathrm{eff}}$ alone, the theorem predicts the held-out coverage of 75 trained
-synthetic checkpoints with $R^2=0.90$, ranking it better than the training loss or the iteration.
+From $h_{\mathrm{eff}}$ the theorem predicts the held-out coverage of 75 trained
+synthetic checkpoints with $R^2=0.90$, ranking it better than the training loss or the
+iteration; at image scale the sample spread ranks it better.
 \end{abstract}
 
 % ==========================================================================
@@ -72,10 +73,11 @@ is from either (Figure~\ref{fig:mechanism}). Our contributions:
   label noise at bandwidth $h$ gives a Nadaraya--Watson (NW) mixture of the training
   atoms, atomic at every $h$ (Section~\ref{sec:theory}).
 \item \textbf{One number per checkpoint.} A trained network follows that mixture at one
-  bandwidth $h_{\mathrm{eff}}$, identified by two disjoint statistics; we prove when it
+  bandwidth $h_{\mathrm{eff}}$ (at image scale, in its mean and total variance),
+  identified by two disjoint statistics; we prove when it
   is identified (Section~\ref{sec:heff}).
 \item \textbf{A calibration theorem.} The bandwidth sets the coverage of credible
-  regions, for any prior, and predicts the measured coverage of trained models
+  regions, for any prior, and predicts the measured coverage of trained synthetic models
   (Section~\ref{sec:calib}).
 \end{itemize}
 
@@ -131,7 +133,8 @@ h_{\mathrm{mean}}=\arg\min_{h'}\sum_c\big\|m_c-\bar x_{h'}(y_c)\big\|.
 \end{equation}
 The two use disjoint statistics, so $h_{\mathrm{mean}}\approx h_{\mathrm{eff}}$ checks
 that the model is a mixture over the training atoms at all; other atomic references pass
-that check too, and the Gaussian one wins on fit quality (Table~\ref{tab:families}).
+that check too, the Gaussian one wins on fit quality, and a non-atomic spread around
+each atom does not improve it (Table~\ref{tab:families}).
 
 \begin{proposition}[Identifiability]
 \label{prop:heffid}
@@ -139,10 +142,11 @@ With $D_i=|y-y^i|^2$ and $\Cov_p$ the covariance over $i$ under $p^{(h)}(y)$,
 $\partial_h\bar x_h=h^{-3}\Cov_p(x^i,D_i)$ and
 $\partial_h\tr\Covh=h^{-3}\Cov_p(|x^i-\bar x_h|^2,D_i)$, so the latter is $O(h^{-3})$ as
 $h\to\infty$. Let $F(h)=(\log\tr\mathrm{Cov}_h(y_c))_c$, the measured log traces be
-$F(h^\star)+e$, and $\hat h$ minimise $|\log T-F(h)|$ over a set $\mathcal H$. Then
-$\hat h\in\{h\in\mathcal H:|F(h)-F(h^\star)|\le2|e|\}$; if this set lies in an interval
-$\mathcal I\ni h^\star$ on which $u\cdot F'\ge\kappa>0$ for a unit vector $u$, then
-$|\hat h-h^\star|\le2|e|/\kappa$. \proofin{}
+$F(h_{\mathrm{true}})+e$, and $\hat h$ minimise $|\log T-F(h)|$ over a set
+$\mathcal H\ni h_{\mathrm{true}}$. Then $\hat h\in\{h\in\mathcal
+H:|F(h)-F(h_{\mathrm{true}})|\le2|e|\}$; if this set lies in an interval $\mathcal I\ni
+h_{\mathrm{true}}$ on which $u\cdot F'\ge\kappa>0$ for a unit vector $u$, then $|\hat
+h-h_{\mathrm{true}}|\le2|e|/\kappa$. \proofin{}
 \end{proposition}
 
 \begin{figure}[t]
@@ -193,14 +197,15 @@ with probability $0$. \proofin{}
 bandwidth: infinite-data limit (Theorem~\ref{thm:calib}c), over-covering for $h>0$;
 finite effective sample (d), collapsing at small bandwidth; dots: 75 trained
 checkpoints at their $h_{\mathrm{eff}}$. (b) Coverage predicted from $h_{\mathrm{eff}}$
-alone against the measured coverage.}
+against the measured coverage.}
 \label{fig:t3}
 \end{figure}
 
 Parts (b, c) give the over-coverage edge of a calibration window, (d) the collapse edge.
 Modelling the atoms near a held-out $y^\star$ as draws of $\pi_h$ with the actual
 weights, (d) predicts the held-out 90\% coverage of all 75 synthetic checkpoints from
-their $h_{\mathrm{eff}}$ alone with $R^2=0.90$ (Figure~\ref{fig:t3}). As a ranking,
+their $h_{\mathrm{eff}}$ with $R^2=0.90$, $[0.85,0.93]$ resampling runs
+(Figure~\ref{fig:t3}). As a ranking,
 $h_{\mathrm{eff}}$ (Spearman $0.92$) beats the training loss ($0.85$) and the iteration
 ($-0.41$), keeps $0.90$ with the iteration partialled out, and repeats on an eight-mode
 mixture posterior ($0.91$; Table~\ref{tab:baselines}). On the mixture the
@@ -241,8 +246,10 @@ reproduces the fall of $h_{\mathrm{eff}}$ to $h$, and limited label resolution p
 reweights the atoms without moving them (Appendix~\ref{app:specbias}), but neither
 explains why networks stop just above $h$. Calibration is shown where the posterior is
 known ($d\le8$); at image scale $h_{\mathrm{eff}}$ fits the variances no better than a
-power law. Within that scope, the memorisation and calibration of a conditional sampler
-are set by one number read off a checkpoint.
+power law, and the sample spread ranks held-out coverage better than $h_{\mathrm{eff}}$
+does (Spearman $0.98$ against $0.63$). Within that scope, the bandwidth read off a
+checkpoint places it relative to its training set and sets its calibration; extraction
+is read from the on-atom fraction.
 
 \label{endmain}
 \subsection*{Reproducibility and AI use statements}
@@ -348,15 +355,15 @@ argument is $|x^i-\bar x_h|^2$.
 and both arguments of the covariance are bounded, so
 $h^3\partial_h\tr\Covh\to\frac1N\sum_i(|x^i-\bar x|^2-m)(D_i-\bar D_\infty)$ with $m$ and
 $\bar D_\infty$ the unweighted means; the error is $O(h^{-2})$.
-\emph{Stability.} Take $h^\star\in\mathcal H$ (on a grid, replace $e$ by the misfit at
-the grid point nearest $h^\star$). By optimality of $\hat h$,
-$|F(\hat h)-F(h^\star)-e|=|\log T-F(\hat h)|\le|\log T-F(h^\star)|=|e|$, so
-$|F(\hat h)-F(h^\star)|\le2|e|$, which is the first claim. If that set lies in
+\emph{Stability.} Write $h_\circ=h_{\mathrm{true}}\in\mathcal H$ (on a grid, replace $e$
+by the misfit at the grid point nearest $h_\circ$). By optimality of $\hat h$,
+$|F(\hat h)-F(h_\circ)-e|=|\log T-F(\hat h)|\le|\log T-F(h_\circ)|=|e|$, so
+$|F(\hat h)-F(h_\circ)|\le2|e|$, which is the first claim. If that set lies in
 $\mathcal I$, then $\hat h\in\mathcal I$, and by the mean-value theorem applied to
-the scalar function $u\cdot F$ on the segment between $h^\star$ and $\hat h$,
-$|F(\hat h)-F(h^\star)|\ge|u\cdot(F(\hat h)-F(h^\star))|=|u\cdot F'(\xi)|\,|\hat h-h^\star|
-\ge\kappa|\hat h-h^\star|$ for some $\xi\in\mathcal I$. Combining the two gives
-$|\hat h-h^\star|\le2|e|/\kappa$. The argument uses only that $\hat h$ minimises a
+the scalar function $u\cdot F$ on the segment between $h_\circ$ and $\hat h$,
+$|F(\hat h)-F(h_\circ)|\ge|u\cdot(F(\hat h)-F(h_\circ))|=|u\cdot F'(\xi)|\,|\hat h-h_\circ|
+\ge\kappa|\hat h-h_\circ|$ for some $\xi\in\mathcal I$. Combining the two gives
+$|\hat h-h_\circ|\le2|e|/\kappa$. The argument uses only that $\hat h$ minimises a
 distance to a curve, so it applies verbatim to $h_{\mathrm{mean}}$ and $G$.
 \end{proof}
 
@@ -508,7 +515,13 @@ Theorem~\ref{thm:endpoint}), $e^{-|y-y^i|/s}$ (Laplace), $(1+|y-y^i|^2/s^2)^{-1}
 (Cauchy), and uniform weights on the $s$ nearest labels (kNN). The fifth is not atomic:
 the linear-Gaussian posterior with observation noise $s$, whose covariance does not
 depend on $y$. The Gaussian family reproduces the published fit exactly (the same
-$h_{\mathrm{eff}}$ at 120/120 checkpoints).
+$h_{\mathrm{eff}}$ at 120/120 checkpoints). A sixth family, also not atomic but with a
+variance that depends on $y$, is the endpoint-smoothed law
+$\sum_ip_i^{(s)}(y)\N(x^i,\rho^2I_d)$ that noise of scale $\rho$ on the training
+endpoints produces at the optimum, with trace $\tr\mathrm{Cov}_s(y)+d\rho^2$; it nests
+the Gaussian at $\rho=0$, so it is fitted over
+$(s,\rho)$ and compared by leave-one-condition-out error, where the extra parameter
+counts only if it predicts conditions it was not fitted to.
 
 \begin{table}[htb]
 \centering\small
@@ -523,12 +536,34 @@ kNN & 48/48 & $0.36$ & 0/48 & 1/48\\
 posterior (not atomic) & 42/48 & $-0.12$ & --- & ---\\
 \bottomrule
 \end{tabular}
-\caption{The 48 synthetic checkpoints of Section~\ref{sec:heff} refitted under five
-reference families. ``Intervals agree'': the 95\% bootstrap intervals of the scales
-fitted to the variances and to the means overlap. ``Best variance fit'': lowest log-space
-misfit among the four atomic families. ``Best mean prediction'': the scale fitted to the
-variances predicts the means best. The posterior family's optimum lies at the edge of the
-grid at 37/48 checkpoints. Script: \texttt{scripts/heff\_family\_test.py}.}
+
+\vspace{6pt}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lcccccc}
+\toprule
+& \multicolumn{3}{c}{atomic families} & \multicolumn{3}{c}{endpoint-smoothed (not atomic)}\\
+\cmidrule(lr){2-4}\cmidrule(l){5-7}
+$h$ & G best & L best & med.\ $R^2$ G / L & $0\in$ CI of $\hat\rho$ &
+max $d\hat\rho^2/\tr$ & held-out vs G\\
+\midrule
+$0$ & 7/12 & 3/12 & 0.82 / 0.75 & 9/12 & 0.06 & 6 / 4 / 2\\
+$0.01$ & 8/12 & 3/12 & 0.82 / 0.81 & 10/12 & 0.08 & 1 / 5 / 6\\
+$0.05$ & 11/12 & 1/12 & 0.94 / 0.91 & 12/12 & 0.03 & 1 / 6 / 5\\
+$0.1$ & 10/12 & 2/12 & 0.95 / 0.95 & 10/12 & 0.07 & 2 / 6 / 4\\
+all & 36/48 & 9/48 & 0.86 / 0.82 & 41/48 & 0.08 & 10 / 21 / 17\\
+\bottomrule
+\end{tabular}
+\caption{The 48 synthetic checkpoints of Section~\ref{sec:heff} refitted under six
+reference families. Top: ``intervals agree'': the 95\% bootstrap intervals of the scales
+fitted to the variances and to the means overlap; ``best variance fit'': lowest log-space
+misfit among the four atomic families; ``best mean prediction'': the scale fitted to the
+variances predicts the means best. The posterior family's trace is the same at every
+condition, so its $R^2$ is at most $0$ by construction; its optimum lies at the edge of
+the grid at 37/48 checkpoints. Bottom, by training bandwidth: how often the Gaussian (G)
+and Laplace (L) references fit the variances best, and the endpoint-smoothed family
+fitted over $(s,\rho)$; ``held-out vs G'': checkpoints at which its
+leave-one-condition-out error is lower / equal / higher than the Gaussian's. Script:
+\texttt{scripts/heff\_family\_test.py}.}
 \label{tab:families}
 \end{table}
 
@@ -537,11 +572,18 @@ it at all 48 checkpoints and Laplace at 45. Fit quality does. Paired at each che
 the Gaussian reference has the lower variance misfit than Laplace at 36/48 checkpoints
 and in 9/12 runs (median log-RMSE difference $0.020$, 95\% bootstrap interval $[0.011,
 0.024]$), than Cauchy at 41/48 and than kNN at 48/48. Its variance-fitted scale also
-predicts the means best at 41/48. The non-atomic posterior cannot reproduce the
-variation of the variance across conditions at all ($R^2=-0.12$): that variation is a
-property of the finite set of atoms. The evidence is therefore for a mixture over the
-training atoms whose weights are best described by the Gaussian kernel of the label
-noise, with the Laplace kernel a close second. At $h{=}0.5$, where the reference barely
+predicts the means best at 41/48. The posterior family's $R^2=-0.12$ shows only that
+the trained variance varies across conditions, which a $y$-independent covariance cannot
+follow. The test that could fail is the endpoint-smoothed family, and it does not
+displace the atoms: $\hat\rho=0$ lies inside its bootstrap interval at 41/48 checkpoints,
+$d\hat\rho^2$ is at most $8\%$ of the trace, and its held-out error is lower than the
+Gaussian's at 10/48 checkpoints and higher at 17. Only at $h{=}0$ does it help at half
+the checkpoints, by a median $0.0007$ in log-RMSE. The evidence is therefore for a
+mixture over the training atoms whose weights are best described by the Gaussian
+kernel, with the Laplace kernel a close second. The preference is weakest where the
+smoothing is the network's own: the Gaussian fits best at 7/12 checkpoints at $h{=}0$,
+against 11/12 and 10/12 at $h=0.05$ and $0.1$, where it is also the kernel of the
+training noise. At $h{=}0.5$, where the reference barely
 varies, the Gaussian family still fits the variances best (14/15) but its intervals agree
 at only 9/15, as Proposition~\ref{prop:heffid} predicts.
 
@@ -574,9 +616,9 @@ kernel $k$ \citep{jacot2018neural}, which learns low frequencies first
 $\{y^i\}$. Then at every condition $y^j$, $f_t(y^j)\to f^\star(y^j)$ exponentially fast,
 so the model's mean tends to $x^j$ and its variance to $0$: it reaches the reference
 at $h$, with no floor. (b) Let $\rho$ be Lebesgue measure on $\R$ (a uniform label
-density) and $\hat k(\omega)=a|\omega|^{-\beta}$. Then $f_t-c$ is $f^\star-c$ filtered by
-$\hat\varphi_t(\omega)=G\big(\omega\,(at)^{-1/\beta}\big)$, $G(u)=1-e^{-|u|^{-\beta}}$: a
-low-pass filter of fixed shape whose resolution scale is $s(t)=(at)^{-1/\beta}$.
+density) and $\hat k(\omega)=a|\omega|^{-\zeta}$. Then $f_t-c$ is $f^\star-c$ filtered by
+$\hat\varphi_t(\omega)=G\big(\omega\,(at)^{-1/\zeta}\big)$, $G(u)=1-e^{-|u|^{-\zeta}}$: a
+low-pass filter of fixed shape whose resolution scale is $s(t)=(at)^{-1/\zeta}$.
 \end{proposition}
 
 \begin{proof}
@@ -587,14 +629,14 @@ hence $\|f_t-f^\star\|\le e^{-t\lambda_{\min}/N}\|f^\star-c\|$ in $\R^N$, which 
 every coordinate. At $y^j$ the hard-conditioning moments are $f^\star(y^j)=(x^j,|x^j|^2)$,
 so the mean tends to $x^j$ and the variance $|x^j|^2-|x^j|^2=0$.
 (b) With $\rho$ Lebesgue, $T_k$ is convolution with $k$, the Fourier multiplier
-$\hat k(\omega)$, so $e^{-tT_k}$ is the multiplier $e^{-ta|\omega|^{-\beta}}$ and
+$\hat k(\omega)$, so $e^{-tT_k}$ is the multiplier $e^{-ta|\omega|^{-\zeta}}$ and
 $I-e^{-tT_k}$ the multiplier
-$1-e^{-ta|\omega|^{-\beta}}=G(\omega(at)^{-1/\beta})$.
+$1-e^{-ta|\omega|^{-\zeta}}=G(\omega(at)^{-1/\zeta})$.
 \end{proof}
 
 Part (b) is an idealisation: the label law is not uniform, and $\hat k$ is a power law
-only at high frequency (Laplace kernel: $\beta=2$; Mat\'ern-$3/2$: $\beta=4$; Gaussian:
-exponential decay, $\beta=\infty$). We therefore compute \eqref{eq:kgf} exactly on the
+only at high frequency (Laplace kernel: $\zeta=2$; Mat\'ern-$3/2$: $\zeta=4$; Gaussian:
+exponential decay, $\zeta=\infty$). We therefore compute \eqref{eq:kgf} exactly on the
 actual EXP-1 training sets ($\rho_h$ by 15-point Gauss--Hermite quadrature around each
 label, three seeds, $\ell\in\{0.3,1\}\times\mathrm{sd}(y)$) and apply the estimator
 \eqref{eq:heff} at the 20 conditions (\texttt{theory\_t2\_resolution.py},
@@ -604,7 +646,7 @@ fit is $0.97$ and $h_{\mathrm{mean}}$ and $h_{\mathrm{eff}}$ differ by a median 
 (Mat\'ern: $0.95$, $9\%$), as for the trained networks. \emph{$h_{\mathrm{eff}}$ falls to
 $h$}, in 6/6 Laplace and 5/6 Mat\'ern configurations, as (a) predicts for $h=0$.
 \emph{The rate is set by the spectrum}: $s(t)$ falls with log-log slope $-0.40$
-(Laplace; $-1/\beta=-0.5$) and $-0.29$ (Mat\'ern; $-0.25$), while under the Gaussian
+(Laplace; $-1/\zeta=-0.5$) and $-0.29$ (Mat\'ern; $-0.25$), while under the Gaussian
 kernel it barely moves ($-0.05$) and $h_{\mathrm{eff}}$ never reaches $h$ (0/6).
 
 \paragraph{From moments to the field.} The model above acts on moments. At the level of
@@ -664,7 +706,7 @@ iterations outside the lazy regime, so we do not compare rates with training cur
 \includegraphics[width=0.94\textwidth]{fig_t2_resolution.png}
 \caption{Kernel gradient flow \eqref{eq:kgf} on the EXP-1 training set (seed 0,
 $\ell=\mathrm{sd}(y)$). (a) $s(t)$, the effective bandwidth at $h=0$: power-law decay
-with the slope of Proposition~\ref{prop:specbias}(b) (dotted: $-1/\beta$) for kernels
+with the slope of Proposition~\ref{prop:specbias}(b) (dotted: $-1/\zeta$) for kernels
 with power-law spectra, stagnation for the Gaussian kernel. (b) Under the Laplace
 kernel $h_{\mathrm{eff}}$ falls and converges to each training bandwidth $h$ (dashed).}
 \label{fig:t2}
