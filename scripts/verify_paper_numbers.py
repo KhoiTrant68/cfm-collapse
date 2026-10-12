@@ -497,6 +497,38 @@ check("heffid bound ranks widths, Spearman", 0.91, _t1["spearman_pred_vs_meas"],
 # Audit box: trace error at M=128.
 check("relative trace error at M=128 (%)", 12.5, 100 * np.sqrt(2 / 127), 5e-3)
 
+print("\nImage-scale calibration at several levels (scripts/summarize_calib_levels.py)")
+_cl = json.loads(pathlib.Path("results/exp3/_rerun/calib_levels_summary.json").read_text(encoding="utf-8"))
+check("calib levels: checkpoints", 84, _cl["n"])
+check("calib levels: runs", 12, _cl["runs"])
+check("calib levels: 90% reference", 0.908, _cl["rows"][0]["ref90_central"], 2e-3)
+_a = _cl["at_60k"]
+_hp = [k for k in _a if float(k) > 0]
+_marg = [x for k in _hp for st in ("pixel", "pc8", "pc32") for x in _a[k][st]["cov90"]]
+check("60k marginal 90% coverage, h>0, min", 0.77, min(_marg), 1e-2)
+check("60k marginal 90% coverage, h>0, max", 0.87, max(_marg), 1e-2)
+_m0 = [x for st in ("pixel", "pc8", "pc32") for x in _a["0.0"][st]["cov90"]]
+check("60k marginal 90% coverage, h=0, min", 0.06, min(_m0), 1e-1)
+check("60k marginal 90% coverage, h=0, max", 0.08, max(_m0), 1e-1)
+for st, lo, hi in (("joint8", 0.59, 0.78), ("joint32", 0.47, 0.77)):
+    j = [x for k in _hp for x in _a[k][st]["cov90"]]
+    check(f"60k {st} 90% coverage, h>0, min", lo, min(j), 1e-2)
+    check(f"60k {st} 90% coverage, h>0, max", hi, max(j), 1e-2)
+    check(f"60k {st} 90% coverage, h=0", 0.0, max(_a["0.0"][st]["cov90"]), 1e-9)
+    check(f"{st} gap larger than per-pixel (of 84)", 84, _cl[f"{st}_worse_than_pixel"])
+_sp = _cl["spearman_h_pos"]
+_sd = [abs(_sp[st]["pixel_sd"]["spearman"]) for st in _sp]
+_sdp = [abs(_sp[st]["pixel_sd"]["partial_given_log_iter"]) for st in _sp]
+_he = [abs(_sp[st]["h_eff"]["spearman"]) for st in _sp]
+check("spread |rho| min", 0.85, min(_sd), 1e-2)
+check("spread |rho| max", 0.93, max(_sd), 1e-2)
+check("spread partial |rho| min", 0.83, min(_sdp), 1e-2)
+check("spread partial |rho| max", 0.92, max(_sdp), 1e-2)
+check("h_eff |rho| min", 0.49, min(_he), 1e-2)
+check("h_eff |rho| max", 0.65, max(_he), 1e-2)
+check("spread has the smaller gap (negative rho), all", 5,
+      sum(_sp[st]["pixel_sd"]["spearman"] < 0 for st in _sp))
+
 print("\nsanity: strings the new text depends on")
 for s in (r"\label{sec:cifarddpm}", r"\label{tab:cifarddpm}",
           r"\label{fig:cifartrack}", r"\label{sec:p6exposure}",
