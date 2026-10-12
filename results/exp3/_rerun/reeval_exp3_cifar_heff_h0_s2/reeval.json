@@ -1,0 +1,18 @@
+[
+  {
+    "run": "exp3_cifar_heff_h0_s2",
+    "h": 0.0,
+    "iter": 60000,
+    "M": 256,
+    "n_conditions": 48,
+    "trace_cov": 0.4437553464038307,
+    "trace_cov_kernel": 0.0,
+    "mean_err_kernel": 0.8095298589468806,
+    "n_eff": 1.0,
+    "nn_correct_rate": 1.0,
+    "memorization_ratio": 1.0,
+    "obs_err_predicted": 0.0,
+    "obs_err_measured": 3.07231787722785e-06,
+    "obs_err_ratio": NaN
+  }
+]
