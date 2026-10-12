@@ -3369,10 +3369,12 @@ uniform under-dispersion that per-pixel coverage reads as near nominal.
 
 Proposition~\ref{prop:heffid} and Theorem~\ref{thm:calib} say when $h_{\mathrm{eff}}$ is
 identified and what it implies, not why training produces it. We test the simplest
-mechanism: a learner that resolves the label only gradually. The trained field depends
-on $y$ through the conditional moments $f^\star(y)=\E[\phi(X)\mid\widetilde Y=y]$,
-$\phi(x)\in\{x,|x|^2\}$, which at bandwidth $h$ are the Nadaraya--Watson moments of
-Theorem~\ref{thm:endpoint}. Suppose they are learned by kernel gradient flow in
+mechanism: a learner that resolves the label only gradually. We model the label
+dependence of the trained field through the conditional moments
+$f^\star(y)=\E[\phi(X)\mid\widetilde Y=y]$, $\phi(x)\in\{x,|x|^2\}$, which at bandwidth $h$
+are the Nadaraya--Watson moments of Theorem~\ref{thm:endpoint}. This is a reduction: the
+field of Proposition~\ref{prop:kernel-field} depends on the whole weight vector
+$p^{(h)}(y)$, which two moments do not determine. Suppose they are learned by kernel gradient flow in
 $L^2(\rho_h)$, $\rho_h$ the law of $\widetilde Y$, from the unconditional moments
 $c=\E\phi(X)$:
 \begin{equation}

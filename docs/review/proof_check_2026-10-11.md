@@ -244,7 +244,8 @@ Further notes on the remark (not errors):
   the scale shrinks like 1/√log t, which matches the stagnation reported in App.
   `app:specbias` (slope −0.05).
 
-**Not applied; for the author.** The verifier also showed that the modelling sentence
+**Applied afterwards, at the author's request (wording below, plus "This is a
+reduction:"; not re-verified).** The verifier also showed that the modelling sentence
 before eq. `kgf` (L3372–3375), "The trained field depends on y through the conditional
 moments f⋆(y) = E[φ(X) | Ỹ = y], φ ∈ {x, |x|²}", is false as an exact statement. The field of
 `prop:kernel-field` depends on y through the whole weight vector p^{(h)}(y), which two
