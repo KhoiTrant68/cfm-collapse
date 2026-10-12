@@ -660,7 +660,9 @@ per-pixel coverage of 64 test-split images falls from $0.91$--$0.95$ at 2k to
 $0.67$--$0.78$ by 20k and ends at $0.72$--$0.81$ (a calibrated sampler scores $0.87$
 with $M{=}64$ draws), and the sample spread ranks it with Spearman $0.98$ against $0.63$
 for $h_{\mathrm{eff}}$. A joint region in the top principal components covers less still,
-$0.47$--$0.78$ at 60k against $0.91$ (Appendix~\ref{app:calibdetails}).
+$0.47$--$0.78$ at 60k against $0.91$; in the top 8 components this is a per-direction
+shortfall in spread compounding over the directions ($R^2=0.81$,
+Appendix~\ref{app:calibdetails}).
 
 \FloatBarrier
 
@@ -3345,6 +3347,20 @@ result holds for every statistic: over the 63 checkpoints with $h>0$, a larger p
 spread of the draws goes with a smaller gap, Spearman $|\rho|=0.85$--$0.93$
 ($0.83$--$0.92$ given the iteration), against $0.49$--$0.65$ for $h_{\mathrm{eff}}$
 (\texttt{scripts/summarize\_calib\_levels.py}).
+
+\paragraph{Why the joint region is worse.} The simplest account is a common shortfall in
+spread. Draws from $\N(0,s^2I_k)$ against a truth from $\N(0,I_k)$ reproduce the measured
+per-component coverage at $s\approx0.7$--$0.9$, and a modest shortfall in each direction
+compounds in a $k$-dimensional region. We fit $s$ to the measured coverage of the top $k$
+components at each of the 63 checkpoints with $h>0$, simulate the same rank statistics at
+$M{=}64$, and predict the joint coverage with nothing else fitted
+(\texttt{scripts/joint\_from\_marginal.py}). For $k{=}8$ the prediction holds, with
+$R^2=0.81$ at the 90\% level ($0.97$ over the ten levels, mean absolute error $0.05$),
+$0.51$--$0.78$ predicted at 60k against $0.59$--$0.78$ measured. For $k{=}32$ it ranks the
+checkpoints (correlation $0.92$) but overstates the loss by $0.19$ on average, and a
+separate $s_j$ for each component reduces that only to $0.16$, so in 32 directions the
+shortfalls are not independent. In the top components, then, the joint gap is mostly a
+uniform under-dispersion that per-pixel coverage reads as near nominal.
 
 \subsection{A spectral-bias model of the effective bandwidth}
 \label{app:specbias}

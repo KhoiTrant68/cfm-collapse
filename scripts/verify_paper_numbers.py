@@ -587,6 +587,24 @@ _late = [r for r in _e1["rows"] if r["h"] == 0 and r["iter"] >= 100000]
 check("E1 late checkpoints", 6, len(_late))
 check("E1 per-run CI contains 0", 5, sum(r["h_mean"]["ci95"][0] <= 0 <= r["h_mean"]["ci95"][1] for r in _late))
 
+print("\nJoint coverage from marginal under-dispersion (scripts/joint_from_marginal.py)")
+_jm = json.loads(pathlib.Path("results/exp3/_rerun/joint_from_marginal.json").read_text(encoding="utf-8"))
+_k8, _k32 = _jm["by_k"]["8"], _jm["by_k"]["32"]
+check("joint model: checkpoints", 63, _jm["n"])
+check("k=8: R^2 at 90%", 0.81, _k8["r2_90"], 5e-3)
+check("k=8: R^2 over levels", 0.97, _k8["r2_all_levels"], 5e-3)
+check("k=8: MAE at 90%", 0.05, _k8["mae_90"], 5e-3)
+check("k=8: 60k predicted min", 0.51, _k8["at_60k"]["pred90"][0], 5e-3)
+check("k=8: 60k predicted max", 0.78, _k8["at_60k"]["pred90"][1], 5e-3)
+check("k=8: 60k measured min", 0.59, _k8["at_60k"]["meas90"][0], 5e-3)
+check("k=8: 60k measured max", 0.78, _k8["at_60k"]["meas90"][1], 5e-3)
+check("k=32: correlation", 0.92, _k32["corr_90"], 5e-3)
+check("k=32: bias (overstated loss)", -0.19, _k32["bias_90"], 5e-3)
+check("k=32 per component: bias", -0.16, _k32["per_component"]["bias_90"], 5e-3)
+_s60 = [x for k in ("8", "32") for x in _jm["by_k"][k]["at_60k"]["s"]]
+check("s at 60k, min (0.7)", 0.7, min(_s60), 1e-2)
+check("s at 60k, max (0.9)", 0.9, max(_s60), 0.03)
+
 print("\nsanity: strings the new text depends on")
 for s in (r"\label{sec:cifarddpm}", r"\label{tab:cifarddpm}",
           r"\label{fig:cifartrack}", r"\label{sec:p6exposure}",
