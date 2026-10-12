@@ -563,10 +563,10 @@ generated means $m=(m_c)_c$, and $|e|$ read in the norm $\sum_c|e_c|$ that
 \end{proposition}
 
 So $\kappa=O(h^{-3})$ at large $h$, where no bandwidth is identified. With the fitted
-residual as $e$, the bound exceeds the bootstrap half-width at all 75 synthetic
-checkpoints and ranks those widths with Spearman $0.91$;
-on CIFAR-10 the local slope $u\cdot F'$, an upper bound on $\kappa$ near each $h$, falls
-from $17$ at $h{=}3$ to $0.38$ and $0.13$ at $h{=}5,6$.
+residual as $e$ and $\kappa$ the minimum of $u\cdot F'$ over $[h/1.5,1.5h]$ (25-point grid),
+the bound exceeds the bootstrap half-width at all 75 synthetic checkpoints and ranks
+those widths with Spearman $0.91$; on CIFAR-10 this $\kappa$ falls from $17$ at $h{=}3$ to
+$0.38$ and $0.13$ at $h{=}5,6$.
 
 \paragraph{Synthetic.} Fifteen linear-Gaussian runs ($h\in\{0,0.01,0.05,0.1,0.5\}$, three
 seeds) were retrained with weights kept at eight checkpoints (Figure~\ref{fig:heffsyn},
