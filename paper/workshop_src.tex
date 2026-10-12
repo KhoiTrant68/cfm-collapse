@@ -53,8 +53,9 @@ $h_{\mathrm{eff}}$ is identified and what calibration it implies: for any prior,
 noise moves the coverage of the reference law by at most a total-variation term of
 order $\sqrt{k}\,h^2/\sigma^2$, and a vanishing effective sample collapses it to zero.
 From $h_{\mathrm{eff}}$ the theorem predicts the held-out coverage of 75 trained
-synthetic checkpoints with $R^2=0.90$, ranking it better than the training loss or the
-iteration; at image scale the sample spread ranks it better.
+synthetic checkpoints with $R^2=0.90$ and no coverage labels; at image scale the sample
+spread ranks it better, and per-pixel coverage near nominal hides joint regions that
+cover far less.
 \end{abstract}
 
 % ==========================================================================

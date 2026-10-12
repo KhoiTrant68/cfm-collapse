@@ -52,33 +52,28 @@ at an Effective Bandwidth}
 \maketitle
 
 \begin{abstract}
-In low dimension, a conditional flow trained on finite data behaves like
-Nadaraya--Watson regression over its training examples at a single effective bandwidth
-$h_{\mathrm{eff}}$, which training shrinks towards the bandwidth $h$ of the label noise
-it was given; at image scale this holds for the mean and the total variance but not
-for the support. The
-reference is exact: with the training set fixed, the population minimiser sends a
-condition that identifies one example to that example, with zero conditional variance
-and zero loss, and label smoothing at bandwidth $h$ turns its endpoint law into a
-Nadaraya--Watson mixture of the training atoms, atomic at every $h$ with a Wasserstein
-floor independent of $h$. Fitting that reference to a trained model's per-condition
-variances gives $h_{\mathrm{eff}}$; fitting it to the per-condition means, separately,
-gives the same bandwidth within 95\% intervals at $48/48$ checkpoints of 15 synthetic
-runs and at $31/36$ of six CIFAR-10 runs at $h\in\{4,5\}$ with a $35.75$M-parameter DDPM U-Net. In both,
-$h_{\mathrm{eff}}$ falls with training and ends just above $h$ ($1.08h$ synthetic,
-$1.13$--$1.34h$ on CIFAR-10 at $60$k iterations). We prove that the bandwidth is
-identified where the reference varies and that it sets calibration: for any prior,
-smoothing moves coverage by at most a total-variation term of order
-$\sqrt{k}\,h^2/\sigma^2$ for $k$-dimensional labels with observation noise $\sigma$
-(over-covering when the posterior is Gaussian), and a vanishing effective sample
-collapses coverage to zero. On synthetic posteriors ($d\le8$), $h_{\mathrm{eff}}$
-predicts the held-out coverage of trained models ($R^2=0.90$ at $d{=}2$), ranking it
-better than the training loss or the iteration; at image scale the sample spread ranks
-it better. The
-same law ranks interventions:
-interpolant noise leaves the endpoint unchanged, label noise reweights the atoms, and
-only endpoint noise moves the support. Scope: identifying conditions, as in inverse
-problems and inpainting.
+Conditional flow matching on a finite training set has an exact population solution,
+and trained models can be placed relative to it. With the training set fixed, a
+condition that identifies one example sends every source draw to that example, and
+Gaussian label noise at bandwidth $h$ turns the endpoint law into a Nadaraya--Watson
+mixture of the training atoms, atomic at every $h$ with a Wasserstein floor independent
+of $h$: restoring the variance does not restore the posterior. Fitting this reference to
+a trained model's per-condition variances gives an effective bandwidth
+$h_{\mathrm{eff}}$; fitting it to the per-condition means, separately, gives the same
+bandwidth within 95\% intervals at $48/48$ checkpoints of 15 low-dimensional runs and at
+$31/36$ of six CIFAR-10 runs at $h\in\{4,5\}$ with a $35.75$M-parameter DDPM U-Net, and
+$h_{\mathrm{eff}}$ falls with training to just above $h$. At $h{=}0$ on CIFAR-10 the means
+stay on the nearest atom while the samples spread around it, and no single bandwidth
+fits. We prove when $h_{\mathrm{eff}}$ is identified and what calibration a bandwidth
+implies: smoothing moves coverage by at most a total-variation term of order
+$\sqrt{k}\,h^2/\sigma^2$ for $k$-dimensional labels with observation noise $\sigma$, and a
+vanishing effective sample collapses it. In low dimension this turns $h_{\mathrm{eff}}$
+into a prediction of held-out coverage that needs no coverage labels ($R^2=0.90$ at
+$d{=}2$); given such labels, it adds little to free quantities. At image scale the sample
+spread ranks calibration better, and per-pixel coverage near nominal ($0.77$--$0.87$
+against $0.91$) hides joint regions that cover $0.47$--$0.78$. The same law ranks
+interventions: interpolant noise leaves the endpoint unchanged, label noise reweights the
+atoms, and only endpoint noise moves the support.
 \end{abstract}
 
 % ==========================================================================
@@ -163,24 +158,29 @@ lines.}
   any bandwidth (Proposition~\ref{prop:moments}), and which stays atomic at every $h$
   with an $h$-independent Wasserstein floor (Proposition~\ref{prop:atomicity}):
   ``variance restored'' is not ``posterior restored''.
-\item \textbf{Trained models sit at an effective bandwidth.} In low dimension a trained
+\item \textbf{Trained models sit at an effective bandwidth, in low dimension.} A trained
   network follows that mixture at one bandwidth $h_{\mathrm{eff}}$, fitted to its
   per-condition variances and recovered independently from its per-condition means, and
   $h_{\mathrm{eff}}$ falls towards $h$ as training proceeds (Section~\ref{sec:heff};
-  48/48 synthetic checkpoints); on CIFAR-10 this holds for the mean and the total
-  variance (31/36 at $h\in\{4,5\}$) but not for the support. Partial agreement with the reference
-  at $h$ is agreement at a larger bandwidth. We prove when $h_{\mathrm{eff}}$ is
-  identified (Proposition~\ref{prop:heffid}) and what calibration a bandwidth implies
-  for any prior (Theorem~\ref{thm:calib}); with the kernel weights at $h_{\mathrm{eff}}$
-  the theorem predicts the held-out coverage of 75 trained $d{=}2$ checkpoints with
-  $R^2=0.90$, while at image scale the sample spread ranks coverage better. A model of
+  48/48 synthetic checkpoints). On CIFAR-10 this holds for the mean and the total
+  variance (31/36 at $h\in\{4,5\}$) but not for the support, and not at $h{=}0$, where the
+  means stay on the atom. Partial agreement with the reference at $h$ is agreement at a
+  larger bandwidth. We prove when $h_{\mathrm{eff}}$ is identified
+  (Proposition~\ref{prop:heffid}) and what calibration a bandwidth implies for any prior
+  (Theorem~\ref{thm:calib}); with the kernel weights at $h_{\mathrm{eff}}$ the theorem
+  predicts the held-out coverage of 75 trained $d{=}2$ checkpoints with $R^2=0.90$ and no
+  coverage labels, though a regression on free quantities fitted to such labels does as
+  well. A model of
   limited label resolution reproduces the fall of $h_{\mathrm{eff}}$ to $h$, and limited
   resolution provably reweights the atoms without moving them
   (Propositions~\ref{prop:specbias} and~\ref{prop:filtered}).
-\item \textbf{An audit.} Level agreement with the reference is uninformative when the
-  reference barely varies across conditions: on CIFAR-10 the median ratio is $1.15$
-  while the across-condition slope is $\beta=-0.156$. The audit (Appendix~\ref{app:audit})
-  reports level, range, slope and $h_{\mathrm{eff}}$ together.
+\item \textbf{An audit, and what it cannot certify.} Level agreement with the reference
+  is uninformative when the reference barely varies across conditions: on CIFAR-10 the
+  median ratio is $1.15$ while the across-condition slope is $\beta=-0.156$. The audit
+  (Appendix~\ref{app:audit}) reports level, range, slope and $h_{\mathrm{eff}}$ together.
+  It locates a model relative to its training set; it does not certify calibration at
+  image scale, where the sample spread ranks coverage better and per-pixel coverage near
+  nominal hides joint regions that cover far less (Appendix~\ref{app:calibdetails}).
 \item \textbf{Where noise helps.} Interpolant noise leaves the population endpoint
   unchanged at any noise level (Propositions~\ref{prop:prop17} and~\ref{prop:factors}),
   label noise reweights the atoms, and only endpoint noise moves the support
@@ -713,7 +713,9 @@ beyond $6\times10^4$ iterations). Theorem~\ref{thm:calib}(c) is Gaussian; (b) on
 the deviation, needs observation noise and is informative only for $h^2\sqrt k\ll\sigma^2$,
 so for noiseless inpainting the endpoint law, part (d) and the audit apply but (b) does
 not. At image scale $h_{\mathrm{eff}}$ fits the variances no better than a power law,
-does not predict coverage, and atomicity is not inherited. The synthetic problems have
+does not predict coverage, and atomicity is not inherited; on the synthetic problems it adds
+little to free quantities once coverage labels are available, and the finite-sample bound
+of Theorem~\ref{thm:labelmix} is vacuous at $N\le10^4$. The synthetic problems have
 $d\le10$; the image experiments use one mask and $N{=}2000$, with instance and
 optimisation randomness confounded; label spaces with no natural kernel are out of scope.
 
@@ -722,11 +724,13 @@ optimisation randomness confounded; label spaces with no natural kernel are out 
 \label{sec:conclusion}
 
 Label smoothing makes a conditional flow kernel regression over its training atoms,
-which only endpoint smoothing leaves (Appendix~\ref{app:remedies}); a trained network
-travels the same laws at an effective bandwidth that training shrinks, exactly in low
-dimension and in its mean and total variance at image scale. That bandwidth places a
-checkpoint relative to its training set; in low dimension it also sets its calibration,
-while extraction is read from the on-atom fraction.
+which only endpoint smoothing leaves (Appendix~\ref{app:remedies}). A trained network
+follows the same law at an effective bandwidth that training shrinks: exactly in low
+dimension, and at image scale in its mean and total variance, but neither in its support
+nor under hard conditioning. That bandwidth places a checkpoint relative to its training
+set, and in low dimension it predicts calibration without coverage labels. At image scale
+calibration has to be measured directly, and jointly: per-pixel coverage near nominal can
+hide joint regions that cover far less.
 
 \label{endmain}
 \subsection*{Reproducibility statement}
