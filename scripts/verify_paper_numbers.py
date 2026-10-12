@@ -555,6 +555,38 @@ for n, mb, hb, he, eb in (("200", 2.34, 0.40, 0.225, 0.007), ("2000", 1.07, 0.17
 _h3 = [r["err_0.9"] for r in _tb["rows"] if abs(r["h"] - 3.0) < 1e-9]
 check("measured |C-0.9| at h=3 (0.03)", 0.03, float(np.mean(_h3)), 5e-3)
 
+print("\nThree tests of the mechanism (App. app:specbias)")
+_e3 = json.loads(pathlib.Path("results/theory/e3_ntk_label.json").read_text(encoding="utf-8"))
+_last = lambda r: r["fits"][max(r["fits"], key=int)]
+_dk = lambda r: r["change_from_first"][max(r["change_from_first"], key=int)]
+_lo = [r for r in _e3["rows"] if r["h"] <= 0.1]
+check("E3 kernel change h<=0.1, min", 0.68, min(_dk(r) for r in _lo), 1e-2)
+check("E3 kernel change h<=0.1, max", 1.23, max(_dk(r) for r in _lo), 1e-2)
+_hi = [r for r in _e3["rows"] if r["h"] == 0.5]
+check("E3 kernel change h=0.5, min", 0.09, min(_dk(r) for r in _hi), 5e-2)
+check("E3 kernel change h=0.5, max", 0.38, max(_dk(r) for r in _hi), 1e-2)
+_z = [_last(r)["zeta_hat"] for r in _e3["rows"] if r["h"] <= 0.01]
+check("E3 power-law exponent h<=0.01, min", 1.10, min(_z), 1e-2)
+check("E3 power-law exponent h<=0.01, max", 1.29, max(_z), 1e-2)
+check("E3 Laplace reference exponent", 2.09, _e3["reference"]["exponential_zeta2"]["zeta_hat"], 1e-2)
+_e2 = json.loads(pathlib.Path("results/exp1/_heff/e2_floor_compare.json").read_text(encoding="utf-8"))
+_arms = [k for k in _e2 if not k.startswith("base") and not k.startswith("lr0.003")]
+_rat = [float(np.exp(_e2[k]["dlog_heff_vs_base"])) for k in _arms]
+check("E2 h_eff / baseline, min", 0.86, min(_rat), 1e-2)
+check("E2 h_eff / baseline, max", 1.22, max(_rat), 1e-2)
+_r05 = [_e2[k]["h_eff_gm"] / 0.05 for k in _e2 if k.endswith("_h0.05") and not k.startswith("lr0.003")]
+check("E2 h_eff/h at h=0.05, min", 1.01, min(_r05), 1e-2)
+check("E2 h_eff/h at h=0.05, max", 1.18, max(_r05), 1e-2)
+check("E2 lr 3e-3 diverged (of 6)", 4, _e2["lr0.003_h0"]["diverged"] + _e2["lr0.003_h0.05"]["diverged"])
+_e1 = json.loads(pathlib.Path("results/exp1/_heff/heff_local_density.json").read_text(encoding="utf-8"))
+_s0 = _e1["summary"]["h=0/h_mean"]
+check("E1 pooled slope at h=0", -0.35, _s0["slope"], 1e-2)
+check("E1 pooled CI low", -0.52, _s0["ci95"][0], 1e-2)
+check("E1 pooled CI high", -0.16, _s0["ci95"][1], 1e-2)
+_late = [r for r in _e1["rows"] if r["h"] == 0 and r["iter"] >= 100000]
+check("E1 late checkpoints", 6, len(_late))
+check("E1 per-run CI contains 0", 5, sum(r["h_mean"]["ci95"][0] <= 0 <= r["h_mean"]["ci95"][1] for r in _late))
+
 print("\nsanity: strings the new text depends on")
 for s in (r"\label{sec:cifarddpm}", r"\label{tab:cifarddpm}",
           r"\label{fig:cifartrack}", r"\label{sec:p6exposure}",
