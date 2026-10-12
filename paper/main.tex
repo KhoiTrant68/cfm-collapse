@@ -626,7 +626,10 @@ posteriors the reference law over-covers by at most $\tau_h$, a bound that is ne
 tight at $h=\sigma/2$ (Appendix~\ref{apx:pf-calib}). As a ranking, $h_{\mathrm{eff}}$ (Spearman $0.92$)
 beats the training loss ($0.85$) and keeps $0.90$ with the iteration partialled out, also
 on an eight-mode mixture posterior ($0.91$, $0.91$); it predicts collapse, not the PIT
-error or extraction (Appendix~\ref{app:calibdetails}).
+error or extraction. Given the free quantities it adds no reliable information
+($\Delta R^2=+0.04$, $[-0.04,0.22]$); its use is a prediction that needs no coverage labels
+(Appendix~\ref{app:calibdetails}). Theorem~\ref{thm:labelmix} bounds the coverage error of
+any label-weighted mixture at finite $N$ (Appendix~\ref{apx:thmB}).
 
 \begin{figure}[t]
 \centering
@@ -2000,6 +2003,20 @@ $\kappa=17.1$, $3.8$, $0.38$, $0.13$ at $h=3,4,5,6$; on the linear-Gaussian runs
 median $\kappa$ at $h_{\mathrm{eff}}$ is $1.4$ for $h{=}0.5$ against $5$--$33$ for
 $h\le0.1$, which is why $h{=}0.5$ synthetic and $h{=}6$ on CIFAR-10 are poorly identified.
 
+\begin{remark}[$\kappa>0$ is a property of the conditions, not of the kernel]
+\label{rem:kappa}
+Identifiability can fail with the exact Gaussian kernel. With $N=2$, $y^1\ne y^2$, and a
+single condition at the midpoint $y_c=\frac12(y^1+y^2)$, $p^{(h)}(y_c)=(\frac12,\frac12)$ for
+every $h$, so $\bar x_h(y_c)$ and $\tr\Covh(y_c)$ do not depend on $h$ and $F'=G'=0$. A
+sufficient condition can be checked on the training set: since
+$\frac{d}{dh}\log\tr\Covh(y_c)=\Cov_p(|x^i-\bar x_h(y_c)|^2,D_i)/(h^3\tr\Covh(y_c))$, if for
+one condition $c_0$ this covariance is at least $q>0$ and $\tr\Covh(y_{c_0})\le V_{\max}$
+for all $h$ in $\mathcal I\subseteq(0,b]$, then $u=e_{c_0}$ gives $\kappa\ge q/(b^3V_{\max})$.
+Writing $\Cov_p(A,D)=\frac12\sum_{i,j}p_ip_j(A_i-A_j)(D_i-D_j)$ shows what the condition
+asks: training points farther from the condition in label space must also lie farther
+from the reference mean.
+\end{remark}
+
 \subsection{Proof of Theorem~\ref{thm:calib}}
 \label{apx:pf-calib}
 
@@ -2089,6 +2106,81 @@ cell, so the over-coverage of (c) persists for these non-Gaussian posteriors.
 
 This appendix holds the statements summarised in Section~\ref{sec:interventions};
 their proofs are in Appendix~\ref{app:proofs}.
+
+\subsection{A finite-sample coverage bound for label-weighted mixtures}
+\label{apx:thmB}
+
+Theorem~\ref{thm:calib} describes the reference law as $N\to\infty$ (part (a)) or with
+fixed weights (part (d)). The bound below holds at finite $N$ for any weights computed
+from the labels alone, Nadaraya--Watson weights at any bandwidth among them. Let
+$(x^i,y^i)$ be i.i.d., $(X^*,Y^*)$ a further independent draw, $s:\R^d\to\R$ measurable,
+and $F(u\mid y)$ the conditional CDF of $s(X)$ given $Y=y$ under a fixed regular
+conditional law $\kappa(y,\cdot)$. Let $p_i(y)\ge0$, $\sum_ip_i(y)=1$, be jointly
+measurable functions of $y$ and the labels $y^1,\dots,y^N$ only, and write
+$\widehat F(u\mid y)=\sum_ip_i(y)\mathbf 1\{s(x^i)\le u\}$,
+$n_{\mathrm{eff}}(y)=(\sum_ip_i(y)^2)^{-1}$, $r(y)=\sum_ip_i(y)|y^i-y|$ and
+$a_i=\E_{Y^*}p_i(Y^*)$. For $\alpha\in(0,1)$ let $q_{\mathrm{lo}}(y),q_{\mathrm{hi}}(y)$ be
+measurable $\beta$-quantiles of $\widehat F(\cdot\mid y)$ (any $q$ with
+$\widehat F(q-\mid y)\le\beta\le\widehat F(q\mid y)$) at $\beta=\frac{1\mp\alpha}2$, and
+$C_\alpha=\Pr\big(s(X^*)\in[q_{\mathrm{lo}}(Y^*),q_{\mathrm{hi}}(Y^*)]\big)$ with the
+training set fixed.
+
+\begin{theorem}[Coverage of label-weighted mixtures]
+\label{thm:labelmix}
+Assume $u\mapsto F(u\mid y)$ is continuous for every $y$ and
+$|F(u\mid y)-F(u\mid y')|\le L|y-y'|$ for all $u,y,y'$. Then for every $\delta\in(0,1)$,
+with probability at least $1-\delta$ over the training set, simultaneously for all
+$\alpha\in(0,1)$,
+\[
+|C_\alpha-\alpha|\le2L\,\E\,r(Y^*)+8\,\E\,n_{\mathrm{eff}}(Y^*)^{-1/2}
++\sqrt{2a_{\max}\log(1/\delta)},\qquad a_{\max}=\max_ia_i .
+\]
+Without continuity of $F(\cdot\mid y)$, the lower bound $C_\alpha\ge\alpha-(\cdot)$ still
+holds.
+\end{theorem}
+
+\begin{proof}
+\emph{Quantiles.} If $\sup_u|\widehat G-G|\le D$ and $q_\beta$ is a $\beta$-quantile of
+$\widehat G$, then $G(q_\beta)\ge\beta-D$ and $G(q_\beta-)\le\beta+D$ (the bound passes to
+left limits), and $q_{\beta_-}\le q_{\beta_+}$ for $\beta_\pm=\frac{1\pm\alpha}2$. So
+$Z\sim G$ falls in $[q_{\beta_-},q_{\beta_+}]$ with probability at least $\alpha-2D$, and
+at most $\alpha+2D$ when $G$ is continuous. With
+$D(y)=\sup_u|\widehat F(u\mid y)-F(u\mid y)|$ and the disintegration of the law of
+$(X^*,Y^*)$ through $\kappa$, $|C_\alpha-\alpha|\le2\,\E D(Y^*)$ for every $\alpha$.
+
+\emph{Bias and fluctuation.} With $\xi_i(u)=\mathbf 1\{s(x^i)\le u\}-F(u\mid y^i)$,
+$\widehat F-F=\sum_ip_i\xi_i+\sum_ip_i\big(F(u\mid y^i)-F(u\mid y)\big)$, and the second
+sum is at most $L\,r(y)$ in absolute value. Given the labels, the $x^i$ are independent with
+$x^i\sim\kappa(y^i,\cdot)$, so the $\xi_i$ are independent and centred. Symmetrisation
+with Rademacher signs, then ordering the $s(x^i)$ (ties by index), turns
+$\sup_u|\sum_i\varepsilon_ip_i\mathbf 1\{s(x^i)\le u\}|$ into the maximum of the partial
+sums of a martingale, and Doob's $L^2$ inequality gives
+$\E[\sup_u|\sum_ip_i\xi_i(u)|\mid\text{labels}]\le4(\sum_ip_i^2)^{1/2}$. So
+$\Phi:=\E_{Y^*}\sup_u|\sum_ip_i(Y^*)\xi_i(u)|$ has conditional mean at most
+$4\,\E\,n_{\mathrm{eff}}(Y^*)^{-1/2}$.
+
+\emph{Concentration.} Changing one $x^i$ moves $\Phi$ by at most $a_i$, so by McDiarmid's
+inequality, given the labels, $\Phi\le\E[\Phi\mid\text{labels}]
++(\frac12\sum_ia_i^2\log\frac1\delta)^{1/2}$ with probability at least $1-\delta$, and
+$\sum_ia_i^2\le a_{\max}$ because $\sum_ia_i=1$. Combining with
+$|C_\alpha-\alpha|\le2L\,\E r+2\Phi$ gives the claim, on an event that does not involve
+$\alpha$.
+\end{proof}
+
+\paragraph{On the linear-Gaussian problem.} With $s(x)=x_1$ on the problem of
+Section~\ref{sec:exp1} ($d=2$, $k=1$, $\sigma=0.1$), $F(\cdot\mid y)$ is Gaussian with mean
+linear in $y$, so $L$ is exact. Over five training sets for each
+$N\in\{200,2000,10^4\}$, 25 bandwidths in $[0.003,3]$ and $\alpha\in\{0.5,0.9\}$, the bound
+never fails (0/750 cases beyond two Monte Carlo standard errors at 4000 test pairs), but it
+is loose: its minimum over $h$ is $2.34$, $1.07$ and $0.62$, while the best measured
+$|C_{0.9}-0.9|$ is $0.007$, $0.002$ and $0.004$. A factor of about $5.6$ is lost after the
+first step ($2\,\E D(Y^*)$ is that much smaller), in the constant of the fluctuation term at
+small $h$ and in $2L\,r$ at large $h$. What the bound does carry is the location of the
+window: its minimiser, $h=0.40$, $0.17$ and $0.095$, lies a factor $1.8$ above the
+bandwidth with the smallest measured error at every $N$, and both shrink as $N$ grows.
+Marginal coverage cannot see over-smoothing, so at large $h$ the measured error is small
+again ($0.03$ at $h=3$) while the bound, which controls the conditional CDF, grows
+(\texttt{scripts/theory\_b\_check.py}).
 
 \subsection{Escaping the obstruction: smoothing the endpoint}
 \label{sec:theory-remedy}
@@ -3197,6 +3289,19 @@ $0.42$), and $0.82$ across runs at a fixed iteration, so it is not a proxy for t
 time. On an eight-mode Gaussian-mixture posterior in $d{=}8$ (10 runs) the result
 repeats ($0.91$ pooled, $0.91$ given the iteration, $0.90$ at fixed iteration; PIT error
 $-0.67$), with $h_{\mathrm{eff}}$ and $h_{\mathrm{mean}}$ at log correlation $0.96$.
+
+\paragraph{Ranking is not adding information.} A regression on the free quantities (log
+iteration, log training loss, log raw variance, the share of samples on a training atom
+and $h$, each continuous one with its square), fitted to the coverage of the other runs,
+predicts a held-out run's 90\% coverage with cross-validated $R^2=0.88$ (leave one run
+out). Adding $\log h_{\mathrm{eff}}$ raises it to $0.92$, $\Delta R^2=+0.04$ with $95\%$
+interval $[-0.04,0.22]$ over resampled runs, and lowers it for the PIT error ($-0.13$) and
+the median $W_2$ distance to the posterior ($-0.06$)
+(\texttt{scripts/audit\_incremental\_r2.py}). On these problems, then, $h_{\mathrm{eff}}$
+does not add predictive power to quantities one already has. What it adds is that
+Theorem~\ref{thm:calib}(d) turns it into a coverage prediction without any coverage labels,
+at $R^2=0.90$, the level the fitted regression reaches only after seeing the coverage of
+14 other runs.
 
 \paragraph{The window.} The nominal 90\% region covers $0.86$--$0.88$ for
 $h_{\mathrm{eff}}\in[0.1,0.4)$, where $\Covh$ matches $\Sigmapost$, and $0.54$ and $0.34$

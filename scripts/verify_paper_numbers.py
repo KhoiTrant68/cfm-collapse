@@ -529,6 +529,32 @@ check("h_eff |rho| max", 0.65, max(_he), 1e-2)
 check("spread has the smaller gap (negative rho), all", 5,
       sum(_sp[st]["pixel_sd"]["spearman"] < 0 for st in _sp))
 
+print("\nIncremental value of h_eff over the free quantities (scripts/audit_incremental_r2.py)")
+_ir = json.loads(pathlib.Path("results/exp1/_heff/audit_incremental_r2.json").read_text(encoding="utf-8"))["targets"]
+_c = _ir["test_coverage_90"]
+check("coverage: baseline CV R^2", 0.88, _c["r2_baseline"], 5e-3)
+check("coverage: baseline + h_eff CV R^2", 0.92, _c["r2_baseline_plus_heff"], 5e-3)
+check("coverage: delta R^2", 0.04, _c["delta_r2"], 5e-3)
+check("coverage: delta R^2 CI low", -0.04, _c["delta_r2_ci95"][0], 5e-3)
+check("coverage: delta R^2 CI high", 0.22, _c["delta_r2_ci95"][1], 5e-3)
+check("PIT error: delta R^2", -0.13, _ir["test_pit_error"]["delta_r2"], 5e-3)
+check("W2: delta R^2", -0.06, _ir["test_w2_median"]["delta_r2"], 5e-3)
+
+print("\nTheorem thm:labelmix on the linear-Gaussian problem (scripts/theory_b_check.py)")
+_tb = json.loads(pathlib.Path("results/theory/theorem_b_check.json").read_text(encoding="utf-8"))
+check("Theorem B: violations (of 750)", 0, sum(v["violations"] for v in _tb["summary"].values()))
+check("Theorem B: cases", 750, sum(v["cases"] for v in _tb["summary"].values()))
+for n, mb, hb, he, eb in (("200", 2.34, 0.40, 0.225, 0.007), ("2000", 1.07, 0.17, 0.0949, 0.002),
+                          ("10000", 0.62, 0.095, 0.0533, 0.004)):
+    sm = _tb["summary"][n]
+    check(f"N={n}: minimum bound", mb, sm["min_bound"], 5e-3)
+    check(f"N={n}: minimiser of the bound", hb, sm["h_min_bound"], 1e-2)
+    check(f"N={n}: best measured |C-0.9|", eb, sm["min_err90"], 1e-3)
+    check(f"N={n}: minimiser ratio (1.8)", 1.8, sm["h_min_bound"] / sm["h_min_err90"], 2e-2)
+    check(f"N={n}: bound / 2E[D] (about 5.6)", 5.6, sm["ratio_bound_to_2ED_median"], 3e-2)
+_h3 = [r["err_0.9"] for r in _tb["rows"] if abs(r["h"] - 3.0) < 1e-9]
+check("measured |C-0.9| at h=3 (0.03)", 0.03, float(np.mean(_h3)), 5e-3)
+
 print("\nsanity: strings the new text depends on")
 for s in (r"\label{sec:cifarddpm}", r"\label{tab:cifarddpm}",
           r"\label{fig:cifartrack}", r"\label{sec:p6exposure}",

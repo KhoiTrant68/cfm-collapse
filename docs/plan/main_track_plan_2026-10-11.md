@@ -385,3 +385,31 @@ proofs re-verified 3/3 after the fixes, see `docs/review/proof_check_2026-10-11.
 Theorem B as the calibration contribution, L1 as a k = 1 positivity result, and E7 plus a
 second dataset for breadth. A plain-SGD arm with L2 decay (the exact ridge of T1(c)) is the
 one remaining cheap test of the floor mechanism.
+
+## 8. Results of 2026-10-12 (in the paper)
+
+- **Theorem B in the paper** (Theorem `thm:labelmix`, App. `apx:thmB`; check
+  `scripts/theory_b_check.py`). On the linear-Gaussian problem it never fails (0/750) but
+  is vacuous at N ≤ 10⁴ (minimum over h: 2.34, 1.07, 0.62). Its minimiser sits a factor
+  1.8 above the best bandwidth at every N, and both shrink with N. It locates the window;
+  it does not quantify it. A sharper constant (DKW instead of Doob, a local Lipschitz
+  constant) is the obvious next step if it is to be quantitative.
+- **ΔR² of h_eff over free quantities** (`scripts/audit_incremental_r2.py`): +0.04
+  [−0.04, 0.22] for 90% coverage, negative for PIT error and W₂. h_eff ranks coverage but
+  adds no reliable information to a regression fitted on coverage labels; its value is
+  the label-free prediction of Thm. `calib`(d) (R² 0.90).
+- **Image scale, twelve runs** (`scripts/summarize_calib_levels.py`): joint regions in the
+  top principal components cover 0.47–0.78 against 0.91 while per-pixel coverage is
+  0.77–0.87; sample spread ranks every statistic better than h_eff.
+- **CIFAR h=0 and h=6** (App. `app:heffends`): at h=0 the means stay on the nearest atom
+  and h_eff (3.4–3.7) disagrees with h_mean at every checkpoint; at h=6 they agree at 8/18.
+- **Related work**: Dasgupta et al. 2026 already derive collapse for separable networks
+  (a Dirac at a weighted mean); the paper now says so and states the difference.
+- **E7** (MNIST, 9 runs) launched on the server 2026-10-12 14:25; results pending.
+
+Taken together, the honest main-track story is narrower than the plan's T1: an exact
+endpoint law, an audit that locates a trained model relative to its training set and
+whose limits are measured (it does not predict calibration at image scale, and adds no
+information over free quantities on synthetic data), and calibration theory that is
+correct but loose.
+
