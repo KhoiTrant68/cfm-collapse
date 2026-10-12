@@ -122,15 +122,22 @@ distinguish the two (App. `specbias`).
 
 ### T2: finite-sample calibration of the reference law, and a stopping guarantee
 
-**Statement (draft).** For i.i.d. data with Y = g(X)+η, σ>0, and a region rule built from
-the NW mixture's conditional CDF of a fixed statistic s(X), with probability ≥ 1−δ over
-the training set:
+**Status (2026-10-12).** The draft statement (τ_h + C₁Lh² + C₂√(log(1/δ)/(N h^k ρ_min)) +
+1/(2 n_eff)) was **false** (proof check of 2026-10-11: atoms in s(X), ρ_min = 0, units of
+the h² term, the discreteness term). It is replaced by **Theorem B**, proved and confirmed
+4/4 by fresh verifiers (`docs/theory/theorem_B.tex`):
 
-|coverage − α| ≤ τ_h + C₁·L·h² + C₂·√(log(1/δ) / (N h^k ρ_min)) + 1/(2 n_eff).
+for label-only mixture weights p_i(y) (Nadaraya–Watson with any kernel, k-NN, ...), F(·|y)
+atomless and L-Lipschitz in y, with probability ≥ 1−δ over the training set, for all α at once,
 
-Here τ_h ≤ √(k/8) h²/σ² is part (b), the second term is the NW bias for an L-Lipschitz
-(in y) conditional CDF, the third is the NW variance, and the last is the discreteness of
-part (d).
+|coverage − α| ≤ 2L·E r(Y*) + 8·E n_eff(Y*)^{-1/2} + √(2 a_max log(1/δ)),
+
+with r(y) = ∑_i p_i(y)|y^i − y| and a_i = E p_i(Y*). Without atomlessness only the lower
+bound holds. Proof: quantile lemma (sup-norm CDF error D ⇒ |coverage − α| ≤ 2D), Lipschitz
+bias, symmetrisation plus Doob's L² maximal inequality, McDiarmid with differences a_i.
+
+The uniform-rate form T2′ (τ_h + Pr(Y ∉ A) + C_k√((k log(eR_A/h) + log(2/δ))/(N h^k ρ_A)))
+is still unproved; Theorem B is the version to use.
 
 **Consequences.**
 - An explicit calibration window [h_min(N), h_max(σ, k)].
@@ -141,10 +148,10 @@ part (d).
   best of J checkpoints, using m simulated pairs, and T1 says where that checkpoint is.
   This is the posterior-free use R3 asked for.
 
-**Proof route.** Uniform rates for NW conditional distribution functions: Hall, Wolff &
-Yao (1999); Einmahl & Mason (2005). Quantile coverage from CDF error is standard; the
-selection bound is a hold-out argument. Moderate difficulty; the novelty is in the
-combination with T1, not in the components.
+**Proof route.** Done for Theorem B (above). For T2′: uniform rates for NW conditional
+distribution functions (Hall, Wolff & Yao 1999; Einmahl & Mason 2005). The selection bound
+(consequence 3) is a hold-out argument; it needs i.i.d. simulated pairs independent of the
+checkpoints, J fixed in advance, and randomised PIT for atomic laws.
 
 ### T3 (optional, after E5): a two-bandwidth law at image scale
 
@@ -320,10 +327,20 @@ norm ∝ ∫(ℓ²f'² + f²).
 4. The weight left to c is 1 − ∑_j g_j. With z ≡ 1, (L+V)(1 − f₁) = 1 ≥ 0, so
    1 − f₁ ≥ 0 by the same positivity.
 
-Hence the weights w = g + (1−∑g)/N are a probability vector. In k ≥ 2 the RKHS must have
-order > k/2. Its operator is then of order ≥ 4 and has no maximum principle, so expect
-signed weights there, as for the Gaussian kernel. This matters for CIFAR-10 (k=1536):
-positivity, hence atomic moments, is not automatic for a kernel learner.
+Hence the weights w = g + (1−∑g)/N are a probability vector. The written proof (weak
+Euler–Lagrange equation, then Stampacchia truncation with u⁻ and (f₁−1)⁺ as test
+functions) is in `docs/theory/lemma_L1.tex`, confirmed 4/4 by fresh verifiers.
+
+In k ≥ 2 the lemma is **false**. The proof needs a Dirichlet-form norm (order ≤ 1, so
+truncations stay in the space) with continuous point evaluation (order > k/2), which forces
+k = 1. Explicit counterexample: exponential kernel in k = 2, three labels on an equilateral
+triangle; far from the triangle a smoother weight is negative, and at the centre the
+weights sum to more than 1 (`docs/theory/lemma_L1.tex`, remark; checked numerically:
+−8·10⁻⁵ and 1.012 at R = 0.1, λ = 10⁻⁴). In random designs in k = 2, 3 the mixture weights
+w also go negative (down to −0.27). At N = 2 the weights are nonnegative in every dimension.
+The Gaussian and Matérn-3/2 kernels give signed weights already at k = 1, N = 2. This
+matters for CIFAR-10 (k=1536): positivity, hence atomic moments, is not automatic for a
+kernel learner.
 
 **What this changes in §2.**
 - T1(a), (b) and (c) in the smoothing regime are known equivalent-kernel theory applied
@@ -345,3 +362,26 @@ positivity, hence atomic moments, is not automatic for a kernel learner.
 **Literature to check before claiming L1.** Positivity of first-order L-spline and
 Ornstein–Uhlenbeck GP smoothers; the total positivity of the exponential kernel is
 classical (Karlin, *Total Positivity*, 1968).
+
+## 7. Outcome of E1–E3 and the gates (2026-10-12)
+
+| Exp. | Result | Pre-registered verdict |
+|---|---|---|
+| E3 | label-space NTK changes by 0.7–1.2 (normalised Frobenius) for h ≤ 0.1; spectrum polynomial, ζ ≈ 1.1–1.3, at h ≤ 0.01; smooth at h = 0.5 (`results/theory/e3_ntk_label.json`) | **G1 triggered**: not lazy. T1 is a model of the learner, not a theorem about it |
+| E1 | h = 0: pooled slope of log h_mean on log ρ̂ −0.35 [−0.52, −0.16] (h_var −0.25 [−0.43, −0.04]); per-seed CIs contain 0 in 5/6 checkpoints; h > 0: slopes ≈ 0 or positive (`results/exp1/_heff/heff_local_density.json`) | **falsified by the stated rule** (CI contains 0 in ≥ 2 of 3 seeds). G3 triggered; the pooled effect is a lead, not a result |
+| E2a | final h_eff at 2×10⁵ against AdamW weight decay 0, 1e-4, 1e-3, 1e-2: ×1.00, ×0.98, ×1.22 at h = 0; ×0.90, ×0.86, ×0.92 at h = 0.05; seed ranges overlap at every level (`results/exp1/_heff/e2_floor_compare.json`) | **falsified**: the floor does not rise with weight decay |
+| E2b | lr 3e-4: ×1.18 (h = 0), ×0.91 (h = 0.05); lr 3e-3 diverged (NaN or exploding samples) in 2 of 3 runs at each h by 2×10⁵ | **falsified**: no monotone trend |
+| E2c | cosine: ×0.92 (h = 0), ×0.89 (h = 0.05; 1.05h against 1.18h, seed ranges touching) | not falsified, weak: closer to h at h = 0.05 only |
+
+**Gates.** G1, G2 and G3 have all triggered. By §5's own fallback, the main-track paper is
+an empirical "science of DL" paper unless a different mechanism for the floor is found:
+- at h = 0.05 the floor sits at 1.05–1.2 h whatever the optimiser settings, so it is set by
+  the training bandwidth, not by regularisation;
+- at h = 0, h_eff is still falling at 2×10⁵ (geometric mean 0.009) in every arm, so there
+  is no floor to explain yet.
+
+What survives for a main-track submission: the endpoint law and its audit (all main-text
+proofs re-verified 3/3 after the fixes, see `docs/review/proof_check_2026-10-11.md`),
+Theorem B as the calibration contribution, L1 as a k = 1 positivity result, and E7 plus a
+second dataset for breadth. A plain-SGD arm with L2 decay (the exact ridge of T1(c)) is the
+one remaining cheap test of the floor mechanism.
