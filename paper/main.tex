@@ -2,15 +2,18 @@
 \documentclass{article} % For LaTeX2e
 
 % ---------------------------------------------------------------------------
-% ICLR 2027 submission.
+% TMLR submission (style files from github.com/JmlrOrg/tmlr-style-file).
 % Compile:  pdflatex main && bibtex main && pdflatex main && pdflatex main
 %
-% Anonymized for double-blind review: no author name/affiliation/email
-% appears anywhere in this file. Do not add any before the ICLR deadline.
-% Uncomment \iclrfinalcopy below only for the camera-ready version.
+% Anonymized for double-blind review: with no option, tmlr.sty prints
+% "Anonymous authors" and the "Under review" header, so no author
+% name/affiliation/email may appear in this file. Use \usepackage[accepted]{tmlr}
+% only for the camera-ready version, [preprint] for arXiv.
+% The ICLR 2027 version of this preamble used iclr2027_conference.sty (kept in
+% paper/) with \usepackage{iclr2027_conference,times}.
 % ---------------------------------------------------------------------------
 
-\usepackage{iclr2027_conference,times}
+\usepackage{tmlr}
 \usepackage{amsmath,amssymb,amsthm}
 \usepackage{graphicx}
 \usepackage{booktabs}
@@ -40,13 +43,10 @@
 \title{Trained Conditional Flows Memorise\\
 at an Effective Bandwidth}
 
-% Authors must not appear in the submitted version; the iclr2027_conference
-% style hides \author automatically and prints "Anonymous authors" as long as
-% \iclrfinalcopy below stays commented out. Do not add names/affiliations/
-% emails here before the deadline -- fill them in only for camera-ready.
-\author{Anonymous authors \\ Paper under double-blind review}
-
-%\iclrfinalcopy % Uncomment for camera-ready version, but NOT for submission.
+% Authors must not appear in the submitted version; tmlr.sty ignores \author
+% unless the [accepted] or [preprint] option is given. Fill in names only then.
+\author{Anonymous authors}
+\newcommand{\openreview}{\url{https://openreview.net/forum?id=XXXX}}
 
 \begin{document}
 \maketitle
@@ -752,7 +752,7 @@ Appendix~\ref{app:proofs}; every stated assumption (distinct labels, smoothness 
 weight functions, the linear-Gaussian instance) is made explicit at the point it is
 used.
 
-\subsection*{Ethics statement}
+\subsection*{Broader impact statement}
 This work trains small models on synthetic linear-Gaussian and Gaussian-mixture data
 and on the public MNIST and CIFAR-10 datasets. No human subjects, personally identifiable
 information, or other sensitive data are used or generated. The paper's contribution
@@ -773,7 +773,7 @@ run and analyse several experiments. Every reported number is produced by the re
 code from actual runs. The authors checked all proofs and verified all results against
 the raw outputs, and take full responsibility for the content.
 
-\bibliographystyle{plainnat}
+\bibliographystyle{tmlr}
 \bibliography{refs}
 
 % ==========================================================================
