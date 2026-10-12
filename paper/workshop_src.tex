@@ -142,12 +142,14 @@ each atom does not improve it (Table~\ref{tab:families}).
 With $D_i=|y-y^i|^2$ and $\Cov_p$ the covariance over $i$ under $p^{(h)}(y)$,
 $\partial_h\bar x_h=h^{-3}\Cov_p(x^i,D_i)$ and
 $\partial_h\tr\Covh=h^{-3}\Cov_p(|x^i-\bar x_h|^2,D_i)$, so the latter is $O(h^{-3})$ as
-$h\to\infty$. Let $F(h)=(\log\tr\mathrm{Cov}_h(y_c))_c$, the measured log traces be
-$F(h_{\mathrm{true}})+e$, and $\hat h$ minimise $|\log T-F(h)|$ over a set
-$\mathcal H\ni h_{\mathrm{true}}$. Then $\hat h\in\{h\in\mathcal
+$h\to\infty$. Let $F(h)=(\log\tr\mathrm{Cov}_h(y_c))_c$, let the measured traces
+$T=(T_c)_c$ satisfy $\log T=F(h_{\mathrm{true}})+e$, and let $\hat h$ minimise
+$|\log T-F(h)|$ over a set $\mathcal H\ni h_{\mathrm{true}}$. Then $\hat h\in\{h\in\mathcal
 H:|F(h)-F(h_{\mathrm{true}})|\le2|e|\}$; if this set lies in an interval $\mathcal I\ni
 h_{\mathrm{true}}$ on which $u\cdot F'\ge\kappa>0$ for a unit vector $u$, then $|\hat
-h-h_{\mathrm{true}}|\le2|e|/\kappa$. \proofin{}
+h-h_{\mathrm{true}}|\le2|e|/\kappa$. Likewise for $h_{\mathrm{mean}}$, with
+$G(h)=(\bar x_h(y_c))_c$, $e=m-G(h_{\mathrm{true}})$ for the generated means $m$, and $|e|$
+read in the norm $\sum_c|e_c|$. \proofin{}
 \end{proposition}
 
 \begin{figure}[t]

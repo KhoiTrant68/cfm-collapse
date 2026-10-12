@@ -84,13 +84,53 @@ Both attackers, high confidence:
   pairs i.i.d. and independent of the checkpoints, J fixed in advance, randomised PIT
   (atomic laws) and a fresh split for reporting. Marginal PIT cannot see over-smoothing.
 
+## Re-verification after the fixes (2026-10-12)
+
+All fixes above were applied to `paper/main.tex` (and propagated to the workshop version).
+Bundles A–E were rebuilt from the revised source, and every bundle went to three new
+fresh-context verifiers (same three attack variants, none told of earlier verdicts). L1 got
+a fourth verifier (would-it-prove-too-much). The written proof of Theorem B (the corrected
+T2) got four.
+
+| Bundle | Results | New verdicts | Total holds | Status |
+|---|---|---|---|---|
+| A | `prop:collapse`, `lem:cov`, `lem:wellposed`, `lem:mixture-coupling`, `prop:kernel-field`, `thm:endpoint`, `cor:zerobw`, `prop:moments` | C C C | 6 | **confirmed** |
+| A | `cor:infbw` (now cites `prop:uncond`), `prop:uncond`, `prop:atomicity` (now cites `prop:collapse`(d) at h=0) | C C C | 3 (`atomicity` 5) | holds 3/3 after the fix (`atomicity` confirmed) |
+| B | `prop:heffid`: derivatives, large-h limit, stability, grid not containing h_true (recentred at g), h_mean in the norm ∑_c\|e_c\| | C C C | 6 for the unchanged parts, 3 for the grid and h_mean parts | **confirmed**; grid and h_mean hold 3/3 |
+| C | `thm:calib` (a), (b) | C C C | 6 | **confirmed** |
+| C | `thm:calib` (c) strictness (open set), (d) (fixed nonnegative weights, x* independent) | C C C | 3 | holds 3/3 after the fix |
+| D | `prop:specbias`(a), `prop:filtered`(a), (b) | C C C | 6 | **confirmed** |
+| D | `prop:specbias`(b) (multiplier setting, f⋆−c ∈ L²) | C C C | 3 | holds 3/3 after the fix |
+| E | `prop:prop17` algebra, `prop:tgtnoise` | C C C | 6 | **confirmed** |
+| E | `prop:prop17` framing (minimiser of the t(1−t)-weighted loss), `cor:prop18` | C C C | 3 | holds 3/3 after the fix |
+| F | **L1** positivity, k=1 | C (4th) | 4 | **confirmed** |
+| F | L1 remark ("signed weights in k≥2 open") | **I** | — | **refuted**: false already at N=3 in k=2 (equilateral triangle: a negative weight far away, sum > 1 at the centre; checked numerically). Corrected in `docs/theory/lemma_L1.tex` |
+| H | **Theorem B** (label-weighted mixtures, coverage bound) | C C C C | 4 | **confirmed** |
+| H | Theorem B remark | C C C G | — | one GAP: "n_eff grows with h" holds for the Gaussian kernel, not for every kernel (step-kernel counterexample). Corrected in `docs/theory/theorem_B.tex` |
+
+No new hole was found in any main-text proof. The nits raised by two or more verifiers
+were then applied to `main.tex`:
+- `specbias`(b): the multiplier is unbounded for every ζ>0, and the solution is in the
+  semigroup sense, with a uniqueness line.
+- `cor:prop18`: inf L_σ = E Var by the conditional decomposition in [0,∞], not by
+  `prop:projection`, whose L² hypothesis fails.
+- The lead-in to `prop:prop17`: the loss is infinite because the conditional variance is
+  not integrable, not merely because the target is not.
+- `heffid`: the symbol m was overloaded (now ā); κ_g in the grid case; the CIFAR κ values
+  are local slopes.
+- `filtered`(b): "nearest atom location".
+- `calib`: Σ_x ≻ 0 in (c), and the Bayes-formula version of π_h(·|y).
+
+Recurring nit not acted on: the bundles did not contain the definition of p_i^{(h)}(y). It
+is in the main text (Section 3, before `prop:kernel-field`); the bundle extractor stopped
+before it.
+
 ## Still to do
 
-1. Apply the fixes above to `main.tex`. All are statement or hypothesis edits, plus one or
-   two lines of proof each.
-2. Fresh verifiers on the revised bundles (two refute, four confirm), and a fourth pass
-   for every result that held 3/3.
-3. Replace T2 in the plan by T2′ or Theorem B, write its proof, and run the same protocol.
-4. Not covered by this check: `prop:survival`, `cor:lossform`, `prop:expansion`,
+1. Fourth verifier for the results that now hold 3/3 after a fix (`cor:infbw`,
+   `prop:uncond`, `heffid` grid and h_mean, `calib`(c)(d), `specbias`(b), `prop17`
+   framing, `cor:prop18`).
+2. T2′ (uniform route) has no proof yet; Theorem B is the version to use.
+3. Not covered by this check: `prop:survival`, `cor:lossform`, `prop:expansion`,
    `prop:nwrate`, `prop:cfg`, `prop:cfgatom`, `prop:nearduplicate` and the
    non-representability results. These are appendix-only and outside the main claims.

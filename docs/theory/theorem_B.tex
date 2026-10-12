@@ -1,0 +1,153 @@
+% Theorem B (main-track plan, replaces the false draft T2). Verified 2026-10-12 under the
+% math-olympiad protocol: four independent fresh-context verifiers (general adversarial,
+% lemma extraction, consecutive pass, would-it-prove-too-much), all CORRECT on the theorem
+% (confirmed, 4/4). One verifier marked the remark GAP ("n_eff grows with h" is false for
+% general kernels); the remark below states the kernel and fixes the nits the others raised.
+%
+% Context: a conditional generative model trained on N pairs (x^i, y^i) whose conditional
+% law at a query label y is (or is modelled as) a mixture over the training atoms,
+% p(. | y) = sum_i p_i(y) delta_{x^i}, with weights computed from the labels only (e.g.
+% Nadaraya--Watson weights with any kernel and bandwidth, or k-nearest-neighbour weights).
+% A prediction region at level alpha is formed from the mixture's quantiles of a scalar
+% statistic s(x). The theorem bounds how far the coverage of these regions is from alpha.
+
+\paragraph{Setting.}
+$(X,Y)$ is a random pair with $X\in\mathbb R^d$, $Y\in\mathbb R^k$, and the training set
+$(x^i,y^i)$, $i=1,\dots,N$, is i.i.d.\ from its law; $(X^*,Y^*)$ is a further independent
+draw. $|\cdot|$ is a fixed norm on $\mathbb R^k$. $s:\mathbb R^d\to\mathbb R$ is measurable, and
+$F(u\mid y)$ is the CDF of $s(X)$ under a fixed regular conditional law $\kappa(y,\cdot)$ of $X$
+given $Y=y$. The weights $p_i(y)=p_i(y;y^1,\dots,y^N)\ge0$, $\sum_ip_i(y)=1$, are jointly
+measurable functions of the query and the training labels only; they do not depend on
+$x^1,\dots,x^N$. Write
+\[
+\widehat F(u\mid y)=\sum_ip_i(y)\,\mathbf 1\{s(x^i)\le u\},\qquad
+n_{\mathrm{eff}}(y)=\Big(\sum_ip_i(y)^2\Big)^{-1},\qquad
+r(y)=\sum_ip_i(y)\,|y^i-y|,\qquad a_i=\E_{Y^*}\,p_i(Y^*).
+\]
+For $\beta\in(0,1)$, a \emph{$\beta$-quantile} of a CDF $G$ is any $q\in\mathbb R$ with
+$G(q-)\le\beta\le G(q)$. For $\alpha\in(0,1)$ let $q_{\mathrm{lo}}(y)$ and $q_{\mathrm{hi}}(y)$
+be $\beta$-quantiles of $\widehat F(\cdot\mid y)$ at $\beta=\frac{1-\alpha}2$ and
+$\frac{1+\alpha}2$, chosen measurably in $y$ (e.g.\ the left quantile
+$\inf\{u:\widehat F(u\mid y)\ge\beta\}$), and
+$\widehat R(y)=\{x:s(x)\in[q_{\mathrm{lo}}(y),q_{\mathrm{hi}}(y)]\}$. The coverage is
+$C_\alpha=\Pr\big(X^*\in\widehat R(Y^*)\big)$, the probability being over $(X^*,Y^*)$ with
+the training set fixed.
+
+\begin{theorem}[Coverage of label-weighted atomic mixtures]
+Assume
+(A1) $u\mapsto F(u\mid y)$ is continuous for every $y$, and
+(A2) $|F(u\mid y)-F(u\mid y')|\le L|y-y'|$ for all $u,y,y'$.
+Then for every $\delta\in(0,1)$ there is an event of probability at least $1-\delta$ over the
+training set on which, simultaneously for all $\alpha\in(0,1)$,
+\[
+|C_\alpha-\alpha|\;\le\;2L\,\E_{Y^*}r(Y^*)\;+\;8\,\E_{Y^*}n_{\mathrm{eff}}(Y^*)^{-1/2}
+\;+\;\sqrt{2\,a_{\max}\log(1/\delta)},\qquad a_{\max}=\max_ia_i .
+\]
+The right-hand side depends on the training set only through its labels (and on the law of
+$Y$ and on $L$, so it is not computable from the data alone). Under (A2) without (A1), the
+one-sided bound $C_\alpha\ge\alpha-(\text{same right-hand side})$ still holds.
+\end{theorem}
+
+\begin{proof}
+\emph{Step 1 (quantile lemma).} Let $G$ be a CDF, $\widehat G$ a CDF with
+$\sup_u|\widehat G(u)-G(u)|\le D$, and $q_\beta$ a $\beta$-quantile of $\widehat G$. Taking
+limits from the left, also $|\widehat G(u-)-G(u-)|\le D$ for every $u$. Hence
+\[
+G(q_\beta)\ge\widehat G(q_\beta)-D\ge\beta-D,\qquad G(q_\beta-)\le\widehat G(q_\beta-)+D\le\beta+D .
+\]
+For $\beta_\pm=\frac{1\pm\alpha}2$, $q_{\beta_-}\le q_{\beta_+}$: otherwise
+$\widehat G(q_{\beta_+})\le\widehat G(q_{\beta_-}-)\le\beta_-<\beta_+$, contradicting
+$\widehat G(q_{\beta_+})\ge\beta_+$. So for $Z\sim G$,
+$\Pr(Z\in[q_{\beta_-},q_{\beta_+}])=G(q_{\beta_+})-G(q_{\beta_-}-)\ge(\beta_+-D)-(\beta_-+D)=\alpha-2D$.
+If $G$ is continuous, $G(q-)=G(q)$ for all $q$, so also $G(q_\beta)\le\beta+D$ and
+$G(q_\beta-)\ge\beta-D$, whence $\Pr(Z\in[q_{\beta_-},q_{\beta_+}])\le\alpha+2D$.
+
+\emph{Step 2 (reduction to a sup-norm error).} Let
+$D(y)=\sup_u|\widehat F(u\mid y)-F(u\mid y)|$. The training set is fixed and
+$q_{\mathrm{lo}},q_{\mathrm{hi}}$ are measurable functions of $y$, so
+$\{(x,y):s(x)\in[q_{\mathrm{lo}}(y),q_{\mathrm{hi}}(y)]\}$ is jointly measurable and, by the
+disintegration of the law of $(X^*,Y^*)$ through $\kappa$,
+$C_\alpha=\E_{Y^*}\big[F(q_{\mathrm{hi}}(Y^*)\mid Y^*)-F(q_{\mathrm{lo}}(Y^*)-\mid Y^*)\big]$.
+Step 1 applied at each $y$ with $G=F(\cdot\mid y)$, $\widehat G=\widehat F(\cdot\mid y)$ gives
+that the integrand lies in $[\alpha-2D(y),\alpha+2D(y)]$ (lower end only, without (A1)).
+So $|C_\alpha-\alpha|\le2\,\E_{Y^*}D(Y^*)$, and $C_\alpha\ge\alpha-2\,\E_{Y^*}D(Y^*)$ without
+(A1). Neither depends on $\alpha$.
+
+\emph{Step 3 (bias and fluctuation).} Write $S_i=s(x^i)$ and
+$\xi_i(u)=\mathbf 1\{S_i\le u\}-F(u\mid y^i)$. Since $\sum_ip_i=1$,
+\[
+\widehat F(u\mid y)-F(u\mid y)=\underbrace{\sum_ip_i(y)\,\xi_i(u)}_{M(u,y)}
++\sum_ip_i(y)\big(F(u\mid y^i)-F(u\mid y)\big),
+\]
+and by (A2) the second sum is at most $L\,r(y)$ in absolute value, uniformly in $u$. So
+$D(y)\le L\,r(y)+\sup_u|M(u,y)|$. Both $\widehat F$ and $F$ are right-continuous in $u$, so
+the supremum may be taken over $u\in\mathbb Q$, and $\Phi:=\E_{Y^*}\sup_u|M(u,Y^*)|$ is a
+measurable function of the training set. Thus, for every $\alpha$,
+\[
+|C_\alpha-\alpha|\le2L\,\E_{Y^*}r(Y^*)+2\Phi .
+\]
+
+\emph{Step 4 (conditional structure).} Condition on the labels $y^1,\dots,y^N$. Because the
+pairs are i.i.d., for almost every value of the labels $x^1,\dots,x^N$ are then independent
+with $x^i\sim\kappa(y^i,\cdot)$, so $S_i$ has CDF $F(\cdot\mid y^i)$ and
+$\E[\xi_i(u)\mid\text{labels}]=0$. The weights $p_i(y)$, the numbers $a_i$, $r(y)$ and
+$n_{\mathrm{eff}}(y)$ are fixed given the labels.
+
+\emph{Step 5 (expected fluctuation).} Fix $y$ and the labels; write $p_i=p_i(y)$. The
+processes $Z_i(u)=p_i\mathbf 1\{S_i\le u\}$ are independent across $i$, so by the standard
+symmetrisation inequality (an independent copy $S_i'$, Jensen, then Rademacher signs
+$\varepsilon_i$ independent of everything),
+\[
+\E\sup_u\Big|\sum_i\big(Z_i(u)-\E Z_i(u)\big)\Big|\le2\,\E\sup_u\Big|\sum_i\varepsilon_ip_i\mathbf 1\{S_i\le u\}\Big| .
+\]
+Given $S_1,\dots,S_N$, let $\pi$ order them, $S_{\pi(1)}\le\dots\le S_{\pi(N)}$, ties broken by
+index, so that $\pi$ is a function of $S$. For every $u$ the set $\{i:S_i\le u\}$ is
+$\{\pi(1),\dots,\pi(m)\}$ for some $m\in\{0,\dots,N\}$, so the supremum is at most
+$\max_m|W_m|$ with $W_m=\sum_{j\le m}\varepsilon_{\pi(j)}p_{\pi(j)}$. Given the $S_i$, the signs
+$\varepsilon_{\pi(j)}$ are i.i.d.\ Rademacher, so $(W_m)_m$ is a martingale, and Doob's $L^2$
+maximal inequality gives $\E\max_m W_m^2\le4\,\E W_N^2=4\sum_ip_i^2$; by Cauchy--Schwarz
+$\E\max_m|W_m|\le2(\sum_ip_i^2)^{1/2}$. Hence
+\[
+\E\Big[\sup_u|M(u,y)|\;\Big|\;\text{labels}\Big]\le4\,n_{\mathrm{eff}}(y)^{-1/2},
+\qquad
+\E[\Phi\mid\text{labels}]\le4\,\E_{Y^*}n_{\mathrm{eff}}(Y^*)^{-1/2},
+\]
+the second by Tonelli, $Y^*$ being independent of the training set.
+
+\emph{Step 6 (concentration).} Given the labels, $\Phi$ is a function of the independent
+$x^1,\dots,x^N$. Replacing $x^i$ by any $\tilde x^i$ changes $M(u,y)$ by
+$p_i(y)\big(\mathbf 1\{s(\tilde x^i)\le u\}-\mathbf 1\{S_i\le u\}\big)$ (the centring
+$F(u\mid y^i)$ depends on the label only), at most $p_i(y)$ in absolute value uniformly in $u$,
+so $\sup_u|M(u,y)|$ moves by at most $p_i(y)$ and $\Phi$ by at most $a_i$. By McDiarmid's
+inequality, with conditional probability at least $1-\delta$,
+\[
+\Phi\le\E[\Phi\mid\text{labels}]+\sqrt{\tfrac12\textstyle\sum_ia_i^2\log(1/\delta)} .
+\]
+Since $a_i\ge0$ and $\sum_ia_i=\E_{Y^*}\sum_ip_i(Y^*)=1$, $\sum_ia_i^2\le a_{\max}$. This holds
+for almost every value of the labels, hence also unconditionally.
+
+\emph{Step 7.} The event of Step 6 is defined through $\Phi$ alone. On it, Steps 3 and 5 give
+$|C_\alpha-\alpha|\le2L\,\E r(Y^*)+8\,\E n_{\mathrm{eff}}(Y^*)^{-1/2}+2\sqrt{\tfrac12a_{\max}\log(1/\delta)}$
+for every $\alpha$, and $2\sqrt{\frac12a}=\sqrt{2a}$. Without (A1) the same chain, with the
+lower bound of Step 2, gives the one-sided bound.
+\end{proof}
+
+\begin{remark}[Reading the three terms]
+For Nadaraya--Watson weights with the isotropic Gaussian kernel of bandwidth $h$, $r(y)$ is the
+weighted mean label distance (of order $h\sqrt k$ where labels are dense), and
+$n_{\mathrm{eff}}(y)$ is nondecreasing in $h$: with $\theta=1/(2h^2)$ and $c_i=|y-y^i|^2$,
+$\frac{d}{d\theta}\log\sum_ip_i^2=2\big(\E_{p^{(\theta)}}[c]-\E_{p^{(2\theta)}}[c]\big)\ge0$. So the
+first two terms trade off in $h$. This monotonicity is a property of the kernel, not of
+Nadaraya--Watson weights in general: for a nonincreasing step kernel, $n_{\mathrm{eff}}$ can fall
+as $h$ grows. As $h\to0$ with a unique nearest label, $n_{\mathrm{eff}}\to1$ and the bound
+exceeds $1$, as it must: a single atom covers an atomless target with probability $0$, so
+$|C_\alpha-\alpha|=\alpha$ for every $\alpha$. $a_i$ is the average weight of atom $i$, and
+$a_{\max}\ge1/N$; when no atom dominates, $a_{\max}\approx1/N$ and the last term is
+$O(\sqrt{\log(1/\delta)/N})$. With $L=0$ and equal weights $1/N$ the bound reads
+$8N^{-1/2}+\sqrt{2\log(1/\delta)/N}$, the Dvoretzky--Kiefer--Wolfowitz rate with a
+conservative constant. Without (A1) the upper bound fails: for $s(X)$ uniform on $\{-1,1\}$
+and independent of $Y$ (so $L=0$), $\alpha=0.3$, and a mixture putting weight strictly between
+$0.35$ and $0.65$ on each value, the central interval is $[-1,1]$ and covers with probability
+$1$; with equal weights and $N$ large the weight lies in that range with high probability while
+the right-hand side is below $0.7$.
+\end{remark}

@@ -357,7 +357,7 @@ $X_t\to x^I$ almost surely.
 If $y$ has a unique nearest label $i^\star=\arg\min_i|y-y^i|$, then
 $p_i^{(h)}(y)\to\mathbf 1\{i=i^\star\}$ as $h\to0$, so
 $p_1^{(h)}(\cdot\mid y)\Rightarrow\delta_{x^{i^\star}}$; at $y=y^i$ this
-recovers Proposition~\ref{prop:collapse}. \proofin{apx:pf-zerobw}
+recovers Proposition~\ref{prop:collapse}(d). \proofin{apx:pf-zerobw}
 \end{corollary}
 \begin{corollary}[Infinite bandwidth at fixed $N$]
 \label{cor:infbw}
@@ -371,7 +371,7 @@ Section~\ref{sec:theory-hard}.
 \label{prop:moments}
 $\bar x_h(y)=\sum_i p_i^{(h)}(y)\,x^i$ and
 $\Covh(y)=\sum_i p_i^{(h)}(y)\,(x^i-\bar x_h(y))(x^i-\bar x_h(y))^\top$, both computable
-from the training set for any $h$; they are the reference for generated moments.
+from the training set for any $h>0$; they are the reference for generated moments.
 $\tr\Covh(y)$ need not be monotone in $h$. \proofin{apx:pf-moments}
 \end{proposition}
 
@@ -551,19 +551,22 @@ Let $D_i(y)=|y-y^i|^2$ and $\Cov_p$ the covariance over $i$ under $p^{(h)}(y)$. 
 $\partial_h\bar x_h(y)=h^{-3}\Cov_p(x^i,D_i)$ and
 $\partial_h\tr\Covh(y)=h^{-3}\Cov_p(|x^i-\bar x_h(y)|^2,D_i)$, and
 $h^3\partial_h\tr\Covh(y)$ tends to the unweighted covariance of $|x^i-\bar x|^2$ and $D_i$
-as $h\to\infty$. Let $F(h)=(\log\tr\mathrm{Cov}_h(y_c))_{c\le C}$, let the measured log
-traces be $F(h_{\mathrm{true}})+e$, and let $\hat h$ minimise $|\log T-F(h)|$ over a set
-$\mathcal H\ni h_{\mathrm{true}}$ of bandwidths. Then $\hat h\in\{h\in\mathcal
-H:|F(h)-F(h_{\mathrm{true}})|\le2|e|\}$. If this set lies in an interval $\mathcal I\ni
-h_{\mathrm{true}}$ on which $u\cdot F'\ge\kappa>0$ for a unit vector $u$, then $|\hat
-h-h_{\mathrm{true}}|\le2|e|/\kappa$; likewise for $h_{\mathrm{mean}}$ with
-$G(h)=(\bar x_h(y_c))_c$. \proofin{apx:pf-heffid}
+as $h\to\infty$. Let $F(h)=(\log\tr\mathrm{Cov}_h(y_c))_{c\le C}$, let the measured
+traces $T=(T_c)_c$ satisfy $\log T=F(h_{\mathrm{true}})+e$, and let $\hat h$ minimise
+$|\log T-F(h)|$ over a set $\mathcal H\ni h_{\mathrm{true}}$ of bandwidths. Then
+$\hat h\in\{h\in\mathcal H:|F(h)-F(h_{\mathrm{true}})|\le2|e|\}$. If this set lies in an
+interval $\mathcal I\ni h_{\mathrm{true}}$ on which $u\cdot F'\ge\kappa>0$ for a unit
+vector $u$, then $|\hat h-h_{\mathrm{true}}|\le2|e|/\kappa$. Likewise for
+$h_{\mathrm{mean}}$, with $G(h)=(\bar x_h(y_c))_c$, $e=m-G(h_{\mathrm{true}})$ for the
+generated means $m=(m_c)_c$, and $|e|$ read in the norm $\sum_c|e_c|$ that
+\eqref{eq:heff} minimises. \proofin{apx:pf-heffid}
 \end{proposition}
 
 So $\kappa=O(h^{-3})$ at large $h$, where no bandwidth is identified. With the fitted
 residual as $e$, the bound exceeds the bootstrap half-width at all 75 synthetic
 checkpoints and ranks those widths with Spearman $0.91$;
-on CIFAR-10, $\kappa$ falls from $17$ at $h{=}3$ to $0.38$ and $0.13$ at $h{=}5,6$.
+on CIFAR-10 the local slope $u\cdot F'$, an upper bound on $\kappa$ near each $h$, falls
+from $17$ at $h{=}3$ to $0.38$ and $0.13$ at $h{=}5,6$.
 
 \paragraph{Synthetic.} Fifteen linear-Gaussian runs ($h\in\{0,0.01,0.05,0.1,0.5\}$, three
 seeds) were retrained with weights kept at eight checkpoints (Figure~\ref{fig:heffsyn},
@@ -583,25 +586,27 @@ coverage of a sampler's credible regions can be computed for the reference law i
 
 \begin{theorem}[Calibration of the reference law]
 \label{thm:calib}
-Let $X\sim\pi$ and $Y=g(X)+\eta$, $\eta\sim\N(0,\sigma^2I_k)$, with $\pi$ and $g$
-arbitrary, and let $\pi_h(\cdot\mid y)$ be the law of $X$ given $\widetilde Y=Y+h\varepsilon=y$,
-a posterior under label noise of variance $s_h^2=\sigma^2+h^2$.
+Let $X\sim\pi$ and $Y=g(X)+\eta$, $\eta\sim\N(0,\sigma^2I_k)$, $\sigma>0$, with $\pi$ and
+measurable $g$ arbitrary, and let $\pi_h(\cdot\mid y)$ be the law of $X$ given
+$\widetilde Y=Y+h\varepsilon=y$ (the Bayes-formula version, defined for every $y$), a posterior
+under label noise of variance $s_h^2=\sigma^2+h^2$.
 (a) For fixed $h>0$ and an i.i.d.\ training set, $p_1^{(h)}(\cdot\mid y)\Rightarrow
-\pi_h(\cdot\mid y)$ as $N\to\infty$.
-(b) For any rule $y\mapsto R(y)$ of regions,
+\pi_h(\cdot\mid y)$ almost surely as $N\to\infty$, for each $y$.
+(b) For any measurable rule $y\mapsto R(y)$ of regions,
 $|\Pr(X\in R(Y))-\Pr(X\in R(\widetilde Y))|\le\tau_h:=
 \mathrm{TV}\big(\N(0,\sigma^2I_k),\N(0,s_h^2I_k)\big)\le\sqrt{k/8}\;h^2/\sigma^2$. If
-$R(y)$ is a level-$\alpha$ region of $\pi_h(\cdot\mid y)$, the second probability is
-$\alpha$: for every prior, the reference law's coverage is within $\tau_h$ of $\alpha$.
-(c) If $\pi=\N(\mu_x,\Sigma_x)$ and $g(x)=Ax$, then $\pi_h(\cdot\mid y)=\N(\mu_h(y),\Sigma_h)$
+$\pi_h(R(y)\mid y)=\alpha$ for every $y$ (such regions exist when $\pi$ has no atoms), the
+second probability is $\alpha$: the reference law's coverage is within $\tau_h$ of $\alpha$.
+(c) If $\pi=\N(\mu_x,\Sigma_x)$, $\Sigma_x\succ0$, and $g(x)=Ax$, then $\pi_h(\cdot\mid y)=\N(\mu_h(y),\Sigma_h)$
 with $\Sigma_h=(\Sigma_x^{-1}+A^\top A/s_h^2)^{-1}$, $\Gamma_h=\Sigma_hA^\top/s_h^2$,
 $\mu_h(y)=\Sigma_h\Sigma_x^{-1}\mu_x+\Gamma_hy$, and $X-\mu_h(Y)\sim
-\N(0,\Sigma_h-h^2\Gamma_h\Gamma_h^\top)$: the level-$\alpha$ ellipsoid covers with
-probability at least $\alpha$, strictly if $h>0$ and $A\neq0$.
-(d) For weights $w$ and atoms i.i.d.\ with covariance $S$, the weighted mean has
-covariance $S/n_{\mathrm{eff}}$ and the weighted covariance has mean
+\N(0,\Sigma_h-h^2\Gamma_h\Gamma_h^\top)$: for $\alpha\in(0,1)$ the level-$\alpha$ ellipsoid
+at the clean label covers with probability at least $\alpha$, strictly if $h>0$ and $A\neq0$.
+(d) For fixed weights $w_i\ge0$ with $\sum_iw_i=1$ and atoms i.i.d.\ with covariance $S$,
+the weighted mean has covariance $S/n_{\mathrm{eff}}$ and the weighted covariance has mean
 $(1-1/n_{\mathrm{eff}})S$, $n_{\mathrm{eff}}=1/\sum_iw_i^2$; at $n_{\mathrm{eff}}=1$ the
-region is degenerate and covers with probability $0$. \proofin{apx:pf-calib}
+moment-matched region is a point, which an absolutely continuous $x^\star$ independent of
+the atoms hits with probability $0$. \proofin{apx:pf-calib}
 \end{theorem}
 
 The theorem gives both ends of a calibration window. Smoothing costs at most $\tau_h$
@@ -662,8 +667,8 @@ Let $h>0$, $\varphi$ a probability measure on $\R^k$ and
 $v_\varphi(x,t,y)=\int\vstar(x,t,y-u)\,\varphi(du)$. (a) $v_\varphi=\sum_i\tilde
 w_i(x,t,y)(x^i-x)/(1-t)$ with $\tilde w_i\ge0$, $\sum_i\tilde w_i=1$, and $\tilde
 w_i(x,0,y)=q_i(y):=\int p_i^{(h)}(y-u)\,\varphi(du)$. (b) If a trajectory of $v_\varphi$
-converges as $t\to1$ to a point with a unique nearest training atom, that point is the
-atom. Hence if $\pi_0$-almost every trajectory converges to such a point, the endpoint
+converges as $t\to1$ to a point with a unique nearest atom location, that point is that
+location. Hence if $\pi_0$-almost every trajectory converges to such a point, the endpoint
 law of $v_\varphi$ is $\sum_i\tilde q_i(y)\delta_{x^i}$ for some weights $\tilde q(y)$.
 \proofin{apx:pf-filtered}
 \end{proposition}
@@ -1114,7 +1119,7 @@ individual trajectories is not claimed; Proposition~\ref{prop:cfgatom} assumes i
 If $y$ has a unique nearest label $i^\star=\arg\min_i|y-y^i|$, then
 $p_i^{(h)}(y)\to\mathbf 1\{i=i^\star\}$ as $h\to0$, so
 $p_1^{(h)}(\cdot\mid y)\Rightarrow\delta_{x^{i^\star}}$; at $y=y^i$ this
-recovers Proposition~\ref{prop:collapse}.
+recovers Proposition~\ref{prop:collapse}(d).
 \end{quote}
 
 \begin{proof}[Proof of Corollary~\ref{cor:zerobw}]
@@ -1141,7 +1146,8 @@ $p_1^{(h)}(\cdot\mid y)\Rightarrow p_1^{\mathrm{unc}}$.
         \pih{i}(y) &= \frac{1+O(h^{-2})}{N+O(h^{-2})} \\
         &\longrightarrow \frac1N .
     \end{align*}
-    By Theorem~\ref{thm:endpoint}, $p_1\to\frac1N\sum_i\delta_{x^i}=\rhohat_X$.
+    By Theorem~\ref{thm:endpoint}, $p_1^{(h)}(\cdot\mid y)=\sum_i\pih{i}(y)\delta_{x^i}\Rightarrow\frac1N\sum_i\delta_{x^i}=\rhohat_X$,
+    and $\rhohat_X=p_1^{\mathrm{unc}}$ by Proposition~\ref{prop:uncond}.
 \end{proof}
 
 \subsection{Proof of Proposition~\ref{prop:moments}}
@@ -1151,7 +1157,7 @@ $p_1^{(h)}(\cdot\mid y)\Rightarrow p_1^{\mathrm{unc}}$.
 \noindent\textbf{Proposition~\ref{prop:moments}} (Exact finite-$N$ moments).
 $\bar x_h(y)=\sum_i p_i^{(h)}(y)\,x^i$ and
 $\Covh(y)=\sum_i p_i^{(h)}(y)\,(x^i-\bar x_h(y))(x^i-\bar x_h(y))^\top$, both computable
-from the training set for any $h$; they are the reference for generated moments.
+from the training set for any $h>0$; they are the reference for generated moments.
 $\tr\Covh(y)$ need not be monotone in $h$.
 \end{quote}
 
@@ -1187,7 +1193,9 @@ and this lower bound does not depend on $h$.
 
 \begin{proof}[Proof of Proposition~\ref{prop:atomicity}]
     Any coupling with an atomic law moves each posterior draw at least to its nearest atom, and that bound involves the atoms alone.
-    By Theorem~\ref{thm:endpoint}, $p_1^{(h)}=\sum_i\pih{i}\delta_{x^i}$, so $\supp\,p_1^{(h)}\subseteq\{x^i\}$. For any coupling $(X,X')$ of $p_1^{(h)}$ and $p(\cdot\mid y)$, $X\in\{x^i\}$ a.s., so
+    For $h>0$, Theorem~\ref{thm:endpoint} gives $p_1^{(h)}=\sum_i\pih{i}\delta_{x^i}$; for $h=0$
+    at $y=y^i$, Proposition~\ref{prop:collapse}(d) gives $p_1^{(0)}=\delta_{x^i}$. Either way
+    $\supp\,p_1^{(h)}\subseteq\{x^i\}$. For any coupling $(X,X')$ of $p_1^{(h)}$ and $p(\cdot\mid y)$, $X\in\{x^i\}$ a.s., so
     \begin{align*}
         \E|X-X'|^2 &\ge \E\dist(X',\{x^i\})^2 \\
         &= \int\dist(x,\{x^i\})^2\,p(x\mid y)\,dx =: F(y).
@@ -1209,7 +1217,7 @@ the endpoint law is
 \begin{equation*}
 p_1(\cdot\mid y)=\sum_i p_i^{(h)}(y)\,\N(x^i,\rho^2I_d),
 \qquad
-\bar x=\bar x_h(y),\quad \Cov=\Covh(y)+\rho^2I_d.
+\text{mean}=\bar x_h(y),\quad \Cov=\Covh(y)+\rho^2I_d.
 \end{equation*}
 For every $\rho>0$ this law is absolutely continuous, so \eqref{eq:w2floor} does not
 apply to it; moreover $s_1=\rho>0$, so $\vstar$ extends continuously to $t=1$ and the
@@ -1262,7 +1270,8 @@ $1/(1-t)$ blow-up of $(\star)$ disappears.
 \begin{quote}\small
 \noindent\textbf{Proposition~\ref{prop:prop17}} (Closed form and endpoint invariance in $\sigma$).
 Let $h=0$ and $v_\sigma^\star=\E[\dot X_t\mid X_t,t,Y]$ for target
-\eqref{eq:c2target}. Then for $t\in(0,1)$:
+\eqref{eq:c2target}, the a.e.-unique minimiser of $\E\big[t(1-t)\,|v-\dot X_t|^2\big]$. Then
+for $t\in(0,1)$:
 (a) $v_\sigma^\star(x,t,y^i)=x^i+c(t)(x-tx^i)$ with
 $c(t)=\frac{-(1-t)+\frac{\sigma^2}2(1-2t)}{s_t^2}=\frac12\frac{d}{dt}\log s_t^2$;
 (b) the flow is $x_t=t\,x^i+s_t\,x_0$; and
@@ -1273,6 +1282,12 @@ p_1^{(0)}(\cdot\mid y^i)=\delta_{x^i}\quad\text{for every }\sigma\ge0.
 \end{quote}
 
 \begin{proof}[Proof of Proposition~\ref{prop:prop17}]
+    The weighted loss is $\tfrac16$ times the loss of Proposition~\ref{prop:projection}
+    under the probability measure whose $t$-marginal has density $6t(1-t)$. Under it the
+    target is square integrable,
+    $\E[t(1-t)|\dot X_t|^2]\le2\E|X_1-X_0|^2+2d\sup_t t(1-t)\dot\gamma(t)^2<\infty$ with
+    $t(1-t)\dot\gamma^2=\sigma^2(1-2t)^2/4$, and the conditional law given $(X_t,t,Y)$ is
+    unchanged, so the a.e.-unique minimiser is $\E[\dot X_t\mid X_t,t,Y]$.
     Given $I=i$ (pinned by $Y=y^i$),
     \begin{align*}
         r:=x-tx^i &= (1-t)X_0+\gamma Z \\
@@ -1318,12 +1333,12 @@ $\sigma>0$.
 \end{corollary}
 
 \begin{proof}[Proof of Corollary~\ref{cor:prop18}]
-    The endpoint is Proposition~\ref{prop:prop17}(c). For $\sigma=0$, $\dot X_t=X_1-X_0$ and $\inf_vL_0=0$ (Proposition~\ref{prop:collapse}). For $\sigma>0$, $\inf_vL_\sigma=\E\Var(\dot X_t\mid X_t,t,Y)$. With $u=(-1,\dot\gamma)$, $w=(1-t,\gamma)$, $|w|^2=s_t^2$ and $u\cdot w=c\,s_t^2$,
+    The endpoint is Proposition~\ref{prop:prop17}(c). For $\sigma=0$, $\dot X_t=X_1-X_0$ and $\inf_vL_0=0$ (Proposition~\ref{prop:collapse}). For $\sigma>0$ the target is not square integrable, but for each $t\in(0,1)$ its conditional law given $(X_t,t,Y)$ is Gaussian with finite covariance, so for every measurable $v$, $\E[|v-\dot X_t|^2\mid X_t,t,Y]=|v-v_\sigma^\star|^2+\Var(\dot X_t\mid X_t,t,Y)$ in $[0,\infty]$, and $\inf_vL_\sigma=\E\Var(\dot X_t\mid X_t,t,Y)$ ($\Var$ the trace). With $u=(-1,\dot\gamma)$, $w=(1-t,\gamma)$, $|w|^2=s_t^2$ and $u\cdot w=c\,s_t^2$, each coordinate has
     \begin{align*}
         \Var(\dot X_t\mid r,I=i) &= |u|^2-\frac{(u\cdot w)^2}{|w|^2} \\
         &= 1+\dot\gamma^2-c(t)^2s_t^2 .
     \end{align*}
-    Near $t=0$, $c$ is bounded and $\dot\gamma^2\sim\sigma^2/(4t)$, so $\int_0^1\Var\,dt=+\infty$ and $\inf_vL_\sigma=+\infty$. Then $v_\sigma^\star$ is the conditional mean of the pathwise target, not an $L^2$-minimiser. Finally
+    Near $t=0$, $c$ is bounded and $\dot\gamma^2\sim\sigma^2/(4t)$, so $\int_0^1\Var\,dt=+\infty$ and $\inf_vL_\sigma=+\infty$: every $v$ has infinite unweighted loss, and $v_\sigma^\star$ minimises the $t(1-t)$-weighted loss (Proposition~\ref{prop:prop17}), not $L_\sigma$. Finally
     \begin{align*}
         (1-t)\,c(t) &= \frac{-(1-t)+\frac{\sigma^2}2(1-2t)}{(1-t)+\sigma^2t} \\
         &\longrightarrow
@@ -1926,8 +1941,8 @@ $\big(\E|x^v_{1-\delta}-x^i|^2\big)^{1/2}\le e^{L_\Delta}\sqrt{\mathcal L_i(v)\d
 \label{apx:pf-heffid}
 
 \begin{proof}[Proof of Proposition~\ref{prop:heffid}]
-Fix $y$ and write $p_i=p_i^{(h)}(y)=e^{-D_i/2h^2}/Z$ with $Z=\sum_je^{-D_j/2h^2}$.
-\emph{Derivatives.} $\partial_h\log e^{-D_i/2h^2}=D_i/h^3$ and
+Fix $y$ and write $p_i=p_i^{(h)}(y)=\exp(-D_i/2h^2)/Z$ with $Z=\sum_j\exp(-D_j/2h^2)$.
+\emph{Derivatives.} $\partial_h(-D_i/2h^2)=D_i/h^3$ and
 $\partial_h\log Z=\sum_jp_jD_j/h^3=:\bar D/h^3$, so
 \begin{equation}
 \partial_hp_i=p_i\,(D_i-\bar D)/h^3 .
@@ -1945,19 +1960,25 @@ h^3\partial_h\tr\Covh
 since adding the constant $|\bar x_h|^2$ does not change a covariance, and the first
 argument is $|x^i-\bar x_h|^2$.
 \emph{Large $h$.} As $h\to\infty$, $p_i=1/N+O(h^{-2})$ uniformly in $i$, $\bar x_h\to\bar x$,
-and both arguments of the covariance are bounded, so
-$h^3\partial_h\tr\Covh\to\frac1N\sum_i(|x^i-\bar x|^2-m)(D_i-\bar D_\infty)$ with $m$ and
-$\bar D_\infty$ the unweighted means; the error is $O(h^{-2})$.
-\emph{Stability.} Write $h_\circ=h_{\mathrm{true}}\in\mathcal H$ (on a grid, replace $e$
-by the misfit at the grid point nearest $h_\circ$). By optimality of $\hat h$,
+and the covariance is a polynomial in $(p,\bar x_h)$ with bounded coefficients, so
+$h^3\partial_h\tr\Covh\to\frac1N\sum_i(|x^i-\bar x|^2-\bar a)(D_i-\bar D_\infty)$ with $\bar a$
+and $\bar D_\infty$ the unweighted means; the error is $O(h^{-2})$.
+\emph{Stability.} Write $h_\circ=h_{\mathrm{true}}\in\mathcal H$. By optimality of $\hat h$,
 $|F(\hat h)-F(h_\circ)-e|=|\log T-F(\hat h)|\le|\log T-F(h_\circ)|=|e|$, so
 $|F(\hat h)-F(h_\circ)|\le2|e|$, which is the first claim. If that set lies in
 $\mathcal I$, then $\hat h\in\mathcal I$, and by the mean-value theorem applied to
 the scalar function $u\cdot F$ on the segment between $h_\circ$ and $\hat h$,
 $|F(\hat h)-F(h_\circ)|\ge|u\cdot(F(\hat h)-F(h_\circ))|=|u\cdot F'(\xi)|\,|\hat h-h_\circ|
 \ge\kappa|\hat h-h_\circ|$ for some $\xi\in\mathcal I$. Combining the two gives
-$|\hat h-h_\circ|\le2|e|/\kappa$. The argument uses only that $\hat h$ minimises a
-distance to a curve, so it applies verbatim to $h_{\mathrm{mean}}$ and $G$.
+$|\hat h-h_\circ|\le2|e|/\kappa$. If a grid $\mathcal H$ does not contain
+$h_{\mathrm{true}}$, the same argument at the grid point $g$ nearest it, with
+$e'=\log T-F(g)$ and the set and interval taken around $g$, with slope bound $\kappa_g$
+there, gives $|\hat h-g|\le2|e'|/\kappa_g$, hence
+$|\hat h-h_{\mathrm{true}}|\le2|e'|/\kappa_g+|g-h_{\mathrm{true}}|$ (any $g\in\mathcal H$ works).
+The first step uses only that $\hat h$ minimises a distance to a curve, in any norm; the
+second needs $\|w\|\ge|u\cdot w|$, which the norm $\|w\|=\sum_c|w_c|$ minimised by
+$h_{\mathrm{mean}}$ satisfies because it dominates the Euclidean norm. So the argument
+applies to $h_{\mathrm{mean}}$ and $G$ with $|e|$ read in that norm.
 \end{proof}
 
 The identities are checked against centred finite differences in
@@ -1994,14 +2015,19 @@ weak convergence almost surely.
 \emph{(b)} Given $X=x$, $Y\sim\N(g(x),\sigma^2I_k)$ and $\widetilde Y\sim\N(g(x),s_h^2I_k)$,
 so the total variation between the laws of $(X,Y)$ and $(X,\widetilde Y)$ is
 $\E_X\,\mathrm{TV}(\N(g(X),\sigma^2I),\N(g(X),s_h^2I))=\tau_h$, by translation
-invariance. The function $(x,y)\mapsto\ind\{x\in R(y)\}$ takes values in $[0,1]$, so its
-expectations under the two laws differ by at most $\tau_h$. By Pinsker's inequality and
+invariance. The function $(x,y)\mapsto\ind\{x\in R(y)\}$ is measurable by assumption and
+takes values in $[0,1]$, so its expectations under the two laws differ by at most $\tau_h$. By Pinsker's inequality and
 $\mathrm{KL}(\N(0,\sigma^2I_k)\,\|\,\N(0,s_h^2I_k))=\frac k2(r-1-\log r)$ with
 $r=\sigma^2/s_h^2=1/(1+u)$, $u=h^2/\sigma^2$, we get $\tau_h^2\le\frac k4(r-1-\log r)
 =\frac k4\big(\log(1+u)-\frac u{1+u}\big)\le\frac k8u^2$, the last step because the
 bracket vanishes at $u=0$ and has derivative $u/(1+u)^2\le u$. Finally, if
 $\pi_h(R(y)\mid y)=\alpha$ for every $y$, then
-$\Pr(X\in R(\widetilde Y))=\E[\pi_h(R(\widetilde Y)\mid\widetilde Y)]=\alpha$.
+$\Pr(X\in R(\widetilde Y))=\E[\pi_h(R(\widetilde Y)\mid\widetilde Y)]=\alpha$. Such regions
+exist when $\pi$ has no atoms: then $\pi_h(\cdot\mid y)\ll\pi$ has none, its image under a
+Borel isomorphism $\psi$ of $\R^d$ with $[0,1]$ has a continuous distribution function
+$G_y$, and $R(y)=\psi^{-1}\big([0,G_y^{-1}(\alpha)]\big)$ is a measurable choice. If $\pi$
+has atoms, $\pi_h(\cdot\mid y)$ carries them at every $y$ and an exact level need not exist;
+the first inequality still holds.
 
 \emph{(c)} $\widetilde Y=AX+\tilde\eta$ with $\tilde\eta\sim\N(0,s_h^2I_k)$, so Gaussian
 conditioning gives $\pi_h(\cdot\mid y)=\N(\mu_h(y),\Sigma_h)$. $\mu_h$ is affine,
@@ -2015,21 +2041,26 @@ and $X-\mu_h(Y)$ is Gaussian with mean $\E X-\mu_h(\E Y)=0$, which is the claim.
 $z=\Sigma_h^{-1/2}(X-\mu_h(Y))\sim\N(0,I-h^2MM^\top)$ with
 $M=\Sigma_h^{-1/2}\Gamma_h$. The eigenvalues $\lambda_j$ of $I-h^2MM^\top$ lie in $[0,1]$, so
 $|z|^2\overset{d}{=}\sum_j\lambda_jg_j^2\le\sum_jg_j^2\sim\chi^2_d$ for i.i.d.\ standard
-normal $g_j$, and $\Pr(|z|^2\le q_\alpha)\ge\Pr(\chi^2_d\le q_\alpha)=\alpha$. If $h>0$
-and $A\ne0$ then $\Gamma_h\ne0$, some $\lambda_j<1$, the inequality between the two sums is
-strict on an event of positive probability that intersects $\{\chi^2_d>q_\alpha\}$ with
-positive probability, and the coverage is strictly larger than $\alpha$.
+normal $g_j$, and $\Pr(|z|^2\le q_\alpha)\ge\Pr(\chi^2_d\le q_\alpha)=\alpha$. The gain is
+exactly $\Pr\big(\sum_i\lambda_ig_i^2\le q_\alpha<\sum_ig_i^2\big)$. If $h>0$ and $A\ne0$
+then $\Gamma_h\ne0$ and some $\lambda_j<1$; for $\alpha\in(0,1)$, $0<q_\alpha<\infty$, and the
+event contains the nonempty open set of $g$ with
+$g_j^2\in(q_\alpha,q_\alpha/\lambda_j)$ (read $q_\alpha/0=\infty$) and
+$\sum_{i\ne j}g_i^2<q_\alpha-\lambda_jg_j^2$, which has positive Gaussian probability. So the
+coverage is strictly larger than $\alpha$.
 
-\emph{(d)} Let $a_i$ be i.i.d.\ with mean $m$ and covariance $S$ and $\sum_iw_i=1$. Then
+\emph{(d)} Let the weights $w_i\ge0$, $\sum_iw_i=1$, be fixed and let $a_i$ be i.i.d.\ with
+mean $m$ and covariance $S$. Then
 $\Cov(\sum_iw_ia_i)=\sum_iw_i^2S=S/n_{\mathrm{eff}}$, and with $\bar a=\sum_iw_ia_i$,
 \begin{equation*}
 \E\sum_iw_i(a_i-\bar a)(a_i-\bar a)^\top
 =\E\sum_iw_i(a_i-m)(a_i-m)^\top-\E(\bar a-m)(\bar a-m)^\top
 =S-S/n_{\mathrm{eff}} .
 \end{equation*}
-If $n_{\mathrm{eff}}=1$, one weight is $1$, the weighted covariance is $0$, the region is
-the single point $\bar a$, and an absolutely continuous $x^\star$ falls in it with
-probability $0$.
+If $n_{\mathrm{eff}}=1$ then $\sum_iw_i^2=\sum_iw_i$ with $w_i\in[0,1]$, so one weight is
+$1$; the weighted covariance is $0$, the moment-matched region is the single point $\bar a$,
+and an absolutely continuous $x^\star$ independent of the atoms falls in it with
+probability $0$ (Fubini).
 \end{proof}
 
 Each part is checked by simulation in \texttt{scripts/theory\_t3\_coverage.py}: the
@@ -2069,7 +2100,7 @@ the endpoint law is
 \begin{equation}
 p_1(\cdot\mid y)=\sum_i p_i^{(h)}(y)\,\N(x^i,\rho^2I_d),
 \qquad
-\bar x=\bar x_h(y),\quad \Cov=\Covh(y)+\rho^2I_d.
+\text{mean}=\bar x_h(y),\quad \Cov=\Covh(y)+\rho^2I_d.
 \label{eq:tgtendpoint}
 \end{equation}
 For every $\rho>0$ this law is absolutely continuous, so \eqref{eq:w2floor} does not
@@ -2110,13 +2141,19 @@ $\gamma(0)=\gamma(1)=0$. A single $Z$ defines the whole trajectory, and the path
 \dot\gamma(t)=\frac{\sigma(1-2t)}{2\sqrt{t(1-t)}};
 \label{eq:c2target}
 \end{equation}
-regressing on $X_1-X_0$ alone would be a different objective. Write
+regressing on $X_1-X_0$ alone would be a different objective. For $\sigma>0$ this target is
+not square integrable ($\dot\gamma^2\sim\sigma^2/4t$ near $t=0$), nor is its conditional
+variance, so the unweighted loss is infinite for every $v$ (Corollary~\ref{cor:prop18}). The population field is then the
+minimiser of the loss with time weight $t(1-t)$, which is finite since
+$t(1-t)\dot\gamma^2=\sigma^2(1-2t)^2/4$; a positive weight that depends on $t$ alone leaves
+the minimiser equal to the per-time conditional mean. Write
 $s_t^2:=(1-t)^2+\gamma(t)^2=(1-t)[(1-t)+\sigma^2t]$, so $s_0=1$ and $s_1=0$.
 
 \begin{proposition}[Closed form and endpoint invariance in $\sigma$]
 \label{prop:prop17}
 Let $h=0$ and $v_\sigma^\star=\E[\dot X_t\mid X_t,t,Y]$ for target
-\eqref{eq:c2target}. Then for $t\in(0,1)$:
+\eqref{eq:c2target}, the a.e.-unique minimiser of $\E\big[t(1-t)\,|v-\dot X_t|^2\big]$. Then
+for $t\in(0,1)$:
 (a) $v_\sigma^\star(x,t,y^i)=x^i+c(t)(x-tx^i)$ with
 $c(t)=\frac{-(1-t)+\frac{\sigma^2}2(1-2t)}{s_t^2}=\frac12\frac{d}{dt}\log s_t^2$;
 (b) the flow is $x_t=t\,x^i+s_t\,x_0$; and
@@ -3201,9 +3238,13 @@ kernel $k$ \citep{jacot2018neural}, which learns low frequencies first
 $\{y^i\}$. Then at every condition $y^j$, $f_t(y^j)\to f^\star(y^j)$ exponentially fast,
 so the model's mean tends to $x^j$ and its variance to $0$: it reaches the reference
 at $h$, with no floor. (b) Let $\rho$ be Lebesgue measure on $\R$ (a uniform label
-density) and $\hat k(\omega)=a|\omega|^{-\zeta}$. Then $f_t-c$ is $f^\star-c$ filtered by
-$\hat\varphi_t(\omega)=G\big(\omega\,(at)^{-1/\zeta}\big)$, $G(u)=1-e^{-|u|^{-\zeta}}$: a
-low-pass filter of fixed shape whose resolution scale is $s(t)=(at)^{-1/\zeta}$.
+density), let $k$ be stationary with spectral density $\hat k(\omega)=a|\omega|^{-\zeta}$,
+$a,\zeta>0$, so that $T_k$ is the positive self-adjoint Fourier multiplier
+$a|\omega|^{-\zeta}$ on $L^2(\R)$ (unbounded for every $\zeta>0$; no integrable kernel has
+this spectrum, and $T_k$ is defined as the multiplier), and let $f^\star-c\in L^2(\R)$. Then $f_t-c$
+is $f^\star-c$ filtered by $\hat\varphi_t(\omega)=G\big(\omega\,(at)^{-1/\zeta}\big)$,
+$G(u)=1-e^{-|u|^{-\zeta}}$: a low-pass filter of fixed shape whose resolution scale is
+$s(t)=(at)^{-1/\zeta}$.
 \end{proposition}
 
 \begin{proof}
@@ -3213,10 +3254,14 @@ $\lambda_{\min}>0$, and self-adjoint for the uniform weights;
 hence $\|f_t-f^\star\|\le e^{-t\lambda_{\min}/N}\|f^\star-c\|$ in $\R^N$, which bounds
 every coordinate. At $y^j$ the hard-conditioning moments are $f^\star(y^j)=(x^j,|x^j|^2)$,
 so the mean tends to $x^j$ and the variance $|x^j|^2-|x^j|^2=0$.
-(b) With $\rho$ Lebesgue, $T_k$ is convolution with $k$, the Fourier multiplier
-$\hat k(\omega)$, so $e^{-tT_k}$ is the multiplier $e^{-ta|\omega|^{-\zeta}}$ and
-$I-e^{-tT_k}$ the multiplier
-$1-e^{-ta|\omega|^{-\zeta}}=G(\omega(at)^{-1/\zeta})$.
+(b) By functional calculus for the multiplier $T_k$, $e^{-tT_k}$ is the multiplier
+$e^{-ta|\omega|^{-\zeta}}$ on $L^2(\R)$, so the solution of \eqref{eq:kgf}, in the
+semigroup sense ($f^\star-c$ need not lie in the domain of $T_k$, and the equation holds
+for $t>0$; it is unique since $\frac{d}{dt}\|w\|^2=-2\langle T_kw,w\rangle\le0$ for the
+difference $w$ of two solutions), is
+$f_t-c=(I-e^{-tT_k})(f^\star-c)$, with $I-e^{-tT_k}$ the multiplier
+$1-e^{-ta|\omega|^{-\zeta}}=G(\omega(at)^{-1/\zeta})$, since
+$|\omega(at)^{-1/\zeta}|^{-\zeta}=at|\omega|^{-\zeta}$.
 \end{proof}
 
 Part (b) is an idealisation: the label law is not uniform, and $\hat k$ is a power law
@@ -3245,15 +3290,23 @@ $u$ replaces $\vstar$ by its label average $v_\varphi$, and Proposition~\ref{pro
 with $w_i=a_ib_i/\sum_ja_jb_j$, $a_i=\pi_0(\frac{x-tx^i}{1-t})$, $b_i=K_h(y'-y^i)$;
 averaging over $y'=y-u$ gives $\tilde w_i=\int w_i(x,t,y-u)\varphi(du)$, which is
 nonnegative and sums to one. At $t=0$ all $a_i$ equal $\pi_0(x)$, so $w_i=p_i^{(h)}(y')$.
-(b) Let $x_t\to\bar x$, with $x^i$ the unique nearest atom to $\bar x$ and
-$\gamma=\min_{j\ne i}(|\bar x-x^j|^2-|\bar x-x^i|^2)>0$. For $t$ close to $1$,
-$|x_t-tx^j|^2-|x_t-tx^i|^2\ge\gamma/2$, so
+(b) Let $x_t\to x_\infty$, with $x^i$ the unique nearest atom location to $x_\infty$ and
+$\gamma=\min\{|x_\infty-x^j|^2-|x_\infty-x^i|^2: x^j\ne x^i\}>0$. For $t$ close to $1$ and
+every $j$ with $x^j\ne x^i$, $|x_t-tx^j|^2-|x_t-tx^i|^2\ge\gamma/2$, so
 $a_j/a_i\le e^{-\gamma/(4(1-t)^2)}\to0$. Since $w_j\le\min\{1,(a_j/a_i)(b_j/b_i)\}$ and
-$b_i>0$ everywhere, dominated convergence gives $\tilde w_j(x_t,t,y)\to0$ for $j\ne i$,
-so $m_t:=\sum_j\tilde w_jx^j\to x^i$. Along the trajectory
-$\dot x_t=(m_t-x_t)/(1-t)$ with $m_t-x_t\to x^i-\bar x$. If $x^i\ne\bar x$, then
-$(x^i-\bar x)\cdot\dot x_t\ge|x^i-\bar x|^2/(2(1-t))$ for $t$ near $1$, whose integral
-diverges, contradicting convergence. So $\bar x=x^i$.
+$b_i>0$ everywhere, dominated convergence (with the bound $1$, $\varphi$ a probability
+measure) gives $\tilde w_j(x_t,t,y)\to0$ for every such $j$; atoms located at $x^i$
+contribute $x^i$, so $m_t:=\sum_j\tilde w_jx^j\to x^i$. Along the trajectory
+$\dot x_t=(m_t-x_t)/(1-t)$ with $m_t-x_t\to x^i-x_\infty$. If $x^i\ne x_\infty$, then
+$(x^i-x_\infty)\cdot\dot x_t\ge|x^i-x_\infty|^2/(2(1-t))$ for $t$ near $1$, whose integral
+diverges, contradicting convergence. So $x_\infty=x^i$. For the endpoint law: the flow of
+$v_\varphi$ exists on $[0,1)$, since $\nabla_xw_j$ is bounded uniformly in the label on
+compact subsets of $\R^d\times[0,1)$, so $v_\varphi$ is locally Lipschitz, and
+$|v_\varphi|\le(\max_j|x^j|+|x|)/(1-t)$ has linear growth; the limit map
+$X_1=\lim_{t\to1}\Phi_t$ is measurable as a pointwise limit of continuous maps, and by the
+above it takes values in the atoms $\pi_0$-almost surely; almost-sure convergence gives
+weak convergence of the marginals, so the endpoint law is $\sum_i\tilde q_i\delta_{x^i}$
+with $\tilde q_i=\pi_0(X_1=x^i)$ (atoms at a common location merged).
 \end{proof}
 
 So a learner whose only defect is label resolution reweights the training atoms and

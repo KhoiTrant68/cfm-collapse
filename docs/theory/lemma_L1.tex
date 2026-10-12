@@ -1,0 +1,92 @@
+% Lemma L1 (main-track plan, T1). Verified 2026-10-11/12 under the math-olympiad protocol:
+% four independent fresh-context verifiers, all CORRECT on the lemma (confirmed, 4/4).
+% The remark was refuted by the fourth verifier (signed weights in k=2 were called "open";
+% they occur already at N=3) and is corrected below; the k=2 claims were checked numerically
+% (scratch check: equilateral triangle, R=0.1, lambda=1e-4: min s = -8.0e-5 far away,
+% sum s = 1.012 at the centre; random designs in k=2,3: mixture weights w down to -0.27).
+%
+% Context: a kernel learner of the conditional moments f(y) = E[phi(X) | Y = y] from N
+% training pairs (x^j, y^j), started from the unconditional moments c = (1/N) sum_j phi(x^j).
+% With hard labels (h = 0) the targets at the design points are z_j = phi(x^j) (componentwise
+% for vector phi; everything below is linear in z, so it suffices to treat scalar z).
+
+\begin{lemma}[Positivity of the exponential-kernel learner, $k=1$]
+Let $\ell>0$, $N\ge1$, labels $y^1,\dots,y^N\in\mathbb R$, $z\in\mathbb R^N$ and $\lambda>0$.
+Let $k(y,y')=e^{-|y-y'|/\ell}$ with reproducing kernel Hilbert space $\mathcal H$, and
+\[
+\hat f=\arg\min_{f\in\mathcal H}\ \frac1N\sum_{i=1}^N\big(f(y^i)-z_i\big)^2+\lambda\|f\|_{\mathcal H}^2 .
+\]
+Write $\hat f(y)=\sum_j s_j(y)z_j$ (the map $z\mapsto\hat f$ is linear). Then for every $y\in\mathbb R$:
+(i) $s_j(y)\ge0$ for all $j$; (ii) $\sum_js_j(y)\le1$. Consequently
+$w_j(y):=s_j(y)+\frac1N\big(1-\sum_is_i(y)\big)$ is a probability vector over $j$, and with
+$c=\frac1N\sum_jz_j$,
+\[
+c+\sum_js_j(y)\,(z_j-c)=\sum_jw_j(y)\,z_j .
+\]
+\end{lemma}
+
+\begin{proof}
+\emph{Step 1 (the RKHS).} With $\hat g(\omega)=\int g(y)e^{-i\omega y}dy$, the Fourier transform of
+$e^{-|u|/\ell}$ is $2\ell/(1+\ell^2\omega^2)$, so $\mathcal H=H^1(\mathbb R)$ with
+$\|f\|_{\mathcal H}^2=\frac{1}{2\ell}\int_{\mathbb R}\big(\ell^2f'(y)^2+f(y)^2\big)\,dy$
+(equivalently, $\frac1{2\ell}(-\ell^2\partial^2+1)e^{-|\cdot|/\ell}=\delta$, which gives the
+reproducing property after an integration by parts). Every $f\in H^1(\mathbb R)$ is continuous and
+tends to $0$ at $\pm\infty$.
+
+\emph{Step 2 (weak Euler--Lagrange equation).} The objective is strictly convex and coercive on
+$\mathcal H$, so $\hat f$ exists and is unique, and its first variation vanishes: for every
+$\varphi\in H^1(\mathbb R)$,
+\[
+\frac1N\sum_i\big(\hat f(y^i)-z_i\big)\varphi(y^i)+\frac{\lambda}{2\ell}\int\big(\ell^2\hat f'\varphi'+\hat f\varphi\big)=0 .
+\]
+Multiplying by $2\ell/\lambda$ and writing $\gamma=2\ell/(N\lambda)>0$:
+\begin{equation}
+\int\big(\ell^2\hat f'\varphi'+\hat f\varphi\big)+\gamma\sum_i\hat f(y^i)\varphi(y^i)
+=\gamma\sum_iz_i\varphi(y^i)\qquad\forall\varphi\in H^1. \tag{W}
+\end{equation}
+By linearity, $g_j:=s_j=\hat f\big|_{z=e_j}\in H^1$ satisfies (W) with right-hand side
+$\gamma\varphi(y^j)$.
+
+\emph{Step 3 ($s_j\ge0$).} Let $u=g_j$ and $u^-=\max(-u,0)\in H^1$ (Stampacchia), with
+$(u^-)'=-u'$ a.e.\ on $\{u<0\}$ and $(u^-)'=0$ a.e.\ elsewhere. Take $\varphi=u^-\ge0$ in (W):
+\[
+\int\ell^2u'(u^-)'=-\ell^2\!\int\big((u^-)'\big)^2,\quad \int uu^-=-\int(u^-)^2,\quad
+\gamma\sum_iu(y^i)u^-(y^i)=-\gamma\sum_i\big(u^-(y^i)\big)^2 .
+\]
+So the left-hand side equals $-\big[\ell^2\|(u^-)'\|_2^2+\|u^-\|_2^2+\gamma\sum_iu^-(y^i)^2\big]\le0$,
+while the right-hand side is $\gamma u^-(y^j)\ge0$. Hence both vanish, $\|u^-\|_2=0$, and since
+$u$ is continuous, $u\ge0$ everywhere.
+
+\emph{Step 4 ($\sum_js_j\le1$).} $f_1:=\sum_jg_j$ satisfies (W) with right-hand side
+$\gamma\sum_j\varphi(y^j)$. Since $f_1\in H^1$ is continuous and vanishes at infinity,
+$\{f_1>1\}$ is bounded, and $v:=(f_1-1)^+$ (a truncation of $f_1-1\in H^1_{\mathrm{loc}}$ with
+compact support) lies in $H^1$, with $f_1=1+v$ and $f_1'=v'$ a.e.\ on $\{v>0\}$. Take
+$\varphi=v$ in (W):
+\[
+\ell^2\!\int v'^2+\int(1+v)v+\gamma\sum_i\big(1+v(y^i)\big)v(y^i)=\gamma\sum_jv(y^j),
+\]
+that is $\ell^2\|v'\|_2^2+\int v+\|v\|_2^2+\gamma\sum_iv(y^i)^2=0$. All four terms are
+nonnegative, so $v=0$ and $f_1\le1$.
+
+\emph{Step 5.} By Steps 3--4, $w_j(y)\ge0$, and $\sum_jw_j=\sum_js_j+(1-\sum_is_i)=1$. Finally
+$c+\sum_js_j(z_j-c)=\sum_js_jz_j+c(1-\sum_is_i)=\sum_j\big(s_j+\tfrac1N(1-\sum_is_i)\big)z_j$.
+\end{proof}
+
+\begin{remark}[Scope: the lemma is a $k=1$ result]
+The proof uses one property: the RKHS norm is the first-order $H^1$ energy, a Dirichlet form, so
+the truncations $u\mapsto u^-$ and $u\mapsto(u-1)^+$ stay in the space, together with continuity
+of point evaluations on that space. In Sobolev terms this needs order $\le1$ (truncation) and
+order $>k/2$ (point evaluation), so $k=1$. For the Gaussian kernel ($k=1$, functions entire) and
+the Mat\'ern-$3/2$ kernel ($H^2(\mathbb R)$) a truncation leaves the space, and the conclusion is
+false already for $N=2$: far beyond $y^2$, $s_1<0$. For the exponential kernel in $k\ge2$ the
+RKHS is $H^{(k+1)/2}(\mathbb R^k)$, and the conclusion is false for $N=3$: with the labels at the
+vertices of an equilateral triangle of circumradius $R$ (take $\ell=1$, $\rho=e^{-\sqrt3R}$),
+Sherman--Morrison gives
+$s_j(y)=\big[k_j(y)(1+\rho+3\lambda)-\rho\,(k_a(y)+k_b(y))\big]/\big[(1-\rho+3\lambda)(1+2\rho+3\lambda)\big]$,
+with $a,b$ the other two vertices. Far from the triangle on the side opposite $y^j$, (i) fails when
+$3\lambda<2e^{(3/2-\sqrt3)R}-1-e^{-\sqrt3R}$; at the centre, (ii) fails when
+$3\lambda<3e^{-R}-1-2e^{-\sqrt3R}$. Both right-hand sides are positive for small $R$. The
+mixture weights $w_j$ are also signed in $k=2,3$ for some designs. At $N=2$, by contrast, (i) and
+(ii) hold in every dimension (by the triangle inequality). So positivity, hence atomic
+moments, is not automatic for a kernel learner of the label-to-moment map in $k\ge2$.
+\end{remark}
