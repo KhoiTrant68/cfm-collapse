@@ -1,7 +1,9 @@
-# Posterior Variance Collapse in Conditional Flow Matching
+# Trained Conditional Flows Memorise at an Effective Bandwidth
 
-Numerical verification of a theorem about **posterior variance collapse** in
-conditional flow matching (CFM). This is a *theory-verification* project, not a
+Code, results and paper (`paper/main.tex`) for the exact endpoint law of conditional flow
+matching (CFM) on a finite training set, and the effective-bandwidth audit of trained
+models built on it. The project began as numerical verification of a theorem about
+**posterior variance collapse** in conditional CFM. This is a *theory-verification* project, not a
 benchmark chase — see `docs/THEORY.md` for the complete, self-contained proofs
 (every proposition proved, no hanging assumptions), `WORK_ORDER.md` for the task
 plan, `PROJECT_SPEC_conditional_fm_collapse.md` for the original specification,

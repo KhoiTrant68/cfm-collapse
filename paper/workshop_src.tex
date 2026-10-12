@@ -47,7 +47,7 @@ the condition turns its endpoint into a Nadaraya--Watson mixture of the training
 We show that trained networks follow this mixture (at image scale, its mean and total
 variance) at one \emph{effective bandwidth}
 $h_{\mathrm{eff}}$, fitted to their per-condition variances and recovered independently
-from their per-condition means (48/48 synthetic and 31/36 CIFAR-10 checkpoints), which
+from their per-condition means (48/48 synthetic and, at $h\in\{4,5\}$, 31/36 CIFAR-10 checkpoints), which
 training shrinks towards the bandwidth $h$ of the label noise. We prove when
 $h_{\mathrm{eff}}$ is identified and what calibration it implies: for any prior, label
 noise moves the coverage of the reference law by at most a total-variation term of
@@ -171,7 +171,8 @@ $h\in\{0,0.01,0.05,0.1,0.5\}$) the two bandwidths agree within 95\% intervals at
 $10^5$ iterations and settles at $1.08h$. At $h{=}0.5$ it is poorly identified, as the
 proposition predicts ($\kappa$ is $1.4$ there against $5$--$33$ for $h\le0.1$). With a
 $35.75$M-parameter DDPM U-Net on CIFAR-10 inpainting ($N{=}2000$, six runs,
-$h\in\{4,5\}$) they agree at 31/36 checkpoints, and $h_{\mathrm{eff}}$ falls to
+$h\in\{4,5\}$) they agree at 31/36 checkpoints (8/18 at $h{=}6$; none at $h{=}0$, where
+the means stay on the nearest atom), and $h_{\mathrm{eff}}$ falls to
 $1.13$--$1.34h$ by 60k iterations (Figure~\ref{fig:heffsyn}; CIFAR-10 in
 Figure~\ref{fig:heffcifar}, appendix).
 

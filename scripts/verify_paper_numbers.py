@@ -66,88 +66,92 @@ check("n_eff h=4", 2.6, reev["4"]["n_eff"], 2e-2)
 check("n_eff h=5", 16.4, reev["5"]["n_eff"], 2e-2)
 check("n_eff h=6", 74.9, reev["6"]["n_eff"], 2e-2)
 
-print("\nCIFAR/DDPM, training-time trajectory and seeds")
+print("\nCIFAR/DDPM, training-time trajectory of the displayed instance")
 for name, it, col, want in (
         ("h0 iter500 trace_cov", 500, "trace_cov_mean", 179.1),
-        ("h0 iter60000 trace_cov", 60000, "trace_cov_mean", 0.431),
-        ("h0_seed1 iter60000 trace_cov", 60000, "trace_cov_mean", 0.409),
-        ("h4 iter60000 trace_cov", 60000, "trace_cov_mean", 178.5),
-        ("h4_seed1 iter60000 trace_cov", 60000, "trace_cov_mean", 240.7),
-        ("h4 iter60000 ratio", 60000, "ratio_to_kernel_mean", 6.83),
-        ("h4_seed1 iter60000 ratio", 60000, "ratio_to_kernel_mean", 7.07),
-        ("h5 iter60000 ratio", 60000, "ratio_to_kernel_mean", 2.315),
-        ("h5_seed1 iter60000 ratio", 60000, "ratio_to_kernel_mean", 1.356),
-        ("h4 iter60000 n_eff", 60000, "n_eff_mean", 2.36),
-        ("h4_seed1 iter60000 n_eff", 60000, "n_eff_mean", 2.77)):
+        ("h0 iter60000 trace_cov", 60000, "trace_cov_mean", 0.431)):
     run = name.split()[0]
     df = pd.read_csv(f"results/exp3/exp3_cifar_ddpm_{run}/raw/metrics.csv")
     row = df[df["iter"] == it].iloc[0]
     check(name, want, float(row[col]), 2e-3)
 
-print("\nSeed reproducibility: the AGGREGATE ratio is what the paper argues from")
-
-
-def aggregate_ratio(run: str) -> float:
-    df = pd.read_csv(f"results/exp3/exp3_cifar_ddpm_{run}/raw/metrics.csv")
-    r = df.sort_values("iter").iloc[-1]
-    return float(r["trace_cov_mean"]) / float(r["trace_cov_kernel_mean"])
-
-
-for run, want in (("h4", 2.255), ("h4_seed1", 2.463), ("h4_seed2", 1.944),
-                  ("h5", 1.2449), ("h5_seed1", 1.2482), ("h5_seed2", 1.654),
-                  ("h6", 1.181), ("h6_seed1", 0.924), ("h6_seed2", 1.166)):
-    check(f"{run} aggregate ratio", want, aggregate_ratio(run), 1e-3)
-
-
-def raw_trace(run: str) -> float:
-    df = pd.read_csv(f"results/exp3/exp3_cifar_ddpm_{run}/raw/metrics.csv")
-    return float(df.sort_values("iter").iloc[-1]["trace_cov_mean"])
-
-
-def mean_of_ratios(run: str) -> float:
-    df = pd.read_csv(f"results/exp3/exp3_cifar_ddpm_{run}/raw/metrics.csv")
-    return float(df.sort_values("iter").iloc[-1]["ratio_to_kernel_mean"])
-
-
-def spread(vals) -> float:
-    v = np.asarray(vals, dtype=float)
-    return (v.max() - v.min()) / v.mean() * 100
-
-
-# Table tab:seed3. The two-seed version of this table said the aggregate ratio was
-# the instance-stable quantity; with three seeds that holds only at h=4, where the
-# reference has range across conditions. Both directions are checked, including the
-# rows where the RAW trace is the more stable, because that is the claim that
-# changed and an unchecked reversal is how the old one survived.
-seeds = {h: [f"h{h}", f"h{h}_seed1", f"h{h}_seed2"] for h in (4, 5, 6)}
-for h, want_raw, want_agg, want_mor in ((4, 41.4, 23.4, 281.0),
-                                        (5, 22.9, 29.6, 263.0),
-                                        (6, 15.9, 23.5, 70.6)):
-    rs = seeds[h]
-    check(f"h={h} 3-seed spread, raw (%)", want_raw,
-          spread([raw_trace(r) for r in rs]), 3e-2)
-    check(f"h={h} 3-seed spread, aggregate (%)", want_agg,
-          spread([aggregate_ratio(r) for r in rs]), 3e-2)
+# Table tab:seed3, rebuilt from the twelve re-trained runs re-measured at 48 conditions
+# and M=256 (scripts/analyze_cifar_reruns.py -> results/exp3/_rerun/seed_table.json).
+# The direction of the comparison (aggregate ratio against raw trace) is checked as well
+# as the values, because that is the claim the table supports.
+print("\nSeed reproducibility (Table tab:seed3, re-measured at 48 conditions, M=256)")
+_st = json.loads(pathlib.Path("results/exp3/_rerun/seed_table.json").read_text(encoding="utf-8"))
+_tab = {int(h): t for h, t in _st["table"].items()}
+_rows = {h: sorted(t["rows"], key=lambda r: r["seed"]) for h, t in _tab.items()}
+for h, traces, aggs in ((0, (0.411, 0.503, 0.444), None),
+                        (4, (187.2, 207.1, 158.4), (2.261, 2.440, 2.490)),
+                        (5, (297.6, 290.0, 288.1), (1.396, 1.260, 1.494)),
+                        (6, (408.3, 315.9, 383.2), (1.177, 0.904, 1.127))):
+    for s, want in enumerate(traces):
+        check(f"h={h} seed {s} tr Cov", want, _rows[h][s]["trace"], 2e-3)
+    for s, want in enumerate(aggs or ()):
+        check(f"h={h} seed {s} aggregate ratio", want, _rows[h][s]["aggregate"], 1e-3)
+for h, lo, hi in ((4, 1.8, 3.8), (5, 10.7, 24.0), (6, 58, 91)):
+    ne = [r["n_eff"] for r in _rows[h]]
+    check(f"h={h} n_eff min", lo, min(ne), 3e-2)
+    check(f"h={h} n_eff max", hi, max(ne), 3e-2)
+for s, want in enumerate((2.6, 3.8, 1.8)):
+    check(f"h=4 seed {s} n_eff (text)", want, _rows[4][s]["n_eff"], 3e-2)
+check("h=0 3-seed spread, raw (%)", 20.3, _tab[0]["spread_raw_pct"], 3e-3)
+for h, want_raw, want_agg, want_mor in ((4, 26.5, 9.6, 274.0),
+                                        (5, 3.3, 16.9, 48.0),
+                                        (6, 25.0, 25.5, 27.0)):
+    check(f"h={h} 3-seed spread, raw (%)", want_raw, _tab[h]["spread_raw_pct"], 2e-2)
+    check(f"h={h} 3-seed spread, aggregate (%)", want_agg, _tab[h]["spread_aggregate_pct"], 2e-2)
     check(f"h={h} 3-seed spread, mean-of-ratios (%)", want_mor,
-          spread([mean_of_ratios(r) for r in rs]), 3e-2)
-
-agg_beats_raw = {h: spread([aggregate_ratio(r) for r in seeds[h]])
-                 < spread([raw_trace(r) for r in seeds[h]]) for h in (4, 5, 6)}
+          _tab[h]["spread_mean_of_ratios_pct"], 2e-2)
 want = {4: True, 5: False, 6: False}
 for h in (4, 5, 6):
-    good = agg_beats_raw[h] == want[h]
+    got = _tab[h]["spread_aggregate_pct"] < _tab[h]["spread_raw_pct"]
+    good = got == want[h]
     print(f"  {'OK ' if good else 'BAD'} "
           f"{f'h={h}: aggregate more stable than raw?':44s} "
-          f"paper={str(want[h]):<12} file={str(agg_beats_raw[h]):<12}")
+          f"paper={str(want[h]):<12} file={str(got):<12}")
     ok, fail = ok + good, fail + (not good)
+for h, vals in ((4, (40.7, 2364, 142.9)), (5, (2.86, 4.37, 4.78))):
+    for s, want_v in enumerate(vals):
+        check(f"h={h} seed {s} mean-of-ratios", want_v, _rows[h][s]["mean_of_ratios"], 2e-3)
+_ref5 = [r["trace"] / r["aggregate"] for r in _rows[5]]
+check("h=5 reference min (193)", 193, min(_ref5), 3e-3)
+check("h=5 reference max (230)", 230, max(_ref5), 3e-3)
+check("h=5 reference spread (18%)", 18, (max(_ref5) - min(_ref5)) / np.mean(_ref5) * 100, 3e-2)
+check("h=5 raw traces min (288)", 288, min(r["trace"] for r in _rows[5]), 3e-3)
+check("h=5 raw traces max (298)", 298, max(r["trace"] for r in _rows[5]), 3e-3)
+_dev6 = sorted(abs(r["aggregate"] - 1) * 100 for r in _rows[6])
+check("h=6 largest deviation from 1 (18%)", 18, _dev6[-1], 3e-2)
+check("h=6 smallest deviation from 1 (10%)", 10, _dev6[0], 5e-2)
+_gap = [r["log_vs_reeval_pct"] for h in (4, 5, 6) for r in _rows[h]]
+check("training-time vs re-measured, min (%)", -15, min(_gap), 3e-2)
+check("training-time vs re-measured, max (%)", 13, max(_gap), 3e-2)
+check("training-time vs re-measured, median |.| (%)", 9.7, float(np.median(np.abs(_gap))), 1e-2)
+_g0 = [100 * (r["log_trace"] / r["trace"] - 1) for r in _rows[0]]
+check("h=0 training-time vs re-measured, max (%)", -5, max(_g0), 1e-1)
+check("h=0 training-time vs re-measured, min (%)", -10, min(_g0), 3e-2)
+for s in range(3):
+    check(f"h=0 seed {s} correct image at 48/48", 1.0, _rows[0][s]["nn_correct"])
 
-check("h=0 3-seed spread, raw (%)", 13.4,
-      spread([raw_trace(r) for r in ("h0", "h0_seed1", "h0_seed2")]), 3e-2)
-check("h=4 mean-of-ratios, seed 2 (the outlier)", 307.7,
-      mean_of_ratios("h4_seed2"), 1e-3)
-check("h=6 seed spread, aggregate (%)", 21.7,
-      abs(aggregate_ratio("h6_seed1") - aggregate_ratio("h6"))
-      / aggregate_ratio("h6") * 100, 1e-2)
+print("\nh_eff at the two ends, h=0 and h=6 (App. app:heffends)")
+_he = {int(h): v for h, v in _st["heff"].items()}
+check("h=0 agreement from 5k", 0, sum(x["agree_from_5k"] for x in _he[0]))
+check("h=0 checkpoints from 5k", 18, sum(x["n_from_5k"] for x in _he[0]))
+check("h=0 runs monotone", 3, sum(x["monotone"] for x in _he[0]))
+check("h=0 final h_eff min", 3.44, min(x["h_eff"][-1] for x in _he[0]), 2e-3)
+check("h=0 final h_eff max", 3.74, max(x["h_eff"][-1] for x in _he[0]), 2e-3)
+check("h=6 agreement from 5k", 8, sum(x["agree_from_5k"] for x in _he[6]))
+check("h=6 checkpoints from 5k", 18, sum(x["n_from_5k"] for x in _he[6]))
+check("h=6 final h_eff/h min", 1.05, min(x["h_eff"][-1] for x in _he[6]) / 6, 5e-3)
+check("h=6 final h_eff/h max", 1.14, max(x["h_eff"][-1] for x in _he[6]) / 6, 5e-3)
+_hm0 = [c["h_means"] for f in sorted(glob.glob("results/exp3/_rerun/heff_exp3_cifar_heff_h0_s*.json"))
+        for c in json.loads(pathlib.Path(f).read_text(encoding="utf-8"))["checkpoints"]
+        if c["iter"] >= 5000]
+check("h=0 h_mean max from 5k (at or below 2.8)", 2.8, max(_hm0), 2e-2)
+in_tex(r"the two agree at 8/18;")
+in_tex(r"$3.44$--$3.74$ at 60k")
 
 print("\nBeta trajectory (optimisation gap, not a fixed exponent)")
 bt = json.loads(pathlib.Path("results/exp3/_cifar_ddpm/beta_trajectory.json")
@@ -343,13 +347,8 @@ check("h=0.5: gauss best variance fit (of 15)", 14, f05["best_variance_fit_count
 check("h=0.5: gauss intervals agree (of 15)", 9, f05["gauss"]["overlap"])
 
 print("\nNumbers introduced by the 2026-10-11 corrections (docs/review/paper_verification_2026-10-10.md)")
-# CIFAR: the training-time estimator against the M=256 re-evaluation, seed 0.
-for h, want in (("4", 4.7), ("5", 15), ("6", 1.8)):
-    agg_re = float(np.mean(reev[h]["trace_cov"]) / np.mean(reev[h]["trace_cov_kernel"]))
-    agg_log = aggregate_ratio(f"h{h}")
-    check(f"h={h} |log / re-eval - 1| (%)", want, abs(agg_log / agg_re - 1) * 100,
-          0.05 / max(1.0, want) if want < 10 else 0.5 / want)
-    check(f"h={h} re-evaluated aggregate", {"4": 2.154, "5": 1.461, "6": 1.202}[h], agg_re, 2e-3)
+# (The seed-0 comparison of the training-time estimator with the M=256 re-evaluation that
+# stood here is superseded by the twelve-run comparison in the seed-reproducibility block.)
 check("beta h=6 at 60000, standard error", 0.06,
       next(r for r in bt if r["h"] == 6 and r["iter"] == 60000)["se"], 0.1)
 
@@ -475,9 +474,10 @@ _g = np.random.default_rng(0).random((200000, 65))
 _lo, _hi = np.quantile(_g[:, :64], 0.05, axis=1), np.quantile(_g[:, :64], 0.95, axis=1)
 check("M=64 quantile interval, calibrated coverage", 0.873,
       float(((_g[:, 64] >= _lo) & (_g[:, 64] <= _hi)).mean()), 5e-3)
-# The second rerun reproduces h_eff.
+# The second rerun reproduces h_eff (the six runs at h in {4, 5}; h=0 and h=6 are
+# checked separately above).
 _he = {}
-for f in sorted(glob.glob("results/exp3/_rerun/heff_exp3_cifar_heff_h*_s*.json")):
+for f in sorted(glob.glob("results/exp3/_rerun/heff_exp3_cifar_heff_h[45]_s*.json")):
     d = json.loads(pathlib.Path(f).read_text(encoding="utf-8"))
     _he[(d["h"], d["seed"])] = d
 check("rerun h_eff at 60k, h=4 seed 0", 4.93,

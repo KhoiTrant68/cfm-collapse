@@ -64,7 +64,7 @@ Nadaraya--Watson mixture of the training atoms, atomic at every $h$ with a Wasse
 floor independent of $h$. Fitting that reference to a trained model's per-condition
 variances gives $h_{\mathrm{eff}}$; fitting it to the per-condition means, separately,
 gives the same bandwidth within 95\% intervals at $48/48$ checkpoints of 15 synthetic
-runs and at $31/36$ of six CIFAR-10 runs with a $35.75$M-parameter DDPM U-Net. In both,
+runs and at $31/36$ of six CIFAR-10 runs at $h\in\{4,5\}$ with a $35.75$M-parameter DDPM U-Net. In both,
 $h_{\mathrm{eff}}$ falls with training and ends just above $h$ ($1.08h$ synthetic,
 $1.13$--$1.34h$ on CIFAR-10 at $60$k iterations). We prove that the bandwidth is
 identified where the reference varies and that it sets calibration: for any prior,
@@ -90,10 +90,13 @@ Flow matching and stochastic-interpolant models
 are usually trained by regressing a velocity field on a linear path between a noise
 sample and a data sample \citep{tong2024improving}. On a finite dataset, minimising
 against the \emph{empirical} data law is known to induce memorisation
-\citep{carlini2023extracting,somepalli2023diffusion}, and recent work reports that
-conditional flow-matching models trained past the point of good posterior calibration
-give increasingly deterministic samples that coincide with training examples
-\citep{physicscfm2026,gradvar2025}. We give an exact population-level account of this.
+\citep{carlini2023extracting,somepalli2023diffusion,sesmat2026leaks}, and conditional
+flow-matching models trained past the point of good posterior calibration give
+increasingly deterministic samples that coincide with training examples
+\citep{physicscfm2026,gradvar2025}. \citet{physicscfm2026} derive this collapse for
+networks of a separable form, which send every sample to one weighted average of
+training points. We give the population-level account over all square-integrable fields,
+where label noise yields a mixture over the atoms, not a point at its mean.
 The paper is an analysis of model behaviour: exact theory for the population minimiser,
 turned into an evaluation method for trained models.
 With the training set $\D=\{(x^i,y^i)\}_{i=1}^N$ fixed and only the interpolation random,
@@ -135,14 +138,15 @@ four further lines. Our contributions are:
 & support & labels & \emph{label} factor & law & floor & audit\\
 \midrule
 \citet{scarvelis2025closedform} & \checkmark & --- & --- & partial & --- & ---\\
+\citet{physicscfm2026} & \checkmark & \checkmark & --- & a point & --- & ---\\
 \citet{smola2026support} & \checkmark & \checkmark & \emph{spatial} factor & --- & --- & ---\\
 \citet{ho2022cascaded}; \citet{sadat2024cads} & --- & \checkmark & noise, not kernel & empirical & --- & ---\\
 \midrule
 this paper & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark\\
 \bottomrule
 \end{tabular}
-\caption{Scope boundary against the three nearest lines. Reading a kernel from a
-finite-support flow is not new. This paper studies the conditional label factor and
+\caption{Scope boundary against the four nearest lines. Collapse of an overtrained
+conditional flow is not new, nor is reading a kernel from a finite-support flow. This paper studies the conditional label factor and
 uses its endpoint law to audit variance recovery. Table~\ref{tab:related} adds four
 lines.}
 \label{tab:relatedshort}
@@ -164,7 +168,7 @@ lines.}
   per-condition variances and recovered independently from its per-condition means, and
   $h_{\mathrm{eff}}$ falls towards $h$ as training proceeds (Section~\ref{sec:heff};
   48/48 synthetic checkpoints); on CIFAR-10 this holds for the mean and the total
-  variance (31/36) but not for the support. Partial agreement with the reference
+  variance (31/36 at $h\in\{4,5\}$) but not for the support. Partial agreement with the reference
   at $h$ is agreement at a larger bandwidth. We prove when $h_{\mathrm{eff}}$ is
   identified (Proposition~\ref{prop:heffid}) and what calibration a bandwidth implies
   for any prior (Theorem~\ref{thm:calib}); with the kernel weights at $h_{\mathrm{eff}}$
@@ -511,8 +515,9 @@ mask is the bottom half throughout (Appendix~\ref{app:exp4}).
 \paragraph{Hard conditioning ($h{=}0$).} On the displayed instance, the training-time
 estimate of $\tr\Cov$ (8 conditions) falls from $179.1$ at iteration $500$ to $0.431$ at
 $60000$, a factor of $415$ ($0.458$ re-measured); the memorisation ratio is $1.000$ and the generated mean identifies
-the correct training image at $48/48$ conditions. Across the three redrawn instances,
-final $\tr\Cov$ is $0.409$--$0.467$ on the same estimator. Hard-conditioning collapse is therefore robust at this scale, although the experiment
+the correct training image at $48/48$ conditions. Retrained and re-measured at $48$
+conditions and $M{=}256$, the three redrawn instances end at $0.411$--$0.503$, each with
+the correct image at $48/48$. Hard-conditioning collapse is therefore robust at this scale, although the experiment
 does not separate instance variation from optimisation variation.
 
 \paragraph{Label smoothing ($h>0$) against the reference at $h$.} The OLS slope $\beta$ of
@@ -641,7 +646,10 @@ were retrained with weights kept at 2k--60k and analysed at $M{=}128$
 agree at 31/36 checkpoints; four of the five misses are at $h{=}5$ at 5k--10k.
 $h_{\mathrm{eff}}$ falls monotonically in 5/6 runs and ends at $1.13$--$1.34h$; it is
 still falling at 60k in four runs and has levelled off in two, so whether it has a floor
-above $h$ is open. $\beta$ rises as $h_{\mathrm{eff}}/h$ approaches $1$ in 5/6 runs,
+above $h$ is open. At $h{=}6$, where the reference barely varies, the two agree at 8/18;
+at $h{=}0$ the means stay on the nearest atom while $h_{\mathrm{eff}}$ falls to $3.4$--$3.7$,
+so no one bandwidth describes hard-conditioned training at this scale
+(Appendix~\ref{app:heffends}). $\beta$ rises as $h_{\mathrm{eff}}/h$ approaches $1$ in 5/6 runs,
 reaching $0.66$ at $1.13h$. At this scale $h_{\mathrm{eff}}$ fits the per-condition
 variances no better than the power law (comparable from 30k on, mostly worse before),
 and it does not set calibration. On a second training of the same six runs, the 90\%
@@ -2626,6 +2634,15 @@ time $1-t$, sharpening to nearest-neighbour as $t\to1$ & the \emph{label} factor
 $K_h(y-y^i)$ of the same product \eqref{eq:kernel-field}, whose bandwidth is a
 modelling choice; and the endpoint law and its moments rather than the field. The two
 readings compose; neither implies the other\\
+\citet{physicscfm2026} & conditional & for an overtrained network of separable form
+$\sum_k\varphi_k(y)b_k(x,t)$, every sample ends at one point
+$\bar x(y)=\sum_jx^j\varphi_j(y)$, a training point at an interpolatory label
+(``variance collapse''); with indicator bases, samples end on training points near $y$
+(``selective memorisation''); early stopping on the test loss & the population minimiser
+over all square-integrable fields, with no architectural assumption: the same collapse at
+$h=0$ (Proposition~\ref{prop:collapse}), but under label noise a mixture
+$\sum_ip_i^{(h)}(y)\delta_{x^i}$ rather than a point at its mean, which is where their
+partition-of-unity case ends; the atomicity floor; the audit of trained models\\
 \citet{gu2023memorization} & conditional & unique/random labels sharply increase
 memorisation at CIFAR and FFHQ scale, empirically & \emph{why}: informativeness is
 irrelevant, identification is everything
@@ -3068,6 +3085,20 @@ gives $4.93$ and $5.65$, the same 31/36 agreement and the same $1.13$--$1.34h$
 endpoints: $h_{\mathrm{eff}}$ is reproducible to a few percent across non-deterministic
 GPU runs.
 
+\paragraph{The two ends, $h=0$ and $h=6$.}
+\label{app:heffends}
+Six further runs on the same protocol (three instances each) extend the measurement. At
+$h{=}6$, where the reference barely varies (Proposition~\ref{prop:heffid}), $h_{\mathrm{eff}}$
+ends at $1.05$--$1.14h$ and agrees with $h_{\mathrm{mean}}$ at $8/18$ checkpoints from 5k on,
+against $31/36$ at $h\in\{4,5\}$. At $h{=}0$ it falls monotonically in all three runs, to
+$3.44$--$3.74$ at 60k, and agrees with $h_{\mathrm{mean}}$ at none. The means stay on the
+nearest training atom: the generated mean identifies it at $48/48$ conditions, and
+$h_{\mathrm{mean}}$ stays at or below $2.8$, often at the lower edge of the grid. The
+variance, $\tr\Cov=0.41$--$0.50$, is what the reference reaches only by mixing atoms at
+$h\approx3.6$. So the residual variance of hard-conditioned training at this scale is
+spread around each atom, not weight on its neighbours, and no single bandwidth describes
+it, unlike the synthetic $h{=}0$ runs, where the two estimates agree.
+
 \paragraph{Which reference family.}
 \label{app:families}
 Agreement of $h_{\mathrm{eff}}$ and $h_{\mathrm{mean}}$ shows that the means and the
@@ -3420,13 +3451,13 @@ should widen each interval by about $12\%$. On the CIFAR-10 DDPM run, the trace 
 covariance estimated from $M$ samples carries a relative sampling error of at most
 $\sqrt{2/(M-1)}$ (attained for a rank-one covariance): $8.9\%$ at the $M{=}256$ used for
 evaluation but $36\%$ at the $M{=}16$ logged during training, over only $8$ conditions.
-Table~\ref{tab:cifarddpm}, Figure~\ref{fig:cifartrack} and the $h_{\mathrm{eff}}$ fits
-are re-measured from checkpoints; the three-instance comparison of
-Table~\ref{tab:seed3} and the $h{=}0$ trajectory of Section~\ref{sec:cifarddpm} use the
-training-time estimator, because seeds 1 and 2 were not re-evaluated. Where
-both exist (seed 0) they differ in the aggregate ratio by $4.7\%$, $15\%$ and $1.8\%$ at
-$h=4,5,6$ ($2.255$ against $2.154$, $1.245$ against $1.461$, $1.181$ against $1.202$),
-and at $h{=}0$ the final $\tr\Cov$ is $0.431$ against $0.458$. And on the early-stopping measurement of
+Table~\ref{tab:cifarddpm}, Figure~\ref{fig:cifartrack}, the $h_{\mathrm{eff}}$ fits and
+the three-instance comparison of Table~\ref{tab:seed3} are re-measured from checkpoints at
+$48$ conditions and $M{=}256$; only the $h{=}0$ trajectory of Section~\ref{sec:cifarddpm}
+uses the training-time estimator. On the nine $h>0$ runs of Table~\ref{tab:seed3} the
+training-time aggregate ratio differs from the re-measured one by $-15\%$ to $+13\%$
+(median absolute $9.7\%$), and on the three $h{=}0$ runs the final $\tr\Cov$ by $-5\%$ to
+$-10\%$; on the displayed $h{=}0$ instance it is $0.431$ against $0.458$. And on the early-stopping measurement of
 Appendix~\ref{app:remedies}: at $h{=}4$ the aggregate ratio never reaches $1$ within the
 budget, falling only to $2.26$.
 
@@ -3472,10 +3503,10 @@ exact $1.000$ at $h{=}0$ ruling out the integrator as the cause. What governs th
 discrepancy is $n_{\mathrm{eff}}$ rather than $h$: pooled over the $144$ (condition,
 $h$) pairs with $h>0$, Spearman's correlation is $-0.858$ against $n_{\mathrm{eff}}$ and
 $-0.554$ against $h$. And three fresh problem instances separate the estimators sharply:
-the average of per-condition ratios spreads by $281\%$ at $h{=}4$ against $23\%$ for the
+the average of per-condition ratios spreads by $274\%$ at $h{=}4$ against $10\%$ for the
 aggregate ratio, since a per-condition denominator can be arbitrarily close to zero---but
 even the aggregate survives only where the reference has range, the three instances
-giving $1.181$, $0.924$ and $1.166$ at $h{=}6$.
+giving $1.177$, $0.904$ and $1.127$ at $h{=}6$.
 
 \paragraph{EXP-1 beyond $2\times10^5$ iterations.} Table~\ref{tab:exp1} and
 Figure~\ref{fig:p1p4} give the four observables of Section~\ref{sec:exp1} by iteration
@@ -3654,42 +3685,40 @@ one or two atoms are the ones the model overshoots, at any $h$.
 \paragraph{Reproducibility across problem instances.} Every bandwidth was run at three
 seeds, each redrawing the training subset and all training randomness (the mask is
 fixed), so each seed is a different problem and not merely a different run: at $h{=}4$,
-$n_{\mathrm{eff}}$ is $2.36$, $2.77$ and $2.10$ across the three. Table~\ref{tab:seed3}
-gives the final values, on the training-time estimator (8 conditions at $M{=}16$; see
-Appendix~\ref{app:exp4} for how far it is from the $M{=}256$ re-measurement). Reading the spread as $(\max-\min)/\mathrm{mean}$: the raw
-$\tr\Cov$ moves by $41\%$ at $h{=}4$, $23\%$ at $h{=}5$ and $16\%$ at $h{=}6$, while
-the aggregate ratio $\tr\Cov/\tr\Covh$ moves by $23\%$, $30\%$ and $23\%$.
+$n_{\mathrm{eff}}$ is $2.6$, $3.8$ and $1.8$ across the three. Table~\ref{tab:seed3}
+gives the final values of runs retrained with weights kept and re-measured at $48$
+conditions and $M{=}256$. Reading the spread as $(\max-\min)/\mathrm{mean}$: the raw
+$\tr\Cov$ moves by $26\%$ at $h{=}4$, $3\%$ at $h{=}5$ and $25\%$ at $h{=}6$, while
+the aggregate ratio $\tr\Cov/\tr\Covh$ moves by $10\%$, $17\%$ and $26\%$.
 
-So the reference-relative quantity is not uniformly the more stable one. At $h{=}5$ two
-instances land on $1.245$ and $1.248$ and the third on $1.654$, but the first moves to
-$1.461$ when re-measured at $48$ conditions and $M{=}256$, so at this bandwidth the
-estimator's own error is of the size of the spread being read. At $h{=}5$ and
-$h{=}6$ the aggregate ratio is \emph{less} stable across instances than the raw trace it
-was meant to stabilise. What survives is the case at $h{=}4$, where the ratio moves by $23\%$
-against the raw trace's $41\%$; and $h{=}4$ is exactly the bandwidth at which the
+So the reference-relative quantity is not uniformly the more stable one. At $h{=}5$ the
+three raw traces agree to $3\%$ ($288$--$298$), but the reference itself differs between
+instances by $18\%$ ($193$--$230$), and dividing by it adds that difference. At $h{=}5$
+and $h{=}6$ the aggregate ratio is no more stable across instances than the raw trace it
+was meant to stabilise. What survives is the case at $h{=}4$, where the ratio moves by
+$10\%$ against the raw trace's $26\%$; and $h{=}4$ is exactly the bandwidth at which the
 reference has range across conditions, which is the same condition the $\beta$
 measurement identifies as the informative one. A reference-relative statistic can only
 stabilise what its denominator actually varies over.
 
-At $h{=}6$ the three aggregate ratios are $1.181$, $0.924$ and $1.166$: a $23\%$ spread
+At $h{=}6$ the three aggregate ratios are $1.177$, $0.904$ and $1.127$: a $26\%$ spread
 that straddles $1$. So the apparent agreement there is not merely uninformative for
 want of range---it is not stable even in the sign of its deviation, and a single-seed
-reading could have been reported as agreement to $18\%$ or to $8\%$ depending on which
+reading could have been reported as agreement to $18\%$ or to $10\%$ depending on which
 instance was drawn. At $h{=}0$, where the reference variance is exactly zero and the
-ratio is undefined, $\tr\Cov$ is $0.431$, $0.409$ and $0.467$, a $13\%$ spread.
+ratio is undefined, $\tr\Cov$ is $0.411$, $0.503$ and $0.444$, a $20\%$ spread.
 
 \paragraph{Which ratio, and a third false certificate.} That conclusion depends on
 \emph{how} the ratio is formed, and the difference is large enough to reverse it. The
 aggregate ratio ($\tr\Cov$ summed over conditions divided by $\tr\Covh$ summed over
 conditions) is what Theorem~\ref{thm:endpoint} predicts and what reproduces. The
 average of per-condition ratios does not, and the three seeds make that beyond
-argument: at $h{=}4$ they give $6.83$, $7.07$ and $307.7$, and at $h{=}5$ $2.315$,
-$1.356$ and $37.17$. The reason is that a per-condition ratio has a denominator that
+argument: at $h{=}4$ they give $40.7$, $2364$ and $142.9$, and at $h{=}5$ $2.86$,
+$4.37$ and $4.78$. The reason is that a per-condition ratio has a denominator that
 can be arbitrarily close to zero, so its average is heavy-tailed and dominated by
 whichever condition happened to draw the smallest $\tr\Covh$---the same pathology that
-makes the $M{=}256$ mean $20.4$ against a median of $5.30$ at $h{=}4$
-(Section~\ref{sec:cifarddpm}). With two instances its spread is $3.5\%$; the third turns
-that into $281\%$. Across instances we therefore compare the aggregate ratio; within
+makes the $M{=}256$ mean $20.4$ against a median of $5.30$ at $h{=}4$ on the displayed
+instance (Section~\ref{sec:cifarddpm}). Across the three instances its spread is $274\%$. Across instances we therefore compare the aggregate ratio; within
 an instance (Table~\ref{tab:cifarddpm}, Figure~\ref{fig:cifartrack}) we summarise the
 per-condition ratios by their median with a bootstrap interval. The mean of
 per-condition ratios appears only to show its instability (last column of
@@ -3719,22 +3748,23 @@ predicts. Error bars are standard errors of the slope.}
 $h$ & seed 0 & seed 1 & seed 2 & $n_{\mathrm{eff}}$ &
 raw & aggregate & mean-of-ratios\\
 \midrule
-$0$ & $0.431$ & $0.409$ & $0.467$ & $1.00$ & $13.4\%$ & --- & ---\\
-$4$ & $178.5$ / $2.255$ & $240.7$ / $2.463$ & $160.7$ / $1.944$ & $2.1$--$2.8$ &
-  $41.4\%$ & $\mathbf{23.4\%}$ & $281\%$\\
-$5$ & $276.8$ / $1.245$ & $321.2$ / $1.248$ & $349.0$ / $1.654$ & $13.0$--$17.2$ &
-  $\mathbf{22.9\%}$ & $29.6\%$ & $263\%$\\
-$6$ & $406.4$ / $1.181$ & $347.1$ / $0.924$ & $364.9$ / $1.166$ & $50$--$93$ &
-  $\mathbf{15.9\%}$ & $23.5\%$ & $70.6\%$\\
+$0$ & $0.411$ & $0.503$ & $0.444$ & $1.00$ & $20.3\%$ & --- & ---\\
+$4$ & $187.2$ / $2.261$ & $207.1$ / $2.440$ & $158.4$ / $2.490$ & $1.8$--$3.8$ &
+  $26.5\%$ & $\mathbf{9.6\%}$ & $274\%$\\
+$5$ & $297.6$ / $1.396$ & $290.0$ / $1.260$ & $288.1$ / $1.494$ & $10.7$--$24.0$ &
+  $\mathbf{3.3\%}$ & $16.9\%$ & $48\%$\\
+$6$ & $408.3$ / $1.177$ & $315.9$ / $0.904$ & $383.2$ / $1.127$ & $58$--$91$ &
+  $\mathbf{25.0\%}$ & $25.5\%$ & $27\%$\\
 \bottomrule
 \end{tabular}
-\caption{Three seeds of the CIFAR-10 DDPM sweep at $60000$ iterations, each a fresh
-problem instance, on the training-time estimator ($8$ conditions, $M{=}16$). Bold marks the more stable of the raw trace and the aggregate ratio
+\caption{Three seeds of the CIFAR-10 DDPM setup at $60000$ iterations, each a fresh
+problem instance, retrained with weights kept and re-measured at $48$ conditions and
+$M{=}256$. Bold marks the more stable of the raw trace and the aggregate ratio
 on each row. The aggregate ratio wins only at $h{=}4$, the bandwidth where the kernel
 reference varies across conditions; where the reference is nearly constant, dividing by
 it adds noise instead of removing it. The last column is why the paper does not use the
-average of per-condition ratios anywhere: at $h{=}4$ the three seeds give $6.83$,
-$7.07$ and $307.7$, the last carried by one condition whose reference happened to fall
+average of per-condition ratios anywhere: at $h{=}4$ the three seeds give $40.7$,
+$2364$ and $142.9$, each carried by the few conditions whose reference happened to fall
 near zero.}
 \label{tab:seed3}
 \end{table}
