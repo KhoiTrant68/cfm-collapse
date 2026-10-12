@@ -752,20 +752,6 @@ Appendix~\ref{app:proofs}; every stated assumption (distinct labels, smoothness 
 weight functions, the linear-Gaussian instance) is made explicit at the point it is
 used.
 
-\subsection*{Broader impact statement}
-This work trains small models on synthetic linear-Gaussian and Gaussian-mixture data
-and on the public MNIST and CIFAR-10 datasets. No human subjects, personally identifiable
-information, or other sensitive data are used or generated. The paper's contribution
-is a theoretical and empirical account of an existing memorisation phenomenon in
-conditional generative models, which bears on the data-privacy and copyright concerns
-around deployed diffusion and flow models raised in Section~\ref{sec:intro}. At the
-population optimum the weights $p_i^{(h)}(y)$ of Theorem~\ref{thm:endpoint} attribute
-each generated sample exactly to training examples, a closed-form counterpart to learned
-attribution in flow matching \citep{briq2026tracing}. By
-characterising the mechanism, we aim to help downstream work design mitigations, not to
-facilitate memorisation. We are not aware of any other ethical concerns raised by this
-submission.
-
 \bibliographystyle{tmlr}
 \bibliography{refs}
 
