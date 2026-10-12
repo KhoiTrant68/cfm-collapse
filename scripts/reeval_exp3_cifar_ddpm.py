@@ -197,7 +197,7 @@ def main():
 
     with open(out_dir / "reeval.json", "w", encoding="utf-8") as f:
         json.dump(out, f, indent=2)
-    print(f"\nSaved: {OUT}/reeval.json")
+    print(f"\nSaved: {out_dir}/reeval.json")
 
 
 if __name__ == "__main__":
