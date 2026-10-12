@@ -638,8 +638,9 @@ so the model's mean tends to $x^j$ and its variance to $0$: it reaches the refer
 at $h$, with no floor. (b) Let $\rho$ be Lebesgue measure on $\R$ (a uniform label
 density), let $k$ be stationary with spectral density $\hat k(\omega)=a|\omega|^{-\zeta}$,
 $a,\zeta>0$, so that $T_k$ is the positive self-adjoint Fourier multiplier
-$a|\omega|^{-\zeta}$ on $L^2(\R)$ (unbounded for every $\zeta>0$; no integrable kernel has
-this spectrum, and $T_k$ is defined as the multiplier), and let $f^\star-c\in L^2(\R)$. Then $f_t-c$
+$a|\omega|^{-\zeta}$ on $L^2(\R)$ (unbounded for every $\zeta>0$; since
+$\int|\omega|^{-\zeta}d\omega$ diverges for every $\zeta>0$, no kernel with finite $k(y,y)$
+has this spectrum, and $T_k$ is defined as the multiplier), and let $f^\star-c\in L^2(\R)$. Then $f_t-c$
 is $f^\star-c$ filtered by $\hat\varphi_t(\omega)=G\big(\omega\,(at)^{-1/\zeta}\big)$,
 $G(u)=1-e^{-|u|^{-\zeta}}$: a low-pass filter of fixed shape whose resolution scale is
 $s(t)=(at)^{-1/\zeta}$.
@@ -662,9 +663,14 @@ $1-e^{-ta|\omega|^{-\zeta}}=G(\omega(at)^{-1/\zeta})$, since
 $|\omega(at)^{-1/\zeta}|^{-\zeta}=at|\omega|^{-\zeta}$.
 \end{proof}
 
-Part (b) is an idealisation: the label law is not uniform, and $\hat k$ is a power law
-only at high frequency (Laplace kernel: $\zeta=2$; Mat\'ern-$3/2$: $\zeta=4$; Gaussian:
-exponential decay, $\zeta=\infty$). We therefore compute \eqref{eq:kgf} exactly on the
+Part (b) is an idealisation in three ways. The label law is not uniform. $\hat k$ is a
+power law only at high frequency (Laplace kernel: $\zeta=2$; Mat\'ern-$3/2$: $\zeta=4$;
+Gaussian: exponential decay, $\zeta=\infty$). And the Nadaraya--Watson moments of a finite
+training set satisfy $f^\star-c\in L^2(\R)$ only if all $x^i$ coincide: for $h>0$ they tend
+to $\phi(x^{i_+})$ as $y\to+\infty$, where $y^{i_+}$ is the largest label, and for
+$\phi(x)=x$ and $\phi(x)=|x|^2$ together this limit equals $c$ only in that case. Part (b) gives
+the shape and the scale of the filter for a localised target, not the learned moments
+themselves. We therefore compute \eqref{eq:kgf} exactly on the
 actual EXP-1 training sets ($\rho_h$ by 15-point Gauss--Hermite quadrature around each
 label, three seeds, $\ell\in\{0.3,1\}\times\mathrm{sd}(y)$) and apply the estimator
 \eqref{eq:heff} at the 20 conditions (\texttt{theory\_t2\_resolution.py},
@@ -736,6 +742,26 @@ predicts no floor, whereas $h_{\mathrm{eff}}$ settles at $1.08h$ on the syntheti
 whether that gap is optimisation (Adam, a finite learning rate) or feature learning,
 which kernel gradient flow excludes, is not settled here. Nor does kernel time map to
 iterations outside the lazy regime, so we do not compare rates with training curves.
+
+\paragraph{Three tests narrow this down.} On the synthetic runs:
+(i) Training is not lazy. The empirical tangent kernel of the trained field in its label
+input (256 labels, 64 draws of $(x,t)$) changes between 100 and $2\times10^5$ iterations by
+$0.68$--$1.23$ in normalised Frobenius norm for $h\le0.1$ ($0.09$--$0.38$ at $h=0.5$), so a
+fixed-kernel account of $h_{\mathrm{eff}}$ does not apply. Its eigenvalues do end with a
+power-law decay, with exponent $1.10$--$1.29$ at $h\le0.01$ against $2.09$ for the Laplace
+kernel (\texttt{scripts/ntk\_label\_spectrum.py}).
+(ii) Neither explicit regularisation nor the step size sets the gap above $h$. At
+$2\times10^5$ iterations, $h_{\mathrm{eff}}$ is $0.86$--$1.22$ times its baseline under AdamW
+weight decay $10^{-4}$--$10^{-2}$, a learning rate of $3\times10^{-4}$ or a cosine schedule
+($h\in\{0,0.05\}$, three seeds per arm, ranges overlapping in every arm), and at $h=0.05$ it
+sits at $1.01$--$1.18h$ in all of them; a learning rate of $3\times10^{-3}$ diverged in 4 of
+6 runs (\texttt{scripts/e2\_floor\_compare.py}).
+(iii) A density-adaptive bandwidth is not established. Regressing the log per-condition
+bandwidth on the log label density at $h=0$ gives a pooled slope of $-0.35$
+($[-0.52,-0.16]$), but the per-run intervals contain $0$ at 5 of the 6 checkpoints from
+$10^5$ iterations, and at $h\in\{0.01,0.05,0.1\}$ the slopes are zero or positive
+(\texttt{scripts/heff\_local\_density.py}). The paper therefore fits one bandwidth for all
+conditions.
 
 \begin{figure}[t]
 \centering
