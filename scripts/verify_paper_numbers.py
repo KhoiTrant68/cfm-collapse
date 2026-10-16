@@ -605,6 +605,17 @@ _s60 = [x for k in ("8", "32") for x in _jm["by_k"][k]["at_60k"]["s"]]
 check("s at 60k, min (0.7)", 0.7, min(_s60), 1e-2)
 check("s at 60k, max (0.9)", 0.9, max(_s60), 0.03)
 
+print("\nRank-based per-pixel coverage in the main text (results/exp3/_rerun/calib_levels_summary.json)")
+_clr = json.loads(pathlib.Path("results/exp3/_rerun/calib_levels_summary.json").read_text(encoding="utf-8"))["rows"]
+for it, lo, hi in ((2000, 0.93, 0.96), (20000, 0.73, 0.82), (60000, 0.77, 0.86)):
+    _v = [r["pixel_cov90"] for r in _clr if r["h"] > 0 and r["iter"] == it]
+    check(f"per-pixel 90% coverage at {it}, min (2 d.p.)", lo, round(min(_v), 2), 1e-9)
+    check(f"per-pixel 90% coverage at {it}, max (2 d.p.)", hi, round(max(_v), 2), 1e-9)
+_spx = json.loads(pathlib.Path("results/exp3/_rerun/calib_levels_summary.json").read_text(encoding="utf-8"))["spearman_h_pos"]["pixel"]
+check("per-pixel miscalibration vs spread |rho|", 0.90, round(abs(_spx["pixel_sd"]["spearman"]), 2), 1e-9)
+check("per-pixel miscalibration vs h_eff |rho|", 0.52, round(abs(_spx["h_eff"]["spearman"]), 2), 1e-9)
+in_tex(r"ends at $0.77$--$0.86$")
+
 print("\nsanity: strings the new text depends on")
 for s in (r"\label{sec:cifarddpm}", r"\label{tab:cifarddpm}",
           r"\label{fig:cifartrack}", r"\label{sec:p6exposure}",

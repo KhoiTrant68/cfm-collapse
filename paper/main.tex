@@ -545,8 +545,10 @@ Table~\ref{tab:p7kernel}), with the field agreeing too. At $h{=}0.01$
 ($n_{\mathrm{eff}}\approx3.5$) the reference is near-degenerate and the ratio unstable,
 $1.308\pm0.376$. That $h\approx0.1$ ``perfectly
 restores'' the posterior variance is a misreading: $\tr\Cov$ crosses $\Sigmapost$ there
-only because $\Sigmapost\approx\Covh|_{h=0.1}$ for this problem. Three consequences
-follow (Appendices~\ref{sec:aux} and~\ref{app:tgt}). The law stays atomic even at the
+only because $\Sigmapost\approx\Covh|_{h=0.1}$ for this problem.
+
+\paragraph{What matching the variance does not show.} Three consequences follow
+(Appendices~\ref{sec:aux} and~\ref{app:tgt}). The law stays atomic even at the
 best-matching $h$ ($n_{\mathrm{eff}}\approx26/200$), so matching variance is not
 recovering the posterior. The floor \eqref{eq:w2floor} is small here, $F=0.0353$ or
 $3.5\%$ of $\tr\Sigmapost$, while the population-optimal atomic law already scores below
@@ -555,8 +557,10 @@ smoothing removes the obstruction without improving the fit: the best cell of th
 $(h,\rho)$ sweep is $h{=}0.5,\rho{=}0$ in both metrics. It helps only where the atoms are
 sparse enough for the floor to dominate, and the gain grows with the floor at fixed $d$
 but not across $d$ (Table~\ref{tab:floor}): like kernel density estimation, it is
-defeated by dimension. Interpolant noise changes nothing: the generated variance is $0.367\pm0.146$ with
-the corrected target, as \eqref{eq:invariance} predicts (Table~\ref{tab:p7i}).
+defeated by dimension.
+
+\paragraph{Interpolant noise.} It changes nothing: the generated variance is
+$0.367\pm0.146$ with the corrected target, as \eqref{eq:invariance} predicts (Table~\ref{tab:p7i}).
 
 \label{sec:exp23}%
 \paragraph{Beyond the Gaussian case.} \emph{Gaussian mixture (EXP-2):} with a bimodal
@@ -799,8 +803,7 @@ those widths with Spearman $0.91$; on CIFAR-10 this $\kappa$ falls from $17$ at 
 $0.38$ and $0.13$ at $h{=}5,6$.
 
 \paragraph{Synthetic.} Fifteen linear-Gaussian runs ($h\in\{0,0.01,0.05,0.1,0.5\}$, three
-seeds) were retrained with weights kept at eight checkpoints (Figure~\ref{fig:heffsyn},
-appendix).
+seeds) were retrained with weights kept at eight checkpoints (Figure~\ref{fig:heffsyn}).
 Where the reference varies ($h\le0.1$, from $10^4$ iterations; 48 checkpoints) the two
 bandwidths agree within their intervals at all 48 (log correlation $0.97$, median ratio
 $1.03$), and with one parameter it fits the per-condition variances better than the
@@ -810,6 +813,18 @@ falls between $10^4$ and $10^5$ iterations in 12/12 runs and settles just above 
 $2\times10^5$), so the residual variance of Section~\ref{sec:exp1} is a bandwidth
 that has not reached zero. At $h{=}0.5$
 ($n_{\mathrm{eff}}\approx100$) it is poorly identified (9/15 intervals overlap).
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.84\textwidth]{fig_heff_synthetic.png}
+\caption{Linear-Gaussian problem, three seeds per bandwidth. (a) $h_{\mathrm{eff}}$
+falls with training and stops just above the training bandwidth $h$ (dashed); line:
+geometric mean over seeds, band: range. (b) The bandwidth fitted to the variances
+against the one implied by the means, with 95\% bootstrap intervals: two disjoint
+statistics give one bandwidth. Open markers ($h{=}0.5$): the reference barely varies
+and $h_{\mathrm{eff}}$ is poorly identified, as Proposition~\ref{prop:heffid} predicts.}
+\label{fig:heffsyn}
+\end{figure}
 
 \paragraph{Calibration of the reference law.} Where the posterior is known, the
 coverage of a sampler's credible regions can be computed for the reference law itself.
@@ -853,12 +868,13 @@ binomial noise of the measurement (Figure~\ref{fig:t3}; $0.59$ for the 50\% regi
 where the weights' dispersion matters more). Part (b) makes the right edge prior-free: on two mixture
 posteriors the reference law over-covers by at most $\tau_h$, a bound that is nearly
 tight at $h=\sigma/2$ (Appendix~\ref{apx:pf-calib}). As a ranking, $h_{\mathrm{eff}}$ (Spearman $0.92$)
-beats the training loss ($0.85$) and keeps $0.90$ with the iteration partialled out, also
+is ahead of the training loss ($0.85$) and keeps $0.90$ with the iteration partialled out, also
 on an eight-mode mixture posterior ($0.91$, $0.91$); it predicts collapse, not the PIT
 error or extraction. Given the free quantities it adds no reliable information
 ($\Delta R^2=+0.04$, $[-0.04,0.22]$); its use is a prediction that needs no coverage labels
 (Appendix~\ref{app:calibdetails}). Theorem~\ref{thm:labelmix} bounds the coverage error of
-any label-weighted mixture at finite $N$ (Appendix~\ref{apx:thmB}).
+any label-weighted mixture at finite $N$, though loosely: on this problem the bound is
+vacuous at $N\le10^4$ and only locates the calibration window (Appendix~\ref{apx:thmB}).
 
 \begin{figure}[t]
 \centering
@@ -874,7 +890,7 @@ the exact finite reference law.}
 
 \paragraph{CIFAR-10.} Six runs of the setup above ($h\in\{4,5\}$, three instances each)
 were retrained with weights kept at 2k--60k and analysed at $M{=}128$
-(Figure~\ref{fig:heffcifar}, appendix). From 5k on the two bandwidths
+(Figure~\ref{fig:heffcifar}). From 5k on the two bandwidths
 agree at 31/36 checkpoints; four of the five misses are at $h{=}5$ at 5k--10k.
 $h_{\mathrm{eff}}$ falls monotonically in 5/6 runs and ends at $1.13$--$1.34h$; it is
 still falling at 60k in four runs and has levelled off in two, so whether it has a floor
@@ -884,14 +900,34 @@ so no one bandwidth describes hard-conditioned training at this scale
 (Appendix~\ref{app:heffends}). $\beta$ rises as $h_{\mathrm{eff}}/h$ approaches $1$ in 5/6 runs,
 reaching $0.66$ at $1.13h$. At this scale $h_{\mathrm{eff}}$ fits the per-condition
 variances no better than the power law (comparable from 30k on, mostly worse before),
-and it does not set calibration. On a second training of the same six runs, the 90\%
-per-pixel coverage of 64 test-split images falls from $0.91$--$0.95$ at 2k to
-$0.67$--$0.78$ by 20k and ends at $0.72$--$0.81$ (a continuous Gaussian calibration control scores about $0.87$
-with $M{=}64$ draws), and the sample spread ranks it with Spearman $0.98$ against $0.63$
-for $h_{\mathrm{eff}}$. A joint region in the top principal components covers less still,
-$0.47$--$0.78$ at 60k against $0.91$; in the top 8 components this is a per-direction
-shortfall in spread compounding over the directions ($R^2=0.81$,
-Appendix~\ref{app:calibdetails}).
+and it does not set calibration. On 64 held-out test-split images per run ($h\in\{4,5,6\}$,
+$M{=}64$ draws), coverage is read from the rank of the true image among the draws, so a
+tie-free calibrated sampler scores $0.91$ at the 90\% level. Per pixel it falls from $0.93$--$0.96$
+at 2k to $0.73$--$0.82$ by 20k and ends at $0.77$--$0.86$, and the sample spread ranks the
+miscalibration with $|\rho|=0.90$ against $0.52$ for $h_{\mathrm{eff}}$. A joint region in
+the top principal components covers less still, $0.47$--$0.78$ at 60k; in the top 8
+components this is a per-direction shortfall in spread compounding over the directions
+($R^2=0.81$, Appendix~\ref{app:calibdetails}).
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{fig_heff_cifar.png}
+\caption{CIFAR-10, DDPM U-Net, three instances per bandwidth ($h\in\{4,5\}$). (a, b) $h_{\mathrm{eff}}$
+from the variances (filled) and the bandwidth implied by the means (open), with 95\%
+intervals; dashed: training $h$; cross: the published run at 60k. From 5k on the two
+agree and fall towards $h$ without reaching it. (c) $\beta$ against
+$h_{\mathrm{eff}}/h$; training proceeds to the right.}
+\label{fig:heffcifar}
+\end{figure}
+
+\paragraph{The audit in practice.} Appendix~\ref{app:audit} collects these diagnostics into
+one procedure that needs the training set and samples, and no retraining: the reference
+weights and moments at each condition; the level as an aggregate ratio, never an average
+of per-condition ratios; the range of the reference across conditions, without which
+agreement in level is uninformative; the slope $\beta$; $h_{\mathrm{eff}}$ and
+$h_{\mathrm{mean}}$; the on-atom fraction; and, where held-out pairs exist, coverage read
+from ranks, per coordinate and jointly. It locates a model relative to its training set;
+at image scale it measures calibration rather than predicting it.
 
 \FloatBarrier
 
@@ -3579,29 +3615,6 @@ transfer can actually be controlled.
 \subsection{Effective bandwidth and calibration: details}
 \label{app:calibdetails}
 
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.84\textwidth]{fig_heff_synthetic.png}
-\caption{Linear-Gaussian problem, three seeds per bandwidth. (a) $h_{\mathrm{eff}}$
-falls with training and stops just above the training bandwidth $h$ (dashed); line:
-geometric mean over seeds, band: range. (b) The bandwidth fitted to the variances
-against the one implied by the means, with 95\% bootstrap intervals: two disjoint
-statistics give one bandwidth. Open markers ($h{=}0.5$): the reference barely varies
-and $h_{\mathrm{eff}}$ is poorly identified, as Proposition~\ref{prop:heffid} predicts.}
-\label{fig:heffsyn}
-\end{figure}
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=\textwidth]{fig_heff_cifar.png}
-\caption{CIFAR-10, DDPM U-Net, three instances per bandwidth. (a, b) $h_{\mathrm{eff}}$
-from the variances (filled) and the bandwidth implied by the means (open), with 95\%
-intervals; dashed: training $h$; cross: the published run at 60k. From 5k on the two
-agree and fall towards $h$ without reaching it. (c) $\beta$ against
-$h_{\mathrm{eff}}/h$; training proceeds to the right.}
-\label{fig:heffcifar}
-\end{figure}
-
 \paragraph{Fit quality.} On the linear-Gaussian runs, $h_{\mathrm{eff}}$ explains the
 per-condition variances with median log-space $R^2$ $0.86$, against $0.79$ for the
 two-parameter power law behind $\beta$; a constant multiple of $\Covh$, also one
@@ -3780,7 +3793,8 @@ monotonically, cannot follow the recovery: it ranks coverage with Spearman $0.63
 the generated per-pixel standard deviation, which needs neither the training set nor a
 reference. Extraction follows the iteration ($0.98$). At image scale the bandwidth
 therefore locates the model relative to its training set, in its mean and total
-variance, but does not predict its per-pixel calibration.
+variance, but does not predict its per-pixel calibration. The main text reports the
+rank-based measurement below, which has an exact reference at finite $M$.
 
 \paragraph{Several levels, components and joint regions.} A per-pixel interval cannot see
 correlations between pixels. For all twelve runs ($h\in\{0,4,5,6\}$, 84 checkpoints) we
@@ -3825,7 +3839,7 @@ mechanism: a learner that resolves the label only gradually. We model the label
 dependence of the trained field through the conditional moments
 $f^\star(y)=\E[\phi(X)\mid\widetilde Y=y]$, $\phi(x)\in\{x,|x|^2\}$, which at bandwidth $h$
 are the Nadaraya--Watson moments of Theorem~\ref{thm:endpoint}. This is a reduction: the
-field of Proposition~\ref{prop:kernel-field} depends on the whole weight vector
+population field, whose endpoint law is Theorem~\ref{thm:endpoint}, depends on the whole weight vector
 $p^{(h)}(y)$, which two moments do not determine. Suppose they are learned by kernel gradient flow in
 $L^2(\rho_h)$, $\rho_h$ the law of $\widetilde Y$, from the unconditional moments
 $c=\E\phi(X)$:
@@ -4147,6 +4161,10 @@ $y_1,\dots,y_C$; $M$ samples per condition.
   log-spaced bandwidths from $0.003$ to $5$; the CIFAR-10 fits use 160 from $0.5$ to $40$.
   Both grids contain positive bandwidths even for models trained at $h=0$.
   CIFAR-10 traces are floored at $10^{-12}$ before taking logarithms.
+\item \emph{Calibration.} Where held-out pairs exist, rank the true value among the $M$
+  draws per coordinate and jointly in the top principal components
+  (\texttt{src/metrics/calibration.py}); ranks have an exact reference at finite $M$ when ties are absent or broken at random.
+  Report the joint coverage as well as the per-coordinate one.
 \end{enumerate}
 \emph{Sizes.} $M\ge128$ and $C\ge48$, the smallest settings behind the CIFAR-10 numbers
 here: under a Gaussian sampling approximation, the covariance trace has relative

@@ -54,3 +54,24 @@ Section 4.2, Table 2, Figure 2, and Appendix G integrate the already completed s
 - Current PDF uses TMLR style; main content extends into page 14. ICLR template conversion, substantial compression, and a full final publication audit remain a separate revision. No claim that the paper now meets ICLR acceptance standards follows from these checks.
 
 Final source and PDF hashes are recorded in the verification JSON. The canonical deliverable is `paper/main.pdf`, SHA256 `fd3544ad19be3ad3240fdb5a06fbc79150da0cd12517c462834ec185e241bbff`.
+
+## Subsequent remote integration for commit/push
+
+The audit and hashes above bind the pre-merge manuscript committed as `26d812a`.
+Before pushing, origin/main had three additional commits through `0c83cce`.
+Their updates were merged while preserving the audited abstract, contribution
+framing, mathematical statements/proofs and diagnostic limitations. The remote
+changes bring two existing bandwidth figures into the main text and use the
+rank-based image coverage numbers in that text. The exact finite-sample rank
+reference is qualified by tie-free scores or randomized ties. The assertion
+checking an older abstract phrase now checks the same coverage range at its
+current location in the body.
+
+After conflict resolution, all formal blocks still match the frozen mathematical
+surface. The expanded numerical suite passes 368 checks, and
+`scripts/test_calibration.py` passes. The merged PDF compiles to 95 pages, with
+main content through page 15; no undefined references/citations, overfull boxes
+or oversized floats are reported. This supersedes the earlier 94-page output
+and its PDF hash; the earlier independent mathematical/prose audit remains
+bound to its named source revision rather than being relabelled as a full audit
+of the merge.
