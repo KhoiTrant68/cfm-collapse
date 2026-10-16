@@ -737,6 +737,26 @@ whether that gap is optimisation (Adam, a finite learning rate) or feature learn
 which kernel gradient flow excludes, is not settled here. Nor does kernel time map to
 iterations outside the lazy regime, so we do not compare rates with training curves.
 
+\paragraph{Three tests narrow this down.} On the synthetic runs:
+(i) Training is not lazy. The empirical tangent kernel of the trained field in its label
+input (256 labels, 64 draws of $(x,t)$) changes between 100 and $2\times10^5$ iterations by
+$0.68$--$1.23$ in normalised Frobenius norm for $h\le0.1$ ($0.09$--$0.38$ at $h=0.5$), so a
+fixed-kernel account of $h_{\mathrm{eff}}$ does not apply. Its eigenvalues do end with a
+power-law decay, with exponent $1.10$--$1.29$ at $h\le0.01$ against $2.09$ for the Laplace
+kernel (\texttt{scripts/ntk\_label\_spectrum.py}).
+(ii) Neither explicit regularisation nor the step size sets the gap above $h$. At
+$2\times10^5$ iterations, $h_{\mathrm{eff}}$ is $0.86$--$1.22$ times its baseline under AdamW
+weight decay $10^{-4}$--$10^{-2}$, a learning rate of $3\times10^{-4}$ or a cosine schedule
+($h\in\{0,0.05\}$, three seeds per arm, ranges overlapping in every arm), and at $h=0.05$ it
+sits at $1.01$--$1.18h$ in all of them; a learning rate of $3\times10^{-3}$ diverged in 4 of
+6 runs (\texttt{scripts/e2\_floor\_compare.py}).
+(iii) A density-adaptive bandwidth is not established. Regressing the log per-condition
+bandwidth on the log label density at $h=0$ gives a pooled slope of $-0.35$
+($[-0.52,-0.16]$), but the per-run intervals contain $0$ at 5 of the 6 checkpoints from
+$10^5$ iterations, and at $h\in\{0.01,0.05,0.1\}$ the slopes are zero or positive
+(\texttt{scripts/heff\_local\_density.py}). The paper therefore fits one bandwidth for all
+conditions.
+
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.94\textwidth]{fig_t2_resolution.png}
