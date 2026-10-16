@@ -1,0 +1,48 @@
+{
+  "args": {
+    "out": "results/independent_seeds_20261016/eval_linear-gaussian-mlp-h0-seed1001-200k",
+    "runs": [
+      "linear-gaussian-mlp-h0-seed1001-200k"
+    ],
+    "checkpoints": [
+      200000
+    ],
+    "M": 512,
+    "heldout": 64,
+    "device": "cuda:0",
+    "eps": 0.001,
+    "max_seconds": 1700,
+    "controls_only": false
+  },
+  "host": "server-01",
+  "torch": "2.11.0+cu128",
+  "numpy": "1.26.4",
+  "seed": 20261016,
+  "eps": 0.001,
+  "steps": [
+    100,
+    200,
+    400
+  ],
+  "script_sha256": "b7b8a8f97c8b547d6f9b3c1f262bb9f229b9bdc5f660377d6dbca37311887f53",
+  "status": "completed",
+  "primary": "held-out energy distance / sqrt(analytic posterior trace)",
+  "solver_rule": "200-to-400 displacement < 0.1 * network-reference energy distance AND MC displacement scale",
+  "inference": "exploratory pilot; conditions nested in problem seeds; no equivalence claim",
+  "calibration_sha256": "9ca89a191935d9768358c11420cf2f3b942dbac55a97603ea9a0c835fd81ec64",
+  "source_hashes": {
+    "src/flows/ode_solver.py": "8fe9597e6c29993dcbfe7c9225a7c42509ebd08b2860ef2f46dfef48cd3fbda0",
+    "src/models/mlp_velocity.py": "a010185cfe4171641755e97735cba48f70b3a504b5510048e0621534560b07fb",
+    "src/problems/linear_gaussian.py": "d68dfdfc74d4af4f535ce9180a624d0e414e16f83b0f81cd75fd2cf0527ff052",
+    "src/metrics/calibration.py": "b008d7e9620a313620953b58571ac23d4ff39ccd207e56cd9737bf692bcae9e4",
+    "scripts/heff_family_test.py": "e4607b4a31c6b3de4232865cfdc9fe42bc3b96cac14e0bb0fcb1362c620447ae"
+  },
+  "runs": [
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "iteration": 200000,
+      "file": "linear-gaussian-mlp-h0-seed1001-200k_200000.json"
+    }
+  ],
+  "elapsed_seconds": 18.583824445027858
+}

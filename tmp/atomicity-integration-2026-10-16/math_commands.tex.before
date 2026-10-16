@@ -1,0 +1,39 @@
+%%%%% MATH DEFINITIONS, shared by the body and Appendix A %%%%%
+% Read by main.tex with \input{math_commands}. Proofs use the shorthands at the end,
+% so that a display is a line of mathematics and not a line of \frac's.
+
+% --- sets and operators ---------------------------------------------------
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Var}{\operatorname{Var}}
+\newcommand{\Cov}{\operatorname{Cov}}
+\newcommand{\tr}{\operatorname{tr}}
+\newcommand{\N}{\mathcal{N}}
+\newcommand{\D}{\mathcal{D}}
+\newcommand{\dist}{\operatorname{dist}}
+\newcommand{\supp}{\operatorname{supp}}
+\newcommand{\law}{\mathrm{Law}}
+\newcommand{\ind}{\mathbf{1}}
+\newcommand{\eps}{\varepsilon}
+
+% --- objects of the paper -------------------------------------------------
+\newcommand{\Sigmapost}{\Sigma_{\mathrm{post}}}
+\newcommand{\Xhat}{\widehat{\Sigma}_X}
+\newcommand{\rhohat}{\widehat{\rho}}
+\newcommand{\vstar}{v_h^\star}
+\newcommand{\vstarz}{v_0^\star}
+\newcommand{\Covh}{\operatorname{Cov}_h}
+
+% --- shorthands for the proofs --------------------------------------------
+% label weight and kernel weight of atom #1 at bandwidth h
+\newcommand{\pih}[1]{p_{#1}^{(h)}}
+\newcommand{\wih}[1]{w_{#1}^{(h)}}
+% label kernel K_h(y - y^i)
+\newcommand{\KK}[1]{K_h(y-y^{#1})}
+% per-atom collapsed field (x^i - x)/(1 - t)
+\newcommand{\fat}[1]{\frac{x^{#1}-x}{1-t}}
+% source density at the point that reaches x from atom #1
+\newcommand{\src}[1]{\pi_0\!\Big(\frac{x-tx^{#1}}{1-t}\Big)}
+
+% --- pointer from a statement in the body to its proof --------------------
+\newcommand{\proofin}[1]{\hfill\textnormal{\footnotesize[Proof: Appendix~\ref{#1}]}}

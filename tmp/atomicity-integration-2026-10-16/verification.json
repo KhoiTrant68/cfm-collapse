@@ -1,0 +1,9 @@
+{
+  "status": "passed",
+  "formal_blocks_preserved": 78,
+  "labels": 230,
+  "cited_keys": 40,
+  "existing_numerical_checks": 359,
+  "source_sha256": "6c0e59bffac4798947c7e3ff2c6e552e9a96b9fe03acf838f91e9de5018ce4d4",
+  "pdf_sha256": "fd3544ad19be3ad3240fdb5a06fbc79150da0cd12517c462834ec185e241bbff"
+}

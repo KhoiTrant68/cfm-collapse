@@ -1,0 +1,2153 @@
+{
+  "status": "completed",
+  "script_sha256": "860004fdc1bb6b08ff5923eecd6151032d9a8c29a1683d799892c2a6fca7c2c9",
+  "M": 128,
+  "steps": [
+    768,
+    1536
+  ],
+  "seeds": [
+    101,
+    102,
+    103,
+    104,
+    105
+  ],
+  "geometry": "five atoms in R^2, scalar labels, Gaussian source",
+  "label_h": 0.7,
+  "averaging": "equal average of three fields at y0-h,y0,y0+h; not a continuum approximation claim",
+  "elapsed_seconds": 51.6192397060222,
+  "rows": [
+    {
+      "seed": 101,
+      "arm": "hard_cfg_w0",
+      "eps": 0.01,
+      "mean_nearest_atom_distance": 0.03257594235436198,
+      "max_nearest_atom_distance": 0.057977137561793304,
+      "paired_solver_displacement": 1.2464767076309577e-10,
+      "conditioned_atom_fraction": 1.0,
+      "atom_frequencies": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "atom_entropy": -0.0,
+      "trace": 0.0002080125363135755
+    },
+    {
+      "seed": 101,
+      "arm": "hard_cfg_w0",
+      "eps": 0.0001,
+      "mean_nearest_atom_distance": 0.00032575942362609054,
+      "max_nearest_atom_distance": 0.0005797713757642473,
+      "paired_solver_displacement": 2.4928686235639148e-12,
+      "conditioned_atom_fraction": 1.0,
+      "atom_frequencies": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "atom_entropy": -0.0,
+      "trace": 2.0801253641890557e-08
+    },
+    {
+      "seed": 101,
+      "arm": "hard_cfg_w0",
+      "eps": 1e-06,
+      "mean_nearest_atom_distance": 3.257594237075905e-06,
+      "max_nearest_atom_distance": 5.797713759639007e-06,
+      "paired_solver_displacement": 3.7437569943749255e-14,
+      "conditioned_atom_fraction": 1.0,
+      "atom_frequencies": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "atom_entropy": -0.0,
+      "trace": 2.080125365405408e-12
+    },
+    {
+      "seed": 101,
+      "arm": "hard_cfg_w3",
+      "eps": 0.01,
+      "mean_nearest_atom_distance": 0.01398412999430065,
+      "max_nearest_atom_distance": 0.02832533012170839,
+      "paired_solver_displacement": 4.6853131637691145e-09,
+      "conditioned_atom_fraction": 1.0,
+      "atom_frequencies": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "atom_entropy": -0.0,
+      "trace": 0.00012518595118256247
+    },
+    {
+      "seed": 101,
+      "arm": "hard_cfg_w3",
+      "eps": 0.0001,
+      "mean_nearest_atom_distance": 0.00013984129997832666,
+      "max_nearest_atom_distance": 0.00028325330128850653,
+      "paired_solver_displacement": 4.723905474067318e-11,
+      "conditioned_atom_fraction": 1.0,
+      "atom_frequencies": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "atom_entropy": -0.0,
+      "trace": 1.251859512458948e-08
+    },
+    {
+      "seed": 101,
+      "arm": "hard_cfg_w3",
+      "eps": 1e-06,
+      "mean_nearest_atom_distance": 1.3984130001594075e-06,
+      "max_nearest_atom_distance": 2.8325330137444265e-06,
+      "paired_solver_displacement": 4.763034237907665e-13,
+      "conditioned_atom_fraction": 1.0,
+      "atom_frequencies": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "atom_entropy": -0.0,
+      "trace": 1.2518595130963393e-12
+    },
+    {
+      "seed": 101,
+      "arm": "hard_cfg_w12",
+      "eps": 0.01,
+      "mean_nearest_atom_distance": 0.017882954258399555,
+      "max_nearest_atom_distance": 0.0386578349688125,
+      "paired_solver_displacement": 6.85388180624638e-08,
+      "conditioned_atom_fraction": 1.0,
+      "atom_frequencies": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "atom_entropy": -0.0,
+      "trace": 0.00011288770695299886
+    },
+    {
+      "seed": 101,
+      "arm": "hard_cfg_w12",
+      "eps": 0.0001,
+      "mean_nearest_atom_distance": 0.0001788295426274992,
+      "max_nearest_atom_distance": 0.00038657834978452025,
+      "paired_solver_displacement": 6.848336841504467e-10,
+      "conditioned_atom_fraction": 1.0,
+      "atom_frequencies": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "atom_entropy": -0.0,
+      "trace": 1.1288770701014435e-08
+    },
+    {
+      "seed": 101,
+      "arm": "hard_cfg_w12",
+      "eps": 1e-06,
+      "mean_nearest_atom_distance": 1.7882954249901898e-06,
+      "max_nearest_atom_distance": 3.865783497810837e-06,
+      "paired_solver_displacement": 6.842828817358168e-12,
+      "conditioned_atom_fraction": 1.0,
+      "atom_frequencies": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "atom_entropy": -0.0,
+      "trace": 1.1288770704286456e-12
+    },
+    {
+      "seed": 101,
+      "arm": "label_smoothed_cfg_w0",
+      "eps": 0.01,
+      "mean_nearest_atom_distance": 0.026426972700019695,
+      "max_nearest_atom_distance": 0.05286101981703749,
+      "paired_solver_displacement": 1.0725546954170799e-09,
+      "conditioned_atom_fraction": 0.4140625,
+      "atom_frequencies": [
+        0.4140625,
+        0.0,
+        0.140625,
+        0.234375,
+        0.2109375
+      ],
+      "atom_entropy": 1.3092515147604378,
+      "trace": 6.605848186134894
+    },
+    {
+      "seed": 101,
+      "arm": "label_smoothed_cfg_w0",
+      "eps": 0.0001,
+      "mean_nearest_atom_distance": 0.0002642697270670867,
+      "max_nearest_atom_distance": 0.0005286101983031575,
+      "paired_solver_displacement": 1.1651215453439128e-11,
+      "conditioned_atom_fraction": 0.4140625,
+      "atom_frequencies": [
+        0.4140625,
+        0.0,
+        0.140625,
+        0.234375,
+        0.2109375
+      ],
+      "atom_entropy": 1.3092515147604378,
+      "trace": 6.733764903688716
+    },
+    {
+      "seed": 101,
+      "arm": "label_smoothed_cfg_w0",
+      "eps": 1e-06,
+      "mean_nearest_atom_distance": 2.6426972714547704e-06,
+      "max_nearest_atom_distance": 5.286101984323077e-06,
+      "paired_solver_displacement": 1.2591508292104642e-13,
+      "conditioned_atom_fraction": 0.4140625,
+      "atom_frequencies": [
+        0.4140625,
+        0.0,
+        0.140625,
+        0.234375,
+        0.2109375
+      ],
+      "atom_entropy": 1.3092515147604378,
+      "trace": 6.735052037425751
+    },
+    {
+      "seed": 101,
+      "arm": "label_smoothed_cfg_w3",
+      "eps": 0.01,
+      "mean_nearest_atom_distance": 0.02797124749489739,
+      "max_nearest_atom_distance": 0.048191746518521546,
+      "paired_solver_displacement": 3.167847731403721e-09,
+      "conditioned_atom_fraction": 0.671875,
+      "atom_frequencies": [
+        0.671875,
+        0.0,
+        0.0078125,
+        0.265625,
+        0.0546875
+      ],
+      "atom_entropy": 0.8161591986216614,
+      "trace": 7.215357152282159
+    },
+    {
+      "seed": 101,
+      "arm": "label_smoothed_cfg_w3",
+      "eps": 0.0001,
+      "mean_nearest_atom_distance": 0.00027971247501989825,
+      "max_nearest_atom_distance": 0.0004819174653073364,
+      "paired_solver_displacement": 3.269107496947901e-11,
+      "conditioned_atom_fraction": 0.671875,
+      "atom_frequencies": [
+        0.671875,
+        0.0,
+        0.0078125,
+        0.265625,
+        0.0546875
+      ],
+      "atom_entropy": 0.8161591986216614,
+      "trace": 7.343224756573638
+    },
+    {
+      "seed": 101,
+      "arm": "label_smoothed_cfg_w3",
+      "eps": 1e-06,
+      "mean_nearest_atom_distance": 2.7971247509950215e-06,
+      "max_nearest_atom_distance": 4.8191746538667635e-06,
+      "paired_solver_displacement": 3.3704999453837003e-13,
+      "conditioned_atom_fraction": 0.671875,
+      "atom_frequencies": [
+        0.671875,
+        0.0,
+        0.0078125,
+        0.265625,
+        0.0546875
+      ],
+      "atom_entropy": 0.8161591986216614,
+      "trace": 7.344510903103551
+    },
+    {
+      "seed": 101,
+      "arm": "label_smoothed_cfg_w12",
+      "eps": 0.01,
+      "mean_nearest_atom_distance": 0.017204209957424985,
+      "max_nearest_atom_distance": 0.03810218050410038,
+      "paired_solver_displacement": 2.465716411146012e-08,
+      "conditioned_atom_fraction": 0.8984375,
+      "atom_frequencies": [
+        0.8984375,
+        0.0,
+        0.0,
+        0.1015625,
+        0.0
+      ],
+      "atom_entropy": 0.32850263572607236,
+      "trace": 3.2427585842073414
+    },
+    {
+      "seed": 101,
+      "arm": "label_smoothed_cfg_w12",
+      "eps": 0.0001,
+      "mean_nearest_atom_distance": 0.00017204209961900016,
+      "max_nearest_atom_distance": 0.000381021805138831,
+      "paired_solver_displacement": 2.4711639364827804e-10,
+      "conditioned_atom_fraction": 0.8984375,
+      "atom_frequencies": [
+        0.8984375,
+        0.0,
+        0.0,
+        0.1015625,
+        0.0
+      ],
+      "atom_entropy": 0.32850263572607236,
+      "trace": 3.2761669708160635
+    },
+    {
+      "seed": 101,
+      "arm": "label_smoothed_cfg_w12",
+      "eps": 1e-06,
+      "mean_nearest_atom_distance": 1.7204209979615271e-06,
+      "max_nearest_atom_distance": 3.810218053839724e-06,
+      "paired_solver_displacement": 2.4765567045634575e-12,
+      "conditioned_atom_fraction": 0.8984375,
+      "atom_frequencies": [
+        0.8984375,
+        0.0,
+        0.0,
+        0.1015625,
+        0.0
+      ],
+      "atom_entropy": 0.32850263572607236,
+      "trace": 3.2765034321944118
+    },
+    {
+      "seed": 101,
+      "arm": "average_three_label_fields",
+      "eps": 0.01,
+      "mean_nearest_atom_distance": 0.026788126019741614,
+      "max_nearest_atom_distance": 0.054197004537555105,
+      "paired_solver_displacement": 2.1146249544841955e-09,
+      "conditioned_atom_fraction": 0.359375,
+      "atom_frequencies": [
+        0.359375,
+        0.0,
+        0.1796875,
+        0.2265625,
+        0.234375
+      ],
+      "atom_entropy": 1.3526445473232012,
+      "trace": 6.188161871085633
+    },
+    {
+      "seed": 101,
+      "arm": "average_three_label_fields",
+      "eps": 0.0001,
+      "mean_nearest_atom_distance": 0.00026788126026530473,
+      "max_nearest_atom_distance": 0.000541970045512853,
+      "paired_solver_displacement": 2.2092547917585012e-11,
+      "conditioned_atom_fraction": 0.359375,
+      "atom_frequencies": [
+        0.359375,
+        0.0,
+        0.1796875,
+        0.2265625,
+        0.234375
+      ],
+      "atom_entropy": 1.3526445473232012,
+      "trace": 6.312769264617931
+    },
+    {
+      "seed": 101,
+      "arm": "average_three_label_fields",
+      "eps": 1e-06,
+      "mean_nearest_atom_distance": 2.678812603305994e-06,
+      "max_nearest_atom_distance": 5.419700456505126e-06,
+      "paired_solver_displacement": 2.306538366489292e-13,
+      "conditioned_atom_fraction": 0.359375,
+      "atom_frequencies": [
+        0.359375,
+        0.0,
+        0.1796875,
+        0.2265625,
+        0.234375
+      ],
+      "atom_entropy": 1.3526445473232012,
+      "trace": 6.314023588982848
+    },
+    {
+      "seed": 101,
+      "arm": "exact_target_noise_rho0.0",
+      "eps": 0.01,
+      "mean_nearest_atom_distance": 0.027044807683102932,
+      "trace": 5.9506857580382135,
+      "exact_law_draw": true
+    },
+    {
+      "seed": 101,
+      "arm": "exact_target_noise_rho0.0",
+      "eps": 0.0001,
+      "mean_nearest_atom_distance": 0.00027044807683101275,
+      "trace": 6.078349924315463,
+      "exact_law_draw": true
+    },
+    {
+      "seed": 101,
+      "arm": "exact_target_noise_rho0.0",
+      "eps": 1e-06,
+      "mean_nearest_atom_distance": 2.7044807683933484e-06,
+      "trace": 6.079635390331019,
+      "exact_law_draw": true
+    },
+    {
+      "seed": 101,
+      "arm": "exact_target_noise_rho0.15",
+      "eps": 0.01,
+      "mean_nearest_atom_distance": 0.1892045267804353,
+      "trace": 5.881433423304779,
+      "exact_law_draw": true
+    },
+    {
+      "seed": 101,
+      "arm": "exact_target_noise_rho0.15",
+      "eps": 0.0001,
+      "mean_nearest_atom_distance": 0.18721784180779877,
+      "trace": 5.999725914939175,
+      "exact_law_draw": true
+    },
+    {
+      "seed": 101,
+      "arm": "exact_target_noise_rho0.15",
+      "eps": 1e-06,
+      "mean_nearest_atom_distance": 0.1872154440933665,
+      "trace": 6.0009140457433325,
+      "exact_law_draw": true
+    },
+    {
+      "seed": 102,
+      "arm": "hard_cfg_w0",
+      "eps": 0.01,
+      "mean_nearest_atom_distance": 0.036257844289067725,
+      "max_nearest_atom_distance": 0.061223800289523476,
+      "paired_solver_displacement": 1.3873591778187031e-10,
+      "conditioned_atom_fraction": 1.0,
+      "atom_frequencies": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "atom_entropy": -0.0,
+      "trace": 0.0002077922998356507
+    },
+    {
+      "seed": 102,
+      "arm": "hard_cfg_w0",
+      "eps": 0.0001,
+      "mean_nearest_atom_distance": 0.00036257844298240457,
+      "max_nearest_atom_distance": 0.00061223800305071,
+      "paired_solver_displacement": 2.7747549305203345e-12,
+      "conditioned_atom_fraction": 1.0,
+      "atom_frequencies": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "atom_entropy": -0.0,
+      "trace": 2.0779229994119005e-08
+    },
+    {
+      "seed": 102,
+      "arm": "hard_cfg_w0",
+      "eps": 1e-06,
+      "mean_nearest_atom_distance": 3.625784430769274e-06,
+      "max_nearest_atom_distance": 6.122380032659812e-06,
+      "paired_solver_displacement": 4.1535641315707146e-14,
+      "conditioned_atom_fraction": 1.0,
+      "atom_frequencies": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "atom_entropy": -0.0,
+      "trace": 2.077923000227039e-12
+    },
+    {
+      "seed": 102,
+      "arm": "hard_cfg_w3",
+      "eps": 0.01,
+      "mean_nearest_atom_distance": 0.018567387282379146,
+      "max_nearest_atom_distance": 0.02867886828389533,
+      "paired_solver_displacement": 1.2466223506786826e-09,
+      "conditioned_atom_fraction": 1.0,
+      "atom_frequencies": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "atom_entropy": -0.0,
+      "trace": 6.58493861130787e-05
+    },
+    {
+      "seed": 102,
+      "arm": "hard_cfg_w3",
+      "eps": 0.0001,
+      "mean_nearest_atom_distance": 0.00018567387287006816,
+      "max_nearest_atom_distance": 0.0002867886829106026,
+      "paired_solver_displacement": 1.2878985039972903e-11,
+      "conditioned_atom_fraction": 1.0,
+      "atom_frequencies": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "atom_entropy": -0.0,
+      "trace": 6.584938614643892e-09
+    },
+    {
+      "seed": 102,
+      "arm": "hard_cfg_w3",
+      "eps": 1e-06,
+      "mean_nearest_atom_distance": 1.856738728481047e-06,
+      "max_nearest_atom_distance": 2.867886828774453e-06,
+      "paired_solver_displacement": 1.3316085732744427e-13,
+      "conditioned_atom_fraction": 1.0,
+      "atom_frequencies": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "atom_entropy": -0.0,
+      "trace": 6.584938617279337e-13
+    },
+    {
+      "seed": 102,
+      "arm": "hard_cfg_w12",
+      "eps": 0.01,
+      "mean_nearest_atom_distance": 0.021683548878007875,
+      "max_nearest_atom_distance": 0.033724599606402804,
+      "paired_solver_displacement": 1.2977742446571237e-08,
+      "conditioned_atom_fraction": 1.0,
+      "atom_frequencies": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "atom_entropy": -0.0,
+      "trace": 4.30929649764666e-05
+    },
+    {
+      "seed": 102,
+      "arm": "hard_cfg_w12",
+      "eps": 0.0001,
+      "mean_nearest_atom_distance": 0.000216835488835137,
+      "max_nearest_atom_distance": 0.00033724599614907774,
+      "paired_solver_displacement": 1.292294755909211e-10,
+      "conditioned_atom_fraction": 1.0,
+      "atom_frequencies": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "atom_entropy": -0.0,
+      "trace": 4.309296499817472e-09
+    },
+    {
+      "seed": 102,
+      "arm": "hard_cfg_w12",
+      "eps": 1e-06,
+      "mean_nearest_atom_distance": 2.1683548891098487e-06,
+      "max_nearest_atom_distance": 3.3724599627323194e-06,
+      "paired_solver_displacement": 1.2869308474368942e-12,
+      "conditioned_atom_fraction": 1.0,
+      "atom_frequencies": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "atom_entropy": -0.0,
+      "trace": 4.309296502437241e-13
+    },
+    {
+      "seed": 102,
+      "arm": "label_smoothed_cfg_w0",
+      "eps": 0.01,
+      "mean_nearest_atom_distance": 0.0358385241215291,
+      "max_nearest_atom_distance": 0.061699119430045496,
+      "paired_solver_displacement": 2.469787949677209e-10,
+      "conditioned_atom_fraction": 0.9765625,
+      "atom_frequencies": [
+        0.9765625,
+        0.0,
+        0.015625,
+        0.0,
+        0.0078125
+      ],
+      "atom_entropy": 0.12604970513908956,
+      "trace": 0.22175184752324636
+    },
+    {
+      "seed": 102,
+      "arm": "label_smoothed_cfg_w0",
+      "eps": 0.0001,
+      "mean_nearest_atom_distance": 0.0003583852413060878,
+      "max_nearest_atom_distance": 0.0006169911944558519,
+      "paired_solver_displacement": 3.819447061092372e-12,
+      "conditioned_atom_fraction": 0.9765625,
+      "atom_frequencies": [
+        0.9765625,
+        0.0,
+        0.015625,
+        0.0,
+        0.0078125
+      ],
+      "atom_entropy": 0.12604970513908956,
+      "trace": 0.2252480961249572
+    },
+    {
+      "seed": 102,
+      "arm": "label_smoothed_cfg_w0",
+      "eps": 1e-06,
+      "mean_nearest_atom_distance": 3.5838524138768224e-06,
+      "max_nearest_atom_distance": 6.16991194600145e-06,
+      "paired_solver_displacement": 5.1795002295125563e-14,
+      "conditioned_atom_fraction": 0.9765625,
+      "atom_frequencies": [
+        0.9765625,
+        0.0,
+        0.015625,
+        0.0,
+        0.0078125
+      ],
+      "atom_entropy": 0.12604970513908956,
+      "trace": 0.22528518899029623
+    },
+    {
+      "seed": 102,
+      "arm": "label_smoothed_cfg_w3",
+      "eps": 0.01,
+      "mean_nearest_atom_distance": 0.018617993808321732,
+      "max_nearest_atom_distance": 0.028632099839154917,
+      "paired_solver_displacement": 1.2416014586625424e-09,
+      "conditioned_atom_fraction": 1.0,
+      "atom_frequencies": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "atom_entropy": -0.0,
+      "trace": 6.627450724414477e-05
+    },
+    {
+      "seed": 102,
+      "arm": "label_smoothed_cfg_w3",
+      "eps": 0.0001,
+      "mean_nearest_atom_distance": 0.000186179938129468,
+      "max_nearest_atom_distance": 0.0002863209984635109,
+      "paired_solver_displacement": 1.2842893570372971e-11,
+      "conditioned_atom_fraction": 1.0,
+      "atom_frequencies": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "atom_entropy": -0.0,
+      "trace": 6.627450727784239e-09
+    },
+    {
+      "seed": 102,
+      "arm": "label_smoothed_cfg_w3",
+      "eps": 1e-06,
+      "mean_nearest_atom_distance": 1.8617993809998485e-06,
+      "max_nearest_atom_distance": 2.8632099854558842e-06,
+      "paired_solver_displacement": 1.329637525126439e-13,
+      "conditioned_atom_fraction": 1.0,
+      "atom_frequencies": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "atom_entropy": -0.0,
+      "trace": 6.62745073084446e-13
+    },
+    {
+      "seed": 102,
+      "arm": "label_smoothed_cfg_w12",
+      "eps": 0.01,
+      "mean_nearest_atom_distance": 0.021374373692430795,
+      "max_nearest_atom_distance": 0.03344698419512791,
+      "paired_solver_displacement": 1.2910427332147018e-08,
+      "conditioned_atom_fraction": 1.0,
+      "atom_frequencies": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "atom_entropy": -0.0,
+      "trace": 4.3148333518820364e-05
+    },
+    {
+      "seed": 102,
+      "arm": "label_smoothed_cfg_w12",
+      "eps": 0.0001,
+      "mean_nearest_atom_distance": 0.00021374373697861986,
+      "max_nearest_atom_distance": 0.0003344698420366176,
+      "paired_solver_displacement": 1.2857425343044938e-10,
+      "conditioned_atom_fraction": 1.0,
+      "atom_frequencies": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "atom_entropy": -0.0,
+      "trace": 4.314833354069514e-09
+    },
+    {
+      "seed": 102,
+      "arm": "label_smoothed_cfg_w12",
+      "eps": 1e-06,
+      "mean_nearest_atom_distance": 2.13743737048798e-06,
+      "max_nearest_atom_distance": 3.3446984220291366e-06,
+      "paired_solver_displacement": 1.2802827843757617e-12,
+      "conditioned_atom_fraction": 1.0,
+      "atom_frequencies": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "atom_entropy": -0.0,
+      "trace": 4.314833355040111e-13
+    },
+    {
+      "seed": 102,
+      "arm": "average_three_label_fields",
+      "eps": 0.01,
+      "mean_nearest_atom_distance": 0.03664950079641957,
+      "max_nearest_atom_distance": 0.07293203083317419,
+      "paired_solver_displacement": 5.585158473385726e-10,
+      "conditioned_atom_fraction": 0.9375,
+      "atom_frequencies": [
+        0.9375,
+        0.0,
+        0.015625,
+        0.03125,
+        0.015625
+      ],
+      "atom_entropy": 0.2987742068839542,
+      "trace": 0.4154867377104732
+    },
+    {
+      "seed": 102,
+      "arm": "average_three_label_fields",
+      "eps": 0.0001,
+      "mean_nearest_atom_distance": 0.0003664950080573603,
+      "max_nearest_atom_distance": 0.0007293203085182718,
+      "paired_solver_displacement": 6.936392556008262e-12,
+      "conditioned_atom_fraction": 0.9375,
+      "atom_frequencies": [
+        0.9375,
+        0.0,
+        0.015625,
+        0.03125,
+        0.015625
+      ],
+      "atom_entropy": 0.2987742068839542,
+      "trace": 0.42465143310142706
+    },
+    {
+      "seed": 102,
+      "arm": "average_three_label_fields",
+      "eps": 1e-06,
+      "mean_nearest_atom_distance": 3.6649500817721283e-06,
+      "max_nearest_atom_distance": 7.293203087704427e-06,
+      "paired_solver_displacement": 8.304145275603457e-14,
+      "conditioned_atom_fraction": 0.9375,
+      "atom_frequencies": [
+        0.9375,
+        0.0,
+        0.015625,
+        0.03125,
+        0.015625
+      ],
+      "atom_entropy": 0.2987742068839542,
+      "trace": 0.4247460931640171
+    },
+    {
+      "seed": 102,
+      "arm": "exact_target_noise_rho0.0",
+      "eps": 0.01,
+      "mean_nearest_atom_distance": 0.036312409309870446,
+      "trace": 0.11449364145542722,
+      "exact_law_draw": true
+    },
+    {
+      "seed": 102,
+      "arm": "exact_target_noise_rho0.0",
+      "eps": 0.0001,
+      "mean_nearest_atom_distance": 0.0003631240930988825,
+      "trace": 0.11594749447506789,
+      "exact_law_draw": true
+    },
+    {
+      "seed": 102,
+      "arm": "exact_target_noise_rho0.0",
+      "eps": 1e-06,
+      "mean_nearest_atom_distance": 3.6312409309757685e-06,
+      "trace": 0.11596400076693929,
+      "exact_law_draw": true
+    },
+    {
+      "seed": 102,
+      "arm": "exact_target_noise_rho0.15",
+      "eps": 0.01,
+      "mean_nearest_atom_distance": 0.19007790651698475,
+      "trace": 0.16613973518484204,
+      "exact_law_draw": true
+    },
+    {
+      "seed": 102,
+      "arm": "exact_target_noise_rho0.15",
+      "eps": 0.0001,
+      "mean_nearest_atom_distance": 0.18731895042141156,
+      "trace": 0.16925950902289524,
+      "exact_law_draw": true
+    },
+    {
+      "seed": 102,
+      "arm": "exact_target_noise_rho0.15",
+      "eps": 1e-06,
+      "mean_nearest_atom_distance": 0.18732199183115056,
+      "trace": 0.16929300587921037,
+      "exact_law_draw": true
+    },
+    {
+      "seed": 103,
+      "arm": "hard_cfg_w0",
+      "eps": 0.01,
+      "mean_nearest_atom_distance": 0.026014794141534348,
+      "max_nearest_atom_distance": 0.05063835285321675,
+      "paired_solver_displacement": 9.954209776509785e-11,
+      "conditioned_atom_fraction": 1.0,
+      "atom_frequencies": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "atom_entropy": -0.0,
+      "trace": 0.00018552992616651943
+    },
+    {
+      "seed": 103,
+      "arm": "hard_cfg_w0",
+      "eps": 0.0001,
+      "mean_nearest_atom_distance": 0.0002601479414811917,
+      "max_nearest_atom_distance": 0.0005063835286601367,
+      "paired_solver_displacement": 1.9908389400793073e-12,
+      "conditioned_atom_fraction": 1.0,
+      "atom_frequencies": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "atom_entropy": -0.0,
+      "trace": 1.855299262605172e-08
+    },
+    {
+      "seed": 103,
+      "arm": "hard_cfg_w0",
+      "eps": 1e-06,
+      "mean_nearest_atom_distance": 2.6014794154332827e-06,
+      "max_nearest_atom_distance": 5.063835288521714e-06,
+      "paired_solver_displacement": 2.9923492744468076e-14,
+      "conditioned_atom_fraction": 1.0,
+      "atom_frequencies": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "atom_entropy": -0.0,
+      "trace": 1.8552992634664902e-12
+    },
+    {
+      "seed": 103,
+      "arm": "hard_cfg_w3",
+      "eps": 0.01,
+      "mean_nearest_atom_distance": 0.02770494961000701,
+      "max_nearest_atom_distance": 0.05302156814331288,
+      "paired_solver_displacement": 5.704105796284901e-10,
+      "conditioned_atom_fraction": 1.0,
+      "atom_frequencies": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "atom_entropy": -0.0,
+      "trace": 5.447757072603103e-05
+    },
+    {
+      "seed": 103,
+      "arm": "hard_cfg_w3",
+      "eps": 0.0001,
+      "mean_nearest_atom_distance": 0.00027704949617029785,
+      "max_nearest_atom_distance": 0.0005302156815675881,
+      "paired_solver_displacement": 6.105336861650577e-12,
+      "conditioned_atom_fraction": 1.0,
+      "atom_frequencies": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "atom_entropy": -0.0,
+      "trace": 5.44775707536028e-09
+    },
+    {
+      "seed": 103,
+      "arm": "hard_cfg_w3",
+      "eps": 1e-06,
+      "mean_nearest_atom_distance": 2.7704949624282854e-06,
+      "max_nearest_atom_distance": 5.302156817063624e-06,
+      "paired_solver_displacement": 6.658940443105588e-14,
+      "conditioned_atom_fraction": 1.0,
+      "atom_frequencies": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "atom_entropy": -0.0,
+      "trace": 5.447757077787251e-13
+    },
+    {
+      "seed": 103,
+      "arm": "hard_cfg_w12",
+      "eps": 0.01,
+      "mean_nearest_atom_distance": 0.04594610499520625,
+      "max_nearest_atom_distance": 0.06709673804208954,
+      "paired_solver_displacement": 6.155738695434078e-09,
+      "conditioned_atom_fraction": 1.0,
+      "atom_frequencies": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "atom_entropy": -0.0,
+      "trace": 3.213832179394799e-05
+    },
+    {
+      "seed": 103,
+      "arm": "hard_cfg_w12",
+      "eps": 0.0001,
+      "mean_nearest_atom_distance": 0.0004594610500679504,
+      "max_nearest_atom_distance": 0.0006709673805904271,
+      "paired_solver_displacement": 6.099655018988466e-11,
+      "conditioned_atom_fraction": 1.0,
+      "atom_frequencies": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "atom_entropy": -0.0,
+      "trace": 3.2138321810232456e-09
+    },
+    {
+      "seed": 103,
+      "arm": "hard_cfg_w12",
+      "eps": 1e-06,
+      "mean_nearest_atom_distance": 4.594610501497573e-06,
+      "max_nearest_atom_distance": 6.709673809074074e-06,
+      "paired_solver_displacement": 6.048449865897386e-13,
+      "conditioned_atom_fraction": 1.0,
+      "atom_frequencies": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "atom_entropy": -0.0,
+      "trace": 3.213832182527104e-13
+    },
+    {
+      "seed": 103,
+      "arm": "label_smoothed_cfg_w0",
+      "eps": 0.01,
+      "mean_nearest_atom_distance": 0.027297701315203017,
+      "max_nearest_atom_distance": 0.054672921004157486,
+      "paired_solver_displacement": 3.0200513822166386e-09,
+      "conditioned_atom_fraction": 0.3203125,
+      "atom_frequencies": [
+        0.3203125,
+        0.3671875,
+        0.1640625,
+        0.0,
+        0.1484375
+      ],
+      "atom_entropy": 1.3122435153914638,
+      "trace": 3.964309357664896
+    },
+    {
+      "seed": 103,
+      "arm": "label_smoothed_cfg_w0",
+      "eps": 0.0001,
+      "mean_nearest_atom_distance": 0.00027297701322108025,
+      "max_nearest_atom_distance": 0.0005467292101799511,
+      "paired_solver_displacement": 3.1046613860686405e-11,
+      "conditioned_atom_fraction": 0.3203125,
+      "atom_frequencies": [
+        0.3203125,
+        0.3671875,
+        0.1640625,
+        0.0,
+        0.1484375
+      ],
+      "atom_entropy": 1.3122435153914638,
+      "trace": 4.0433313828779545
+    },
+    {
+      "seed": 103,
+      "arm": "label_smoothed_cfg_w0",
+      "eps": 1e-06,
+      "mean_nearest_atom_distance": 2.7297701328671785e-06,
+      "max_nearest_atom_distance": 5.467292103515657e-06,
+      "paired_solver_displacement": 3.1972047016885956e-13,
+      "conditioned_atom_fraction": 0.3203125,
+      "atom_frequencies": [
+        0.3203125,
+        0.3671875,
+        0.1640625,
+        0.0,
+        0.1484375
+      ],
+      "atom_entropy": 1.3122435153914638,
+      "trace": 4.044127615864365
+    },
+    {
+      "seed": 103,
+      "arm": "label_smoothed_cfg_w3",
+      "eps": 0.01,
+      "mean_nearest_atom_distance": 0.028516325253210316,
+      "max_nearest_atom_distance": 0.05190883165475959,
+      "paired_solver_displacement": 4.730489003317198e-09,
+      "conditioned_atom_fraction": 0.765625,
+      "atom_frequencies": [
+        0.765625,
+        0.15625,
+        0.0078125,
+        0.0,
+        0.0703125
+      ],
+      "atom_entropy": 0.7190890172256965,
+      "trace": 2.1438067572657227
+    },
+    {
+      "seed": 103,
+      "arm": "label_smoothed_cfg_w3",
+      "eps": 0.0001,
+      "mean_nearest_atom_distance": 0.00028516325260405134,
+      "max_nearest_atom_distance": 0.0005190883166793455,
+      "paired_solver_displacement": 4.809714991788699e-11,
+      "conditioned_atom_fraction": 0.765625,
+      "atom_frequencies": [
+        0.765625,
+        0.15625,
+        0.0078125,
+        0.0,
+        0.0703125
+      ],
+      "atom_entropy": 0.7190890172256965,
+      "trace": 2.18511289971322
+    },
+    {
+      "seed": 103,
+      "arm": "label_smoothed_cfg_w3",
+      "eps": 1e-06,
+      "mean_nearest_atom_distance": 2.8516325266127068e-06,
+      "max_nearest_atom_distance": 5.190883168025315e-06,
+      "paired_solver_displacement": 4.896615067598119e-13,
+      "conditioned_atom_fraction": 0.765625,
+      "atom_frequencies": [
+        0.765625,
+        0.15625,
+        0.0078125,
+        0.0,
+        0.0703125
+      ],
+      "atom_entropy": 0.7190890172256965,
+      "trace": 2.1855295431572253
+    },
+    {
+      "seed": 103,
+      "arm": "label_smoothed_cfg_w12",
+      "eps": 0.01,
+      "mean_nearest_atom_distance": 0.03578530419184822,
+      "max_nearest_atom_distance": 0.0562663273686069,
+      "paired_solver_displacement": 4.854918671839745e-09,
+      "conditioned_atom_fraction": 0.96875,
+      "atom_frequencies": [
+        0.96875,
+        0.0234375,
+        0.0,
+        0.0,
+        0.0078125
+      ],
+      "atom_entropy": 0.15663377172407889,
+      "trace": 0.26666200008430996
+    },
+    {
+      "seed": 103,
+      "arm": "label_smoothed_cfg_w12",
+      "eps": 0.0001,
+      "mean_nearest_atom_distance": 0.0003578530420069446,
+      "max_nearest_atom_distance": 0.0005626632738268095,
+      "paired_solver_displacement": 4.907055551790052e-11,
+      "conditioned_atom_fraction": 0.96875,
+      "atom_frequencies": [
+        0.96875,
+        0.0234375,
+        0.0,
+        0.0,
+        0.0078125
+      ],
+      "atom_entropy": 0.15663377172407889,
+      "trace": 0.2706110148805743
+    },
+    {
+      "seed": 103,
+      "arm": "label_smoothed_cfg_w12",
+      "eps": 1e-06,
+      "mean_nearest_atom_distance": 3.578530418963663e-06,
+      "max_nearest_atom_distance": 5.626632738287478e-06,
+      "paired_solver_displacement": 4.973153565112654e-13,
+      "conditioned_atom_fraction": 0.96875,
+      "atom_frequencies": [
+        0.96875,
+        0.0234375,
+        0.0,
+        0.0,
+        0.0078125
+      ],
+      "atom_entropy": 0.15663377172407889,
+      "trace": 0.2706517362750063
+    },
+    {
+      "seed": 103,
+      "arm": "average_three_label_fields",
+      "eps": 0.01,
+      "mean_nearest_atom_distance": 0.028300692849840808,
+      "max_nearest_atom_distance": 0.058629657899752566,
+      "paired_solver_displacement": 2.385178433721653e-09,
+      "conditioned_atom_fraction": 0.359375,
+      "atom_frequencies": [
+        0.359375,
+        0.3203125,
+        0.171875,
+        0.0,
+        0.1484375
+      ],
+      "atom_entropy": 1.318270626799146,
+      "trace": 4.007601614908159
+    },
+    {
+      "seed": 103,
+      "arm": "average_three_label_fields",
+      "eps": 0.0001,
+      "mean_nearest_atom_distance": 0.0002830069285701122,
+      "max_nearest_atom_distance": 0.0005862965791484649,
+      "paired_solver_displacement": 2.4776455337562065e-11,
+      "conditioned_atom_fraction": 0.359375,
+      "atom_frequencies": [
+        0.359375,
+        0.3203125,
+        0.171875,
+        0.0,
+        0.1484375
+      ],
+      "atom_entropy": 1.318270626799146,
+      "trace": 4.0909727204267865
+    },
+    {
+      "seed": 103,
+      "arm": "average_three_label_fields",
+      "eps": 1e-06,
+      "mean_nearest_atom_distance": 2.8300692865518373e-06,
+      "max_nearest_atom_distance": 5.862965792117082e-06,
+      "paired_solver_displacement": 2.5759444616626177e-13,
+      "conditioned_atom_fraction": 0.359375,
+      "atom_frequencies": [
+        0.359375,
+        0.3203125,
+        0.171875,
+        0.0,
+        0.1484375
+      ],
+      "atom_entropy": 1.318270626799146,
+      "trace": 4.091813041705572
+    },
+    {
+      "seed": 103,
+      "arm": "exact_target_noise_rho0.0",
+      "eps": 0.01,
+      "mean_nearest_atom_distance": 0.02810295707401797,
+      "trace": 4.256946453474137,
+      "exact_law_draw": true
+    },
+    {
+      "seed": 103,
+      "arm": "exact_target_noise_rho0.0",
+      "eps": 0.0001,
+      "mean_nearest_atom_distance": 0.000281029570740121,
+      "trace": 4.344512248522032,
+      "exact_law_draw": true
+    },
+    {
+      "seed": 103,
+      "arm": "exact_target_noise_rho0.0",
+      "eps": 1e-06,
+      "mean_nearest_atom_distance": 2.8102957074601454e-06,
+      "trace": 4.345394454048919,
+      "exact_law_draw": true
+    },
+    {
+      "seed": 103,
+      "arm": "exact_target_noise_rho0.15",
+      "eps": 0.01,
+      "mean_nearest_atom_distance": 0.19117519660511142,
+      "trace": 4.271728329971383,
+      "exact_law_draw": true
+    },
+    {
+      "seed": 103,
+      "arm": "exact_target_noise_rho0.15",
+      "eps": 0.0001,
+      "mean_nearest_atom_distance": 0.19013110955701223,
+      "trace": 4.357456243778584,
+      "exact_law_draw": true
+    },
+    {
+      "seed": 103,
+      "arm": "exact_target_noise_rho0.15",
+      "eps": 1e-06,
+      "mean_nearest_atom_distance": 0.19013671142461355,
+      "trace": 4.358319136003976,
+      "exact_law_draw": true
+    },
+    {
+      "seed": 104,
+      "arm": "hard_cfg_w0",
+      "eps": 0.01,
+      "mean_nearest_atom_distance": 0.01650145495820627,
+      "max_nearest_atom_distance": 0.03465368661056085,
+      "paired_solver_displacement": 6.31406155548969e-11,
+      "conditioned_atom_fraction": 1.0,
+      "atom_frequencies": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "atom_entropy": -0.0,
+      "trace": 0.00019965653893689645
+    },
+    {
+      "seed": 104,
+      "arm": "hard_cfg_w0",
+      "eps": 0.0001,
+      "mean_nearest_atom_distance": 0.0001650145496238197,
+      "max_nearest_atom_distance": 0.0003465368661932966,
+      "paired_solver_displacement": 1.262811772812724e-12,
+      "conditioned_atom_fraction": 1.0,
+      "atom_frequencies": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "atom_entropy": -0.0,
+      "trace": 1.996565390379428e-08
+    },
+    {
+      "seed": 104,
+      "arm": "hard_cfg_w0",
+      "eps": 1e-06,
+      "mean_nearest_atom_distance": 1.6501454966657594e-06,
+      "max_nearest_atom_distance": 3.4653686626652876e-06,
+      "paired_solver_displacement": 1.8935236524449843e-14,
+      "conditioned_atom_fraction": 1.0,
+      "atom_frequencies": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "atom_entropy": -0.0,
+      "trace": 1.9965653913919555e-12
+    },
+    {
+      "seed": 104,
+      "arm": "hard_cfg_w3",
+      "eps": 0.01,
+      "mean_nearest_atom_distance": 0.0097732862100047,
+      "max_nearest_atom_distance": 0.025332861165332028,
+      "paired_solver_displacement": 7.169808740990815e-10,
+      "conditioned_atom_fraction": 1.0,
+      "atom_frequencies": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "atom_entropy": -0.0,
+      "trace": 4.721420422440738e-05
+    },
+    {
+      "seed": 104,
+      "arm": "hard_cfg_w3",
+      "eps": 0.0001,
+      "mean_nearest_atom_distance": 9.773286212498978e-05,
+      "max_nearest_atom_distance": 0.0002533286117174646,
+      "paired_solver_displacement": 7.135296001506274e-12,
+      "conditioned_atom_fraction": 1.0,
+      "atom_frequencies": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "atom_entropy": -0.0,
+      "trace": 4.721420424829402e-09
+    },
+    {
+      "seed": 104,
+      "arm": "hard_cfg_w3",
+      "eps": 1e-06,
+      "mean_nearest_atom_distance": 9.773286216918717e-07,
+      "max_nearest_atom_distance": 2.53328611776092e-06,
+      "paired_solver_displacement": 7.17653466159121e-14,
+      "conditioned_atom_fraction": 1.0,
+      "atom_frequencies": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "atom_entropy": -0.0,
+      "trace": 4.721420427320048e-13
+    },
+    {
+      "seed": 104,
+      "arm": "hard_cfg_w12",
+      "eps": 0.01,
+      "mean_nearest_atom_distance": 0.034221497311915955,
+      "max_nearest_atom_distance": 0.04661836295292723,
+      "paired_solver_displacement": 4.6036924221785814e-09,
+      "conditioned_atom_fraction": 1.0,
+      "atom_frequencies": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "atom_entropy": -0.0,
+      "trace": 2.4155514786266662e-05
+    },
+    {
+      "seed": 104,
+      "arm": "hard_cfg_w12",
+      "eps": 0.0001,
+      "mean_nearest_atom_distance": 0.00034221497320600713,
+      "max_nearest_atom_distance": 0.0004661836296476908,
+      "paired_solver_displacement": 4.552598991635795e-11,
+      "conditioned_atom_fraction": 1.0,
+      "atom_frequencies": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "atom_entropy": -0.0,
+      "trace": 2.4155514798489407e-09
+    },
+    {
+      "seed": 104,
+      "arm": "hard_cfg_w12",
+      "eps": 1e-06,
+      "mean_nearest_atom_distance": 3.4221497331586295e-06,
+      "max_nearest_atom_distance": 4.661836297364994e-06,
+      "paired_solver_displacement": 4.5047493778285545e-13,
+      "conditioned_atom_fraction": 1.0,
+      "atom_frequencies": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "atom_entropy": -0.0,
+      "trace": 2.415551480731019e-13
+    },
+    {
+      "seed": 104,
+      "arm": "label_smoothed_cfg_w0",
+      "eps": 0.01,
+      "mean_nearest_atom_distance": 0.01897347114800193,
+      "max_nearest_atom_distance": 0.05153226577681346,
+      "paired_solver_displacement": 6.157822768753335e-10,
+      "conditioned_atom_fraction": 0.2578125,
+      "atom_frequencies": [
+        0.2578125,
+        0.0390625,
+        0.078125,
+        0.328125,
+        0.296875
+      ],
+      "atom_entropy": 1.4014975447164222,
+      "trace": 2.8632382984839695
+    },
+    {
+      "seed": 104,
+      "arm": "label_smoothed_cfg_w0",
+      "eps": 0.0001,
+      "mean_nearest_atom_distance": 0.00018973471152799033,
+      "max_nearest_atom_distance": 0.0005153226578982675,
+      "paired_solver_displacement": 6.793822875642165e-12,
+      "conditioned_atom_fraction": 0.2578125,
+      "atom_frequencies": [
+        0.2578125,
+        0.0390625,
+        0.078125,
+        0.328125,
+        0.296875
+      ],
+      "atom_entropy": 1.4014975447164222,
+      "trace": 2.9152093057974735
+    },
+    {
+      "seed": 104,
+      "arm": "label_smoothed_cfg_w0",
+      "eps": 1e-06,
+      "mean_nearest_atom_distance": 1.897347115748172e-06,
+      "max_nearest_atom_distance": 5.1532265791252355e-06,
+      "paired_solver_displacement": 7.45846465734361e-14,
+      "conditioned_atom_fraction": 0.2578125,
+      "atom_frequencies": [
+        0.2578125,
+        0.0390625,
+        0.078125,
+        0.328125,
+        0.296875
+      ],
+      "atom_entropy": 1.4014975447164222,
+      "trace": 2.9157329766132936
+    },
+    {
+      "seed": 104,
+      "arm": "label_smoothed_cfg_w3",
+      "eps": 0.01,
+      "mean_nearest_atom_distance": 0.02477126868752163,
+      "max_nearest_atom_distance": 0.055091191577387434,
+      "paired_solver_displacement": 2.9179231318280136e-09,
+      "conditioned_atom_fraction": 0.203125,
+      "atom_frequencies": [
+        0.203125,
+        0.0,
+        0.0078125,
+        0.640625,
+        0.1484375
+      ],
+      "atom_entropy": 0.930109725885323,
+      "trace": 2.4387918410929474
+    },
+    {
+      "seed": 104,
+      "arm": "label_smoothed_cfg_w3",
+      "eps": 0.0001,
+      "mean_nearest_atom_distance": 0.00024771268693849293,
+      "max_nearest_atom_distance": 0.000550911915914074,
+      "paired_solver_displacement": 3.00546355638468e-11,
+      "conditioned_atom_fraction": 0.203125,
+      "atom_frequencies": [
+        0.203125,
+        0.0,
+        0.0078125,
+        0.640625,
+        0.1484375
+      ],
+      "atom_entropy": 0.930109725885323,
+      "trace": 2.4908685015361733
+    },
+    {
+      "seed": 104,
+      "arm": "label_smoothed_cfg_w3",
+      "eps": 1e-06,
+      "mean_nearest_atom_distance": 2.4771268705049217e-06,
+      "max_nearest_atom_distance": 5.509119160626586e-06,
+      "paired_solver_displacement": 3.0948242271325445e-13,
+      "conditioned_atom_fraction": 0.203125,
+      "atom_frequencies": [
+        0.203125,
+        0.0,
+        0.0078125,
+        0.640625,
+        0.1484375
+      ],
+      "atom_entropy": 0.930109725885323,
+      "trace": 2.4913941200531675
+    },
+    {
+      "seed": 104,
+      "arm": "label_smoothed_cfg_w12",
+      "eps": 0.01,
+      "mean_nearest_atom_distance": 0.020078492172014996,
+      "max_nearest_atom_distance": 0.04158876965369148,
+      "paired_solver_displacement": 2.732188225099046e-09,
+      "conditioned_atom_fraction": 0.0,
+      "atom_frequencies": [
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      "atom_entropy": -0.0,
+      "trace": 0.00016554381830599502
+    },
+    {
+      "seed": 104,
+      "arm": "label_smoothed_cfg_w12",
+      "eps": 0.0001,
+      "mean_nearest_atom_distance": 0.00020078492177446922,
+      "max_nearest_atom_distance": 0.00041588769664440046,
+      "paired_solver_displacement": 2.800254637117721e-11,
+      "conditioned_atom_fraction": 0.0,
+      "atom_frequencies": [
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      "atom_entropy": -0.0,
+      "trace": 1.655438183898432e-08
+    },
+    {
+      "seed": 104,
+      "arm": "label_smoothed_cfg_w12",
+      "eps": 1e-06,
+      "mean_nearest_atom_distance": 2.0078492216018493e-06,
+      "max_nearest_atom_distance": 4.1588769706778925e-06,
+      "paired_solver_displacement": 2.86959641975698e-13,
+      "conditioned_atom_fraction": 0.0,
+      "atom_frequencies": [
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      "atom_entropy": -0.0,
+      "trace": 1.6554381847276232e-12
+    },
+    {
+      "seed": 104,
+      "arm": "average_three_label_fields",
+      "eps": 0.01,
+      "mean_nearest_atom_distance": 0.019643729828498067,
+      "max_nearest_atom_distance": 0.050326366571186346,
+      "paired_solver_displacement": 8.09435639073725e-10,
+      "conditioned_atom_fraction": 0.2421875,
+      "atom_frequencies": [
+        0.2421875,
+        0.0390625,
+        0.1015625,
+        0.3203125,
+        0.296875
+      ],
+      "atom_entropy": 1.4275782064767322,
+      "trace": 2.8391247838204343
+    },
+    {
+      "seed": 104,
+      "arm": "average_three_label_fields",
+      "eps": 0.0001,
+      "mean_nearest_atom_distance": 0.00019643729833466626,
+      "max_nearest_atom_distance": 0.0005032636658389446,
+      "paired_solver_displacement": 8.768055546779451e-12,
+      "conditioned_atom_fraction": 0.2421875,
+      "atom_frequencies": [
+        0.2421875,
+        0.0390625,
+        0.1015625,
+        0.3203125,
+        0.296875
+      ],
+      "atom_entropy": 1.4275782064767322,
+      "trace": 2.8916226219757455
+    },
+    {
+      "seed": 104,
+      "arm": "average_three_label_fields",
+      "eps": 1e-06,
+      "mean_nearest_atom_distance": 1.9643729838062586e-06,
+      "max_nearest_atom_distance": 5.0326366588211295e-06,
+      "paired_solver_displacement": 9.463784420436585e-14,
+      "conditioned_atom_fraction": 0.2421875,
+      "atom_frequencies": [
+        0.2421875,
+        0.0390625,
+        0.1015625,
+        0.3203125,
+        0.296875
+      ],
+      "atom_entropy": 1.4275782064767322,
+      "trace": 2.892151831783142
+    },
+    {
+      "seed": 104,
+      "arm": "exact_target_noise_rho0.0",
+      "eps": 0.01,
+      "mean_nearest_atom_distance": 0.021948330070313077,
+      "trace": 2.7019364138527395,
+      "exact_law_draw": true
+    },
+    {
+      "seed": 104,
+      "arm": "exact_target_noise_rho0.0",
+      "eps": 0.0001,
+      "mean_nearest_atom_distance": 0.0002194833007031139,
+      "trace": 2.758560985654881,
+      "exact_law_draw": true
+    },
+    {
+      "seed": 104,
+      "arm": "exact_target_noise_rho0.0",
+      "eps": 1e-06,
+      "mean_nearest_atom_distance": 2.194833007014972e-06,
+      "trace": 2.759132444904497,
+      "exact_law_draw": true
+    },
+    {
+      "seed": 104,
+      "arm": "exact_target_noise_rho0.15",
+      "eps": 0.01,
+      "mean_nearest_atom_distance": 0.19886782647559323,
+      "trace": 2.7166300867709814,
+      "exact_law_draw": true
+    },
+    {
+      "seed": 104,
+      "arm": "exact_target_noise_rho0.15",
+      "eps": 0.0001,
+      "mean_nearest_atom_distance": 0.19905334710337996,
+      "trace": 2.771091000691893,
+      "exact_law_draw": true
+    },
+    {
+      "seed": 104,
+      "arm": "exact_target_noise_rho0.15",
+      "eps": 1e-06,
+      "mean_nearest_atom_distance": 0.19906534458017533,
+      "trace": 2.771639744702235,
+      "exact_law_draw": true
+    },
+    {
+      "seed": 105,
+      "arm": "hard_cfg_w0",
+      "eps": 0.01,
+      "mean_nearest_atom_distance": 0.022250915214555966,
+      "max_nearest_atom_distance": 0.04858696762779561,
+      "paired_solver_displacement": 8.514010371103093e-11,
+      "conditioned_atom_fraction": 1.0,
+      "atom_frequencies": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "atom_entropy": -0.0,
+      "trace": 0.0002236084662713255
+    },
+    {
+      "seed": 105,
+      "arm": "hard_cfg_w0",
+      "eps": 0.0001,
+      "mean_nearest_atom_distance": 0.00022250915220184067,
+      "max_nearest_atom_distance": 0.00048586967640082364,
+      "paired_solver_displacement": 1.702850178217535e-12,
+      "conditioned_atom_fraction": 1.0,
+      "atom_frequencies": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "atom_entropy": -0.0,
+      "trace": 2.236084663844936e-08
+    },
+    {
+      "seed": 105,
+      "arm": "hard_cfg_w0",
+      "eps": 1e-06,
+      "mean_nearest_atom_distance": 2.2250915225222856e-06,
+      "max_nearest_atom_distance": 4.858696765226426e-06,
+      "paired_solver_displacement": 2.5610511668343776e-14,
+      "conditioned_atom_fraction": 1.0,
+      "atom_frequencies": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "atom_entropy": -0.0,
+      "trace": 2.2360846648259686e-12
+    },
+    {
+      "seed": 105,
+      "arm": "hard_cfg_w3",
+      "eps": 0.01,
+      "mean_nearest_atom_distance": 0.007315825087079888,
+      "max_nearest_atom_distance": 0.022524457882781904,
+      "paired_solver_displacement": 3.7930138937150384e-10,
+      "conditioned_atom_fraction": 1.0,
+      "atom_frequencies": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "atom_entropy": -0.0,
+      "trace": 6.762113206751989e-05
+    },
+    {
+      "seed": 105,
+      "arm": "hard_cfg_w3",
+      "eps": 0.0001,
+      "mean_nearest_atom_distance": 7.315825088932785e-05,
+      "max_nearest_atom_distance": 0.00022524457888502313,
+      "paired_solver_displacement": 3.766282369680455e-12,
+      "conditioned_atom_fraction": 1.0,
+      "atom_frequencies": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "atom_entropy": -0.0,
+      "trace": 6.762113210179131e-09
+    },
+    {
+      "seed": 105,
+      "arm": "hard_cfg_w3",
+      "eps": 1e-06,
+      "mean_nearest_atom_distance": 7.315825091280851e-07,
+      "max_nearest_atom_distance": 2.2524457890430257e-06,
+      "paired_solver_displacement": 3.7593693852266937e-14,
+      "conditioned_atom_fraction": 1.0,
+      "atom_frequencies": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "atom_entropy": -0.0,
+      "trace": 6.762113214499443e-13
+    },
+    {
+      "seed": 105,
+      "arm": "hard_cfg_w12",
+      "eps": 0.01,
+      "mean_nearest_atom_distance": 0.027331721249791788,
+      "max_nearest_atom_distance": 0.041532247687147444,
+      "paired_solver_displacement": 3.3427211375557383e-09,
+      "conditioned_atom_fraction": 1.0,
+      "atom_frequencies": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "atom_entropy": -0.0,
+      "trace": 4.0796607657080666e-05
+    },
+    {
+      "seed": 105,
+      "arm": "hard_cfg_w12",
+      "eps": 0.0001,
+      "mean_nearest_atom_distance": 0.0002733172125671382,
+      "max_nearest_atom_distance": 0.000415322476976848,
+      "paired_solver_displacement": 3.2694671010671865e-11,
+      "conditioned_atom_fraction": 1.0,
+      "atom_frequencies": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "atom_entropy": -0.0,
+      "trace": 4.079660767772898e-09
+    },
+    {
+      "seed": 105,
+      "arm": "hard_cfg_w12",
+      "eps": 1e-06,
+      "mean_nearest_atom_distance": 2.7331721264117785e-06,
+      "max_nearest_atom_distance": 4.1532247705396245e-06,
+      "paired_solver_displacement": 3.1980401048119665e-13,
+      "conditioned_atom_fraction": 1.0,
+      "atom_frequencies": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "atom_entropy": -0.0,
+      "trace": 4.0796607690796e-13
+    },
+    {
+      "seed": 105,
+      "arm": "label_smoothed_cfg_w0",
+      "eps": 0.01,
+      "mean_nearest_atom_distance": 0.021319577810612042,
+      "max_nearest_atom_distance": 0.05295567470076937,
+      "paired_solver_displacement": 1.4716239169620963e-09,
+      "conditioned_atom_fraction": 0.4453125,
+      "atom_frequencies": [
+        0.4453125,
+        0.0,
+        0.4296875,
+        0.1171875,
+        0.0078125
+      ],
+      "atom_entropy": 1.0123583852408016,
+      "trace": 0.1255670534872624
+    },
+    {
+      "seed": 105,
+      "arm": "label_smoothed_cfg_w0",
+      "eps": 0.0001,
+      "mean_nearest_atom_distance": 0.00021319577816011236,
+      "max_nearest_atom_distance": 0.0005295567471418339,
+      "paired_solver_displacement": 1.548198288499124e-11,
+      "conditioned_atom_fraction": 0.4453125,
+      "atom_frequencies": [
+        0.4453125,
+        0.0,
+        0.4296875,
+        0.1171875,
+        0.0078125
+      ],
+      "atom_entropy": 1.0123583852408016,
+      "trace": 0.1283737986986095
+    },
+    {
+      "seed": 105,
+      "arm": "label_smoothed_cfg_w0",
+      "eps": 1e-06,
+      "mean_nearest_atom_distance": 2.131957782141415e-06,
+      "max_nearest_atom_distance": 5.295567472636704e-06,
+      "paired_solver_displacement": 1.6261921519244946e-13,
+      "conditioned_atom_fraction": 0.4453125,
+      "atom_frequencies": [
+        0.4453125,
+        0.0,
+        0.4296875,
+        0.1171875,
+        0.0078125
+      ],
+      "atom_entropy": 1.0123583852408016,
+      "trace": 0.1284044873009719
+    },
+    {
+      "seed": 105,
+      "arm": "label_smoothed_cfg_w3",
+      "eps": 0.01,
+      "mean_nearest_atom_distance": 0.01515728992719978,
+      "max_nearest_atom_distance": 0.035519967523908874,
+      "paired_solver_displacement": 5.327885747158574e-10,
+      "conditioned_atom_fraction": 0.390625,
+      "atom_frequencies": [
+        0.390625,
+        0.0,
+        0.609375,
+        0.0,
+        0.0
+      ],
+      "atom_entropy": 0.6690268361602776,
+      "trace": 0.03511637164415829
+    },
+    {
+      "seed": 105,
+      "arm": "label_smoothed_cfg_w3",
+      "eps": 0.0001,
+      "mean_nearest_atom_distance": 0.00015157289931036803,
+      "max_nearest_atom_distance": 0.0003551996753294009,
+      "paired_solver_displacement": 5.099661775120686e-12,
+      "conditioned_atom_fraction": 0.390625,
+      "atom_frequencies": [
+        0.390625,
+        0.0,
+        0.609375,
+        0.0,
+        0.0
+      ],
+      "atom_entropy": 0.6690268361602776,
+      "trace": 0.03557182754914619
+    },
+    {
+      "seed": 105,
+      "arm": "label_smoothed_cfg_w3",
+      "eps": 1e-06,
+      "mean_nearest_atom_distance": 1.5157289934607e-06,
+      "max_nearest_atom_distance": 3.5519967538758503e-06,
+      "paired_solver_displacement": 4.956902231288374e-14,
+      "conditioned_atom_fraction": 0.390625,
+      "atom_frequencies": [
+        0.390625,
+        0.0,
+        0.609375,
+        0.0,
+        0.0
+      ],
+      "atom_entropy": 0.6690268361602776,
+      "trace": 0.03557782782949262
+    },
+    {
+      "seed": 105,
+      "arm": "label_smoothed_cfg_w12",
+      "eps": 0.01,
+      "mean_nearest_atom_distance": 0.02580572048667939,
+      "max_nearest_atom_distance": 0.0491963665029263,
+      "paired_solver_displacement": 5.215177143138073e-09,
+      "conditioned_atom_fraction": 0.2421875,
+      "atom_frequencies": [
+        0.2421875,
+        0.0,
+        0.7578125,
+        0.0,
+        0.0
+      ],
+      "atom_entropy": 0.553588324436276,
+      "trace": 0.027509059539615487
+    },
+    {
+      "seed": 105,
+      "arm": "label_smoothed_cfg_w12",
+      "eps": 0.0001,
+      "mean_nearest_atom_distance": 0.0002580572049321837,
+      "max_nearest_atom_distance": 0.0004919636651539298,
+      "paired_solver_displacement": 5.130481564137683e-11,
+      "conditioned_atom_fraction": 0.2421875,
+      "atom_frequencies": [
+        0.2421875,
+        0.0,
+        0.7578125,
+        0.0,
+        0.0
+      ],
+      "atom_entropy": 0.553588324436276,
+      "trace": 0.027430943948892297
+    },
+    {
+      "seed": 105,
+      "arm": "label_smoothed_cfg_w12",
+      "eps": 1e-06,
+      "mean_nearest_atom_distance": 2.5805720500588607e-06,
+      "max_nearest_atom_distance": 4.919636652933143e-06,
+      "paired_solver_displacement": 5.046152382194282e-13,
+      "conditioned_atom_fraction": 0.2421875,
+      "atom_frequencies": [
+        0.2421875,
+        0.0,
+        0.7578125,
+        0.0,
+        0.0
+      ],
+      "atom_entropy": 0.553588324436276,
+      "trace": 0.02743145901848261
+    },
+    {
+      "seed": 105,
+      "arm": "average_three_label_fields",
+      "eps": 0.01,
+      "mean_nearest_atom_distance": 0.021269709928846164,
+      "max_nearest_atom_distance": 0.04074328052548813,
+      "paired_solver_displacement": 1.378439338966083e-09,
+      "conditioned_atom_fraction": 0.390625,
+      "atom_frequencies": [
+        0.390625,
+        0.0,
+        0.4296875,
+        0.1640625,
+        0.015625
+      ],
+      "atom_entropy": 1.091672912259422,
+      "trace": 0.1885600963641864
+    },
+    {
+      "seed": 105,
+      "arm": "average_three_label_fields",
+      "eps": 0.0001,
+      "mean_nearest_atom_distance": 0.00021269709934229952,
+      "max_nearest_atom_distance": 0.00040743280535748724,
+      "paired_solver_displacement": 1.4534661252121238e-11,
+      "conditioned_atom_fraction": 0.390625,
+      "atom_frequencies": [
+        0.390625,
+        0.0,
+        0.4296875,
+        0.1640625,
+        0.015625
+      ],
+      "atom_entropy": 1.091672912259422,
+      "trace": 0.19340306054814949
+    },
+    {
+      "seed": 105,
+      "arm": "average_three_label_fields",
+      "eps": 1e-06,
+      "mean_nearest_atom_distance": 2.126970993940167e-06,
+      "max_nearest_atom_distance": 4.074328054023603e-06,
+      "paired_solver_displacement": 1.5315086161352893e-13,
+      "conditioned_atom_fraction": 0.390625,
+      "atom_frequencies": [
+        0.390625,
+        0.0,
+        0.4296875,
+        0.1640625,
+        0.015625
+      ],
+      "atom_entropy": 1.091672912259422,
+      "trace": 0.1934543976595389
+    },
+    {
+      "seed": 105,
+      "arm": "exact_target_noise_rho0.0",
+      "eps": 0.01,
+      "mean_nearest_atom_distance": 0.02053408074052543,
+      "trace": 0.058349928190598456,
+      "exact_law_draw": true
+    },
+    {
+      "seed": 105,
+      "arm": "exact_target_noise_rho0.0",
+      "eps": 0.0001,
+      "mean_nearest_atom_distance": 0.0002053408074053096,
+      "trace": 0.05844048675268803,
+      "exact_law_draw": true
+    },
+    {
+      "seed": 105,
+      "arm": "exact_target_noise_rho0.0",
+      "eps": 1e-06,
+      "mean_nearest_atom_distance": 2.0534080741698004e-06,
+      "trace": 0.05844343968467813,
+      "exact_law_draw": true
+    },
+    {
+      "seed": 105,
+      "arm": "exact_target_noise_rho0.15",
+      "eps": 0.01,
+      "mean_nearest_atom_distance": 0.17661439499626488,
+      "trace": 0.1165229844901794,
+      "exact_law_draw": true
+    },
+    {
+      "seed": 105,
+      "arm": "exact_target_noise_rho0.15",
+      "eps": 0.0001,
+      "mean_nearest_atom_distance": 0.1781082216627205,
+      "trace": 0.11862174340368947,
+      "exact_law_draw": true
+    },
+    {
+      "seed": 105,
+      "arm": "exact_target_noise_rho0.15",
+      "eps": 1e-06,
+      "mean_nearest_atom_distance": 0.17813264935165968,
+      "trace": 0.11864521015691476,
+      "exact_law_draw": true
+    }
+  ],
+  "warning": "Numerical illustration only; frequencies do not identify exact guided endpoint weights."
+}

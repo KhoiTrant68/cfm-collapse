@@ -1,0 +1,556 @@
+{
+  "independent_energy_recomputations": 192,
+  "main": [
+    {
+      "run": "heff_p7y_h0_seed0",
+      "h": 0,
+      "seed": 0,
+      "effective_bandwidth": 0.018727208170158906,
+      "mean_energy": 0.29489648508647887,
+      "mean_null": 0.003302822453861438,
+      "mean_excess_energy": 0.29159366263261743,
+      "above_null_q95": 8,
+      "solver_screen_pass": 8,
+      "displacement_200_400": 3.2864790531342315e-07
+    },
+    {
+      "run": "heff_p7y_h0.1_seed0",
+      "h": 0.1,
+      "seed": 0,
+      "effective_bandwidth": 0.10986610904726149,
+      "mean_energy": 0.026477742338784412,
+      "mean_null": 0.007402476904827331,
+      "mean_excess_energy": 0.01907526543395708,
+      "above_null_q95": 4,
+      "solver_screen_pass": 8,
+      "displacement_200_400": 4.2236621166594785e-07
+    },
+    {
+      "run": "heff_p7y_h0_seed1",
+      "h": 0,
+      "seed": 1,
+      "effective_bandwidth": 0.01104851425049011,
+      "mean_energy": 0.1882795416649135,
+      "mean_null": 0.004309909861050199,
+      "mean_excess_energy": 0.18396963180386333,
+      "above_null_q95": 7,
+      "solver_screen_pass": 8,
+      "displacement_200_400": 4.514349518805029e-07
+    },
+    {
+      "run": "heff_p7y_h0.1_seed1",
+      "h": 0.1,
+      "seed": 1,
+      "effective_bandwidth": 0.10325299709936339,
+      "mean_energy": 0.014274400586045458,
+      "mean_null": 0.006164612210162438,
+      "mean_excess_energy": 0.008109788375883019,
+      "above_null_q95": 3,
+      "solver_screen_pass": 8,
+      "displacement_200_400": 4.801239102410705e-07
+    },
+    {
+      "run": "heff_p7y_h0_seed2",
+      "h": 0,
+      "seed": 2,
+      "effective_bandwidth": 0.003614135965766854,
+      "mean_energy": 0.09528182436211147,
+      "mean_null": 0.0036571773477388912,
+      "mean_excess_energy": 0.09162464701437256,
+      "above_null_q95": 8,
+      "solver_screen_pass": 8,
+      "displacement_200_400": 3.278302646700341e-07
+    },
+    {
+      "run": "heff_p7y_h0.1_seed2",
+      "h": 0.1,
+      "seed": 2,
+      "effective_bandwidth": 0.09119699155309723,
+      "mean_energy": 0.014782380862189439,
+      "mean_null": 0.010349389379998067,
+      "mean_excess_energy": 0.004432991482191371,
+      "above_null_q95": 2,
+      "solver_screen_pass": 8,
+      "displacement_200_400": 5.468040617537303e-07
+    }
+  ],
+  "terminal": [
+    {
+      "run": "heff_p7y_h0_seed0",
+      "mean_displacement": 0.0014076537539429149,
+      "mean_nearest_atom_distance_eps_001": 0.06366409037428618,
+      "mean_nearest_atom_distance_eps_0001": 0.0633887053663445,
+      "solver_screen_pass_eps_0001": 8
+    },
+    {
+      "run": "heff_p7y_h0.1_seed0",
+      "mean_displacement": 0.0012750074770613274,
+      "mean_nearest_atom_distance_eps_001": 0.055204821522948144,
+      "mean_nearest_atom_distance_eps_0001": 0.0547428454573437,
+      "solver_screen_pass_eps_0001": 8
+    },
+    {
+      "run": "heff_p7y_h0_seed1",
+      "mean_displacement": 0.0014218917641324136,
+      "mean_nearest_atom_distance_eps_001": 0.03504007555751705,
+      "mean_nearest_atom_distance_eps_0001": 0.034841183800717324,
+      "solver_screen_pass_eps_0001": 8
+    },
+    {
+      "run": "heff_p7y_h0.1_seed1",
+      "mean_displacement": 0.0012297327198881167,
+      "mean_nearest_atom_distance_eps_001": 0.05058294208558096,
+      "mean_nearest_atom_distance_eps_0001": 0.05054479595705584,
+      "solver_screen_pass_eps_0001": 8
+    },
+    {
+      "run": "heff_p7y_h0_seed2",
+      "mean_displacement": 0.00136277354394059,
+      "mean_nearest_atom_distance_eps_001": 0.04804165277722386,
+      "mean_nearest_atom_distance_eps_0001": 0.04737481098856165,
+      "solver_screen_pass_eps_0001": 8
+    },
+    {
+      "run": "heff_p7y_h0.1_seed2",
+      "mean_displacement": 0.0011924432396013937,
+      "mean_nearest_atom_distance_eps_001": 0.0509052850930845,
+      "mean_nearest_atom_distance_eps_0001": 0.050576428939903856,
+      "solver_screen_pass_eps_0001": 8
+    }
+  ],
+  "risk": [
+    {
+      "run": "heff_p7y_h0_seed0",
+      "iteration": 200000,
+      "profile": [
+        {
+          "t": 0.25,
+          "teacher_error_r": 0.434272825717926,
+          "rollout_error_m": 0.5175616145133972,
+          "ratio": 1.1917890870969898
+        },
+        {
+          "t": 0.5,
+          "teacher_error_r": 0.6074652671813965,
+          "rollout_error_m": 1.5725716352462769,
+          "ratio": 2.5887432915184068
+        },
+        {
+          "t": 0.75,
+          "teacher_error_r": 0.5236022472381592,
+          "rollout_error_m": 8.817451477050781,
+          "ratio": 16.839980201689595
+        },
+        {
+          "t": 0.9,
+          "teacher_error_r": 0.30459651350975037,
+          "rollout_error_m": 58.658973693847656,
+          "ratio": 192.57926828492717
+        },
+        {
+          "t": 0.95,
+          "teacher_error_r": 0.29243189096450806,
+          "rollout_error_m": 234.4919891357422,
+          "ratio": 801.8687303984984
+        },
+        {
+          "t": 0.99,
+          "teacher_error_r": 1.451125979423523,
+          "rollout_error_m": 5859.9208984375,
+          "ratio": 4038.188952254458
+        },
+        {
+          "t": 0.999,
+          "teacher_error_r": 2.3920328617095947,
+          "rollout_error_m": 585898.4375,
+          "ratio": 244937.45335975703
+        }
+      ]
+    },
+    {
+      "run": "heff_p7y_h0_seed1",
+      "iteration": 200000,
+      "profile": [
+        {
+          "t": 0.25,
+          "teacher_error_r": 0.9039756655693054,
+          "rollout_error_m": 1.2451919317245483,
+          "ratio": 1.3774617826026898
+        },
+        {
+          "t": 0.5,
+          "teacher_error_r": 0.9334117770195007,
+          "rollout_error_m": 3.753159284591675,
+          "ratio": 4.020904146480749
+        },
+        {
+          "t": 0.75,
+          "teacher_error_r": 0.5628616213798523,
+          "rollout_error_m": 17.809558868408203,
+          "ratio": 31.641096482556694
+        },
+        {
+          "t": 0.9,
+          "teacher_error_r": 0.43039947748184204,
+          "rollout_error_m": 115.95206451416016,
+          "ratio": 269.4056814208191
+        },
+        {
+          "t": 0.95,
+          "teacher_error_r": 0.4333682954311371,
+          "rollout_error_m": 467.8172912597656,
+          "ratio": 1079.491269185617
+        },
+        {
+          "t": 0.99,
+          "teacher_error_r": 1.4125441312789917,
+          "rollout_error_m": 11697.9912109375,
+          "ratio": 8281.504946925463
+        },
+        {
+          "t": 0.999,
+          "teacher_error_r": 2.2606589794158936,
+          "rollout_error_m": 1169812.375,
+          "ratio": 517465.2106538664
+        }
+      ]
+    },
+    {
+      "run": "heff_p7y_h0_seed2",
+      "iteration": 200000,
+      "profile": [
+        {
+          "t": 0.25,
+          "teacher_error_r": 1.0598325729370117,
+          "rollout_error_m": 1.2973105907440186,
+          "ratio": 1.2240712579241708
+        },
+        {
+          "t": 0.5,
+          "teacher_error_r": 0.9416826367378235,
+          "rollout_error_m": 3.703125,
+          "ratio": 3.932455431936564
+        },
+        {
+          "t": 0.75,
+          "teacher_error_r": 0.8515080809593201,
+          "rollout_error_m": 17.1409969329834,
+          "ratio": 20.13016354897317
+        },
+        {
+          "t": 0.9,
+          "teacher_error_r": 0.5425044894218445,
+          "rollout_error_m": 112.60579681396484,
+          "ratio": 207.56657135495894
+        },
+        {
+          "t": 0.95,
+          "teacher_error_r": 0.5596440434455872,
+          "rollout_error_m": 455.0140686035156,
+          "ratio": 813.0419217939118
+        },
+        {
+          "t": 0.99,
+          "teacher_error_r": 1.7431814670562744,
+          "rollout_error_m": 11346.2744140625,
+          "ratio": 6508.946216152155
+        },
+        {
+          "t": 0.999,
+          "teacher_error_r": 2.594917058944702,
+          "rollout_error_m": 1134391.75,
+          "ratio": 437159.1554688585
+        }
+      ]
+    },
+    {
+      "run": "heff_p7y_h0_seed0",
+      "iteration": 10000,
+      "profile": [
+        {
+          "t": 0.25,
+          "teacher_error_r": 2.333775281906128,
+          "rollout_error_m": 3.1498734951019287,
+          "ratio": 1.3496901434868427
+        },
+        {
+          "t": 0.5,
+          "teacher_error_r": 2.1588075160980225,
+          "rollout_error_m": 8.647327423095703,
+          "ratio": 4.0056037227095995
+        },
+        {
+          "t": 0.75,
+          "teacher_error_r": 1.5819580554962158,
+          "rollout_error_m": 41.23702621459961,
+          "ratio": 26.067079383887148
+        },
+        {
+          "t": 0.9,
+          "teacher_error_r": 1.592877984046936,
+          "rollout_error_m": 266.3344421386719,
+          "ratio": 167.20329165578073
+        },
+        {
+          "t": 0.95,
+          "teacher_error_r": 1.8711414337158203,
+          "rollout_error_m": 1069.7674560546875,
+          "ratio": 571.7191852944444
+        },
+        {
+          "t": 0.99,
+          "teacher_error_r": 2.3173210620880127,
+          "rollout_error_m": 26780.21875,
+          "ratio": 11556.542245324346
+        },
+        {
+          "t": 0.999,
+          "teacher_error_r": 2.4538183212280273,
+          "rollout_error_m": 2678172.5,
+          "ratio": 1091430.6396814631
+        }
+      ]
+    },
+    {
+      "run": "heff_p7y_h0_seed0",
+      "iteration": 30000,
+      "profile": [
+        {
+          "t": 0.25,
+          "teacher_error_r": 1.3731958866119385,
+          "rollout_error_m": 1.852739691734314,
+          "ratio": 1.349217332936778
+        },
+        {
+          "t": 0.5,
+          "teacher_error_r": 1.4836088418960571,
+          "rollout_error_m": 5.892199516296387,
+          "ratio": 3.9715316799852283
+        },
+        {
+          "t": 0.75,
+          "teacher_error_r": 1.1922489404678345,
+          "rollout_error_m": 29.178466796875,
+          "ratio": 24.47346842298343
+        },
+        {
+          "t": 0.9,
+          "teacher_error_r": 1.20220148563385,
+          "rollout_error_m": 187.27438354492188,
+          "ratio": 155.77620372527082
+        },
+        {
+          "t": 0.95,
+          "teacher_error_r": 1.4705337285995483,
+          "rollout_error_m": 752.3292236328125,
+          "ratio": 511.6028344003286
+        },
+        {
+          "t": 0.99,
+          "teacher_error_r": 2.0309720039367676,
+          "rollout_error_m": 18835.90625,
+          "ratio": 9274.33081967113
+        },
+        {
+          "t": 0.999,
+          "teacher_error_r": 2.2199230194091797,
+          "rollout_error_m": 1883717.375,
+          "ratio": 848550.7643870196
+        }
+      ]
+    },
+    {
+      "run": "heff_p7y_h0_seed1",
+      "iteration": 10000,
+      "profile": [
+        {
+          "t": 0.25,
+          "teacher_error_r": 1.983974814414978,
+          "rollout_error_m": 2.464533567428589,
+          "ratio": 1.2422201882413084
+        },
+        {
+          "t": 0.5,
+          "teacher_error_r": 2.254828691482544,
+          "rollout_error_m": 7.12346887588501,
+          "ratio": 3.1592062416064732
+        },
+        {
+          "t": 0.75,
+          "teacher_error_r": 1.8591135740280151,
+          "rollout_error_m": 34.722171783447266,
+          "ratio": 18.676735121790916
+        },
+        {
+          "t": 0.9,
+          "teacher_error_r": 1.9929999113082886,
+          "rollout_error_m": 226.50914001464844,
+          "ratio": 113.65235830139017
+        },
+        {
+          "t": 0.95,
+          "teacher_error_r": 2.100407123565674,
+          "rollout_error_m": 909.8978881835938,
+          "ratio": 433.20072474280187
+        },
+        {
+          "t": 0.99,
+          "teacher_error_r": 2.1463990211486816,
+          "rollout_error_m": 22772.42578125,
+          "ratio": 10609.59567949437
+        },
+        {
+          "t": 0.999,
+          "teacher_error_r": 2.1492953300476074,
+          "rollout_error_m": 2277332.5,
+          "ratio": 1059571.6969010287
+        }
+      ]
+    },
+    {
+      "run": "heff_p7y_h0_seed1",
+      "iteration": 30000,
+      "profile": [
+        {
+          "t": 0.25,
+          "teacher_error_r": 1.6780060529708862,
+          "rollout_error_m": 2.0142996311187744,
+          "ratio": 1.2004126132635131
+        },
+        {
+          "t": 0.5,
+          "teacher_error_r": 1.8562873601913452,
+          "rollout_error_m": 5.757829666137695,
+          "ratio": 3.101798670624025
+        },
+        {
+          "t": 0.75,
+          "teacher_error_r": 1.2787011861801147,
+          "rollout_error_m": 27.874805450439453,
+          "ratio": 21.799311482388095
+        },
+        {
+          "t": 0.9,
+          "teacher_error_r": 1.1682926416397095,
+          "rollout_error_m": 180.9957733154297,
+          "ratio": 154.9233187511996
+        },
+        {
+          "t": 0.95,
+          "teacher_error_r": 1.4041584730148315,
+          "rollout_error_m": 727.3063354492188,
+          "ratio": 517.9659913226451
+        },
+        {
+          "t": 0.99,
+          "teacher_error_r": 1.9510291814804077,
+          "rollout_error_m": 18203.607421875,
+          "ratio": 9330.258919070811
+        },
+        {
+          "t": 0.999,
+          "teacher_error_r": 2.1185142993927,
+          "rollout_error_m": 1820433.0,
+          "ratio": 859297.008531805
+        }
+      ]
+    },
+    {
+      "run": "heff_p7y_h0_seed2",
+      "iteration": 10000,
+      "profile": [
+        {
+          "t": 0.25,
+          "teacher_error_r": 1.6624220609664917,
+          "rollout_error_m": 2.0727601051330566,
+          "ratio": 1.246831447802133
+        },
+        {
+          "t": 0.5,
+          "teacher_error_r": 2.088258743286133,
+          "rollout_error_m": 6.2306742668151855,
+          "ratio": 2.9836696658625983
+        },
+        {
+          "t": 0.75,
+          "teacher_error_r": 2.096558094024658,
+          "rollout_error_m": 30.528188705444336,
+          "ratio": 14.561098398585699
+        },
+        {
+          "t": 0.9,
+          "teacher_error_r": 2.182807683944702,
+          "rollout_error_m": 200.15696716308594,
+          "ratio": 91.6970233499309
+        },
+        {
+          "t": 0.95,
+          "teacher_error_r": 2.163753032684326,
+          "rollout_error_m": 804.8914794921875,
+          "ratio": 371.9886083735022
+        },
+        {
+          "t": 0.99,
+          "teacher_error_r": 2.098973035812378,
+          "rollout_error_m": 20151.20703125,
+          "ratio": 9600.507813789403
+        },
+        {
+          "t": 0.999,
+          "teacher_error_r": 2.0796964168548584,
+          "rollout_error_m": 2015227.25,
+          "ratio": 969000.6837861674
+        }
+      ]
+    },
+    {
+      "run": "heff_p7y_h0_seed2",
+      "iteration": 30000,
+      "profile": [
+        {
+          "t": 0.25,
+          "teacher_error_r": 1.581581473350525,
+          "rollout_error_m": 1.9332983493804932,
+          "ratio": 1.2223830273408984
+        },
+        {
+          "t": 0.5,
+          "teacher_error_r": 1.8095444440841675,
+          "rollout_error_m": 5.86091947555542,
+          "ratio": 3.2388922497682575
+        },
+        {
+          "t": 0.75,
+          "teacher_error_r": 1.5708179473876953,
+          "rollout_error_m": 29.073026657104492,
+          "ratio": 18.508208863702873
+        },
+        {
+          "t": 0.9,
+          "teacher_error_r": 1.369585633277893,
+          "rollout_error_m": 190.5576171875,
+          "ratio": 139.13523372133335
+        },
+        {
+          "t": 0.95,
+          "teacher_error_r": 1.5586892366409302,
+          "rollout_error_m": 766.4151611328125,
+          "ratio": 491.7049166160175
+        },
+        {
+          "t": 0.99,
+          "teacher_error_r": 2.1425633430480957,
+          "rollout_error_m": 19194.81640625,
+          "ratio": 8958.8093012656
+        },
+        {
+          "t": 0.999,
+          "teacher_error_r": 2.3334367275238037,
+          "rollout_error_m": 1919628.0,
+          "ratio": 822661.2606878228
+        }
+      ]
+    }
+  ],
+  "warning": "Exploratory, three reused problem seeds; 16 null pairs per condition. No formal familywise test or equivalence certificate."
+}

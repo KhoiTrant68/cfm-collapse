@@ -13,6 +13,8 @@ calibration is known exactly for finite M (no Gaussian or large-M assumption):
             (leave one out, so the M+1 statistics are exchangeable). With
             u = (#{m : d_m < d*} + 1/2)/(M + 1), the level-a region covers x* iff u <= a.
 
+The exact discrete null requires tie-free scores or randomized tie breaking (pass rng).
+Legacy calls without rng retain midranks and need not follow that null with ties.
 The reference curves below are what a calibrated sampler gets at the same M. A quantile
 interval of the M draws, by contrast, covers a fresh draw less often than its nominal
 level (about 0.87 for the 5%-95% interval at M = 64), so it has no exact reference.
@@ -47,10 +49,16 @@ def reference_pit_cdf(M: int, grid: np.ndarray = PIT_GRID) -> np.ndarray:
     return pit_cdf(_grid(M), grid)
 
 
-def marginal_pit(samples: np.ndarray, truth: np.ndarray) -> np.ndarray:
-    """samples (M, D), truth (D,) -> u (D,) = (#{s < x*} + #{s = x*}/2 + 1/2) / (M + 1)."""
+def marginal_pit(samples: np.ndarray, truth: np.ndarray,
+                 rng: np.random.Generator | None = None) -> np.ndarray:
+    """Rank PIT; pass rng for exact randomized ranks under exchangeability with ties.
+
+    With rng=None retain legacy midranks, whose discrete null requires no ties.
+    """
     M = samples.shape[0]
-    below = (samples < truth[None]).sum(0) + 0.5 * (samples == truth[None]).sum(0)
+    ties = (samples == truth[None]).sum(0)
+    offset = 0.5 * ties if rng is None else rng.integers(0, ties + 1)
+    below = (samples < truth[None]).sum(0) + offset
     return (below + 0.5) / (M + 1)
 
 
@@ -86,11 +94,14 @@ def loo_mahalanobis(Z: np.ndarray, ridge: float = 1e-6) -> np.ndarray:
     return out
 
 
-def joint_pit(samples_z: np.ndarray, truth_z: np.ndarray) -> float:
+def joint_pit(samples_z: np.ndarray, truth_z: np.ndarray,
+              rng: np.random.Generator | None = None) -> float:
     """samples_z (M, k), truth_z (k,) -> u in (0, 1); small u = the truth is central."""
     d = loo_mahalanobis(np.vstack([truth_z[None], samples_z]))
     M = samples_z.shape[0]
-    below = (d[1:] < d[0]).sum() + 0.5 * (d[1:] == d[0]).sum()
+    ties = (d[1:] == d[0]).sum()
+    offset = 0.5 * ties if rng is None else rng.integers(0, ties + 1)
+    below = (d[1:] < d[0]).sum() + offset
     return float((below + 0.5) / (M + 1))
 
 

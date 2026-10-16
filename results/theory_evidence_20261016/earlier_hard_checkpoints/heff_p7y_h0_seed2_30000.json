@@ -1,0 +1,545 @@
+{
+  "run": "heff_p7y_h0_seed2",
+  "iteration": 30000,
+  "problem_seed": 2,
+  "checkpoint_sha256": "6ef63a905bae8c410f15f37bb9e12b62803bc79a803d2d69339b6236e85de9fd",
+  "config_sha256": "386e8b6ff3871279c330ebc55c9938ef84c942ff101c756b0eb4cc4024e8c986",
+  "config": {
+    "run_name": "heff_p7y_h0_seed2",
+    "seed": 2,
+    "device": "auto",
+    "data": {
+      "d": 2,
+      "k": 1,
+      "N": 200,
+      "sigma_obs": 0.1,
+      "prior_std": 1.0,
+      "source_std": 1.0,
+      "A_kind": "random"
+    },
+    "model": {
+      "conditional": true,
+      "width": 128,
+      "depth": 4,
+      "time_embed_dim": 64,
+      "activation": "silu"
+    },
+    "train": {
+      "max_iters": 200000,
+      "batch_size": 256,
+      "lr": 0.001,
+      "interpolant_sigma": 0.0,
+      "y_noise_h": 0,
+      "checkpoints": [
+        100,
+        300,
+        1000,
+        3000,
+        10000,
+        30000,
+        100000,
+        200000
+      ]
+    },
+    "eval": {
+      "n_eval_train": 20,
+      "n_heldout": 8,
+      "M": 1000,
+      "n_steps": 100,
+      "ode_method": "rk4",
+      "ode_eps": 0.001,
+      "vel_points": 2000
+    }
+  },
+  "n_fit": 20,
+  "n_heldout": 8,
+  "families": {
+    "gauss": {
+      "scale": 0.038240664316368654,
+      "fit_grid_edge": false,
+      "rows": [
+        {
+          "condition": 0,
+          "energy": 0.010619107514899829,
+          "null_mean": 0.010017526611981896,
+          "null_q95": 0.02070130609610895,
+          "excess_energy": 0.0006015809029179323,
+          "same_moment_control_energy": 0.019052305753905253,
+          "paired_displacement_200_400": 3.7180223244397505e-07,
+          "mc_mean_scale": 0.17930103516275953,
+          "solver_screen_pass": true,
+          "nearest_atom_mean": 0.08552872852015397,
+          "trace": 1.1779807525266532
+        },
+        {
+          "condition": 1,
+          "energy": 0.02116698915788074,
+          "null_mean": 0.005888424240609487,
+          "null_q95": 0.010917365099766398,
+          "excess_energy": 0.015278564917271253,
+          "same_moment_control_energy": 0.031803451498147395,
+          "paired_displacement_200_400": 4.236076543527567e-07,
+          "mc_mean_scale": 0.0236361333463574,
+          "solver_screen_pass": true,
+          "nearest_atom_mean": 0.10190908746991106,
+          "trace": 0.4572954794792918
+        },
+        {
+          "condition": 2,
+          "energy": 0.02676941191572522,
+          "null_mean": 0.006789629246031955,
+          "null_q95": 0.014389962216943103,
+          "excess_energy": 0.019979782669693268,
+          "same_moment_control_energy": 0.021299102815035515,
+          "paired_displacement_200_400": 4.0199606342347194e-07,
+          "mc_mean_scale": 0.13608577372222555,
+          "solver_screen_pass": true,
+          "nearest_atom_mean": 0.09931163575279865,
+          "trace": 0.6145737428891884
+        },
+        {
+          "condition": 3,
+          "energy": 0.13444981626443298,
+          "null_mean": 0.006594826545466088,
+          "null_q95": 0.016428561465110916,
+          "excess_energy": 0.1278549897189669,
+          "same_moment_control_energy": 0.0270193498141833,
+          "paired_displacement_200_400": 4.540325171648621e-07,
+          "mc_mean_scale": 0.03372420366939197,
+          "solver_screen_pass": true,
+          "nearest_atom_mean": 0.10733245688680712,
+          "trace": 0.3946579940439371
+        },
+        {
+          "condition": 4,
+          "energy": 0.1134837741307974,
+          "null_mean": 0.007149182792017433,
+          "null_q95": 0.012367192884077562,
+          "excess_energy": 0.10633459133877997,
+          "same_moment_control_energy": 0.03270886941820709,
+          "paired_displacement_200_400": 4.682746140277531e-07,
+          "mc_mean_scale": 0.10411425544134759,
+          "solver_screen_pass": true,
+          "nearest_atom_mean": 0.10951003296118447,
+          "trace": 0.44814855913243773
+        },
+        {
+          "condition": 5,
+          "energy": 0.06979111552503374,
+          "null_mean": 0.008200459723279402,
+          "null_q95": 0.018093371243993173,
+          "excess_energy": 0.06159065580175434,
+          "same_moment_control_energy": 0.025223322379698602,
+          "paired_displacement_200_400": 3.09696684466528e-07,
+          "mc_mean_scale": 0.08132990794999852,
+          "solver_screen_pass": true,
+          "nearest_atom_mean": 0.09546410547840421,
+          "trace": 0.519905363618515
+        },
+        {
+          "condition": 6,
+          "energy": 0.03767193785929218,
+          "null_mean": 0.007748559722396433,
+          "null_q95": 0.019499016837794647,
+          "excess_energy": 0.02992337813689575,
+          "same_moment_control_energy": 0.04898448775529377,
+          "paired_displacement_200_400": 4.0431656272078997e-07,
+          "mc_mean_scale": 0.03934991582340562,
+          "solver_screen_pass": true,
+          "nearest_atom_mean": 0.0950312920819849,
+          "trace": 1.113358957924061
+        },
+        {
+          "condition": 7,
+          "energy": 0.09309106801146166,
+          "null_mean": 0.011011775126125554,
+          "null_q95": 0.021908023120842782,
+          "excess_energy": 0.08207929288533611,
+          "same_moment_control_energy": 0.06843078223149793,
+          "paired_displacement_200_400": 4.245760293915566e-07,
+          "mc_mean_scale": 0.06989826007421429,
+          "solver_screen_pass": true,
+          "nearest_atom_mean": 0.11493630209887509,
+          "trace": 1.2388170643186962
+        }
+      ]
+    },
+    "laplace": {
+      "scale": 0.038240664316368654,
+      "fit_grid_edge": false,
+      "rows": [
+        {
+          "condition": 0,
+          "energy": 0.010641725003476486,
+          "null_mean": 0.008325183773655334,
+          "null_q95": 0.015480648974316223,
+          "excess_energy": 0.0023165412298211518,
+          "same_moment_control_energy": 0.022677464608427345,
+          "paired_displacement_200_400": 3.7180223244397505e-07,
+          "mc_mean_scale": 0.17930103516275953,
+          "solver_screen_pass": true,
+          "nearest_atom_mean": 0.08552872852015397,
+          "trace": 1.1779807525266532
+        },
+        {
+          "condition": 1,
+          "energy": 0.030873319404045182,
+          "null_mean": 0.006886381081748981,
+          "null_q95": 0.0128320873739253,
+          "excess_energy": 0.023986938322296203,
+          "same_moment_control_energy": 0.03780857210556444,
+          "paired_displacement_200_400": 4.236076543527567e-07,
+          "mc_mean_scale": 0.0236361333463574,
+          "solver_screen_pass": true,
+          "nearest_atom_mean": 0.10190908746991106,
+          "trace": 0.4572954794792918
+        },
+        {
+          "condition": 2,
+          "energy": 0.027819413503183007,
+          "null_mean": 0.008227687291516569,
+          "null_q95": 0.020107299741331634,
+          "excess_energy": 0.019591726211666438,
+          "same_moment_control_energy": 0.01795000510853153,
+          "paired_displacement_200_400": 4.0199606342347194e-07,
+          "mc_mean_scale": 0.13608577372222555,
+          "solver_screen_pass": true,
+          "nearest_atom_mean": 0.09931163575279865,
+          "trace": 0.6145737428891884
+        },
+        {
+          "condition": 3,
+          "energy": 0.10772810100228929,
+          "null_mean": 0.006788444317052696,
+          "null_q95": 0.014525595049862658,
+          "excess_energy": 0.10093965668523659,
+          "same_moment_control_energy": 0.023800510040314624,
+          "paired_displacement_200_400": 4.540325171648621e-07,
+          "mc_mean_scale": 0.03372420366939197,
+          "solver_screen_pass": true,
+          "nearest_atom_mean": 0.10733245688680712,
+          "trace": 0.3946579940439371
+        },
+        {
+          "condition": 4,
+          "energy": 0.12881159864080136,
+          "null_mean": 0.008110871230397797,
+          "null_q95": 0.01701439803138932,
+          "excess_energy": 0.12070072741040355,
+          "same_moment_control_energy": 0.02846728233899776,
+          "paired_displacement_200_400": 4.682746140277531e-07,
+          "mc_mean_scale": 0.10411425544134759,
+          "solver_screen_pass": true,
+          "nearest_atom_mean": 0.10951003296118447,
+          "trace": 0.44814855913243773
+        },
+        {
+          "condition": 5,
+          "energy": 0.05624222633312836,
+          "null_mean": 0.007650552508682601,
+          "null_q95": 0.017671412368761803,
+          "excess_energy": 0.04859167382444576,
+          "same_moment_control_energy": 0.021247947267613643,
+          "paired_displacement_200_400": 3.09696684466528e-07,
+          "mc_mean_scale": 0.08132990794999852,
+          "solver_screen_pass": true,
+          "nearest_atom_mean": 0.09546410547840421,
+          "trace": 0.519905363618515
+        },
+        {
+          "condition": 6,
+          "energy": 0.03827763307624269,
+          "null_mean": 0.00785340568002172,
+          "null_q95": 0.016613484524045437,
+          "excess_energy": 0.03042422739622097,
+          "same_moment_control_energy": 0.037014898078956436,
+          "paired_displacement_200_400": 4.0431656272078997e-07,
+          "mc_mean_scale": 0.03934991582340562,
+          "solver_screen_pass": true,
+          "nearest_atom_mean": 0.0950312920819849,
+          "trace": 1.113358957924061
+        },
+        {
+          "condition": 7,
+          "energy": 0.0821321920946911,
+          "null_mean": 0.013955182748512391,
+          "null_q95": 0.038255579195876355,
+          "excess_energy": 0.06817700934617871,
+          "same_moment_control_energy": 0.07261935080025654,
+          "paired_displacement_200_400": 4.245760293915566e-07,
+          "mc_mean_scale": 0.06989826007421429,
+          "solver_screen_pass": true,
+          "nearest_atom_mean": 0.11493630209887509,
+          "trace": 1.2388170643186962
+        }
+      ]
+    },
+    "cauchy": {
+      "scale": 0.023272166157605086,
+      "fit_grid_edge": false,
+      "rows": [
+        {
+          "condition": 0,
+          "energy": 0.012035959463797395,
+          "null_mean": 0.008134458408615902,
+          "null_q95": 0.013430675076702068,
+          "excess_energy": 0.003901501055181493,
+          "same_moment_control_energy": 0.02424915749023225,
+          "paired_displacement_200_400": 3.7180223244397505e-07,
+          "mc_mean_scale": 0.17930103516275953,
+          "solver_screen_pass": true,
+          "nearest_atom_mean": 0.08552872852015397,
+          "trace": 1.1779807525266532
+        },
+        {
+          "condition": 1,
+          "energy": 0.05155638514195803,
+          "null_mean": 0.006393129324591818,
+          "null_q95": 0.012437203858090724,
+          "excess_energy": 0.045163255817366216,
+          "same_moment_control_energy": 0.03514004065206057,
+          "paired_displacement_200_400": 4.236076543527567e-07,
+          "mc_mean_scale": 0.0236361333463574,
+          "solver_screen_pass": true,
+          "nearest_atom_mean": 0.10190908746991106,
+          "trace": 0.4572954794792918
+        },
+        {
+          "condition": 2,
+          "energy": 0.02737455905230346,
+          "null_mean": 0.007647842322959802,
+          "null_q95": 0.017762829394369847,
+          "excess_energy": 0.019726716729343657,
+          "same_moment_control_energy": 0.014524503325605578,
+          "paired_displacement_200_400": 4.0199606342347194e-07,
+          "mc_mean_scale": 0.13608577372222555,
+          "solver_screen_pass": true,
+          "nearest_atom_mean": 0.09931163575279865,
+          "trace": 0.6145737428891884
+        },
+        {
+          "condition": 3,
+          "energy": 0.10231765390774256,
+          "null_mean": 0.006481404741549549,
+          "null_q95": 0.015297368809103436,
+          "excess_energy": 0.095836249166193,
+          "same_moment_control_energy": 0.02780166996144455,
+          "paired_displacement_200_400": 4.540325171648621e-07,
+          "mc_mean_scale": 0.03372420366939197,
+          "solver_screen_pass": true,
+          "nearest_atom_mean": 0.10733245688680712,
+          "trace": 0.3946579940439371
+        },
+        {
+          "condition": 4,
+          "energy": 0.10051128033207063,
+          "null_mean": 0.008076266546146956,
+          "null_q95": 0.015551118325751477,
+          "excess_energy": 0.09243501378592367,
+          "same_moment_control_energy": 0.03764270235550936,
+          "paired_displacement_200_400": 4.682746140277531e-07,
+          "mc_mean_scale": 0.10411425544134759,
+          "solver_screen_pass": true,
+          "nearest_atom_mean": 0.10951003296118447,
+          "trace": 0.44814855913243773
+        },
+        {
+          "condition": 5,
+          "energy": 0.06492835581611658,
+          "null_mean": 0.007524846250950304,
+          "null_q95": 0.015456991705458192,
+          "excess_energy": 0.05740350956516628,
+          "same_moment_control_energy": 0.024768684273804176,
+          "paired_displacement_200_400": 3.09696684466528e-07,
+          "mc_mean_scale": 0.08132990794999852,
+          "solver_screen_pass": true,
+          "nearest_atom_mean": 0.09546410547840421,
+          "trace": 0.519905363618515
+        },
+        {
+          "condition": 6,
+          "energy": 0.055679428375092085,
+          "null_mean": 0.008117311626857247,
+          "null_q95": 0.01749136099708282,
+          "excess_energy": 0.04756211674823484,
+          "same_moment_control_energy": 0.04353614729386263,
+          "paired_displacement_200_400": 4.0431656272078997e-07,
+          "mc_mean_scale": 0.03934991582340562,
+          "solver_screen_pass": true,
+          "nearest_atom_mean": 0.0950312920819849,
+          "trace": 1.113358957924061
+        },
+        {
+          "condition": 7,
+          "energy": 0.059777931066071044,
+          "null_mean": 0.015569156905549796,
+          "null_q95": 0.04635377130829391,
+          "excess_energy": 0.04420877416052125,
+          "same_moment_control_energy": 0.07516873948675058,
+          "paired_displacement_200_400": 4.245760293915566e-07,
+          "mc_mean_scale": 0.06989826007421429,
+          "solver_screen_pass": true,
+          "nearest_atom_mean": 0.11493630209887509,
+          "trace": 1.2388170643186962
+        }
+      ]
+    },
+    "knn": {
+      "scale": 18.0,
+      "fit_grid_edge": false,
+      "rows": [
+        {
+          "condition": 0,
+          "energy": 0.019853558444345987,
+          "null_mean": 0.009199155275582946,
+          "null_q95": 0.018917739717566114,
+          "excess_energy": 0.010654403168763042,
+          "same_moment_control_energy": 0.026980379477667047,
+          "paired_displacement_200_400": 3.7180223244397505e-07,
+          "mc_mean_scale": 0.17930103516275953,
+          "solver_screen_pass": true,
+          "nearest_atom_mean": 0.08552872852015397,
+          "trace": 1.1779807525266532
+        },
+        {
+          "condition": 1,
+          "energy": 0.09784521613331383,
+          "null_mean": 0.006006679751255809,
+          "null_q95": 0.018033351627985868,
+          "excess_energy": 0.09183853638205802,
+          "same_moment_control_energy": 0.014234589039531408,
+          "paired_displacement_200_400": 4.236076543527567e-07,
+          "mc_mean_scale": 0.0236361333463574,
+          "solver_screen_pass": true,
+          "nearest_atom_mean": 0.10190908746991106,
+          "trace": 0.4572954794792918
+        },
+        {
+          "condition": 2,
+          "energy": 0.030293897265016217,
+          "null_mean": 0.0077792075866665,
+          "null_q95": 0.019145533655995806,
+          "excess_energy": 0.022514689678349718,
+          "same_moment_control_energy": 0.020482669186856556,
+          "paired_displacement_200_400": 4.0199606342347194e-07,
+          "mc_mean_scale": 0.13608577372222555,
+          "solver_screen_pass": true,
+          "nearest_atom_mean": 0.09931163575279865,
+          "trace": 0.6145737428891884
+        },
+        {
+          "condition": 3,
+          "energy": 0.18224299928178705,
+          "null_mean": 0.006368462723840972,
+          "null_q95": 0.014229127736018565,
+          "excess_energy": 0.17587453655794608,
+          "same_moment_control_energy": 0.032955637691231714,
+          "paired_displacement_200_400": 4.540325171648621e-07,
+          "mc_mean_scale": 0.03372420366939197,
+          "solver_screen_pass": true,
+          "nearest_atom_mean": 0.10733245688680712,
+          "trace": 0.3946579940439371
+        },
+        {
+          "condition": 4,
+          "energy": 0.14781289043723939,
+          "null_mean": 0.013877435133276522,
+          "null_q95": 0.021166807684492212,
+          "excess_energy": 0.13393545530396286,
+          "same_moment_control_energy": 0.032438520575349246,
+          "paired_displacement_200_400": 4.682746140277531e-07,
+          "mc_mean_scale": 0.10411425544134759,
+          "solver_screen_pass": true,
+          "nearest_atom_mean": 0.10951003296118447,
+          "trace": 0.44814855913243773
+        },
+        {
+          "condition": 5,
+          "energy": 0.09724008215732793,
+          "null_mean": 0.009048969142252141,
+          "null_q95": 0.02454445269337907,
+          "excess_energy": 0.08819111301507579,
+          "same_moment_control_energy": 0.02088971464446014,
+          "paired_displacement_200_400": 3.09696684466528e-07,
+          "mc_mean_scale": 0.08132990794999852,
+          "solver_screen_pass": true,
+          "nearest_atom_mean": 0.09546410547840421,
+          "trace": 0.519905363618515
+        },
+        {
+          "condition": 6,
+          "energy": 0.04288775167681579,
+          "null_mean": 0.009995804460062301,
+          "null_q95": 0.026432621319821544,
+          "excess_energy": 0.032891947216753495,
+          "same_moment_control_energy": 0.04460805872703236,
+          "paired_displacement_200_400": 4.0431656272078997e-07,
+          "mc_mean_scale": 0.03934991582340562,
+          "solver_screen_pass": true,
+          "nearest_atom_mean": 0.0950312920819849,
+          "trace": 1.113358957924061
+        },
+        {
+          "condition": 7,
+          "energy": 0.1513434045065828,
+          "null_mean": 0.010731135716955838,
+          "null_q95": 0.023833765613866888,
+          "excess_energy": 0.14061226878962696,
+          "same_moment_control_energy": 0.043050824504475955,
+          "paired_displacement_200_400": 4.245760293915566e-07,
+          "mc_mean_scale": 0.06989826007421429,
+          "solver_screen_pass": true,
+          "nearest_atom_mean": 0.11493630209887509,
+          "trace": 1.2388170643186962
+        }
+      ]
+    }
+  },
+  "solver_displacement_100_200": 3.1398998508030467e-07,
+  "solver_displacement_200_400": 4.102699768026989e-07,
+  "hard_label_risk": [
+    {
+      "t": 0.25,
+      "teacher_error_r": 1.581581473350525,
+      "rollout_error_m": 1.9332983493804932,
+      "ratio": 1.2223830273408984
+    },
+    {
+      "t": 0.5,
+      "teacher_error_r": 1.8095444440841675,
+      "rollout_error_m": 5.86091947555542,
+      "ratio": 3.2388922497682575
+    },
+    {
+      "t": 0.75,
+      "teacher_error_r": 1.5708179473876953,
+      "rollout_error_m": 29.073026657104492,
+      "ratio": 18.508208863702873
+    },
+    {
+      "t": 0.9,
+      "teacher_error_r": 1.369585633277893,
+      "rollout_error_m": 190.5576171875,
+      "ratio": 139.13523372133335
+    },
+    {
+      "t": 0.95,
+      "teacher_error_r": 1.5586892366409302,
+      "rollout_error_m": 766.4151611328125,
+      "ratio": 491.7049166160175
+    },
+    {
+      "t": 0.99,
+      "teacher_error_r": 2.1425633430480957,
+      "rollout_error_m": 19194.81640625,
+      "ratio": 8958.8093012656
+    },
+    {
+      "t": 0.999,
+      "teacher_error_r": 2.3334367275238037,
+      "rollout_error_m": 1919628.0,
+      "ratio": 822661.2606878228
+    }
+  ],
+  "elapsed_seconds": 7.328223609016277
+}

@@ -1,0 +1,65 @@
+{
+  "audit_date": "2026-10-16 Asia/Bangkok",
+  "code_commit": "54f1f9de868894829fdf21c6c13556d76426ccf7",
+  "manuscript_sha256": "47c0d29b085263619f61ee967c4bfd7e1c623078c5f0d212631f48b9fb95a0fa",
+  "scope": "Saved-result recomputation and bounded measurement counterexamples; no training or model resampling",
+  "synthetic": {
+    "all_checkpoints": 120, "all_runs": 15,
+    "selected_rule": "h <= 0.1 and iter >= 10000",
+    "selected_checkpoints": 48, "selected_runs": 12, "problem_seeds": [0, 1, 2],
+    "interval_overlap": 48, "median_log_trace_r2": 0.8601337982642057,
+    "median_absolute_log_bandwidth_gap": 0.12416034983678895
+  },
+  "cifar_second_rerun_from_5000": {
+    "0": {"n": 18, "runs": 3, "overlap": 0, "median_log_trace_r2": -193.51271336822418},
+    "4": {"n": 18, "runs": 3, "overlap": 18, "median_log_trace_r2": 0.5927571836245944},
+    "5": {"n": 18, "runs": 3, "overlap": 13, "median_log_trace_r2": 0.1727209355180107},
+    "6": {"n": 18, "runs": 3, "overlap": 8, "median_log_trace_r2": -0.235927014851045}
+  },
+  "coverage_local_model": {"n": 75, "runs": 15, "r2": 0.900153664138558, "mae": 0.05148399999999999},
+  "positive_h_image_coverage_at_60000": {
+    "n": 9,
+    "pixel_range": [0.768524169921875, 0.8613484700520834],
+    "joint8_range": [0.59375, 0.78125],
+    "joint32_range": [0.46875, 0.765625]
+  },
+  "measurement_counterexamples": {
+    "calibrated_point_mass": {
+      "law": "truth and all 64 generated samples are the same zero vector",
+      "marginal_midrank": 0.5, "joint_midrank": 0.5,
+      "central_90_coverage": 1.0, "joint_90_coverage": 1.0,
+      "tie_free_reference": 0.9076923076923077,
+      "meaning": "Midranks are not uniformly distributed in the presence of ties; this does not by itself establish bias of the archived CIFAR measurements"
+    },
+    "sample_variance_relative_standard_error": {
+      "law": "Bernoulli(0.001)", "M": 128,
+      "formula": "sqrt((kurtosis - (M-3)/(M-1))/M)",
+      "kurtosis": 998.0010010010009,
+      "exact_relative_se": 2.790912637797246,
+      "gaussian_bound_in_manuscript": 0.12549116102763172,
+      "meaning": "The Gaussian sampling-error bound is not universal"
+    }
+  },
+  "continuous_calibration_test": {
+    "command": ".venv/Scripts/python.exe scripts/test_calibration.py",
+    "exit_code": 0,
+    "max_calibrated_deviation_pixel_pc_joint": [0.004, 0.011, 0.048],
+    "collapsed_90_pixel_pc_joint": [0.0, 0.0, 0.0],
+    "all_checks_passed": true
+  },
+  "access": {
+    "synthetic_example_checkpoint": "results/exp1/heff_p7y_h0_seed0/checkpoints/ckpt_200000.pt",
+    "synthetic_checkpoint_exists": true,
+    "synthetic_family_statistics": "results/exp1/_heff/family_stats.npz",
+    "cifar_checkpoint_dirs_inspected": 12,
+    "local_cifar_ddpm_checkpoint_files_in_those_dirs": 0,
+    "historical_remote_inventory": "results/exp3/_heff/env.txt",
+    "historical_inventory_is_not_current_remote_access_confirmation": true
+  },
+  "input_hashes": {
+    "results/exp1/_heff/heff_synthetic.json": "aae4b8c9809511201bb1ce418812e70256da76ddae77e9439d45159ab2ecae8c",
+    "results/exp1/_heff/heff_families.json": "1f1605a572b86cbfe6f21fa85711214c5fd857f62a75db27d91c64002ca3fdb8",
+    "results/exp3/_rerun/calib_levels_summary.json": "970097bab36d365df9af68a3828ffc88f8b96ba1925e6063b341bcc0dbff6d25",
+    "results/theory/t3_coverage.json": "194a27ca4b2ab3a7c3e1a55a3ce08a979071e67cdc2bdc24b086cbd0022a65a9"
+  }
+}

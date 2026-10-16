@@ -1,0 +1,24 @@
+{
+  "status": "passed",
+  "paired_inputs": "exact equality across Euler/RK4",
+  "raw_cifar_rows_recomputed": 18,
+  "cross_method": [
+    {
+      "image": 2,
+      "euler1600_rk4400_rms": 0.0006280345240839869
+    },
+    {
+      "image": 3,
+      "euler1600_rk4400_rms": 0.0025703305929854303
+    },
+    {
+      "image": 5,
+      "euler1600_rk4400_rms": 0.001344244902605388
+    }
+  ],
+  "max_synthetic_adaptive_relative_difference": 8.87180859356529e-06,
+  "files_sha256": {
+    "results\\intervention_cifar_pilot_20261016\\targeted_cifar_euler.npz": "f9b9ea0a6f83b9ec16f3c60f87d248eded3e1d04d9ec5951615ccb14eb038a46",
+    "results\\intervention_cifar_pilot_20261016\\targeted_cifar_rk4.npz": "a00f8e054c296393721cbe2e280b57deaea38bf4a5541f9cbfac11d9b6ca3cf3"
+  }
+}

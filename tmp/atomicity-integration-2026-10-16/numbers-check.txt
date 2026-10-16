@@ -1,0 +1,402 @@
+CIFAR/DDPM, per bandwidth
+  OK  h=4 beta                                     paper=0.481        file=0.480743
+  OK  h=4 R^2                                      paper=0.785        file=0.784639
+  OK  h=4 decades                                  paper=4.57         file=4.56564
+  OK  h=4 CV of reference                          paper=1.102        file=1.10151
+  OK  h=4 median ratio                             paper=5.3          file=5.30397
+  OK  h=5 beta                                     paper=0.349        file=0.349396
+  OK  h=5 R^2                                      paper=0.522        file=0.521973
+  OK  h=5 decades                                  paper=2.16         file=2.16093
+  OK  h=5 CV of reference                          paper=0.537        file=0.537439
+  OK  h=5 median ratio                             paper=1.38         file=1.37697
+  OK  h=6 beta                                     paper=-0.156       file=-0.155982
+  OK  h=6 R^2                                      paper=0.135        file=0.13468
+  OK  h=6 decades                                  paper=0.74         file=0.741372
+  OK  h=6 CV of reference                          paper=0.208        file=0.208045
+  OK  h=6 median ratio                             paper=1.15         file=1.14511
+
+CIFAR/DDPM, other claims
+  OK  h=0 trace_cov at M=256                       paper=0.458        file=0.458233
+  OK  h=0 nn_correct_rate                          paper=1            file=1
+  OK  h=0 memorization_ratio                       paper=1            file=1
+  OK  h=0 memorization_ratio                       paper=1            file=1
+  OK  h=4 memorization_ratio                       paper=0.829        file=0.828532
+  OK  h=5 memorization_ratio                       paper=0.717        file=0.717204
+  OK  h=6 memorization_ratio                       paper=0.62         file=0.62028
+  OK  Spearman(n_eff, ratio)                       paper=-0.858       file=-0.857503
+  OK  Spearman(h, ratio)                           paper=-0.554       file=-0.554282
+  OK  pooled n                                     paper=144          file=144
+  OK  n_eff h=4                                    paper=2.6          file=2.63669
+  OK  n_eff h=5                                    paper=16.4         file=16.3926
+  OK  n_eff h=6                                    paper=74.9         file=74.8565
+
+CIFAR/DDPM, training-time trajectory of the displayed instance
+  OK  h0 iter500 trace_cov                         paper=179.1        file=179.084
+  OK  h0 iter60000 trace_cov                       paper=0.431        file=0.431036
+
+Seed reproducibility (Table tab:seed3, re-measured at 48 conditions, M=256)
+  OK  h=0 seed 0 tr Cov                            paper=0.411        file=0.41124
+  OK  h=0 seed 1 tr Cov                            paper=0.503        file=0.503245
+  OK  h=0 seed 2 tr Cov                            paper=0.444        file=0.443755
+  OK  h=4 seed 0 tr Cov                            paper=187.2        file=187.155
+  OK  h=4 seed 1 tr Cov                            paper=207.1        file=207.143
+  OK  h=4 seed 2 tr Cov                            paper=158.4        file=158.383
+  OK  h=4 seed 0 aggregate ratio                   paper=2.261        file=2.26062
+  OK  h=4 seed 1 aggregate ratio                   paper=2.44         file=2.43959
+  OK  h=4 seed 2 aggregate ratio                   paper=2.49         file=2.48954
+  OK  h=5 seed 0 tr Cov                            paper=297.6        file=297.637
+  OK  h=5 seed 1 tr Cov                            paper=290          file=290.014
+  OK  h=5 seed 2 tr Cov                            paper=288.1        file=288.114
+  OK  h=5 seed 0 aggregate ratio                   paper=1.396        file=1.39588
+  OK  h=5 seed 1 aggregate ratio                   paper=1.26         file=1.25951
+  OK  h=5 seed 2 aggregate ratio                   paper=1.494        file=1.49359
+  OK  h=6 seed 0 tr Cov                            paper=408.3        file=408.307
+  OK  h=6 seed 1 tr Cov                            paper=315.9        file=315.923
+  OK  h=6 seed 2 tr Cov                            paper=383.2        file=383.219
+  OK  h=6 seed 0 aggregate ratio                   paper=1.177        file=1.17683
+  OK  h=6 seed 1 aggregate ratio                   paper=0.904        file=0.903705
+  OK  h=6 seed 2 aggregate ratio                   paper=1.127        file=1.12674
+  OK  h=4 n_eff min                                paper=1.8          file=1.7911
+  OK  h=4 n_eff max                                paper=3.8          file=3.8421
+  OK  h=5 n_eff min                                paper=10.7         file=10.7457
+  OK  h=5 n_eff max                                paper=24           file=23.9629
+  OK  h=6 n_eff min                                paper=58           file=57.7296
+  OK  h=6 n_eff max                                paper=91           file=91.4685
+  OK  h=4 seed 0 n_eff (text)                      paper=2.6          file=2.63669
+  OK  h=4 seed 1 n_eff (text)                      paper=3.8          file=3.8421
+  OK  h=4 seed 2 n_eff (text)                      paper=1.8          file=1.7911
+  OK  h=0 3-seed spread, raw (%)                   paper=20.3         file=20.3217
+  OK  h=4 3-seed spread, raw (%)                   paper=26.5         file=26.4674
+  OK  h=4 3-seed spread, aggregate (%)             paper=9.6          file=9.55182
+  OK  h=4 3-seed spread, mean-of-ratios (%)        paper=274          file=273.589
+  OK  h=5 3-seed spread, raw (%)                   paper=3.3          file=3.26243
+  OK  h=5 3-seed spread, aggregate (%)             paper=16.9         file=16.9256
+  OK  h=5 3-seed spread, mean-of-ratios (%)        paper=48           file=47.8822
+  OK  h=6 3-seed spread, raw (%)                   paper=25           file=25.026
+  OK  h=6 3-seed spread, aggregate (%)             paper=25.5         file=25.547
+  OK  h=6 3-seed spread, mean-of-ratios (%)        paper=27           file=26.6132
+  OK  h=4: aggregate more stable than raw?         paper=True         file=True
+  OK  h=5: aggregate more stable than raw?         paper=False        file=False
+  OK  h=6: aggregate more stable than raw?         paper=False        file=False
+  OK  h=4 seed 0 mean-of-ratios                    paper=40.7         file=40.7033
+  OK  h=4 seed 1 mean-of-ratios                    paper=2364         file=2364.35
+  OK  h=4 seed 2 mean-of-ratios                    paper=142.9        file=142.904
+  OK  h=5 seed 0 mean-of-ratios                    paper=2.86         file=2.86316
+  OK  h=5 seed 1 mean-of-ratios                    paper=4.37         file=4.37228
+  OK  h=5 seed 2 mean-of-ratios                    paper=4.78         file=4.78109
+  OK  h=5 reference min (193)                      paper=193          file=192.899
+  OK  h=5 reference max (230)                      paper=230          file=230.258
+  OK  h=5 reference spread (18%)                   paper=18           file=17.6114
+  OK  h=5 raw traces min (288)                     paper=288          file=288.114
+  OK  h=5 raw traces max (298)                     paper=298          file=297.637
+  OK  h=6 largest deviation from 1 (18%)           paper=18           file=17.6825
+  OK  h=6 smallest deviation from 1 (10%)          paper=10           file=9.62953
+  OK  training-time vs re-measured, min (%)        paper=-15          file=-15.3407
+  OK  training-time vs re-measured, max (%)        paper=13           file=13.2428
+  OK  training-time vs re-measured, median |.| (%) paper=9.7          file=9.6845
+  OK  h=0 training-time vs re-measured, max (%)    paper=-5           file=-5.45446
+  OK  h=0 training-time vs re-measured, min (%)    paper=-10          file=-9.77719
+  OK  h=0 seed 0 correct image at 48/48            paper=1            file=1
+  OK  h=0 seed 1 correct image at 48/48            paper=1            file=1
+  OK  h=0 seed 2 correct image at 48/48            paper=1            file=1
+
+h_eff at the two ends, h=0 and h=6 (App. app:heffends)
+  OK  h=0 agreement from 5k                        paper=0            file=0
+  OK  h=0 checkpoints from 5k                      paper=18           file=18
+  OK  h=0 runs monotone                            paper=3            file=3
+  OK  h=0 final h_eff min                          paper=3.44         file=3.44198
+  OK  h=0 final h_eff max                          paper=3.74         file=3.73866
+  OK  h=6 agreement from 5k                        paper=8            file=8
+  OK  h=6 checkpoints from 5k                      paper=18           file=18
+  OK  h=6 final h_eff/h min                        paper=1.05         file=1.05191
+  OK  h=6 final h_eff/h max                        paper=1.14         file=1.14258
+  OK  h=0 h_mean max from 5k (at or below 2.8)     paper=2.8          file=2.76093
+  OK  present in main.tex: 'the two agree at 8/18;'
+  OK  present in main.tex: '$3.44$--$3.74$ at 60k'
+
+Beta trajectory (optimisation gap, not a fixed exponent)
+  OK  beta h=4 at iter 500                         paper=-0.031       file=-0.0306994
+  OK  beta h=4 at iter 8000                        paper=-0.045       file=-0.045081
+  OK  beta h=4 at iter 20000                       paper=0.119        file=0.119299
+  OK  beta h=4 at iter 60000                       paper=0.39         file=0.389874
+  OK  beta h=5 at iter 60000                       paper=0.223        file=0.222805
+  OK  beta h=6 at iter 60000                       paper=-0.202       file=-0.202253
+  OK  h=0 collapse factor 415x                     paper=415          file=415.545
+
+EXP-1 controls (from the analysis summaries)
+  OK  P6 spread, fixed budget                      paper=20.2         file=20.2041
+  OK  P6 spread, fixed exposure                    paper=2.28         file=2.28183
+  OK  P6 N=50 fixed-exposure mean                  paper=0.444        file=0.444241
+  OK  P6 N=200 fixed-exposure mean                 paper=0.774        file=0.77434
+  OK  P6 N=1000 fixed-exposure mean                paper=0.928        file=0.927897
+  OK  P6 N=5000 fixed-exposure mean                paper=1.014        file=1.01368
+  OK  seed split, std run                          paper=0.0675       file=0.0675368
+  OK  seed split, std instance                     paper=0.1261       file=0.126121
+  OK  seed split, quadrature                       paper=0.1431       file=0.143066
+  OK  seed split, instance share                   paper=0.78         file=0.777152
+
+Entropic OT: the numbers, and whether the estimator can resolve them
+  OK  OT sampling floor d=2 N=200                  paper=0.0138       file=0.0137913
+  OK  OT sampling floor d=2 N=50                   paper=0.0194       file=0.0193612
+  OK  OT sampling floor d=2 N=1000                 paper=0.0198       file=0.0198338
+  OK  OT sampling floor d=5 N=200                  paper=0.6227       file=0.622676
+  OK  OT sampling floor d=10 N=200                 paper=4.2731       file=4.27314
+  OK  population best MMD (h=0.5, rho=0)           paper=0.0089       file=0.00891836
+  OK  smoothing at the best h hurts MMD            paper=0.0123       file=0.0122558
+  OK  population OT at h=0.5, rho=0                paper=0.106        file=0.105747
+  OK  smoothing at the best h hurts OT             paper=0.131        file=0.130952
+  OK  population OT at h=0.1, rho=0                paper=0.168        file=0.168019
+  OK  population OT at h=0.1, rho=0.1              paper=0.158        file=0.157556
+  OK  h=0.1 OT gain is below the estimator floor   gain=0.01046      floor=0.01379
+  OK  trained-model MMD gain from rho              paper=1.49         file=1.49057
+  OK  trained-model OT gain from rho               paper=1.29         file=1.28767
+  OK  trained-model OT, rho=0                      paper=0.692        file=0.692082
+  OK  trained-model OT, rho=0.3                    paper=0.537        file=0.537468
+  OK  MMD gain exceeds OT gain (the reversal)      mmd=1.49         ot=1.29
+
+The loss form against the measured collapse (Corollary cor:lossform)
+  OK  sqrt-loss pacing, slope from iter 1000       paper=0.429        file=0.428858
+  OK  sqrt-loss pacing, slope over last three      paper=0.485        file=0.48487
+
+The atomicity floor over i.i.d. atoms (the paper no longer cites Zador for it)
+  OK  i.i.d. floor slope, d=3                      paper=-0.612       file=-0.612276
+  OK  i.i.d. floor slope, d=5                      paper=-0.379       file=-0.379256
+  OK  i.i.d. floor slope, d=8                      paper=-0.249       file=-0.249325
+  OK  d=2 log-model drift                          paper=1.05         file=1.04714
+  OK  d=2 power-model drift                        paper=1.52         file=1.52494
+  OK  d=2 i.i.d. floor is log(N)/N, not 1/N        log drift=1.05         pow drift=1.52
+
+Proposition prop:survival(c): the bound is attained, so a>1 really diverges
+  OK  a=1 retains exactly c at 1-t=1e-8            paper=1            file=1
+  OK  a=0.5 has vanished by 1-t=1e-8               paper=0.0002       file=0.00019998
+  OK  a=1.3 diverges as the truncation tightens    1e-8=193.2        1e-16=4.854e+04
+
+Proposition prop:survival(d): the fourth case of the converse is occupied
+  OK  rotating error holds |e_t| at c/sqrt2        paper=0.7071       file=0.707103
+  OK  critical magnitude, no endpoint (case 4)     |e| spread=0.00137    arg spread=4.62
+
+Which reference family (Table tab:families, scripts/heff_family_test.py)
+  OK  gauss: intervals agree (of 48)               paper=48           file=48
+  OK  gauss: median log-space R^2                  paper=0.86         file=0.860134
+  OK  laplace: intervals agree (of 48)             paper=45           file=45
+  OK  laplace: median log-space R^2                paper=0.82         file=0.817348
+  OK  cauchy: intervals agree (of 48)              paper=43           file=43
+  OK  cauchy: median log-space R^2                 paper=0.65         file=0.652757
+  OK  knn: intervals agree (of 48)                 paper=48           file=48
+  OK  knn: median log-space R^2                    paper=0.36         file=0.362917
+  OK  posterior: intervals agree (of 48)           paper=42           file=42
+  OK  posterior: median log-space R^2              paper=-0.12        file=-0.115572
+  OK  gauss: best variance fit (of 48)             paper=36           file=36
+  OK  gauss: best mean prediction (of 48)          paper=41           file=41
+  OK  laplace: best variance fit (of 48)           paper=9            file=9
+  OK  laplace: best mean prediction (of 48)        paper=5            file=5
+  OK  cauchy: best variance fit (of 48)            paper=3            file=3
+  OK  cauchy: best mean prediction (of 48)         paper=1            file=1
+  OK  knn: best variance fit (of 48)               paper=0            file=0
+  OK  knn: best mean prediction (of 48)            paper=1            file=1
+  OK  posterior optimum at grid edge (of 48)       paper=37           file=37
+  OK  gauss beats laplace (checkpoints of 48)      paper=36           file=36
+  OK  gauss vs laplace median log-RMSE gap         paper=0.02         file=0.0196848
+  OK  gauss beats laplace (runs of 12)             paper=9            file=9
+  OK  gauss vs laplace gap, 95% CI low             paper=0.011        file=0.0108936
+  OK  gauss vs laplace gap, 95% CI high            paper=0.024        file=0.0235574
+  OK  gauss beats cauchy (checkpoints of 48)       paper=41           file=41
+  OK  gauss beats knn (checkpoints of 48)          paper=48           file=48
+  OK  gauss family reproduces published h_eff (of 120) paper=120          file=120
+  OK  h=0.5: gauss best variance fit (of 15)       paper=14           file=14
+  OK  h=0.5: gauss intervals agree (of 15)         paper=9            file=9
+
+Numbers introduced by the 2026-10-11 corrections (docs/review/paper_verification_2026-10-10.md)
+  OK  beta h=6 at 60000, standard error            paper=0.06         file=0.0624274
+  OK  ablation width32 population SD               paper=0.041        file=0.0411962
+  OK  ablation width64 population SD               paper=0.041        file=0.040642
+  OK  ablation width256 population SD              paper=0.056        file=0.0559382
+  OK  ablation depth2 population SD                paper=0.11         file=0.110034
+  OK  ablation depth6 population SD                paper=0.09         file=0.0897345
+  OK  ablation sgd population SD                   paper=0.136        file=0.136173
+  OK  h=0.1 aggregate ratio @100 (median)          paper=1.045        file=1.04542
+  OK  h=0.1 aggregate ratio @10000 (median)        paper=1.036        file=1.03603
+  OK  h=0.1 aggregate ratio @100000 (median)       paper=0.991        file=0.990772
+  OK  h=0.1 aggregate ratio @400000 (median)       paper=0.99         file=0.990202
+  OK  h=0.1 aggregate ratio @1000000 (median)      paper=0.996        file=0.996438
+  OK  h=0.1 seed 4 aggregate ratio @1e6            paper=0.987        file=0.987039
+  OK  h=0.1 median tr Sigma_post                   paper=1.015        file=1.01458
+  OK  h=0.01 seed 0 ratio                          paper=1.48         file=1.47886
+  OK  h=0.01 seed 4 ratio                          paper=1.96         file=1.96438
+  OK  h=0.01 other seeds, low                      paper=0.92         file=0.917409
+  OK  h=0.01 other seeds, high                     paper=1.1          file=1.09904
+  OK  ||J||^2 smallest seed                        paper=0.38         file=0.377216
+  OK  ||J||^2 largest seed                         paper=4.46         file=4.45696
+  OK  seed 0 expansion at h=0.5                    paper=1.1          file=1.10482
+  OK  seed 0 measured at h=0.5                     paper=1.29         file=1.28568
+  OK  5-seed tr Cov_h at h=0.5                     paper=1.28         file=1.28088
+  OK  velocity-field factor, smallest              paper=1.9          file=1.88184
+  OK  velocity-field factor, largest               paper=4.8          file=4.80902
+  OK  rho arms, worst mean deviation (%)           paper=3.1          file=3.10744
+  OK  rho arms, worst per-seed deviation (%)       paper=6            file=5.86915
+  OK  P5 ratio SD, smallest                        paper=0.11         file=0.108288
+  OK  P5 ratio SD, largest                         paper=0.15         file=0.154366
+  OK  held-out factor, largest (seeds 1-4)         paper=3.5          file=3.48148
+  OK  held-out seeds within 15%                    paper=2            file=2
+  OK  Spearman of iteration with coverage          paper=-0.41        file=-0.414657
+  OK  EXP-2 final MMD                              paper=0.24         file=0.238776
+  OK  T3 thresholds (0.018, 0.75%, 2e-3)
+  OK  filtered flow: worst endpoint distance to an atom paper=0.0032       file=0.00319739
+  OK  atomic prediction over sampling floor, W2    paper=4.4          file=4.43064
+
+Numbers introduced by the round-6 revision (docs/review/simulated_review_round6_2026-10-11.md)
+  OK  endpoint-smoothed: 0 in rho interval (of 48) paper=41           file=41
+  OK  endpoint-smoothed: max d rho^2 / trace       paper=0.08         file=0.0822881
+  OK  endpoint-smoothed: held-out lower (of 48)    paper=10           file=10
+  OK  endpoint-smoothed: held-out equal (of 48)    paper=21           file=21
+  OK  h=0: gauss / laplace best (of 12)            paper=703          file=703
+  OK  h=0: median R^2 gauss                        paper=0.82         file=0.818481
+  OK  h=0: median R^2 laplace                      paper=0.75         file=0.754111
+  OK  h=0: 0 in rho interval (of 12)               paper=9            file=9
+  OK  h=0: max d rho^2 / trace                     paper=0.06         file=0.0567196
+  OK  h=0: held-out lower / equal                  paper=604          file=604
+  OK  h=0.01: gauss / laplace best (of 12)         paper=803          file=803
+  OK  h=0.01: median R^2 gauss                     paper=0.82         file=0.822774
+  OK  h=0.01: median R^2 laplace                   paper=0.81         file=0.805461
+  OK  h=0.01: 0 in rho interval (of 12)            paper=10           file=10
+  OK  h=0.01: max d rho^2 / trace                  paper=0.08         file=0.0822881
+  OK  h=0.01: held-out lower / equal               paper=105          file=105
+  OK  h=0.05: gauss / laplace best (of 12)         paper=1101         file=1101
+  OK  h=0.05: median R^2 gauss                     paper=0.94         file=0.940321
+  OK  h=0.05: median R^2 laplace                   paper=0.91         file=0.912377
+  OK  h=0.05: 0 in rho interval (of 12)            paper=12           file=12
+  OK  h=0.05: max d rho^2 / trace                  paper=0.03         file=0.0255735
+  OK  h=0.05: held-out lower / equal               paper=106          file=106
+  OK  h=0.1: gauss / laplace best (of 12)          paper=1002         file=1002
+  OK  h=0.1: median R^2 gauss                      paper=0.95         file=0.950251
+  OK  h=0.1: median R^2 laplace                    paper=0.95         file=0.94603
+  OK  h=0.1: 0 in rho interval (of 12)             paper=10           file=10
+  OK  h=0.1: max d rho^2 / trace                   paper=0.07         file=0.0705157
+  OK  h=0.1: held-out lower / equal                paper=206          file=206
+  OK  h=0: median held-out gain                    paper=0.0007       file=0.000735028
+  OK  coverage R^2, run-resampled CI low           paper=0.85         file=0.851601
+  OK  coverage R^2, run-resampled CI high          paper=0.93         file=0.925026
+  OK  coverage R^2, binomial noise ceiling         paper=0.97         file=0.971271
+  OK  reference-law R^2, CI low                    paper=0.89         file=0.889957
+  OK  reference-law R^2, CI high                   paper=0.96         file=0.957335
+  OK  image: checkpoints                           paper=42           file=42
+  OK  image: Spearman h_eff with coverage          paper=0.63         file=0.627362
+  OK  image: Spearman h_eff/h with coverage        paper=0.36         file=0.356935
+  OK  image: Spearman pixel sd with coverage       paper=0.98         file=0.979134
+  OK  image: partial h_eff | iteration             paper=0.59         file=0.594245
+  OK  image: partial pixel sd | iteration          paper=0.97         file=0.974735
+  OK  image: Spearman iteration with extraction    paper=0.98         file=0.983812
+  OK  image: coverage_90 at 2k, low                paper=0.91         file=0.907277
+  OK  image: coverage_90 at 2k, high               paper=0.95         file=0.944539
+  OK  image: coverage_90 at 20k, low               paper=0.67         file=0.671519
+  OK  image: coverage_90 at 20k, high              paper=0.78         file=0.778097
+  OK  image: coverage_90 at 60k, low               paper=0.72         file=0.722514
+  OK  image: coverage_90 at 60k, high              paper=0.81         file=0.808665
+  OK  image: extraction at 60k, low                paper=0.67         file=0.665039
+  OK  image: extraction at 60k, high               paper=0.76         file=0.760986
+  OK  M=64 quantile interval, calibrated coverage  paper=0.873        file=0.87318
+  OK  rerun h_eff at 60k, h=4 seed 0               paper=4.93         file=4.92501
+  OK  rerun h_eff at 60k, h=5 seed 0               paper=5.65         file=5.65266
+  OK  rerun: h_eff and h_mean agree from 5k (of 36) paper=31           file=31
+  OK  rerun: h_eff/h at 60k, low                   paper=1.13         file=1.13053
+  OK  rerun: h_eff/h at 60k, high                  paper=1.34         file=1.33738
+  OK  heffid bound holds (of 75)                   paper=75           file=75
+  OK  heffid bound ranks widths, Spearman          paper=0.91         file=0.91138
+  OK  relative trace error at M=128 (%)            paper=12.5         file=12.5491
+
+Image-scale calibration at several levels (scripts/summarize_calib_levels.py)
+  OK  calib levels: checkpoints                    paper=84           file=84
+  OK  calib levels: runs                           paper=12           file=12
+  OK  calib levels: 90% reference                  paper=0.908        file=0.907692
+  OK  60k marginal 90% coverage, h>0, min          paper=0.77         file=0.768524
+  OK  60k marginal 90% coverage, h>0, max          paper=0.87         file=0.867188
+  OK  60k marginal 90% coverage, h=0, min          paper=0.06         file=0.0605469
+  OK  60k marginal 90% coverage, h=0, max          paper=0.08         file=0.0776367
+  OK  60k joint8 90% coverage, h>0, min            paper=0.59         file=0.59375
+  OK  60k joint8 90% coverage, h>0, max            paper=0.78         file=0.78125
+  OK  60k joint8 90% coverage, h=0                 paper=0            file=0
+  OK  joint8 gap larger than per-pixel (of 84)     paper=84           file=84
+  OK  60k joint32 90% coverage, h>0, min           paper=0.47         file=0.46875
+  OK  60k joint32 90% coverage, h>0, max           paper=0.77         file=0.765625
+  OK  60k joint32 90% coverage, h=0                paper=0            file=0
+  OK  joint32 gap larger than per-pixel (of 84)    paper=84           file=84
+  OK  spread |rho| min                             paper=0.85         file=0.854948
+  OK  spread |rho| max                             paper=0.93         file=0.929536
+  OK  spread partial |rho| min                     paper=0.83         file=0.829073
+  OK  spread partial |rho| max                     paper=0.92         file=0.922071
+  OK  h_eff |rho| min                              paper=0.49         file=0.487409
+  OK  h_eff |rho| max                              paper=0.65         file=0.651801
+  OK  spread has the smaller gap (negative rho), all paper=5            file=5
+
+Incremental value of h_eff over the free quantities (scripts/audit_incremental_r2.py)
+  OK  coverage: baseline CV R^2                    paper=0.88         file=0.884059
+  OK  coverage: baseline + h_eff CV R^2            paper=0.92         file=0.92291
+  OK  coverage: delta R^2                          paper=0.04         file=0.0388509
+  OK  coverage: delta R^2 CI low                   paper=-0.04        file=-0.0360464
+  OK  coverage: delta R^2 CI high                  paper=0.22         file=0.215681
+  OK  PIT error: delta R^2                         paper=-0.13        file=-0.125988
+  OK  W2: delta R^2                                paper=-0.06        file=-0.0581418
+
+Theorem thm:labelmix on the linear-Gaussian problem (scripts/theory_b_check.py)
+  OK  Theorem B: violations (of 750)               paper=0            file=0
+  OK  Theorem B: cases                             paper=750          file=750
+  OK  N=200: minimum bound                         paper=2.34         file=2.33588
+  OK  N=200: minimiser of the bound                paper=0.4          file=0.400056
+  OK  N=200: best measured |C-0.9|                 paper=0.007        file=0.0072
+  OK  N=200: minimiser ratio (1.8)                 paper=1.8          file=1.77828
+  OK  N=200: bound / 2E[D] (about 5.6)             paper=5.6          file=5.74865
+  OK  N=2000: minimum bound                        paper=1.07         file=1.06504
+  OK  N=2000: minimiser of the bound               paper=0.17         file=0.168702
+  OK  N=2000: best measured |C-0.9|                paper=0.002        file=0.0018
+  OK  N=2000: minimiser ratio (1.8)                paper=1.8          file=1.77828
+  OK  N=2000: bound / 2E[D] (about 5.6)            paper=5.6          file=5.51123
+  OK  N=10000: minimum bound                       paper=0.62         file=0.621324
+  OK  N=10000: minimiser of the bound              paper=0.095        file=0.0948683
+  OK  N=10000: best measured |C-0.9|               paper=0.004        file=0.00385
+  OK  N=10000: minimiser ratio (1.8)               paper=1.8          file=1.77828
+  OK  N=10000: bound / 2E[D] (about 5.6)           paper=5.6          file=5.56113
+  OK  measured |C-0.9| at h=3 (0.03)               paper=0.03         file=0.0341833
+
+Three tests of the mechanism (App. app:specbias)
+  OK  E3 kernel change h<=0.1, min                 paper=0.68         file=0.683214
+  OK  E3 kernel change h<=0.1, max                 paper=1.23         file=1.2269
+  OK  E3 kernel change h=0.5, min                  paper=0.09         file=0.092561
+  OK  E3 kernel change h=0.5, max                  paper=0.38         file=0.37971
+  OK  E3 power-law exponent h<=0.01, min           paper=1.1          file=1.10231
+  OK  E3 power-law exponent h<=0.01, max           paper=1.29         file=1.28605
+  OK  E3 Laplace reference exponent                paper=2.09         file=2.08978
+  OK  E2 h_eff / baseline, min                     paper=0.86         file=0.856244
+  OK  E2 h_eff / baseline, max                     paper=1.22         file=1.21724
+  OK  E2 h_eff/h at h=0.05, min                    paper=1.01         file=1.0113
+  OK  E2 h_eff/h at h=0.05, max                    paper=1.18         file=1.18109
+  OK  E2 lr 3e-3 diverged (of 6)                   paper=4            file=4
+  OK  E1 pooled slope at h=0                       paper=-0.35        file=-0.35364
+  OK  E1 pooled CI low                             paper=-0.52        file=-0.519772
+  OK  E1 pooled CI high                            paper=-0.16        file=-0.158964
+  OK  E1 late checkpoints                          paper=6            file=6
+  OK  E1 per-run CI contains 0                     paper=5            file=5
+
+Joint coverage from marginal under-dispersion (scripts/joint_from_marginal.py)
+  OK  joint model: checkpoints                     paper=63           file=63
+  OK  k=8: R^2 at 90%                              paper=0.81         file=0.809515
+  OK  k=8: R^2 over levels                         paper=0.97         file=0.967428
+  OK  k=8: MAE at 90%                              paper=0.05         file=0.0493929
+  OK  k=8: 60k predicted min                       paper=0.51         file=0.507
+  OK  k=8: 60k predicted max                       paper=0.78         file=0.784
+  OK  k=8: 60k measured min                        paper=0.59         file=0.59375
+  OK  k=8: 60k measured max                        paper=0.78         file=0.78125
+  OK  k=32: correlation                            paper=0.92         file=0.916389
+  OK  k=32: bias (overstated loss)                 paper=-0.19        file=-0.191748
+  OK  k=32 per component: bias                     paper=-0.16        file=-0.156034
+  OK  s at 60k, min (0.7)                          paper=0.7          file=0.7
+  OK  s at 60k, max (0.9)                          paper=0.9          file=0.875
+
+sanity: strings the new text depends on
+  OK  present in main.tex: '\\label{sec:cifarddpm}'
+  OK  present in main.tex: '\\label{tab:cifarddpm}'
+  OK  present in main.tex: '\\label{fig:cifartrack}'
+  OK  present in main.tex: '\\label{sec:p6exposure}'
+  OK  present in main.tex: '\\label{sec:seedsplit}'
+  OK  present in main.tex: 'fig_cifar_ddpm_tracking.png'
+
+359 checks passed, 0 failed

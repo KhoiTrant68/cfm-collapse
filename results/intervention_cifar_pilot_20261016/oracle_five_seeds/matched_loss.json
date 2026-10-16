@@ -1,0 +1,34 @@
+[
+  {
+    "delta": 0.01,
+    "teacher_loss_per_d": 0.3264994646121466,
+    "L": 1.020930719532128,
+    "loss_quadrature_per_d": 0.3264994647888765,
+    "counterexample_endpoint_variance_per_d": 0.9999999999999989,
+    "lipschitz_endpoint_variance_per_d": 0.12984298544803483
+  },
+  {
+    "delta": 0.003,
+    "teacher_loss_per_d": 0.1472526414431142,
+    "L": 2.263683218627387,
+    "loss_quadrature_per_d": 0.14725264152747955,
+    "counterexample_endpoint_variance_per_d": 0.9999999999999989,
+    "lipschitz_endpoint_variance_per_d": 0.026410689145533957
+  },
+  {
+    "delta": 0.001,
+    "teacher_loss_per_d": 0.06703156307849639,
+    "L": 4.97278174675694,
+    "loss_quadrature_per_d": 0.06703156311826061,
+    "counterexample_endpoint_variance_per_d": 0.9999999999999998,
+    "lipschitz_endpoint_variance_per_d": 0.005472833538856251
+  },
+  {
+    "delta": 0.0001,
+    "teacher_loss_per_d": 0.011378427528689436,
+    "L": 29.29520203849526,
+    "loss_quadrature_per_d": 0.011378427535758632,
+    "counterexample_endpoint_variance_per_d": 0.9999999999999982,
+    "lipschitz_endpoint_variance_per_d": 0.00015769504272668467
+  }
+]

@@ -1,0 +1,46 @@
+{
+  "audit_date": "2026-10-16 Asia/Bangkok",
+  "canonical_manuscript_unchanged_by_this_audit": true,
+  "canonical_manuscript_sha256": "47c0d29b085263619f61ee967c4bfd7e1c623078c5f0d212631f48b9fb95a0fa",
+  "canonical_formal_environment_counts": {
+    "assumption": 3,
+    "proposition": 20,
+    "corollary": 7,
+    "theorem": 3,
+    "lemma": 4
+  },
+  "inventory_rows": 34,
+  "proof_source_sha256": "4462e268ec00c75b1083b8c8a71d8c5090f0d6086d0f413da95b7a4c415012fe",
+  "proof_pdf_sha256": "0ded366a305d503d92343bc5b7f0e4dcebe8befb276a8047a7032d53511f2c71",
+  "proof_pdf_pages": 9,
+  "rendered_pages_visually_inspected": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "proof_latex_undefined_or_box_warnings": 0,
+  "new_results_fresh_hold_counts": {
+    "H": 4,
+    "L": 4,
+    "G": 4,
+    "V": 4,
+    "A": 4,
+    "B": 4
+  },
+  "counts_do_not_certify_34_old_results_four_times_each": true,
+  "heldout_statistics_reproduction": "48 rows matched; Gaussian wins35; median gap0.02243211020919228",
+  "artifact_validator": "validate_artifact_set.py --strict-gates passed",
+  "no_new_training_or_model_sampling": true,
+  "remaining_limits": [
+    "No trained-network exact-law proof",
+    "No closed-form guided/averaged endpoint weights",
+    "Expected NW-risk assumptions require repair",
+    "New theorem priority not assessed"
+  ]
+}

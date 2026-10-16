@@ -1,0 +1,5582 @@
+{
+  "scope": "ten completed200k runs, five new independent problem seeds,64queries/run,M512",
+  "primary": "mean normalized Gaussian-reference energy minus reference-reference mean",
+  "aggregates": [
+    {
+      "h": 0.0,
+      "mean_seed_excess": 1.0739273532684472,
+      "median_seed_excess": 0.43007930484383095,
+      "min_seed_excess": 0.12604355776229526,
+      "max_seed_excess": 4.0845752608930015,
+      "above_diagnostic_q95": 317,
+      "solver_pass": 319,
+      "gaussian_best_excess_count": 0
+    },
+    {
+      "h": 0.1,
+      "mean_seed_excess": 0.011277466641629992,
+      "median_seed_excess": 0.008118026218970495,
+      "min_seed_excess": 0.00205519914830714,
+      "max_seed_excess": 0.021336578429941442,
+      "above_diagnostic_q95": 164,
+      "solver_pass": 320,
+      "gaussian_best_excess_count": 5
+    }
+  ],
+  "per_seed": [
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "h": 0.0,
+      "seed": 1001,
+      "h_eff": 0.043295980870562446,
+      "mean_energy": 0.4330706386492761,
+      "median_condition_energy": 0.2471676694809444,
+      "mean_null": 0.0029913338054450575,
+      "mean_excess_energy": 0.43007930484383095,
+      "above_diagnostic_q95": 64,
+      "solver_pass": 64,
+      "median_paired_displacement": 4.6604279515785056e-07,
+      "max_paired_displacement": 4.996296428052366e-06,
+      "risk_ratio_t999": 266434.92665081524
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "h": 0.0,
+      "seed": 1002,
+      "h_eff": 0.014609277163653709,
+      "mean_energy": 0.12854993220596472,
+      "median_condition_energy": 0.05057864476511392,
+      "mean_null": 0.0025063744436694645,
+      "mean_excess_energy": 0.12604355776229526,
+      "above_diagnostic_q95": 62,
+      "solver_pass": 64,
+      "median_paired_displacement": 3.971100062522324e-07,
+      "max_paired_displacement": 1.038430391588437e-06,
+      "risk_ratio_t999": 257538.64525728408
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "h": 0.0,
+      "seed": 1003,
+      "h_eff": 0.04068988904776096,
+      "mean_energy": 0.28529063902614216,
+      "median_condition_energy": 0.15492582422455511,
+      "mean_null": 0.002912983570779875,
+      "mean_excess_energy": 0.2823776554553623,
+      "above_diagnostic_q95": 64,
+      "solver_pass": 64,
+      "median_paired_displacement": 3.448415055226149e-07,
+      "max_paired_displacement": 7.402541362449125e-06,
+      "risk_ratio_t999": 354454.3143281546
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "h": 0.0,
+      "seed": 1004,
+      "h_eff": 0.0039668529629689345,
+      "mean_energy": 4.086446855176176,
+      "median_condition_energy": 0.07012070628625136,
+      "mean_null": 0.0018715942831742595,
+      "mean_excess_energy": 4.0845752608930015,
+      "above_diagnostic_q95": 63,
+      "solver_pass": 63,
+      "median_paired_displacement": 3.120267817138535e-07,
+      "max_paired_displacement": 118.1008395784844,
+      "risk_ratio_t999": 506731.07777544245
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "h": 0.0,
+      "seed": 1005,
+      "h_eff": 0.01506986171692741,
+      "mean_energy": 0.4513948510496826,
+      "median_condition_energy": 0.30316227314076283,
+      "mean_null": 0.0048338636619357864,
+      "mean_excess_energy": 0.44656098738774685,
+      "above_diagnostic_q95": 64,
+      "solver_pass": 64,
+      "median_paired_displacement": 3.295384614932406e-07,
+      "max_paired_displacement": 1.0495184009434555e-06,
+      "risk_ratio_t999": 606712.1118190106
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "h": 0.1,
+      "seed": 1001,
+      "h_eff": 0.10650823929994915,
+      "mean_energy": 0.025095178468423553,
+      "median_condition_energy": 0.011005919127732647,
+      "mean_null": 0.0037586000384821085,
+      "mean_excess_energy": 0.021336578429941442,
+      "above_diagnostic_q95": 42,
+      "solver_pass": 64,
+      "median_paired_displacement": 3.8874734212515407e-07,
+      "max_paired_displacement": 1.1476131796105685e-06,
+      "risk_ratio_t999": null
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "h": 0.1,
+      "seed": 1002,
+      "h_eff": 0.10986610904726149,
+      "mean_energy": 0.012566092037964539,
+      "median_condition_energy": 0.010318151573559305,
+      "mean_null": 0.0044480658189940455,
+      "mean_excess_energy": 0.008118026218970495,
+      "above_diagnostic_q95": 36,
+      "solver_pass": 64,
+      "median_paired_displacement": 4.786489890059437e-07,
+      "max_paired_displacement": 9.03639686425149e-07,
+      "risk_ratio_t999": null
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "h": 0.1,
+      "seed": 1003,
+      "h_eff": 0.09119699155309723,
+      "mean_energy": 0.024154373053230677,
+      "median_condition_energy": 0.014688770404194511,
+      "mean_null": 0.003530328849717967,
+      "mean_excess_energy": 0.020624044203512708,
+      "above_diagnostic_q95": 50,
+      "solver_pass": 64,
+      "median_paired_displacement": 3.9427344604784667e-07,
+      "max_paired_displacement": 6.742981634105402e-07,
+      "risk_ratio_t999": null
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "h": 0.1,
+      "seed": 1004,
+      "h_eff": 0.1133298418650182,
+      "mean_energy": 0.008701385138202332,
+      "median_condition_energy": 0.007102537489864686,
+      "mean_null": 0.00444789993078416,
+      "mean_excess_energy": 0.0042534852074181725,
+      "above_diagnostic_q95": 22,
+      "solver_pass": 64,
+      "median_paired_displacement": 4.968711625066283e-07,
+      "max_paired_displacement": 9.781596485405402e-07,
+      "risk_ratio_t999": null
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "h": 0.1,
+      "seed": 1005,
+      "h_eff": 0.07338659554684225,
+      "mean_energy": 0.0071877409869217455,
+      "median_condition_energy": 0.006310248334604777,
+      "mean_null": 0.005132541838614606,
+      "mean_excess_energy": 0.00205519914830714,
+      "above_diagnostic_q95": 14,
+      "solver_pass": 64,
+      "median_paired_displacement": 5.302916872069345e-07,
+      "max_paired_displacement": 1.827363140039529e-06,
+      "risk_ratio_t999": null
+    }
+  ],
+  "families": [
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "h": 0.0,
+      "seed": 1001,
+      "family": "gauss",
+      "scale": 0.043295980870562446,
+      "grid_edge": false,
+      "mean_energy": 0.4330706386492761,
+      "mean_excess_energy": 0.43007930484383095
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "h": 0.0,
+      "seed": 1001,
+      "family": "laplace",
+      "scale": 0.0170620583162523,
+      "grid_edge": false,
+      "mean_energy": 0.27251268037542276,
+      "mean_excess_energy": 0.2702763921246406
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "h": 0.0,
+      "seed": 1001,
+      "family": "cauchy",
+      "scale": 0.003000000000000002,
+      "grid_edge": true,
+      "mean_energy": 0.2803849984325421,
+      "mean_excess_energy": 0.277889027508257
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "h": 0.0,
+      "seed": 1001,
+      "family": "knn",
+      "scale": 2.0,
+      "grid_edge": false,
+      "mean_energy": 0.41913665507918707,
+      "mean_excess_energy": 0.41658881858677815
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "h": 0.0,
+      "seed": 1002,
+      "family": "gauss",
+      "scale": 0.014609277163653709,
+      "grid_edge": false,
+      "mean_energy": 0.12854993220596472,
+      "mean_excess_energy": 0.12604355776229526
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "h": 0.0,
+      "seed": 1002,
+      "family": "laplace",
+      "scale": 0.007154451407952736,
+      "grid_edge": false,
+      "mean_energy": 0.11159458550005968,
+      "mean_excess_energy": 0.10939577073815468
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "h": 0.0,
+      "seed": 1002,
+      "family": "cauchy",
+      "scale": 0.003000000000000002,
+      "grid_edge": true,
+      "mean_energy": 0.15751635597326474,
+      "mean_excess_energy": 0.1549108757100755
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "h": 0.0,
+      "seed": 1002,
+      "family": "knn",
+      "scale": 2.0,
+      "grid_edge": false,
+      "mean_energy": 0.3321886024000583,
+      "mean_excess_energy": 0.3298126427616094
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "h": 0.0,
+      "seed": 1003,
+      "family": "gauss",
+      "scale": 0.04068988904776096,
+      "grid_edge": false,
+      "mean_energy": 0.28529063902614216,
+      "mean_excess_energy": 0.2823776554553623
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "h": 0.0,
+      "seed": 1003,
+      "family": "laplace",
+      "scale": 0.019317618134491375,
+      "grid_edge": false,
+      "mean_energy": 0.1759739204690708,
+      "mean_excess_energy": 0.17367371537180648
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "h": 0.0,
+      "seed": 1003,
+      "family": "cauchy",
+      "scale": 0.003000000000000002,
+      "grid_edge": true,
+      "mean_energy": 0.17580742394150425,
+      "mean_excess_energy": 0.1735520451364048
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "h": 0.0,
+      "seed": 1003,
+      "family": "knn",
+      "scale": 2.0,
+      "grid_edge": false,
+      "mean_energy": 0.3379685092867397,
+      "mean_excess_energy": 0.3357324307180472
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "h": 0.0,
+      "seed": 1004,
+      "family": "gauss",
+      "scale": 0.0039668529629689345,
+      "grid_edge": false,
+      "mean_energy": 4.086446855176176,
+      "mean_excess_energy": 4.0845752608930015
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "h": 0.0,
+      "seed": 1004,
+      "family": "laplace",
+      "scale": 0.0170620583162523,
+      "grid_edge": false,
+      "mean_energy": 4.210534869632243,
+      "mean_excess_energy": 4.207126336304681
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "h": 0.0,
+      "seed": 1004,
+      "family": "cauchy",
+      "scale": 0.003000000000000002,
+      "grid_edge": true,
+      "mean_energy": 4.078504665517959,
+      "mean_excess_energy": 4.075422324026992
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "h": 0.0,
+      "seed": 1004,
+      "family": "knn",
+      "scale": 2.0,
+      "grid_edge": false,
+      "mean_energy": 4.200740957357455,
+      "mean_excess_energy": 4.198628339497331
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "h": 0.0,
+      "seed": 1005,
+      "family": "gauss",
+      "scale": 0.01506986171692741,
+      "grid_edge": false,
+      "mean_energy": 0.4513948510496826,
+      "mean_excess_energy": 0.44656098738774685
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "h": 0.0,
+      "seed": 1005,
+      "family": "laplace",
+      "scale": 0.007154451407952736,
+      "grid_edge": false,
+      "mean_energy": 0.34297663884295704,
+      "mean_excess_energy": 0.33840053536032033
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "h": 0.0,
+      "seed": 1005,
+      "family": "cauchy",
+      "scale": 0.003000000000000002,
+      "grid_edge": true,
+      "mean_energy": 0.27016246172020586,
+      "mean_excess_energy": 0.26567718105091354
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "h": 0.0,
+      "seed": 1005,
+      "family": "knn",
+      "scale": 2.0,
+      "grid_edge": false,
+      "mean_energy": 0.3497339909899914,
+      "mean_excess_energy": 0.3473748067080027
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "h": 0.1,
+      "seed": 1001,
+      "family": "gauss",
+      "scale": 0.10650823929994915,
+      "grid_edge": false,
+      "mean_energy": 0.025095178468423553,
+      "mean_excess_energy": 0.021336578429941442
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "h": 0.1,
+      "seed": 1001,
+      "family": "laplace",
+      "scale": 0.09703794466239798,
+      "grid_edge": false,
+      "mean_energy": 0.026857344687663754,
+      "mean_excess_energy": 0.023093275472679295
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "h": 0.1,
+      "seed": 1001,
+      "family": "cauchy",
+      "scale": 0.04901959715019187,
+      "grid_edge": false,
+      "mean_energy": 0.07054167324667307,
+      "mean_excess_energy": 0.06670131133732447
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "h": 0.1,
+      "seed": 1001,
+      "family": "knn",
+      "scale": 10.0,
+      "grid_edge": false,
+      "mean_energy": 0.07875049103963655,
+      "mean_excess_energy": 0.07496908977287298
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "h": 0.1,
+      "seed": 1002,
+      "family": "gauss",
+      "scale": 0.10986610904726149,
+      "grid_edge": false,
+      "mean_energy": 0.012566092037964539,
+      "mean_excess_energy": 0.008118026218970495
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "h": 0.1,
+      "seed": 1002,
+      "family": "laplace",
+      "scale": 0.09703794466239798,
+      "grid_edge": false,
+      "mean_energy": 0.016592669591923286,
+      "mean_excess_energy": 0.012247315633266
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "h": 0.1,
+      "seed": 1002,
+      "family": "cauchy",
+      "scale": 0.04901959715019187,
+      "grid_edge": false,
+      "mean_energy": 0.031070202011335056,
+      "mean_excess_energy": 0.026391099776844014
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "h": 0.1,
+      "seed": 1002,
+      "family": "knn",
+      "scale": 22.0,
+      "grid_edge": false,
+      "mean_energy": 0.10085604556971549,
+      "mean_excess_energy": 0.09643663234897243
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "h": 0.1,
+      "seed": 1003,
+      "family": "gauss",
+      "scale": 0.09119699155309723,
+      "grid_edge": false,
+      "mean_energy": 0.024154373053230677,
+      "mean_excess_energy": 0.020624044203512708
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "h": 0.1,
+      "seed": 1003,
+      "family": "laplace",
+      "scale": 0.07570024405577133,
+      "grid_edge": false,
+      "mean_energy": 0.029087721419597798,
+      "mean_excess_energy": 0.025410119770027342
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "h": 0.1,
+      "seed": 1003,
+      "family": "cauchy",
+      "scale": 0.030772420425667014,
+      "grid_edge": false,
+      "mean_energy": 0.07040085673105263,
+      "mean_excess_energy": 0.06675312495182692
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "h": 0.1,
+      "seed": 1003,
+      "family": "knn",
+      "scale": 8.0,
+      "grid_edge": false,
+      "mean_energy": 0.13561028588996488,
+      "mean_excess_energy": 0.1317171892189761
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "h": 0.1,
+      "seed": 1004,
+      "family": "gauss",
+      "scale": 0.1133298418650182,
+      "grid_edge": false,
+      "mean_energy": 0.008701385138202332,
+      "mean_excess_energy": 0.0042534852074181725
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "h": 0.1,
+      "seed": 1004,
+      "family": "laplace",
+      "scale": 0.08308811297485086,
+      "grid_edge": false,
+      "mean_energy": 0.011170424715136296,
+      "mean_excess_energy": 0.006723424858052719
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "h": 0.1,
+      "seed": 1004,
+      "family": "cauchy",
+      "scale": 0.021871357105524028,
+      "grid_edge": false,
+      "mean_energy": 0.07906162686586207,
+      "mean_excess_energy": 0.0748033124586929
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "h": 0.1,
+      "seed": 1004,
+      "family": "knn",
+      "scale": 17.0,
+      "grid_edge": false,
+      "mean_energy": 0.04849885149126032,
+      "mean_excess_energy": 0.04457936022351913
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "h": 0.1,
+      "seed": 1005,
+      "family": "gauss",
+      "scale": 0.07338659554684225,
+      "grid_edge": false,
+      "mean_energy": 0.0071877409869217455,
+      "mean_excess_energy": 0.00205519914830714
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "h": 0.1,
+      "seed": 1005,
+      "family": "laplace",
+      "scale": 0.06686134748299853,
+      "grid_edge": false,
+      "mean_energy": 0.007749095332970096,
+      "mean_excess_energy": 0.0026871540510536567
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "h": 0.1,
+      "seed": 1005,
+      "family": "cauchy",
+      "scale": 0.050565030849762445,
+      "grid_edge": false,
+      "mean_energy": 0.008778336373610985,
+      "mean_excess_energy": 0.0035519103813891964
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "h": 0.1,
+      "seed": 1005,
+      "family": "knn",
+      "scale": 105.0,
+      "grid_edge": false,
+      "mean_energy": 0.009834138271537505,
+      "mean_excess_energy": 0.004578828130378334
+    }
+  ],
+  "solver_failed": [
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "h": 0.0,
+      "seed": 1004,
+      "condition": 50,
+      "energy": 253.0921364574024,
+      "null_mean": 4.820341128905193e-06,
+      "null_q95": 6.643231891379668e-06,
+      "excess_energy": 253.09213163706127,
+      "same_moment_control_energy": 5.9935428830693924e-06,
+      "paired_displacement_200_400": 118.1008395784844,
+      "mc_mean_scale": 108361.56237052038,
+      "solver_screen_pass": false,
+      "nearest_atom_mean": 59957.14792594159,
+      "trace": 1704314103325.3862
+    }
+  ],
+  "histories": [
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "h": 0.0,
+      "seed": 1001,
+      "iteration": 1000,
+      "train_query_trace": 0.975467,
+      "loss_ema": 1.61814
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "h": 0.0,
+      "seed": 1001,
+      "iteration": 10000,
+      "train_query_trace": 0.85659,
+      "loss_ema": 1.57002
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "h": 0.0,
+      "seed": 1001,
+      "iteration": 30000,
+      "train_query_trace": 0.889222,
+      "loss_ema": 1.37055
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "h": 0.0,
+      "seed": 1001,
+      "iteration": 100000,
+      "train_query_trace": 0.432956,
+      "loss_ema": 0.76553
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "h": 0.0,
+      "seed": 1001,
+      "iteration": 200000,
+      "train_query_trace": 0.336982,
+      "loss_ema": 0.49718
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "h": 0.0,
+      "seed": 1002,
+      "iteration": 1000,
+      "train_query_trace": 0.816526,
+      "loss_ema": 1.74986
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "h": 0.0,
+      "seed": 1002,
+      "iteration": 10000,
+      "train_query_trace": 0.924984,
+      "loss_ema": 1.66283
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "h": 0.0,
+      "seed": 1002,
+      "iteration": 30000,
+      "train_query_trace": 0.888114,
+      "loss_ema": 1.51048
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "h": 0.0,
+      "seed": 1002,
+      "iteration": 100000,
+      "train_query_trace": 0.48247,
+      "loss_ema": 0.91395
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "h": 0.0,
+      "seed": 1002,
+      "iteration": 200000,
+      "train_query_trace": 0.384143,
+      "loss_ema": 0.64203
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "h": 0.0,
+      "seed": 1003,
+      "iteration": 1000,
+      "train_query_trace": 0.946682,
+      "loss_ema": 1.6761
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "h": 0.0,
+      "seed": 1003,
+      "iteration": 10000,
+      "train_query_trace": 0.839156,
+      "loss_ema": 1.56172
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "h": 0.0,
+      "seed": 1003,
+      "iteration": 30000,
+      "train_query_trace": 0.582581,
+      "loss_ema": 1.28206
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "h": 0.0,
+      "seed": 1003,
+      "iteration": 100000,
+      "train_query_trace": 0.437972,
+      "loss_ema": 0.71464
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "h": 0.0,
+      "seed": 1003,
+      "iteration": 200000,
+      "train_query_trace": 0.329031,
+      "loss_ema": 0.46882
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "h": 0.0,
+      "seed": 1004,
+      "iteration": 1000,
+      "train_query_trace": 1.13651,
+      "loss_ema": 1.92506
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "h": 0.0,
+      "seed": 1004,
+      "iteration": 10000,
+      "train_query_trace": 1.05055,
+      "loss_ema": 1.84539
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "h": 0.0,
+      "seed": 1004,
+      "iteration": 30000,
+      "train_query_trace": 0.884409,
+      "loss_ema": 1.39874
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "h": 0.0,
+      "seed": 1004,
+      "iteration": 100000,
+      "train_query_trace": 0.636553,
+      "loss_ema": 0.84951
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "h": 0.0,
+      "seed": 1004,
+      "iteration": 200000,
+      "train_query_trace": 0.510529,
+      "loss_ema": 0.66288
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "h": 0.0,
+      "seed": 1005,
+      "iteration": 1000,
+      "train_query_trace": 2.36417,
+      "loss_ema": 3.14144
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "h": 0.0,
+      "seed": 1005,
+      "iteration": 10000,
+      "train_query_trace": 1.6634,
+      "loss_ema": 2.86304
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "h": 0.0,
+      "seed": 1005,
+      "iteration": 30000,
+      "train_query_trace": 1.52129,
+      "loss_ema": 2.29848
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "h": 0.0,
+      "seed": 1005,
+      "iteration": 100000,
+      "train_query_trace": 0.994129,
+      "loss_ema": 1.57299
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "h": 0.0,
+      "seed": 1005,
+      "iteration": 200000,
+      "train_query_trace": 0.752875,
+      "loss_ema": 1.25207
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "h": 0.1,
+      "seed": 1001,
+      "iteration": 1000,
+      "train_query_trace": 0.778041,
+      "loss_ema": 1.6462
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "h": 0.1,
+      "seed": 1001,
+      "iteration": 10000,
+      "train_query_trace": 0.826722,
+      "loss_ema": 1.62356
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "h": 0.1,
+      "seed": 1001,
+      "iteration": 30000,
+      "train_query_trace": 0.926116,
+      "loss_ema": 1.4507
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "h": 0.1,
+      "seed": 1001,
+      "iteration": 100000,
+      "train_query_trace": 0.766103,
+      "loss_ema": 1.37251
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "h": 0.1,
+      "seed": 1001,
+      "iteration": 200000,
+      "train_query_trace": 0.796285,
+      "loss_ema": 1.34047
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "h": 0.1,
+      "seed": 1002,
+      "iteration": 1000,
+      "train_query_trace": 0.984821,
+      "loss_ema": 1.80592
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "h": 0.1,
+      "seed": 1002,
+      "iteration": 10000,
+      "train_query_trace": 0.920182,
+      "loss_ema": 1.76596
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "h": 0.1,
+      "seed": 1002,
+      "iteration": 30000,
+      "train_query_trace": 1.07801,
+      "loss_ema": 1.66772
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "h": 0.1,
+      "seed": 1002,
+      "iteration": 100000,
+      "train_query_trace": 0.93539,
+      "loss_ema": 1.57881
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "h": 0.1,
+      "seed": 1002,
+      "iteration": 200000,
+      "train_query_trace": 1.00472,
+      "loss_ema": 1.54683
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "h": 0.1,
+      "seed": 1003,
+      "iteration": 1000,
+      "train_query_trace": 0.917565,
+      "loss_ema": 1.70374
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "h": 0.1,
+      "seed": 1003,
+      "iteration": 10000,
+      "train_query_trace": 0.883443,
+      "loss_ema": 1.63516
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "h": 0.1,
+      "seed": 1003,
+      "iteration": 30000,
+      "train_query_trace": 0.769031,
+      "loss_ema": 1.54933
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "h": 0.1,
+      "seed": 1003,
+      "iteration": 100000,
+      "train_query_trace": 0.845516,
+      "loss_ema": 1.4417
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "h": 0.1,
+      "seed": 1003,
+      "iteration": 200000,
+      "train_query_trace": 0.744623,
+      "loss_ema": 1.40319
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "h": 0.1,
+      "seed": 1004,
+      "iteration": 1000,
+      "train_query_trace": 1.0435,
+      "loss_ema": 2.06082
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "h": 0.1,
+      "seed": 1004,
+      "iteration": 10000,
+      "train_query_trace": 1.18115,
+      "loss_ema": 1.96395
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "h": 0.1,
+      "seed": 1004,
+      "iteration": 30000,
+      "train_query_trace": 1.09162,
+      "loss_ema": 1.88119
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "h": 0.1,
+      "seed": 1004,
+      "iteration": 100000,
+      "train_query_trace": 1.0453,
+      "loss_ema": 1.80769
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "h": 0.1,
+      "seed": 1004,
+      "iteration": 200000,
+      "train_query_trace": 1.13046,
+      "loss_ema": 1.79516
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "h": 0.1,
+      "seed": 1005,
+      "iteration": 1000,
+      "train_query_trace": 2.34658,
+      "loss_ema": 3.22792
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "h": 0.1,
+      "seed": 1005,
+      "iteration": 10000,
+      "train_query_trace": 2.17333,
+      "loss_ema": 3.17654
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "h": 0.1,
+      "seed": 1005,
+      "iteration": 30000,
+      "train_query_trace": 2.20764,
+      "loss_ema": 3.11913
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "h": 0.1,
+      "seed": 1005,
+      "iteration": 100000,
+      "train_query_trace": 2.08742,
+      "loss_ema": 3.09708
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "h": 0.1,
+      "seed": 1005,
+      "iteration": 200000,
+      "train_query_trace": 2.00858,
+      "loss_ema": 3.04234
+    }
+  ],
+  "raw_primary_conditions_verified": 640,
+  "raw_controls_verified": 640,
+  "outlier": {
+    "run": "linear-gaussian-mlp-h0-seed1004-200k",
+    "condition": 50,
+    "query_y": 1.6191826053480003,
+    "train_y_range": [
+      -1.1735473035279602,
+      1.183615676877379
+    ],
+    "max_endpoint_norm": 29518765.448105127,
+    "median_endpoint_norm": 4.833367545404782,
+    "count_endpoint_norm_above_100": 2,
+    "direct_energy": 253.09213645739712,
+    "saved_energy": 253.0921364574024,
+    "mean_excess_without_condition_posthoc": 0.1320743660331879
+  },
+  "raw_energy_differences": [
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 0,
+      "recorded_energy": 0.15774560990401362,
+      "direct_energy": 0.15774560990612813,
+      "difference": 2.1145030171254575e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 1,
+      "recorded_energy": 0.07948487873890654,
+      "direct_energy": 0.07948487874321715,
+      "difference": 4.310607426560864e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 2,
+      "recorded_energy": 0.06115949109054748,
+      "direct_energy": 0.06115949109371927,
+      "difference": 3.171789220157706e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 3,
+      "recorded_energy": 0.03484304164928033,
+      "direct_energy": 0.03484304165285744,
+      "difference": 3.5771108297666387e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 4,
+      "recorded_energy": 0.03502950791260767,
+      "direct_energy": 0.03502950791840032,
+      "difference": 5.7926510810268894e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 5,
+      "recorded_energy": 0.32914065322199515,
+      "direct_energy": 0.3291406532245631,
+      "difference": 2.567945855957987e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 6,
+      "recorded_energy": 0.37935729376417004,
+      "direct_energy": 0.3793572937654494,
+      "difference": 1.2793655024267991e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 7,
+      "recorded_energy": 0.20896031952181868,
+      "direct_energy": 0.20896031952481697,
+      "difference": 2.9982960558783134e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 8,
+      "recorded_energy": 0.3097765776194402,
+      "direct_energy": 0.30977657762132815,
+      "difference": 1.8879342533750787e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 9,
+      "recorded_energy": 0.31596213138993934,
+      "direct_energy": 0.315962131393723,
+      "difference": 3.7836400679225335e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 10,
+      "recorded_energy": 0.5849420183783662,
+      "direct_energy": 0.5849420183808962,
+      "difference": 2.5299762285158067e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 11,
+      "recorded_energy": 0.36844855778362545,
+      "direct_energy": 0.3684485577883291,
+      "difference": 4.7036263772781695e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 12,
+      "recorded_energy": 0.27212215699477604,
+      "direct_energy": 0.2721221569973069,
+      "difference": 2.530864406935507e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 13,
+      "recorded_energy": 0.11029402927407789,
+      "direct_energy": 0.11029402927756794,
+      "difference": 3.4900554668482187e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 14,
+      "recorded_energy": 0.2462275876500754,
+      "direct_energy": 0.24622758765157687,
+      "difference": 1.5014656185030617e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 15,
+      "recorded_energy": 0.2481077513118134,
+      "direct_energy": 0.24810775131435767,
+      "difference": 2.5442703499578556e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 16,
+      "recorded_energy": 0.08731463631017439,
+      "direct_energy": 0.08731463631187589,
+      "difference": 1.7015000519648993e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 17,
+      "recorded_energy": 1.120941192469308,
+      "direct_energy": 1.120941192472571,
+      "difference": 3.262945469373335e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 18,
+      "recorded_energy": 0.08276264855411813,
+      "direct_energy": 0.08276264855585498,
+      "difference": 1.7368467775114027e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 19,
+      "recorded_energy": 0.08346464544104046,
+      "direct_energy": 0.08346464544719176,
+      "difference": 6.151301690238142e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 20,
+      "recorded_energy": 0.2439509645638017,
+      "direct_energy": 0.243950964569833,
+      "difference": 6.0313143368517785e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 21,
+      "recorded_energy": 0.3575883963655436,
+      "direct_energy": 0.3575883963667466,
+      "difference": 1.2029821583325884e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 22,
+      "recorded_energy": 0.10341763021073362,
+      "direct_energy": 0.10341763021587165,
+      "difference": 5.1380288912383776e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 23,
+      "recorded_energy": 1.2680238538034172,
+      "direct_energy": 1.268023853811146,
+      "difference": 7.728706563625565e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 24,
+      "recorded_energy": 1.2065020302958631,
+      "direct_energy": 1.20650203030175,
+      "difference": 5.88684656577243e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 25,
+      "recorded_energy": 0.32100958609785246,
+      "direct_energy": 0.3210095861024319,
+      "difference": 4.579447931973846e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 26,
+      "recorded_energy": 0.6721806650748655,
+      "direct_energy": 0.6721806650801386,
+      "difference": 5.2731152777596435e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 27,
+      "recorded_energy": 0.11458756217190429,
+      "direct_energy": 0.11458756217294065,
+      "difference": 1.036365437911968e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 28,
+      "recorded_energy": 1.0102733169492508,
+      "direct_energy": 1.0102733169523486,
+      "difference": 3.0977442833091118e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 29,
+      "recorded_energy": 0.19645610466577737,
+      "direct_energy": 0.19645610466952,
+      "difference": 3.742617327162634e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 30,
+      "recorded_energy": 0.22508487793206255,
+      "direct_energy": 0.22508487793524892,
+      "difference": 3.186367836249815e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 31,
+      "recorded_energy": 0.07963385487455767,
+      "direct_energy": 0.07963385487785005,
+      "difference": 3.2923802573137095e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 32,
+      "recorded_energy": 0.3508057499871732,
+      "direct_energy": 0.3508057499913325,
+      "difference": 4.1593395394556865e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 33,
+      "recorded_energy": 0.07130084428159877,
+      "direct_energy": 0.07130084428248543,
+      "difference": 8.866518630412656e-13
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 34,
+      "recorded_energy": 0.34817099986456895,
+      "direct_energy": 0.34817099986758204,
+      "difference": 3.0130897776814436e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 35,
+      "recorded_energy": 0.1510087629968201,
+      "direct_energy": 0.15100876300068378,
+      "difference": 3.863687147998007e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 36,
+      "recorded_energy": 0.2180859213358682,
+      "direct_energy": 0.21808592133708882,
+      "difference": 1.2206069488485127e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 37,
+      "recorded_energy": 0.049438537986929654,
+      "direct_energy": 0.04943853798838316,
+      "difference": 1.453503983839255e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 38,
+      "recorded_energy": 0.052347857208887426,
+      "direct_energy": 0.0523478572116637,
+      "difference": 2.7762722676349938e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 39,
+      "recorded_energy": 0.06417774913467789,
+      "direct_energy": 0.06417774913760955,
+      "difference": 2.931668796612996e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 40,
+      "recorded_energy": 0.5390718812911627,
+      "direct_energy": 0.5390718812940526,
+      "difference": 2.8899105330992825e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 41,
+      "recorded_energy": 0.27254837983025704,
+      "direct_energy": 0.2725483798342823,
+      "difference": 4.025280109232199e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 42,
+      "recorded_energy": 0.12964000283317878,
+      "direct_energy": 0.129640002837114,
+      "difference": 3.935213266359483e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 43,
+      "recorded_energy": 1.8901158975695451,
+      "direct_energy": 1.890115897573156,
+      "difference": 3.610889365290859e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 44,
+      "recorded_energy": 0.9720949712887809,
+      "direct_energy": 0.9720949712928446,
+      "difference": 4.0637493370354605e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 45,
+      "recorded_energy": 0.4174005169516155,
+      "direct_energy": 0.41740051695744945,
+      "difference": 5.833944438649041e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 46,
+      "recorded_energy": 0.13605816611873361,
+      "direct_energy": 0.13605816612098573,
+      "difference": 2.2521151610277457e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 47,
+      "recorded_energy": 0.23298676794357445,
+      "direct_energy": 0.2329867679455634,
+      "difference": 1.9889367930403523e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 48,
+      "recorded_energy": 0.5963003391712095,
+      "direct_energy": 0.5963003391747151,
+      "difference": 3.5056402225563943e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 49,
+      "recorded_energy": 0.7061252282599365,
+      "direct_energy": 0.706125228261559,
+      "difference": 1.6224799281872038e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 50,
+      "recorded_energy": 0.735214014565918,
+      "direct_energy": 0.7352140145708926,
+      "difference": 4.9746873287404014e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 51,
+      "recorded_energy": 1.342917890691931,
+      "direct_energy": 1.3429178906956016,
+      "difference": 3.6706193640156926e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 52,
+      "recorded_energy": 0.10708649320734337,
+      "direct_energy": 0.10708649320950465,
+      "difference": 2.1612850398256e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 53,
+      "recorded_energy": 0.23389344140929372,
+      "direct_energy": 0.23389344141331558,
+      "difference": 4.0218661734314765e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 54,
+      "recorded_energy": 0.7411288869232122,
+      "direct_energy": 0.7411288869268738,
+      "difference": 3.661626557516229e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 55,
+      "recorded_energy": 0.2941427000074298,
+      "direct_energy": 0.2941427000085173,
+      "difference": 1.0874634526203408e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 56,
+      "recorded_energy": 3.7339044041284297,
+      "direct_energy": 3.733904404138579,
+      "difference": 1.0149214801913331e-11
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 57,
+      "recorded_energy": 0.08914371028681858,
+      "direct_energy": 0.08914371028830055,
+      "difference": 1.4819673266330824e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 58,
+      "recorded_energy": 0.38233602956258306,
+      "direct_energy": 0.38233602956514773,
+      "difference": 2.564670698035343e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 59,
+      "recorded_energy": 0.5748596130380119,
+      "direct_energy": 0.5748596130427202,
+      "difference": 4.708233802830364e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 60,
+      "recorded_energy": 0.015993882672482848,
+      "direct_energy": 0.015993882675206305,
+      "difference": 2.723456876685404e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 61,
+      "recorded_energy": 0.18295353142221082,
+      "direct_energy": 0.18295353143280288,
+      "difference": 1.059205501086069e-11
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 62,
+      "recorded_energy": 0.03830423873293253,
+      "direct_energy": 0.038304238737269236,
+      "difference": 4.336704606533459e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "condition": 63,
+      "recorded_energy": 1.132169890864826,
+      "direct_energy": 1.132169890866149,
+      "difference": 1.3231638007482616e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 0,
+      "recorded_energy": 0.04358074138289333,
+      "direct_energy": 0.04358074138408198,
+      "difference": 1.18865334242102e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 1,
+      "recorded_energy": 0.11118773944803563,
+      "direct_energy": 0.11118773945126272,
+      "difference": 3.2270852656779425e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 2,
+      "recorded_energy": 0.14551895169572523,
+      "direct_energy": 0.14551895170011464,
+      "difference": 4.3894055057336345e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 3,
+      "recorded_energy": 0.020532412640759952,
+      "direct_energy": 0.02053241264358718,
+      "difference": 2.8272280350183365e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 4,
+      "recorded_energy": 0.025100569463999186,
+      "direct_energy": 0.02510056947146909,
+      "difference": 7.469903168244585e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 5,
+      "recorded_energy": 0.21223993859600532,
+      "direct_energy": 0.21223993859942467,
+      "difference": 3.419348137967404e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 6,
+      "recorded_energy": 0.0052905227296974585,
+      "direct_energy": 0.005290522729886298,
+      "difference": 1.8883939550962126e-13
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 7,
+      "recorded_energy": 0.6607563356435467,
+      "direct_energy": 0.660756335645207,
+      "difference": 1.660227511024459e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 8,
+      "recorded_energy": 0.262903963485373,
+      "direct_energy": 0.2629039634913648,
+      "difference": 5.9918181527507386e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 9,
+      "recorded_energy": 0.04751293601057324,
+      "direct_energy": 0.04751293601061336,
+      "difference": 4.0120684552391594e-14
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 10,
+      "recorded_energy": 0.039099674847961396,
+      "direct_energy": 0.039099674849225004,
+      "difference": 1.2636072743710258e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 11,
+      "recorded_energy": 0.039189554099347004,
+      "direct_energy": 0.0391895541037352,
+      "difference": 4.388198138194355e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 12,
+      "recorded_energy": 0.02990462973790138,
+      "direct_energy": 0.02990462974203794,
+      "difference": 4.136559150769159e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 13,
+      "recorded_energy": 0.10176543010623189,
+      "direct_energy": 0.10176543010814694,
+      "difference": 1.915051450751548e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 14,
+      "recorded_energy": 0.019592272172550964,
+      "direct_energy": 0.019592272173291507,
+      "difference": 7.405430435536431e-13
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 15,
+      "recorded_energy": 0.4148501075026972,
+      "direct_energy": 0.4148501075090304,
+      "difference": 6.333211732822974e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 16,
+      "recorded_energy": 0.09605910823010833,
+      "direct_energy": 0.09605910824051649,
+      "difference": 1.0408160444619341e-11
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 17,
+      "recorded_energy": 0.037788822718225944,
+      "direct_energy": 0.03778882272322754,
+      "difference": 5.001596359299754e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 18,
+      "recorded_energy": 0.3046146590272756,
+      "direct_energy": 0.3046146590315219,
+      "difference": 4.2463255134350675e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 19,
+      "recorded_energy": 0.03902820669684538,
+      "direct_energy": 0.03902820669786535,
+      "difference": 1.0199688316170352e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 20,
+      "recorded_energy": 0.08607274277077799,
+      "direct_energy": 0.08607274277377598,
+      "difference": 2.9979907445465415e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 21,
+      "recorded_energy": 0.10567501099087724,
+      "direct_energy": 0.10567501099745653,
+      "difference": 6.57929266623114e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 22,
+      "recorded_energy": 0.016802711902319196,
+      "direct_energy": 0.016802711904882462,
+      "difference": 2.5632655720198017e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 23,
+      "recorded_energy": 0.05329518400402939,
+      "direct_energy": 0.0532951840060289,
+      "difference": 1.999511667349907e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 24,
+      "recorded_energy": 0.021839523684473703,
+      "direct_energy": 0.021839523688691357,
+      "difference": 4.217654003824123e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 25,
+      "recorded_energy": 0.015894176873424985,
+      "direct_energy": 0.01589417687677368,
+      "difference": 3.3486963202378206e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 26,
+      "recorded_energy": 0.17778980267770997,
+      "direct_energy": 0.17778980268586078,
+      "difference": 8.15081335758805e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 27,
+      "recorded_energy": 0.006573941236822218,
+      "direct_energy": 0.006573941237175849,
+      "difference": 3.53631186833514e-13
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 28,
+      "recorded_energy": 0.04597246114333472,
+      "direct_energy": 0.04597246114876894,
+      "difference": 5.4342225164205615e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 29,
+      "recorded_energy": 0.012930179085812295,
+      "direct_energy": 0.012930179086534153,
+      "difference": 7.218583369938969e-13
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 30,
+      "recorded_energy": 0.015104382202861392,
+      "direct_energy": 0.01510438220656278,
+      "difference": 3.701388154309093e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 31,
+      "recorded_energy": 0.04034954173515172,
+      "direct_energy": 0.04034954173602593,
+      "difference": 8.7421042627156e-13
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 32,
+      "recorded_energy": 0.06422145781784463,
+      "direct_energy": 0.06422145781901217,
+      "difference": 1.1675382882714302e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 33,
+      "recorded_energy": 0.033059704684461934,
+      "direct_energy": 0.03305970468513714,
+      "difference": 6.752029491075007e-13
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 34,
+      "recorded_energy": 0.08434504489898108,
+      "direct_energy": 0.08434504490124493,
+      "difference": 2.2638557695131567e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 35,
+      "recorded_energy": 0.15326595924162262,
+      "direct_energy": 0.15326595924283448,
+      "difference": 1.2118639425295896e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 36,
+      "recorded_energy": 0.2886796153741988,
+      "direct_energy": 0.288679615377122,
+      "difference": 2.923217223838037e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 37,
+      "recorded_energy": 0.08689768632712727,
+      "direct_energy": 0.08689768632933585,
+      "difference": 2.2085805406746317e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 38,
+      "recorded_energy": 0.6761630099882869,
+      "direct_energy": 0.6761630099902091,
+      "difference": 1.9221291225335335e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 39,
+      "recorded_energy": 0.37576857564578214,
+      "direct_energy": 0.3757685756536851,
+      "difference": 7.902956067340483e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 40,
+      "recorded_energy": 0.028739536268315262,
+      "direct_energy": 0.028739536273470704,
+      "difference": 5.155442045490233e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 41,
+      "recorded_energy": 0.47245357083185474,
+      "direct_energy": 0.4724535708373019,
+      "difference": 5.447142736869637e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 42,
+      "recorded_energy": 0.0255318139129833,
+      "direct_energy": 0.025531813916131435,
+      "difference": 3.148134530839286e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 43,
+      "recorded_energy": 0.017036399993599283,
+      "direct_energy": 0.017036399996399595,
+      "difference": 2.8003120655650804e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 44,
+      "recorded_energy": 0.1700349088025447,
+      "direct_energy": 0.17003490880479,
+      "difference": 2.245287289426301e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 45,
+      "recorded_energy": 0.02246071932648665,
+      "direct_energy": 0.022460719333847145,
+      "difference": 7.360494158614728e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 46,
+      "recorded_energy": 0.0953751583164791,
+      "direct_energy": 0.0953751583211656,
+      "difference": 4.6865011871233264e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 47,
+      "recorded_energy": 0.04786210552619845,
+      "direct_energy": 0.04786210552668315,
+      "difference": 4.847025558696316e-13
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 48,
+      "recorded_energy": 0.09798692146493874,
+      "direct_energy": 0.09798692146702036,
+      "difference": 2.0816126600209373e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 49,
+      "recorded_energy": 0.08044396456330305,
+      "direct_energy": 0.08044396456692583,
+      "difference": 3.622782629442156e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 50,
+      "recorded_energy": 0.020397969879123026,
+      "direct_energy": 0.02039796988339082,
+      "difference": 4.2677944511737564e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 51,
+      "recorded_energy": 0.020475150472082735,
+      "direct_energy": 0.020475150483288147,
+      "difference": 1.1205411598602666e-11
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 52,
+      "recorded_energy": 0.016779066168758284,
+      "direct_energy": 0.01677906617187237,
+      "difference": 3.1140853784528133e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 53,
+      "recorded_energy": 0.030702233726215396,
+      "direct_energy": 0.03070223372710503,
+      "difference": 8.896355874199458e-13
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 54,
+      "recorded_energy": 0.014097304839489054,
+      "direct_energy": 0.014097304842715938,
+      "difference": 3.2268840377547292e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 55,
+      "recorded_energy": 0.37139846288319633,
+      "direct_energy": 0.37139846288505085,
+      "difference": 1.8545165403338615e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 56,
+      "recorded_energy": 0.1604063730802453,
+      "direct_energy": 0.1604063730816313,
+      "difference": 1.3860024239420454e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 57,
+      "recorded_energy": 0.12231973661611222,
+      "direct_energy": 0.12231973661795006,
+      "difference": 1.8378493171766763e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 58,
+      "recorded_energy": 0.1903702875078106,
+      "direct_energy": 0.19037028751507507,
+      "difference": 7.2644668058785555e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 59,
+      "recorded_energy": 0.3005671245767374,
+      "direct_energy": 0.30056712458285917,
+      "difference": 6.121769757783113e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 60,
+      "recorded_energy": 0.02204830452086015,
+      "direct_energy": 0.022048304523484972,
+      "difference": 2.6248204998413627e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 61,
+      "recorded_energy": 0.11862592489561055,
+      "direct_energy": 0.11862592489844381,
+      "difference": 2.833261403267784e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 62,
+      "recorded_energy": 0.7396350495720361,
+      "direct_energy": 0.7396350495750036,
+      "difference": 2.967515122520581e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "condition": 63,
+      "recorded_energy": 0.024230284915107078,
+      "direct_energy": 0.024230284915662207,
+      "difference": 5.55128859547338e-13
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 0,
+      "recorded_energy": 0.15600150715957622,
+      "direct_energy": 0.1560015071611656,
+      "difference": 1.5893675264777585e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 1,
+      "recorded_energy": 0.5181672049679343,
+      "direct_energy": 0.518167204970588,
+      "difference": 2.653655073459049e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 2,
+      "recorded_energy": 0.06817106962398875,
+      "direct_energy": 0.06817106962992021,
+      "difference": 5.9314636535745535e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 3,
+      "recorded_energy": 0.08256318478914694,
+      "direct_energy": 0.08256318479396817,
+      "difference": 4.821226751161589e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 4,
+      "recorded_energy": 0.07783821675669247,
+      "direct_energy": 0.07783821675771316,
+      "difference": 1.0206835376891377e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 5,
+      "recorded_energy": 0.2717015296513163,
+      "direct_energy": 0.271701529652101,
+      "difference": 7.847056338050606e-13
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 6,
+      "recorded_energy": 0.03275834837458744,
+      "direct_energy": 0.032758348377315095,
+      "difference": 2.7276583769442198e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 7,
+      "recorded_energy": 0.11954676960425452,
+      "direct_energy": 0.11954676960568002,
+      "difference": 1.4254986080430854e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 8,
+      "recorded_energy": 0.10486655659805404,
+      "direct_energy": 0.10486655660144073,
+      "difference": 3.3866937032556166e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 9,
+      "recorded_energy": 0.0392400233971438,
+      "direct_energy": 0.03924002340192454,
+      "difference": 4.7807383052322905e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 10,
+      "recorded_energy": 0.6413825469720036,
+      "direct_energy": 0.6413825469749435,
+      "difference": 2.9398705692074145e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 11,
+      "recorded_energy": 0.2501247639020189,
+      "direct_energy": 0.25012476390297705,
+      "difference": 9.581779814027414e-13
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 12,
+      "recorded_energy": 0.5828748684720676,
+      "direct_energy": 0.5828748684756764,
+      "difference": 3.6087799415440713e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 13,
+      "recorded_energy": 0.8268096247559421,
+      "direct_energy": 0.8268096247564405,
+      "difference": 4.983791157542328e-13
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 14,
+      "recorded_energy": 0.4502437526188807,
+      "direct_energy": 0.4502437526199568,
+      "difference": 1.076083666617933e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 15,
+      "recorded_energy": 0.08455184027831071,
+      "direct_energy": 0.08455184027999868,
+      "difference": 1.6879692088522802e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 16,
+      "recorded_energy": 0.3721450508921073,
+      "direct_energy": 0.3721450508935392,
+      "difference": 1.4319101460102956e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 17,
+      "recorded_energy": 0.589571444370561,
+      "direct_energy": 0.5895714443725498,
+      "difference": 1.9888535263135054e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 18,
+      "recorded_energy": 0.3615276943885504,
+      "direct_energy": 0.3615276943917135,
+      "difference": 3.1630809083083022e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 19,
+      "recorded_energy": 0.06970699714105172,
+      "direct_energy": 0.06970699714169462,
+      "difference": 6.429023979848125e-13
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 20,
+      "recorded_energy": 0.3881648386977085,
+      "direct_energy": 0.38816483870246626,
+      "difference": 4.757749749728646e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 21,
+      "recorded_energy": 0.663909488516961,
+      "direct_energy": 0.663909488518184,
+      "difference": 1.2230216839270724e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 22,
+      "recorded_energy": 0.376536637752482,
+      "direct_energy": 0.37653663775620244,
+      "difference": 3.720468377821362e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 23,
+      "recorded_energy": 0.2716139052249323,
+      "direct_energy": 0.27161390522709455,
+      "difference": 2.162270362759955e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 24,
+      "recorded_energy": 0.03391252917608216,
+      "direct_energy": 0.033912529182554,
+      "difference": 6.471843894129137e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 25,
+      "recorded_energy": 0.3939514176970694,
+      "direct_energy": 0.3939514176984978,
+      "difference": 1.4284129434827264e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 26,
+      "recorded_energy": 0.11002685207283322,
+      "direct_energy": 0.11002685207658039,
+      "difference": 3.747169241563597e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 27,
+      "recorded_energy": 0.024765331773083637,
+      "direct_energy": 0.024765331774488506,
+      "difference": 1.4048692764667692e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 28,
+      "recorded_energy": 0.3453683600433424,
+      "direct_energy": 0.34536836004465155,
+      "difference": 1.3091194794867533e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 29,
+      "recorded_energy": 0.1619911332378786,
+      "direct_energy": 0.16199113324248382,
+      "difference": 4.605232861720765e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 30,
+      "recorded_energy": 0.06330720401039303,
+      "direct_energy": 0.06330720401428108,
+      "difference": 3.8880565433885295e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 31,
+      "recorded_energy": 0.7789133418339048,
+      "direct_energy": 0.7789133418343861,
+      "difference": 4.812816811750054e-13
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 32,
+      "recorded_energy": 0.38639852970448313,
+      "direct_energy": 0.3863985297090058,
+      "difference": 4.522660024264269e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 33,
+      "recorded_energy": 0.06857725795648636,
+      "direct_energy": 0.06857725796771721,
+      "difference": 1.123084958365439e-11
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 34,
+      "recorded_energy": 0.03151608196974048,
+      "direct_energy": 0.03151608197678096,
+      "difference": 7.040486249554334e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 35,
+      "recorded_energy": 0.7778983390148195,
+      "direct_energy": 0.7778983390172204,
+      "difference": 2.400857290751901e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 36,
+      "recorded_energy": 0.032891722149679156,
+      "direct_energy": 0.03289172215834781,
+      "difference": 8.668656070742742e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 37,
+      "recorded_energy": 0.8997668686461611,
+      "direct_energy": 0.8997668686468533,
+      "difference": 6.922240558537851e-13
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 38,
+      "recorded_energy": 0.04804421083193079,
+      "direct_energy": 0.04804421084033179,
+      "difference": 8.400995177293424e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 39,
+      "recorded_energy": 0.042468599470716246,
+      "direct_energy": 0.042468599471608234,
+      "difference": 8.919878724533703e-13
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 40,
+      "recorded_energy": 0.05381579598688471,
+      "direct_energy": 0.053815795991380345,
+      "difference": 4.49563303250855e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 41,
+      "recorded_energy": 0.06864070798575808,
+      "direct_energy": 0.06864070798775165,
+      "difference": 1.9935719741681623e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 42,
+      "recorded_energy": 1.6743548964922683,
+      "direct_energy": 1.6743548964932709,
+      "difference": 1.0025313912365164e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 43,
+      "recorded_energy": 0.5536542345403774,
+      "direct_energy": 0.5536542345419527,
+      "difference": 1.5752954496406346e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 44,
+      "recorded_energy": 0.04810234645803672,
+      "direct_energy": 0.04810234646045096,
+      "difference": 2.414242417092538e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 45,
+      "recorded_energy": 0.20771373883169214,
+      "direct_energy": 0.20771373883409253,
+      "difference": 2.4003854459664353e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 46,
+      "recorded_energy": 0.3028970561040463,
+      "direct_energy": 0.3028970561066938,
+      "difference": 2.6474933356723795e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 47,
+      "recorded_energy": 0.08816139003969514,
+      "direct_energy": 0.08816139004038517,
+      "difference": 6.900313653801504e-13
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 48,
+      "recorded_energy": 0.24020299537386997,
+      "direct_energy": 0.24020299537688433,
+      "difference": 3.0143665341597625e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 49,
+      "recorded_energy": 0.07120589438434119,
+      "direct_energy": 0.07120589438460323,
+      "difference": 2.6204038938715257e-13
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 50,
+      "recorded_energy": 0.7433535890587851,
+      "direct_energy": 0.7433535890596493,
+      "difference": 8.641976023682219e-13
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 51,
+      "recorded_energy": 0.10499608555312111,
+      "direct_energy": 0.10499608555640284,
+      "difference": 3.281735994065116e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 52,
+      "recorded_energy": 0.3789156108041567,
+      "direct_energy": 0.37891561080701147,
+      "difference": 2.8547719743698963e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 53,
+      "recorded_energy": 0.18690704968650387,
+      "direct_energy": 0.1869070496881688,
+      "difference": 1.6649182033035004e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 54,
+      "recorded_energy": 0.10600690694214472,
+      "direct_energy": 0.10600690694418541,
+      "difference": 2.0406870637756924e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 55,
+      "recorded_energy": 0.13788404306268773,
+      "direct_energy": 0.1378840430649193,
+      "difference": 2.2315760350721803e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 56,
+      "recorded_energy": 0.09169981742443169,
+      "direct_energy": 0.09169981742942872,
+      "difference": 4.997030567110983e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 57,
+      "recorded_energy": 0.13515059870756602,
+      "direct_energy": 0.13515059870927926,
+      "difference": 1.7132406604503103e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 58,
+      "recorded_energy": 0.019089370175398458,
+      "direct_energy": 0.019089370183939813,
+      "difference": 8.54135512318166e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 59,
+      "recorded_energy": 0.04581405183110381,
+      "direct_energy": 0.04581405183905318,
+      "difference": 7.949370328663719e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 60,
+      "recorded_energy": 0.8331779258568891,
+      "direct_energy": 0.8331779258584997,
+      "difference": 1.6106005418237146e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 61,
+      "recorded_energy": 0.153850141289534,
+      "direct_energy": 0.15385014129198993,
+      "difference": 2.4559243527733088e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 62,
+      "recorded_energy": 0.2850702393306893,
+      "direct_energy": 0.28507023933257203,
+      "difference": 1.8827162051593405e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "condition": 63,
+      "recorded_energy": 0.12812076725823945,
+      "direct_energy": 0.12812076726504606,
+      "difference": 6.806610830523141e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 0,
+      "recorded_energy": 0.04274589306121896,
+      "direct_energy": 0.04274589306749741,
+      "difference": 6.278449982133338e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 1,
+      "recorded_energy": 0.07211265455032086,
+      "direct_energy": 0.07211265455107026,
+      "difference": 7.494005416219807e-13
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 2,
+      "recorded_energy": 0.09830932388227431,
+      "direct_energy": 0.09830932388540235,
+      "difference": 3.1280394940935707e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 3,
+      "recorded_energy": 0.39818453848437646,
+      "direct_energy": 0.3981845384849763,
+      "difference": 5.998535002049721e-13
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 4,
+      "recorded_energy": 0.21824743283526898,
+      "direct_energy": 0.21824743283660678,
+      "difference": 1.337790989097698e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 5,
+      "recorded_energy": 0.054202429494925215,
+      "direct_energy": 0.05420242949778619,
+      "difference": 2.8609753455199893e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 6,
+      "recorded_energy": 0.17960752048025252,
+      "direct_energy": 0.17960752048307718,
+      "difference": 2.824657174826939e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 7,
+      "recorded_energy": 0.13012024888477441,
+      "direct_energy": 0.1301202488854158,
+      "difference": 6.413758413259529e-13
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 8,
+      "recorded_energy": 0.5617804867072083,
+      "direct_energy": 0.5617804867146755,
+      "difference": 7.46724904132634e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 9,
+      "recorded_energy": 0.061209863005923085,
+      "direct_energy": 0.06120986300741274,
+      "difference": 1.4896556210786116e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 10,
+      "recorded_energy": 0.034907269353333666,
+      "direct_energy": 0.03490726935493884,
+      "difference": 1.6051743267908591e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 11,
+      "recorded_energy": 0.06683197019694033,
+      "direct_energy": 0.06683197020235311,
+      "difference": 5.412781334257488e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 12,
+      "recorded_energy": 0.2369331545393988,
+      "direct_energy": 0.2369331545405813,
+      "difference": 1.1824985435282542e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 13,
+      "recorded_energy": 0.04788438088067243,
+      "direct_energy": 0.04788438088245224,
+      "difference": 1.7798124085643963e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 14,
+      "recorded_energy": 0.028742980175880752,
+      "direct_energy": 0.02874298018467411,
+      "difference": 8.79335840253681e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 15,
+      "recorded_energy": 0.05152047492357379,
+      "direct_energy": 0.051520474928847794,
+      "difference": 5.274003456179344e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 16,
+      "recorded_energy": 0.04276322825602815,
+      "direct_energy": 0.04276322826026315,
+      "difference": 4.235001238583891e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 17,
+      "recorded_energy": 0.06482840799724204,
+      "direct_energy": 0.06482840799952548,
+      "difference": 2.283437328109983e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 18,
+      "recorded_energy": 0.04299030926128689,
+      "direct_energy": 0.04299030926365081,
+      "difference": 2.363914619607499e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 19,
+      "recorded_energy": 0.194185446086329,
+      "direct_energy": 0.19418544608773933,
+      "difference": 1.4103163081813364e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 20,
+      "recorded_energy": 0.06732914503697031,
+      "direct_energy": 0.06732914503826741,
+      "difference": 1.297101315245186e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 21,
+      "recorded_energy": 0.012988444828585756,
+      "direct_energy": 0.01298844483482128,
+      "difference": 6.235524249720292e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 22,
+      "recorded_energy": 0.061966920860939086,
+      "direct_energy": 0.061966920863999506,
+      "difference": 3.0604199729999948e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 23,
+      "recorded_energy": 0.1263369305468233,
+      "direct_energy": 0.12633693055197798,
+      "difference": 5.154682236607755e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 24,
+      "recorded_energy": 0.20611033520528982,
+      "direct_energy": 0.20611033521072747,
+      "difference": 5.437650330009092e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 25,
+      "recorded_energy": 0.0776991516648618,
+      "direct_energy": 0.07769915166593676,
+      "difference": 1.0749595658055e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 26,
+      "recorded_energy": 0.21620122566448494,
+      "direct_energy": 0.21620122566530453,
+      "difference": 8.195943923539062e-13
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 27,
+      "recorded_energy": 0.02258160871072532,
+      "direct_energy": 0.022581608712795496,
+      "difference": 2.070177362867298e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 28,
+      "recorded_energy": 0.061195881407065014,
+      "direct_energy": 0.06119588141017797,
+      "difference": 3.1129543387464764e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 29,
+      "recorded_energy": 0.2845121510427936,
+      "direct_energy": 0.284512151051755,
+      "difference": 8.961387187866876e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 30,
+      "recorded_energy": 0.03561863292286663,
+      "direct_energy": 0.03561863292424598,
+      "difference": 1.3793549635821023e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 31,
+      "recorded_energy": 0.37271153660176654,
+      "direct_energy": 0.3727115366054333,
+      "difference": 3.666789094580736e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 32,
+      "recorded_energy": 0.0056118963817730115,
+      "direct_energy": 0.00561189638804581,
+      "difference": 6.272798253048606e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 33,
+      "recorded_energy": 0.030047127979454715,
+      "direct_energy": 0.030047127985342325,
+      "difference": 5.88760984410186e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 34,
+      "recorded_energy": 0.026494017541554348,
+      "direct_energy": 0.02649401754269724,
+      "difference": 1.1428913371247518e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 35,
+      "recorded_energy": 0.06918304450760566,
+      "direct_energy": 0.06918304451173407,
+      "difference": 4.128405950432068e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 36,
+      "recorded_energy": 0.07105836806489706,
+      "direct_energy": 0.07105836806701621,
+      "difference": 2.1191520760410754e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 37,
+      "recorded_energy": 0.027797077405089327,
+      "direct_energy": 0.027797077410094902,
+      "difference": 5.0055758149536445e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 38,
+      "recorded_energy": 0.45932449412193255,
+      "direct_energy": 0.45932449412252263,
+      "difference": 5.900835375882707e-13
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 39,
+      "recorded_energy": 0.13559284668633326,
+      "direct_energy": 0.13559284668682378,
+      "difference": 4.905242878550098e-13
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 40,
+      "recorded_energy": 0.13316748614346025,
+      "direct_energy": 0.13316748615162913,
+      "difference": 8.168882237313824e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 41,
+      "recorded_energy": 0.07388930029864198,
+      "direct_energy": 0.07388930030231282,
+      "difference": 3.6708414086206176e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 42,
+      "recorded_energy": 0.04676206847898415,
+      "direct_energy": 0.04676206848060486,
+      "difference": 1.6207105102417074e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 43,
+      "recorded_energy": 0.0820382559978653,
+      "direct_energy": 0.08203825599877065,
+      "difference": 9.053591210061995e-13
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 44,
+      "recorded_energy": 0.1127968424991777,
+      "direct_energy": 0.11279684249988384,
+      "difference": 7.06143477025023e-13
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 45,
+      "recorded_energy": 0.08124192475283226,
+      "direct_energy": 0.08124192475883311,
+      "difference": 6.000852592613626e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 46,
+      "recorded_energy": 0.22981959802659782,
+      "direct_energy": 0.22981959802791294,
+      "difference": 1.3151146838197292e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 47,
+      "recorded_energy": 0.11389287213287438,
+      "direct_energy": 0.11389287213912089,
+      "difference": 6.2465033145997495e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 48,
+      "recorded_energy": 0.17029102164351878,
+      "direct_energy": 0.1702910216466425,
+      "difference": 3.1237235020853404e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 49,
+      "recorded_energy": 0.028014954343084344,
+      "direct_energy": 0.028014954343281148,
+      "difference": 1.9680437834956876e-13
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 50,
+      "recorded_energy": 253.0921364574024,
+      "direct_energy": 253.09213645739712,
+      "difference": -5.286437954055145e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 51,
+      "recorded_energy": 0.036663229865257045,
+      "direct_energy": 0.036663229866034965,
+      "difference": 7.779193955670394e-13
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 52,
+      "recorded_energy": 0.020509479547451283,
+      "direct_energy": 0.02050947955736317,
+      "difference": 9.911887283164944e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 53,
+      "recorded_energy": 0.3980226332526286,
+      "direct_energy": 0.398022633256801,
+      "difference": 4.172384659995032e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 54,
+      "recorded_energy": 0.15124870414989078,
+      "direct_energy": 0.1512487041561602,
+      "difference": 6.269429420058259e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 55,
+      "recorded_energy": 0.022747999074393833,
+      "direct_energy": 0.022747999079276406,
+      "difference": 4.882573512166033e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 56,
+      "recorded_energy": 0.034282485252274494,
+      "direct_energy": 0.034282485253132454,
+      "difference": 8.579595367486093e-13
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 57,
+      "recorded_energy": 0.9230113588343581,
+      "direct_energy": 0.9230113588371407,
+      "difference": 2.78255196661803e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 58,
+      "recorded_energy": 0.03311992184127636,
+      "direct_energy": 0.03311992184235763,
+      "difference": 1.0812739592580556e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 59,
+      "recorded_energy": 0.20316176271605638,
+      "direct_energy": 0.2031617627216801,
+      "difference": 5.623723708936268e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 60,
+      "recorded_energy": 0.42351793381854513,
+      "direct_energy": 0.42351793382436476,
+      "difference": 5.819622561631377e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 61,
+      "recorded_energy": 0.06001028353838631,
+      "direct_energy": 0.060010283544053106,
+      "difference": 5.66679342339782e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 62,
+      "recorded_energy": 0.014229332870300643,
+      "direct_energy": 0.01422933287241494,
+      "difference": 2.1142965850318163e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "condition": 63,
+      "recorded_energy": 0.049553974555966815,
+      "direct_energy": 0.04955397455830062,
+      "difference": 2.3338067589584455e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 0,
+      "recorded_energy": 0.15613082346545493,
+      "direct_energy": 0.15613082346813867,
+      "difference": 2.683742117426391e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 1,
+      "recorded_energy": 0.8906921243480652,
+      "direct_energy": 0.8906921243507758,
+      "difference": 2.7106095146223197e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 2,
+      "recorded_energy": 0.09640050037964258,
+      "direct_energy": 0.09640050038254826,
+      "difference": 2.9056757000489597e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 3,
+      "recorded_energy": 0.12389772162541905,
+      "direct_energy": 0.12389772162860745,
+      "difference": 3.188393993269756e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 4,
+      "recorded_energy": 0.13195799190405447,
+      "direct_energy": 0.13195799190677723,
+      "difference": 2.722766456741965e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 5,
+      "recorded_energy": 0.9276245640754441,
+      "direct_energy": 0.927624564078294,
+      "difference": 2.8498314819103143e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 6,
+      "recorded_energy": 0.3013165117684704,
+      "direct_energy": 0.3013165117699635,
+      "difference": 1.4930834346671418e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 7,
+      "recorded_energy": 0.2717096162887443,
+      "direct_energy": 0.27170961629162643,
+      "difference": 2.8821389719269064e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 8,
+      "recorded_energy": 0.19399580459353052,
+      "direct_energy": 0.1939958045959676,
+      "difference": 2.4370783169302968e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 9,
+      "recorded_energy": 0.9924516728294662,
+      "direct_energy": 0.9924516728329029,
+      "difference": 3.436695372727172e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 10,
+      "recorded_energy": 0.18590888896559535,
+      "direct_energy": 0.1859088889684123,
+      "difference": 2.816941124805794e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 11,
+      "recorded_energy": 0.16458235706558283,
+      "direct_energy": 0.16458235706840518,
+      "difference": 2.8223534620508417e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 12,
+      "recorded_energy": 0.48848157559868777,
+      "direct_energy": 0.4884815756011599,
+      "difference": 2.472133608932836e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 13,
+      "recorded_energy": 0.36690800889716774,
+      "direct_energy": 0.3669080089006593,
+      "difference": 3.491540390143655e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 14,
+      "recorded_energy": 0.29473094928136034,
+      "direct_energy": 0.29473094928326293,
+      "difference": 1.9025891973001308e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 15,
+      "recorded_energy": 0.10257091326585395,
+      "direct_energy": 0.10257091326803021,
+      "difference": 2.176259172870232e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 16,
+      "recorded_energy": 0.09334437633840037,
+      "direct_energy": 0.09334437634140764,
+      "difference": 3.0072749845899693e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 17,
+      "recorded_energy": 0.051680952141311035,
+      "direct_energy": 0.05168095214411249,
+      "difference": 2.801453513612273e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 18,
+      "recorded_energy": 0.0729280414048452,
+      "direct_energy": 0.0729280414072607,
+      "difference": 2.4154983568891453e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 19,
+      "recorded_energy": 0.533890307376826,
+      "direct_energy": 0.5338903073795161,
+      "difference": 2.690181410969217e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 20,
+      "recorded_energy": 0.6173407370730548,
+      "direct_energy": 0.6173407370755576,
+      "difference": 2.5027757644124904e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 21,
+      "recorded_energy": 0.5225831397444354,
+      "direct_energy": 0.5225831397478574,
+      "difference": 3.42204042880212e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 22,
+      "recorded_energy": 0.5480676611000534,
+      "direct_energy": 0.5480676611026992,
+      "difference": 2.6457724899842106e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 23,
+      "recorded_energy": 1.0793966180401064,
+      "direct_energy": 1.0793966180424224,
+      "difference": 2.3159252293680765e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 24,
+      "recorded_energy": 0.6391098164709661,
+      "direct_energy": 0.6391098164740653,
+      "difference": 3.0991875732411245e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 25,
+      "recorded_energy": 0.11027724936639001,
+      "direct_energy": 0.11027724936833444,
+      "difference": 1.9444307275406914e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 26,
+      "recorded_energy": 0.31252814190775674,
+      "direct_energy": 0.31252814190988987,
+      "difference": 2.1331270083635445e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 27,
+      "recorded_energy": 0.49817208191327167,
+      "direct_energy": 0.49817208191588785,
+      "difference": 2.61618504637795e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 28,
+      "recorded_energy": 0.2501573017805876,
+      "direct_energy": 0.2501573017832616,
+      "difference": 2.6740276659609208e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 29,
+      "recorded_energy": 0.21281779044613483,
+      "direct_energy": 0.21281779044860863,
+      "difference": 2.473798943469774e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 30,
+      "recorded_energy": 0.47682115589371976,
+      "direct_energy": 0.4768211558967091,
+      "difference": 2.9893310049544652e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 31,
+      "recorded_energy": 0.14607211891525837,
+      "direct_energy": 0.1460721189179826,
+      "difference": 2.7242375022495935e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 32,
+      "recorded_energy": 0.18483234309902835,
+      "direct_energy": 0.1848323431006219,
+      "difference": 1.5935586183957184e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 33,
+      "recorded_energy": 0.7639467066980116,
+      "direct_energy": 0.7639467067006286,
+      "difference": 2.617017713646419e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 34,
+      "recorded_energy": 0.5784724957675927,
+      "direct_energy": 0.5784724957710083,
+      "difference": 3.415601135259294e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 35,
+      "recorded_energy": 0.09083405525823265,
+      "direct_energy": 0.09083405526168763,
+      "difference": 3.4549724192700637e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 36,
+      "recorded_energy": 0.0948389820202358,
+      "direct_energy": 0.09483898202208224,
+      "difference": 1.8464396678297135e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 37,
+      "recorded_energy": 1.3228024331188486,
+      "direct_energy": 1.3228024331216468,
+      "difference": 2.7982061112652445e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 38,
+      "recorded_energy": 0.14667024221583508,
+      "direct_energy": 0.14667024221781852,
+      "difference": 1.9834411890684578e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 39,
+      "recorded_energy": 0.7494803384628966,
+      "direct_energy": 0.7494803384648686,
+      "difference": 1.971978136339203e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 40,
+      "recorded_energy": 0.6177272856300825,
+      "direct_energy": 0.6177272856335007,
+      "difference": 3.418154648215932e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 41,
+      "recorded_energy": 0.5440084247917872,
+      "direct_energy": 0.5440084247947754,
+      "difference": 2.988165270778609e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 42,
+      "recorded_energy": 0.2670436878285079,
+      "direct_energy": 0.26704368783090715,
+      "difference": 2.3992474673661945e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 43,
+      "recorded_energy": 0.23413640261938118,
+      "direct_energy": 0.23413640262247506,
+      "difference": 3.0938862582985394e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 44,
+      "recorded_energy": 0.27228046621127105,
+      "direct_energy": 0.27228046621454277,
+      "difference": 3.271716231267874e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 45,
+      "recorded_energy": 0.22149963432336886,
+      "direct_energy": 0.22149963432635011,
+      "difference": 2.9812541324503172e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 46,
+      "recorded_energy": 0.3050080345130553,
+      "direct_energy": 0.30500803451492314,
+      "difference": 1.8678392166293634e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 47,
+      "recorded_energy": 1.5117348987559225,
+      "direct_energy": 1.5117348987589698,
+      "difference": 3.0473401579911297e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 48,
+      "recorded_energy": 0.6053488351414646,
+      "direct_energy": 0.6053488351444579,
+      "difference": 2.9932722966918845e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 49,
+      "recorded_energy": 0.4343272415076602,
+      "direct_energy": 0.43432724151110697,
+      "difference": 3.4467428911000297e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 50,
+      "recorded_energy": 0.42922069756488884,
+      "direct_energy": 0.42922069756707415,
+      "difference": 2.185307490520927e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 51,
+      "recorded_energy": 3.28504557516698,
+      "direct_energy": 3.285045575168759,
+      "difference": 1.7790213746593508e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 52,
+      "recorded_energy": 0.36086996147085926,
+      "direct_energy": 0.360869961472874,
+      "difference": 2.0147217227872716e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 53,
+      "recorded_energy": 0.22232324119475563,
+      "direct_energy": 0.22232324119801566,
+      "difference": 3.260031133933694e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 54,
+      "recorded_energy": 0.10057350609930035,
+      "direct_energy": 0.1005735061017361,
+      "difference": 2.4357460493007466e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 55,
+      "recorded_energy": 0.19908738650706168,
+      "direct_energy": 0.19908738650984945,
+      "difference": 2.787770014833768e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 56,
+      "recorded_energy": 0.075928198062721,
+      "direct_energy": 0.07592819806588454,
+      "difference": 3.16353887530596e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 57,
+      "recorded_energy": 0.5066292088984218,
+      "direct_energy": 0.5066292089010429,
+      "difference": 2.621125538837532e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 58,
+      "recorded_energy": 0.6593225026935927,
+      "direct_energy": 0.6593225026960322,
+      "difference": 2.4394930520088565e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 59,
+      "recorded_energy": 0.6787190382258823,
+      "direct_energy": 0.6787190382288958,
+      "difference": 3.0134783557400624e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 60,
+      "recorded_energy": 0.0952248190369707,
+      "direct_energy": 0.09522481903923358,
+      "difference": 2.262870446578802e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 61,
+      "recorded_energy": 0.6850490168947027,
+      "direct_energy": 0.6850490168965501,
+      "difference": 1.8474111129762605e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 62,
+      "recorded_energy": 0.6397785068544364,
+      "direct_energy": 0.639778506857603,
+      "difference": 3.1665781108358715e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "condition": 63,
+      "recorded_energy": 0.15195878628027104,
+      "direct_energy": 0.15195878628284099,
+      "difference": 2.5699442574023124e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 0,
+      "recorded_energy": 0.007606917563182774,
+      "direct_energy": 0.007606917565343135,
+      "difference": 2.1603604322129044e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 1,
+      "recorded_energy": 0.014459082894778758,
+      "direct_energy": 0.01445908289853511,
+      "difference": 3.756352867645418e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 2,
+      "recorded_energy": 0.01932437263069538,
+      "direct_energy": 0.01932437263488318,
+      "difference": 4.187799412802562e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 3,
+      "recorded_energy": 0.017048972248201573,
+      "direct_energy": 0.017048972252325385,
+      "difference": 4.1238124026676815e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 4,
+      "recorded_energy": 0.01001108353834365,
+      "direct_energy": 0.01001108354413579,
+      "difference": 5.792141072324952e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 5,
+      "recorded_energy": 0.03051700155495526,
+      "direct_energy": 0.03051700155718736,
+      "difference": 2.2320999215619253e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 6,
+      "recorded_energy": 0.0031081918568716337,
+      "direct_energy": 0.0031081918579125597,
+      "difference": 1.040926025930311e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 7,
+      "recorded_energy": 0.021976038241620782,
+      "direct_energy": 0.02197603824509521,
+      "difference": 3.4744290777766196e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 8,
+      "recorded_energy": 0.009810970992321252,
+      "direct_energy": 0.009810970994704153,
+      "difference": 2.382901168052065e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 9,
+      "recorded_energy": 0.01628943105790741,
+      "direct_energy": 0.016289431062022793,
+      "difference": 4.115381646574434e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 10,
+      "recorded_energy": 0.010140036856787335,
+      "direct_energy": 0.010140036859827626,
+      "difference": 3.04029024178476e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 11,
+      "recorded_energy": 0.007601034872851542,
+      "direct_energy": 0.0076010348769426,
+      "difference": 4.091057353994287e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 12,
+      "recorded_energy": 0.007478352625332432,
+      "direct_energy": 0.007478352627963464,
+      "difference": 2.6310316772470976e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 13,
+      "recorded_energy": 0.009656864073815065,
+      "direct_energy": 0.00965686407567906,
+      "difference": 1.8639950694065988e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 14,
+      "recorded_energy": 0.005324141197829152,
+      "direct_energy": 0.0053241411999761954,
+      "difference": 2.1470438274495685e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 15,
+      "recorded_energy": 0.004521300123809514,
+      "direct_energy": 0.004521300127266673,
+      "difference": 3.4571590382115325e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 16,
+      "recorded_energy": 0.005058897062470582,
+      "direct_energy": 0.005058897064409509,
+      "difference": 1.938926449951417e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 17,
+      "recorded_energy": 0.011188333503614858,
+      "direct_energy": 0.011188333506116515,
+      "difference": 2.5016568677704853e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 18,
+      "recorded_energy": 0.010645878611912699,
+      "direct_energy": 0.010645878613779471,
+      "difference": 1.8667723616916376e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 19,
+      "recorded_energy": 0.009068767731676121,
+      "direct_energy": 0.009068767737278103,
+      "difference": 5.601982419611851e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 20,
+      "recorded_energy": 0.005846021315182175,
+      "direct_energy": 0.005846021320107571,
+      "difference": 4.9253960285322584e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 21,
+      "recorded_energy": 0.005728129842098893,
+      "direct_energy": 0.005728129843742337,
+      "difference": 1.6434431940326455e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 22,
+      "recorded_energy": 0.019376152843734867,
+      "direct_energy": 0.019376152847444456,
+      "difference": 3.7095881921800355e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 23,
+      "recorded_energy": 0.026263936213181554,
+      "direct_energy": 0.02626393622053813,
+      "difference": 7.356577153005972e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 24,
+      "recorded_energy": 0.031143850127718604,
+      "direct_energy": 0.031143850133724508,
+      "difference": 6.00590410737567e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 25,
+      "recorded_energy": 0.012195362159874622,
+      "direct_energy": 0.01219536216544768,
+      "difference": 5.573057640373413e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 26,
+      "recorded_energy": 0.010885905164999274,
+      "direct_energy": 0.010885905169752947,
+      "difference": 4.7536731495601e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 27,
+      "recorded_energy": 0.009709833728865969,
+      "direct_energy": 0.009709833730350325,
+      "difference": 1.4843560408595025e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 28,
+      "recorded_energy": 0.010177157077598803,
+      "direct_energy": 0.010177157080211996,
+      "difference": 2.61319264838189e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 29,
+      "recorded_energy": 0.006158974702836292,
+      "direct_energy": 0.006158974706032678,
+      "difference": 3.196385864323581e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 30,
+      "recorded_energy": 0.00917349972792388,
+      "direct_energy": 0.009173499730800292,
+      "difference": 2.876410915009231e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 31,
+      "recorded_energy": 0.012994446002600298,
+      "direct_energy": 0.012994446007030886,
+      "difference": 4.430587841053324e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 32,
+      "recorded_energy": 0.017100035631290627,
+      "direct_energy": 0.01710003563345214,
+      "difference": 2.161514023324429e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 33,
+      "recorded_energy": 0.0073935599464242455,
+      "direct_energy": 0.007393559947475393,
+      "difference": 1.0511478840125044e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 34,
+      "recorded_energy": 0.006366830055585338,
+      "direct_energy": 0.006366830058138196,
+      "difference": 2.552858098525679e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 35,
+      "recorded_energy": 0.0067670875801077324,
+      "direct_energy": 0.006767087583408456,
+      "difference": 3.30072340987142e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 36,
+      "recorded_energy": 0.0037764260192418176,
+      "direct_energy": 0.0037764260204624783,
+      "difference": 1.220660725276268e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 37,
+      "recorded_energy": 0.007378409577801161,
+      "direct_energy": 0.007378409579715817,
+      "difference": 1.9146559337990254e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 38,
+      "recorded_energy": 0.007461542675439412,
+      "direct_energy": 0.0074615426789410464,
+      "difference": 3.501634746050364e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 39,
+      "recorded_energy": 0.01902071557299149,
+      "direct_energy": 0.019020715576153344,
+      "difference": 3.1618527240873107e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 40,
+      "recorded_energy": 0.011252113403784115,
+      "direct_energy": 0.011252113407141296,
+      "difference": 3.357180852758823e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 41,
+      "recorded_energy": 0.004609514767704399,
+      "direct_energy": 0.0046095147717336825,
+      "difference": 4.029283851014753e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 42,
+      "recorded_energy": 0.016299031580253774,
+      "direct_energy": 0.016299031583896156,
+      "difference": 3.642381535273742e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 43,
+      "recorded_energy": 0.015512246460704605,
+      "direct_energy": 0.015512246464037635,
+      "difference": 3.333030032526274e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 44,
+      "recorded_energy": 0.016513009889638313,
+      "direct_energy": 0.0165130098927527,
+      "difference": 3.1143872203376333e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 45,
+      "recorded_energy": 0.017717337769176472,
+      "direct_energy": 0.017717337774304495,
+      "difference": 5.128023006228943e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 46,
+      "recorded_energy": 0.017759630964413423,
+      "direct_energy": 0.01775963096725528,
+      "difference": 2.841858692814725e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 47,
+      "recorded_energy": 0.008152804573536562,
+      "direct_energy": 0.00815280457518179,
+      "difference": 1.6452290918511636e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 48,
+      "recorded_energy": 0.016735125238466684,
+      "direct_energy": 0.01673512524076923,
+      "difference": 2.3025470419213434e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 49,
+      "recorded_energy": 0.011125933090466018,
+      "direct_energy": 0.011125933092452318,
+      "difference": 1.9863000133568676e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 50,
+      "recorded_energy": 0.024819985735150207,
+      "direct_energy": 0.024819985738865364,
+      "difference": 3.715156654537921e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 51,
+      "recorded_energy": 0.024375216737361774,
+      "direct_energy": 0.024375216740823907,
+      "difference": 3.462133357778896e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 52,
+      "recorded_energy": 0.007985427555207005,
+      "direct_energy": 0.00798542755761174,
+      "difference": 2.404734397720709e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 53,
+      "recorded_energy": 0.007866727007594526,
+      "direct_energy": 0.007866727012100597,
+      "difference": 4.506070863663503e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 54,
+      "recorded_energy": 0.012899510609195742,
+      "direct_energy": 0.012899510612507915,
+      "difference": 3.312173452174605e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 55,
+      "recorded_energy": 0.007263081308746753,
+      "direct_energy": 0.0072630813103929754,
+      "difference": 1.6462222210411603e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 56,
+      "recorded_energy": 0.772265287070635,
+      "direct_energy": 0.7722652870807699,
+      "difference": 1.0134892924895667e-11
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 57,
+      "recorded_energy": 0.005089190078884436,
+      "direct_energy": 0.005089190080695743,
+      "difference": 1.8113071806324932e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 58,
+      "recorded_energy": 0.01236414017662058,
+      "direct_energy": 0.012364140179401208,
+      "difference": 2.7806281582831716e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 59,
+      "recorded_energy": 0.01369370561805111,
+      "direct_energy": 0.013693705622088645,
+      "difference": 4.037534195866499e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 60,
+      "recorded_energy": 0.04754370240530412,
+      "direct_energy": 0.04754370241037702,
+      "difference": 5.072900433056304e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 61,
+      "recorded_energy": 0.04208949551632806,
+      "direct_energy": 0.04208949552773194,
+      "difference": 1.140387784204222e-11
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 62,
+      "recorded_energy": 0.01304676363636871,
+      "direct_energy": 0.013046763642134366,
+      "difference": 5.765655314293738e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "condition": 63,
+      "recorded_energy": 0.013358895581040019,
+      "direct_energy": 0.013358895582826089,
+      "difference": 1.7860695561422446e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 0,
+      "recorded_energy": 0.011326213448696453,
+      "direct_energy": 0.011326213451515337,
+      "difference": 2.818884015098888e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 1,
+      "recorded_energy": 0.015573230025184003,
+      "direct_energy": 0.015573230028088683,
+      "difference": 2.904679968773749e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 2,
+      "recorded_energy": 0.009870065027928735,
+      "direct_energy": 0.00987006503171614,
+      "difference": 3.787404417865403e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 3,
+      "recorded_energy": 0.012476127397714903,
+      "direct_energy": 0.012476127402718487,
+      "difference": 5.003584352403223e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 4,
+      "recorded_energy": 0.016905172977808823,
+      "direct_energy": 0.016905172984203607,
+      "difference": 6.394784007879295e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 5,
+      "recorded_energy": 0.006748410017135441,
+      "direct_energy": 0.006748410021397599,
+      "difference": 4.26215746723857e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 6,
+      "recorded_energy": 0.010352533117136234,
+      "direct_energy": 0.010352533118790901,
+      "difference": 1.6546677222839534e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 7,
+      "recorded_energy": 0.021931184251331965,
+      "direct_energy": 0.02193118425328338,
+      "difference": 1.951414724254974e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 8,
+      "recorded_energy": 0.02415116839010017,
+      "direct_energy": 0.02415116839406934,
+      "difference": 3.969168743678253e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 9,
+      "recorded_energy": 0.005335347025299727,
+      "direct_energy": 0.005335347027198516,
+      "difference": 1.8987884181642656e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 10,
+      "recorded_energy": 0.006100333745645947,
+      "direct_energy": 0.006100333746907016,
+      "difference": 1.2610685065639338e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 11,
+      "recorded_energy": 0.005363517700777841,
+      "direct_energy": 0.005363517703165312,
+      "difference": 2.387471297049526e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 12,
+      "recorded_energy": 0.00592237356423604,
+      "direct_energy": 0.0059223735663418,
+      "difference": 2.1057600108065344e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 13,
+      "recorded_energy": 0.006075843089036925,
+      "direct_energy": 0.0060758430929419675,
+      "difference": 3.905042955665294e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 14,
+      "recorded_energy": 0.006536766809115253,
+      "direct_energy": 0.006536766811893008,
+      "difference": 2.777754588845216e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 15,
+      "recorded_energy": 0.030414416915493517,
+      "direct_energy": 0.030414416918566913,
+      "difference": 3.0733957046003013e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 16,
+      "recorded_energy": 0.020467860473874267,
+      "direct_energy": 0.020467860479637633,
+      "difference": 5.763365479305449e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 17,
+      "recorded_energy": 0.032600265162392075,
+      "direct_energy": 0.03260026516528127,
+      "difference": 2.88919582702718e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 18,
+      "recorded_energy": 0.0068959642599596615,
+      "direct_energy": 0.006895964263149591,
+      "difference": 3.1899292235459953e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 19,
+      "recorded_energy": 0.014996455670617656,
+      "direct_energy": 0.014996455673376173,
+      "difference": 2.758517372858371e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 20,
+      "recorded_energy": 0.005662269427179202,
+      "direct_energy": 0.00566226942943997,
+      "difference": 2.260767961725918e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 21,
+      "recorded_energy": 0.025484270414679967,
+      "direct_energy": 0.02548427042171532,
+      "difference": 7.035351468065443e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 22,
+      "recorded_energy": 0.010283770029982377,
+      "direct_energy": 0.01028377003265974,
+      "difference": 2.677363539205224e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 23,
+      "recorded_energy": 0.020142182507537843,
+      "direct_energy": 0.020142182508892888,
+      "difference": 1.3550445487897633e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 24,
+      "recorded_energy": 0.005385133658652292,
+      "direct_energy": 0.005385133662428641,
+      "difference": 3.776349025153003e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 25,
+      "recorded_energy": 0.004226600831561851,
+      "direct_energy": 0.004226600833934508,
+      "difference": 2.372656758564684e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 26,
+      "recorded_energy": 0.010123052236501682,
+      "direct_energy": 0.010123052242983146,
+      "difference": 6.481464670526904e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 27,
+      "recorded_energy": 0.004765998702223828,
+      "direct_energy": 0.004765998704036157,
+      "difference": 1.8123289327598435e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 28,
+      "recorded_energy": 0.017237192781815926,
+      "direct_energy": 0.017237192789109578,
+      "difference": 7.29365179363839e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 29,
+      "recorded_energy": 0.006858378204355852,
+      "direct_energy": 0.006858378207743907,
+      "difference": 3.3880554611842584e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 30,
+      "recorded_energy": 0.007647502789419915,
+      "direct_energy": 0.0076475027915603915,
+      "difference": 2.1404761643695203e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 31,
+      "recorded_energy": 0.0035388477945114422,
+      "direct_energy": 0.003538847797123354,
+      "difference": 2.6119119887757503e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 32,
+      "recorded_energy": 0.01659269395614385,
+      "direct_energy": 0.016592693957829478,
+      "difference": 1.6856273321597115e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 33,
+      "recorded_energy": 0.010695193970275666,
+      "direct_energy": 0.010695193972244771,
+      "difference": 1.9691054342629855e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 34,
+      "recorded_energy": 0.01810834063699812,
+      "direct_energy": 0.018108340639569568,
+      "difference": 2.5714465279325083e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 35,
+      "recorded_energy": 0.009505340601419932,
+      "direct_energy": 0.00950534060413511,
+      "difference": 2.7151770415345666e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 36,
+      "recorded_energy": 0.021388271978876668,
+      "direct_energy": 0.021388271980985966,
+      "difference": 2.109298846697527e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 37,
+      "recorded_energy": 0.006777882032478993,
+      "direct_energy": 0.006777882035478314,
+      "difference": 2.9993204100908777e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 38,
+      "recorded_energy": 0.004713580251403262,
+      "direct_energy": 0.00471358025388449,
+      "difference": 2.4812278967556445e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 39,
+      "recorded_energy": 0.01283952941906432,
+      "direct_energy": 0.012839529422857253,
+      "difference": 3.792932981583341e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 40,
+      "recorded_energy": 0.010861374889435949,
+      "direct_energy": 0.010861374894895047,
+      "difference": 5.459098451066069e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 41,
+      "recorded_energy": 0.009815179753285578,
+      "direct_energy": 0.009815179757954824,
+      "difference": 4.669245892707785e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 42,
+      "recorded_energy": 0.00946885254228795,
+      "direct_energy": 0.009468852543607173,
+      "difference": 1.3192225090108423e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 43,
+      "recorded_energy": 0.006791605234625414,
+      "direct_energy": 0.006791605237316488,
+      "difference": 2.691073926197607e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 44,
+      "recorded_energy": 0.012481660704532256,
+      "direct_energy": 0.012481660708676333,
+      "difference": 4.1440774423140425e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 45,
+      "recorded_energy": 0.016113883130393147,
+      "direct_energy": 0.016113883135995093,
+      "difference": 5.601945990418855e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 46,
+      "recorded_energy": 0.0048431209061993025,
+      "direct_energy": 0.004843120908755712,
+      "difference": 2.5564099448427413e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 47,
+      "recorded_energy": 0.005275186619672055,
+      "direct_energy": 0.005275186621897885,
+      "difference": 2.225829763558007e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 48,
+      "recorded_energy": 0.016654461420959287,
+      "direct_energy": 0.01665446142222522,
+      "difference": 1.2659318038288347e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 49,
+      "recorded_energy": 0.01652301290999746,
+      "direct_energy": 0.016523012912881573,
+      "difference": 2.884113087242568e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 50,
+      "recorded_energy": 0.008550297222900858,
+      "direct_energy": 0.008550297224877924,
+      "difference": 1.977066080294243e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 51,
+      "recorded_energy": 0.03474756220122256,
+      "direct_energy": 0.0347475622095545,
+      "difference": 8.33193930516174e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 52,
+      "recorded_energy": 0.006182800302842636,
+      "direct_energy": 0.006182800305025347,
+      "difference": 2.1827106094773896e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 53,
+      "recorded_energy": 0.014552219276489637,
+      "direct_energy": 0.014552219278624365,
+      "difference": 2.134728158131871e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 54,
+      "recorded_energy": 0.005731363472300778,
+      "direct_energy": 0.005731363476012117,
+      "difference": 3.711338528167296e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 55,
+      "recorded_energy": 0.015296314001994575,
+      "direct_energy": 0.015296314004615333,
+      "difference": 2.620757777460625e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 56,
+      "recorded_energy": 0.019712592888293516,
+      "direct_energy": 0.01971259289058281,
+      "difference": 2.2892937545648806e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 57,
+      "recorded_energy": 0.007665468686402937,
+      "direct_energy": 0.007665468690072041,
+      "difference": 3.669104083059427e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 58,
+      "recorded_energy": 0.03280749427132581,
+      "direct_energy": 0.032807494279720045,
+      "difference": 8.394236694631019e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 59,
+      "recorded_energy": 0.01772109237423998,
+      "direct_energy": 0.01772109237970096,
+      "difference": 5.460978891314028e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 60,
+      "recorded_energy": 0.015322075416870187,
+      "direct_energy": 0.015322075420004614,
+      "difference": 3.1344267459321173e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 61,
+      "recorded_energy": 0.010471873331667122,
+      "direct_energy": 0.01047187333620878,
+      "difference": 4.541656981049691e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 62,
+      "recorded_energy": 0.009696320017452213,
+      "direct_energy": 0.009696320019780645,
+      "difference": 2.3284325856298693e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "condition": 63,
+      "recorded_energy": 0.00492479755977066,
+      "direct_energy": 0.004924797561672102,
+      "difference": 1.901441677720772e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 0,
+      "recorded_energy": 0.020351607443634963,
+      "direct_energy": 0.020351607444969555,
+      "difference": 1.3345921590079968e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 1,
+      "recorded_energy": 0.007637881966589202,
+      "direct_energy": 0.007637881969505579,
+      "difference": 2.9163772091722606e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 2,
+      "recorded_energy": 0.14221095515517487,
+      "direct_energy": 0.1422109551609602,
+      "difference": 5.7853166701704595e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 3,
+      "recorded_energy": 0.05192494940809353,
+      "direct_energy": 0.05192494941309582,
+      "difference": 5.002290248690144e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 4,
+      "recorded_energy": 0.03800670711796186,
+      "direct_energy": 0.038006707119121325,
+      "difference": 1.1594614157672822e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 5,
+      "recorded_energy": 0.017589613132987406,
+      "direct_energy": 0.017589613133974828,
+      "difference": 9.874219497607584e-13
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 6,
+      "recorded_energy": 0.016068722063999497,
+      "direct_energy": 0.016068722067315588,
+      "difference": 3.3160904577833605e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 7,
+      "recorded_energy": 0.016600747030518732,
+      "direct_energy": 0.01660074703201849,
+      "difference": 1.4997586506027005e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 8,
+      "recorded_energy": 0.020415760479563488,
+      "direct_energy": 0.02041576048390624,
+      "difference": 4.342751852570714e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 9,
+      "recorded_energy": 0.027581132578800776,
+      "direct_energy": 0.0275811325841473,
+      "difference": 5.34652530581603e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 10,
+      "recorded_energy": 0.016398184299633467,
+      "direct_energy": 0.016398184303376206,
+      "difference": 3.742738757805952e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 11,
+      "recorded_energy": 0.01889223686515477,
+      "direct_energy": 0.018892236866221337,
+      "difference": 1.0665669736287242e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 12,
+      "recorded_energy": 0.020992452526089594,
+      "direct_energy": 0.020992452529268013,
+      "difference": 3.178419333282889e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 13,
+      "recorded_energy": 0.019274193718954467,
+      "direct_energy": 0.01927419371989866,
+      "difference": 9.441926407394163e-13
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 14,
+      "recorded_energy": 0.0108537337585682,
+      "direct_energy": 0.010853733760227354,
+      "difference": 1.6591537171928294e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 15,
+      "recorded_energy": 0.01014148500642319,
+      "direct_energy": 0.010141485008205163,
+      "difference": 1.7819721392919874e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 16,
+      "recorded_energy": 0.005210187795882983,
+      "direct_energy": 0.005210187797683134,
+      "difference": 1.8001511739584863e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 17,
+      "recorded_energy": 0.010935786225259075,
+      "direct_energy": 0.010935786226387051,
+      "difference": 1.1279761846783032e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 18,
+      "recorded_energy": 0.01698887396564325,
+      "direct_energy": 0.016988873969488966,
+      "difference": 3.8457154127868876e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 19,
+      "recorded_energy": 0.021629373716577558,
+      "direct_energy": 0.021629373718298785,
+      "difference": 1.7212273273337075e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 20,
+      "recorded_energy": 0.006595251567789005,
+      "direct_energy": 0.0065952515716218634,
+      "difference": 3.8328585097446854e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 21,
+      "recorded_energy": 0.01513804030234296,
+      "direct_energy": 0.015138040304126707,
+      "difference": 1.7837467614079117e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 22,
+      "recorded_energy": 0.014239500506046061,
+      "direct_energy": 0.014239500509820613,
+      "difference": 3.774551851631891e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 23,
+      "recorded_energy": 0.021697419636487504,
+      "direct_energy": 0.02169741963942982,
+      "difference": 2.942316529308542e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 24,
+      "recorded_energy": 0.09615979479489001,
+      "direct_energy": 0.09615979480068064,
+      "difference": 5.7906318629008524e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 25,
+      "recorded_energy": 0.00993990623261642,
+      "direct_energy": 0.009939906233817334,
+      "difference": 1.200914367949224e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 26,
+      "recorded_energy": 0.009786602813591786,
+      "direct_energy": 0.009786602817801523,
+      "difference": 4.209736725879765e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 27,
+      "recorded_energy": 0.006512596371984733,
+      "direct_energy": 0.00651259637323586,
+      "difference": 1.2511268063231107e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 28,
+      "recorded_energy": 0.00952620124477794,
+      "direct_energy": 0.00952620124612229,
+      "difference": 1.3443499785603663e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 29,
+      "recorded_energy": 0.012246130901348356,
+      "direct_energy": 0.012246130905504665,
+      "difference": 4.156308977543155e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 30,
+      "recorded_energy": 0.013364116914864358,
+      "direct_energy": 0.013364116918256046,
+      "difference": 3.391687972142954e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 31,
+      "recorded_energy": 0.011721484513746716,
+      "direct_energy": 0.01172148451450003,
+      "difference": 7.533140777837843e-13
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 32,
+      "recorded_energy": 0.012853992201034153,
+      "direct_energy": 0.012853992205370587,
+      "difference": 4.336433989671207e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 33,
+      "recorded_energy": 0.028838460010651917,
+      "direct_energy": 0.028838460020599054,
+      "difference": 9.947136864196793e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 34,
+      "recorded_energy": 0.06889674815083732,
+      "direct_energy": 0.06889674815776581,
+      "difference": 6.9284855630513675e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 35,
+      "recorded_energy": 0.01217175684510877,
+      "direct_energy": 0.012171756848723816,
+      "difference": 3.6150457627392996e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 36,
+      "recorded_energy": 0.024473205727450965,
+      "direct_energy": 0.024473205734188062,
+      "difference": 6.737096991393798e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 37,
+      "recorded_energy": 0.0118382308271176,
+      "direct_energy": 0.011838230827815047,
+      "difference": 6.974473082399513e-13
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 38,
+      "recorded_energy": 0.19259875574619825,
+      "direct_energy": 0.19259875575490273,
+      "difference": 8.704481579968615e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 39,
+      "recorded_energy": 0.04109091191077605,
+      "direct_energy": 0.04109091191137618,
+      "difference": 6.001241170672245e-13
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 40,
+      "recorded_energy": 0.032106295480465494,
+      "direct_energy": 0.032106295484747395,
+      "difference": 4.2819012224804e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 41,
+      "recorded_energy": 0.013080245023231464,
+      "direct_energy": 0.013080245025029842,
+      "difference": 1.7983774192043e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 42,
+      "recorded_energy": 0.02154604019553696,
+      "direct_energy": 0.02154604019613243,
+      "difference": 5.954681192577027e-13
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 43,
+      "recorded_energy": 0.013939566298056386,
+      "direct_energy": 0.013939566298974419,
+      "difference": 9.18033010721686e-13
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 44,
+      "recorded_energy": 0.008906484846612219,
+      "direct_energy": 0.008906484849561185,
+      "difference": 2.948965724391961e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 45,
+      "recorded_energy": 0.011879861746889682,
+      "direct_energy": 0.011879861749166918,
+      "difference": 2.277235691683366e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 46,
+      "recorded_energy": 0.024680879145601003,
+      "direct_energy": 0.02468087914923777,
+      "difference": 3.636767970105481e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 47,
+      "recorded_energy": 0.007934417331263072,
+      "direct_energy": 0.007934417332397256,
+      "difference": 1.1341847599988242e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 48,
+      "recorded_energy": 0.00781120347338289,
+      "direct_energy": 0.007811203475087048,
+      "difference": 1.7041576483300958e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 49,
+      "recorded_energy": 0.011799780069782353,
+      "direct_energy": 0.011799780071496156,
+      "difference": 1.7138027108565268e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 50,
+      "recorded_energy": 0.019456492825240604,
+      "direct_energy": 0.019456492826518443,
+      "difference": 1.2778389457679395e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 51,
+      "recorded_energy": 0.017524128088094046,
+      "direct_energy": 0.017524128091400495,
+      "difference": 3.3064488647038814e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 52,
+      "recorded_energy": 0.013123048778676472,
+      "direct_energy": 0.01312304878207337,
+      "difference": 3.396897346741312e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 53,
+      "recorded_energy": 0.011551360291724223,
+      "direct_energy": 0.011551360293616154,
+      "difference": 1.8919310562637293e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 54,
+      "recorded_energy": 0.01360081064277732,
+      "direct_energy": 0.013600810645001571,
+      "difference": 2.2242502978331302e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 55,
+      "recorded_energy": 0.006838402492331714,
+      "direct_energy": 0.006838402494421618,
+      "difference": 2.0899037708743684e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 56,
+      "recorded_energy": 0.021316113455336537,
+      "direct_energy": 0.021316113460468408,
+      "difference": 5.13187062289866e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 57,
+      "recorded_energy": 0.0056996347767242495,
+      "direct_energy": 0.0056996347782468405,
+      "difference": 1.5225910809935073e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 58,
+      "recorded_energy": 0.04439971217680999,
+      "direct_energy": 0.044399712184318964,
+      "difference": 7.508972610370535e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 59,
+      "recorded_energy": 0.013211306670217648,
+      "direct_energy": 0.013211306678113925,
+      "difference": 7.896277381957972e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 60,
+      "recorded_energy": 0.01390103574802619,
+      "direct_energy": 0.013901035749337508,
+      "difference": 1.311317374130816e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 61,
+      "recorded_energy": 0.004548272914260931,
+      "direct_energy": 0.004548272916015856,
+      "difference": 1.754925198216295e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 62,
+      "recorded_energy": 0.022000696407423193,
+      "direct_energy": 0.022000696410788945,
+      "difference": 3.3657521214536246e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "condition": 63,
+      "recorded_energy": 0.055630395053126926,
+      "direct_energy": 0.05563039505853996,
+      "difference": 5.413031134438029e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 0,
+      "recorded_energy": 0.0033133595003819166,
+      "direct_energy": 0.0033133595054216287,
+      "difference": 5.039712137194785e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 1,
+      "recorded_energy": 0.00536392640972347,
+      "direct_energy": 0.005363926410561973,
+      "difference": 8.385028782420534e-13
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 2,
+      "recorded_energy": 0.0035336805767641763,
+      "direct_energy": 0.0035336805806817544,
+      "difference": 3.917578067502703e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 3,
+      "recorded_energy": 0.010706304982816977,
+      "direct_energy": 0.010706304983877169,
+      "difference": 1.0601918648545094e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 4,
+      "recorded_energy": 0.01449662218343472,
+      "direct_energy": 0.014496622184432751,
+      "difference": 9.980315185398325e-13
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 5,
+      "recorded_energy": 0.011304378361737661,
+      "direct_energy": 0.011304378363690474,
+      "difference": 1.9528129113766113e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 6,
+      "recorded_energy": 0.007880611215605958,
+      "direct_energy": 0.00788061122125227,
+      "difference": 5.646311543316962e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 7,
+      "recorded_energy": 0.004911715055726392,
+      "direct_energy": 0.0049117150566976905,
+      "difference": 9.71298562413292e-13
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 8,
+      "recorded_energy": 0.006617105806419198,
+      "direct_energy": 0.006617105814017017,
+      "difference": 7.5978190752779e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 9,
+      "recorded_energy": 0.010714877099736453,
+      "direct_energy": 0.010714877101736863,
+      "difference": 2.000410254110463e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 10,
+      "recorded_energy": 0.003581835154738219,
+      "direct_energy": 0.0035818351565962705,
+      "difference": 1.8580514730970332e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 11,
+      "recorded_energy": 0.002077337272626864,
+      "direct_energy": 0.002077337275498161,
+      "difference": 2.8712969502020513e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 12,
+      "recorded_energy": 0.006033328532667029,
+      "direct_energy": 0.006033328533625722,
+      "difference": 9.586931942751065e-13
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 13,
+      "recorded_energy": 0.005778698325987968,
+      "direct_energy": 0.005778698328257665,
+      "difference": 2.2696965834567706e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 14,
+      "recorded_energy": 0.008546003716906156,
+      "direct_energy": 0.008546003724215998,
+      "difference": 7.309841967839681e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 15,
+      "recorded_energy": 0.004147758252539989,
+      "direct_energy": 0.0041477582595498995,
+      "difference": 7.009910880928505e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 16,
+      "recorded_energy": 0.0026470440729699134,
+      "direct_energy": 0.002647044076501928,
+      "difference": 3.5320145246042767e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 17,
+      "recorded_energy": 0.004388918414412166,
+      "direct_energy": 0.004388918417907016,
+      "difference": 3.4948493751740806e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 18,
+      "recorded_energy": 0.004125146586773716,
+      "direct_energy": 0.004125146589076882,
+      "difference": 2.303166338202267e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 19,
+      "recorded_energy": 0.0031062726023611516,
+      "direct_energy": 0.0031062726043863385,
+      "difference": 2.0251868758369707e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 20,
+      "recorded_energy": 0.016293662272822827,
+      "direct_energy": 0.01629366227410362,
+      "difference": 1.280791445124052e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 21,
+      "recorded_energy": 0.00801661092527227,
+      "direct_energy": 0.008016610929321122,
+      "difference": 4.048851531823772e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 22,
+      "recorded_energy": 0.010570470074904121,
+      "direct_energy": 0.010570470078741718,
+      "difference": 3.837596906919316e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 23,
+      "recorded_energy": 0.008297380814979454,
+      "direct_energy": 0.008297380820639457,
+      "difference": 5.660003715712847e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 24,
+      "recorded_energy": 0.005109234676608894,
+      "direct_energy": 0.0051092346797655605,
+      "difference": 3.156666768255878e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 25,
+      "recorded_energy": 0.008709691613503932,
+      "direct_energy": 0.008709691614719739,
+      "difference": 1.215806968990485e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 26,
+      "recorded_energy": 0.005762336082622288,
+      "direct_energy": 0.005762336083697476,
+      "difference": 1.075187681942591e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 27,
+      "recorded_energy": 0.008741254681518353,
+      "direct_energy": 0.008741254684369653,
+      "difference": 2.8513007926944667e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 28,
+      "recorded_energy": 0.006575779815941475,
+      "direct_energy": 0.006575779818961868,
+      "difference": 3.020392963515306e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 29,
+      "recorded_energy": 0.0045734469855152554,
+      "direct_energy": 0.004573446991180476,
+      "difference": 5.665220896566847e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 30,
+      "recorded_energy": 0.004219689233412958,
+      "direct_energy": 0.00421968923469875,
+      "difference": 1.2857917855435552e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 31,
+      "recorded_energy": 0.003713124994403027,
+      "direct_energy": 0.0037131249960543865,
+      "difference": 1.6513596046152657e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 32,
+      "recorded_energy": 0.006362819611317133,
+      "direct_energy": 0.006362819615299261,
+      "difference": 3.982127995405538e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 33,
+      "recorded_energy": 0.021418003090579618,
+      "direct_energy": 0.021418003096280266,
+      "difference": 5.7006482867549835e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 34,
+      "recorded_energy": 0.009669103326094873,
+      "direct_energy": 0.009669103327723846,
+      "difference": 1.628972998157785e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 35,
+      "recorded_energy": 0.005020225159959153,
+      "direct_energy": 0.005020225162013682,
+      "difference": 2.0545284223905114e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 36,
+      "recorded_energy": 0.0032424815777661376,
+      "direct_energy": 0.0032424815808104386,
+      "difference": 3.0443009224612183e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 37,
+      "recorded_energy": 0.015130018962602281,
+      "direct_energy": 0.015130018966243183,
+      "difference": 3.640901816148734e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 38,
+      "recorded_energy": 0.007204261098577399,
+      "direct_energy": 0.007204261100415455,
+      "difference": 1.8380557492703176e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 39,
+      "recorded_energy": 0.011514919083929414,
+      "direct_energy": 0.011514919085045896,
+      "difference": 1.1164819069264809e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 40,
+      "recorded_energy": 0.007441671391102429,
+      "direct_energy": 0.007441671396948912,
+      "difference": 5.846483019933402e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 41,
+      "recorded_energy": 0.011624129489897404,
+      "direct_energy": 0.011624129495452867,
+      "difference": 5.5554623401565806e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 42,
+      "recorded_energy": 0.00917223184951501,
+      "direct_energy": 0.009172231850666268,
+      "difference": 1.151257908449388e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 43,
+      "recorded_energy": 0.003625370055063771,
+      "direct_energy": 0.0036253700563152226,
+      "difference": 1.2514516332939873e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 44,
+      "recorded_energy": 0.007282136641769385,
+      "direct_energy": 0.00728213664370807,
+      "difference": 1.938685323388256e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 45,
+      "recorded_energy": 0.0050000836761554986,
+      "direct_energy": 0.00500008368159914,
+      "difference": 5.443641197533378e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 46,
+      "recorded_energy": 0.004211602313216691,
+      "direct_energy": 0.004211602315131034,
+      "difference": 1.9143428162116116e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 47,
+      "recorded_energy": 0.013254950294353139,
+      "direct_energy": 0.013254950299265053,
+      "difference": 4.911914625038705e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 48,
+      "recorded_energy": 0.008978940960523431,
+      "direct_energy": 0.00897894096409674,
+      "difference": 3.5733083159072976e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 49,
+      "recorded_energy": 0.0090574267340455,
+      "direct_energy": 0.009057426734772289,
+      "difference": 7.26788421112623e-13
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 50,
+      "recorded_energy": 0.04271105663439562,
+      "direct_energy": 0.04271105664478106,
+      "difference": 1.0385442505977949e-11
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 51,
+      "recorded_energy": 0.02048202679396272,
+      "direct_energy": 0.020482026795795777,
+      "difference": 1.8330580109360284e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 52,
+      "recorded_energy": 0.005597589838040557,
+      "direct_energy": 0.005597589845313234,
+      "difference": 7.272677252090354e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 53,
+      "recorded_energy": 0.004749578157176811,
+      "direct_energy": 0.004749578161228923,
+      "difference": 4.052112811958608e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 54,
+      "recorded_energy": 0.012796430203834768,
+      "direct_energy": 0.012796430208534992,
+      "difference": 4.700224584541779e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 55,
+      "recorded_energy": 0.005715738816750715,
+      "direct_energy": 0.005715738819474872,
+      "difference": 2.7241568376079606e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 56,
+      "recorded_energy": 0.004053479609200826,
+      "direct_energy": 0.004053479609821988,
+      "difference": 6.211619760221332e-13
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 57,
+      "recorded_energy": 0.021530949167314375,
+      "direct_energy": 0.02153094916999876,
+      "difference": 2.6843839651125023e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 58,
+      "recorded_energy": 0.024662833129809197,
+      "direct_energy": 0.024662833131131285,
+      "difference": 1.322088272193156e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 59,
+      "recorded_energy": 0.009376747481769483,
+      "direct_energy": 0.009376747486578378,
+      "difference": 4.80889460197087e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 60,
+      "recorded_energy": 0.010571141523116254,
+      "direct_energy": 0.010571141529039025,
+      "difference": 5.922770954236434e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 61,
+      "recorded_energy": 0.007000813881151974,
+      "direct_energy": 0.007000813886213312,
+      "difference": 5.061337633727181e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 62,
+      "recorded_energy": 0.009867825046479503,
+      "direct_energy": 0.009867825048813532,
+      "difference": 2.3340288035633705e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "condition": 63,
+      "recorded_energy": 0.0047044569496432175,
+      "direct_energy": 0.004704456951318485,
+      "difference": 1.675267563561178e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 0,
+      "recorded_energy": 0.006240484934814444,
+      "direct_energy": 0.006240484937448445,
+      "difference": 2.63400152383797e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 1,
+      "recorded_energy": 0.007889012619259004,
+      "direct_energy": 0.00788901262145749,
+      "difference": 2.1984861847679227e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 2,
+      "recorded_energy": 0.01103288090531513,
+      "direct_energy": 0.01103288090849793,
+      "difference": 3.1827995100597306e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 3,
+      "recorded_energy": 0.003797763475899523,
+      "direct_energy": 0.0037977634782004254,
+      "difference": 2.3009025240661174e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 4,
+      "recorded_energy": 0.0034890725299888572,
+      "direct_energy": 0.0034890725318991963,
+      "difference": 1.910339074429057e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 5,
+      "recorded_energy": 0.008598697739133137,
+      "direct_energy": 0.008598697740665755,
+      "difference": 1.5326177826846532e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 6,
+      "recorded_energy": 0.011398636721209894,
+      "direct_energy": 0.011398636723745432,
+      "difference": 2.5355377519797884e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 7,
+      "recorded_energy": 0.0038485002097829206,
+      "direct_energy": 0.0038485002124638494,
+      "difference": 2.6809288296292255e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 8,
+      "recorded_energy": 0.0039825329834750215,
+      "direct_energy": 0.003982532985996399,
+      "difference": 2.5213772042453897e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 9,
+      "recorded_energy": 0.0051331450671396545,
+      "direct_energy": 0.005133145069749451,
+      "difference": 2.6097969271776655e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 10,
+      "recorded_energy": 0.007423407551596349,
+      "direct_energy": 0.0074234075542260695,
+      "difference": 2.629720226299259e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 11,
+      "recorded_energy": 0.0030814091625209587,
+      "direct_energy": 0.003081409165546677,
+      "difference": 3.0257181309056858e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 12,
+      "recorded_energy": 0.004012282207879384,
+      "direct_energy": 0.0040122822104773255,
+      "difference": 2.59794182694284e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 13,
+      "recorded_energy": 0.004588772245291449,
+      "direct_energy": 0.00458877224833248,
+      "difference": 3.041030968709002e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 14,
+      "recorded_energy": 0.004888728214488094,
+      "direct_energy": 0.004888728217314579,
+      "difference": 2.8264847060088805e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 15,
+      "recorded_energy": 0.007478562024070262,
+      "direct_energy": 0.007478562027327652,
+      "difference": 3.2573900174415193e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 16,
+      "recorded_energy": 0.006380011734395111,
+      "direct_energy": 0.0063800117367393185,
+      "difference": 2.3442072935586644e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 17,
+      "recorded_energy": 0.0075497637659484055,
+      "direct_energy": 0.0075497637686067764,
+      "difference": 2.658370919228492e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 18,
+      "recorded_energy": 0.008193505811630877,
+      "direct_energy": 0.008193505813905764,
+      "difference": 2.2748868760968932e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 19,
+      "recorded_energy": 0.008466873893754598,
+      "direct_energy": 0.008466873895922624,
+      "difference": 2.168026175253246e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 20,
+      "recorded_energy": 0.005216189885022006,
+      "direct_energy": 0.005216189887570058,
+      "difference": 2.548052047135485e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 21,
+      "recorded_energy": 0.006977490696995905,
+      "direct_energy": 0.006977490699221065,
+      "difference": 2.22516016029628e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 22,
+      "recorded_energy": 0.005058572603367293,
+      "direct_energy": 0.005058572606039001,
+      "difference": 2.6717083406735398e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 23,
+      "recorded_energy": 0.01845001830273817,
+      "direct_energy": 0.018450018305646323,
+      "difference": 2.9081528851726546e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 24,
+      "recorded_energy": 0.004034245778649747,
+      "direct_energy": 0.004034245781347636,
+      "difference": 2.6978887873729818e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 25,
+      "recorded_energy": 0.005472582107750279,
+      "direct_energy": 0.005472582110429067,
+      "difference": 2.678787747179001e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 26,
+      "recorded_energy": 0.013874674905603802,
+      "direct_energy": 0.013874674908162393,
+      "difference": 2.558590492252044e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 27,
+      "recorded_energy": 0.0071413395272883545,
+      "direct_energy": 0.007141339530226805,
+      "difference": 2.9384506980423275e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 28,
+      "recorded_energy": 0.004298623130119199,
+      "direct_energy": 0.004298623132533714,
+      "difference": 2.4145147686782664e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 29,
+      "recorded_energy": 0.004530976975912004,
+      "direct_energy": 0.00453097697814935,
+      "difference": 2.237345725353279e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 30,
+      "recorded_energy": 0.004586309516047637,
+      "direct_energy": 0.00458630951885601,
+      "difference": 2.8083724581962066e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 31,
+      "recorded_energy": 0.010426089381967308,
+      "direct_energy": 0.010426089384070789,
+      "difference": 2.103480584159101e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 32,
+      "recorded_energy": 0.007815386156453179,
+      "direct_energy": 0.00781538615901325,
+      "difference": 2.5600702113770524e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 33,
+      "recorded_energy": 0.007115315992831661,
+      "direct_energy": 0.0071153159950711475,
+      "difference": 2.2394863741226345e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 34,
+      "recorded_energy": 0.0034969081981355934,
+      "direct_energy": 0.003496908199992419,
+      "difference": 1.8568254572803866e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 35,
+      "recorded_energy": 0.010978715938258181,
+      "direct_energy": 0.010978715940406943,
+      "difference": 2.1487620710525235e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 36,
+      "recorded_energy": 0.0026382274834605805,
+      "direct_energy": 0.002638227485782559,
+      "difference": 2.3219785469374976e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 37,
+      "recorded_energy": 0.00345294412336739,
+      "direct_energy": 0.0034529441268378444,
+      "difference": 3.4704543926122877e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 38,
+      "recorded_energy": 0.007229825271118291,
+      "direct_energy": 0.007229825273070946,
+      "difference": 1.9526550515402974e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 39,
+      "recorded_energy": 0.006419544350911671,
+      "direct_energy": 0.006419544354192442,
+      "difference": 3.2807706204507348e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 40,
+      "recorded_energy": 0.005777046227965767,
+      "direct_energy": 0.005777046230983747,
+      "difference": 3.0179799631602222e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 41,
+      "recorded_energy": 0.013571383320385325,
+      "direct_energy": 0.01357138332295363,
+      "difference": 2.5683049437175143e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 42,
+      "recorded_energy": 0.0027846218209094924,
+      "direct_energy": 0.0027846218237333425,
+      "difference": 2.8238500947297407e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 43,
+      "recorded_energy": 0.006022957932022997,
+      "direct_energy": 0.00602295793570701,
+      "difference": 3.6840131639737095e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 44,
+      "recorded_energy": 0.005003762824027062,
+      "direct_energy": 0.005003762826884832,
+      "difference": 2.857769576536384e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 45,
+      "recorded_energy": 0.0056735912604632035,
+      "direct_energy": 0.005673591263023275,
+      "difference": 2.5600719461005284e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 46,
+      "recorded_energy": 0.007327538071229627,
+      "direct_energy": 0.0073275380733800344,
+      "difference": 2.1504074562694875e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 47,
+      "recorded_energy": 0.01830820465209472,
+      "direct_energy": 0.01830820465561243,
+      "difference": 3.517710428502241e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 48,
+      "recorded_energy": 0.004992320744586905,
+      "direct_energy": 0.00499232074701838,
+      "difference": 2.4314751601028917e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 49,
+      "recorded_energy": 0.014167101986515968,
+      "direct_energy": 0.014167101989126095,
+      "difference": 2.610127391999839e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 50,
+      "recorded_energy": 0.006101233786514164,
+      "direct_energy": 0.006101233788882082,
+      "difference": 2.3679183613900534e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 51,
+      "recorded_energy": 0.005865109401044015,
+      "direct_energy": 0.005865109403501012,
+      "difference": 2.4569972792432004e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 52,
+      "recorded_energy": 0.0022085804307448984,
+      "direct_energy": 0.0022085804325162675,
+      "difference": 1.7713690757259482e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 53,
+      "recorded_energy": 0.0033973111528181293,
+      "direct_energy": 0.003397311155371614,
+      "difference": 2.5534847673813754e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 54,
+      "recorded_energy": 0.006452106689192152,
+      "direct_energy": 0.006452106692010898,
+      "difference": 2.818746104582548e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 55,
+      "recorded_energy": 0.009347179472713076,
+      "direct_energy": 0.009347179475574138,
+      "difference": 2.861062081693788e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 56,
+      "recorded_energy": 0.009126668038096135,
+      "direct_energy": 0.009126668041026352,
+      "difference": 2.9302168330636036e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 57,
+      "recorded_energy": 0.004614347233785507,
+      "direct_energy": 0.004614347236430047,
+      "difference": 2.644539968954529e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 58,
+      "recorded_energy": 0.011675796327142017,
+      "direct_energy": 0.011675796329972782,
+      "difference": 2.8307651361858532e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 59,
+      "recorded_energy": 0.0074758798786784455,
+      "direct_energy": 0.00747587988149077,
+      "difference": 2.8123241582744818e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 60,
+      "recorded_energy": 0.0038113580445791077,
+      "direct_energy": 0.0038113580472585546,
+      "difference": 2.6794469420998723e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 61,
+      "recorded_energy": 0.01837975238568886,
+      "direct_energy": 0.01837975238864674,
+      "difference": 2.9578804683350057e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 62,
+      "recorded_energy": 0.012564060988524202,
+      "direct_energy": 0.012564060991242673,
+      "difference": 2.7184712814154466e-12
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "condition": 63,
+      "recorded_energy": 0.00867948636967862,
+      "direct_energy": 0.00867948637162897,
+      "difference": 1.9503513387642e-12
+    }
+  ],
+  "provenance": [
+    {
+      "run": "linear-gaussian-mlp-h0-seed1001-200k",
+      "result_file": "eval_linear-gaussian-mlp-h0-seed1001-200k\\linear-gaussian-mlp-h0-seed1001-200k_200000.json",
+      "result_sha256": "0745ab87ed23f605551527fc54b7b3028d380bbd2fe6563d9db84bde1457ddab",
+      "checkpoint_sha256": "170b7f3d52d37fe38d7fa1cb371bcebdddf2b62021fd6b5d10b110bd5925c3b9",
+      "config_sha256": "4363d998db3b66815b71f56aa54e2b1bc29bc69be398d74b1a2b549b528a0ddd",
+      "eval_script_sha256": "b7b8a8f97c8b547d6f9b3c1f262bb9f229b9bdc5f660377d6dbca37311887f53"
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1002-200k",
+      "result_file": "eval_linear-gaussian-mlp-h0-seed1002-200k\\linear-gaussian-mlp-h0-seed1002-200k_200000.json",
+      "result_sha256": "448e01fefc1e8d50a2cef1c6e0f2b77e77b8bb5fe39d01d6eef8b544773a024f",
+      "checkpoint_sha256": "1ff439f622ed0b233aadacf129c56b73007356e889cd8a5b0743474cd5734223",
+      "config_sha256": "59a75c91e95b9640024e333bfacf117c1c81e2e75906adfa83eb93482fb7826c",
+      "eval_script_sha256": "b7b8a8f97c8b547d6f9b3c1f262bb9f229b9bdc5f660377d6dbca37311887f53"
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1003-200k",
+      "result_file": "eval_linear-gaussian-mlp-h0-seed1003-200k\\linear-gaussian-mlp-h0-seed1003-200k_200000.json",
+      "result_sha256": "2f8c8929c799fdeeaed7e0e2923f5092d108fb5a6d724adadbc9de464db9ece4",
+      "checkpoint_sha256": "7df6163819e075c2a6b6f846d0db434f1571a38dfa47d00b0070eac0c01187eb",
+      "config_sha256": "450fe17e7ed76f157663fbe3b1bf5b917615064bc7bf2b53c2843ca00690ef96",
+      "eval_script_sha256": "b7b8a8f97c8b547d6f9b3c1f262bb9f229b9bdc5f660377d6dbca37311887f53"
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1004-200k",
+      "result_file": "eval_linear-gaussian-mlp-h0-seed1004-200k\\linear-gaussian-mlp-h0-seed1004-200k_200000.json",
+      "result_sha256": "1a3fed10760f06f38e5d4bcb82f03d378eef142ce4c599ab44808bc48f163592",
+      "checkpoint_sha256": "1134e5db817095f8d32f0b83e3e310243963700825a12ba756327db2c73d791a",
+      "config_sha256": "1fc4c8dc3067a5dac19e9a83b44d980023e914d78135e51dee5ee0ad075f8554",
+      "eval_script_sha256": "b7b8a8f97c8b547d6f9b3c1f262bb9f229b9bdc5f660377d6dbca37311887f53"
+    },
+    {
+      "run": "linear-gaussian-mlp-h0-seed1005-200k",
+      "result_file": "eval_linear-gaussian-mlp-h0-seed1005-200k\\linear-gaussian-mlp-h0-seed1005-200k_200000.json",
+      "result_sha256": "c4a0e7da5bdf76d731071d363d36a91dcbfca39b862aef3e19c88522d993e4dc",
+      "checkpoint_sha256": "68a783225cdaf232fe81385c6a9cf7ecf38e3375d5f05e79c7f0828e739c6e40",
+      "config_sha256": "a086a66a3cf957083e0c8c6b0d70e64e7a42927bad60ab8fb997f9384129eeab",
+      "eval_script_sha256": "b7b8a8f97c8b547d6f9b3c1f262bb9f229b9bdc5f660377d6dbca37311887f53"
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1001-200k",
+      "result_file": "eval_linear-gaussian-mlp-h0p1-seed1001-200k\\linear-gaussian-mlp-h0p1-seed1001-200k_200000.json",
+      "result_sha256": "9015e4772c97e7066ab2bae741c9815e0403c2aa507f0af2126d9e309db9ac9c",
+      "checkpoint_sha256": "315ee1b8f107c96ec25dd1328f80ca1bcd90c3a4976ef65bd9cb357e7420e9a7",
+      "config_sha256": "ccdcee1d48384c547fe6b30794858a34e1fade788d71247f23ab982dd08b615e",
+      "eval_script_sha256": "b7b8a8f97c8b547d6f9b3c1f262bb9f229b9bdc5f660377d6dbca37311887f53"
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1002-200k",
+      "result_file": "eval_linear-gaussian-mlp-h0p1-seed1002-200k\\linear-gaussian-mlp-h0p1-seed1002-200k_200000.json",
+      "result_sha256": "c465b65d008547e403ff29a47704ff2c3566e07a7d0d128aaf4b5d5cd33b78a5",
+      "checkpoint_sha256": "df9852535984879907c71933e4f1efa1ae8b6eaf1cf728600da4af2c08bcf05b",
+      "config_sha256": "9055888f9b8e1228cc524fd6bfa63e0554c8c3de2dc4b4402dc6563135a49e50",
+      "eval_script_sha256": "b7b8a8f97c8b547d6f9b3c1f262bb9f229b9bdc5f660377d6dbca37311887f53"
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1003-200k",
+      "result_file": "eval_linear-gaussian-mlp-h0p1-seed1003-200k\\linear-gaussian-mlp-h0p1-seed1003-200k_200000.json",
+      "result_sha256": "5ba42a65ec326e0572ef43bd7f772eccd8dbe0a55ca4c0736fe3a45176f19fd6",
+      "checkpoint_sha256": "7c096bb1f350caad5faf9cbb6d84ac6b38d48bdb6e093deb0b7a7dd111344b11",
+      "config_sha256": "1c0d73547f0cf81e1268663d812babb2a7abbd20f7c4a50a81e6a4c31c1ea634",
+      "eval_script_sha256": "b7b8a8f97c8b547d6f9b3c1f262bb9f229b9bdc5f660377d6dbca37311887f53"
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1004-200k",
+      "result_file": "eval_linear-gaussian-mlp-h0p1-seed1004-200k\\linear-gaussian-mlp-h0p1-seed1004-200k_200000.json",
+      "result_sha256": "8c57fa3b38af69c87b068fd00c08e8d64c069d63c0387085589803cd9b23de8e",
+      "checkpoint_sha256": "2909290edccae463f728461c5f4e8cfcefdd8d15b9e98693b0cc86b6a78dbaaa",
+      "config_sha256": "a6df1149ea0a351906065ed54d9c54c936443002e99af8d50f25196cbba3d693",
+      "eval_script_sha256": "b7b8a8f97c8b547d6f9b3c1f262bb9f229b9bdc5f660377d6dbca37311887f53"
+    },
+    {
+      "run": "linear-gaussian-mlp-h0p1-seed1005-200k",
+      "result_file": "eval_linear-gaussian-mlp-h0p1-seed1005-200k\\linear-gaussian-mlp-h0p1-seed1005-200k_200000.json",
+      "result_sha256": "06342e1f6349312717f38ba57235b3ac3fbd7cd1c2edda28f0cb8c5b9356c975",
+      "checkpoint_sha256": "9f3eb83d7620ecad586516bb7e3f8d83fbd73dea61163a59b782446ba0e2eb9a",
+      "config_sha256": "875c89a5197e92d399b914c2ed57e1a20208850eb49028181850ae871351a424",
+      "eval_script_sha256": "b7b8a8f97c8b547d6f9b3c1f262bb9f229b9bdc5f660377d6dbca37311887f53"
+    }
+  ],
+  "warning": "Five independent problem seeds; conditions nested within seeds. Null16-pair q95 is descriptive, not a formal test. Failed solver row retained."
+}

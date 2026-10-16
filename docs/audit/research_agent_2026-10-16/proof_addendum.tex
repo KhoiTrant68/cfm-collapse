@@ -1,0 +1,533 @@
+\documentclass[11pt]{article}
+\setlength{\textwidth}{6.5in}
+\setlength{\oddsidemargin}{0in}
+\setlength{\evensidemargin}{0in}
+\setlength{\textheight}{9in}
+\setlength{\topmargin}{-0.5in}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{example}[theorem]{Counterexample}
+\newcommand{\E}{\mathbb E}
+\newcommand{\R}{\mathbb R}
+\newcommand{\eps}{\varepsilon}
+\newcommand{\Cov}{\operatorname{Cov}}
+\newcommand{\Var}{\operatorname{Var}}
+\newcommand{\dist}{\operatorname{dist}}
+\title{Proof addendum and mathematical corrections\\to the conditional-flow manuscript}
+\author{Independent audit of the local manuscript}
+\date{16 October 2026}
+\begin{document}
+\maketitle
+This addendum is separate from \texttt{paper/main.tex}. Its source revision and
+review ledger are recorded in \texttt{06\_Math\_Formalization.md}. The first six
+results each received four fresh adversarial confirmations under their stated
+assumptions. Subsequent corrections have explicit proofs but have not all received
+that review depth. None of the results identifies a trained neural network with
+an exact population field.
+
+\section{Hard conditioning under guidance}
+Guidance need not preserve the full trajectory. It nevertheless preserves the
+conditioned endpoint without assuming convergence or excluding nearest-atom ties.
+\begin{theorem}\label{thm:hard}
+Let $a_1,\ldots,a_N\in\R^d$, $N\ge1$, fix $i$, and put $\eps=1-t$ and
+\[
+q_j(x,t)=\frac{\exp(-\lVert x-ta_j\rVert^2/(2\eps^2))}
+ {\sum_\ell\exp(-\lVert x-ta_\ell\rVert^2/(2\eps^2))},
+\qquad m(x,t)=\sum_jq_j(x,t)a_j.
+\]
+For every $w\ge0$ and $x_0\in\R^d$, the solution of
+\[
+\dot x_t=\frac{(1+w)a_i-wm(x_t,t)-x_t}{1-t},\qquad x_{t=0}=x_0,
+\]
+exists on $[0,1)$ and converges to $a_i$. More precisely, for $0<t_0<t<1$,
+\begin{equation}\label{eq:hard-bound}
+\lVert x_t-ta_i\rVert^2\le\eps^2\left[
+\frac{\lVert x_{t_0}-t_0a_i\rVert^2}{(1-t_0)^2}
++2w\log N\log\frac{t(1-t_0)}{t_0(1-t)}\right].
+\end{equation}
+\end{theorem}
+\begin{proof}
+On every compact time interval below $1$ the field is smooth, locally Lipschitz,
+and has linear growth, since $m$ lies in the convex hull of the finite atoms.
+These properties give existence and uniqueness on $[0,1)$.
+
+Write $D_j=\lVert x-ta_j\rVert^2$ and $H(q)=-\sum_jq_j\log q_j$.
+The Gibbs identity and the contribution of index $i$ to the partition function give
+\[
+\sum_jq_jD_j=2\eps^2\bigl(H(q)-\log\sum_je^{-D_j/(2\eps^2)}\bigr)
+\le D_i+2\eps^2\log N.
+\]
+With $z=x-ta_i$, expanding $D_j-D_i$ therefore gives
+\[
+2t z\cdot(a_i-m)+t^2\sum_jq_j\lVert a_i-a_j\rVert^2
+\le2\eps^2\log N.
+\]
+Along the flow, $\dot z=(-z+w(a_i-m))/\eps$. Dropping the nonnegative
+sum for $t>0$ and using $w\ge0$, $Y=\lVert z\rVert^2$ satisfies
+\[
+Y'\le-\frac{2Y}{\eps}+\frac{2w\eps\log N}{t},\qquad
+\left(\frac{Y}{\eps^2}\right)'\le\frac{2w\log N}{t(1-t)}.
+\]
+Integration yields \eqref{eq:hard-bound}. Its right side tends to zero, so
+$x_t-ta_i\to0$ and $x_t\to a_i$.
+\end{proof}
+The result applies to the exact hard-conditioned population field. It asserts
+neither convergence of a learned field nor atom selection for positive label
+bandwidth. For $w=-1$, symmetric atoms $\{-1,1\}$ admit the unconditional
+trajectory $x_t=0$, so the sign restriction cannot simply be dropped.
+
+\section{The sharp Lipschitz floor}
+\begin{theorem}\label{thm:sharp}
+Let $I$ be uniform on finitely many indices, let $T$ be uniform on $(0,1)$,
+and let $X_0\sim\mathcal N(0,I_d)$, mutually independently. The distinct
+conditioning labels $y_i$ identify atoms $a_i$. Set
+$X_T=(1-T)X_0+Ta_I$ and $U=a_I-X_0$.
+For the class $\mathcal F_L$ of measurable fields that are spatially
+$L$-Lipschitz at every time and supplied label, $L\ge1$,
+\[
+\inf_{v\in\mathcal F_L}\E\lVert v(X_T,T,y_I)-U\rVert^2=\frac{d}{3L}.
+\]
+An optimizer, for $t<1$, is
+\[
+v_L(x,t,y_i)=a_i-\min\{L,(1-t)^{-1}\}(x-ta_i).
+\]
+\end{theorem}
+\begin{proof}
+Fix $i,t$ and write $\eps=1-t$. In this paragraph expectations are conditional
+on $I=i,T=t$, so $X_t=ta_i+\eps X_0$; abbreviate $v(X_t,t,y_i)$ by $v(X_t)$.
+For an independent copy $X_t'$ of $X_t$,
+\[
+\E\lVert v(X_t)-\E v(X_t)\rVert^2
+=\tfrac12\E\lVert v(X_t)-v(X_t')\rVert^2\le dL^2\eps^2.
+\]
+The centered target is $U-\E U=-X_0$, with $L^2$ norm $\sqrt d$. Centering the residual and
+using the reverse triangle inequality gives conditional risk at least
+$d[1-L\eps]_+^2$. Infinite-risk fields satisfy this bound trivially.
+For the displayed optimizer the residual is
+$[1-\min\{L,\eps^{-1}\}\eps]X_0$, which attains that bound at every $i,t$.
+Its sampled value has uniformly bounded second moment. Finally,
+\[
+d\int_0^1[1-L(1-t)]_+^2\,dt=\frac{d}{3L}.
+\]
+\end{proof}
+This optimizes over all measurable spatially Lipschitz fields, rather than a
+particular architecture. A small lower bound alone does not upper-bound a
+network's approximation error or rule out a representation gap.
+
+\section{A spectral obstruction to a probability kernel}
+\begin{theorem}\label{thm:filter}
+For $a,\zeta>0$, the continuous function
+\[
+G(0)=1,\qquad G(\omega)=1-e^{-a|\omega|^{-\zeta}}\quad(\omega\ne0)
+\]
+is not the characteristic function of a probability measure on $\R$.
+\end{theorem}
+\begin{proof}
+If $G(\omega)=\int e^{i\omega x}\,d\mu(x)$ for a probability measure $\mu$,
+fix a sequence $\omega_n\ne0$ tending to zero. Fatou's lemma gives
+\[
+\frac12\int x^2\,d\mu(x)
+\le\liminf_{n\to\infty}\int\frac{1-\cos(\omega_n x)}{\omega_n^2}\,d\mu(x)
+=\lim_{n\to\infty}\frac{e^{-a|\omega_n|^{-\zeta}}}{\omega_n^2}=0.
+\]
+Thus $\mu=\delta_0$, whose characteristic function is identically $1$,
+contradicting $G(\omega)<1$ for $\omega\ne0$.
+\end{proof}
+No moment assumption on $\mu$ is needed. Hence this continuum multiplier cannot
+represent convolution by a probability measure for all targets. Signed kernels,
+distributional kernels, and approximate fits on a finite set of conditions are
+not excluded. In particular, a good moment fit to a Gaussian-label mixture is
+not an identity of distributions.
+
+\section{Convergence after averaging over labels}
+The conditional convergence statement for an averaged-label field can be
+strengthened. The argument below proves convergence, while retaining a genuine
+distinction between atom limits and ties.
+\begin{theorem}\label{thm:averaged}
+Let $a_1,\ldots,a_N\in\R^d$, let $\phi$ be a fixed probability measure,
+and let $c_j(y)$ be measurable with $0<c_j(y)<\infty$ almost everywhere.
+Set $\eps=1-t$ and
+\[
+q_j(x,t,y)=\frac{c_j(y)e^{-\lVert x-ta_j\rVert^2/(2\eps^2)}}
+ {\sum_\ell c_\ell(y)e^{-\lVert x-ta_\ell\rVert^2/(2\eps^2)}},\qquad
+m(x,t)=\int\sum_jq_j(x,t,y)a_j\,d\phi(y).
+\]
+For every $x(0)=x_0\in\R^d$, the equation $x'=(m(x,t)-x)/(1-t)$ has a unique
+solution on $[0,1)$. It converges to a point $z\in\operatorname{conv}N(z)$, where
+$N(z)=\{a_j:\lVert z-a_j\rVert=\min_\ell\lVert z-a_\ell\rVert\}$.
+No integrability assumption on logarithms of the coefficients
+is required. A non-atom limit is possible.
+\end{theorem}
+\begin{proof}
+The original field is locally Lipschitz on compact intervals $t<1$, including
+$t=0$: its spatial softmax derivatives are bounded independently of the
+coefficients there. Since $m$ is in the convex hull of the atoms,
+variation of constants gives existence on all of $[0,1)$ and a bounded trajectory.
+We now prove convergence of this trajectory.
+
+\emph{A decreasing energy.}
+Normalize $p_j(y)=c_j(y)/\sum_\ell c_\ell(y)$. Start at any $t_0>0$ and set
+\[
+\tau=-\log(1-t),\quad \alpha=\frac{\eps^2}{t},\quad
+b_j=x\cdot a_j-\frac t2\lVert a_j\rVert^2,\quad R=\max_j\lVert a_j\rVert.
+\]
+From now on dots denote differentiation with respect to $\tau$, with
+$t=1-e^{-\tau}$. Then $q_j\propto p_je^{b_j/\alpha}$ and $\dot x=m-x$,
+which also gives a bounded $\tau$-speed. Define
+\[
+F=\int\alpha\log\sum_jp_j(y)e^{b_j/\alpha}\,d\phi(y),\qquad
+W=\tfrac12\lVert x\rVert^2-F+\tfrac12\eps R^2.
+\]
+The integrand lies between $\min b_j$ and $\max b_j$. Treating $t$ and $\alpha$
+as independent arguments, differentiation gives
+\[
+\nabla_xF=m,\qquad \partial_\alpha F=-\int D_{\rm KL}(q\Vert p)\,d\phi,
+\qquad \partial_tF=-\tfrac12\int\sum_jq_j\lVert a_j\rVert^2\,d\phi.
+\]
+These derivatives pass under the integral on compact positive-time intervals:
+the spatial and time derivatives are bounded, and
+\[
+0\le D_{\rm KL}(q\Vert p)
+=\frac{\sum_jq_jb_j}{\alpha}-\log\sum_jp_je^{b_j/\alpha}
+\le\frac{\max_jb_j-\min_jb_j}{\alpha}
+\]
+is uniform in $y$. Since $\dot\alpha<0$ and $\dot t=\eps$,
+\[
+\dot W=-\lVert\dot x\rVert^2+\dot\alpha\int D_{\rm KL}(q\Vert p)\,d\phi
++\frac\eps2\left(\int\sum_jq_j\lVert a_j\rVert^2\,d\phi-R^2\right)
+\le-\lVert\dot x\rVert^2.
+\]
+Moreover $F\le\max_jb_j$, so
+\[
+W\ge\min_j\left\{\tfrac12\lVert x-a_j\rVert^2
++\tfrac\eps2(R^2-\lVert a_j\rVert^2)\right\}\ge0.
+\]
+Thus $\int_{\tau_0}^\infty\lVert\dot x\rVert^2\,d\tau<\infty$.
+
+\emph{A finite set of possible limits.}
+If $x_n\to z$ and $\tau_n\to\infty$, every weight on an atom outside $N(z)$
+tends to zero for each $y$, by the positive distance gap and the fixed positive
+coefficient ratios. Bounded convergence gives the same conclusion after
+averaging over $y$. Every limit of $m(x_n,t_n)$ therefore lies in
+$\operatorname{conv}N(z)$.
+
+Let $C=\{z:z\in\operatorname{conv}N(z)\}$. This set is finite. For each
+nonempty subset $S$ of atoms, there is at most one point in
+$\operatorname{aff}S$ equidistant from all atoms of $S$: the difference of two
+such points lies both in $\operatorname{span}(S-S)$ and its orthogonal
+complement. A point of $C$ is one of these finitely many candidates.
+On any compact set disjoint from $C$, the speed is eventually bounded below
+by a positive constant. Otherwise a sequence of points there with speed tending
+to zero would, by compactness and the preceding concentration argument, have
+a limit in $C$.
+
+An omega-limit point outside $C$ admits a closed ball disjoint from $C$.
+Infinitely many visits to its inner half force residence for a fixed positive
+time in the ball, because the speed is bounded above. If the trajectory remains
+in the ball forever, the eventual positive lower speed bound already contradicts
+finite energy. Otherwise choose disjoint visits; each spends a fixed positive
+amount of energy, again a contradiction. Hence the omega-limit set is contained
+in $C$. It is nonempty, compact, and connected, as the intersection of the nested
+closures of the bounded connected trajectory tails. Being contained in a finite
+set, it is a singleton.
+
+Finally, equal coefficients and atoms $\{-a,a\}$ give the trajectory $x_t=0$
+from $x_0=0$. Its limit is not an atom when $a\ne0$.
+\end{proof}
+This theorem applies to a positive-bandwidth label average in the manuscript.
+Its exceptional tie limits do not preclude an almost-sure atomic endpoint.
+The next result addresses the measure of their basins.
+
+\section{Atomic endpoints almost surely}
+The statements in this section concern exact fields with fixed conditioning
+parameters. Combine repeated atom locations before applying the first theorem;
+the second theorem is stated for distinct atoms. Throughout this section
+$\tau=-\log(1-t)$, $\alpha=(1-t)^2/t$, and $\beta=\alpha^{-1}$; dots denote
+$\tau$ derivatives. Energy arguments start at any $\tau_0>0$.
+\begin{theorem}\label{thm:average-as}
+Under the assumptions of Theorem~\ref{thm:averaged}, if the initial law is
+absolutely continuous with respect to Lebesgue measure, its endpoint law is
+supported on the finite atom set.
+\end{theorem}
+\begin{proof}
+We may assume the atoms distinct, summing coefficients at repeated locations.
+Use the $\tau$ variables of the preceding proof and write $\beta=1/\alpha$.
+For a point $r$ in the closed probability simplex, define
+\[
+Q_j(y,r)=\frac{p_j(y)r_j}{\sum_\ell p_\ell(y)r_\ell},\quad
+M(r)=\int\sum_jQ_j(y,r)a_j\,d\phi,\quad
+V(r)=\int\operatorname{tr}\Cov_{Q(y,r)}(a)\,d\phi.
+\]
+All denominators are positive for each $y$ outside one fixed null set.
+The integrands are continuous in $r$ and uniformly bounded. Dominated
+convergence makes $M,V$ continuous on the closed simplex. Positivity of the
+coefficients and distinctness of the atoms imply that $V(r)=0$ exactly at its
+vertices. Compactness therefore gives, for each $\delta>0$, a constant
+$\kappa_\delta>0$ such that
+\[
+\dist(M(r),A)\ge\delta\quad\Longrightarrow\quad V(r)\ge\kappa_\delta,
+\qquad A=\{a_1,\ldots,a_N\},
+\]
+whenever the set on the left is nonempty.
+For the actual unconditional softmax vector $r_j\propto e^{b_j/\alpha}$,
+the averaged $\tau$-field $f=m-x$ has divergence
+\[
+\operatorname{div}f=\beta V(r)-d.
+\]
+
+Consider a trajectory converging to a non-atom $z$, with $h=\dist(z,A)>0$.
+Eventually $\lVert x-z\rVert<h/4$. At good times
+$\lVert\dot x\rVert\le h/4$, the identity $m=x+\dot x$ gives
+$\dist(m,A)\ge h/2$, hence $V\ge\kappa_{h/2}$.
+The complementary times have finite measure by the finite energy proved above.
+Their measure in the last unit interval therefore tends to zero. Good times
+thus occupy at least half of every sufficiently late unit interval. Since
+$V\ge0$ everywhere and $\beta(\tau)=(1-e^{-\tau})e^{2\tau}$,
+\[
+\int_{\tau_0}^\tau\operatorname{div}f(x(s),s)\,ds
+\ge\kappa_{h/2}\int_{\mathrm{good}\cap[\tau-1,\tau]}\beta(s)\,ds
+-d(\tau-\tau_0)\longrightarrow+\infty.
+\]
+
+The finite-time flow maps $F_\tau=F_{\tau,\tau_0}$ from $\tau_0>0$ are $C^1$
+diffeomorphisms: spatial derivatives are locally uniformly bounded, and linear
+growth permits both forward and backward solutions on finite intervals.
+Liouville's formula gives
+\[
+J_\tau(\xi):=\det DF_\tau(\xi)
+=\exp\!\left(\int_{\tau_0}^\tau
+\operatorname{div}f(F_s(\xi),s)\,ds\right)>0.
+\]
+Thus $J_\tau\to\infty$ at every non-atom-convergent initial point.
+For a bounded initial ball $K$, boundedness of $m$ places all $F_\tau(K)$
+in one fixed ball $B$. Let $E\subset K$ be the non-atom basin; it is measurable,
+since the limit map is a pointwise limit of continuous flow maps. Injectivity
+and change of variables give $\int_EJ_\tau\,dx\le\operatorname{Leb}(B)$.
+Fatou's lemma along integer times forces $\operatorname{Leb}(E)=0$.
+Exhaust the initial space by bounded balls and take the preimage of the null
+set under the finite-time diffeomorphism from $t=0$ to $t(\tau_0)$. Its inverse
+is locally Lipschitz and preserves Lebesgue-null sets. Absolute continuity
+of the source proves the assertion.
+\end{proof}
+
+\begin{theorem}\label{thm:cfg-as}
+Let the finite atoms $a_j$ be distinct, let $p_c$ be a fixed strictly positive
+probability vector, let $p_u$ be uniform, and fix a finite $w\ge0$.
+Define $q_{p,j}\propto p_j\exp(-\lVert x-ta_j\rVert^2/(2(1-t)^2))$,
+normalized to sum to one, and $m_p=\sum_jq_{p,j}a_j$.
+Write $m_c=m_{p_c}$ and $m_u=m_{p_u}$; this formula also defines the field at
+$t=0$. Every trajectory from a finite initial point at $t=0$ of
+\[
+\frac{dx}{d\tau}=(1+w)m_c(x,t)-wm_u(x,t)-x
+\]
+converges. Its limit is a point $z\in\operatorname{aff}N(z)$. For an absolutely
+continuous initial law, the endpoint is a training atom almost surely.
+\end{theorem}
+\begin{proof}
+\emph{Convergence.}
+Put $H_p=\alpha\log\sum_jp_je^{b_j/\alpha}$ and
+\[
+U=\tfrac12\lVert x\rVert^2-(1+w)H_{p_c}+wH_{p_u}.
+\]
+The mean $(1+w)m_c-wm_u$ is bounded, so trajectories and $\tau$-speeds
+are bounded and finite-time flows are well posed. We have $\nabla_xU=-\dot x$.
+For fixed positive $p$, $D_{\rm KL}(q_p\Vert p)\le\log(1/\min_jp_j)$.
+The derivative identities above therefore give
+\[
+\dot U=-\lVert\dot x\rVert^2+\mathcal R(\tau),\qquad
+|\mathcal R(\tau)|\le C(|\dot\alpha|+\dot t).
+\]
+The latter bound is integrable. The min--max bounds on $H_p$ show that $U$
+is bounded below on a bounded trajectory. Hence its squared speed is integrable.
+
+Near any cluster point $z$, the non-nearest softmax weights tend uniformly to
+zero at large times. Thus the signed mean approaches $\operatorname{aff}N(z)$.
+If $z$ were outside that affine hull, its orthogonal distance would force a
+positive lower speed bound in a fixed neighborhood at late times. Bounded upper
+speed and recurrent visits would then contradict finite energy, as in
+Theorem~\ref{thm:averaged}. Each cluster point consequently lies in
+$\operatorname{aff}N(z)$. There are finitely many such equidistant candidates,
+and connectedness of the omega-limit set proves convergence.
+
+\emph{The non-atom basins have zero volume.}
+Consider a limit $z\notin A$, and let $r>0$ be the common distance of its nearest
+atoms. Write $\mu_c=m_c-z$, $\mu_u=m_u-z$, and
+$\mu_w=(1+w)\mu_c-w\mu_u$. Write $\Cov_c,\Cov_u$ for covariance under
+$q_{p_c},q_{p_u}$, respectively. The signed covariance trace is
+\begin{align*}
+T&=(1+w)\operatorname{tr}\Cov_c(a)-w\operatorname{tr}\Cov_u(a)\\
+ &=r^2-(1+w)\lVert\mu_c\rVert^2+w\lVert\mu_u\rVert^2+o(1)\\
+ &=r^2-\lVert\mu_w\rVert^2+
+ \frac{w}{1+w}\lVert\mu_u-\mu_w\rVert^2+o(1)
+ \ge r^2-\lVert\mu_w\rVert^2+o(1).
+\end{align*}
+The error tends to zero along the whole trajectory, since non-nearest mass
+vanishes and the atoms are finite. Since $\mu_w=\dot x+x-z$, convergence and
+finite energy give $\int_n^{n+1}\lVert\mu_w\rVert^2\,d\tau\to0$.
+On each late unit interval the ratio $\beta_{\max}/\beta_{\min}$ is bounded.
+Writing the preceding error as at worst $-\eta_n$ throughout that interval,
+where $\eta_n\to0$, yields
+\[
+\int_n^{n+1}\beta T\,d\tau
+\ge(r^2-\eta_n)\beta(n)-\beta(n+1)
+\int_n^{n+1}\lVert\mu_w\rVert^2\,d\tau
+\ge\tfrac14 r^2\beta(n)
+\]
+eventually. The divergence is $\beta T-d$, so its accumulated integral tends
+to infinity along integer times. The same bounded-image-ball,
+change-of-variables, and Fatou argument as in Theorem~\ref{thm:average-as}
+makes every non-atom basin null. Absolute continuity completes the proof.
+\end{proof}
+For a Gaussian label kernel at any fixed positive bandwidth and fixed query,
+$p_c$ is strictly positive, so this theorem closes the endpoint premise of
+the manuscript's positive-bandwidth guidance statement. The endpoint weights
+are not identified, and the theorem asserts nothing about errors of learned
+fields. Symmetric tie trajectories remain possible for exceptional initial
+points.
+
+\section{Corrections to statistical statements}
+\subsection{A population smoother is not a finite-sample ratio}
+Let $\mu(y)=By$, $Y\sim\mathcal N(0,\Sigma_Y)$, and use a Gaussian label kernel.
+The deterministic smoothed population mean is
+\[
+\mu_h^\infty(y):=\frac{\E[K_h(y-Y)X]}{\E[K_h(y-Y)]}
+=B\Sigma_Y(\Sigma_Y+h^2I)^{-1}y.
+\]
+Indeed the reweighted label law is Gaussian, by completing its quadratic form,
+with mean $\Sigma_Y(\Sigma_Y+h^2I)^{-1}y$. Consequently
+\[
+\mu_h^\infty(y)-\mu(y)=-Bh^2(\Sigma_Y+h^2I)^{-1}y.
+\]
+The empirical ratio $\widehat\mu_h=\sum K_hX_i/\sum K_h$ is random and is not
+equal to this expression. Under the manuscript's local regularity assumptions,
+the appropriate pointwise statement is
+\[
+\widehat\mu_h-\mu=(\mu_h^\infty-\mu)+O_P((Nh^k)^{-1/2}).
+\]
+Also $B\Sigma_Y^{-1}y\ne0$ for every $y\ne0$ requires an injectivity
+assumption on $B$; it does not follow for arbitrary dimensions and rank.
+
+\begin{example}[Local assumptions do not imply finite expected risk]
+Choose a nonnegative label $Y$ with a bounded density, smooth and positive on
+a neighborhood of $y=1$, and with $\Pr(Y>u)\sim1/\log u$ at infinity.
+Let $X=Y+Z$, where $Z$ is independent uniform on $[0,1]$.
+Then $\mu(y)=y+1/2$, $\Sigma(y)=1/12$, and the conditional fourth moment has
+polynomial growth. These satisfy the local random-design assumptions.
+Nevertheless every positive-kernel empirical mean obeys
+\[
+\widehat\mu_h(1)\ge\min_{i\le N}Y_i,\qquad
+\E\min_{i\le N}Y_i=\int_0^\infty\Pr(Y>u)^N\,du=\infty.
+\]
+Thus finite expected bias and mean squared error need additional tail or
+uniform-integrability assumptions; the $O_P$ statement is not contradicted.
+Such a density exists by smoothly joining a bounded positive density near $1$
+to a constant multiple of $1/(u(\log u)^2)$ beyond a fixed large threshold.
+\end{example}
+
+\subsection{Actual label-conditioned weighted moments}
+Condition on all labels and suppose $X_i$ are independent with means $\mu_i$
+and covariances $\Sigma_i$. For weights $p_i$ determined by those labels, let
+$\bar\mu=\sum p_i\mu_i$ and $C_p=\sum p_i(X_i-\sum p_jX_j)(X_i-\sum p_jX_j)^\top$.
+Expanding $C_p=\sum p_iX_iX_i^\top-\bar X\bar X^\top$ gives exactly
+\begin{align*}
+\Cov(\bar X\mid Y)&=\sum_i p_i^2\Sigma_i,\\
+\E[C_p\mid Y]&=\sum_i p_i(1-p_i)\Sigma_i
++\sum_i p_i(\mu_i-\bar\mu)(\mu_i-\bar\mu)^\top.
+\end{align*}
+The simpler formulas $S/n_{\mathrm{eff}}$ and $(1-1/n_{\mathrm{eff}})S$ require
+common conditional means and covariance $S$, or fixed weights independent of
+i.i.d. atoms. Applying them to actual local atoms is a model approximation.
+
+\subsection{Selecting bandwidth using responses}
+\begin{proposition}
+Suppose the manuscript's label-mixture coverage theorem applies separately at
+every bandwidth in a fixed deterministic grid $\mathcal H$ of size $G\ge1$.
+Then, with probability at least $1-\delta$, simultaneously for every
+$h\in\mathcal H$ and every nominal coverage $\alpha$,
+\[
+|C_{\alpha,h}-\alpha|\le 2L\E r_h+8\E n_{\mathrm{eff},h}^{-1/2}
++\sqrt{2a_{\max,h}\log(G/\delta)}.
+\]
+The same bound holds at any measurable selected grid value
+$\widehat h(X_1,Y_1,\ldots,X_N,Y_N)$.
+\end{proposition}
+\begin{proof}
+Conditional on the labels, apply the original theorem at each fixed $h$ with
+failure probability $\delta/G$. The union bound gives a single event for the
+entire grid, including any selected element. Integrate over the labels.
+\end{proof}
+Directly substituting a response-fitted bandwidth into the original fixed-weight
+theorem omits this selection step. A continuous bandwidth search needs a separate
+uniform argument. The CDF continuity condition for a two-sided bound remains.
+
+\subsection{Variance estimation needs a fourth moment}
+For $M\ge2$ i.i.d. vectors, mean $\mu$, covariance $\Sigma$, and finite fourth
+moment, let $T$ be the trace of the covariance with divisor $M-1$. Then
+\begin{equation}\label{eq:vartrace}
+\Var T=\frac{\E\lVert X-\mu\rVert^4-(\operatorname{tr}\Sigma)^2}{M}
++\frac{2\operatorname{tr}(\Sigma^2)}{M(M-1)}.
+\end{equation}
+To verify it, write $T$ as the order-two U-statistic with kernel
+$g(X,X')=\lVert X-X'\rVert^2/2$. Pairs sharing one index have covariance
+$[\E\lVert X-\mu\rVert^4-(\operatorname{tr}\Sigma)^2]/4$;
+$\Var g$ is half that fourth-moment difference plus $\operatorname{tr}(\Sigma^2)$.
+Counting overlapping and equal pairs yields \eqref{eq:vartrace}.
+For a Gaussian law the first numerator is $2\operatorname{tr}(\Sigma^2)$, so,
+when $\operatorname{tr}\Sigma>0$,
+\[
+\frac{\sqrt{\Var T}}{\operatorname{tr}\Sigma}
+=\sqrt{\frac{2\operatorname{tr}(\Sigma^2)}{(M-1)(\operatorname{tr}\Sigma)^2}}
+\le\sqrt{\frac2{M-1}}.
+\]
+This is not distribution-free: in one dimension Bernoulli$(p)$ has kurtosis
+$(1-3p+3p^2)/(p(1-p))$, which diverges as $p\downarrow0$.
+
+\subsection{Exchangeable ranks with ties}
+Let $S_0,\ldots,S_M$ be exchangeable scores, with $S_0$ the truth's score. Put
+$A=\#\{j\ge1:S_j<S_0\}$ and $B=\#\{j\ge1:S_j=S_0\}$.
+Without ties, $(A+1/2)/(M+1)$ is uniform on the $M+1$ midpoint ranks. With ties,
+the deterministic midrank $(A+B/2+1/2)/(M+1)$ need not be uniform: identical
+scores always give $1/2$.
+
+To recover the discrete uniform rank, independently choose
+$J\mid S\sim\operatorname{Unif}\{0,\ldots,B\}$ and use
+$(A+J+1/2)/(M+1)$. Randomly ordering each tied block makes each exchangeable
+index equally likely to occupy every rank, proving the assertion.
+Alternatively, with independent $V\sim\operatorname{Unif}(0,1)$,
+$[A+V(B+1)]/(M+1)$ is continuous uniform. For joint scores computed from the
+sample, the score construction itself must be permutation-equivariant across
+truth and draws, for example symmetric leave-one-out scores with a common
+ridge rule. Correct marginal distributions alone do not imply exchangeability.
+
+\section{What endpoint smoothing can improve}
+The nearest-atom obstruction is a lower bound for every atom-supported
+approximation. It is not an upper bound on the benefit of adding noise to a
+particular, poorly weighted approximation.
+\begin{example}\label{ex:smoothing}
+Let $A=\{-1,1\}$, $P_0=(\delta_{-1}+\delta_1)/2$, and $Q_0=\delta_{-1}$.
+Then $F(P_0):=\int\dist(x,A)^2\,dP_0(x)=0$. For $Q_\rho=\mathcal N(-1,\rho^2)$,
+\[
+W_2^2(Q_\rho,P_0)=2+\rho^2-2\rho\sqrt{2/\pi}.
+\]
+In fact the increasing transport sends the lower Gaussian half to $-1$ and
+the upper half to $1$. With $Z$ standard normal its cost is
+$\E[\rho^2Z^2\mathbf1_{Z\le0}+(\rho Z-2)^2\mathbf1_{Z>0}]$,
+which is the displayed expression. At $\rho=\sqrt{2/\pi}$, the improvement
+over $W_2^2(Q_0,P_0)=2$ is $2/\pi>F(P_0)$.
+
+This persists for a continuous target and positive weights on both atoms.
+Set $P_\tau=P_0*\mathcal N(0,\tau^2)$ and
+$Q_\eta=(1-\eta)\delta_{-1}+\eta\delta_1$. Coupling gives
+$F(P_\tau)\le\tau^2$, $W_2(P_\tau,P_0)\le\tau$, and
+$W_2(Q_\eta,Q_0)\le2\sqrt\eta$. Gaussian convolution contracts $W_2$ by
+using a common noise. The triangle inequality therefore makes both costs
+continuous as $\eta,\tau\downarrow0$, and the strict improvement remains
+larger than $F(P_\tau)$ for sufficiently small positive $\eta,\tau$.
+\end{example}
+For a target with mean $\mu_*$ and covariance $\Sigma_*$, a Gaussian-noised
+atom mixture can match both moments exactly only if some $h$ satisfies
+$\bar a_h=\mu_*$ and $\Sigma_*-C_h=\rho^2I_d$ for a scalar $\rho^2\ge0$.
+Two scalar controls do not guarantee these vector and matrix equations.
+\end{document}

@@ -1,0 +1,28 @@
+{
+  "status": "completed",
+  "script_sha256": "c88810a8b7d97c863f13cc401dc2e54cdd0f530fcaf877dbb6f28a9cefc638d4",
+  "calibration_sha256": "9ca89a191935d9768358c11420cf2f3b942dbac55a97603ea9a0c835fd81ec64",
+  "M": 32,
+  "n_test": 8,
+  "steps": [
+    50,
+    100,
+    200,
+    400
+  ],
+  "eps": 0.001,
+  "torch": "2.11.0+cu128",
+  "seed": 20261017,
+  "source_hashes": {
+    "src/models/unet.py": "9756fe0fa95319c119682c932fed556995d5dc4f6cd960f86d05aa723136031a",
+    "src/problems/inpainting.py": "d78627202bd1058cb95b2b1ad506e01c4a288672d3d7a77f78a52d6134f4048f",
+    "scripts/calib_image_checkpoints.py": "ed7d2cf71f71c65b27ac33cd050ed355200eebf63ea8d51c126dcd515cbf06fc"
+  },
+  "warning": "Feasibility pilot; held-out images, not pixels, are statistical units; NN distance is not exact membership.",
+  "completed": [
+    "exp3_cifar_heff_h4_s0",
+    "exp3_cifar_heff_h4_s1",
+    "exp3_cifar_heff_h4_s2"
+  ],
+  "elapsed_seconds": 436.78997975902166
+}

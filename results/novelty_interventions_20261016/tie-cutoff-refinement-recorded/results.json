@@ -1,0 +1,739 @@
+{
+  "status": "completed_with_solver_limits",
+  "rows": [
+    {
+      "h": 0.05,
+      "x0": 0.0,
+      "eps": 0.01,
+      "endpoint": 0.0,
+      "solver_displacement": 0.0
+    },
+    {
+      "h": 0.05,
+      "x0": 1e-12,
+      "eps": 0.01,
+      "endpoint": 1.0000000000157605e-14,
+      "solver_displacement": 2.3729977325442927e-24
+    },
+    {
+      "h": 0.05,
+      "x0": 1e-08,
+      "eps": 0.01,
+      "endpoint": 1.000000000015759e-10,
+      "solver_displacement": 2.3730209111709543e-20
+    },
+    {
+      "h": 0.05,
+      "x0": 0.0001,
+      "eps": 0.01,
+      "endpoint": 1.0000000000157582e-06,
+      "solver_displacement": 2.373019976456862e-16
+    },
+    {
+      "h": 0.05,
+      "x0": 0.0,
+      "eps": 0.0001,
+      "endpoint": 0.0,
+      "solver_displacement": 0.0
+    },
+    {
+      "h": 0.05,
+      "x0": 1e-12,
+      "eps": 0.0001,
+      "endpoint": 1.0000000000315179e-16,
+      "solver_displacement": 4.746011538129529e-26
+    },
+    {
+      "h": 0.05,
+      "x0": 1e-08,
+      "eps": 0.0001,
+      "endpoint": 1.0000000000315146e-12,
+      "solver_displacement": 4.746071953041956e-22
+    },
+    {
+      "h": 0.05,
+      "x0": 0.0001,
+      "eps": 0.0001,
+      "endpoint": 1.0000000000315146e-08,
+      "solver_displacement": 4.7460612610863035e-18
+    },
+    {
+      "h": 0.05,
+      "x0": 0.0,
+      "eps": 1e-06,
+      "endpoint": 0.0,
+      "solver_displacement": 0.0
+    },
+    {
+      "h": 0.05,
+      "x0": 1e-12,
+      "eps": 1e-06,
+      "endpoint": 1.0000000000472736e-18,
+      "solver_displacement": 7.119053668751644e-28
+    },
+    {
+      "h": 0.05,
+      "x0": 1e-08,
+      "eps": 1e-06,
+      "endpoint": 1.0000000000472714e-14,
+      "solver_displacement": 7.119076816888831e-24
+    },
+    {
+      "h": 0.05,
+      "x0": 0.0001,
+      "eps": 1e-06,
+      "endpoint": 1.0000000000472716e-10,
+      "solver_displacement": 7.119079535619055e-20
+    },
+    {
+      "h": 0.05,
+      "x0": 0.0,
+      "eps": 1e-08,
+      "endpoint": 0.0,
+      "solver_displacement": 0.0
+    },
+    {
+      "h": 0.05,
+      "x0": 1e-12,
+      "eps": 1e-08,
+      "endpoint": 1.00000000006303e-20,
+      "solver_displacement": 9.492102212720473e-30
+    },
+    {
+      "h": 0.05,
+      "x0": 1e-08,
+      "eps": 1e-08,
+      "endpoint": 1.000000000063031e-16,
+      "solver_displacement": 9.492110590515731e-26
+    },
+    {
+      "h": 0.05,
+      "x0": 0.0001,
+      "eps": 1e-08,
+      "endpoint": 0.9611386299900689,
+      "solver_displacement": 2.9149986366494574e-05
+    },
+    {
+      "h": 0.05,
+      "x0": 0.0,
+      "eps": 1e-10,
+      "endpoint": 0.0,
+      "solver_displacement": 0.0
+    },
+    {
+      "h": 0.05,
+      "x0": 1e-12,
+      "eps": 1e-10,
+      "endpoint": 1.0000000000787871e-22,
+      "solver_displacement": 1.1865089679883625e-31
+    },
+    {
+      "h": 0.05,
+      "x0": 1e-08,
+      "eps": 1e-10,
+      "endpoint": 1.0000000000787881e-18,
+      "solver_displacement": 1.1865120904775165e-27
+    },
+    {
+      "h": 0.05,
+      "x0": 0.0001,
+      "eps": 1e-10,
+      "endpoint": 0.9996113862998951,
+      "solver_displacement": 2.9149995628419134e-07
+    },
+    {
+      "h": 0.05,
+      "x0": 0.0,
+      "eps": 1e-14,
+      "endpoint": 0.0,
+      "solver_displacement": 0.0
+    },
+    {
+      "h": 0.05,
+      "x0": 1e-12,
+      "eps": 1e-14,
+      "endpoint": 1.0000000005849046e-26,
+      "solver_displacement": 8.839244421885426e-35
+    },
+    {
+      "h": 0.05,
+      "x0": 1e-08,
+      "eps": 1e-14,
+      "endpoint": 0.9996197409119416,
+      "solver_displacement": 5.726017305862641e-07
+    },
+    {
+      "h": 0.05,
+      "x0": 0.0001,
+      "eps": 1e-14,
+      "endpoint": 0.9999999611386297,
+      "solver_displacement": 2.915012675686057e-11
+    },
+    {
+      "h": 0.05,
+      "x0": 0.0,
+      "eps": 1e-18,
+      "endpoint": 0.0,
+      "solver_displacement": 0.0
+    },
+    {
+      "h": 0.05,
+      "x0": 1e-12,
+      "eps": 1e-18,
+      "endpoint": 0.9996287546949559,
+      "solver_displacement": 5.573639483280601e-07
+    },
+    {
+      "h": 0.05,
+      "x0": 1e-08,
+      "eps": 1e-18,
+      "endpoint": 0.999999961974091,
+      "solver_displacement": 5.7259974539647374e-11
+    },
+    {
+      "h": 0.05,
+      "x0": 0.0001,
+      "eps": 1e-18,
+      "endpoint": 0.9999999999961137,
+      "solver_displacement": 2.55351295663786e-15
+    },
+    {
+      "h": 0.2,
+      "x0": 0.0,
+      "eps": 0.01,
+      "endpoint": 0.0,
+      "solver_displacement": 0.0
+    },
+    {
+      "h": 0.2,
+      "x0": 1e-12,
+      "eps": 0.01,
+      "endpoint": 1.0000000000157605e-14,
+      "solver_displacement": 2.3729977325442927e-24
+    },
+    {
+      "h": 0.2,
+      "x0": 1e-08,
+      "eps": 0.01,
+      "endpoint": 1.000000000015759e-10,
+      "solver_displacement": 2.3730209111709543e-20
+    },
+    {
+      "h": 0.2,
+      "x0": 0.0001,
+      "eps": 0.01,
+      "endpoint": 1.0000000000157582e-06,
+      "solver_displacement": 2.373019976456862e-16
+    },
+    {
+      "h": 0.2,
+      "x0": 0.0,
+      "eps": 0.0001,
+      "endpoint": 0.0,
+      "solver_displacement": 0.0
+    },
+    {
+      "h": 0.2,
+      "x0": 1e-12,
+      "eps": 0.0001,
+      "endpoint": 1.0000000000315553e-16,
+      "solver_displacement": 4.7460213988908445e-26
+    },
+    {
+      "h": 0.2,
+      "x0": 1e-08,
+      "eps": 0.0001,
+      "endpoint": 1.0000000000315544e-12,
+      "solver_displacement": 4.74603762181536e-22
+    },
+    {
+      "h": 0.2,
+      "x0": 0.0001,
+      "eps": 0.0001,
+      "endpoint": 1.0000000000315682e-08,
+      "solver_displacement": 4.746052989280178e-18
+    },
+    {
+      "h": 0.2,
+      "x0": 0.0,
+      "eps": 1e-06,
+      "endpoint": 0.0,
+      "solver_displacement": 0.0
+    },
+    {
+      "h": 0.2,
+      "x0": 1e-12,
+      "eps": 1e-06,
+      "endpoint": 1.0000000004330235e-18,
+      "solver_displacement": 7.119024779802478e-28
+    },
+    {
+      "h": 0.2,
+      "x0": 1e-08,
+      "eps": 1e-06,
+      "endpoint": 1.000000000433033e-14,
+      "solver_displacement": 7.119075239167021e-24
+    },
+    {
+      "h": 0.2,
+      "x0": 0.0001,
+      "eps": 1e-06,
+      "endpoint": 0.8550790585321212,
+      "solver_displacement": 0.00032523116175475764
+    },
+    {
+      "h": 0.2,
+      "x0": 0.0,
+      "eps": 1e-08,
+      "endpoint": 0.0,
+      "solver_displacement": 0.0
+    },
+    {
+      "h": 0.2,
+      "x0": 1e-12,
+      "eps": 1e-08,
+      "endpoint": 1.0000038575701034e-20,
+      "solver_displacement": 9.492096194189397e-30
+    },
+    {
+      "h": 0.2,
+      "x0": 1e-08,
+      "eps": 1e-08,
+      "endpoint": 1.0000053276729481e-16,
+      "solver_displacement": 9.49217715065461e-26
+    },
+    {
+      "h": 0.2,
+      "x0": 0.0001,
+      "eps": 1e-08,
+      "endpoint": 0.9985507905852983,
+      "solver_displacement": 3.252311961965404e-06
+    },
+    {
+      "h": 0.2,
+      "x0": 0.0,
+      "eps": 1e-10,
+      "endpoint": 0.0,
+      "solver_displacement": 0.0
+    },
+    {
+      "h": 0.2,
+      "x0": 1e-12,
+      "eps": 1e-10,
+      "endpoint": 1.0393300791906647e-22,
+      "solver_displacement": 1.2249245935709752e-31
+    },
+    {
+      "h": 0.2,
+      "x0": 1e-08,
+      "eps": 1e-10,
+      "endpoint": 0.9427022063676002,
+      "solver_displacement": 0.00013488677697537366
+    },
+    {
+      "h": 0.2,
+      "x0": 0.0001,
+      "eps": 1e-10,
+      "endpoint": 0.9999855079058525,
+      "solver_displacement": 3.252312286150527e-08
+    },
+    {
+      "h": 0.2,
+      "x0": 0.0,
+      "eps": 1e-14,
+      "endpoint": 0.0,
+      "solver_displacement": 0.0
+    },
+    {
+      "h": 0.2,
+      "x0": 1e-12,
+      "eps": 1e-14,
+      "endpoint": 0.9991795303887774,
+      "solver_displacement": 2.459900893425626e-06
+    },
+    {
+      "h": 0.2,
+      "x0": 1e-08,
+      "eps": 1e-14,
+      "endpoint": 0.9999942702206338,
+      "solver_displacement": 1.348872180617633e-08
+    },
+    {
+      "h": 0.2,
+      "x0": 0.0001,
+      "eps": 1e-14,
+      "endpoint": 0.9999999985507906,
+      "solver_displacement": 3.252398350639396e-12
+    },
+    {
+      "h": 0.2,
+      "x0": 0.0,
+      "eps": 1e-18,
+      "endpoint": 0.0,
+      "solver_displacement": 0.0
+    },
+    {
+      "h": 0.2,
+      "x0": 1e-12,
+      "eps": 1e-18,
+      "endpoint": 0.999999917953039,
+      "solver_displacement": 2.459906722762639e-10
+    },
+    {
+      "h": 0.2,
+      "x0": 1e-08,
+      "eps": 1e-18,
+      "endpoint": 0.999999999427022,
+      "solver_displacement": 1.3484768857097151e-12
+    },
+    {
+      "h": 0.2,
+      "x0": 0.0001,
+      "eps": 1e-18,
+      "endpoint": 0.999999999999855,
+      "solver_displacement": 3.3306690738754696e-16
+    },
+    {
+      "h": 1.0,
+      "x0": 0.0,
+      "eps": 0.01,
+      "endpoint": 0.0,
+      "solver_displacement": 0.0
+    },
+    {
+      "h": 1.0,
+      "x0": 1e-12,
+      "eps": 0.01,
+      "endpoint": 0.8810093602132233,
+      "solver_displacement": 5.277274317205816e-06
+    },
+    {
+      "h": 1.0,
+      "x0": 1e-08,
+      "eps": 0.01,
+      "endpoint": 0.9028374390341843,
+      "solver_displacement": 1.0284240649083287e-06
+    },
+    {
+      "h": 1.0,
+      "x0": 0.0001,
+      "eps": 0.01,
+      "endpoint": 0.9317180881006275,
+      "solver_displacement": 5.8250801626691384e-08
+    },
+    {
+      "h": 1.0,
+      "x0": 0.0,
+      "eps": 0.0001,
+      "endpoint": 0.0,
+      "solver_displacement": 0.0
+    },
+    {
+      "h": 1.0,
+      "x0": 1e-12,
+      "eps": 0.0001,
+      "endpoint": 0.9988100936021136,
+      "solver_displacement": 5.277302517203708e-08
+    },
+    {
+      "h": 1.0,
+      "x0": 1e-08,
+      "eps": 0.0001,
+      "endpoint": 0.9990283743903268,
+      "solver_displacement": 1.028447171869118e-08
+    },
+    {
+      "h": 1.0,
+      "x0": 0.0001,
+      "eps": 0.0001,
+      "endpoint": 0.9993171808809956,
+      "solver_displacement": 5.826703564082436e-10
+    },
+    {
+      "h": 1.0,
+      "x0": 0.0,
+      "eps": 1e-06,
+      "endpoint": 0.0,
+      "solver_displacement": 0.0
+    },
+    {
+      "h": 1.0,
+      "x0": 1e-12,
+      "eps": 1e-06,
+      "endpoint": 0.9999881009360209,
+      "solver_displacement": 5.27733190480717e-10
+    },
+    {
+      "h": 1.0,
+      "x0": 1e-08,
+      "eps": 1e-06,
+      "endpoint": 0.9999902837439033,
+      "solver_displacement": 1.0284728624299078e-10
+    },
+    {
+      "h": 1.0,
+      "x0": 0.0001,
+      "eps": 1e-06,
+      "endpoint": 0.9999931718088096,
+      "solver_displacement": 5.828448834677147e-12
+    },
+    {
+      "h": 1.0,
+      "x0": 0.0,
+      "eps": 1e-08,
+      "endpoint": 0.0,
+      "solver_displacement": 0.0
+    },
+    {
+      "h": 1.0,
+      "x0": 1e-12,
+      "eps": 1e-08,
+      "endpoint": 0.9999998810093599,
+      "solver_displacement": 5.2772231029507566e-12
+    },
+    {
+      "h": 1.0,
+      "x0": 1e-08,
+      "eps": 1e-08,
+      "endpoint": 0.9999999028374389,
+      "solver_displacement": 1.02828856540782e-12
+    },
+    {
+      "h": 1.0,
+      "x0": 0.0001,
+      "eps": 1e-08,
+      "endpoint": 0.9999999317180882,
+      "solver_displacement": 5.806466418789569e-14
+    },
+    {
+      "h": 1.0,
+      "x0": 0.0,
+      "eps": 1e-10,
+      "endpoint": 0.0,
+      "solver_displacement": 0.0
+    },
+    {
+      "h": 1.0,
+      "x0": 1e-12,
+      "eps": 1e-10,
+      "endpoint": 0.9999999988100943,
+      "solver_displacement": 5.3734794391857577e-14
+    },
+    {
+      "h": 1.0,
+      "x0": 1e-08,
+      "eps": 1e-10,
+      "endpoint": 0.9999999990283747,
+      "solver_displacement": 1.0769163338864018e-14
+    },
+    {
+      "h": 1.0,
+      "x0": 0.0001,
+      "eps": 1e-10,
+      "endpoint": 0.9999999993171806,
+      "solver_displacement": 1.1102230246251565e-16
+    },
+    {
+      "h": 1.0,
+      "x0": 0.0,
+      "eps": 1e-14,
+      "endpoint": 0.0,
+      "solver_displacement": 0.0
+    },
+    {
+      "h": 1.0,
+      "x0": 1e-12,
+      "eps": 1e-14,
+      "endpoint": 0.999999999999881,
+      "solver_displacement": 1.1102230246251565e-16
+    },
+    {
+      "h": 1.0,
+      "x0": 1e-08,
+      "eps": 1e-14,
+      "endpoint": 0.9999999999999027,
+      "solver_displacement": 1.1102230246251565e-16
+    },
+    {
+      "h": 1.0,
+      "x0": 0.0001,
+      "eps": 1e-14,
+      "endpoint": 0.9999999999999318,
+      "solver_displacement": 1.1102230246251565e-16
+    },
+    {
+      "h": 1.0,
+      "x0": 0.0,
+      "eps": 1e-18,
+      "endpoint": 0.0,
+      "solver_displacement": 0.0
+    },
+    {
+      "h": 1.0,
+      "x0": 1e-12,
+      "eps": 1e-18,
+      "endpoint": 0.9999999999999939,
+      "solver_displacement": 3.1086244689504383e-15
+    },
+    {
+      "h": 1.0,
+      "x0": 1e-08,
+      "eps": 1e-18,
+      "endpoint": 0.9999999999999939,
+      "solver_displacement": 3.1086244689504383e-15
+    },
+    {
+      "h": 1.0,
+      "x0": 0.0001,
+      "eps": 1e-18,
+      "endpoint": 0.9999999999999939,
+      "solver_displacement": 3.1086244689504383e-15
+    }
+  ],
+  "adaptive": [
+    {
+      "h": 0.05,
+      "x0": 1e-12,
+      "success": false,
+      "message": "Required step size is less than spacing between numbers.",
+      "saved_times": [
+        4.605170185988091,
+        9.210340371976182,
+        13.815510557964274,
+        18.420680743952364,
+        23.025850929940457,
+        32.23619130191664
+      ],
+      "endpoint": [
+        1.0000000000084074e-14,
+        1.0000000000061726e-16,
+        1.0000000000021588e-18,
+        1.0000000000159023e-20,
+        1.0000000004613374e-22,
+        9.999963925708896e-27
+      ],
+      "nfev": 1976
+    },
+    {
+      "h": 0.05,
+      "x0": 1e-08,
+      "success": false,
+      "message": "Required step size is less than spacing between numbers.",
+      "saved_times": [
+        4.605170185988091,
+        9.210340371976182,
+        13.815510557964274,
+        18.420680743952364,
+        23.025850929940457
+      ],
+      "endpoint": [
+        1.0000000000084112e-10,
+        1.000000000006176e-12,
+        1.0000000000065638e-14,
+        1.0000000000112613e-16,
+        1.0000000000159086e-18
+      ],
+      "nfev": 3605
+    },
+    {
+      "h": 0.2,
+      "x0": 1e-12,
+      "success": false,
+      "message": "Required step size is less than spacing between numbers.",
+      "saved_times": [
+        4.605170185988091,
+        9.210340371976182,
+        13.815510557964274,
+        18.420680743952364,
+        23.025850929940457
+      ],
+      "endpoint": [
+        1.0000000000084074e-14,
+        1.0000000000062113e-16,
+        1.0000000003879097e-18,
+        1.0000038575229742e-20,
+        1.0393300789974799e-22
+      ],
+      "nfev": 3617
+    },
+    {
+      "h": 0.2,
+      "x0": 1e-08,
+      "success": false,
+      "message": "Required step size is less than spacing between numbers.",
+      "saved_times": [
+        4.605170185988091,
+        9.210340371976182,
+        13.815510557964274,
+        18.420680743952364
+      ],
+      "endpoint": [
+        1.0000000000084112e-10,
+        1.0000000000062157e-12,
+        1.0000000003923269e-14,
+        1.0000053276211626e-16
+      ],
+      "nfev": 4982
+    },
+    {
+      "h": 1.0,
+      "x0": 1e-12,
+      "success": true,
+      "message": "The solver successfully reached the end of the integration interval.",
+      "saved_times": [
+        4.605170185988091,
+        9.210340371976182,
+        13.815510557964274,
+        18.420680743952364,
+        23.025850929940457,
+        32.23619130191664,
+        41.44653167389282
+      ],
+      "endpoint": [
+        0.8810097806998606,
+        0.9988100978066261,
+        0.999988100976705,
+        0.9999998810111801,
+        0.9999999988102971,
+        1.000000000000028,
+        1.000000000000006
+      ],
+      "nfev": 2399
+    },
+    {
+      "h": 1.0,
+      "x0": 1e-08,
+      "success": true,
+      "message": "The solver successfully reached the end of the integration interval.",
+      "saved_times": [
+        4.605170185988091,
+        9.210340371976182,
+        13.815510557964274,
+        18.420680743952364,
+        23.025850929940457,
+        32.23619130191664,
+        41.44653167389282
+      ],
+      "endpoint": [
+        0.9028375157554541,
+        0.9990283751613617,
+        0.9999902837524678,
+        0.999999902837151,
+        0.9999999990283435,
+        0.9999999999998739,
+        0.999999999999998
+      ],
+      "nfev": 1979
+    }
+  ],
+  "script_sha256": "b8f7aa40c756fe8b5bf308968df065e0e30697a63b0fed8aee3174777675a08e",
+  "parent_sha256": "096a6b42e0038787525206ee453816918968dcd4bc51a590046612b2d564dc5d",
+  "steps_per_segment": [
+    512,
+    1024
+  ],
+  "rtol": 1e-11,
+  "atol": 1e-30,
+  "elapsed_seconds": 23.370541987009346,
+  "scope": "Posthoc diagnostic; original primary tie experiment retained."
+}

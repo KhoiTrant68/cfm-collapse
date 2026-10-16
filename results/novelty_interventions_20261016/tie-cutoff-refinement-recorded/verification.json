@@ -1,0 +1,9 @@
+{
+  "status": "verified_with_solver_limits",
+  "raw_rows_checked": 84,
+  "adaptive_success": 2,
+  "adaptive_cases": 6,
+  "max_fixed_step_displacement": 0.00032523116175475764,
+  "max_adaptive_fixed_difference_available": 4.2048663728699864e-07,
+  "json_sha256": "d60c0c19ba095cc8ec8dd45ce0cdbf2b89848d6bd40e0ee5f7863f5b3238470f"
+}
