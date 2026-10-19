@@ -46,12 +46,34 @@ def main() -> None:
     stmt = env_with_label(m, "proposition", "prop:filtered").replace(
         r"\proofin{apx:pf-filtered}" + "\n", "")
     old = (r"Proposition~\ref{prop:filtered}" + "\n"
-           r"(Section~\ref{sec:heff}) says that this keeps the atoms.")
+           r"(Section~\ref{sec:posmix}) says that this keeps the atoms.")
     assert old in sb
+    # The conference version proves Proposition prop:filtered as a case of the
+    # positive-mixture theorem. Carry the definitions, the theorem and both proofs.
+    setup = cut(m, r"Assume the atoms $x^1,\dots,x^N$ are distinct (atoms at one location",
+                r"\subsection{Positive mixtures of priors keep the atoms}", include_end=False)
+    notation = cut(m, r"\subsection{Notation for the intervention proofs}",
+                   r"\subsection{Proof of Theorem~\ref{thm:posmix}}", include_end=False)
+    notation = notation.split("\n", 2)[2]          # drop the subsection line and its label
+    first = (r"The proofs of Sections~\ref{sec:intervention-atomicity} and~\ref{sec:transfer} share the"
+             + "\n" + "following notation.")
+    assert first in notation
+    notation = notation.replace(first, "The proofs below use the following notation.")
+    posmix = env_with_label(m, "theorem", "thm:posmix").replace(
+        r"\proofin{apx:pf-posmix}" + "\n", "")
+    pf_posmix = cut(m, r"\begin{proof}[Proof of Theorem~\ref{thm:posmix}]", r"\end{proof}")
+    pf_filtered = cut(m, r"\begin{proof}[Proof of Proposition~\ref{prop:filtered}]", r"\end{proof}")
     sb = sb.replace(old, r"Proposition~\ref{prop:filtered} says that this keeps the atoms."
-                    + "\n\n" + stmt)
+                    + "\n\n" + setup.rstrip() + "\n\n" + posmix + "\n\n" + stmt + "\n\n"
+                    + notation.rstrip() + "\n\n" + pf_posmix + "\n\n" + pf_filtered)
     sb = sb.replace(r"By Proposition~\ref{prop:kernel-field},",
                     r"By the proof of Theorem~\ref{thm:endpoint},")
+    sb = sb.replace(r"of Lemma~\ref{lem:mixture-coupling}", r"in the proof of Theorem~\ref{thm:endpoint}")
+    sb = sb.replace(r"By Lemma~\ref{lem:mixture-coupling},", r"By the proof of Theorem~\ref{thm:endpoint},")
+    sb = sb.replace(r"(Section~\ref{sec:intervention-tests})", "")
+    sb = sb.replace(r"Guidance applied to such a learner is the composite" + "\n"
+                    + r"of Section~\ref{sec:composition}, which need not keep the atoms.",
+                    "Guidance applied to such a learner is not covered by this argument.")
     # The reference-family control (Table tab:families): paragraph, table and reading,
     # cut whole so the numbers cannot drift between the two versions.
     families = cut(m, r"\paragraph{Which reference family.}",

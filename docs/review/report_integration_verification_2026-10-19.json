@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-19",
+  "report_sha256": "f58c1dc785740d5936ceed8474095a5da7b0940f8151c64df0162e559099afab",
+  "source_before_sha256": "5f0408eb14f8deda76b9799ddb446db436d615bcb04634a427a99bac984d999b",
+  "source_verified_sha256": "98b6599f344796294d5a776eda8a7ba85b2dd1d53bb92ebd3e210844bfd7536c",
+  "source_final_sha256": "60954262f8108257c7901a36d58d1f5433e464d5fcf7a6e440c3db5a1b330d16",
+  "final_changes_after_verification": "minor notation and wording notes from the verifiers, and one stale main-text pointer to the moved h_eff section",
+  "pdf_sha256": "795731f1de0a3b7523334f6044267d82a5ad7eeb3eecaedfff2122513db3288e",
+  "commits": {
+    "theory": "5d9cbb3",
+    "restructure": "e796124"
+  },
+  "pages": 110,
+  "main_text_last_page": 14,
+  "formal_environment_counts_before_after": {
+    "theorem": [4, 8],
+    "proposition": [21, 24],
+    "lemma": [5, 6],
+    "corollary": [7, 8],
+    "proof": [38, 46]
+  },
+  "labels_before_after": [230, 262],
+  "all_original_labels_preserved": true,
+  "verification_protocol": "4 fresh-context verifiers per group, packet-only, no other tools; 4 CORRECT confirms, 2 dissents refute",
+  "verifier_packets_sha256": {
+    "G1_posmix": "b68ace5ef291a15e8a2ab2f35be614c7c180ffe195b5556422abd27e306b3247",
+    "G2_schedule": "85364267f5842dddfa981f9af91381fd373cc5c9ecf0e70e5e6d8315d87d3bd0",
+    "G3_composition": "16198ad2b07b431d8190e629b5b701c26bc49c8d7ae8940e2f97fa28aa2891ed",
+    "G4_hyperplane": "508c82376b9c067d654d8f35afaefa5e0d2d90cb55fc07bf0a69346b31f77b4d",
+    "G5_transfer": "0b4be2ddd22be0f5d201aaaaaa6831900122fc8255b299c4a3495b2e9508679d"
+  },
+  "verdicts": {
+    "G1_posmix": {"results": ["thm:posmix", "prop:filtered", "cor:negcfg"], "correct": 4, "hole": 0, "confidence": "high", "status": "confirmed"},
+    "G2_schedule": {"results": ["lem:signedconv", "thm:schedule", "prop:cfgatom"], "correct": 4, "hole": 0, "confidence": "high", "status": "confirmed"},
+    "G3_composition": {"results": ["thm:composition", "prop:composition-open"], "correct": 4, "hole": 0, "confidence": "high", "status": "confirmed"},
+    "G4_hyperplane": {"results": ["prop:hyperplane"], "correct": 4, "hole": 0, "confidence": "high", "status": "confirmed"},
+    "G5_transfer": {"results": ["thm:transfer", "prop:localtransfer", "risk-transfer examples", "prop:atomicity"], "correct": 4, "hole": 0, "confidence": "high", "status": "confirmed"}
+  },
+  "numerical_checks": {
+    "paper_numbers": {"passed": 368, "failed": 0},
+    "composition_counterexample": "results/theory_composition_20261019/summary.json"
+  },
+  "build_check_output": "all checks passed, including --baseline against the pre-integration source",
+  "workshop": "rebuilt by scripts/build_workshop.py; compiles to 14 pages with no undefined or duplicate references"
+}

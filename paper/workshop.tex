@@ -528,7 +528,7 @@ tracking slope $\beta$ against $h_{\mathrm{eff}}/h$; training proceeds to the ri
 Agreement of $h_{\mathrm{eff}}$ and $h_{\mathrm{mean}}$ shows that the means and the
 variances are explained by one member of the reference family. It does not show that
 the family is the right one. We therefore refit the same samples (the 48 checkpoints of
-Section~\ref{sec:heff}, $M{=}1000$ at 20 conditions) under five families, each with one
+Appendix~\ref{sec:heff}, $M{=}1000$ at 20 conditions) under five families, each with one
 scale $s$ and the same estimator \eqref{eq:heff}. Four are mixtures over the training
 atoms with weights $w_i\propto e^{-|y-y^i|^2/2s^2}$ (Gaussian, the reference of
 Theorem~\ref{thm:endpoint}), $e^{-|y-y^i|/s}$ (Laplace), $(1+|y-y^i|^2/s^2)^{-1}$
@@ -573,7 +573,7 @@ $0.1$ & 10/12 & 2/12 & 0.95 / 0.95 & 10/12 & 0.07 & 2 / 6 / 4\\
 all & 36/48 & 9/48 & 0.86 / 0.82 & 41/48 & 0.08 & 10 / 21 / 17\\
 \bottomrule
 \end{tabular}
-\caption{The 48 synthetic checkpoints of Section~\ref{sec:heff} refitted under six
+\caption{The 48 synthetic checkpoints of Appendix~\ref{sec:heff} refitted under six
 reference families. Top: ``intervals agree'': the 95\% bootstrap intervals of the scales
 fitted to the variances and to the means overlap; ``best variance fit'': lowest log-space
 misfit among the four atomic families; ``best mean prediction'': the scale fitted to the
@@ -628,9 +628,7 @@ f_t=c+(I-e^{-tT_k})(f^\star-c),
 \label{eq:kgf}
 \end{equation}
 with $(T_kg)(y)=\E_{\rho_h}[k(y,Z)g(Z)]$. This is
-the linearised dynamics of a network whose dependence on $y$ is governed by a fixed
-kernel $k$ \citep{jacot2018neural}, which learns low frequencies first
-\citep{rahaman2019spectral}.
+the linearised dynamics of a network whose dependence on $y$ is governed by a fixed kernel $k$~\citep{jacot2018neural}. It learns larger-eigenvalue modes first. A Fourier low-frequency interpretation requires additional spectral assumptions; the model below is motivated by spectral-bias observations~\citep{rahaman2019spectral}.
 
 \begin{proposition}[Resolution under kernel gradient flow]
 \label{prop:specbias}
@@ -665,6 +663,28 @@ $1-e^{-ta|\omega|^{-\zeta}}=G(\omega(at)^{-1/\zeta})$, since
 $|\omega(at)^{-1/\zeta}|^{-\zeta}=at|\omega|^{-\zeta}$.
 \end{proof}
 
+The spectral resolution scale does not identify a positive averaging kernel.
+\begin{lemma}[The spectral filter is not a probability kernel]
+\label{lem:nonpositive-filter}
+For $a,\zeta>0$, the continuous function $G(0)=1$ and
+$G(\omega)=1-e^{-a|\omega|^{-\zeta}}$ for $\omega\ne0$ is not the characteristic
+function of any probability measure on $\R$.
+\end{lemma}
+\begin{proof}
+If $G(\omega)=\int e^{i\omega x}\,d\mu(x)$ for a probability measure, fix
+$\omega_n\ne0$ tending to zero. Fatou's lemma gives
+\[
+\frac12\int x^2\,d\mu\le\liminf_n
+\int\frac{1-\cos(\omega_nx)}{\omega_n^2}\,d\mu
+=\lim_n\frac{e^{-a|\omega_n|^{-\zeta}}}{\omega_n^2}=0.
+\]
+Thus $\mu=\delta_0$, contradicting $G(\omega)<1$ for nonzero $\omega$.
+No second-moment assumption is needed.
+\end{proof}
+Consequently the continuum multiplier cannot be convolution by a probability
+measure for all targets. This excludes an exact positive-kernel interpretation,
+while permitting signed filters and approximate moment fits on finite conditions.
+
 Part (b) is an idealisation in three ways. The label law is not uniform. $\hat k$ is a
 power law only at high frequency (Laplace kernel: $\zeta=2$; Mat\'ern-$3/2$: $\zeta=4$;
 Gaussian: exponential decay, $\zeta=\infty$). And the Nadaraya--Watson moments of a finite
@@ -676,8 +696,7 @@ themselves. We therefore compute \eqref{eq:kgf} exactly on the
 actual EXP-1 training sets ($\rho_h$ by 15-point Gauss--Hermite quadrature around each
 label, three seeds, $\ell\in\{0.3,1\}\times\mathrm{sd}(y)$) and apply the estimator
 \eqref{eq:heff} at the 20 conditions (\texttt{theory\_t2\_resolution.py},
-Figure~\ref{fig:t2}). Three findings. \emph{The model is a Nadaraya--Watson mixture at
-one bandwidth at every $t$}: under the Laplace kernel the median log-space $R^2$ of the
+Figure~\ref{fig:t2}). Three findings. \emph{The model's moments admit a good single-bandwidth fit}: under the Laplace kernel the median log-space $R^2$ of the
 fit is $0.97$ and $h_{\mathrm{mean}}$ and $h_{\mathrm{eff}}$ differ by a median $11\%$
 (Mat\'ern: $0.95$, $9\%$), as for the trained networks. \emph{$h_{\mathrm{eff}}$ falls to
 $h$}, in 6/6 Laplace and 5/6 Mat\'ern configurations, as (a) predicts for $h=0$.
@@ -689,48 +708,211 @@ kernel it barely moves ($-0.05$) and $h_{\mathrm{eff}}$ never reaches $h$ (0/6).
 the field, a learner that resolves the label only to the law $\varphi$ of a perturbation
 $u$ replaces $\vstar$ by its label average $v_\varphi$, and Proposition~\ref{prop:filtered} says that this keeps the atoms.
 
+Assume the atoms $x^1,\dots,x^N$ are distinct (atoms at one location can be merged by
+adding their weights). Let $\Ppos$ be the set of probability vectors on $\{1,\dots,N\}$
+with all entries positive. For a probability vector $p$, let $v_p$ be the conditional
+velocity of the coupling $I\sim p$, $X_1=x^I$ in the proof of Theorem~\ref{thm:endpoint}:
+\begin{equation}
+v_p(x,t)=\sum_j q_{p,j}(x,t)\,\frac{x^j-x}{1-t},\qquad
+q_{p,j}(x,t)=\frac{p_j\,\pi_0\big(\tfrac{x-tx^j}{1-t}\big)}
+{\sum_\ell p_\ell\,\pi_0\big(\tfrac{x-tx^\ell}{1-t}\big)}.
+\label{eq:prior-field}
+\end{equation}
+Then $\vstar(\cdot,\cdot,y)=v_{p^{(h)}(y)}$, the unconditional field is
+$v_{\mathrm{unc}}^\star=v_{p^{\mathrm{unc}}}$ with $p^{\mathrm{unc}}$ uniform, and the hard field
+at an identifying label $y^i$ is $v_{e_i}$. For $z\in\R^d$ let
+$\nn(z)=\{x^j:|z-x^j|=\min_\ell|z-x^\ell|\}$ be its nearest atoms. Each affine hull
+$\operatorname{aff}\nn(z)$ contains at most one point equidistant from $\nn(z)$, so the
+candidate sets
+\[
+\mathcal C=\{z:z\in\operatorname{conv}\nn(z)\}\ \subseteq\
+\mathcal C'=\{z:z\in\operatorname{aff}\nn(z)\}
+\]
+are finite. They contain the atoms, and their other points are circumcentres of sets of
+equidistant nearest atoms.
+
+\begin{theorem}[Positive prior mixtures]
+\label{thm:posmix}
+Let $\Pi$ be a probability measure on $\Ppos$ and $v_\Pi(x,t)=\int v_p(x,t)\,\Pi(dp)$. The
+flow of $v_\Pi$ is well posed on $[0,1)$, and:
+\begin{enumerate}[label=(\alph*),leftmargin=2em]
+\item every trajectory converges to a point of $\mathcal C$;
+\item the initial points whose limit is not an atom form a Lebesgue-null set;
+\item under every absolutely continuous source law, in particular $\pi_0$, the endpoint is a
+  training atom almost surely, and the endpoint law is $\sum_j\tilde q_j\delta_{x^j}$ for
+  some probability vector $\tilde q$.
+\end{enumerate}
+\end{theorem}
+
 \begin{proposition}[Label resolution reweights the atoms and never moves them]
 \label{prop:filtered}
 Let $h>0$, $\varphi$ a probability measure on $\R^k$ and
 $v_\varphi(x,t,y)=\int\vstar(x,t,y-u)\,\varphi(du)$. (a) $v_\varphi=\sum_i\tilde
 w_i(x,t,y)(x^i-x)/(1-t)$ with $\tilde w_i\ge0$, $\sum_i\tilde w_i=1$, and $\tilde
-w_i(x,0,y)=q_i(y):=\int p_i^{(h)}(y-u)\,\varphi(du)$. (b) If a trajectory of $v_\varphi$
-converges as $t\to1$ to a point with a unique nearest atom location, that point is that
-location. Hence if $\pi_0$-almost every trajectory converges to such a point, the endpoint
-law of $v_\varphi$ is $\sum_i\tilde q_i(y)\delta_{x^i}$ for some weights $\tilde q(y)$.
+w_i(x,0,y)=q_i(y):=\int p_i^{(h)}(y-u)\,\varphi(du)$. (b) Every trajectory converges to a
+point $z\in\operatorname{conv}\nn(z)$. For any absolutely continuous source, including
+$\pi_0$, the limit is a training atom almost surely. Thus the endpoint law is
+$\sum_i\tilde q_i(y)\delta_{x^i}$ for some probability weights $\tilde q(y)$.
 \end{proposition}
 
+
+The proofs below use the following notation. Write $a_j=x^j$, $A=\{a_1,\dots,a_N\}$ (distinct),
+$R=\max_j|a_j|$, $\eps=1-t$ and, for $t>0$,
+\[
+\tau=-\log\eps,\qquad \alpha=\frac{\eps^2}{t},\qquad \beta=\frac1\alpha=\frac{t}{\eps^2},
+\qquad b_j(x,t)=x\cdot a_j-\frac t2|a_j|^2 .
+\]
+Since $-|x-ta_j|^2/(2\eps^2)=-|x|^2/(2\eps^2)+\beta b_j$ and the first term does not depend on
+$j$, the weights \eqref{eq:prior-field} are
+$q_{p,j}=p_je^{\beta b_j}/\sum_\ell p_\ell e^{\beta b_\ell}$. Put $m_p=\sum_jq_{p,j}a_j$, so that
+$v_p=(m_p-x)/\eps$. From $\nabla_x\log q_{p,j}=\beta(a_j-m_p)$,
+\begin{equation}
+D_xm_p=\beta\Cov_{q_p}(a),\qquad 0\le\tr\Cov_{q_p}(a)\le R^2,
+\label{eq:pf:int:dm}
+\end{equation}
+uniformly in $p$. Dots denote derivatives in $\tau$ unless stated otherwise; $t=1-e^{-\tau}$,
+$\dot t=\eps$, $\dot\eps=-\eps$, and $\dot\alpha=-(2\eps^2t+\eps^3)/t^2<0$. A field
+$(m-x)/\eps$ in the time $t$ becomes $\dot x=m-x$ in the time $\tau$. For $p$ with all
+entries positive define the log-partition function
+\[
+H_p(x,t,\alpha)=\alpha\log\sum_jp_je^{b_j(x,t)/\alpha}.
+\]
+Treating $x,t,\alpha$ as independent variables,
+\begin{equation}
+\nabla_xH_p=m_p,\qquad \partial_tH_p=-\tfrac12\sum_jq_{p,j}|a_j|^2,\qquad
+\partial_\alpha H_p=-D_{\rm KL}(q_p\Vert p),
+\label{eq:pf:int:dH}
+\end{equation}
+the last because, with $Z=\sum_jp_je^{b_j/\alpha}$,
+$\partial_\alpha H_p=\log Z-\alpha^{-1}\sum_jq_{p,j}b_j$ and
+$D_{\rm KL}(q_p\Vert p)=\sum_jq_{p,j}\log(q_{p,j}/p_j)=\alpha^{-1}\sum_jq_{p,j}b_j-\log Z$.
+Moreover $\min_jb_j\le H_p\le\max_jb_j$ and
+\begin{equation}
+0\le D_{\rm KL}(q_p\Vert p)\le\min\Big\{\frac{\max_jb_j-\min_jb_j}{\alpha},\ \log\frac1{\min_jp_j}\Big\},
+\label{eq:pf:int:kl}
+\end{equation}
+the first bound because $\log Z\ge\min_jb_j/\alpha$, the second because
+$\sum_jq_{p,j}\log(q_{p,j}/p_j)\le\sum_jq_{p,j}\log(1/p_j)$.
+
+\emph{Candidates.} For $z\in\R^d$ write $S=\nn(z)$. If $z,z'\in\operatorname{aff}S$ are both
+equidistant from $S$, subtracting the equations $|z-a_i|^2=|z-a_j|^2$ and
+$|z'-a_i|^2=|z'-a_j|^2$ gives $(z-z')\cdot(a_i-a_j)=0$ for $i,j\in S$, while
+$z-z'\in\operatorname{span}\{a_i-a_j:i,j\in S\}$; hence $z=z'$. As there are finitely many
+$S$, the sets $\mathcal C\subseteq\mathcal C'$ are finite.
+
+\emph{Concentration.} Let $x_n\to z$ and $t_n\to1$, and let $p\in\Ppos$. For $i\in\nn(z)$
+and $j\notin\nn(z)$, $|x_n-t_na_j|^2-|x_n-t_na_i|^2\to|z-a_j|^2-|z-a_i|^2>0$, so for large $n$
+it exceeds a constant $g>0$ and
+\begin{equation}
+q_{p,j}(x_n,t_n)\le\frac{q_{p,j}}{q_{p,i}}(x_n,t_n)
+\le\frac{p_j}{p_i}\,e^{-g/(2\eps_n^2)}\longrightarrow0 .
+\label{eq:pf:int:conc}
+\end{equation}
+
+\begin{proof}[Proof of Theorem~\ref{thm:posmix}]
+Let $m_\Pi=\int m_p\,\Pi(dp)$, so $v_\Pi=(m_\Pi-x)/\eps$ and $|m_\Pi|\le R$. The integrand is
+continuous in $(p,x,t)$ and bounded, and by \eqref{eq:pf:int:dm} its $x$-derivative
+$\beta\Cov_{q_p}(a)$ is continuous and bounded by $\beta R^2$ in operator norm, uniformly in
+$p$. By dominated convergence $v_\Pi$ and $D_xv_\Pi$ are continuous in $(x,t)$, and $v_\Pi$ is
+globally Lipschitz in $x$ on $\R^d\times[0,T]$ for every $T<1$. Trajectories therefore exist and are unique on
+$[0,1)$, and the flow maps between times below $1$ are $C^1$ diffeomorphisms. Fix $t_0>0$
+and work in the time $\tau\ge\tau_0=-\log(1-t_0)$, where $\dot x=m_\Pi-x$. Variation of
+constants gives $|x(\tau)|\le\max\{|x(\tau_0)|,R\}$ and
+$|\dot x|\le V_{\max}:=\max\{|x(\tau_0)|,R\}+R$.
+
+\emph{Energy.} Let $F(x,\tau)=\int H_p(x,t(\tau),\alpha(\tau))\,\Pi(dp)$ and
+$W=\tfrac12|x|^2-F+\tfrac12\eps R^2$. By \eqref{eq:pf:int:dH} and \eqref{eq:pf:int:kl}, the
+derivatives of $H_p$ are bounded uniformly in $p$ on compact subsets of
+$\R^d\times(0,1)\times(0,\infty)$; for $\partial_\alpha H_p$ this uses the first bound in
+\eqref{eq:pf:int:kl}, which does not involve $\min_jp_j$, as $\Pi$ may charge priors arbitrarily
+close to the boundary of the simplex. So the derivatives pass under the integral, $F$ is $C^1$,
+and along a trajectory
+\begin{align*}
+\dot W&=(x-m_\Pi)\cdot\dot x-\eps\,\partial_tF-\dot\alpha\,\partial_\alpha F-\tfrac12\eps R^2\\
+&=-|\dot x|^2+\dot\alpha\int D_{\rm KL}(q_p\Vert p)\,\Pi(dp)
++\frac\eps2\Big(\int\sum_jq_{p,j}|a_j|^2\,\Pi(dp)-R^2\Big)\le-|\dot x|^2,
+\end{align*}
+since $\dot\alpha<0$ and $|a_j|\le R$. Because $F\le\max_jb_j$,
+\[
+W\ge\min_j\Big\{\tfrac12|x|^2-x\cdot a_j+\tfrac t2|a_j|^2+\tfrac\eps2R^2\Big\}
+=\min_j\Big\{\tfrac12|x-a_j|^2+\tfrac\eps2\big(R^2-|a_j|^2\big)\Big\}\ge0 .
+\]
+Hence $\int_{\tau_0}^\infty|\dot x|^2\,d\tau\le W(\tau_0)<\infty$.
+
+\emph{Convergence.} Let $x_n\to z$ and $\tau_n\to\infty$. By \eqref{eq:pf:int:conc} and
+dominated convergence over $\Pi$, the weights $\int q_{p,j}\,d\Pi$ of atoms outside $\nn(z)$
+tend to zero, so every limit point of $m_\Pi(x_n,t_n)$ lies in $\operatorname{conv}\nn(z)$.
+Consequently, for every compact $K$ disjoint from $\mathcal C$ there are $\eta_K>0$ and
+$\tau_K$ with $|m_\Pi(x,t(\tau))-x|\ge\eta_K$ for $x\in K$, $\tau\ge\tau_K$: otherwise there are
+$x_n\in K$, $\tau_n\to\infty$ with $m_\Pi(x_n,t_n)-x_n\to0$, and a subsequence $x_n\to z\in K$
+gives $z\in\operatorname{conv}\nn(z)$, that is $z\in\mathcal C$. The $\omega$-limit set of the
+bounded trajectory is nonempty, compact and connected, being the intersection of the nested
+compact connected sets $\overline{\{x(\tau):\tau\ge T\}}$. Suppose it contains $z\notin\mathcal C$,
+and take $\rho>0$ with $K=\overline{B_\rho(z)}$ disjoint from $\mathcal C$. If the trajectory
+eventually stays in $K$, its speed is eventually at least $\eta_K$, contradicting finite energy.
+Otherwise it enters $B_{\rho/2}(z)$ and later leaves $K$ infinitely often; each such passage
+takes time at least $\rho/(2V_{\max})$ inside $K$ and, after $\tau_K$, costs energy at least
+$\eta_K^2\rho/(2V_{\max})$, again a contradiction. So the $\omega$-limit set lies in the finite set
+$\mathcal C$, and being connected it is a single point.
+
+\emph{Volume expansion.} For $r$ in the closed simplex and $p\in\Ppos$ let
+$Q_{p,j}(r)=p_jr_j/\sum_\ell p_\ell r_\ell$ (the denominator is positive), and
+\[
+M(r)=\int\sum_jQ_{p,j}(r)a_j\,\Pi(dp),\qquad V(r)=\int\tr\Cov_{Q_p(r)}(a)\,\Pi(dp).
+\]
+By dominated convergence $M$ and $V$ are continuous. Since $p_j>0$, $Q_p(r)$ and $r$ have the
+same support, and $\tr\Cov_Q(a)=\sum_jQ_j|a_j-\sum_\ell Q_\ell a_\ell|^2$ vanishes exactly when
+$Q$ is a vertex, the atoms being distinct; so $V(r)=0$ exactly at the vertices. For $\delta>0$
+the compact set $K_\delta=\{r:\dist(M(r),A)\ge\delta\}$ contains no vertex, as $M(e_j)=a_j$,
+so $\kappa_\delta:=\min_{K_\delta}V>0$ whenever $K_\delta\neq\emptyset$. With
+$r_j(x,t)=e^{\beta b_j}/\sum_\ell e^{\beta b_\ell}$ we have $q_{p,j}=Q_{p,j}(r)$ and
+$m_\Pi=M(r)$, and \eqref{eq:pf:int:dm} gives, for $f=m_\Pi-x$,
+\[
+\operatorname{div}_xf=\beta V(r(x,t))-d .
+\]
+Consider a trajectory with limit $z\notin A$ and put $\rho=\dist(z,A)>0$. Eventually
+$|x-z|\le\rho/4$. Call $\tau$ good if $|\dot x(\tau)|\le\rho/4$; then $m_\Pi=x+\dot x$ satisfies
+$\dist(m_\Pi,A)\ge\rho/2$, so $V\ge\kappa_{\rho/2}$. The bad times have measure at most
+$16\rho^{-2}\int|\dot x|^2<\infty$, so good times fill at least half of $[n-1,n]$ for large $n$.
+Since $V\ge0$ and $\beta(\tau)=(1-e^{-\tau})e^{2\tau}$ is increasing,
+\[
+\int_{\tau_0}^n\operatorname{div}f\,d\tau\ \ge\ \tfrac12\kappa_{\rho/2}\,\beta(n-1)-d(n-\tau_0)
+\longrightarrow+\infty .
+\]
+Let $\Phi_\tau$ be the flow map from $\tau_0$ to $\tau$. Liouville's formula gives
+$J_\tau(\xi)=\det D\Phi_\tau(\xi)=\exp\int_{\tau_0}^\tau\operatorname{div}f(\Phi_s(\xi),s)\,ds$,
+so $J_n(\xi)\to\infty$ for every $\xi$ whose trajectory has a non-atom limit. Fix a ball
+$K_0=B_L$ and let $E\subseteq K_0$ be that set of initial points; it is Borel, because the limit
+map is the pointwise limit of the continuous maps $\Phi_n$. All $\Phi_n(K_0)$ lie in one ball
+$B$ by the bound on $|x(\tau)|$. Change of variables and injectivity give
+$\int_EJ_n\,d\xi=\operatorname{Leb}(\Phi_n(E))\le\operatorname{Leb}(B)$, and Fatou's lemma gives
+$\int_E\liminf_nJ_n\,d\xi\le\liminf_n\int_EJ_n\,d\xi\le\operatorname{Leb}(B)$; as the integrand
+on the left is $+\infty$ on $E$, $\operatorname{Leb}(E)=0$. Letting
+$L\to\infty$, the non-atom basin at time $\tau_0$ is null, and so is its preimage at $t=0$
+under the $C^1$ diffeomorphism from time $0$ to time $t_0$. Under an absolutely continuous
+source the limit $X_1=\lim_tx_t$ therefore lies in $A$ almost surely; it is a measurable
+function of the initial point, and since $x_t\to X_1$ pointwise, the marginals converge
+weakly to $\law(X_1)=\sum_j\tilde q_j\delta_{a_j}$.
+\end{proof}
+
 \begin{proof}[Proof of Proposition~\ref{prop:filtered}]
-\label{apx:pf-filtered}
-(a) By the proof of Theorem~\ref{thm:endpoint}, $\vstar(x,t,y')=\sum_iw_i(x,t,y')(x^i-x)/(1-t)$
-with $w_i=a_ib_i/\sum_ja_jb_j$, $a_i=\pi_0(\frac{x-tx^i}{1-t})$, $b_i=K_h(y'-y^i)$;
-averaging over $y'=y-u$ gives $\tilde w_i=\int w_i(x,t,y-u)\varphi(du)$, which is
-nonnegative and sums to one. At $t=0$ all $a_i$ equal $\pi_0(x)$, so $w_i=p_i^{(h)}(y')$.
-(b) Let $x_t\to x_\infty$, with $x^i$ the unique nearest atom location to $x_\infty$ and
-$\gamma=\min\{|x_\infty-x^j|^2-|x_\infty-x^i|^2: x^j\ne x^i\}>0$. For $t$ close to $1$ and
-every $j$ with $x^j\ne x^i$, $|x_t-tx^j|^2-|x_t-tx^i|^2\ge\gamma/2$, so
-$a_j/a_i\le e^{-\gamma/(4(1-t)^2)}\to0$. Since $w_j\le\min\{1,(a_j/a_i)(b_j/b_i)\}$ and
-$b_i>0$ everywhere, dominated convergence (with the bound $1$, $\varphi$ a probability
-measure) gives $\tilde w_j(x_t,t,y)\to0$ for every such $j$; atoms located at $x^i$
-contribute $x^i$, so $m_t:=\sum_j\tilde w_jx^j\to x^i$. Along the trajectory
-$\dot x_t=(m_t-x_t)/(1-t)$ with $m_t-x_t\to x^i-x_\infty$. If $x^i\ne x_\infty$, then
-$(x^i-x_\infty)\cdot\dot x_t\ge|x^i-x_\infty|^2/(2(1-t))$ for $t$ near $1$, whose integral
-diverges, contradicting convergence. So $x_\infty=x^i$. For the endpoint law: the flow of
-$v_\varphi$ exists on $[0,1)$, since $\nabla_xw_j$ is bounded uniformly in the label on
-compact subsets of $\R^d\times[0,1)$, so $v_\varphi$ is locally Lipschitz, and
-$|v_\varphi|\le(\max_j|x^j|+|x|)/(1-t)$ has linear growth; the limit map
-$X_1=\lim_{t\to1}\Phi_t$ is measurable as a pointwise limit of continuous maps, and by the
-above it takes values in the atoms $\pi_0$-almost surely; almost-sure convergence gives
-weak convergence of the marginals, so the endpoint law is $\sum_i\tilde q_i\delta_{x^i}$
-with $\tilde q_i=\pi_0(X_1=x^i)$ (atoms at a common location merged).
+(a) By the proof of Theorem~\ref{thm:endpoint},
+$\vstar(x,t,y')=\sum_iw_i^{(h)}(x,t,y')(x^i-x)/(1-t)$; averaging over $y'=y-u$ gives
+$\tilde w_i=\int w_i^{(h)}(x,t,y-u)\,\varphi(du)$, which is nonnegative and sums to one. At
+$t=0$ all spatial factors equal $\pi_0(x)$, so $w_i^{(h)}(x,0,y')=p_i^{(h)}(y')$.
+(b) Merge atoms at a common location by adding their weights; this changes neither the field
+nor positivity. By the proof of Theorem~\ref{thm:endpoint}, $\vstar(\cdot,\cdot,y')=v_{p^{(h)}(y')}$.
+The map $u\mapsto p^{(h)}(y-u)$ is continuous with values in $\Ppos$, since $K_h>0$; let $\Pi$
+be the image of $\varphi$ under it. Then $v_\varphi(\cdot,\cdot,y)=v_\Pi$, and
+Theorem~\ref{thm:posmix} gives the claims.
 \end{proof}
 
 So a learner whose only defect is label resolution reweights the training atoms and
-never leaves them; leaving them, as $38\%$ of CIFAR-10 samples do at $h{=}6$, needs an
-error in the spatial dependence of the field. Integrating the flow of $v_\varphi$ exactly
+has an atomic limiting law almost surely. Guidance applied to such a learner is not covered by this argument. The $38\%$ off-atom fraction measured on
+CIFAR-10 at $h{=}6$ is a finite-time numerical observation; solver and truncation
+convergence are needed before attributing it to learned spatial error. Integrating the flow of $v_\varphi$ exactly
 on the EXP-1 training set (Gaussian $\varphi$ of scale $s$, five conditions, 300
-trajectories each; \texttt{theory\_t2\_filtered.py}) confirms that every endpoint is an
-atom (distance $\le0.0032$). The endpoint weights are \emph{not} simply the label-averaged
+trajectories each; \texttt{theory\_t2\_filtered.py}) gives trajectories approaching atoms at the evaluated cutoff (distance $\le0.0032$). The endpoint weights are \emph{not} simply the label-averaged
 weights $q$: they agree within Monte Carlo error when $s\le h$ (total variation $0.11$
 and $0.14$ against floors $0.09$ and $0.13$ at $s=h=0.05$ and $0.1$), but for $s\gg h$
 the flow re-concentrates them, halving the endpoint variance ($0.46$ against $1.14$ at
@@ -752,7 +934,7 @@ $0.68$--$1.23$ in normalised Frobenius norm for $h\le0.1$ ($0.09$--$0.38$ at $h=
 fixed-kernel account of $h_{\mathrm{eff}}$ does not apply. Its eigenvalues do end with a
 power-law decay, with exponent $1.10$--$1.29$ at $h\le0.01$ against $2.09$ for the Laplace
 kernel (\texttt{scripts/ntk\_label\_spectrum.py}).
-(ii) Neither explicit regularisation nor the step size sets the gap above $h$. At
+(ii) The tested regularisation and step-size changes did not remove the measured gap above $h$. At
 $2\times10^5$ iterations, $h_{\mathrm{eff}}$ is $0.86$--$1.22$ times its baseline under AdamW
 weight decay $10^{-4}$--$10^{-2}$, a learning rate of $3\times10^{-4}$ or a cosine schedule
 ($h\in\{0,0.05\}$, three seeds per arm, ranges overlapping in every arm), and at $h=0.05$ it
