@@ -1,4 +1,4 @@
-# Trained Conditional Flows Memorise at an Effective Bandwidth
+# Atomic Endpoints of Averaged and Guided Empirical Conditional Flows
 
 Code, results and paper (`paper/main.tex`) for the exact endpoint law of conditional flow
 matching (CFM) on a finite training set, and the effective-bandwidth audit of trained
