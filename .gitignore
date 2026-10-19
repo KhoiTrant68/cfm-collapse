@@ -249,3 +249,9 @@ references/
 
 # Claude Code worktrees: per-session checkouts of this repository.
 .claude/worktrees/
+
+# Scratch for build checks, renders and audits. Files already tracked under tmp/ stay tracked.
+tmp/
+
+# Raw generated samples of the independent-seed runs (53 MB); the JSON logs are committed.
+results/independent_seeds_20261016/raw_samples.tar
