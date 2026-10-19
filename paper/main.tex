@@ -53,22 +53,25 @@ Empirical Conditional Flows}
 \raggedbottom
 
 \begin{abstract}
-We study whether averaging and guidance preserve the atomic endpoints of exact
-empirical conditional flows. For any positive label bandwidth, averaging the exact
-fields against an arbitrary probability measure preserves almost-sure atomicity
-under every absolutely continuous source. Fixed finite nonnegative classifier-free
-guidance has the same property. We prove convergence of every trajectory and show
-that the basins of non-atom limits have Lebesgue measure zero; at an identifying
-hard label, guidance reaches the designated atom from every initial point.
-These results address the intervened original flows, beyond ordinary empirical
-memorisation. Numerical stress tests cover positive averaging, signed guidance,
-near-duplicate atoms, and exceptional symmetric trajectories. Five existing trained
-models show that the exact-field results do not automatically transfer to learned
-label averages. As supporting results, a fixed-target affine example illustrates
-the known obstruction to certifying endpoints from small training loss, and an
-explicit risk-transfer condition yields finite-time Wasserstein and moment bounds.
-Earlier moment fits and independent distributional evaluations further delimit the
-use of an empirical kernel law as a reference for learned conditional samplers.
+We ask which interventions on the exact empirical conditional flow-matching field can move
+its endpoints off the training set. At an identifying label the exact field returns one
+training example, and Gaussian label noise only reweights the examples. At positive
+label-noise bandwidth we prove that two common modifications keep the endpoints on the
+training examples for almost every initial point: any positive mixture of exact fields with
+strictly positive priors, which includes averaging the field over labels and negative
+guidance, and classifier-free guidance with a fixed nonnegative strength or a bounded
+nonnegative schedule of bounded variation. Every
+trajectory converges, and the initial points with non-training limits form a Lebesgue-null
+set, which can be a hyperplane. Composing the two modifications breaks this. Guidance applied
+to a label-averaged field can converge to a non-training point with positive probability:
+for two training examples whose averaged label priors have log-odds $\pm2B$, this happens
+exactly when the guidance strength exceeds $1/\sinh^2B$, and it persists under perturbation
+of the configuration. For a learned field at an identifying label, the distance of a
+trajectory's endpoint from its training example is at most the limiting scaled field error along that trajectory, which for
+data prediction is the late-time prediction error; a local version holds under label noise.
+Exact-field computations confirm the threshold. Experiments from small networks to a
+35.75M-parameter CIFAR-10 U-Net show hard-conditioning collapse at scale and measure how far
+trained samplers follow the exact reference.
 \end{abstract}
 
 % ==========================================================================
@@ -83,46 +86,66 @@ against the \emph{empirical} data law is known to induce memorisation
 \citep{carlini2023extracting,somepalli2023diffusion,sesmat2026leaks}, and conditional
 flow-matching models trained past the point of good posterior calibration give
 increasingly deterministic samples that coincide with training examples
-\citep{physicscfm2026}. \citet{physicscfm2026} derive point collapse for an interpolatory separable
-architecture and mixture dynamics for cell-conditioned architectures. Here we study
-which interventions preserve the finite support of exact empirical fields, and why
-small regression loss need not certify the endpoints of a learned field. The
-label-noised minimiser supplies an explicit reference for these questions; its moment
-fits are subsequently tested against trained samplers.
-With the training set $\D=\{(x^i,y^i)\}_{i=1}^N$ fixed and only the interpolation random,
-we characterise the population minimiser of the flow-matching objective over all
-square-integrable vector fields, and the endpoint law of its flow.
+\citep{physicscfm2026}. With the training set $\D=\{(x^i,y^i)\}_{i=1}^N$ fixed and only the
+interpolation random, the population minimiser of the conditional objective has an explicit
+form, and its flow ends on the training examples: one example at an identifying label, and
+a label-weighted mixture of examples when Gaussian noise is added to the labels.
 
-Two lines of work are close to this. That the empirical minimiser memorises is well
-established
+Practical conditional samplers do not use this field as it is. Labels are noised during
+training~\citep{ho2022cascaded}, a network can resolve labels only coarsely and so averages
+the field over nearby labels, and sampling adds classifier-free
+guidance~\citep{ho2022classifier}, often with a strength that varies in
+time~\citep{kynkaanniemi2024interval,jain2025attraction}. We ask which of these modifications
+can, by themselves, move the endpoints of the exact field off the training set, and what a
+learned field must do to inherit the answer. The answer has three parts.
+\begin{itemize}\itemsep1pt
+\item \emph{Positive modifications keep the training examples.} Any positive mixture of exact
+  fields with strictly positive priors, which includes label averaging and negative guidance,
+  and nonnegative guidance with a fixed strength or a bounded schedule of bounded variation,
+  ends on a training example for almost every initial point
+  (Theorems~\ref{thm:posmix} and~\ref{thm:schedule}). The exceptional set is null but can be
+  a hyperplane (Proposition~\ref{prop:hyperplane}).
+\item \emph{Their composition can leave.} Guidance applied to a label-averaged field can
+  converge to a circumcentre of training examples with positive probability. On two examples
+  the threshold is explicit, $w>1/\sinh^2B$, and the effect is stable under perturbation
+  (Theorem~\ref{thm:composition}, Proposition~\ref{prop:composition-open}). Label averaging
+  and guidance commute, so it is the composition, not the order, that matters.
+\item \emph{Learned fields inherit collapse unless their scaled error persists.} The
+  endpoint of a learned trajectory is within $\limsup_{t\uparrow1}(1-t)|\Delta|$ of its
+  training example, where $\Delta$ is the field error along that trajectory; for data
+  prediction this is the late-time error of the predicted example
+  (Theorem~\ref{thm:transfer}). Small regression loss alone does not control this quantity
+  (Proposition~\ref{prop:loss-no-certificate}).
+\end{itemize}
+
+For practitioners, the results separate mechanisms. For exact fields at positive label
+bandwidth, label noise, label averaging and bounded nonnegative guidance schedules, such as
+guidance withheld early in sampling, leave almost every sample on the training set. Among the
+interventions we analyse (Table~\ref{tab:interventions}), non-training endpoints arise only from
+a support change such as endpoint noise, from averaging hard-label fields, from composing label
+averaging with guidance, or, for learned fields, from an error that does not vanish at the scale
+$(1-t)^{-1}$ up to the end of sampling. Theorem~\ref{thm:transfer} names the quantity to measure
+along sampling trajectories when asking which of these is at work.
+
+\paragraph{Related work.} That the empirical minimiser memorises is well established
 \citep{pidstrigach2022manifolds,gu2023memorization,kadkhodaie2024generalization,biroli2023diffusion,kamb2024creativity,buchanan2025edge,gao2024flow,bertrand2025closed,li2026memory},
 and reading a kernel out of a finite-support flow is not new either
-\citep{scarvelis2025closedform,chen2026scoresmoothing}.
-For external labels, \citet[Theorem~6.4]{baptista2025memorization} already identify
-the empirical conditional law on the subset sharing the supplied label; unique
-labels select one example. \citet[Section~3.3]{physicscfm2026} also analyze
-cell-conditioned flows that select training subsets. Our endpoint results for label
-averaging and signed guidance remove convergence and tie-avoidance premises for the
-specified exact fields, rather than claiming conditional memorisation itself is new.
-\citet{smola2026support} read the
+\citep{scarvelis2025closedform,chen2026scoresmoothing}. For external labels,
+\citet[Theorem~6.4]{baptista2025memorization} already identify the empirical conditional law
+on the subset sharing the supplied label, and \citet[Section~3.3]{physicscfm2026} analyse
+cell-conditioned flows that select training subsets; \citet{physicscfm2026} also derive point
+collapse for an interpolatory separable architecture. \citet{smola2026support} read the
 \emph{spatial} factor $\pi_0(\tfrac{x-tx^i}{1-t})$ of the index posterior as a
-Nadaraya--Watson smoother on fixed atoms, with query $x/t$ and bandwidth $(1-t)/t$ for $t>0$. In our original coordinates the same spatial kernel has moving centers $tx^i$ and scale $1-t$, as in \eqref{eq:kernel-field}. We work with the other factor, $K_h(y-y^i)$. Its bandwidth is a
-modelling choice and not a consequence of the clock, and it survives to $t=1$, where it
-fixes the conditional endpoint law. We do not claim a new generic kernel identity.
-Gaussian noise on a conditioning signal is standard practice: it is the conditioning
-augmentation of \citet{ho2022cascaded}, which \citet{sadat2024cads} anneal at inference
-to restore conditional diversity. \citet[Theorems~2--3]{pfrommer2025conditional} derive label-smoothness
-interpolants and a Fourier convolution for a Hessian penalty. Those combinations need
-not be positive averages, so our positive label-averaging result does not cover all
-such regularisers. Our signed result concerns the specified classifier-free guidance
-field with fixed finite nonnegative strength. Ordinary empirical recovery
-\citep[Theorem~1]{li2026memory} does not by itself identify the endpoint probabilities
-of these intervened fields; our atomicity statements do not identify those
-probabilities either.
-\citet{jain2025attraction} empirically link guidance timing to memorisation in
-text-to-image diffusion. Our fixed-strength exact-field statement addresses a
-different question and does not rule out their mitigation for learned fields or
-time-dependent guidance schedules.
+Nadaraya--Watson smoother on fixed atoms; we work with the label factor $K_h(y-y^i)$, whose
+bandwidth is a modelling choice that survives to $t=1$. The Nadaraya--Watson endpoint law of
+Section~\ref{sec:theory} is therefore a reference, not a new identity.
+Gaussian noise on a conditioning signal is the conditioning augmentation
+of~\citet{ho2022cascaded}, which \citet{sadat2024cads} anneal at inference;
+\citet[Theorems~2--3]{pfrommer2025conditional} derive label-smoothness interpolants, which
+need not be positive averages and are not covered by our positive-mixture theorem. Guidance
+does not sample the guided target law in general~\citep{chidambaram2024guidance}, and
+\citet{jain2025attraction} link guidance timing to memorisation in text-to-image diffusion;
+our statements concern exact fields and do not rule out their mitigation for learned ones.
 
 \paragraph{The closest convergence results.}
 \citet[Theorem~3.7, version~3]{liu2025pde} prove almost-everywhere recovery of
@@ -130,31 +153,20 @@ compact supports for ordinary score flows. For mixed scores,
 \citet[Theorem~3.18 and Remark~3.19]{liu2026geometric} give an original-flow
 convergence criterion assuming that the $\omega$-limit set contains no
 nonminimising critical point, and leave almost-everywhere avoidance open in that setting.
-Our results concern positive label weights on a common finite support: they prove
-convergence for every trajectory and null basins for non-atom limits after the
-specified averaging or guidance intervention. They do not resolve mixtures with
-different supports or arbitrary guidance schedules.
+For mixtures and guidance on a common finite support, we prove convergence of every trajectory
+and null basins for non-training limits without such a premise, and show by
+Theorem~\ref{thm:composition} that the conclusion fails for some signed combinations.
+Table~\ref{tab:relatedshort} gives the scope boundary and Table~\ref{tab:related} adds
+four further lines.
 
 \paragraph{Loss and endpoint stability.}
-Small regression error without sufficient stability control is already known to
-give poor endpoint guarantees. \citet[Theorem~1 and Section~3]{benton2024error}
-bound Wasserstein error using learned-field Lipschitz control;
-\citet[Appendix~D]{beltran2026reward} construct small-teacher-error examples with
-poor generated-sample rewards. Our affine example fixes a singular target and
-computes the surviving covariance explicitly. We use it as an illustration,
-and give a sufficient risk-transfer certificate by coupling and variation of
-constants, rather than claiming a new general obstruction or stability principle.
-
-The conditional endpoint law is a Nadaraya--Watson
-mixture over the training atoms (Theorem~\ref{thm:endpoint}). It gives a reference curve
-computable from the training set alone (Proposition~\ref{prop:moments}), and it shows
-what moment-level evaluation misses: the law stays supported on the training atoms at
-every bandwidth, so it can match selected moments without recovering the posterior
-(Proposition~\ref{prop:atomicity}). Closest in spirit is \citet{buchanan2025edge}, whose
-capacity-driven transition in \emph{unconditional} diffusion is the capacity analogue of
-our $h\colon0\to\infty$ interpolation; neither subsumes the other.
-Table~\ref{tab:relatedshort} gives the scope boundary and Table~\ref{tab:related} adds
-four further lines. Our contributions are:
+Small regression error without stability control is known to give poor endpoint guarantees.
+\citet[Theorem~1 and Section~3]{benton2024error} bound Wasserstein error using learned-field
+Lipschitz control, and \citet[Appendix~D]{beltran2026reward} construct small-teacher-error
+examples with poor generated-sample rewards. Our affine example and risk-transfer certificate
+specialise these considerations to the singular hard-conditioning target, and the transfer
+bound of Theorem~\ref{thm:transfer} is an elementary consequence of variation of constants
+whose use is the trajectory-wise reading.
 
 \begin{table}[t]
 \centering\footnotesize
@@ -165,34 +177,35 @@ Work & Setting & Relevant conclusion or premise\\
 \citet{baptista2025memorization} & Empirical conditional law & Recovery of the subset sharing a label\\
 \citet{liu2025pde}, v3 & Ordinary score flow, compact support & Almost-everywhere convergence into the support\\
 \citet{liu2026geometric} & Mixed scores, potentially different supports & Original-flow convergence assumes no nonminimising critical limit points\\
-This paper & Positive label averages and fixed CFG on a common finite support & Every trajectory converges; non-atom basins are null\\
+This paper & Positive prior mixtures and guidance schedules on a common finite support & Every trajectory converges; non-atom basins are null; guided label averaging can leave the support\\
 \bottomrule
 \end{tabular}
-\caption{Convergence scope of the closest results. Our intervention results require
-positive label bandwidth, except for the identifying hard-label guidance case.
-They do not identify endpoint probabilities. Table~\ref{tab:related} gives further context.}
+\caption{Convergence scope of the closest results. Our positive-bandwidth intervention results
+require strictly positive priors; hard-label guidance converges from every initial point.
+Table~\ref{tab:related} gives further context.}
 \label{tab:relatedshort}
 \end{table}
 
+Our contributions are:
 \begin{enumerate}\itemsep1pt
-\item \textbf{Atomicity after field interventions.} Positive label averaging and
-  fixed finite nonnegative classifier-free guidance preserve atomic endpoints
-  almost surely (Propositions~\ref{prop:filtered} and~\ref{prop:cfgatom}). The proofs
-  establish trajectory convergence and exclude non-atom basins in Lebesgue measure;
-  hard-label guidance reaches the identified atom from every initial point.
-\item \textbf{A reference and its certification limits.} The empirical conditional
-  kernel law (Theorem~\ref{thm:endpoint}) makes moments and an atomic approximation
-  floor explicit. A fixed-target example illustrates the known limitation of small
-  teacher loss (Proposition~\ref{prop:loss-no-certificate}); a sufficient
-  risk-transfer condition yields a finite-time certificate
-  (Theorem~\ref{thm:risktransfer}).
-\item \textbf{Tests of the exact-to-learned connection.} Paired exact-field stress
-  tests and tie controls check the intervention predictions, while five trained
-  models test learned label averages (Section~\ref{sec:intervention-tests}).
-  Earlier moment fits agree at $48/48$ synthetic and $31/36$ positive-bandwidth
-  CIFAR-10 checkpoints, but independent distributional evaluation does not certify
-  equality with the reference (Section~\ref{sec:independent}). The bandwidth audit
-  therefore remains a conditional-moment diagnostic (Section~\ref{sec:heff}).
+\item \textbf{Atomicity of positive interventions} (Section~\ref{sec:intervention-atomicity}).
+  A positive-mixture theorem covering label averaging and guidance $w\in[-1,0)$, and a
+  theorem for nonnegative guidance schedules of bounded variation, each with convergence of
+  every trajectory and Lebesgue-null non-atom basins; the exceptional set can be a
+  hyperplane.
+\item \textbf{A composition that leaves the support} (Section~\ref{sec:composition}). Guided
+  label averaging converges to a circumcentre with positive probability, with the exact
+  threshold $1/\sinh^2B$ on two atoms, stability under perturbation, and exact-field
+  computations of the basin probability (Section~\ref{sec:intervention-tests}).
+\item \textbf{From exact to learned fields} (Section~\ref{sec:transfer}). A sharp
+  trajectory-wise endpoint-transfer bound with a data-prediction reading and a local version
+  at positive bandwidth, alongside the known obstruction to certifying endpoints from small
+  loss.
+\item \textbf{Experiments} (Section~\ref{sec:experiments}). Collapse and kernel-reference
+  tracking on synthetic problems and a 35.75M-parameter CIFAR-10 U-Net, exact-field stress
+  tests of the interventions, and a pilot showing that learned label averages need not follow
+  the exact ones. The moment audit by effective bandwidth and its independent evaluation are in
+  Appendix~\ref{app:moment-audit}.
 \end{enumerate}
 
 \begin{figure}[t]
@@ -206,27 +219,23 @@ dispersed; at $200000$, $96\%$ of its paths reach the atom identified by the lab
 $\tr\Covh=\tr\Sigmapost$ at this condition (averaged over conditions the match is near
 $h=0.1$, Section~\ref{sec:p7}); marker area is the weight $p_i^{(h)}$ of
 Theorem~\ref{thm:endpoint}. The variance is right but the law is still atomic, with a
-floor no $h$ removes (Proposition~\ref{prop:atomicity}). (d) Only moving the support
-leaves the atoms (Proposition~\ref{prop:tgtnoise}). Figures~\ref{fig:traintraj}
+floor no $h$ removes (Proposition~\ref{prop:atomicity}). (d) Endpoint noise moves the
+support (Proposition~\ref{prop:tgtnoise}); Table~\ref{tab:interventions} lists what the other
+interventions on the exact field do. Figures~\ref{fig:traintraj}
 and~\ref{fig:interventions} give the checkpoints in between and the interventions that
 do not help.}
 \label{fig:mechanism}
 \end{figure}
 
-At an identifying observed label, hard conditioning selects one training atom.
-Positive label noise gives a kernel-weighted empirical reference without leaving
-those atoms (Figure~\ref{fig:mechanism}). Fitted bandwidths summarize selected
-conditional moments of trained networks; fresh-condition distributional tests
-determine the limits of that description.
-
-\paragraph{What to verify.} The intervention statements are
-Propositions~\ref{prop:filtered} and~\ref{prop:cfgatom}, with full proofs in
-Appendices~\ref{apx:pf-filtered} and~\ref{apx:pf-cfgatom}. Their finite-time tests
-and learned-field comparison are in Section~\ref{sec:intervention-tests}, with
-protocol and failed solver attempts in Appendix~\ref{app:intervention-protocol}.
-The reference endpoint law is Theorem~\ref{thm:endpoint}; the moment audit and
-its independent distributional check are in Sections~\ref{sec:heff}
-and~\ref{sec:independent}.
+\paragraph{What to verify.} The intervention statements are Theorems~\ref{thm:posmix},
+\ref{thm:schedule} and~\ref{thm:composition} and Propositions~\ref{prop:filtered},
+\ref{prop:cfgatom}, \ref{prop:hyperplane} and~\ref{prop:composition-open}, with proofs in
+Appendices~\ref{apx:intervention-notation}--\ref{apx:pf-composition-open}; the transfer
+statements are Theorem~\ref{thm:transfer} and Proposition~\ref{prop:localtransfer}, proved in
+Appendices~\ref{apx:pf-transfer} and~\ref{apx:pf-localtransfer}. Their finite-time tests are
+in Section~\ref{sec:intervention-tests}, with protocol and failed solver attempts in
+Appendix~\ref{app:intervention-protocol}. The reference endpoint law is
+Theorem~\ref{thm:endpoint}.
 
 % ==========================================================================
 \section{Setup and notation}
@@ -257,10 +266,10 @@ above, unless a noisy one is introduced explicitly. \emph{(iii)} Labels identify
 $y^i\neq y^j$ for $i\neq j$, so $Y=y^i$ determines $I=i$ at $h=0$.
 \end{assumption}
 
-\paragraph{Reference moments.} The empirical marginal has mean $\bar x=N^{-1}\sum_i x^i$ and covariance $\Xhat=N^{-1}\sum_i(x^i-\bar x)(x^i-\bar x)^\top$. These dataset moments are distinct from the moments of generated samples, estimated in Section~\ref{sec:heff}. In the linear-Gaussian experiment, $y=Ax+\eta$ with $\eta\sim\N(0,\sigma_{\mathrm{obs}}^2I_k)$; the analytic Gaussian posterior has covariance~$\Sigmapost$.
+\paragraph{Reference moments.} The empirical marginal has mean $\bar x=N^{-1}\sum_i x^i$ and covariance $\Xhat=N^{-1}\sum_i(x^i-\bar x)(x^i-\bar x)^\top$. These dataset moments are distinct from the moments of generated samples, estimated in Appendix~\ref{sec:heff}. In the linear-Gaussian experiment, $y=Ax+\eta$ with $\eta\sim\N(0,\sigma_{\mathrm{obs}}^2I_k)$; the analytic Gaussian posterior has covariance~$\Sigmapost$.
 
 % ==========================================================================
-\section{Theory}
+\section{The exact reference}
 \label{sec:theory}
 
 Everything in this section holds under Assumption~\ref{as:standing} and concerns the
@@ -655,7 +664,7 @@ atoms. Table~\ref{tab:interventions} collects what each intervention does to the
 the exact endpoint law; Appendix~\ref{app:interventions} gives the noise interventions in
 detail, together with the $N\to\infty$ expansion of $\Covh$
 (Proposition~\ref{prop:expansion}). All of this describes exact fields, not how fast training
-reaches them; Section~\ref{sec:heff} measures how far trained models have gone.
+reaches them; Appendix~\ref{sec:heff} measures how far trained models have gone.
 
 \begin{table}[t]
 \centering\footnotesize
@@ -764,7 +773,7 @@ agreement consistent with the benefit of early stopping \citep{physicscfm2026}.
 This alone does not establish a correct Bayesian sampler. The variance then collapses,
 stalling near $0.40$ at $2\times10^5$. That residual is not a failure of
 Proposition~\ref{prop:collapse}: all four observables keep descending with the loss,
-and Section~\ref{sec:heff} reads it as an effective bandwidth still above zero. Three measurements sharpen this (Appendix~\ref{app:exp4}). The
+and Appendix~\ref{sec:heff} reads it as an effective bandwidth still above zero. Three measurements sharpen this (Appendix~\ref{app:exp4}). The
 memorisation ratio of \citet{yoon2023memorization} reaches $0.650\pm0.033$ conditionally
 against $0.389\pm0.032$ unconditionally from a common $\approx0.11$ baseline, so both
 flows memorise, as Corollary~\ref{cor:distinction} says, and the conditional one more
@@ -919,62 +928,6 @@ Appendix~\ref{app:intervention-protocol} records solver limitations.}
 \end{figure}
 \FloatBarrier
 
-\subsection{Independent evaluation of the fitted reference}
-\label{sec:independent}
-
-Moment agreement is weaker than agreement of probability laws. We train ten further
-MLPs on five new problem seeds (1001--1005), paired across $h\in\{0,0.1\}$, using the
-same synthetic setup and the common final checkpoint at $200000$ iterations.
-For each model, 20 training conditions fit a single reference scale, and 64 fresh
-conditions evaluate it with $M=512$ samples. The independent replication unit is the
-problem seed: the 64 conditions are nested within a seed. Appendix~\ref{app:newvalidation}
-specifies the finite-time reference, discrepancy and solver screen.
-
-\begin{table}[t]
-\centering\small
-\begin{tabular}{@{}lrr@{}}
-\toprule
-Problem seed & $h=0$ & $h=0.1$\\
-\midrule
-1001 & 0.430079 & 0.021337\\
-1002 & 0.126044 & 0.008118\\
-1003 & 0.282378 & 0.020624\\
-1004 & 4.084575 & 0.004253\\
-1005 & 0.446561 & 0.002055\\
-\midrule
-Mean over seeds & 1.073927 & 0.011277\\
-Median over seeds & 0.430079 & 0.008118\\
-Gaussian best among four fitted families & $0/5$ & $5/5$\\
-\bottomrule
-\end{tabular}
-\caption{Fresh-condition discrepancy from the fitted Gaussian-label reference.
-Each entry is a seed mean of normalized energy distance minus its matched
-reference--reference mean; smaller means closer to that reference, rather than
-necessarily closer to the true posterior. The hard-conditioned mean retains the
-extreme extrapolation condition. The four families share atoms and are fitted using
-training-condition variances, without optimizing held-out energy distance.}
-\label{tab:independent}
-\end{table}
-
-Table~\ref{tab:independent} shows smaller discrepancy with smoothing on every paired
-seed. The Gaussian reference is best among the four protocol-fitted families on all
-five smoothed seeds and none of the hard-conditioned seeds. This supports its use as
-a more accurate reference under explicit label noise, but does not establish equality
-of laws. Of 320 fresh conditions per bandwidth, 317 at $h=0$ and 164 at $h=0.1$
-exceed a diagnostic reference--reference 95th percentile. Each percentile uses only
-16 reference pairs, so these counts are descriptive rather than calibrated test
-rejections. At $h=0$, this is a test of the learned extension to new labels, not a
-contradiction of hard-label collapse at training labels.
-
-\paragraph{An extrapolation outlier.} One condition of seed 1004 lies beyond the
-training-label range and has two extreme endpoints among 512 draws. It fails the
-initial 200-to-400-step practical solver screen; all other 639 model--condition pairs
-pass. Retaining it gives the reported hard-conditioned mean. Subsequent RK4 refinement
-and independent adaptive integration reproduce the extreme trajectories
-(Appendix~\ref{app:newvalidation}). This numerical diagnosis supports a learned-field
-extrapolation failure, while the original screen correctly warns against interpreting
-the coarse-step value as solver-independent.
-
 \subsection{Realistic capacity: CIFAR-10 with a 35.75M-parameter DDPM U-Net}
 \label{sec:cifarddpm}
 
@@ -998,8 +951,8 @@ does not separate instance variation from optimisation variation.
 $\log\tr\Cov$ on $\log\tr\Covh$ across conditions, which the optimum puts at $1$, is
 $0.481\pm0.037$ at $h{=}4$, where the reference spans $4.57$ decades, and $-0.156$ at
 $h{=}6$, where it spans $0.74$ and a median ratio of $1.15$ certifies nothing
-(Table~\ref{tab:cifarddpm}, Figure~\ref{fig:cifartrack}, appendix). $38\%$ of numerical samples are off-atom at $h{=}6$ under the stated nearest-neighbour criterion. This finite-cutoff measurement combines learned-field, truncation and discretisation effects; it does not identify the limiting support. The next
-section fits the conditional moments with a reference at a larger bandwidth; this
+(Table~\ref{tab:cifarddpm}, Figure~\ref{fig:cifartrack}, appendix). $38\%$ of numerical samples are off-atom at $h{=}6$ under the stated nearest-neighbour criterion. This finite-cutoff measurement combines learned-field, truncation and discretisation effects; it does not identify the limiting support. Appendix~\ref{sec:heff}
+fits the conditional moments with a reference at a larger bandwidth; this
 description does not identify the network's law.
 
 \paragraph{Paired solver and coverage pilot.} We additionally evaluate the six
@@ -1016,274 +969,59 @@ independent pixel or seed--image replicates. Appendix~\ref{app:newvalidation} gi
 the selected-condition refinement; the 400-step pilot alone is not a convergence
 certificate.
 
-\subsection{Effective bandwidth as a moment diagnostic}
-\label{sec:heff}
-
-A trained model's conditional moments need not match the reference at its training bandwidth~$h$. We therefore fit a bandwidth shared across evaluation conditions, using the exact reference moments of Proposition~\ref{prop:moments}.
-
-\paragraph{Moment estimates.} At a fixed checkpoint, draw $M>1$ samples $\hat x_c^{(1)},\dots,\hat x_c^{(M)}$ at each condition $y_c$, $c=1,\dots,C$. The generated mean and covariance trace are estimated by
-\begin{align*}
-m_c &= \frac1M\sum_{r=1}^M\hat x_c^{(r)}\,,\\
-T_c &= \frac1{M-1}\sum_{r=1}^M\big\|\hat x_c^{(r)}-m_c\big\|^2\,.
-\end{align*}
-The factor $M-1$ is the sample-covariance normalisation; it is distinct from the factor~$N$ in the empirical reference moments. Sampling uses the integration settings of each experiment.
-
-\paragraph{Bandwidth fits.} Let $\mathcal H\subset(0,\infty)$ be a finite log-spaced grid. Fit the trace in log space and the mean in Euclidean distance:
-\begin{equation}
-\begin{aligned}
-h_{\mathrm{eff}} &= \arg\min_{h'\in\mathcal H}\sum_{c=1}^C\big(\log T_c-\log\tr\mathrm{Cov}_{h'}(y_c)\big)^2\,,\\
-h_{\mathrm{mean}} &= \arg\min_{h'\in\mathcal H}\sum_{c=1}^C\big\|m_c-\bar x_{h'}(y_c)\big\|\,.
-\end{aligned}
-\label{eq:heff}
-\end{equation}
-Each fit uses one bandwidth for all~$C$ conditions. The mean fit uses no variance statistics, and the trace-fitted bandwidth predicts reference means without fitting them. Both statistics are computed from the same generated samples.
-
-\paragraph{Uncertainty.} Resample the $C$ condition indices with replacement and refit both bandwidths on each of 500 bootstrap replicates, using the same resampled indices for the two fits. The 2.5th and 97.5th percentiles give the reported 95\% intervals. Reported interval agreement means that these two intervals overlap. The grids are specified in Appendix~\ref{app:audit}.
-
-Their agreement alone does not single out the Gaussian kernel: Laplace, Cauchy and kNN
-references over the same atoms pass it almost as often. Fit quality does, though weakly
-where the smoothing is the network's own: the Gaussian reference fits the variances best
-at 36/48 checkpoints, 7/12 at $h{=}0$. Giving each atom a non-atomic spread
-$\N(x^i,\rho^2I_d)$ lowers the held-out error at 10/48 checkpoints and raises it at 17,
-and $\hat\rho=0$ lies inside its interval at 41/48. These variance fits are
-compatible with an atomic-mixture reference (Table~\ref{tab:families}); they do not
-establish that the network's law is atomic. Section~\ref{sec:independent} directly
-tests this distinction. When is the bandwidth identified?
-
-\begin{proposition}[Identifiability of the effective bandwidth]
-\label{prop:heffid}
-Assume the atoms are not all identical and all fitted traces are positive.
-For $h>0$, let $D_i(y)=|y-y^i|^2$ and $\Cov_p$ the covariance over $i$ under $p^{(h)}(y)$. Then
-$\partial_h\bar x_h(y)=h^{-3}\Cov_p(x^i,D_i)$ and
-$\partial_h\tr\Covh(y)=h^{-3}\Cov_p(|x^i-\bar x_h(y)|^2,D_i)$, and
-$h^3\partial_h\tr\Covh(y)$ tends to the unweighted covariance of $|x^i-\bar x|^2$ and $D_i$
-as $h\to\infty$. Let $F(h)=(\log\tr\mathrm{Cov}_h(y_c))_{c\le C}$, let the measured
-traces $T=(T_c)_c$ satisfy $\log T=F(h_{\mathrm{true}})+e$, and let $\hat h$ minimise
-$|\log T-F(h)|$ over a set $\mathcal H\ni h_{\mathrm{true}}$ of bandwidths. Then
-$\hat h\in\{h\in\mathcal H:|F(h)-F(h_{\mathrm{true}})|\le2|e|\}$. If this set lies in an
-interval $\mathcal I\ni h_{\mathrm{true}}$ on which $u\cdot F'\ge\kappa>0$ for a unit
-vector $u$, then $|\hat h-h_{\mathrm{true}}|\le2|e|/\kappa$. Likewise for
-$h_{\mathrm{mean}}$, with $G(h)=(\bar x_h(y_c))_c$, $e=m-G(h_{\mathrm{true}})$ for the
-generated means $m=(m_c)_c$, and $|e|$ read in the norm $\sum_c|e_c|$ that
-\eqref{eq:heff} minimises. \proofin{apx:pf-heffid}
-\end{proposition}
-
-The derivatives decay at large $h$, making inversion poorly conditioned.
-The following calculation is a sensitivity diagnostic, not a certified error bar:
-the fitted residual need not equal the unknown error $e$, and 25 derivative evaluations
-do not certify the interval infimum required by the proposition. Using that residual
-and a sampled minimum of $u\cdot F'$ over $[h/1.5,1.5h]$ (25-point grid),
-the bound exceeds the bootstrap half-width at all 75 synthetic checkpoints and ranks
-those widths with Spearman $0.91$; on CIFAR-10 this $\kappa$ falls from $17$ at $h{=}3$ to
-$0.38$ and $0.13$ at $h{=}5,6$.
-
-\paragraph{Synthetic.} Fifteen linear-Gaussian runs ($h\in\{0,0.01,0.05,0.1,0.5\}$, three
-seeds) were retrained with weights kept at eight checkpoints (Figure~\ref{fig:heffsyn}).
-Where the reference varies ($h\le0.1$, from $10^4$ iterations; 48 checkpoints) the two
-bandwidths agree within their intervals at all 48 (log correlation $0.97$, median ratio
-$1.03$), and with one parameter it fits the per-condition variances better than the
-two-parameter power law behind $\beta$. It
-falls between $10^4$ and $10^5$ iterations in 12/12 runs and settles just above $h$
-($1.08h$ on average for $h\ge0.05$); at $h{=}0$ it keeps falling ($0.011\pm0.006$ at
-$2\times10^5$), so the residual variance of Section~\ref{sec:exp1} is a bandwidth
-that has not reached zero. At $h{=}0.5$
-($n_{\mathrm{eff}}\approx100$) it is poorly identified (9/15 intervals overlap).
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.84\textwidth]{fig_heff_synthetic.png}
-\caption{Linear-Gaussian problem, three seeds per bandwidth. (a) $h_{\mathrm{eff}}$
-falls with training and stops just above the training bandwidth $h$ (dashed); line:
-geometric mean over seeds, band: range. (b) The bandwidth fitted to the variances
-against the one implied by the means, with 95\% bootstrap intervals: two disjoint
-statistics give one bandwidth. Open markers ($h{=}0.5$): the reference barely varies
-and $h_{\mathrm{eff}}$ is poorly identified, as Proposition~\ref{prop:heffid} predicts.}
-\label{fig:heffsyn}
-\end{figure}
-
-\paragraph{Calibration of the reference law.} Where the posterior is known, the
-coverage of a sampler's credible regions can be computed for the reference law itself.
-
-\FloatBarrier
-\clearpage
-\begin{theorem}[Calibration of the reference law]
-\label{thm:calib}
-Let $X\sim\pi$ and $Y=g(X)+\eta$, $\eta\sim\N(0,\sigma^2I_k)$, $\sigma>0$, with $\pi$ and
-measurable $g$ arbitrary, and let $\pi_h(\cdot\mid y)$ be the law of $X$ given
-$\widetilde Y=Y+h\varepsilon=y$ (the Bayes-formula version, defined for every $y$), a posterior
-under label noise of variance $s_h^2=\sigma^2+h^2$.
-(a) For fixed $h>0$ and an i.i.d.\ training set, $p_1^{(h)}(\cdot\mid y)\Rightarrow
-\pi_h(\cdot\mid y)$ almost surely as $N\to\infty$, for each $y$.
-(b) For any measurable rule $y\mapsto R(y)$ of regions,
-$|\Pr(X\in R(Y))-\Pr(X\in R(\widetilde Y))|\le\tau_h:=
-\mathrm{TV}\big(\N(0,\sigma^2I_k),\N(0,s_h^2I_k)\big)\le\sqrt{k/8}\;h^2/\sigma^2$. If
-$\pi_h(R(y)\mid y)=\alpha$ for every $y$ (such regions exist when $\pi$ has no atoms), the
-second probability is $\alpha$: the reference law's coverage is within $\tau_h$ of $\alpha$.
-(c) If $\pi=\N(\mu_x,\Sigma_x)$, $\Sigma_x\succ0$, and $g(x)=Ax$, then $\pi_h(\cdot\mid y)=\N(\mu_h(y),\Sigma_h)$
-with $\Sigma_h=(\Sigma_x^{-1}+A^\top A/s_h^2)^{-1}$, $\Gamma_h=\Sigma_hA^\top/s_h^2$,
-$\mu_h(y)=\Sigma_h\Sigma_x^{-1}\mu_x+\Gamma_hy$, and $X-\mu_h(Y)\sim
-\N(0,\Sigma_h-h^2\Gamma_h\Gamma_h^\top)$: for $\alpha\in(0,1)$ the level-$\alpha$ ellipsoid
-at the clean label covers with probability at least $\alpha$, strictly if $h>0$ and $A\neq0$.
-(d) For fixed weights $w_i\ge0$ with $\sum_iw_i=1$ and atoms i.i.d.\ with covariance $S$,
-the weighted mean has covariance $S/n_{\mathrm{eff}}$ and the weighted covariance has mean
-$(1-1/n_{\mathrm{eff}})S$, $n_{\mathrm{eff}}=1/\sum_iw_i^2$; at $n_{\mathrm{eff}}=1$ the
-moment-matched region is a point, which an absolutely continuous $x^\star$ independent of
-the atoms hits with probability $0$. \proofin{apx:pf-calib}
-\end{theorem}
-
-Part (d) is a fixed-weight, i.i.d.-atom identity. Conditional on actual labels,
-the atoms can have different means and covariances, so applying that identity
-locally is an approximation. The Gaussian local model used below is not a theorem
-identifying the trained distribution from its fitted moments.
-The theorem gives both ends of a calibration window. Smoothing costs at most $\tau_h$
-of coverage for any prior (b), and over-covers when the posterior is Gaussian (c); a
-vanishing effective sample collapses coverage (d). Modelling the atoms near $y^\star$
-as draws of $\N(\mu_h,\Sigma_h)$ with the actual weights, (d) predicts the held-out 90\%
-coverage of all 75 trained $d{=}2$ checkpoints from their $h_{\mathrm{eff}}$ with
-$R^2=0.90$, $[0.85,0.93]$ resampling runs, against a ceiling of $0.97$ set by the
-binomial noise of the measurement (Figure~\ref{fig:t3}; $0.59$ for the 50\% region,
-where the weights' dispersion matters more). Part (b) makes the right edge prior-free: on two mixture
-posteriors the reference law over-covers by at most $\tau_h$, a bound that is nearly
-tight at $h=\sigma/2$ (Appendix~\ref{apx:pf-calib}). As a ranking, $h_{\mathrm{eff}}$ (Spearman $0.92$)
-is ahead of the training loss ($0.85$) and keeps $0.90$ with the iteration partialled out, also
-on an eight-mode mixture posterior ($0.91$, $0.91$); it predicts collapse, not the PIT
-error or extraction. Given the free quantities it adds no reliable information
-($\Delta R^2=+0.04$, $[-0.04,0.22]$); its use is a prediction that needs no coverage labels
-(Appendix~\ref{app:calibdetails}). Theorem~\ref{thm:labelmix} bounds the coverage error of
-any label-weighted mixture at finite $N$, though loosely: on this problem the bound is
-vacuous at $N\le10^4$ and only locates the calibration window (Appendix~\ref{apx:thmB}).
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.94\textwidth]{fig_t3_coverage.png}
-\caption{Theorem~\ref{thm:calib} on the linear-Gaussian problem. (a) Coverage of the
-nominal 90\% region against bandwidth: infinite-data limit (c), over-covering for $h>0$;
-finite effective sample (d), collapsing at small bandwidth (both for seed 0); dots:
-trained checkpoints of all seeds at their $h_{\mathrm{eff}}$. (b) Coverage predicted
-from $h_{\mathrm{eff}}$ against the measured coverage, for the theory (d) and for
-the exact finite reference law.}
-\label{fig:t3}
-\end{figure}
-
-\paragraph{CIFAR-10.} Six runs of the setup above ($h\in\{4,5\}$, three instances each)
-were retrained with weights kept at 2k--60k and analysed at $M{=}128$
-(Figure~\ref{fig:heffcifar}). From 5k on the two bandwidths
-agree at 31/36 checkpoints; four of the five misses are at $h{=}5$ at 5k--10k.
-$h_{\mathrm{eff}}$ falls monotonically in 5/6 runs and ends at $1.13$--$1.34h$; it is
-still falling at 60k in four runs and has levelled off in two, so whether it has a floor
-above $h$ is open. At $h{=}6$, where the reference barely varies, the two agree at 8/18;
-at $h{=}0$ the means stay on the nearest atom while $h_{\mathrm{eff}}$ falls to $3.4$--$3.7$,
-so no one bandwidth describes hard-conditioned training at this scale
-(Appendix~\ref{app:heffends}). $\beta$ rises as $h_{\mathrm{eff}}/h$ approaches $1$ in 5/6 runs,
-reaching $0.66$ at $1.13h$. At this scale $h_{\mathrm{eff}}$ fits the per-condition
-variances no better than the power law (comparable from 30k on, mostly worse before),
-and it does not set calibration. On 64 held-out test-split images per run ($h\in\{4,5,6\}$,
-$M{=}64$ draws), coverage is read from the rank of the true image among the draws, so a
-tie-free calibrated sampler scores $0.91$ at the 90\% level. Per pixel it falls from $0.93$--$0.96$
-at 2k to $0.73$--$0.82$ by 20k and ends at $0.77$--$0.86$, and the sample spread ranks the
-miscalibration with $|\rho|=0.90$ against $0.52$ for $h_{\mathrm{eff}}$. A joint region in
-the top principal components covers less still, $0.47$--$0.78$ at 60k; in the top 8
-components this is a per-direction shortfall in spread compounding over the directions
-($R^2=0.81$, Appendix~\ref{app:calibdetails}).
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=\textwidth]{fig_heff_cifar.png}
-\caption{CIFAR-10, DDPM U-Net, three instances per bandwidth ($h\in\{4,5\}$). (a, b) $h_{\mathrm{eff}}$
-from the variances (filled) and the bandwidth implied by the means (open), with 95\%
-intervals; dashed: training $h$; cross: the published run at 60k. From 5k on the two agree at 31 of 36 checkpoints; the fitted bandwidths generally fall towards $h$ without reaching it. (c) $\beta$ against
-$h_{\mathrm{eff}}/h$; training proceeds to the right.}
-\label{fig:heffcifar}
-\end{figure}
-
-\paragraph{The audit in practice.} Appendix~\ref{app:audit} collects these diagnostics into
-one procedure that needs the training set and samples, and no retraining: the reference
-weights and moments at each condition; the level as an aggregate ratio, never an average
-of per-condition ratios; the range of the reference across conditions, without which
-agreement in level is uninformative; the slope $\beta$; $h_{\mathrm{eff}}$ and
-$h_{\mathrm{mean}}$; the on-atom fraction; and, where held-out pairs exist, coverage read
-from ranks, per coordinate and jointly. It locates a model relative to its training set;
-at image scale it measures calibration rather than predicting it.
-
-\FloatBarrier
-
-\paragraph{Where the bandwidth comes from.} Two models of an imperfect learner bracket
-these measurements (Appendix~\ref{app:specbias}). If the label dependence of the
-conditional moments is learned by kernel gradient flow, the model's moments are well fitted by a
-Nadaraya--Watson reference at one bandwidth (median log-space $R^2$ $0.97$),
-$h_{\mathrm{eff}}$ falls to $h$, and for a kernel spectrum $|\omega|^{-\zeta}$ the
-resolution shrinks as $t^{-1/\zeta}$ (Proposition~\ref{prop:specbias}; measured slopes
-$-0.40$ and $-0.29$ against $-\frac12$ and $-\frac14$; Figure~\ref{fig:t2}). If instead
-the field itself is averaged over nearby labels, Proposition~\ref{prop:filtered} proves almost-sure atomicity (Section~\ref{sec:intervention-atomicity}).
-
-
-
-Limited label resolution alone preserves atomic endpoints in the exact flow.
-At a finite terminal time, an off-atom sample can also reflect truncation or solver
-error; assigning the CIFAR-10 deviations to learned spatial error requires separating
-those numerical effects.
-Neither model reproduces the networks' additive exponent ($p\approx1.3$ against
-$2.2$--$2.8$) or their stop above $h$.
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.94\textwidth]{fig_t2_resolution.png}
-\caption{Kernel gradient flow \eqref{eq:kgf} on the EXP-1 training set (seed 0,
-$\ell=\mathrm{sd}(y)$). (a) $s(t)$, the effective bandwidth at $h=0$: power-law decay
-with the slope of Proposition~\ref{prop:specbias}(b) (dotted: $-1/\zeta$) for kernels
-with power-law spectra, stagnation for the Gaussian kernel. (b) Under the Laplace
-kernel $h_{\mathrm{eff}}$ falls and converges to each training bandwidth $h$ (dashed).}
-\label{fig:t2}
-\end{figure}
-
 % ==========================================================================
 \section{Limitations}
 \label{sec:limitations}
 
-\paragraph{Distributional and numerical limits.} The five-seed validation tests a
-variance-fitted reference at fresh labels, rather than fitting a distribution by its
-held-out discrepancy. Its finite-sample null diagnostics do not supply equivalence
-tests. The extreme hard-conditioned condition is retained in the primary mean and
-diagnosed separately. The CIFAR pilot uses only eight shared images and a fixed mask;
-its selected-condition solver checks cannot certify the entire image evaluation.
-The constructed small-loss counterexample is an exact field, not evidence that the
-trained architectures implement it; its regularity constants are not held fixed
-along the vanishing-loss family.
+\paragraph{Scope of the theorems.} The intervention theorems concern exact fields of a fixed
+training set. They do not say that a trained network implements these fields, and the
+pilot of Section~\ref{sec:intervention-tests} shows that learned label averages need not
+follow the exact ones. The positive-bandwidth results need strictly positive priors on a
+common finite support; mixtures with different supports, schedules that are unbounded or
+change sign, and composites other than guided label averaging are not covered, and at an
+identifying hard label only nonnegative guidance is treated. The almost-sure statements do not
+identify the endpoint weights, which numerically differ from the averaged label weights when
+the averaging scale exceeds the bandwidth. The composition theorem is proved for two atoms on
+the line; we do not characterise when guided averaging leaves the support in higher dimension
+or with many atoms. The growth condition for hard-label guidance is sufficient, not sharp.
 
-\paragraph{What is proved and what is measured.} Proposition~\ref{prop:heffid} says when
-$h_{\mathrm{eff}}$ is identified and Theorem~\ref{thm:calib} what calibration a bandwidth
-buys. A spectral-bias model (Appendix~\ref{app:specbias}) reproduces the fall of
-$h_{\mathrm{eff}}$ to $h$, but not the networks' rates or their gap above $h$ (open
-beyond $6\times10^4$ iterations). Theorem~\ref{thm:calib}(c) is Gaussian; (b) only bounds
-the deviation, needs observation noise and is informative only for $h^2\sqrt k\ll\sigma^2$,
-so for noiseless inpainting the endpoint law, part (d) and the audit apply but (b) does
-not. At image scale $h_{\mathrm{eff}}$ fits the variances no better than a power law,
-does not predict coverage, and the measured sampler has off-atom outputs; on the synthetic problems it adds
-little to free quantities once coverage labels are available, and the finite-sample bound
-of Theorem~\ref{thm:labelmix} is vacuous at $N\le10^4$. The synthetic problems have
-$d\le10$; the image experiments use one mask and $N{=}2000$, with instance and
-optimisation randomness confounded; label spaces with no natural kernel are out of scope.
+\paragraph{From exact to learned fields.} Theorem~\ref{thm:transfer} and
+Proposition~\ref{prop:localtransfer} are conditional on the error along learned trajectories,
+which we do not infer from the training loss and have not measured; they do not explain the
+off-atom CIFAR-10 samples, which combine learned-field, truncation and discretisation effects.
+The constructed small-loss counterexample is an exact field, not evidence that the trained
+architectures implement it, and its regularity constants are not held fixed along the
+vanishing-loss family.
+
+\paragraph{Experiments.} The exact-field computations are finite-time numerical evaluations,
+not proofs; four of six adaptive near-tie integrations failed at small bandwidths. The
+learned-averaging pilot uses five seeds and a biased energy statistic without an equivalence
+threshold. The synthetic problems have $d\le10$; the image experiments use one mask and
+$N{=}2000$, with instance and optimisation randomness confounded, and the CIFAR-10 coverage
+pilot uses eight shared images. The moment audit of Appendix~\ref{app:moment-audit} describes
+conditional moments: at image scale $h_{\mathrm{eff}}$ fits the variances no better than a
+power law and does not predict coverage, independent evaluation does not certify equality
+with the reference, and the finite-sample bound of Theorem~\ref{thm:labelmix} is vacuous at
+$N\le10^4$. Label spaces with no natural kernel are out of scope.
 
 % ==========================================================================
 \section{Conclusion}
 \label{sec:conclusion}
 
-Gaussian label smoothing gives an exact empirical endpoint reference. Averaging
-the field over labels and applying fixed nonnegative classifier-free guidance preserve
-atomic endpoints almost surely, with convergence and exceptional tie basins treated
-explicitly. These statements concern exact fields, not arbitrary trained networks.
-Small training loss alone cannot certify an endpoint law: a late amplification layer
-can retain order-one variance at vanishing teacher loss. A finite-time certificate
-follows here from an explicit transfer of error to generated trajectories; the
-example and certificate specialize known endpoint-stability considerations.
+The exact empirical conditional flow ends on its training examples, and so do its positive
+modifications: positive mixtures of priors, including label averaging and negative guidance,
+and nonnegative guidance with a fixed strength or a bounded schedule of bounded variation.
+In each case every trajectory converges and the exceptional initial points form a null set,
+which can be a hyperplane. Composition is different: guidance applied to a label-averaged
+field can converge to a circumcentre of training examples with positive probability, with an
+explicit threshold on two atoms that is stable under perturbation. For learned fields, the
+endpoint stays near its training example unless the scaled field error persists along the
+trajectory up to the end of sampling, which small training loss alone does not rule out.
 
-The bandwidth audit describes conditional moments in the measured regimes.
-Independent evaluation finds smaller reference discrepancy with label smoothing,
-but does not certify equality of distributions. A hard-conditioned extrapolation
-outlier persists under independent integration, and image coverage is sensitive to
-the solver and the choice of marginal or joint score. These observations delimit the
-transfer from exact empirical fields to learned samplers: neither moment agreement
-nor training loss alone supplies that transfer.
+Two questions remain open: when guided averaging leaves the support with many atoms in high
+dimension, and how the endpoint weights of averaged fields depend on the averaging scale.
+Measuring the scaled error of trained samplers along their own trajectories would show which
+mechanism produces the off-atom samples observed at image scale.
 
 \label{endmain}
 \subsection*{Reproducibility statement}
@@ -3459,7 +3197,7 @@ The theory describes the empirical minimiser, not how many SGD steps reach it, n
 observed collapse depends on $N$ at fixed architecture (a non-collapsing $N{=}5000$ run
 probes representation and optimisation), on $\sigma_{\mathrm{obs}}$, or on $h$ on a
 given instance. It predicts the destination, not the speed
-(Figure~\ref{fig:collapsetime}, appendix); Section~\ref{sec:heff} measures how far a
+(Figure~\ref{fig:collapsetime}, appendix); Appendix~\ref{sec:heff} measures how far a
 trained model has gone.
 
 \section{Finite-sample memorisation and exact non-representability}
@@ -4338,6 +4076,311 @@ The finite-time moment bounds above provide the positive statement when that
 transfer can actually be controlled.
 
 % ==========================================================================
+\section{The effective-bandwidth audit}
+\label{app:moment-audit}
+
+This appendix collects the moment-level audit of trained samplers. It fits a
+Nadaraya--Watson reference to the conditional moments of a trained model
+(Appendix~\ref{sec:heff}) and then tests that reference at fresh conditions with a
+distributional discrepancy (Appendix~\ref{sec:independent}). The intervention results of
+Sections~\ref{sec:intervention-atomicity} and~\ref{sec:transfer} do not depend on it.
+
+\subsection{Effective bandwidth as a moment diagnostic}
+\label{sec:heff}
+
+A trained model's conditional moments need not match the reference at its training bandwidth~$h$. We therefore fit a bandwidth shared across evaluation conditions, using the exact reference moments of Proposition~\ref{prop:moments}.
+
+\paragraph{Moment estimates.} At a fixed checkpoint, draw $M>1$ samples $\hat x_c^{(1)},\dots,\hat x_c^{(M)}$ at each condition $y_c$, $c=1,\dots,C$. The generated mean and covariance trace are estimated by
+\begin{align*}
+m_c &= \frac1M\sum_{r=1}^M\hat x_c^{(r)}\,,\\
+T_c &= \frac1{M-1}\sum_{r=1}^M\big\|\hat x_c^{(r)}-m_c\big\|^2\,.
+\end{align*}
+The factor $M-1$ is the sample-covariance normalisation; it is distinct from the factor~$N$ in the empirical reference moments. Sampling uses the integration settings of each experiment.
+
+\paragraph{Bandwidth fits.} Let $\mathcal H\subset(0,\infty)$ be a finite log-spaced grid. Fit the trace in log space and the mean in Euclidean distance:
+\begin{equation}
+\begin{aligned}
+h_{\mathrm{eff}} &= \arg\min_{h'\in\mathcal H}\sum_{c=1}^C\big(\log T_c-\log\tr\mathrm{Cov}_{h'}(y_c)\big)^2\,,\\
+h_{\mathrm{mean}} &= \arg\min_{h'\in\mathcal H}\sum_{c=1}^C\big\|m_c-\bar x_{h'}(y_c)\big\|\,.
+\end{aligned}
+\label{eq:heff}
+\end{equation}
+Each fit uses one bandwidth for all~$C$ conditions. The mean fit uses no variance statistics, and the trace-fitted bandwidth predicts reference means without fitting them. Both statistics are computed from the same generated samples.
+
+\paragraph{Uncertainty.} Resample the $C$ condition indices with replacement and refit both bandwidths on each of 500 bootstrap replicates, using the same resampled indices for the two fits. The 2.5th and 97.5th percentiles give the reported 95\% intervals. Reported interval agreement means that these two intervals overlap. The grids are specified in Appendix~\ref{app:audit}.
+
+Their agreement alone does not single out the Gaussian kernel: Laplace, Cauchy and kNN
+references over the same atoms pass it almost as often. Fit quality does, though weakly
+where the smoothing is the network's own: the Gaussian reference fits the variances best
+at 36/48 checkpoints, 7/12 at $h{=}0$. Giving each atom a non-atomic spread
+$\N(x^i,\rho^2I_d)$ lowers the held-out error at 10/48 checkpoints and raises it at 17,
+and $\hat\rho=0$ lies inside its interval at 41/48. These variance fits are
+compatible with an atomic-mixture reference (Table~\ref{tab:families}); they do not
+establish that the network's law is atomic. Appendix~\ref{sec:independent} directly
+tests this distinction. When is the bandwidth identified?
+
+\begin{proposition}[Identifiability of the effective bandwidth]
+\label{prop:heffid}
+Assume the atoms are not all identical and all fitted traces are positive.
+For $h>0$, let $D_i(y)=|y-y^i|^2$ and $\Cov_p$ the covariance over $i$ under $p^{(h)}(y)$. Then
+$\partial_h\bar x_h(y)=h^{-3}\Cov_p(x^i,D_i)$ and
+$\partial_h\tr\Covh(y)=h^{-3}\Cov_p(|x^i-\bar x_h(y)|^2,D_i)$, and
+$h^3\partial_h\tr\Covh(y)$ tends to the unweighted covariance of $|x^i-\bar x|^2$ and $D_i$
+as $h\to\infty$. Let $F(h)=(\log\tr\mathrm{Cov}_h(y_c))_{c\le C}$, let the measured
+traces $T=(T_c)_c$ satisfy $\log T=F(h_{\mathrm{true}})+e$, and let $\hat h$ minimise
+$|\log T-F(h)|$ over a set $\mathcal H\ni h_{\mathrm{true}}$ of bandwidths. Then
+$\hat h\in\{h\in\mathcal H:|F(h)-F(h_{\mathrm{true}})|\le2|e|\}$. If this set lies in an
+interval $\mathcal I\ni h_{\mathrm{true}}$ on which $u\cdot F'\ge\kappa>0$ for a unit
+vector $u$, then $|\hat h-h_{\mathrm{true}}|\le2|e|/\kappa$. Likewise for
+$h_{\mathrm{mean}}$, with $G(h)=(\bar x_h(y_c))_c$, $e=m-G(h_{\mathrm{true}})$ for the
+generated means $m=(m_c)_c$, and $|e|$ read in the norm $\sum_c|e_c|$ that
+\eqref{eq:heff} minimises. \proofin{apx:pf-heffid}
+\end{proposition}
+
+The derivatives decay at large $h$, making inversion poorly conditioned.
+The following calculation is a sensitivity diagnostic, not a certified error bar:
+the fitted residual need not equal the unknown error $e$, and 25 derivative evaluations
+do not certify the interval infimum required by the proposition. Using that residual
+and a sampled minimum of $u\cdot F'$ over $[h/1.5,1.5h]$ (25-point grid),
+the bound exceeds the bootstrap half-width at all 75 synthetic checkpoints and ranks
+those widths with Spearman $0.91$; on CIFAR-10 this $\kappa$ falls from $17$ at $h{=}3$ to
+$0.38$ and $0.13$ at $h{=}5,6$.
+
+\paragraph{Synthetic.} Fifteen linear-Gaussian runs ($h\in\{0,0.01,0.05,0.1,0.5\}$, three
+seeds) were retrained with weights kept at eight checkpoints (Figure~\ref{fig:heffsyn}).
+Where the reference varies ($h\le0.1$, from $10^4$ iterations; 48 checkpoints) the two
+bandwidths agree within their intervals at all 48 (log correlation $0.97$, median ratio
+$1.03$), and with one parameter it fits the per-condition variances better than the
+two-parameter power law behind $\beta$. It
+falls between $10^4$ and $10^5$ iterations in 12/12 runs and settles just above $h$
+($1.08h$ on average for $h\ge0.05$); at $h{=}0$ it keeps falling ($0.011\pm0.006$ at
+$2\times10^5$), so the residual variance of Section~\ref{sec:exp1} is a bandwidth
+that has not reached zero. At $h{=}0.5$
+($n_{\mathrm{eff}}\approx100$) it is poorly identified (9/15 intervals overlap).
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.84\textwidth]{fig_heff_synthetic.png}
+\caption{Linear-Gaussian problem, three seeds per bandwidth. (a) $h_{\mathrm{eff}}$
+falls with training and stops just above the training bandwidth $h$ (dashed); line:
+geometric mean over seeds, band: range. (b) The bandwidth fitted to the variances
+against the one implied by the means, with 95\% bootstrap intervals: two disjoint
+statistics give one bandwidth. Open markers ($h{=}0.5$): the reference barely varies
+and $h_{\mathrm{eff}}$ is poorly identified, as Proposition~\ref{prop:heffid} predicts.}
+\label{fig:heffsyn}
+\end{figure}
+
+\paragraph{Calibration of the reference law.} Where the posterior is known, the
+coverage of a sampler's credible regions can be computed for the reference law itself.
+
+\FloatBarrier
+\begin{theorem}[Calibration of the reference law]
+\label{thm:calib}
+Let $X\sim\pi$ and $Y=g(X)+\eta$, $\eta\sim\N(0,\sigma^2I_k)$, $\sigma>0$, with $\pi$ and
+measurable $g$ arbitrary, and let $\pi_h(\cdot\mid y)$ be the law of $X$ given
+$\widetilde Y=Y+h\varepsilon=y$ (the Bayes-formula version, defined for every $y$), a posterior
+under label noise of variance $s_h^2=\sigma^2+h^2$.
+(a) For fixed $h>0$ and an i.i.d.\ training set, $p_1^{(h)}(\cdot\mid y)\Rightarrow
+\pi_h(\cdot\mid y)$ almost surely as $N\to\infty$, for each $y$.
+(b) For any measurable rule $y\mapsto R(y)$ of regions,
+$|\Pr(X\in R(Y))-\Pr(X\in R(\widetilde Y))|\le\tau_h:=
+\mathrm{TV}\big(\N(0,\sigma^2I_k),\N(0,s_h^2I_k)\big)\le\sqrt{k/8}\;h^2/\sigma^2$. If
+$\pi_h(R(y)\mid y)=\alpha$ for every $y$ (such regions exist when $\pi$ has no atoms), the
+second probability is $\alpha$: the reference law's coverage is within $\tau_h$ of $\alpha$.
+(c) If $\pi=\N(\mu_x,\Sigma_x)$, $\Sigma_x\succ0$, and $g(x)=Ax$, then $\pi_h(\cdot\mid y)=\N(\mu_h(y),\Sigma_h)$
+with $\Sigma_h=(\Sigma_x^{-1}+A^\top A/s_h^2)^{-1}$, $\Gamma_h=\Sigma_hA^\top/s_h^2$,
+$\mu_h(y)=\Sigma_h\Sigma_x^{-1}\mu_x+\Gamma_hy$, and $X-\mu_h(Y)\sim
+\N(0,\Sigma_h-h^2\Gamma_h\Gamma_h^\top)$: for $\alpha\in(0,1)$ the level-$\alpha$ ellipsoid
+at the clean label covers with probability at least $\alpha$, strictly if $h>0$ and $A\neq0$.
+(d) For fixed weights $w_i\ge0$ with $\sum_iw_i=1$ and atoms i.i.d.\ with covariance $S$,
+the weighted mean has covariance $S/n_{\mathrm{eff}}$ and the weighted covariance has mean
+$(1-1/n_{\mathrm{eff}})S$, $n_{\mathrm{eff}}=1/\sum_iw_i^2$; at $n_{\mathrm{eff}}=1$ the
+moment-matched region is a point, which an absolutely continuous $x^\star$ independent of
+the atoms hits with probability $0$. \proofin{apx:pf-calib}
+\end{theorem}
+
+Part (d) is a fixed-weight, i.i.d.-atom identity. Conditional on actual labels,
+the atoms can have different means and covariances, so applying that identity
+locally is an approximation. The Gaussian local model used below is not a theorem
+identifying the trained distribution from its fitted moments.
+The theorem gives both ends of a calibration window. Smoothing costs at most $\tau_h$
+of coverage for any prior (b), and over-covers when the posterior is Gaussian (c); a
+vanishing effective sample collapses coverage (d). Modelling the atoms near $y^\star$
+as draws of $\N(\mu_h,\Sigma_h)$ with the actual weights, (d) predicts the held-out 90\%
+coverage of all 75 trained $d{=}2$ checkpoints from their $h_{\mathrm{eff}}$ with
+$R^2=0.90$, $[0.85,0.93]$ resampling runs, against a ceiling of $0.97$ set by the
+binomial noise of the measurement (Figure~\ref{fig:t3}; $0.59$ for the 50\% region,
+where the weights' dispersion matters more). Part (b) makes the right edge prior-free: on two mixture
+posteriors the reference law over-covers by at most $\tau_h$, a bound that is nearly
+tight at $h=\sigma/2$ (Appendix~\ref{apx:pf-calib}). As a ranking, $h_{\mathrm{eff}}$ (Spearman $0.92$)
+is ahead of the training loss ($0.85$) and keeps $0.90$ with the iteration partialled out, also
+on an eight-mode mixture posterior ($0.91$, $0.91$); it predicts collapse, not the PIT
+error or extraction. Given the free quantities it adds no reliable information
+($\Delta R^2=+0.04$, $[-0.04,0.22]$); its use is a prediction that needs no coverage labels
+(Appendix~\ref{app:calibdetails}). Theorem~\ref{thm:labelmix} bounds the coverage error of
+any label-weighted mixture at finite $N$, though loosely: on this problem the bound is
+vacuous at $N\le10^4$ and only locates the calibration window (Appendix~\ref{apx:thmB}).
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.94\textwidth]{fig_t3_coverage.png}
+\caption{Theorem~\ref{thm:calib} on the linear-Gaussian problem. (a) Coverage of the
+nominal 90\% region against bandwidth: infinite-data limit (c), over-covering for $h>0$;
+finite effective sample (d), collapsing at small bandwidth (both for seed 0); dots:
+trained checkpoints of all seeds at their $h_{\mathrm{eff}}$. (b) Coverage predicted
+from $h_{\mathrm{eff}}$ against the measured coverage, for the theory (d) and for
+the exact finite reference law.}
+\label{fig:t3}
+\end{figure}
+
+\paragraph{CIFAR-10.} Six runs of the setup above ($h\in\{4,5\}$, three instances each)
+were retrained with weights kept at 2k--60k and analysed at $M{=}128$
+(Figure~\ref{fig:heffcifar}). From 5k on the two bandwidths
+agree at 31/36 checkpoints; four of the five misses are at $h{=}5$ at 5k--10k.
+$h_{\mathrm{eff}}$ falls monotonically in 5/6 runs and ends at $1.13$--$1.34h$; it is
+still falling at 60k in four runs and has levelled off in two, so whether it has a floor
+above $h$ is open. At $h{=}6$, where the reference barely varies, the two agree at 8/18;
+at $h{=}0$ the means stay on the nearest atom while $h_{\mathrm{eff}}$ falls to $3.4$--$3.7$,
+so no one bandwidth describes hard-conditioned training at this scale
+(Appendix~\ref{app:heffends}). $\beta$ rises as $h_{\mathrm{eff}}/h$ approaches $1$ in 5/6 runs,
+reaching $0.66$ at $1.13h$. At this scale $h_{\mathrm{eff}}$ fits the per-condition
+variances no better than the power law (comparable from 30k on, mostly worse before),
+and it does not set calibration. On 64 held-out test-split images per run ($h\in\{4,5,6\}$,
+$M{=}64$ draws), coverage is read from the rank of the true image among the draws, so a
+tie-free calibrated sampler scores $0.91$ at the 90\% level. Per pixel it falls from $0.93$--$0.96$
+at 2k to $0.73$--$0.82$ by 20k and ends at $0.77$--$0.86$, and the sample spread ranks the
+miscalibration with $|\rho|=0.90$ against $0.52$ for $h_{\mathrm{eff}}$. A joint region in
+the top principal components covers less still, $0.47$--$0.78$ at 60k; in the top 8
+components this is a per-direction shortfall in spread compounding over the directions
+($R^2=0.81$, Appendix~\ref{app:calibdetails}).
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{fig_heff_cifar.png}
+\caption{CIFAR-10, DDPM U-Net, three instances per bandwidth ($h\in\{4,5\}$). (a, b) $h_{\mathrm{eff}}$
+from the variances (filled) and the bandwidth implied by the means (open), with 95\%
+intervals; dashed: training $h$; cross: the published run at 60k. From 5k on the two agree at 31 of 36 checkpoints; the fitted bandwidths generally fall towards $h$ without reaching it. (c) $\beta$ against
+$h_{\mathrm{eff}}/h$; training proceeds to the right.}
+\label{fig:heffcifar}
+\end{figure}
+
+\paragraph{The audit in practice.} Appendix~\ref{app:audit} collects these diagnostics into
+one procedure that needs the training set and samples, and no retraining: the reference
+weights and moments at each condition; the level as an aggregate ratio, never an average
+of per-condition ratios; the range of the reference across conditions, without which
+agreement in level is uninformative; the slope $\beta$; $h_{\mathrm{eff}}$ and
+$h_{\mathrm{mean}}$; the on-atom fraction; and, where held-out pairs exist, coverage read
+from ranks, per coordinate and jointly. It locates a model relative to its training set;
+at image scale it measures calibration rather than predicting it.
+
+\FloatBarrier
+
+\paragraph{Where the bandwidth comes from.} Two models of an imperfect learner bracket
+these measurements (Appendix~\ref{app:specbias}). If the label dependence of the
+conditional moments is learned by kernel gradient flow, the model's moments are well fitted by a
+Nadaraya--Watson reference at one bandwidth (median log-space $R^2$ $0.97$),
+$h_{\mathrm{eff}}$ falls to $h$, and for a kernel spectrum $|\omega|^{-\zeta}$ the
+resolution shrinks as $t^{-1/\zeta}$ (Proposition~\ref{prop:specbias}; measured slopes
+$-0.40$ and $-0.29$ against $-\frac12$ and $-\frac14$; Figure~\ref{fig:t2}). If instead
+the field itself is averaged over nearby labels, Proposition~\ref{prop:filtered} proves almost-sure atomicity (Section~\ref{sec:intervention-atomicity}).
+
+
+
+Limited label resolution alone preserves atomic endpoints in the exact flow.
+At a finite terminal time, an off-atom sample can also reflect truncation or solver
+error; assigning the CIFAR-10 deviations to learned spatial error requires separating
+those numerical effects.
+Neither model reproduces the networks' additive exponent ($p\approx1.3$ against
+$2.2$--$2.8$) or their stop above $h$.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.94\textwidth]{fig_t2_resolution.png}
+\caption{Kernel gradient flow \eqref{eq:kgf} on the EXP-1 training set (seed 0,
+$\ell=\mathrm{sd}(y)$). (a) $s(t)$, the effective bandwidth at $h=0$: power-law decay
+with the slope of Proposition~\ref{prop:specbias}(b) (dotted: $-1/\zeta$) for kernels
+with power-law spectra, stagnation for the Gaussian kernel. (b) Under the Laplace
+kernel $h_{\mathrm{eff}}$ falls and converges to each training bandwidth $h$ (dashed).}
+\label{fig:t2}
+\end{figure}
+
+\FloatBarrier
+
+\subsection{Independent evaluation of the fitted reference}
+\label{sec:independent}
+
+Moment agreement is weaker than agreement of probability laws. We train ten further
+MLPs on five new problem seeds (1001--1005), paired across $h\in\{0,0.1\}$, using the
+same synthetic setup and the common final checkpoint at $200000$ iterations.
+For each model, 20 training conditions fit a single reference scale, and 64 fresh
+conditions evaluate it with $M=512$ samples. The independent replication unit is the
+problem seed: the 64 conditions are nested within a seed. Appendix~\ref{app:newvalidation}
+specifies the finite-time reference, discrepancy and solver screen.
+
+\begin{table}[t]
+\centering\small
+\begin{tabular}{@{}lrr@{}}
+\toprule
+Problem seed & $h=0$ & $h=0.1$\\
+\midrule
+1001 & 0.430079 & 0.021337\\
+1002 & 0.126044 & 0.008118\\
+1003 & 0.282378 & 0.020624\\
+1004 & 4.084575 & 0.004253\\
+1005 & 0.446561 & 0.002055\\
+\midrule
+Mean over seeds & 1.073927 & 0.011277\\
+Median over seeds & 0.430079 & 0.008118\\
+Gaussian best among four fitted families & $0/5$ & $5/5$\\
+\bottomrule
+\end{tabular}
+\caption{Fresh-condition discrepancy from the fitted Gaussian-label reference.
+Each entry is a seed mean of normalized energy distance minus its matched
+reference--reference mean; smaller means closer to that reference, rather than
+necessarily closer to the true posterior. The hard-conditioned mean retains the
+extreme extrapolation condition. The four families share atoms and are fitted using
+training-condition variances, without optimizing held-out energy distance.}
+\label{tab:independent}
+\end{table}
+
+Table~\ref{tab:independent} shows smaller discrepancy with smoothing on every paired
+seed. The Gaussian reference is best among the four protocol-fitted families on all
+five smoothed seeds and none of the hard-conditioned seeds. This supports its use as
+a more accurate reference under explicit label noise, but does not establish equality
+of laws. Of 320 fresh conditions per bandwidth, 317 at $h=0$ and 164 at $h=0.1$
+exceed a diagnostic reference--reference 95th percentile. Each percentile uses only
+16 reference pairs, so these counts are descriptive rather than calibrated test
+rejections. At $h=0$, this is a test of the learned extension to new labels, not a
+contradiction of hard-label collapse at training labels.
+
+\paragraph{An extrapolation outlier.} One condition of seed 1004 lies beyond the
+training-label range and has two extreme endpoints among 512 draws. It fails the
+initial 200-to-400-step practical solver screen; all other 639 model--condition pairs
+pass. Retaining it gives the reported hard-conditioned mean. Subsequent RK4 refinement
+and independent adaptive integration reproduce the extreme trajectories
+(Appendix~\ref{app:newvalidation}). This numerical diagnosis supports a learned-field
+extrapolation failure, while the original screen correctly warns against interpreting
+the coarse-step value as solver-independent.
+
+\FloatBarrier
+
+\paragraph{Limits of the audit.} The five-seed validation tests a variance-fitted reference
+at fresh labels, rather than fitting a distribution by its held-out discrepancy, and its
+finite-sample null diagnostics do not supply equivalence tests. The extreme hard-conditioned
+condition is retained in the primary mean and diagnosed separately. The CIFAR pilot uses only
+eight shared images and a fixed mask; its selected-condition solver checks cannot certify the
+entire image evaluation. Proposition~\ref{prop:heffid} says when $h_{\mathrm{eff}}$ is
+identified and Theorem~\ref{thm:calib} what calibration a bandwidth buys. A spectral-bias model
+(Appendix~\ref{app:specbias}) reproduces the fall of $h_{\mathrm{eff}}$ to $h$, but not the
+networks' rates or their gap above $h$ (open beyond $6\times10^4$ iterations).
+Theorem~\ref{thm:calib}(c) is Gaussian; (b) only bounds the deviation, needs observation noise
+and is informative only for $h^2\sqrt k\ll\sigma^2$, so for noiseless inpainting the endpoint
+law, part (d) and the audit apply but (b) does not. At image scale $h_{\mathrm{eff}}$ fits the
+variances no better than a power law, does not predict coverage, and the measured sampler has
+off-atom outputs; on the synthetic problems it adds little to free quantities once coverage
+labels are available.
+
+% ==========================================================================
 \section{Additional experimental results}
 \label{app:exp}
 
@@ -4373,7 +4416,7 @@ it, unlike the synthetic $h{=}0$ runs, where the two estimates agree.
 Agreement of $h_{\mathrm{eff}}$ and $h_{\mathrm{mean}}$ shows that the means and the
 variances are explained by one member of the reference family. It does not show that
 the family is the right one. We therefore refit the same samples (the 48 checkpoints of
-Section~\ref{sec:heff}, $M{=}1000$ at 20 conditions) under five families, each with one
+Appendix~\ref{sec:heff}, $M{=}1000$ at 20 conditions) under five families, each with one
 scale $s$ and the same estimator \eqref{eq:heff}. Four are mixtures over the training
 atoms with weights $w_i\propto e^{-|y-y^i|^2/2s^2}$ (Gaussian, the reference of
 Theorem~\ref{thm:endpoint}), $e^{-|y-y^i|/s}$ (Laplace), $(1+|y-y^i|^2/s^2)^{-1}$
@@ -4418,7 +4461,7 @@ $0.1$ & 10/12 & 2/12 & 0.95 / 0.95 & 10/12 & 0.07 & 2 / 6 / 4\\
 all & 36/48 & 9/48 & 0.86 / 0.82 & 41/48 & 0.08 & 10 / 21 / 17\\
 \bottomrule
 \end{tabular}
-\caption{The 48 synthetic checkpoints of Section~\ref{sec:heff} refitted under six
+\caption{The 48 synthetic checkpoints of Appendix~\ref{sec:heff} refitted under six
 reference families. Top: ``intervals agree'': the 95\% bootstrap intervals of the scales
 fitted to the variances and to the means overlap; ``best variance fit'': lowest log-space
 misfit among the four atomic families; ``best mean prediction'': the scale fitted to the
@@ -4484,7 +4527,7 @@ $h_{\mathrm{eff}}\in[0.1,0.4)$, where $\Covh$ matches $\Sigmapost$, and $0.54$ a
 for $[0.02,0.05)$ and below. Theorem~\ref{thm:calib} accounts for both edges: part (c)
 bounds the coverage from below by $\alpha$ at large bandwidth, part (d) sends it to zero
 as $n_{\mathrm{eff}}\to1$. Applied with the actual kernel weights at $h_{\mathrm{eff}}$
-(the local model of Section~\ref{sec:heff}), it predicts the measured 90\% coverage with
+(the local model of Appendix~\ref{sec:heff}), it predicts the measured 90\% coverage with
 $R^2=0.90$, mean absolute error $0.051$ and Spearman $0.89$. Nothing in the prediction
 is fitted to coverage, but the 75 checkpoints are nested in 15 runs: resampling runs
 gives $R^2\in[0.85,0.93]$ (95\%), and the binomial noise of 100 held-out pairs alone
@@ -4508,7 +4551,7 @@ extraction ($0.95$).
 \paragraph{Image scale.} The same measurement needs no posterior on CIFAR-10: the
 bottom half of a test-split image is a draw from the true conditional law given its top
 half. At the 42 archived checkpoints of a second training of the six $h\in\{4,5\}$ runs
-of Section~\ref{sec:heff}, with 64 test images and $M{=}64$ draws each, we record per
+of Appendix~\ref{sec:heff}, with 64 test images and $M{=}64$ draws each, we record per
 hidden pixel whether the true value falls in the 5--95\% quantile interval of the
 draws, together with the PIT error and the extraction rate
 (\texttt{scripts/calib\_image\_checkpoints.py}). With $M{=}64$ that interval covers a
@@ -4722,7 +4765,7 @@ $y_1,\dots,y_C$; $M$ samples per condition.
   $n_{\mathrm{eff}}=1/\sum_i(p_i^{(h)})^2$; reference mean $\bar x_h(y_c)$ and trace
   $\tr\Covh(y_c)$ (Proposition~\ref{prop:moments}).
 \item \emph{Measurement, per condition.} Draw $M$ samples and compute the mean $m_c$
-  and covariance trace $T_c$ as in Section~\ref{sec:heff}. Record the on-atom fraction:
+  and covariance trace $T_c$ as in Appendix~\ref{sec:heff}. Record the on-atom fraction:
   the share of samples $\hat x$ with
   $\|\hat x-x^{(1)}\|^2\le\frac19\|\hat x-x^{(2)}\|^2$, where $x^{(1)},x^{(2)}$ are the two
   nearest training points \citep{yoon2023memorization}.
@@ -4736,7 +4779,7 @@ $y_1,\dots,y_C$; $M$ samples per condition.
   across conditions, with its standard error and $R^2$; the population optimum gives
   $\beta=1$.
 \item \emph{Bandwidth.} Fit $h_{\mathrm{eff}}$ and $h_{\mathrm{mean}}$ by~\eqref{eq:heff},
-  with the condition bootstrap of Section~\ref{sec:heff}. The synthetic fits use 240
+  with the condition bootstrap of Appendix~\ref{sec:heff}. The synthetic fits use 240
   log-spaced bandwidths from $0.003$ to $5$; the CIFAR-10 fits use 160 from $0.5$ to $40$.
   Both grids contain positive bandwidths even for models trained at $h=0$.
   CIFAR-10 traces are floored at $10^{-12}$ before taking logarithms.
