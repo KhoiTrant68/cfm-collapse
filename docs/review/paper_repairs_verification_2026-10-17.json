@@ -1,0 +1,63 @@
+{
+  "date": "2026-10-17",
+  "source_sha256": "23ac6122ec15529d07df69a97666f443038b8915eb89bac29739c84c6b60dcd0",
+  "pdf_sha256": "ad3c4042e256f31a3481f0959d4d5cd4577859252c16a4f5197395849b8a8800",
+  "pages": 101,
+  "formal_environment_counts_before_after": {
+    "theorem": [
+      4,
+      4
+    ],
+    "proposition": [
+      21,
+      21
+    ],
+    "lemma": [
+      5,
+      5
+    ],
+    "corollary": [
+      7,
+      7
+    ],
+    "assumption": [
+      3,
+      3
+    ],
+    "remark": [
+      5,
+      5
+    ],
+    "proof": [
+      38,
+      38
+    ]
+  },
+  "labels_preserved": true,
+  "label_count": 230,
+  "changed_proof_ordinals": [
+    15,
+    35
+  ],
+  "numerical_checks": {
+    "passed": 368,
+    "failed": 0
+  },
+  "build_checker_regression_tests_passed": 4,
+  "calibration_checks": "passed; unchanged calibration implementation",
+  "build_check_output": "ok    source and build-product hashes match the recorded build\nok    main text ends on page 16 (limit not imposed)\nok    no undefined references or citations\nok    no overfull hboxes\nok    230 labels, all unique\nok    every \\ref/\\eqref resolves\nok    46 figures, all cited from running text\nok    22 tables, all cited from running text\nok    anonymous submission mode (author metadata still needs PDF inspection)\n\nall checks passed\n",
+  "build_manifest": "D:\\AwesomeCV\\cfm-collapse\\tmp\\paper-repair-2026-10-17\\build\\build-manifest.json",
+  "independent_reviews": {
+    "mathematical_review_source_sha256": "72f7d6ed220e930e9f63e40650710c3b81f53c7494d44365a154ab32a32ce29b",
+    "final_empirical_caption_review_source_sha256": "23ac6122ec15529d07df69a97666f443038b8915eb89bac29739c84c6b60dcd0",
+    "mathematical_repairs": "HOLDS within nine repair packets and checked consumers",
+    "empirical_claim_repairs": "PASS within six final repair groups",
+    "changes_after_math_review": "fig_image_training width reduced from 0.9 to 0.86 textwidth; fig:imagebandwidth visual-similarity and posterior-sampling scope corrected and independently checked."
+  },
+  "visual_review_scope": "Affected pages only; not a new independent review of every revised page.",
+  "remaining_limits": [
+    "Full independent linear reading of revised PDF pending",
+    "Exact Yoon threshold and Blohm-Garg theorem comparisons lack full-text verification",
+    "Current anonymous TMLR style; no ICLR venue conversion or acceptance guarantee"
+  ]
+}

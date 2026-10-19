@@ -1,0 +1,394 @@
+\documentclass[11pt]{article}
+\setlength{\textwidth}{160mm}
+\setlength{\textheight}{235mm}
+\setlength{\oddsidemargin}{0mm}
+\setlength{\topmargin}{-12mm}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage[colorlinks=true,linkcolor=blue,urlcolor=blue]{hyperref}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+\newtheorem{remark}{Remark}
+\newcommand{\R}{\mathbb R}
+\newcommand{\E}{\mathbb E}
+\newcommand{\eps}{\varepsilon}
+\newcommand{\aff}{\operatorname{aff}}
+\newcommand{\dist}{\operatorname{dist}}
+\newcommand{\Cov}{\operatorname{Cov}}
+\newcommand{\diver}{\operatorname{div}}
+\newcommand{\tr}{\operatorname{tr}}
+\title{Extensions of empirical-flow atomicity:\\ schedules, perturbations, and a failure under composition}
+\author{Research proof supplement}
+\date{17 October 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+This supplement proposes extensions of the two atomicity propositions in the
+current manuscript. A quantitative hypothesis allows time-dependent guidance
+and vanishing scaled field errors while preserving almost-sure atomicity.
+A separate exact construction shows that averaging conditional fields and then
+applying guidance can instead create atoms outside the training set. Its scalar
+threshold is sharp, its off-training basin has positive measure, and a tensor
+construction has full affine span. The proof arguments have been independently
+reviewed; their priority and usefulness for a conference
+submission require a separate literature and experimental assessment.
+\end{abstract}
+
+\section{Common finite-support fields}
+Let $A=\{a_1,\ldots,a_N\}\subset\R^d$ have distinct elements. For $s>0$ put
+\[
+ t=1-e^{-s},\qquad \eps=e^{-s},\qquad
+ \alpha=\eps^2/t,\qquad \beta=\alpha^{-1}=e^{2s}-e^s,
+ \qquad b_j=x\cdot a_j-\tfrac t2|a_j|^2.
+\]
+For a strictly positive probability vector $p$ define
+\[
+ q_{p,j}=\frac{p_j e^{\beta b_j}}{\sum_kp_ke^{\beta b_k}},\qquad
+ m_p=\sum_jq_{p,j}a_j,\qquad
+ H_p=\alpha\log\sum_jp_je^{b_j/\alpha}.
+\]
+The probabilities and means extend smoothly to $s=0$ by $\beta(0)=0$.
+Fix two such vectors $p_c,p_u$. For a nonnegative guidance schedule $w$ let
+\[
+ m_w=(1+w)m_c-wm_u,\qquad f(x,s)=m_w-x.
+\]
+This is the logarithmic-time version of velocity $(m_w-x)/(1-t)$.
+For $z\in\R^d$ let $N(z)$ be its nearest atoms and set
+\[
+ C_A=\{z:z\in\aff N(z)\}.
+\]
+This set is finite: for each nonempty subset $S\subset A$, two points in
+$\aff S$ equidistant from every member of $S$ have difference both parallel
+and perpendicular to $\operatorname{span}(S-S)$, hence coincide.
+
+\clearpage
+\section{A sufficient robustness theorem}
+\begin{theorem}[Scheduled guidance with scaled perturbations]\label{thm:robust}
+Assume $w:[0,\infty)\to[0,W]$ is locally absolutely continuous and, for some
+$s_0>0$,
+\[
+ \int_{s_0}^{\infty}\alpha(s)|w'(s)|\,ds<\infty.
+\]
+Let $R(x,s)$ be continuous in $(x,s)$, continuously differentiable in $x$,
+with spatial derivative locally bounded on compact subsets. Suppose
+\[
+ |R(x,s)|\le\rho(s),\quad \rho\text{ locally bounded},\quad
+ \rho(s)\to0,\quad \int_{s_0}^\infty\rho(s)^2\,ds<\infty,
+\]
+uniformly in $x$, and suppose there is a locally bounded nonnegative $\eta$
+with $\eta(s)\to0$ such that, for $s\ge s_0$,
+\[
+ \diver R(x,s)\ge-\eta(s)\beta(s)\qquad\text{for every }x.
+\]
+Every trajectory of $x'=f(x,s)+R(x,s)$ from a finite point at $s=0$ exists
+globally and converges to a point of $C_A$. The set of initial points whose
+limits are outside $A$ is Lebesgue-null. Every absolutely continuous source
+therefore has an endpoint law supported on $A$.
+\end{theorem}
+\begin{proof}
+Write $M=\max_j|a_j|$. Then $|m_w|\le(1+2W)M$ and variation of constants in
+$x'=-x+m_w+R$ bounds every trajectory, and all trajectories from a bounded
+initial set, uniformly in future time. The locally bounded envelope also gives
+linear growth on each finite interval, forward and backward. Local spatial
+regularity gives unique global solutions and finite-time $C^1$ diffeomorphisms.
+
+Put $U=|x|^2/2-(1+w)H_c+wH_u$, so $\nabla U=-f$. For fixed $x$,
+\[
+ \partial_s H_p=-\alpha'D(q_p\Vert p)
+ -\frac{e^{-s}}2\sum_jq_{p,j}|a_j|^2,
+ \qquad 0\le D(q_p\Vert p)\le\log(1/\min_jp_j).
+\]
+Comparison of partition functions gives
+$|H_c-H_u|\le L\alpha$, where
+$L=\max_j|\log(p_{c,j}/p_{u,j})|$. Since $\alpha$ decreases to zero,
+$|\alpha'|$ is integrable on $[s_0,\infty)$. It follows that
+\[
+ |\partial_s U|\le K(|\alpha'|+e^{-s})+L\alpha|w'|=:h(s),
+ \qquad h\in L^1(s_0,\infty).
+\]
+The chain rule holds almost everywhere. Along the perturbed flow,
+\[
+ \frac d{ds}U(x(s),s)
+ \le h(s)-\tfrac12|f(x(s),s)|^2+\tfrac12\rho(s)^2.
+\]
+The min--max bounds $\min_jb_j\le H_p\le\max_jb_j$ show that $U$ is bounded
+below on each bounded trajectory, uniformly in $s$. Thus
+\begin{equation}\label{eq:energy}
+ \int_{s_0}^\infty|f(x(s),s)|^2\,ds<\infty.
+\end{equation}
+
+If $z\notin C_A$, its distance to $\aff N(z)$ is positive. In a small fixed
+neighbourhood of $z$, every atom outside $N(z)$ has a positive limiting score
+gap from at least one member of $N(z)$. Fixed positive priors make its softmax
+mass tend uniformly to zero there. Bounded $w$ implies that $m_w$ approaches
+$\aff N(z)$, so $|f|$ is bounded below on a smaller neighbourhood at late
+times. Actual speed is eventually bounded because $x,m_w,\rho$ are bounded.
+If $z$ were a cluster point, repeated visits to the inner half of that
+neighbourhood would either remain there forever or supply disjoint residence
+intervals of a fixed positive duration. Both alternatives contradict
+\eqref{eq:energy}. Hence all cluster points lie in $C_A$. The omega-limit set
+is nonempty, compact and connected, being the intersection of the closures of
+bounded continuous trajectory tails. Since $C_A$ is finite, the trajectory
+converges to one point of $C_A$.
+
+Suppose this point is $z\notin A$, and put $r=\dist(z,A)>0$. Write
+$u=m_c-z$, $v=m_u-z$, $\mu=m_w-z$ and
+$T=(1+w)\tr\Cov_c(a)-w\tr\Cov_u(a)$. Concentration on $N(z)$ gives,
+along the entire trajectory,
+\[
+ T=r^2-|\mu|^2+w(1+w)|u-v|^2+o(1)
+ \ge r^2-|\mu|^2+o(1).
+\]
+The error tends to zero even for oscillating $w$, since $w$ is bounded.
+Spatial differentiation gives $\diver f=\beta T-d$. Since
+$\mu=f+x-z$, the divergence hypothesis implies
+\[
+ \diver(f+R)(x(s),s)
+ \ge\beta(s)\{r^2-2|f(x(s),s)|^2-\zeta(s)\}-d,
+ \qquad\zeta(s)\to0.
+\]
+We use three elementary weighted-tail estimates:
+\[
+ \int_{s_0}^s\beta=\tfrac12\beta(s)+o(\beta(s)),\quad
+ \int_{s_0}^s\beta|f|^2=o(\beta(s)),\quad
+ \int_{s_0}^s\beta\zeta=o(\beta(s)).
+\]
+The first follows by integrating $e^{2s}-e^s$. For the second, split at $S$;
+the initial part divided by $\beta(s)$ tends to zero, and the tail is at most
+$\beta(s)\int_S^\infty|f|^2$. Then send $S\to\infty$ using
+\eqref{eq:energy}. For the third, split similarly and use
+$\sup_{u\ge S}|\zeta(u)|\to0$ and the first estimate. Consequently, the
+Jacobian $J_s$ of the finite-time flow initialized at $s_0$ satisfies, at each such source point,
+\[
+ \log J_s=\int_{s_0}^s\diver(f+R)(x(u),u)\,du
+ \ge\tfrac12r^2\beta(s)+o(\beta(s))-O(s)\longrightarrow\infty.
+\]
+In the following measure argument source sets are at time $s_0$.
+All trajectories converge, so their endpoint map is Borel. On the measurable
+non-atom basin $E$ intersected with a bounded initial ball $B$, change of
+variables and the common bounded image ball $K_B$ give
+$\int_{E\cap B}J_s\le\operatorname{Leb}(K_B)$. Fatou along integer times
+forces $\operatorname{Leb}(E\cap B)=0$. Exhaust the space by balls. The
+finite-time diffeomorphism from $0$ to $s_0$ has a locally Lipschitz inverse,
+which transfers this nullity to time zero. Absolute continuity gives the
+claimed support statement, and bounded convergence for bounded continuous
+test functions identifies the weak endpoint law.
+\end{proof}
+
+\begin{corollary}[Concrete schedules and errors]\label{cor:examples}
+The theorem includes $R=0$ and schedules that do not converge, for example
+$w(s)=1+\frac12\sin(e^s)$. It also includes
+\[
+ |R(x,s)|+\|D_xR(x,s)\|\le C e^{-\gamma s},\qquad \gamma>0.
+\]
+If an original-time field error is $\Delta$, then $R=(1-t)\Delta$.
+Thus the sufficient condition
+$|\Delta|+\|D_x\Delta\|\le C(1-t)^{-1+\gamma}$ permits original-time
+errors that diverge when $0<\gamma<1$.
+If a trajectory reaches an atom $a$ under this exponential envelope, then
+\[
+ |x(s)-a|=
+ \begin{cases}
+ O(e^{-s}),&\gamma>1,\\
+ O(se^{-s}),&\gamma=1,\\
+ O(e^{-\gamma s}),&0<\gamma<1.
+ \end{cases}
+\]
+\end{corollary}
+\begin{proof}
+The schedule derivative has magnitude at most $e^s/2$ and
+$\alpha e^s=1/(e^s-1)$ is integrable away from zero. For exponential errors,
+the amplitude is square integrable and tends to zero, while
+$\diver R\ge-dCe^{-\gamma s}=-o(\beta)$.
+Near a reached isolated atom all competing logits have a uniform positive
+gap, so fixed positive priors and bounded $w$ give
+$|m_w-a|\le K e^{-c\beta(s)}$ for large $s$. In $y=x-a$ the equation is
+$y'=-y+(m_w-a)+R$. Variation of constants and
+$\int_S^\infty e^u e^{-c\beta(u)}du<\infty$ give the three rates directly.
+\end{proof}
+
+\begin{remark}[Scope of the certificate]
+The hypotheses are uniform field controls, not consequences of a measured
+teacher loss. In particular, a fixed neural field that remains regular up to
+$t=1$ need not approximate the singular exact field in this scaled norm.
+The theorem does not assert equality of endpoint probabilities or posterior
+calibration. Finite observations of $R$ and its divergence do not certify its
+uniform assumptions. Finitely many jumps of the schedule before an
+absolutely continuous tail can be treated by applying the theorem after the
+last jump and transferring the source through the finite-time flow.
+\end{remark}
+
+\section{A sharp failure when averaging is followed by guidance}
+Take scalar atoms and labels $-1,+1$ with uniform empirical index, independent
+source $N(0,1)$, and observed label $Y=a+hZ$, where $Z\sim N(0,1)$ is
+independent and $h>0$. Put $b=h^{-2}$.
+Fix a constant guidance strength $w\ge0$.
+The exact label-conditioned posterior means at queries $\pm1$ are
+$\tanh(\beta x\pm b)$; the unconditional mean is $\tanh(\beta x)$.
+Apply CFG to the average of the two conditional fields:
+\[
+ v_{\mathrm{comp}}=\frac{1+w}{2}(v_++v_-)-wv_u.
+\]
+Its logarithmic-time dynamics is $x'=F(\beta x)-x$, where
+\begin{equation}\label{eq:F}
+ F(u)=\frac{1+w}{2}\{\tanh(u+b)+\tanh(u-b)\}-w\tanh u.
+\end{equation}
+This is guidance of an averaged field, which is generally not the exact field
+for a single positive prior. The robustness theorem does not identify it with
+such a field.
+
+\begin{theorem}[Off-training mass has a sharp threshold]\label{thm:phase}
+Let $w_c=\sinh(b)^{-2}$. Every trajectory of
+$x'=F(\beta x)-x$ exists for all $s\ge0$ and has an endpoint.
+If $0\le w\le w_c$, the endpoint is $\operatorname{sgn}(x(0))$,
+with $\operatorname{sgn}(0)=0$.
+If $w>w_c$, there is $R_*\in(0,\infty)$ such that the endpoint is
+$-1$ on $(-\infty,-R_*)$, $0$ on $[-R_*,R_*]$, and $1$ on
+$(R_*,\infty)$. For a standard Gaussian source and its cdf $\Phi$, the
+supercritical endpoint law is
+\[
+ (1-\Phi(R_*))(\delta_{-1}+\delta_1)
+ +(2\Phi(R_*)-1)\delta_0.
+\]
+Thus positive averaging and individual single-prior CFG preserve training
+support, whereas their specified composition can put positive mass outside it.
+\end{theorem}
+\begin{proof}
+Put $M=1+2w$. Boundedness $|F|\le M$ gives
+$|x(s)|\le e^{-s}|x(0)|+M(1-e^{-s})$, hence global existence by local
+smoothness and continuation. Oddness makes $0$ invariant; uniqueness preserves
+the sign of a nonzero source. For $s>0$ let $u=\beta x$. Direct differentiation
+gives
+\[
+ u'=c(s)u+\beta(s)F(u),\qquad
+ c(s)=\frac{e^s}{e^s-1}>1,\qquad
+ \frac{\beta(s)}{c(s)}=(e^s-1)^2.
+\]
+With $q=\tanh b$ and $z=\tanh u$, the addition formula gives
+\begin{equation}\label{eq:factor}
+ F(u)=\frac{z\{1-(1+w)q^2+wq^2z^2\}}{1-q^2z^2}.
+\end{equation}
+For $w\le w_c$ this is strictly positive when $u>0$, including equality
+$w=w_c$, where its numerator is $wq^2z^3>0$. From any $s_1>0$, a positive
+source has $u'\ge u$, hence $u\to\infty$ and $F(u)\to1$. Variation of
+constants in $x'=F(u)-x$ gives $x\to1$. Oddness deals with negative sources.
+
+Suppose $w>w_c$. Set
+\[
+ \kappa=\frac{w\sinh^2b-1}{\cosh^2b}>0,\quad
+ \delta=\frac\kappa{4M},\quad
+ S=\log(1+2/\sqrt\kappa),\quad \beta_S=\beta(S).
+\]
+We have $F'(0)=-\kappa$ and $|F''|\le2M$, so
+$uF(u)\le-\kappa u^2/2$ for $|u|\le\delta$. For all $s\ge S$,
+$\kappa\beta/2\ge2c$. At either boundary $|u|=\delta$,
+\[
+ \tfrac12(u^2)'\le(c-\kappa\beta/2)\delta^2<0.
+\]
+Thus $|u|\le\delta$, or $|x|\le\delta/\beta(s)$, is a forward-invariant
+shrinking tube after $S$. Its trajectories have endpoint zero.
+Since $|F'|\le M$, continuous dependence can be quantified by
+\[
+ |x(S)|\le |x(0)|e^{H},\quad
+ H=S+M\left\{\frac{e^{2S}-1}{2}-(e^S-1)\right\}.
+\]
+Consequently every source with
+$|x(0)|<\delta e^{-H}/(2\beta_S)=:\eps_*>0$
+enters the tube.
+
+Formula~\eqref{eq:factor} has precisely one positive nonzero root,
+\[
+ r_*=\operatorname{arcosh}(\sqrt w\sinh b),
+\]
+with $F<0$ on $(0,r_*)$ and $F>0$ on $(r_*,\infty)$.
+For a positive source, either $u<r_*$ at every positive time, in which
+case $0<x<r_*/\beta\to0$, or it reaches $r_*$. At that boundary
+$u'=cr_*>0$, so $u\ge r_*$ is forward invariant and $u'\ge u$ there.
+It follows that $u\to\infty$ and $x\to1$. All positive sources therefore
+converge to $0$ or $1$, and oddness proves convergence for all sources.
+
+Scalar uniqueness preserves order, so the endpoint map is nondecreasing.
+Its zero set is an interval and is symmetric. The endpoint $1$ is equivalent
+to $u>r_*$ at some finite time, an open condition on the source by continuous
+dependence; the same holds for endpoint $-1$. Hence the zero basin is closed.
+It contains $(-\eps_*,\eps_*)$. Finally,
+$x(S)\ge e^{-S}x(0)-M(1-e^{-S})$ shows that sources larger than
+$e^S r_*/\beta_S+M(e^S-1)$ escape to $1$. The zero basin is therefore
+$[-R_*,R_*]$ with $0<R_*<\infty$. Pushing forward the Gaussian source gives
+the displayed law.
+\end{proof}
+
+\begin{lemma}[The off-training basin does not require exact symmetry]\label{lem:tube}
+Let $G:\R\to\R$ be bounded and locally Lipschitz. If there exist $l<r$
+with $G(l)>0$ and $G(r)<0$, then a nonempty open interval of sources for
+$x'=G(\beta(s)x)-x$ converges to zero. In particular this conclusion for
+the supercritical $F$ persists under sufficiently small bounded locally
+Lipschitz perturbations of $F$, even when they are not odd.
+\end{lemma}
+\begin{proof}
+Bounded $G$ gives finite-time existence forward and backward. Uniqueness and
+continuous dependence make each finite-time flow an increasing homeomorphism
+of $\R$. In $u=\beta x$ coordinates, $u'=cu+\beta G(u)$. Since $c$ is
+bounded at late times and $\beta\to\infty$, this field is strictly positive
+at $l$ and strictly negative at $r$ for all sufficiently late $s$. Thus
+$[l,r]$ is invariant after some $S$. The nonempty interval
+$(l/\beta(S),r/\beta(S))$ has a nonempty open inverse under the finite-time
+flow, and all its sources have endpoint zero. For supercritical $F$ the
+previous $\delta$ gives $F(-\delta)\ge\kappa\delta/2$ and
+$F(\delta)\le-\kappa\delta/2$. Uniform perturbations smaller than
+$\kappa\delta/2$ preserve these two signs. For a source charging the open
+inverse interval, including a Gaussian, this gives a positive-mass endpoint
+submeasure. No assertion about convergence of other trajectories is needed
+for that conclusion.
+\end{proof}
+
+\clearpage
+\begin{corollary}[A full-dimensional empirical counterexample]\label{cor:tensor}
+Let $A=\{-1,+1\}^d$ with uniform weights, observed label $y(a)=a_1$,
+Gaussian label noise of standard deviation $h>0$, and independent source
+$N(0,I_d)$. Average the exact fields at queries $+1,-1$ and apply CFG against
+the unconditional exact field as in~\eqref{eq:F}. For $w>w_c$, the endpoint
+law is
+\[
+ \mu_1\otimes(\tfrac12\delta_{-1}+\tfrac12\delta_1)^{\otimes(d-1)},\quad
+ \mu_1=(1-\Phi(R_*))(\delta_{-1}+\delta_1)
+ +(2\Phi(R_*)-1)\delta_0.
+\]
+It assigns mass $2\Phi(R_*)-1>0$ to the off-training set
+$\{0\}\times\{-1,+1\}^{d-1}$. The training support has full affine span;
+$N=2^d>d$ for $d\ge2$.
+\end{corollary}
+\begin{proof}
+For a query $y=\pm1$, posterior weights are proportional to
+\[
+ \exp\left(-\frac{|x-ta|^2}{2\eps^2}
+           -\frac{(y-a_1)^2}{2h^2}\right)
+ \propto\exp\left((\beta x_1+yb)a_1+\sum_{k=2}^d\beta x_ka_k\right).
+\]
+They factor over coordinates, giving mean
+$(\tanh(\beta x_1+yb),\tanh(\beta x_2),\ldots,\tanh(\beta x_d))$.
+The unconditional mean removes $yb$. Hence the first coordinate follows the
+scalar composed equation; every other coordinate follows
+$x_k'=\tanh(\beta x_k)-x_k$. Its endpoint is the source sign by the
+subcritical argument above. Independence of Gaussian source coordinates
+proves the product law. The hypercube has full affine span, and no point with
+first coordinate zero is a training atom.
+\end{proof}
+
+\section{Interpretation and next evidence}
+The first theorem is a sufficient stability result using log-partition energy,
+finite nearest-atom geometry, signed covariance and a Jacobian-volume
+argument. Its assumptions must not be inferred from finite teacher loss.
+The sharp composition theorem uses scalar comparison and an invariant
+shrinking tube; the tube lemma explains why the failure is stronger than a
+single symmetric exceptional source. The result creates new \emph{atoms},
+not an absolutely continuous posterior and not a generalisation guarantee.
+
+These extensions are kept separate from the existing manuscript while
+their literature delta and experimental relevance are assessed. Useful tests are
+the predicted threshold $w_c(h)=\sinh(h^{-2})^{-2}$, the positive zero-basin
+mass, tensor-support controls, asymmetric priors, and resolution/stiffness
+checks. A separate scientific note records literature proximity and which
+parts remain hypotheses. No numerical experiment is used as a proof here.
+\end{document}

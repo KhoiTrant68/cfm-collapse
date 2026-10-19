@@ -30,7 +30,7 @@ RUNS = {0.0: "exp3_cifar_ddpm_h0", 4.0: "exp3_cifar_ddpm_h4",
 ITER = 60000
 CONDITIONS = (0, 2)          # rows of the saved grid to show: the frog and the car
 N_ROWS, N_COLS = 4, 9        # layout of every saved grid
-HEADERS = ["observed"] + ["completion"] * 6 + ["true image", "training image\nnearest the mean"]
+HEADERS = ["observed"] + ["completion"] * 6 + ["true\nimage", "nearest\ntraining\nimage"]
 
 
 def _runs(mask: np.ndarray, min_len: int) -> list[tuple[int, int]]:

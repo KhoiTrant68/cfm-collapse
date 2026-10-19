@@ -9,15 +9,14 @@ caption because nothing in the picture showed it. Three things are drawn instead
       and joined, so the paired structure is visible; the vertical spans make the
       widths directly comparable instead of leaving it to the eye.
 
-  (b) the decomposition as standard deviations, with the quadrature sum against the
-      published five-seed spread. This is the check the table reports in words: the
-      two sources account for the observed bar, so nothing else of size is missing.
+  (b) standard deviations from two one-factor slices, with their descriptive
+      quadrature sum against the published five-seed spread. This comparison does
+      not estimate interactions or establish an exhaustive variance decomposition.
 
   (c) the part that matters for the paper's conclusions -- the collapse itself
       against the bars that measure it. The effect is 1 - 0.37 = 0.63 in ratio units
-      and the widest bar is 0.14, so the bars being conservative changes the size of
-      the error bars and not a single conclusion. Saying that is weaker than showing
-      the two on one axis.
+      and the widest displayed bar is 0.14. Their relative size is descriptive;
+      it does not establish coverage or robustness of every paper conclusion.
 
     uv run python -m scripts.make_seed_split_figure
 
@@ -62,7 +61,7 @@ def main() -> None:
     anchor = float(list(s["run_varying"].values())[0])
     assert abs(anchor - float(list(s["instance_varying"].values())[0])) < 1e-12
 
-    fig, axes = plt.subplots(1, 3, figsize=(13.4, 4.4))
+    fig, axes = plt.subplots(3, 1, figsize=(8.0, 9.2))
     rng = np.random.default_rng(0)
 
     # ------------------------------------------------- (a) the two arms, paired
@@ -102,9 +101,9 @@ def main() -> None:
     # The variance shares go on the tick labels rather than into a box that has
     # to be squeezed in somewhere; they belong to the bars they describe.
     names = [f"training run\n$\\sigma_{{\\mathrm{{run}}}}$   "
-             f"({100 - share * 100:.0f}% of variance)",
+             f"({100 - share * 100:.0f}% quadrature share)",
              f"problem instance\n$\\sigma_{{\\mathrm{{inst}}}}$   "
-             f"({share * 100:.0f}% of variance)",
+             f"({share * 100:.0f}% quadrature share)",
              "in quadrature\n$\\sqrt{\\sigma^2+\\sigma^2}$"]
     vals = [sd_run, sd_inst, quad]
     cols = [OI["blue"], OI["vermillion"], OI["black"]]
@@ -117,14 +116,14 @@ def main() -> None:
     ax.set_yticks(y); ax.set_yticklabels(names, fontsize=9)
     ax.set_xlim(0, 0.185)
     ax.set_xlabel("standard deviation of the collapse ratio")
-    ax.set_title("(b) the two sources add up to the published bar", fontsize=10.5)
+    ax.set_title("(b) slice scales and the published spread", fontsize=10.5)
     ax.grid(alpha=0.3, axis="x"); ax.legend(fontsize=8, loc="upper right")
 
     # ------------------------------------------- (c) the bar against the effect
     ax = axes[2]
     mean = float(np.mean(np.concatenate([run, inst])))
     ax.axhline(1.0, color=OI["green"], ls=":", lw=1.8)
-    ax.text(1.52, 1.0, "calibrated\n(no collapse)", fontsize=8.5, color=OI["green"],
+    ax.text(1.52, 1.0, "posterior-scale\nvariance", fontsize=8.5, color=OI["green"],
             va="center")
     ax.axhline(0.0, color="0.4", ls=":", lw=1.4)
     ax.text(1.52, 0.0, "total collapse\n(an atom)", fontsize=8.5, color="0.4",
@@ -148,9 +147,8 @@ def main() -> None:
     ax.set_title("(c) what the bars are next to what they measure", fontsize=10.5)
     ax.grid(alpha=0.3, axis="y")
 
-    fig.suptitle("EXP-1: most of every error bar in this paper is which operator $A$ "
-                 "was drawn, not how the run went", fontsize=12, y=1.005)
-    fig.tight_layout(rect=(0, 0, 1, 0.97))
+    fig.suptitle("EXP-1: two one-factor slices of variability", fontsize=12, y=1.005)
+    fig.tight_layout(rect=(0, 0, 1, 0.97), h_pad=2.5)
     OUT.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(OUT, dpi=200, bbox_inches="tight")
     plt.close(fig)

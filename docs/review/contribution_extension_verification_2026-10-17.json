@@ -1,0 +1,51 @@
+{
+  "scope": "Independent research proof supplement, not canonical paper or novelty certification",
+  "status": "passed",
+  "source_sha256": "41013960b0918efc5695635813deabb35e490aab35ec8087f229bd380c03fa8b",
+  "pdf_sha256": "c53025435d0f3b994bd7af0f4ff3985a53facd9d10190f2e80cd520f0148a710",
+  "proof_groups": [
+    "A robustness with schedule",
+    "B schedules and rates",
+    "C sharp composition phase",
+    "D trapping and tensor support"
+  ],
+  "fresh_adversarial_reviewers": {
+    "extensions_verify_1": {
+      "A": "HOLDS",
+      "B": "HOLDS",
+      "C": "HOLDS",
+      "D": "HOLDS"
+    },
+    "extensions_verify_2": {
+      "A": "HOLDS",
+      "B": "HOLDS",
+      "C": "HOLDS",
+      "D": "HOLDS"
+    },
+    "extensions_verify_3": {
+      "A": "HOLDS",
+      "B": "HOLDS",
+      "C": "HOLDS",
+      "D": "HOLDS"
+    },
+    "extensions_verify_4": {
+      "A": "HOLDS",
+      "B": "HOLDS",
+      "C": "HOLDS",
+      "D": "HOLDS"
+    }
+  },
+  "review_input": "Clean proof arguments supplied inline; no tools/computation/web or other verdicts supplied to verifiers",
+  "presentation_findings": "Explicit constant w>=0, Jacobian source time, scalar observation model, positive-mass source qualification, full affine span wording applied",
+  "formal_result_counts": {
+    "theorem": 2,
+    "lemma": 1,
+    "corollary": 2,
+    "proof": 5
+  },
+  "pdf_pages": 6,
+  "visual_review": "Editor inspected all six final rendered pages",
+  "new_experiments_run": false,
+  "novelty_status": "REVISE: theorem-level comparison incomplete, especially Blohm-Garg",
+  "canonical_manuscript_modified": false
+}

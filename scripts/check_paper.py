@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 """Submission checks for paper/main.tex, run against the built PDF and .aux.
 
-The main text must end on page 9 (ICLR's limit; references, the three ICLR
-statements and the appendix do not count), every float must be cited from
-running text, no reference may be undefined, and the manuscript must stay
-anonymous. Run after `latexmk -pdf main.tex`:
+Build provenance, citations, floats and anonymity are checked. TMLR has no
+page cap here; --venue iclr explicitly checks the nine-page main-text limit.
+Build and validate the current inputs with:
 
-    python scripts/check_paper.py            # exits non-zero on any failure
+    python scripts/check_paper.py --build --build-dir tmp/paper-build
+    python scripts/check_paper.py --build-dir tmp/paper-build
     python scripts/check_paper.py --baseline snapshot.tex
 
 With --baseline, also checks that no reported number, citation key, label or
@@ -18,12 +18,66 @@ from __future__ import annotations
 
 import argparse
 import collections
+import hashlib
+import json
+import os
 import pathlib
 import re
+import shutil
+import subprocess
 import sys
 
-PAGE_LIMIT = 9  # ICLR main-text limit, excluding references and appendices
 PAPER = pathlib.Path(__file__).resolve().parents[1] / "paper"
+
+
+def hashes(paths: list[pathlib.Path]) -> dict[str, str]:
+    return {str(p.resolve()): hashlib.sha256(p.read_bytes()).hexdigest() for p in paths}
+
+
+def inputs() -> dict[str, str]:
+    paths = [p for p in PAPER.iterdir() if p.suffix in {'.tex', '.bib', '.sty', '.bst'}]
+    paths += [p for p in (PAPER / 'figures').rglob('*') if p.is_file()]
+    return hashes(sorted(paths))
+
+
+def build(directory: pathlib.Path) -> None:
+    directory.mkdir(parents=True, exist_ok=True)
+    frozen = inputs()
+    for name in frozen:
+        source = pathlib.Path(name)
+        if source.parent == PAPER and source.parent != directory:
+            shutil.copy2(source, directory / source.name)
+    env = os.environ.copy()
+    # Local auxiliary files must precede the canonical directory's old cache.
+    env['TEXINPUTS'] = '.;' + PAPER.as_posix() + '//;'
+    if os.name != 'nt':
+        env['TEXINPUTS'] = env['TEXINPUTS'].replace(';', ':')
+    commands = [['pdflatex', '-interaction=nonstopmode', '-halt-on-error', 'main.tex'],
+                ['bibtex', 'main']]
+    commands += [commands[0]] * 2
+    for index, command in enumerate(commands):
+        result = subprocess.run(command, cwd=directory, env=env, capture_output=True, text=True, errors='replace')
+        (directory / f'check-build-{index}.txt').write_text(result.stdout + result.stderr, encoding='utf-8')
+        if result.returncode:
+            raise RuntimeError(f"{command[0]} failed; see {directory}/check-build-{index}.txt")
+    if frozen != inputs():
+        raise RuntimeError('paper inputs changed during compilation; rebuild')
+    products = hashes([directory / f'main.{ext}' for ext in ('aux', 'log', 'pdf', 'bbl')])
+    (directory / 'build-manifest.json').write_text(json.dumps(dict(inputs=frozen, products=products), indent=2), encoding='utf-8')
+
+
+def check_provenance(directory: pathlib.Path, problems: list[str]) -> None:
+    try:
+        manifest = json.loads((directory / 'build-manifest.json').read_text(encoding='utf-8'))
+        if manifest['inputs'] != inputs():
+            raise ValueError('source, bibliography, style or figure changed since build')
+        expected = {str((directory / f'main.{ext}').resolve()) for ext in ('aux', 'log', 'pdf', 'bbl')}
+        if set(manifest['products']) != expected or hashes([pathlib.Path(p) for p in expected]) != manifest['products']:
+            raise ValueError('build products changed or do not belong to this build directory')
+    except (OSError, ValueError, KeyError, TypeError) as exc:
+        fail(f'build provenance unavailable or stale: {exc}; run with --build', problems)
+    else:
+        ok('source and build-product hashes match the recorded build')
 
 NUM = re.compile(r"(?<![\w.])\d+(?:\.\d+)?(?![\w])")
 # Lengths and layout knobs: measurements of the typesetting, not of the model.
@@ -47,7 +101,7 @@ def ok(msg: str) -> None:
     print("ok    " + msg)
 
 
-def check_page_limit(aux: str, problems: list[str]) -> None:
+def check_page_limit(aux: str, problems: list[str], page_limit: int | None = None) -> None:
     """`\\label{endmain}` sits immediately before the Reproducibility statement."""
     m = re.search(r"\\newlabel\{endmain\}\{\{[^}]*\}\{(\d+)\}", aux)
     if not m:
@@ -55,13 +109,15 @@ def check_page_limit(aux: str, problems: list[str]) -> None:
              problems)
         return
     page = int(m.group(1))
-    if page > PAGE_LIMIT:
-        fail(f"main text ends on page {page}, limit is {PAGE_LIMIT}", problems)
+    if page_limit is not None and page > page_limit:
+        fail(f"main text ends on page {page}, limit is {page_limit}", problems)
     else:
-        ok(f"main text ends on page {page} (limit {PAGE_LIMIT})")
+        ok(f"main text ends on page {page} (limit {page_limit if page_limit is not None else 'not imposed'})")
 
 
 def check_log(log: str, problems: list[str]) -> None:
+    if 'Float too large for page' in log:
+        fail('a float is too large for the page', problems)
     undefined = log.count("undefined")
     if undefined:
         fail(f"{undefined} undefined reference/citation warnings in main.log",
@@ -71,7 +127,7 @@ def check_log(log: str, problems: list[str]) -> None:
 
     overfull = log.count("Overfull \\hbox")
     if overfull:
-        print(f"note  {overfull} overfull hbox(es)")
+        fail(f"{overfull} overfull hbox(es)", problems)
     else:
         ok("no overfull hboxes")
 
@@ -100,11 +156,11 @@ def check_tex(tex: str, problems: list[str]) -> None:
             ok(f"{len(floats)} {name}, all cited from running text")
 
     body = "\n".join(l for l in tex.split("\n") if not l.lstrip().startswith("%"))
-    if "\\iclrfinalcopy" in body:
+    if "\\iclrfinalcopy" in body or re.search(r'\\usepackage\[(?:accepted|preprint)\]\{tmlr\}', body):
         fail("\\iclrfinalcopy is uncommented -- would deanonymise the submission",
              problems)
     else:
-        ok("anonymous (\\iclrfinalcopy not active)")
+        ok("anonymous submission mode (author metadata still needs PDF inspection)")
 
 
 def _reported_numbers(tex: str) -> collections.Counter:
@@ -152,13 +208,30 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--baseline", type=pathlib.Path,
                     help="a main.tex snapshot to check for lost content")
+    ap.add_argument('--build-dir', type=pathlib.Path, default=PAPER)
+    ap.add_argument('--build', action='store_true', help='compile and record input/product hashes')
+    ap.add_argument('--venue', choices=['tmlr', 'iclr'], default='tmlr')
+    ap.add_argument('--page-limit', type=int, help='explicit main-text page cap')
     args = ap.parse_args()
 
     tex = (PAPER / "main.tex").read_text(encoding="utf-8")
     problems: list[str] = []
+    directory = args.build_dir.resolve()
+    if args.build:
+        try:
+            build(directory)
+        except (OSError, RuntimeError) as exc:
+            fail(str(exc), problems)
+            return 1
+    check_provenance(directory, problems)
+    if problems:
+        return 1
+    page_limit = args.page_limit if args.page_limit is not None else (9 if args.venue == 'iclr' else None)
+    if args.venue == 'iclr' and '\\usepackage{tmlr}' in tex:
+        fail('ICLR venue selected but canonical source uses TMLR style', problems)
 
-    for name, fn in (("main.aux", check_page_limit), ("main.log", check_log)):
-        path = PAPER / name
+    for name, fn in (("main.aux", lambda text, errors: check_page_limit(text, errors, page_limit)), ("main.log", check_log)):
+        path = directory / name
         if not path.exists():
             fail(f"{name} not found -- build the paper first", problems)
         else:
