@@ -660,6 +660,31 @@ for _h, _run, _lo, _hi in ((0.0, "exp3_cifar_class_h0", 0.64, 0.83), (0.4, "exp3
 check("class h=0: within-class scatter", 717, round(pd.read_csv(
     "results/exp3/exp3_cifar_class_h0/raw/metrics.csv")["trace_cov_kernel_mean"].iloc[0]), 1e-9)
 
+print("\nSection 6.2 / Table tab:spectral: spectral criterion (results/theory_spectral_20261020)")
+_sp = json.loads(pathlib.Path("results/theory_spectral_20261020/summary.json").read_text(encoding="utf-8"))["configs"]
+def _frac(name, key, val):
+    c = [c for c in _sp if c["name"] == name and abs(c[key] - val) < 1e-9][0]
+    return c, {round(x["u"]): x["frac_bounded"] for x in c["result"]["checkpoints"]}
+for _r, _v in ((1.1, 0.001), (2.0, 0.140), (5.0, 0.687)):
+    check(f"triangle {_r} w_c: fraction at sigma=1e4", _v, round(_frac("tri2", "w_over_wc", _r)[1][10000], 3), 1e-9)
+check("simplex 5 w_c: fraction", 0.019, round(_frac("simplex8", "w_over_wc", 5.0)[1][10000], 3), 1e-9)
+check("box w=5: fraction", 0.002, round(_frac("cube8", "w", 5.0)[1][10000], 3), 1e-9)
+for _n in ("tri2", "simplex8"):
+    for _r in (1.1, 2.0):
+        _c, _f = _frac(_n, "w_over_wc", _r)
+        good = _c["prediction"]["class"] == "sink"
+        print(f"  {'OK ' if good else 'BAD'} {_n} {_r} w_c predicted sink"); ok, fail = ok + good, fail + (not good)
+for _c in _sp:
+    _f = {round(x["u"]): x["frac_bounded"] for x in _c["result"]["checkpoints"]}
+    if _c["prediction"]["class"] in ("source", "saddle"):
+        check(f"{_c['name']} w={_c['w']:.3f} {_c['prediction']['class']}: no source at z", 0.0, _f[10000], 0)
+for _n, _w in (("rect2", 1.0), ("cube8", 1.0)):
+    _c, _ = _frac(_n, "w", _w)
+    good = _c["prediction"]["class"] == "saddle" and _c["prediction"]["trace"] < 0
+    print(f"  {'OK ' if good else 'BAD'} {_n} w=1 is a saddle with negative trace"); ok, fail = ok + good, fail + (not good)
+check("triangle w_c", 1.160, round(_frac("tri2", "w_over_wc", 1.1)[0]["w_c_formula"], 3), 1e-9)
+check("simplex w_c", 4.802, round(_frac("simplex8", "w_over_wc", 1.1)[0]["w_c_formula"], 3), 1e-9)
+
 print("\nsanity: the image-scale numbers and floats the main text quotes")
 for s in (r"\label{sec:cifarddpm}", r"\label{tab:cifarddpm}", r"\label{tab:exp1}",
           r"\label{tab:p7kernel}", r"$179.1$", r"$0.431$", r"$48/48$",

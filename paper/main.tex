@@ -123,7 +123,9 @@ and what a learned field must do to inherit the answer.
 \item \emph{Their composition can leave} (Section~\ref{sec:composition}). Guidance applied to a
   label-averaged field can converge to a circumcentre of training examples with positive
   probability; on two examples the threshold is exactly $w>1/\sinh^2B$, and the effect is stable
-  under perturbation (Theorem~\ref{thm:composition}, Proposition~\ref{prop:composition-open}).
+  under perturbation (Theorem~\ref{thm:composition}, Proposition~\ref{prop:composition-open}). In
+  any dimension the sign pattern of a signed posterior covariance decides whether such a point
+  attracts sources (Theorem~\ref{thm:spectral}).
   Averaging and guidance commute, so the composition, not the order, decides the support.
 \item \emph{Learned fields inherit collapse unless their scaled error persists}
   (Section~\ref{sec:transfer}). A learned endpoint is within $\limsup_{t\uparrow1}(1-t)|\Delta|$
@@ -152,7 +154,7 @@ Hard conditioning, identifying label & one atom, every source & Prop.~\ref{prop:
 Gaussian label noise, $h>0$ & atoms, reweighted & Thm.~\ref{thm:endpoint}\\
 Positive mixtures of priors, including label averaging and guidance $w\in[-1,0)$ & atoms, a.s. & Thm.~\ref{thm:posmix}, Cor.~\ref{cor:negcfg}\\
 Guidance, fixed $w\ge0$ or bounded schedule of bounded variation & atoms, a.s.\ ($h>0$); one atom ($h=0$) & Prop.~\ref{prop:cfgatom}, Thm.~\ref{thm:schedule}\\
-Guidance after label averaging & can add a circumcentre with positive probability & Thm.~\ref{thm:composition}\\
+Guidance after label averaging & can add a circumcentre with positive probability & Thm.~\ref{thm:composition}, \ref{thm:spectral}\\
 Averaging identifying hard-label fields ($h=0$) & can move every endpoint to a circumcentre & Sec.~\ref{sec:posmix}\\
 Endpoint noise $\rho>0$ & atoms convolved with $\N(0,\rho^2I_d)$ & Prop.~\ref{prop:tgtnoise}\\
 \bottomrule
@@ -551,8 +553,74 @@ one-dimensional statement isolates a mechanism that does not depend on dimension
 dimension a non-atom candidate can attract a set of sources of positive measure only if the
 combined covariance trace $\Theta$ of Step~2 fails to stay positive there
 (Lemma~\ref{lem:volume}), and averaging lowers $\Theta$ by $(1+w)$ times the
-spread of the component posterior means. Whether this happens for many atoms in high dimension
-is open (Section~\ref{sec:limitations}).
+spread of the component posterior means. Section~\ref{sec:spectral} turns this into a criterion
+in any dimension.
+
+\subsection{A spectral criterion in any dimension}
+\label{sec:spectral}
+
+The trace $\Theta$ decides Step~2 only through its sign; in more than one dimension the relevant
+object is the matrix whose trace it is. Fix a non-atom candidate $z\in\mathcal C'$ with tied
+nearest atoms $S=\nn(z)$, so $|S|\ge2$ and $z\in\operatorname{aff}S$, and let
+$L=\operatorname{span}\{a-z:a\in S\}$. Consider a field $\sum_kc_kv_{p_k}$ with finitely many
+$p_k\in\Ppos$ and constant coefficients summing to one; this covers guidance, label averaging
+over finitely many labels, and guided label averaging. For $\xi\in L$ let $\pi_k(\xi)$ be the
+prior $p_k$ restricted to $S$ and tilted by $e^{\langle\xi,a\rangle}$, and put
+\[
+M(\xi)=\sum_kc_k\,\E_{\pi_k(\xi)}[a],\qquad
+\Gamma(\xi)=D_LM(\xi)=\sum_kc_k\Cov_{\pi_k(\xi)}(P_La).
+\]
+The rescaled position $\xi=\beta P_L(x-tz)$ generalises $s$ of Section~\ref{sec:composition}; a
+\emph{profile} is a root of $M(\xi)=z$, \emph{hyperbolic} if $\Gamma$ is invertible there.
+
+\begin{restatable}[Spectral classification of off-support endpoints]{theorem}{thmspectral}
+\label{thm:spectral}
+Let $\xi_\star$ be a hyperbolic profile, and call its basin the set of initial points with
+$x_t\to z$ and $\beta P_L(x_t-tz)\to\xi_\star$.
+\begin{enumerate}[label=(\alph*),leftmargin=2em]
+\item If $\Gamma(\xi_\star)\prec0$ on $L$, the basin contains a nonempty open set, so the endpoint
+  law from $\pi_0$ has an atom at the non-training point $z$.
+\item If $\Gamma(\xi_\star)$ has a positive eigenvalue, the basin is Lebesgue-null.
+\item If every profile is hyperbolic and $P_Lz\notin\operatorname{aff}F$ for every proper face $F$
+  of $\operatorname{conv}P_LS$, every trajectory converging to $z$ has a profile converging to one
+  of finitely many profiles. Then $\Pr(X_1=z)>0$ exactly when some profile has
+  $\Gamma(\xi_\star)\prec0$ on $L$.
+\end{enumerate}
+\proofin{apx:pf-spectral}
+\end{restatable}
+
+\begin{proofsketch}
+In the time $\sigma$ with $d\sigma=\beta\,d\tau$ the profile obeys
+$d\xi/d\sigma=M(\xi)-z+o(1)$, while the normal part $P_{L^\perp}(x-z)$ decays at the slow rate
+$e^{-\tau}$. A Lyapunov--Perron argument for this fast--slow system shows that the trajectories
+converging to a hyperbolic profile form a $C^1$ graph of codimension equal to the number of
+positive eigenvalues of $\Gamma$, which gives (a) and (b). For (c), $M-z$ is the gradient of a
+potential that grows linearly away from the profiles, whereas convergence to $z$ forces
+$\xi=o(\sigma)$; so profiles cannot escape to infinity.
+\end{proofsketch}
+
+Lemma~\ref{lem:volume} uses only $\Theta=\tr\Gamma$: a profile with $\tr\Gamma>0$ already has a
+null basin. Theorem~\ref{thm:spectral}(b) also covers saddles with $\tr\Gamma\le0$, and (a) gives
+the positive-measure counterpart in any dimension. In one dimension trace and eigenvalue
+coincide, and the roots $0$ and $\pm s_u$ of $F_w$ recover Theorem~\ref{thm:composition}, except
+at the nonhyperbolic threshold $w=w_c$, which its proof treats separately.
+
+\begin{restatable}[Matrix threshold for guided label averaging]{corollary}{corspectral}
+\label{cor:spectral-threshold}
+Let $M_{\mathrm{av}}$ average the restricted means of finitely many conditional priors and
+$M_{\mathrm u}$ be that of the unconditional prior, and suppose $M_{\mathrm{av}}(\xi_\star)=
+M_{\mathrm u}(\xi_\star)=z$ for some $\xi_\star\in L$. Let $C_{\mathrm{av}}$, $C_{\mathrm u}$ be their
+derivatives on $L$ at $\xi_\star$, and assume $D=C_{\mathrm u}-C_{\mathrm{av}}\succ0$ on $L$. For
+\[
+w>w_c^{\mathrm{spec}}=\lambda_{\max}\big(D^{-1/2}C_{\mathrm{av}}D^{-1/2}\big),
+\]
+the guided label average puts positive probability on $z$. For the two atoms of
+Theorem~\ref{thm:composition}, $w_c^{\mathrm{spec}}=1/\sinh^2B$. \proofin{apx:pf-spectral}
+\end{restatable}
+The common equilibrium holds in symmetric configurations, such as a regular simplex with one
+conditional prior favouring each vertex, where $w_c^{\mathrm{spec}}=(1-m^2)/m^2$ with
+$m=(e^B-1)/(e^B+N-1)$; Section~\ref{sec:intervention-tests} checks the classification
+numerically. Nonhyperbolic profiles and faces whose affine hull contains $P_Lz$ remain open.
 
 \subsection{What leaves the support}
 \label{sec:interventions}
@@ -730,6 +798,19 @@ With $w=1$ and $B\approx2$, unequal mixture weights $(0.6,0.4)$, unequal $(B_1,B
 unconditional log-odds $2B_u=0.6$, or a combination of all three keep basin probabilities between
 $0.71$ and $0.86$, as Proposition~\ref{prop:composition-open} predicts.
 
+\paragraph{The spectral criterion beyond the line.} We integrate the exact flow of
+Theorem~\ref{thm:spectral} in four configurations whose atoms all lie on the unit sphere around
+$z=0$, so that every atom is tied and the blown-up equation has no off-tie term. Two are a
+triangle in $d=2$ and a regular nine-vertex simplex in $d=8$, each with one conditional prior
+favouring each vertex ($B=2$). The other two are a rectangle in $d=2$ and a $256$-vertex box in
+$d=8$ with product priors; at $w=1$ the profile $\xi=0$ is a saddle with negative $\tr\Gamma$,
+where the trace test of Lemma~\ref{lem:volume} is silent. Every source or saddle profile ends
+with no source at $z$. Every sink profile in $d=2$ keeps a stable positive fraction of the sources
+($0.001$, $0.140$, $0.687$ for the triangle at $1.1,2,5\,w_c$). In $d=8$ the basins are smaller,
+positive at $5\,w_c$ ($0.019$ for the simplex, $0.002$ for the box) and below the sampling
+resolution of $1/2048$ at $1.1$ and $2\,w_c$ (Table~\ref{tab:spectral}). These are finite-time
+computations that agree with the theorem; they do not prove it.
+
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.98\textwidth]{fig_composition.pdf}
@@ -786,7 +867,8 @@ The theorems concern exact fields of a fixed training set and do not say that a 
 implements them; the pilot above shows that learned label averages need not follow the exact
 ones. The positive-bandwidth results need strictly positive priors on a common support. Mixtures
 with different supports, schedules that are unbounded or change sign, composites other than
-guided label averaging, and the composition theorem beyond two atoms on the line are not covered,
+guided label averaging, and, in the spectral classification, nonhyperbolic profiles and faces
+whose affine hull contains the projected candidate are not covered,
 and the endpoint weights of averaged fields are not identified. The transfer statements are
 conditional on the error along learned trajectories, which we do not infer from the loss and have
 not measured. The exact-field computations are finite-time numerical evaluations, the
@@ -816,7 +898,7 @@ mechanism produces the off-atom samples of trained samplers at image scale.
 \subsection*{Reproducibility statement}
 All numbers are produced by code in the supplementary material (anonymised for review).
 Theory checks: \texttt{composition\_counterexample.py} (with
-\texttt{make\_composition\_figure.py}), \texttt{novelty\_interventions.py},
+\texttt{make\_composition\_figure.py}), \texttt{spectral\_criterion\_check.py}, \texttt{novelty\_interventions.py},
 \texttt{novelty\_ties\_refined.py}, \texttt{test\_kernel\_theory.py},
 \texttt{analyze\_p7\_kernel.py}, \texttt{verify\_kernel\_theory.py},
 \texttt{verify\_target\_noise.py}. Experiments: \texttt{run\_exp1.sh}, \texttt{run\_sweeps.py},
@@ -892,6 +974,7 @@ Thm.~\ref{thm:posmix} & \ref{apx:pf-posmix} & Lemmas~\ref{lem:basic}--\ref{lem:v
 Prop.~\ref{prop:filtered}, \ref{prop:hyperplane}; Cor.~\ref{cor:negcfg} & \ref{apx:pf-posmix}, Sec.~\ref{sec:guidance} & special cases of Thm.~\ref{thm:posmix}; a scalar reduction for the hyperplane\\
 Thm.~\ref{thm:schedule}, Prop.~\ref{prop:cfgatom} & \ref{apx:pf-guidance} & Lemma~\ref{lem:signedconv} (integration by parts against $w$), Lemma~\ref{lem:volume}; a Gibbs inequality at $h=0$\\
 Thm.~\ref{thm:composition}, Prop.~\ref{prop:composition-open} & \ref{apx:pf-composition} & Lemma~\ref{lem:signedconv}; moving barriers; implicit function theorem\\
+Thm.~\ref{thm:spectral}, Cor.~\ref{cor:spectral-threshold} & \ref{apx:pf-spectral} & Lemmas~\ref{lem:offtie}, \ref{lem:lp}: blow-up, Lyapunov--Perron graph; profile potential and face condition\\
 \addlinespace
 Thm.~\ref{thm:transfer}, Prop.~\ref{prop:localtransfer} & \ref{apx:pf-transfer-all} & variation of constants; concentration (Lemma~\ref{lem:basic}(c))\\
 Thm.~\ref{thm:risktransfer}, Prop.~\ref{prop:loss-no-certificate} & \ref{app:teacher-risk} & Minkowski's inequality; an explicit affine field\\
@@ -910,7 +993,8 @@ and~\ref{lem:volume}; they differ in how the energy and the divergence are contr
 source. Purple: lemmas; blue: main results; teal: their consequences; orange: the results in
 which the endpoint can leave the training set. Lemma~\ref{lem:basic} is also used directly in the
 proofs of Theorem~\ref{thm:posmix} and Proposition~\ref{prop:localtransfer}, and only part~(a)
-of Proposition~\ref{prop:cfgatom} rests on Theorem~\ref{thm:schedule}.}
+of Proposition~\ref{prop:cfgatom} rests on Theorem~\ref{thm:schedule}. Theorem~\ref{thm:spectral}
+and its lemmas (Appendix~\ref{apx:pf-spectral}) are not drawn.}
 \label{fig:proof-dependencies}
 \end{figure}
 
@@ -1551,6 +1635,186 @@ neighbourhood, which we intersect with $\{\lambda_1\in(0,1)\}$. The union of the
 neighbourhoods is the required open set.
 \end{proof}
 
+
+\subsection{Spectral classification}
+\label{apx:pf-spectral}
+
+Throughout, $z$, $S$ and $L$ are as in Section~\ref{sec:spectral}; $P_L,P_{L^\perp}$ are the
+orthogonal projections, $m=\dim L\ge1$, $n=d-m$, and the field is
+$\sum_kc_kv_{p_k}$ with finitely many $p_k\in\Ppos$ and constants $\sum_kc_k=1$. By
+Lemma~\ref{lem:signedconv} its trajectories exist, are unique and converge, and the flow maps
+between times below $1$ are $C^1$ diffeomorphisms. Since every $a_j-z$ with $a_j\in S$ lies in
+$L$, $P_{L^\perp}a_j=P_{L^\perp}z$ for $a_j\in S$, and $M(\xi)-z=\sum_kc_k\E_{\pi_k(\xi)}[a-z]\in L$.
+The assumption $z\in\operatorname{aff}S$ makes $L$ the direction space of $\operatorname{aff}S$;
+without it $M(\xi)=z$ would have no solution.
+
+\emph{Coordinates.} For $t>0$ put
+\[
+\xi=\beta P_L(x-tz)\in L,\qquad \eta=P_{L^\perp}(x-z),\qquad
+x=tz+\beta^{-1}\xi+\eps P_{L^\perp}z+\eta,
+\]
+and the fast time $\sigma$ with $d\sigma/d\tau=\beta$. From $d\beta/d\tau=\beta(1+t)/t$ and
+$dx/d\tau=\bar m-x$,
+\begin{equation}
+\frac{d\xi}{d\sigma}=G(\xi)+\mathcal R,\qquad
+\frac{d\eta}{d\tau}=-\eta+\mathcal E,\qquad
+\mathcal R=\frac{\eps^2}{t^2}\xi+P_L(\bar m-M(\xi)),\quad \mathcal E=P_{L^\perp}(\bar m-z),
+\label{eq:pf:spec:blowup}
+\end{equation}
+where $G=M-z$ and $\bar m=\sum_kc_km_{p_k}$ is evaluated at $x$. Since $\beta=e^{2\tau}-e^\tau$,
+$\sigma=\tfrac12e^{2\tau}-e^\tau+O(1)$, so $\sigma\sim\beta/2$.
+
+\begin{lemma}[Off-tie atoms are exponentially small]
+\label{lem:offtie}
+Let $\delta_j=|a_j-z|^2-|a_i-z|^2>0$ for $a_j\notin S$, $a_i\in S$. At the point above, for every
+prior $p$,
+\[
+\log\frac{q_{p,j}}{q_{p,i}}=\log\frac{p_j}{p_i}-\frac{\beta t}2\delta_j
++\beta\big\langle\eps P_{L^\perp}z+\eta,\,a_j-a_i\big\rangle+\langle\xi,a_j-a_i\rangle,
+\]
+and for $a_i,a_{i'}\in S$ the logit difference is $\langle\xi,a_i-a_{i'}\rangle$, so the
+posterior conditioned on $S$ is exactly $\pi(\xi)$. Consequently: (i) for every compact
+$K\subset L$ there are $\rho,c>0$ and $\tau_0$ such that for $\xi\in K$, $|\eta|\le\rho$ and
+$\tau\ge\tau_0$ the posterior mass off $S$ is $O(e^{-c\beta})$, its first and second derivatives
+in $(\xi,\eta)$ are $O(\beta^2e^{-c\beta})$, and therefore $\mathcal R,\mathcal E\to0$ in $C^1$ with
+derivatives uniformly Lipschitz; (ii) along any trajectory with $x_t\to z$ the off-$S$ mass is
+$O(e^{-c\beta})$ without any bound on $\xi$, because then $\eta\to0$, $\xi=o(\beta)$ and
+$\beta\eps=t/\eps=o(\beta)$; hence $\mathcal R\to0$.
+\end{lemma}
+\begin{proof}
+With $x=tz+w$, $|x-ta_j|^2-|x-ta_i|^2=t^2\delta_j-2t\langle w,a_j-a_i\rangle$; dividing by
+$-2\eps^2$ and using $t^2/\eps^2=\beta t$, $t/\eps^2=\beta$ and $P_Lw=\xi/\beta$ gives the
+display. For $a_i,a_{i'}\in S$ the vector $a_i-a_{i'}$ lies in $L$, orthogonal to
+$\eps P_{L^\perp}z+\eta$, and $\delta$ vanishes. In (i) choose $\rho$ with
+$\rho\max_{j,i}|a_j-a_i|\le\frac t4\min_j\delta_j$ and then $\tau_0$ so large that the remaining
+terms use at most another quarter of the gap; each derivative of a softmax in $\eta$ costs at
+most a factor $C\beta$, and in $\xi$ a bounded factor. The restricted means have
+$P_{L^\perp}$-component $P_{L^\perp}z$ and $\sum_kc_k=1$, so $\mathcal E$ and
+$P_L(\bar m-M)$ consist only of off-$S$ contributions, while $\eps^2/t^2\to0$. (ii) is the same
+estimate with $\eta$, $\xi/\beta$ and $\eps$ tending to zero.
+\end{proof}
+
+\begin{lemma}[Lyapunov--Perron graph]
+\label{lem:lp}
+Let $\Gamma$ be symmetric and invertible on $L$ with $n_+$ positive eigenvalues and least
+eigenvalue modulus $a>0$, and let $\beta>0$ with $\int^\infty\beta\,d\tau=\infty$. Consider near
+$(0,0)\in L\times\R^n$
+\[
+\dot y=\beta(\tau)\{\Gamma y+f(y,\eta,\tau)\},\qquad \dot\eta=-\eta+g(y,\eta,\tau),
+\]
+with $f,g$ continuous, $C^1$ in $(y,\eta)$ with derivatives uniformly continuous uniformly in
+$\tau$, and $f(0,0,\tau),g(0,0,\tau)\to0$. Suppose that for every $\delta>0$ there are
+$\varepsilon_\delta>0$ and $T_\delta$ with $|D_{(y,\eta)}f|+|D_{(y,\eta)}g|\le\delta$ on
+$\{|y|,|\eta|\le\varepsilon_\delta\}\times[T_\delta,\infty)$. Then there are $\varepsilon>0$ and $T$
+such that, for every $T'\ge T$, the states at time $T'$ in the $\varepsilon$-ball whose trajectories
+stay in it and converge to $(0,0)$ form a $C^1$ graph of codimension $n_+$ over the stable and
+normal coordinates.
+\end{lemma}
+\begin{proof}
+Split $L=L^s\oplus L^u$ into the negative and positive eigenspaces of $\Gamma$, with projections
+$P_s,P_u$, and use the norm $\max\{|y_s|,|y_u|,|\eta|\}$. The evolutions satisfy
+$|e^{\Gamma_s\int_s^r\beta}|\le e^{-a\int_s^r\beta}$ for $r\ge s$ and
+$|e^{\Gamma_u\int_s^r\beta}|\le e^{-a\int_r^s\beta}$ for $r\le s$, and
+\[
+\int_T^re^{-a\int_s^r\beta}\beta(s)\,ds\le a^{-1},\qquad
+\int_r^\infty e^{-a\int_r^s\beta}\beta(s)\,ds=a^{-1},\qquad
+\int_T^re^{-(r-s)}\,ds\le1 .
+\]
+Fix $\delta$ with $\kappa=4\delta\max\{a^{-1},1\}<\tfrac12$, then $\varepsilon=\varepsilon_\delta$, and
+then $T\ge T_\delta$ with $\sup_{\tau\ge T}(|f(0,0,\tau)|+|g(0,0,\tau)|)\le\delta\varepsilon$. Multiply
+$f,g$ by a smooth cutoff $\chi(y/\varepsilon,\eta/\varepsilon)$ equal to $1$ on the
+$\varepsilon/2$-ball; the cut-off nonlinearities are then globally Lipschitz with constant at most
+$C\delta$, the extra term from $D\chi$ being bounded by $C\varepsilon^{-1}(\delta\varepsilon+\delta\varepsilon)$.
+These choices hold for every starting time $T'\ge T$. For $(s_0,\eta_0)$ in the stable and normal
+coordinates, the Lyapunov--Perron map
+\begin{align*}
+y_s(r)&=e^{\Gamma_s\int_{T'}^r\beta}s_0+\int_{T'}^re^{\Gamma_s\int_s^r\beta}\beta(s)P_sf\,ds,\qquad
+y_u(r)=-\int_r^\infty e^{-\Gamma_u\int_r^s\beta}\beta(s)P_uf\,ds,\\
+\eta(r)&=e^{-(r-T')}\eta_0+\int_{T'}^re^{-(r-s)}g\,ds
+\end{align*}
+maps the bounded continuous functions tending to zero into themselves (split each integral into a
+fixed initial piece, killed by the kernel, and a tail where the forcing is small) and is a
+contraction with constant at most $C\kappa<1$ after shrinking $\delta$. Its fixed point has size
+at most $C(|s_0|+|\eta_0|+\delta\varepsilon)$, which is below $\varepsilon/2$ for small data and small
+$\delta$, so it solves the uncut system. Conversely, a solution that stays in the
+$\varepsilon/2$-ball and tends to zero satisfies these equations: variation of constants gives the
+stable and normal ones, and on $L^u$ boundedness forces the terminal term at infinity to vanish.
+The decaying set is therefore the graph of $y_u(T')=\Psi_{T'}(s_0,\eta_0)$, which is $C^1$ by the
+standard differentiability of the fixed point of a uniform contraction whose nonlinearities have
+uniformly continuous derivatives. Its codimension is $\dim L^u=n_+$.
+\end{proof}
+
+\thmspectral*
+\begin{proof}
+\emph{(a) and (b).} Put $y=\xi-\xi_\star$ and $G(\xi_\star+y)=\Gamma(\xi_\star)y+N(y)$ with
+$N(0)=DN(0)=0$. In the time $\tau$, \eqref{eq:pf:spec:blowup} has the form of
+Lemma~\ref{lem:lp} with $f=N+\mathcal R(\xi_\star+\cdot)$ and $g=\mathcal E(\xi_\star+\cdot)$: $DN$
+is small near $0$, and by Lemma~\ref{lem:offtie}(i) the derivatives of $\mathcal R$ and $\mathcal E$
+are small for large $\tau$, uniformly Lipschitz, and $f(0,0,\tau),g(0,0,\tau)\to0$. Since
+$x-z=\beta^{-1}\xi+\eps P_{L^\perp}z-\eps P_Lz+\eta$, the profile basin consists of the initial
+points whose $(y,\eta)$ tend to $0$. If $\Gamma(\xi_\star)\prec0$ then $n_+=0$, every small
+$(y,\eta)$ at time $T$ converges, and pulling this open set back by the flow and the affine map
+$x\mapsto(\xi,\eta)$ gives a nonempty open set of initial points, of positive $\pi_0$-probability.
+If $n_+\ge1$, every trajectory of the basin lies in the $\varepsilon$-ball from some integer time
+$T'\ge T$ on, hence on the graph of Lemma~\ref{lem:lp} at that time; a countable union of $C^1$
+graphs of positive codimension is null, and the $C^1$ flow diffeomorphism and the affine
+coordinate map preserve null sets.
+
+\emph{(c), face condition.} Let $b_j=P_La_j$ for $a_j\in S$. Since $z\in\operatorname{aff}S$,
+$\operatorname{aff}\{b_j\}=P_Lz+L$, so a unit $v\in L$ is not constant on $\{b_j\}$ and the
+maximisers $F(v)$ of $\langle v,b_j\rangle$ span a proper face. If $|\xi_n|\to\infty$ with
+$\xi_n/|\xi_n|\to v$, the weights $\pi_k(\xi_n)\propto p_{k,j}e^{\langle\xi_n,b_j\rangle}$ vanish off
+$F(v)$, so every cluster point of $P_LM(\xi_n)=\sum_kc_k\E_{\pi_k(\xi_n)}[b]$ lies in
+$\operatorname{aff}F(v)$, even with signed $c_k$ summing to one. As $G=P_LM-P_Lz$ and there are
+finitely many faces,
+\begin{equation}
+\liminf_{|\xi|\to\infty}|G(\xi)|\ \ge\ \min_F\dist\big(P_Lz,\operatorname{aff}F\big)=:2\delta_0>0 .
+\label{eq:pf:spec:escape}
+\end{equation}
+In particular all profiles lie in a ball, and being isolated they are finitely many.
+
+\emph{(c), no escape.} Let $\Psi(\xi)=\sum_kc_k\log\sum_{a_j\in S}p_{k,j}e^{\langle\xi,a_j\rangle}
+-\langle\xi,z\rangle$. Then $\nabla_L\Psi=G$, $G$ is bounded, and $|\Psi(\xi)|\le C(1+|\xi|)$. Take a
+trajectory with $x_t\to z$. By Lemma~\ref{lem:offtie}(ii), $\mathcal R\to0$, so $d\xi/d\sigma$ is
+bounded by some $K$ after some $\sigma_1$, and $\xi/\sigma\to0$ because $\xi=o(\beta)$ and
+$\sigma\sim\beta/2$. By \eqref{eq:pf:spec:escape} there is $R_0$ with $|G|\ge\delta_0$ outside
+$B_{R_0}$; enlarging $\sigma_1$, $|\mathcal R|\le\delta_0/2$ for $\sigma\ge\sigma_1$, and there
+\[
+\frac{d}{d\sigma}\Psi(\xi)=\langle G,G+\mathcal R\rangle\ \ge\ \tfrac12|G|^2\ \ge\ c_0:=\tfrac12\delta_0^2
+\quad\text{whenever }|\xi|\ge R_0 .
+\]
+An excursion outside $B_{R_0}$ after $\sigma_1$ that begins on $\partial B_{R_0}$, or at
+$\xi(\sigma_1)$, and returns to $\partial B_{R_0}$ lasts at most
+$(\max_{\overline B}\Psi-\min_{\overline B}\Psi)/c_0$ with $\overline B$ the closed ball of radius
+$\max\{R_0,|\xi(\sigma_1)|\}$, and so reaches at most a bounded distance. If $\xi$ were unbounded it
+would therefore stay outside $B_{R_0}$ from some time on, and then
+$\Psi(\xi(\sigma))\ge c_0\sigma-O(1)$, contradicting $|\Psi(\xi)|\le C(1+|\xi|)=o(\sigma)$. So $\xi$
+is bounded, and then $\mathcal R=O(\beta^{-1})+O(e^{-c\beta})$, so
+$\int|\mathcal R|^2d\sigma=\int|\mathcal R|^2\beta\,d\tau<\infty$. From
+$\frac{d}{d\sigma}\Psi\ge\frac12|G|^2-\frac12|\mathcal R|^2$ and boundedness of $\Psi(\xi)$,
+$\int|G(\xi)|^2d\sigma<\infty$; $G$ is Lipschitz on the bounded region and $\dot\xi$ is bounded, so
+$G(\xi(\sigma))\to0$. The $\omega$-limit set is nonempty, compact, connected and contained in the
+finite set of profiles, hence one profile $\xi_\star$, and the trajectory lies in its basin. With
+(a) and (b), the endpoint basin of $z$ is the finite union of profile basins, null if no profile
+is a sink and containing an open set otherwise.
+\end{proof}
+
+\corspectral*
+\begin{proof}
+The guided label average is $\sum_kc_kv_{p_k}$ with coefficients $(1+w)\lambda_k$ on the
+conditional priors and $-w$ on the uniform one, which sum to one, so Theorem~\ref{thm:spectral}
+applies with $M_w=(1+w)M_{\mathrm{av}}-wM_{\mathrm u}$. Then $M_w(\xi_\star)=z$ and
+$\Gamma_w(\xi_\star)=(1+w)C_{\mathrm{av}}-wC_{\mathrm u}=C_{\mathrm{av}}-wD$. Congruence by
+$D^{-1/2}$ shows $\Gamma_w\prec0$ on $L$ exactly when $w>w_c^{\mathrm{spec}}$, and part (a) gives
+positive probability. For the two atoms of Theorem~\ref{thm:composition}, with $\xi=s$,
+$C_{\mathrm{av}}=\operatorname{sech}^2B$, $C_{\mathrm u}=1$ and $D=\tanh^2B$, so
+$w_c^{\mathrm{spec}}=\operatorname{sech}^2B/\tanh^2B=1/\sinh^2B$. For a regular simplex of $N$
+unit atoms around $z=0$ with priors $p_{k,j}\propto e^{B\ind\{j=k\}}$ averaged uniformly, the
+restricted mean of prior $k$ at $\xi=0$ is $ma_k$ with $m=(e^B-1)/(e^B+N-1)$, so by symmetry
+$C_{\mathrm{av}}=\frac{1-m^2}{N-1}I$, $C_{\mathrm u}=\frac1{N-1}I$, and
+$w_c^{\mathrm{spec}}=(1-m^2)/m^2$.
+\end{proof}
+
 % ==========================================================================
 \section{Proofs for Section~\ref{sec:transfer}, and what training loss can certify}
 \label{app:transfer}
@@ -1965,6 +2229,44 @@ $F(s^\star-\delta)>0>F(s^\star+\delta)$ and $\beta\min\{F(s^\star-\delta),-F(s^\
 by Brent's method. The basin of $0$ is an interval located by bisection to relative tolerance
 $10^{-12}$, and its probability is computed under $\N(0,1)$. Table~\ref{tab:composition} lists
 the probabilities shown in Figure~\ref{fig:composition}(b).
+
+\paragraph{Spectral criterion.} \texttt{spectral\_criterion\_check.py} draws Gaussian sources,
+integrates $dx/d\tau=M(\beta x)-x$ with RK4 up to $t=1/2$, and then the exact profile equation
+$d\xi/d\sigma=M(\xi)+\xi/(t\beta)$, $d\tau/d\sigma=1/\beta$ with an adaptive Runge--Kutta method
+(relative tolerance $10^{-8}$) to $\sigma=10^4$. It records the fraction of sources with $|\xi|<5$
+at $\sigma=10,10^2,10^3,10^4$; the fractions are unchanged from $\sigma=10^2$ on except for one box
+source near its basin boundary. Table~\ref{tab:spectral} gives the results.
+
+\begin{table}[htb]
+\centering\small
+\begin{tabular}{@{}lrrlcrrrr@{}}
+\toprule
+configuration & $d$ & $N$ & $w$ & profile $\xi=0$ & $\tr\Gamma$ & sources & $\sigma=10^2$ & $\sigma=10^4$\\
+\midrule
+triangle & 2 & 3 & $0.5\,w_c$ & source & $0.268$ & 2048 & $0.0000$ & $0.0000$\\
+triangle & 2 & 3 & $0.9\,w_c$ & source & $0.054$ & 2048 & $0.0000$ & $0.0000$\\
+triangle & 2 & 3 & $1.1\,w_c$ & sink & $-0.054$ & 2048 & $0.0010$ & $0.0010$\\
+triangle & 2 & 3 & $2\,w_c$ & sink & $-0.537$ & 2048 & $0.1396$ & $0.1396$\\
+triangle & 2 & 3 & $5\,w_c$ & sink & $-2.148$ & 2048 & $0.6865$ & $0.6865$\\
+simplex & 8 & 9 & $0.5\,w_c$ & source & $0.414$ & 2048 & $0.0000$ & $0.0000$\\
+simplex & 8 & 9 & $0.9\,w_c$ & source & $0.083$ & 2048 & $0.0000$ & $0.0000$\\
+simplex & 8 & 9 & $1.1\,w_c$ & sink & $-0.083$ & 2048 & $0.0000$ & $0.0000$\\
+simplex & 8 & 9 & $2\,w_c$ & sink & $-0.828$ & 2048 & $0.0000$ & $0.0000$\\
+simplex & 8 & 9 & $5\,w_c$ & sink & $-3.311$ & 2048 & $0.0186$ & $0.0186$\\
+rectangle & 2 & 4 & $1$ & saddle & $-0.572$ & 2048 & $0.0000$ & $0.0000$\\
+rectangle & 2 & 4 & $5$ & sink & $-3.717$ & 2048 & $0.2461$ & $0.2461$\\
+box & 8 & 256 & $1$ & saddle & $-0.572$ & 512 & $0.0000$ & $0.0000$\\
+box & 8 & 256 & $5$ & sink & $-3.717$ & 512 & $0.0039$ & $0.0020$\\
+\bottomrule
+\end{tabular}
+\caption{Numerical check of Theorem~\ref{thm:spectral}: fraction of Gaussian sources whose
+profile $\xi$ stays in $\{|\xi|<5\}$ at fast time $\sigma$, an estimate of $\Pr(X_1=z)$ for $z=0$.
+The class of the profile and $\tr\Gamma$ are computed from $\Gamma(0)$. For the triangle and the
+simplex, $w_c=(1-m^2)/m^2$ is the threshold of Corollary~\ref{cor:spectral-threshold}
+($1.160$ and $4.802$ at $B=2$). The rectangle and the box at $w=1$ are saddles with negative
+trace.}
+\label{tab:spectral}
+\end{table}
 
 \begin{table}[h]
 \centering\small

@@ -1,0 +1,30 @@
+{
+  "date": "2026-10-20",
+  "subject": "Direction A: spectral classification of off-support endpoints (Drafts 3 and 4), integrated as Theorem thm:spectral, Corollary cor:spectral-threshold, Appendix B.6",
+  "verification_protocol": "4 fresh-context verifiers per packet, packet-only (definitions, statements, proofs), reading only the packet file; 4 CORRECT confirms, 2 dissents refute",
+  "verdicts": {
+    "packet_A_draft3_profile_classification": {"correct": 4, "hole": 0, "status": "confirmed"},
+    "packet_B_draft4_global_completeness": {"correct": 4, "hole": 0, "status": "confirmed"}
+  },
+  "fixes_applied_on_integration": [
+    "Lyapunov-Perron lemma: order of choices delta, then epsilon, then T with forcing at the origin <= delta*epsilon; cutoff contribution bounded; fixed point stays in the uncut region; hypotheses hold for every later start time T'; norm stated; time variable renamed",
+    "Off-tie lemma: second derivatives bounded (O(beta^2 e^{-c beta})), giving uniformly Lipschitz first derivatives as Lemma LP requires",
+    "Role of z in aff S stated (L is the direction space of aff S; needed for a root to exist), |S| >= 2",
+    "Face condition: properness of the exposed face F(v) proved from aff{P_L a_j} = P_L z + L",
+    "No-escape step: an excursion already under way at the tail time starts at xi(sigma_1); global existence from Lemma signedconv",
+    "Corollary: guided label average written as an admissible signed mixture with coefficients summing to one; simplex threshold derived",
+    "Draft 1 (full-dimensional version) not used: its negative-definiteness hypothesis on R^d can hold only when the tie atoms span R^d"
+  ],
+  "numerical_check": {
+    "script": "scripts/spectral_criterion_check.py",
+    "results": "results/theory_spectral_20261020/summary.json",
+    "outcome": "every source or saddle profile (including saddles with negative trace in d=2 and d=8) leaves no source at z; every sink in d=2 keeps a stable positive fraction (0.001, 0.140, 0.687 at 1.1, 2, 5 w_c); in d=8 sinks are positive at 5 w_c (0.019 simplex, 0.002 box) and below the 1/2048 resolution at 1.1 and 2 w_c",
+    "caveat": "finite-time computations; positivity of small d=8 basins at 1.1 and 2 w_c is not resolved by 2048 sources"
+  },
+  "checks": {
+    "check_paper": "all passed; main text ends on page 13",
+    "verify_paper_numbers": "429 passed, 0 failed",
+    "test_check_paper": "passed",
+    "existing_proofs": "all 26 earlier proof bodies unchanged and in order; 4 new proofs added"
+  }
+}
