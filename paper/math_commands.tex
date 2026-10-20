@@ -39,4 +39,6 @@
 \newcommand{\src}[1]{\pi_0\!\Big(\frac{x-tx^{#1}}{1-t}\Big)}
 
 % --- pointer from a statement in the body to its proof --------------------
-\newcommand{\proofin}[1]{\hfill\textnormal{\footnotesize[Proof: Appendix~\ref{#1}]}}
+% (main.tex sets \proofpointerfalse in the appendix, so restatements omit it)
+\providecommand{\ifproofpointer}{\iftrue}
+\newcommand{\proofin}[1]{\ifproofpointer\hfill\textnormal{\footnotesize[Proof: Appendix~\ref{#1}]}\fi}
