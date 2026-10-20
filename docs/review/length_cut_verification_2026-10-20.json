@@ -1,0 +1,25 @@
+{
+  "date": "2026-10-20",
+  "source_before": "commit 15010bf (paper/main.tex, 6494 lines)",
+  "source_final_sha256": "eb996556f9bfee05e06966442116e6ad8ae5bcddf69c80e8572f35a80395c9d1",
+  "pdf_sha256": "689c7d2bece2eb1157628ab4fd3f167b6af4efd9c0615420dd44f4a8a470afd9",
+  "pages_total_before_after": [110, 24],
+  "main_text_last_page_before_after": [14, 10],
+  "appendix_pages_after": "12-24",
+  "verification_protocol": "4 fresh-context verifiers per group, packet-only (definitions, statements, proofs), no other tools; 4 CORRECT confirms, 2 dissents refute",
+  "verdicts": {
+    "V1_exact_reference": {"scope": "Appendix A and Appendix D (endpoint noise)", "correct": 4, "hole": 0, "status": "confirmed"},
+    "V2_positive_mixtures": {"scope": "Appendix B.1-B.3 incl. lem:conv and lem:volume", "correct": 4, "hole": 0, "status": "confirmed"},
+    "V3_guidance": {"scope": "Appendix B.4", "correct": 4, "hole": 0, "status": "confirmed"},
+    "V4_composition": {"scope": "Appendix B.5", "correct": 4, "hole": 0, "status": "confirmed"},
+    "V5_transfer": {"scope": "Appendix C", "correct": 4, "hole": 0, "status": "confirmed"}
+  },
+  "changes_after_verification": "minor presentation notes only (continuous-version convention, integral form of Gronwall, narrow continuity, squared distance bound, t_1 in (0,1), n >= max(1, tau_0), parameter symbol, 'uniform in time')",
+  "checks": {
+    "check_paper": "all passed",
+    "verify_paper_numbers": "370 passed, 0 failed",
+    "test_check_paper": "passed",
+    "test_calibration": "passed",
+    "workshop": "compiles, 14 pages, no undefined references"
+  }
+}

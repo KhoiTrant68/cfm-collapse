@@ -150,8 +150,8 @@ _hm0 = [c["h_means"] for f in sorted(glob.glob("results/exp3/_rerun/heff_exp3_ci
         for c in json.loads(pathlib.Path(f).read_text(encoding="utf-8"))["checkpoints"]
         if c["iter"] >= 5000]
 check("h=0 h_mean max from 5k (at or below 2.8)", 2.8, max(_hm0), 2e-2)
-in_tex(r"the two agree at 8/18;")
-in_tex(r"$3.44$--$3.74$ at 60k")
+# The h_eff prose these values supported was cut from main.tex on 2026-10-20; the values
+# themselves are still checked above against the result files.
 
 print("\nBeta trajectory (optimisation gap, not a fixed exponent)")
 bt = json.loads(pathlib.Path("results/exp3/_cifar_ddpm/beta_trajectory.json")
@@ -614,12 +614,12 @@ for it, lo, hi in ((2000, 0.93, 0.96), (20000, 0.73, 0.82), (60000, 0.77, 0.86))
 _spx = json.loads(pathlib.Path("results/exp3/_rerun/calib_levels_summary.json").read_text(encoding="utf-8"))["spearman_h_pos"]["pixel"]
 check("per-pixel miscalibration vs spread |rho|", 0.90, round(abs(_spx["pixel_sd"]["spearman"]), 2), 1e-9)
 check("per-pixel miscalibration vs h_eff |rho|", 0.52, round(abs(_spx["h_eff"]["spearman"]), 2), 1e-9)
-in_tex(r"ends at $0.77$--$0.86$")
 
-print("\nsanity: strings the new text depends on")
-for s in (r"\label{sec:cifarddpm}", r"\label{tab:cifarddpm}",
-          r"\label{fig:cifartrack}", r"\label{sec:p6exposure}",
-          r"\label{sec:seedsplit}", r"fig_cifar_ddpm_tracking.png"):
+print("\nsanity: the image-scale numbers and floats the main text quotes")
+for s in (r"\label{sec:cifarddpm}", r"\label{tab:cifarddpm}", r"\label{tab:exp1}",
+          r"\label{tab:p7kernel}", r"$179.1$", r"$0.431$", r"$48/48$",
+          r"$0.481\pm0.037$", r"$-0.156$", r"$38\%$",
+          r"$1.000$, $0.829$, $0.717$ and $0.620$"):
     in_tex(s)
 
 print(f"\n{ok} checks passed, {fail} failed")
