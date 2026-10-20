@@ -24,6 +24,17 @@
 \usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
 \usepackage{placeins} % \FloatBarrier keeps figures/tables from drifting past a subsection
 \usepackage{enumitem} % lettered sub-claims inside lemma statements
+\usepackage{standalone} % \input of the standalone TikZ figures in figures/tikz/
+\usepackage{tikz}
+\usetikzlibrary{positioning, arrows.meta, shapes.geometric, shapes.misc, fit, backgrounds}
+% OpenTikZ palette (Okabe-Ito, as in scripts/figstyle.py) for the TikZ figures
+\definecolor{otblue}{HTML}{0072B2}
+\definecolor{otorange}{HTML}{E69F00}
+\definecolor{otteal}{HTML}{009E73}
+\definecolor{otpurple}{HTML}{CC79A7}
+\definecolor{otgray}{HTML}{5A5A5A}
+% result numbers inside the TikZ figures: a live \ref here, a fallback when standalone
+\newcommand{\resref}[2]{\ref{#1}}
 
 \graphicspath{{figures/}}
 
@@ -345,7 +356,20 @@ $\beta=t/(1-t)^2\to\infty$ and $\Theta$ the same combination of posterior covari
 $\Theta$ stays away from zero along every trajectory with a non-atom limit, the flow expands volume
 without bound there while bounded sets stay bounded, and Liouville's formula with Fatou's lemma
 makes these initial points null (Lemma~\ref{lem:volume}). The interventions differ only in how the
-two steps are verified, and composition is where Step~2 fails.
+two steps are verified, and composition is where Step~2 fails (Figure~\ref{fig:proof-template}).
+
+\begin{figure}[t]
+\centering
+\resizebox{\textwidth}{!}{\input{figures/tikz/proof_template.tex}}
+\caption{The proof template of Section~\ref{sec:intervention-atomicity}. In the time $\tau$
+every field considered has the form $\dot x=\bar m-x$. Step~1 bounds the kinetic energy, which
+forces convergence to a candidate. At a candidate that is not an atom, Step~2 asks whether the
+combined posterior covariance trace $\Theta$, which sets the divergence $\beta\Theta-d$, stays
+away from zero. Positive mixtures and nonnegative guidance pass both steps; guided label averaging
+fails Step~2 at the tie once $w>w_c=1/\sinh^2B$ (Theorem~\ref{thm:composition},
+Figure~\ref{fig:composition}).}
+\label{fig:proof-template}
+\end{figure}
 
 \subsection{Positive mixtures of priors keep the atoms}
 \label{sec:posmix}
@@ -759,8 +783,9 @@ Appendix~\ref{app:transfer} proves the transfer results of Section~\ref{sec:tran
 the two statements on what training loss can certify. Appendix~\ref{app:noise} treats endpoint
 noise, and Appendix~\ref{app:expdetails} gives experimental details. Each main-text result is
 restated, with its original number, immediately before its proof; longer proofs open with a short
-overview and are divided into named steps. Table~\ref{tab:notation} collects the notation and
-Table~\ref{tab:roadmap} shows where each result is proved and what it uses.
+overview and are divided into named steps. Table~\ref{tab:notation} collects the notation,
+Table~\ref{tab:roadmap} shows where each result is proved and what it uses, and
+Figure~\ref{fig:proof-dependencies} draws the dependencies between the proofs.
 
 \begin{table}[h]
 \centering\small
@@ -815,7 +840,17 @@ Prop.~\ref{prop:tgtnoise} & \ref{app:noise} & Gaussian conditioning; Lemma~\ref{
 and~\ref{lem:volume}; they differ in how the energy and the divergence are controlled.}
 \label{tab:roadmap}
 \end{table}
-\FloatBarrier
+
+\begin{figure}[t]
+\centering
+\resizebox{\textwidth}{!}{\input{figures/tikz/proof_dependencies.tex}}
+\caption{Dependencies between the proofs; an arrow means that the proof of the target uses the
+source. Purple: lemmas; blue: main results; teal: their consequences; orange: the results in
+which the endpoint can leave the training set. Lemma~\ref{lem:basic} is also used directly in the
+proofs of Theorem~\ref{thm:posmix} and Proposition~\ref{prop:localtransfer}, and only part~(a)
+of Proposition~\ref{prop:cfgatom} rests on Theorem~\ref{thm:schedule}.}
+\label{fig:proof-dependencies}
+\end{figure}
 
 \section{Proofs for Section~\ref{sec:theory}}
 \label{app:proofs}

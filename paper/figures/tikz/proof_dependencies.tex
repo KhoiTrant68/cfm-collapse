@@ -1,0 +1,101 @@
+\documentclass[border=4pt]{standalone}
+% Dependency graph of the proofs (figure fig:proof-dependencies, appendix guide).
+% Derived from the OpenTikZ flowchart template (CC0-1.0, github.com/opentikz/opentikz).
+% Compiles on its own; main.tex \input's it through the standalone package, where
+% \resref{label}{fallback} becomes \ref{label}.
+
+% --- packages (mirrored in main.tex) ---
+\usepackage{amsmath,amssymb}
+\usepackage{tikz}
+\usetikzlibrary{positioning, arrows.meta, shapes.geometric, shapes.misc, fit, backgrounds}
+
+% --- palette (OpenTikZ light / Okabe-Ito; same values as scripts/figstyle.py) ---
+\definecolor{otblue}{HTML}{0072B2}
+\definecolor{otorange}{HTML}{E69F00}
+\definecolor{otteal}{HTML}{009E73}
+\definecolor{otpurple}{HTML}{CC79A7}
+\definecolor{otgray}{HTML}{5A5A5A}
+
+% result numbers: printed as fallbacks here, as \ref in main.tex
+\providecommand{\resref}[2]{#2}
+
+\begin{document}
+% ==== parameters (edit these) ============================================
+\def\rowsep{1.75}   % vertical distance between rows (cm)
+\def\colsep{2.65}   % horizontal distance between columns of Section 4 (cm)
+\def\boxminw{2.35}  % minimum box width (cm)
+\def\boxminh{1.0}   % minimum box height (cm)
+% =========================================================================
+
+\begin{tikzpicture}[
+    >={Stealth[length=2.0mm]},
+    base/.style={
+      line width=0.7pt, align=center, font=\sffamily\footnotesize,
+      minimum width=\boxminw cm, minimum height=\boxminh cm, inner sep=3pt,
+      rounded corners=3pt,
+    },
+    lemma/.style={base, draw=otpurple!80!black, fill=otpurple!14},
+    result/.style={base, draw=otblue!70!black, fill=otblue!12},
+    consequence/.style={base, draw=otteal!70!black, fill=otteal!14},
+    leaves/.style={base, draw=otorange!85!black, fill=otorange!22},
+    flow/.style={draw=otgray!75, line width=0.8pt, ->},
+    cluster/.style={draw=otgray!45, rounded corners=5pt, dashed, line width=0.6pt,
+      inner xsep=6pt, inner ysep=6pt},
+    clabel/.style={font=\sffamily\footnotesize\bfseries, text=otgray, anchor=south west},
+  ]
+
+  % --- Section 3 (proofs in Appendix A) ---
+  \node[lemma]       (lemA)  at (0, 0)          {Lemmas \resref{lem:cov}{A.1}--\resref{lem:mixture-coupling}{A.3}\\change of variables,\\flow, coupling};
+  \node[result]      (props) at (0, -\rowsep)   {Props.\ \resref{prop:projection}{3.1}--\resref{prop:kernel-field}{3.3}\\minimisers};
+  \node[result]      (endp)  at (0, -2*\rowsep) {Thm.~\resref{thm:endpoint}{3.4}\\endpoint law};
+  \node[consequence] (atom)  at (0, -3*\rowsep) {Cor.~\resref{cor:zerobw}{3.5}, Prop.~\resref{prop:atomicity}{3.6}\\limits, atomicity};
+
+  % --- Section 4 (proofs in Appendix B) ---
+  \begin{scope}[xshift=4.2cm]
+    \node[lemma]       (basic) at (\colsep, 0)               {Lemma~\resref{lem:basic}{B.1}\\basic facts};
+    \node[lemma]       (conv)  at (0, -\rowsep)              {Lemma~\resref{lem:conv}{B.2}\\convergence};
+    \node[lemma]       (vol)   at (\colsep, -\rowsep)        {Lemma~\resref{lem:volume}{B.3}\\volume expansion};
+    \node[lemma]       (sign)  at (2*\colsep, -\rowsep)      {Lemma~\resref{lem:signedconv}{B.4}\\signed priors\\(uses \resref{lem:conv}{B.2})};
+    \node[result]      (pos)   at (0, -2*\rowsep)            {Thm.~\resref{thm:posmix}{4.1}\\positive mixtures};
+    \node[result]      (sched) at (\colsep, -2*\rowsep)      {Thm.~\resref{thm:schedule}{4.6}\\guidance schedules};
+    \node[leaves]      (comp)  at (2*\colsep, -2*\rowsep)    {Thm.~\resref{thm:composition}{4.7}\\composition};
+    \node[consequence] (posc)  at (0, -3*\rowsep)            {Props.\ \resref{prop:filtered}{4.2}, \resref{prop:hyperplane}{4.3},\\Cor.~\resref{cor:negcfg}{4.5}};
+    \node[consequence] (cfg)   at (\colsep, -3*\rowsep)      {Prop.~\resref{prop:cfgatom}{4.4}\\fixed guidance};
+    \node[leaves]      (open)  at (2*\colsep, -3*\rowsep)    {Prop.~\resref{prop:composition-open}{4.8}\\persistence};
+  \end{scope}
+
+  % --- Section 5 (proofs in Appendix C) ---
+  \node[result]      (trans) at (12.6, -\rowsep)   {Thm.~\resref{thm:transfer}{5.1}\\endpoint transfer};
+  \node[consequence] (local) at (12.6, -2*\rowsep) {Prop.~\resref{prop:localtransfer}{5.2}\\local transfer};
+
+  % --- uses ---
+  \draw[flow] (lemA)  -- (props);
+  \draw[flow] (props) -- (endp);
+  \draw[flow] (endp)  -- (atom);
+  \draw[flow] (lemA.west) to[bend right=28] (endp.west);
+
+  \draw[flow] (basic) -- (conv);
+  \draw[flow] (basic) -- (sign);
+  \draw[flow] (conv)  -- (pos);
+  \draw[flow] (vol)   -- (pos);
+  \draw[flow] (vol)   -- (sched);
+  \draw[flow] (sign)  -- (sched);
+  \draw[flow] (sign)  -- (comp);
+  \draw[flow] (pos)   -- (posc);
+  \draw[flow] (sched) -- (cfg);
+  \draw[flow] (comp)  -- (open);
+
+  \draw[flow] (trans) -- (local);
+
+  % --- clusters ---
+  \begin{scope}[on background layer]
+    \node[cluster, inner xsep=9pt, fit=(lemA)(atom)] (c3) {};
+    \node[cluster, fit=(basic)(conv)(open)]   (c4) {};
+    \node[cluster, fit=(trans)(local)]        (c5) {};
+  \end{scope}
+  \node[clabel] at (c3.north west) {Section~3 $\cdot$ App.~A};
+  \node[clabel] at (c4.north west) {Section~4 $\cdot$ App.~B};
+  \node[clabel] at (c5.north west) {Section~5 $\cdot$ App.~C};
+
+\end{tikzpicture}
+\end{document}
