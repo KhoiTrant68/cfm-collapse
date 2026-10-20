@@ -88,8 +88,9 @@ priors have log-odds $\pm2B$, this happens exactly when the guidance strength ex
 $1/\sinh^2B$, and it persists under perturbation. For a learned field at an identifying label,
 the endpoint lies within the limiting scaled field error of its training example; for data
 prediction this is the late-time prediction error. Exact-field computations confirm the
-threshold, and experiments up to a 35.75M-parameter CIFAR-10 U-Net show hard-conditioning
-collapse at scale.
+threshold, and trained networks, from small MLPs to a 35.75M-parameter CIFAR-10 U-Net, reach
+the hard-conditioning endpoint, and on the synthetic problem they track the label-smoothing
+reference.
 \end{abstract}
 
 % ==========================================================================
@@ -132,7 +133,11 @@ and what a learned field must do to inherit the answer.
 Among the interventions analysed (Table~\ref{tab:interventions}), non-training endpoints thus
 arise only from a support change such as endpoint noise, from averaging hard-label fields, from
 composing label averaging with guidance, or, for learned fields, from an error that does not
-vanish at the scale $(1-t)^{-1}$ up to the end of sampling. Section~\ref{sec:experiments} tests
+vanish at the scale $(1-t)^{-1}$ up to the end of sampling. For a practitioner this says where
+samples off the training set can come from: not from label noise, label averaging or guidance
+applied separately to the field that training defines, but from their composition, from a
+change of the target's support, or from a learned field whose endpoint prediction does not
+converge. Section~\ref{sec:experiments} tests
 the exact statements numerically and measures collapse in trained networks. Proofs are in
 Appendices~\ref{app:proofs}--\ref{app:transfer}, which open with a notation table and a proof
 roadmap (Tables~\ref{tab:notation} and~\ref{tab:roadmap}).
@@ -541,7 +546,13 @@ $\lambda_1\in(0,1)$, containing every configuration of Theorem~\ref{thm:composit
 \proofin{apx:pf-composition-open}
 \end{restatable}
 The limit $0$ is the circumcentre of the atoms and already belongs to $\mathcal C'$: composition
-changes the volume behaviour of the flow at a candidate, not the set of candidates.
+changes the volume behaviour of the flow at a candidate, not the set of candidates. The
+one-dimensional statement isolates a mechanism that does not depend on dimension: in any
+dimension a non-atom candidate can attract a set of sources of positive measure only if the
+combined covariance trace $\Theta$ of Step~2 fails to stay positive there
+(Lemma~\ref{lem:volume}), and averaging lowers $\Theta$ by $(1+w)$ times the
+spread of the component posterior means. Whether this happens for many atoms in high dimension
+is open (Section~\ref{sec:limitations}).
 
 \subsection{What leaves the support}
 \label{sec:interventions}
@@ -625,12 +636,14 @@ iterations. The unconditional baseline keeps
 $\tr\Cov=1.926\pm0.171$ against $\tr\Xhat=1.931$, as Proposition~\ref{prop:uncond} predicts. The
 memorisation ratio of \citet{yoon2023memorization} reaches $0.650\pm0.033$ conditionally and
 $0.389\pm0.032$ unconditionally. A bimodal mixture posterior (EXP-2) and MNIST inpainting
-(EXP-3) show the same collapse.
+(EXP-3) show the same collapse. It occurs for every architecture and optimiser we tried, and
+the spread across seeds is mostly due to the problem instance (Appendix~\ref{app:exp}).
 
 \label{sec:cifarddpm}
 \paragraph{At realistic capacity.} A standard DDPM U-Net ($35.75$M parameters) trained on
 CIFAR-10 bottom-half inpainting ($N{=}2000$, $d{=}3072$, $k{=}1536$, $60000$ iterations) collapses
-at $h{=}0$: the conditional trace falls from $179.1$ at iteration $500$ to $0.431$, and the
+at $h{=}0$: the conditional trace falls from $179.1$ at iteration $500$ to $0.431$ (training-time
+estimator; $0.458$ re-measured at $M=256$, Appendix~\ref{app:exp4}), and the
 generated mean identifies the correct training image at $48/48$ conditions on each of three
 independently redrawn instances. The three instances follow the same trajectory, and in the
 displayed conditions the completions coincide with the training image from iteration $8000$
@@ -778,7 +791,10 @@ and the endpoint weights of averaged fields are not identified. The transfer sta
 conditional on the error along learned trajectories, which we do not infer from the loss and have
 not measured. The exact-field computations are finite-time numerical evaluations, the
 learned-averaging pilot uses five seeds, the synthetic problems have $d\le10$, and the image
-experiments use one mask and $N{=}2000$, with instance and optimisation randomness confounded.
+experiments use one mask and $N{=}2000$, with instance and optimisation randomness confounded
+there (on EXP-1 the two are separated in Appendix~\ref{app:exp}). The composition theorem has no
+trained-network counterpart yet. Class-conditional training, where labels are shared, retains the
+within-class variance instead of collapsing (Appendix~\ref{app:exp4}).
 
 % ==========================================================================
 \section{Conclusion}
@@ -1812,6 +1828,43 @@ $N=500$ and a small U-Net, three seeds: the inpainted-region variance falls from
 $0.137\pm0.021$ to $(1.17\pm0.12)\times10^{-3}$ by 15000 iterations, and the nearest-training-image
 distance to $(0.77\pm0.26)\times10^{-3}$.
 
+\paragraph{Architecture and optimiser.} Collapse does not depend on the network used.
+Table~\ref{tab:ablation} varies the width and depth of the EXP-1 MLP and replaces Adam by SGD
+(momentum $0.9$, learning rate $0.01$), with two seeds each and the same budget of $2\times10^5$
+iterations. Every configuration falls well below $\tr\Sigmapost=1.018$; capacity and the
+optimiser change the speed of the collapse, not its direction. Beyond the baseline, more capacity
+lowers the training loss without a deeper collapse at this budget. Proposition~\ref{prop:collapse}
+constrains the minimiser, not the model, so this is the expected pattern.
+
+\begin{table}[htb]
+\centering\small
+\begin{tabular}{lcccc}
+\toprule
+configuration & width & depth & optimiser & $\tr\Cov$ at $2\times10^5$ \\
+\midrule
+baseline (5 seeds) & 128 & 4 & Adam & $0.396\pm0.127$\\
+narrow & 32 & 4 & Adam & $0.657\pm0.041$\\
+ & 64 & 4 & Adam & $0.526\pm0.041$\\
+wide & 256 & 4 & Adam & $0.403\pm0.056$\\
+shallow & 128 & 2 & Adam & $0.860\pm0.110$\\
+deep & 128 & 6 & Adam & $0.407\pm0.090$\\
+SGD & 128 & 4 & SGD & $0.711\pm0.136$\\
+\bottomrule
+\end{tabular}
+\caption{EXP-1 at $h=0$, architecture and optimiser variants, two seeds each unless stated
+(population standard deviations). The final training loss is $0.586$ for the baseline and $0.460$
+for the width-$256$ network, whose variance is nevertheless the same.}
+\label{tab:ablation}
+\end{table}
+
+\paragraph{Instance and training randomness.} The EXP-1 error bars vary one seed that fixes both
+the problem instance (the operator $A$, hence $\Sigmapost$, and the training set) and the
+training run. Two further sweeps of ten runs each separate them at $2\times10^5$ iterations.
+With the instance fixed and the training seed varied, $\tr\Cov=0.338\pm0.064$; with the training
+seed fixed and the instance varied, $0.404\pm0.121$ (population standard deviations). The
+instance accounts for about $78\%$ of the combined variance. Every run collapses, with values
+between $0.18$ and $0.57$; the two sweeps share the run with both seeds at $0$.
+
 \subsection{CIFAR-10}
 \label{app:exp4}
 
@@ -1839,6 +1892,29 @@ $8000$, $20000$, $40000$ and $60000$ (rows (a)--(f)). Each row shows the observe
 completions from different sources $x_0$, the true image and the nearest training image. Early
 completions vary; from iteration $8000$ all six reproduce the training image in both conditions.}
 \label{fig:cifar-training-grid}
+\end{figure}
+
+\paragraph{Class labels.} With the CIFAR-10 class as the label, about $200$ of the $N=2000$
+training images share each label, so Assumption~\ref{as:standing}(iii) fails. At $h=0$ the
+posterior over atoms given a shared label is then the prior that is uniform on the images of
+that class. The argument for Proposition~\ref{prop:uncond}, with this prior in place of the
+uniform prior on all atoms, gives the within-class empirical law as the exact endpoint law. Its
+variance, the within-class scatter, is $717$ rather than $0$. Two runs of the same U-Net with the
+one-hot class as the label, at $h=0$ and $h=0.4$, keep this variance
+(Figure~\ref{fig:image-class}): the trace of the completions stays at $0.64$--$0.83$ of the
+within-class scatter at $h=0$ and $0.62$--$1.30$ at $h=0.4$ over the six checkpoints, and both end
+at $0.76$ while the training loss falls from $0.22$ to $0.06$. Shared labels therefore remove the
+collapse onto one image but not the restriction to training images of the class.
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.62\textwidth]{fig_image_class.png}
+\caption{Class-conditional CIFAR-10 U-Net ($N=2000$, one seed). (a)~Trace of the covariance of
+the completions, averaged over $10$ conditions, at the six checkpoints, against the within-class
+scatter $717$ (dashed). (b,~c)~Completions at iteration $60000$ for $h=0$ and $h=0.4$; columns as
+in Figure~\ref{fig:cifar-training-grid}. The model sees only the class, and its completions are
+different images of that class.}
+\label{fig:image-class}
 \end{figure}
 
 \begin{table}[htb]
