@@ -1,0 +1,832 @@
+{
+  "configs": [
+    {
+      "name": "tri2",
+      "d": 2,
+      "N": 3,
+      "B": 2.0,
+      "w_over_wc": 0.5,
+      "w": 0.5797929044626009,
+      "w_c_formula": 1.1595858089252018,
+      "prediction": {
+        "eigenvalues": [
+          0.134237,
+          0.134237
+        ],
+        "trace": 0.2684741222443745,
+        "n_positive": 2,
+        "class": "source"
+      },
+      "result": {
+        "n_src": 2048,
+        "seed": 11,
+        "nfev": 944,
+        "checkpoints": [
+          {
+            "u": 10.0,
+            "gap_1_minus_t": 0.17912878475835745,
+            "frac_bounded": 0.01123046875,
+            "frac_escaped": 0.9990234375,
+            "median_norm_bounded": 3.134034688890924
+          },
+          {
+            "u": 100.0,
+            "gap_1_minus_t": 0.06588723436710288,
+            "frac_bounded": 0.0,
+            "frac_escaped": 1.0,
+            "median_norm_bounded": null
+          },
+          {
+            "u": 1000.0,
+            "gap_1_minus_t": 0.021866269261086813,
+            "frac_bounded": 0.0,
+            "frac_escaped": 1.0,
+            "median_norm_bounded": null
+          },
+          {
+            "u": 10000.0,
+            "gap_1_minus_t": 0.007021244594689601,
+            "frac_bounded": 0.0,
+            "frac_escaped": 1.0,
+            "median_norm_bounded": null
+          }
+        ]
+      }
+    },
+    {
+      "name": "tri2",
+      "d": 2,
+      "N": 3,
+      "B": 2.0,
+      "w_over_wc": 0.9,
+      "w": 1.0436272280326817,
+      "w_c_formula": 1.1595858089252018,
+      "prediction": {
+        "eigenvalues": [
+          0.026847,
+          0.026847
+        ],
+        "trace": 0.053694824448874745,
+        "n_positive": 2,
+        "class": "source"
+      },
+      "result": {
+        "n_src": 2048,
+        "seed": 11,
+        "nfev": 1262,
+        "checkpoints": [
+          {
+            "u": 10.0,
+            "gap_1_minus_t": 0.179128784757818,
+            "frac_bounded": 0.03271484375,
+            "frac_escaped": 0.998046875,
+            "median_norm_bounded": 2.923054339870739
+          },
+          {
+            "u": 100.0,
+            "gap_1_minus_t": 0.06588723453185782,
+            "frac_bounded": 0.0,
+            "frac_escaped": 1.0,
+            "median_norm_bounded": null
+          },
+          {
+            "u": 1000.0,
+            "gap_1_minus_t": 0.021866269152409308,
+            "frac_bounded": 0.0,
+            "frac_escaped": 1.0,
+            "median_norm_bounded": null
+          },
+          {
+            "u": 10000.0,
+            "gap_1_minus_t": 0.007021244594263811,
+            "frac_bounded": 0.0,
+            "frac_escaped": 1.0,
+            "median_norm_bounded": null
+          }
+        ]
+      }
+    },
+    {
+      "name": "tri2",
+      "d": 2,
+      "N": 3,
+      "B": 2.0,
+      "w_over_wc": 1.1,
+      "w": 1.2755443898177221,
+      "w_c_formula": 1.1595858089252018,
+      "prediction": {
+        "eigenvalues": [
+          -0.026847,
+          -0.026847
+        ],
+        "trace": -0.05369482444887497,
+        "n_positive": 0,
+        "class": "sink"
+      },
+      "result": {
+        "n_src": 2048,
+        "seed": 11,
+        "nfev": 1988,
+        "checkpoints": [
+          {
+            "u": 10.0,
+            "gap_1_minus_t": 0.1791287847578954,
+            "frac_bounded": 0.05517578125,
+            "frac_escaped": 0.99267578125,
+            "median_norm_bounded": 2.3977095391916143
+          },
+          {
+            "u": 100.0,
+            "gap_1_minus_t": 0.06588723439429982,
+            "frac_bounded": 0.0009765625,
+            "frac_escaped": 0.9990234375,
+            "median_norm_bounded": 0.03546180410047243
+          },
+          {
+            "u": 1000.0,
+            "gap_1_minus_t": 0.021866269184553106,
+            "frac_bounded": 0.0009765625,
+            "frac_escaped": 0.9990234375,
+            "median_norm_bounded": 6.210630442530224e-12
+          },
+          {
+            "u": 10000.0,
+            "gap_1_minus_t": 0.007021244587806049,
+            "frac_bounded": 0.0009765625,
+            "frac_escaped": 0.9990234375,
+            "median_norm_bounded": 9.678396395001774e-10
+          }
+        ]
+      }
+    },
+    {
+      "name": "tri2",
+      "d": 2,
+      "N": 3,
+      "B": 2.0,
+      "w_over_wc": 2.0,
+      "w": 2.3191716178504036,
+      "w_c_formula": 1.1595858089252018,
+      "prediction": {
+        "eigenvalues": [
+          -0.268474,
+          -0.268474
+        ],
+        "trace": -0.5369482444887488,
+        "n_positive": 0,
+        "class": "sink"
+      },
+      "result": {
+        "n_src": 2048,
+        "seed": 11,
+        "nfev": 6560,
+        "checkpoints": [
+          {
+            "u": 10.0,
+            "gap_1_minus_t": 0.1791287847549932,
+            "frac_bounded": 0.2119140625,
+            "frac_escaped": 0.87744140625,
+            "median_norm_bounded": 0.3230282161437924
+          },
+          {
+            "u": 100.0,
+            "gap_1_minus_t": 0.06588723429562357,
+            "frac_bounded": 0.1396484375,
+            "frac_escaped": 0.8603515625,
+            "median_norm_bounded": 1.8056469252653223e-11
+          },
+          {
+            "u": 1000.0,
+            "gap_1_minus_t": 0.021866269248580147,
+            "frac_bounded": 0.1396484375,
+            "frac_escaped": 0.8603515625,
+            "median_norm_bounded": 6.210680807092989e-13
+          },
+          {
+            "u": 10000.0,
+            "gap_1_minus_t": 0.007021244586424225,
+            "frac_bounded": 0.1396484375,
+            "frac_escaped": 0.8603515625,
+            "median_norm_bounded": 7.952338394052432e-13
+          }
+        ]
+      }
+    },
+    {
+      "name": "tri2",
+      "d": 2,
+      "N": 3,
+      "B": 2.0,
+      "w_over_wc": 5.0,
+      "w": 5.797929044626009,
+      "w_c_formula": 1.1595858089252018,
+      "prediction": {
+        "eigenvalues": [
+          -1.073896,
+          -1.073896
+        ],
+        "trace": -2.147792977954996,
+        "n_positive": 0,
+        "class": "sink"
+      },
+      "result": {
+        "n_src": 2048,
+        "seed": 11,
+        "nfev": 26588,
+        "checkpoints": [
+          {
+            "u": 10.0,
+            "gap_1_minus_t": 0.17912878475181113,
+            "frac_bounded": 0.6953125,
+            "frac_escaped": 0.314453125,
+            "median_norm_bounded": 7.812736411892574e-05
+          },
+          {
+            "u": 100.0,
+            "gap_1_minus_t": 0.06588723440341174,
+            "frac_bounded": 0.6865234375,
+            "frac_escaped": 0.3134765625,
+            "median_norm_bounded": 7.30274252409507e-15
+          },
+          {
+            "u": 1000.0,
+            "gap_1_minus_t": 0.021866269246676496,
+            "frac_bounded": 0.6865234375,
+            "frac_escaped": 0.3134765625,
+            "median_norm_bounded": 1.0909795406138986e-15
+          },
+          {
+            "u": 10000.0,
+            "gap_1_minus_t": 0.0070212445863619515,
+            "frac_bounded": 0.6865234375,
+            "frac_escaped": 0.3134765625,
+            "median_norm_bounded": 7.474393110665926e-16
+          }
+        ]
+      }
+    },
+    {
+      "name": "simplex8",
+      "d": 8,
+      "N": 9,
+      "B": 2.0,
+      "w_over_wc": 0.5,
+      "w": 2.400818570669426,
+      "w_c_formula": 4.801637141338852,
+      "prediction": {
+        "eigenvalues": [
+          0.051727,
+          0.051727,
+          0.051727,
+          0.051727,
+          0.051727,
+          0.051727,
+          0.051727,
+          0.051727
+        ],
+        "trace": 0.41381742983591485,
+        "n_positive": 8,
+        "class": "source"
+      },
+      "result": {
+        "n_src": 2048,
+        "seed": 11,
+        "nfev": 908,
+        "checkpoints": [
+          {
+            "u": 10.0,
+            "gap_1_minus_t": 0.1791287847681659,
+            "frac_bounded": 0.0,
+            "frac_escaped": 1.0,
+            "median_norm_bounded": null
+          },
+          {
+            "u": 100.0,
+            "gap_1_minus_t": 0.06588723446065173,
+            "frac_bounded": 0.0,
+            "frac_escaped": 1.0,
+            "median_norm_bounded": null
+          },
+          {
+            "u": 1000.0,
+            "gap_1_minus_t": 0.021866269210167162,
+            "frac_bounded": 0.0,
+            "frac_escaped": 1.0,
+            "median_norm_bounded": null
+          },
+          {
+            "u": 10000.0,
+            "gap_1_minus_t": 0.007021244593931844,
+            "frac_bounded": 0.0,
+            "frac_escaped": 1.0,
+            "median_norm_bounded": null
+          }
+        ]
+      }
+    },
+    {
+      "name": "simplex8",
+      "d": 8,
+      "N": 9,
+      "B": 2.0,
+      "w_over_wc": 0.9,
+      "w": 4.321473427204967,
+      "w_c_formula": 4.801637141338852,
+      "prediction": {
+        "eigenvalues": [
+          0.010345,
+          0.010345,
+          0.010345,
+          0.010345,
+          0.010345,
+          0.010345,
+          0.010345,
+          0.010345
+        ],
+        "trace": 0.08276348596718419,
+        "n_positive": 8,
+        "class": "source"
+      },
+      "result": {
+        "n_src": 2048,
+        "seed": 11,
+        "nfev": 1328,
+        "checkpoints": [
+          {
+            "u": 10.0,
+            "gap_1_minus_t": 0.17912878476653066,
+            "frac_bounded": 0.00048828125,
+            "frac_escaped": 1.0,
+            "median_norm_bounded": 4.9505072783926325
+          },
+          {
+            "u": 100.0,
+            "gap_1_minus_t": 0.06588723438821568,
+            "frac_bounded": 0.0,
+            "frac_escaped": 1.0,
+            "median_norm_bounded": null
+          },
+          {
+            "u": 1000.0,
+            "gap_1_minus_t": 0.02186626930685406,
+            "frac_bounded": 0.0,
+            "frac_escaped": 1.0,
+            "median_norm_bounded": null
+          },
+          {
+            "u": 10000.0,
+            "gap_1_minus_t": 0.007021244593902503,
+            "frac_bounded": 0.0,
+            "frac_escaped": 1.0,
+            "median_norm_bounded": null
+          }
+        ]
+      }
+    },
+    {
+      "name": "simplex8",
+      "d": 8,
+      "N": 9,
+      "B": 2.0,
+      "w_over_wc": 1.1,
+      "w": 5.281800855472738,
+      "w_c_formula": 4.801637141338852,
+      "prediction": {
+        "eigenvalues": [
+          -0.010345,
+          -0.010345,
+          -0.010345,
+          -0.010345,
+          -0.010345,
+          -0.010345,
+          -0.010345,
+          -0.010345
+        ],
+        "trace": -0.08276348596718162,
+        "n_positive": 0,
+        "class": "sink"
+      },
+      "result": {
+        "n_src": 2048,
+        "seed": 11,
+        "nfev": 2540,
+        "checkpoints": [
+          {
+            "u": 10.0,
+            "gap_1_minus_t": 0.1791287847621006,
+            "frac_bounded": 0.00048828125,
+            "frac_escaped": 1.0,
+            "median_norm_bounded": 4.808289344647975
+          },
+          {
+            "u": 100.0,
+            "gap_1_minus_t": 0.06588723439460772,
+            "frac_bounded": 0.0,
+            "frac_escaped": 1.0,
+            "median_norm_bounded": null
+          },
+          {
+            "u": 1000.0,
+            "gap_1_minus_t": 0.021866269165069577,
+            "frac_bounded": 0.0,
+            "frac_escaped": 1.0,
+            "median_norm_bounded": null
+          },
+          {
+            "u": 10000.0,
+            "gap_1_minus_t": 0.007021244588734332,
+            "frac_bounded": 0.0,
+            "frac_escaped": 1.0,
+            "median_norm_bounded": null
+          }
+        ]
+      }
+    },
+    {
+      "name": "simplex8",
+      "d": 8,
+      "N": 9,
+      "B": 2.0,
+      "w_over_wc": 2.0,
+      "w": 9.603274282677704,
+      "w_c_formula": 4.801637141338852,
+      "prediction": {
+        "eigenvalues": [
+          -0.103454,
+          -0.103454,
+          -0.103454,
+          -0.103454,
+          -0.103454,
+          -0.103454,
+          -0.103454,
+          -0.103454
+        ],
+        "trace": -0.8276348596718273,
+        "n_positive": 0,
+        "class": "sink"
+      },
+      "result": {
+        "n_src": 2048,
+        "seed": 11,
+        "nfev": 5588,
+        "checkpoints": [
+          {
+            "u": 10.0,
+            "gap_1_minus_t": 0.1791287847493634,
+            "frac_bounded": 0.00537109375,
+            "frac_escaped": 1.0,
+            "median_norm_bounded": 4.292626204878183
+          },
+          {
+            "u": 100.0,
+            "gap_1_minus_t": 0.06588723440638722,
+            "frac_bounded": 0.0,
+            "frac_escaped": 1.0,
+            "median_norm_bounded": null
+          },
+          {
+            "u": 1000.0,
+            "gap_1_minus_t": 0.021866269248701636,
+            "frac_bounded": 0.0,
+            "frac_escaped": 1.0,
+            "median_norm_bounded": null
+          },
+          {
+            "u": 10000.0,
+            "gap_1_minus_t": 0.007021244586427892,
+            "frac_bounded": 0.0,
+            "frac_escaped": 1.0,
+            "median_norm_bounded": null
+          }
+        ]
+      }
+    },
+    {
+      "name": "simplex8",
+      "d": 8,
+      "N": 9,
+      "B": 2.0,
+      "w_over_wc": 5.0,
+      "w": 24.00818570669426,
+      "w_c_formula": 4.801637141338852,
+      "prediction": {
+        "eigenvalues": [
+          -0.413817,
+          -0.413817,
+          -0.413817,
+          -0.413817,
+          -0.413817,
+          -0.413817,
+          -0.413817,
+          -0.413817
+        ],
+        "trace": -3.31053943868731,
+        "n_positive": 0,
+        "class": "sink"
+      },
+      "result": {
+        "n_src": 2048,
+        "seed": 11,
+        "nfev": 23978,
+        "checkpoints": [
+          {
+            "u": 10.0,
+            "gap_1_minus_t": 0.1791287847545543,
+            "frac_bounded": 0.08984375,
+            "frac_escaped": 0.9892578125,
+            "median_norm_bounded": 3.496288012341248
+          },
+          {
+            "u": 100.0,
+            "gap_1_minus_t": 0.06588723448784727,
+            "frac_bounded": 0.0185546875,
+            "frac_escaped": 0.9814453125,
+            "median_norm_bounded": 2.4232417907163567e-15
+          },
+          {
+            "u": 1000.0,
+            "gap_1_minus_t": 0.021866269246458493,
+            "frac_bounded": 0.0185546875,
+            "frac_escaped": 0.9814453125,
+            "median_norm_bounded": 1.3787027623675597e-15
+          },
+          {
+            "u": 10000.0,
+            "gap_1_minus_t": 0.007021244586354836,
+            "frac_bounded": 0.0185546875,
+            "frac_escaped": 0.9814453125,
+            "median_norm_bounded": 1.5798745700738253e-15
+          }
+        ]
+      }
+    },
+    {
+      "name": "rect2",
+      "d": 2,
+      "N": 4,
+      "B_axes": [
+        2.0,
+        0.5
+      ],
+      "half_widths": [
+        2.0,
+        1.0
+      ],
+      "w": 1.0,
+      "prediction": {
+        "eigenvalues": [
+          -0.686959,
+          0.114579
+        ],
+        "trace": -0.5723795870485662,
+        "n_positive": 1,
+        "class": "saddle"
+      },
+      "result": {
+        "n_src": 2048,
+        "seed": 11,
+        "nfev": 15170,
+        "checkpoints": [
+          {
+            "u": 10.0,
+            "gap_1_minus_t": 0.17912878478006206,
+            "frac_bounded": 0.25537109375,
+            "frac_escaped": 0.97607421875,
+            "median_norm_bounded": 2.5610159412573643
+          },
+          {
+            "u": 100.0,
+            "gap_1_minus_t": 0.06588723465649451,
+            "frac_bounded": 0.0,
+            "frac_escaped": 1.0,
+            "median_norm_bounded": null
+          },
+          {
+            "u": 1000.0,
+            "gap_1_minus_t": 0.02186626924681588,
+            "frac_bounded": 0.0,
+            "frac_escaped": 1.0,
+            "median_norm_bounded": null
+          },
+          {
+            "u": 10000.0,
+            "gap_1_minus_t": 0.007021244586366491,
+            "frac_bounded": 0.0,
+            "frac_escaped": 1.0,
+            "median_norm_bounded": null
+          }
+        ]
+      }
+    },
+    {
+      "name": "rect2",
+      "d": 2,
+      "N": 4,
+      "B_axes": [
+        2.0,
+        0.5
+      ],
+      "half_widths": [
+        2.0,
+        1.0
+      ],
+      "w": 5.0,
+      "prediction": {
+        "eigenvalues": [
+          -3.660876,
+          -0.056263
+        ],
+        "trace": -3.7171387611456983,
+        "n_positive": 0,
+        "class": "sink"
+      },
+      "result": {
+        "n_src": 2048,
+        "seed": 11,
+        "nfev": 77774,
+        "checkpoints": [
+          {
+            "u": 10.0,
+            "gap_1_minus_t": 0.1791287847705173,
+            "frac_bounded": 0.51416015625,
+            "frac_escaped": 0.8369140625,
+            "median_norm_bounded": 0.9652434421286058
+          },
+          {
+            "u": 100.0,
+            "gap_1_minus_t": 0.06588723439507181,
+            "frac_bounded": 0.24609375,
+            "frac_escaped": 0.75390625,
+            "median_norm_bounded": 0.008150153298056191
+          },
+          {
+            "u": 1000.0,
+            "gap_1_minus_t": 0.021866269246389722,
+            "frac_bounded": 0.24609375,
+            "frac_escaped": 0.75390625,
+            "median_norm_bounded": 2.68525972495629e-11
+          },
+          {
+            "u": 10000.0,
+            "gap_1_minus_t": 0.007021244586352528,
+            "frac_bounded": 0.24609375,
+            "frac_escaped": 0.75390625,
+            "median_norm_bounded": 6.033932434063995e-12
+          }
+        ]
+      }
+    },
+    {
+      "name": "cube8",
+      "d": 8,
+      "N": 256,
+      "B_axes": [
+        2.0,
+        2.0,
+        2.0,
+        2.0,
+        0.5,
+        0.5,
+        0.5,
+        0.5
+      ],
+      "half_widths": [
+        2.0,
+        2.0,
+        2.0,
+        2.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "w": 1.0,
+      "prediction": {
+        "eigenvalues": [
+          -0.17174,
+          -0.17174,
+          -0.17174,
+          -0.17174,
+          0.028645,
+          0.028645,
+          0.028645,
+          0.028645
+        ],
+        "trace": -0.5723795870485641,
+        "n_positive": 4,
+        "class": "saddle"
+      },
+      "result": {
+        "n_src": 512,
+        "seed": 11,
+        "nfev": 4460,
+        "checkpoints": [
+          {
+            "u": 10.0,
+            "gap_1_minus_t": 0.1791287847848335,
+            "frac_bounded": 0.0234375,
+            "frac_escaped": 1.0,
+            "median_norm_bounded": 4.366133955584792
+          },
+          {
+            "u": 100.0,
+            "gap_1_minus_t": 0.06588723440249994,
+            "frac_bounded": 0.0,
+            "frac_escaped": 1.0,
+            "median_norm_bounded": null
+          },
+          {
+            "u": 1000.0,
+            "gap_1_minus_t": 0.021866269248352412,
+            "frac_bounded": 0.0,
+            "frac_escaped": 1.0,
+            "median_norm_bounded": null
+          },
+          {
+            "u": 10000.0,
+            "gap_1_minus_t": 0.007021244586417995,
+            "frac_bounded": 0.0,
+            "frac_escaped": 1.0,
+            "median_norm_bounded": null
+          }
+        ]
+      }
+    },
+    {
+      "name": "cube8",
+      "d": 8,
+      "N": 256,
+      "B_axes": [
+        2.0,
+        2.0,
+        2.0,
+        2.0,
+        0.5,
+        0.5,
+        0.5,
+        0.5
+      ],
+      "half_widths": [
+        2.0,
+        2.0,
+        2.0,
+        2.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "w": 5.0,
+      "prediction": {
+        "eigenvalues": [
+          -0.915219,
+          -0.915219,
+          -0.915219,
+          -0.915219,
+          -0.014066,
+          -0.014066,
+          -0.014066,
+          -0.014066
+        ],
+        "trace": -3.7171387611456876,
+        "n_positive": 0,
+        "class": "sink"
+      },
+      "result": {
+        "n_src": 512,
+        "seed": 11,
+        "nfev": 19868,
+        "checkpoints": [
+          {
+            "u": 10.0,
+            "gap_1_minus_t": 0.17912878477289204,
+            "frac_bounded": 0.123046875,
+            "frac_escaped": 1.0,
+            "median_norm_bounded": 3.7916580131464896
+          },
+          {
+            "u": 100.0,
+            "gap_1_minus_t": 0.06588723439529937,
+            "frac_bounded": 0.00390625,
+            "frac_escaped": 0.99609375,
+            "median_norm_bounded": 2.9533636498542335
+          },
+          {
+            "u": 1000.0,
+            "gap_1_minus_t": 0.02186626924658974,
+            "frac_bounded": 0.001953125,
+            "frac_escaped": 0.998046875,
+            "median_norm_bounded": 1.3045654699753117e-05
+          },
+          {
+            "u": 10000.0,
+            "gap_1_minus_t": 0.007021244586359101,
+            "frac_bounded": 0.001953125,
+            "frac_escaped": 0.998046875,
+            "median_norm_bounded": 6.485518549627898e-11
+          }
+        ]
+      }
+    }
+  ]
+}
