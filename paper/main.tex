@@ -619,7 +619,9 @@ population standard deviations. Appendix~\ref{app:expdetails} gives all settings
 \paragraph{Hard conditioning.} On EXP-1 the conditional variance tracks the posterior,
 $\tr\Sigmapost=1.018$, up to $\sim\!10^4$ iterations, then collapses: $0.396\pm0.127$ at
 $2\times10^5$ and $0.120\pm0.054$ at $10^6$ with a cosine schedule, while the velocity approaches $(\star)$ and the
-generated mean moves to $x^i$ (Table~\ref{tab:exp1}). The unconditional baseline keeps
+generated mean moves to $x^i$ (Figure~\ref{fig:exp1-collapse}, Table~\ref{tab:exp1}). The
+distance of the generated mean to the training atom and to the posterior mean cross near $10^5$
+iterations. The unconditional baseline keeps
 $\tr\Cov=1.926\pm0.171$ against $\tr\Xhat=1.931$, as Proposition~\ref{prop:uncond} predicts. The
 memorisation ratio of \citet{yoon2023memorization} reaches $0.650\pm0.033$ conditionally and
 $0.389\pm0.032$ unconditionally. A bimodal mixture posterior (EXP-2) and MNIST inpainting
@@ -630,7 +632,34 @@ $0.389\pm0.032$ unconditionally. A bimodal mixture posterior (EXP-2) and MNIST i
 CIFAR-10 bottom-half inpainting ($N{=}2000$, $d{=}3072$, $k{=}1536$, $60000$ iterations) collapses
 at $h{=}0$: the conditional trace falls from $179.1$ at iteration $500$ to $0.431$, and the
 generated mean identifies the correct training image at $48/48$ conditions on each of three
-independently redrawn instances.
+independently redrawn instances. The three instances follow the same trajectory, and in the
+displayed conditions the completions coincide with the training image from iteration $8000$
+(Figure~\ref{fig:cifar-collapse}; Figure~\ref{fig:cifar-training-grid} shows all checkpoints).
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{fig_exp1_collapse.pdf}
+\caption{Hard-conditioning collapse on EXP-1, five seeds (mean $\pm$ one population standard
+deviation; solid: constant learning rate, dashed: cosine schedule to $10^6$ iterations).
+(a)~The generated variance stays at $\tr\Sigmapost$ up to about $10^4$ iterations and then falls
+to $0.396\pm0.127$ at $2\times10^5$ and $0.120\pm0.054$ at $10^6$, while the unconditional
+model keeps $\tr\Xhat$ (Proposition~\ref{prop:uncond}). (b)~The generated mean leaves the
+posterior mean for the training atom $x^i$. (c)~The learned velocity approaches the collapsed
+field $(\star)$ of Proposition~\ref{prop:collapse}. Values as in Table~\ref{tab:exp1}.}
+\label{fig:exp1-collapse}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{fig_cifar_collapse.pdf}
+\caption{Hard-conditioning collapse of the $35.75$M-parameter CIFAR-10 U-Net at $h=0$.
+(a)~Generated variance against iteration for the three independently redrawn instances, from
+the training-time estimator ($8$ conditions, $M=16$). (b)~One condition of the first instance
+at three checkpoints: the observed top half, three completions from different sources $x_0$,
+the true image and the nearest training image. From iteration $8000$ the completions coincide
+with the training image.}
+\label{fig:cifar-collapse}
+\end{figure}
 
 \label{sec:p7}
 \paragraph{Label smoothing and the kernel reference.} On EXP-1 the generated variance follows
@@ -643,6 +672,21 @@ puts at $1$, is $0.481\pm0.037$ at $h{=}4$ and $-0.156$ at $h{=}6$, where the re
 only $0.74$ decades (Table~\ref{tab:cifarddpm}). At $h{=}6$, $38\%$ of the finite-cutoff samples
 are off-atom by the nearest-neighbour criterion; this combines learned-field, truncation and
 discretisation effects and does not identify a limiting support.
+Figure~\ref{fig:kernel-tracking} shows both regimes.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{fig_kernel_tracking.pdf}
+\caption{Label smoothing against the kernel reference $\Covh$ of
+Section~\ref{sec:theory}. (a)~EXP-1, five seeds: the generated variance follows $\tr\Covh$
+rather than $\tr\Sigmapost$. (b)~Its ratio to $\tr\Covh$, with the effective number of atoms
+$n_{\mathrm{eff}}$; the ratio is unstable only at $h=0.01$, where $n_{\mathrm{eff}}\approx3.5$
+(Table~\ref{tab:p7kernel}). (c)~CIFAR-10, one cross per condition ($48$ conditions, $M=256$):
+measured against reference variance on log scales, with the fitted lines and the identity that
+the exact field predicts. The slope is $0.48$ at $h=4$ and $-0.16$ at $h=6$, where the reference
+spans less than a decade (Table~\ref{tab:cifarddpm}).}
+\label{fig:kernel-tracking}
+\end{figure}
 
 \subsection{Averaging, guidance, and ties}
 \label{sec:intervention-tests}
@@ -761,7 +805,9 @@ Theory checks: \texttt{composition\_counterexample.py} (with
 \texttt{analyze\_p7\_kernel.py}, \texttt{verify\_kernel\_theory.py},
 \texttt{verify\_target\_noise.py}. Experiments: \texttt{run\_exp1.sh}, \texttt{run\_sweeps.py},
 \texttt{train\_exp2}, \texttt{train\_exp3}, each followed by its analysis script, and
-\texttt{verify\_paper\_numbers.py} for the image-scale numbers. Every assumption is stated where
+\texttt{verify\_paper\_numbers.py} for the image-scale numbers; the result figures of
+Section~\ref{sec:experiments} are drawn from the saved outputs by
+\texttt{make\_results\_figures.py}. Every assumption is stated where
 it is used, and all load-bearing results are proved in
 Appendices~\ref{app:proofs}--\ref{app:noise}.
 
@@ -1781,7 +1827,19 @@ the training-time estimator ($8$ conditions, $M=16$), whose final value $0.431$ 
 $0.458$ re-measured. A sample is on an atom when its squared distance to the nearest training
 image is at most $\tfrac19$ of that to the second nearest \citep{yoon2023memorization}, a relative
 finite-cutoff criterion. The on-atom fractions are $1.000$, $0.829$, $0.717$ and $0.620$ at
-$h=0,4,5,6$. Table~\ref{tab:cifarddpm} reports the variance comparison.
+$h=0,4,5,6$. Table~\ref{tab:cifarddpm} reports the variance comparison, and
+Figure~\ref{fig:cifar-training-grid} shows the $h=0$ samples of the first instance through
+training.
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.82\textwidth]{fig_image_training.png}
+\caption{CIFAR-10 U-Net at $h=0$, first instance: two conditions at iterations $500$, $2000$,
+$8000$, $20000$, $40000$ and $60000$ (rows (a)--(f)). Each row shows the observed top half, six
+completions from different sources $x_0$, the true image and the nearest training image. Early
+completions vary; from iteration $8000$ all six reproduce the training image in both conditions.}
+\label{fig:cifar-training-grid}
+\end{figure}
 
 \begin{table}[htb]
 \centering\small
