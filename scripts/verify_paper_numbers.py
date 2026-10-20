@@ -615,6 +615,51 @@ _spx = json.loads(pathlib.Path("results/exp3/_rerun/calib_levels_summary.json").
 check("per-pixel miscalibration vs spread |rho|", 0.90, round(abs(_spx["pixel_sd"]["spearman"]), 2), 1e-9)
 check("per-pixel miscalibration vs h_eff |rho|", 0.52, round(abs(_spx["h_eff"]["spearman"]), 2), 1e-9)
 
+print("\nAppendix E: architecture/optimiser ablation (results/exp1/ablation_*), population sd")
+for _cfg, _m, _s in (("width32", 0.657, 0.041), ("width64", 0.526, 0.041),
+                     ("width256", 0.403, 0.056), ("depth2", 0.860, 0.110),
+                     ("depth6", 0.407, 0.090), ("sgd", 0.711, 0.136)):
+    _v = np.array([pd.read_csv(f).query("group == 'train' and iter == 200000")["trace_cov_mean"].iloc[0]
+                   for f in sorted(glob.glob(f"results/exp1/ablation_{_cfg}_seed*/raw/metrics.csv"))])
+    check(f"ablation {_cfg} mean", _m, _v.mean(), 2e-3)
+    check(f"ablation {_cfg} sd", _s, _v.std(ddof=0), 2e-2)
+    in_tex(f"${_m:.3f}\\pm{_s:.3f}$")
+_l = [pd.read_csv(f).query("group == 'train' and iter == 200000")["train_loss"].iloc[0]
+      for f in sorted(glob.glob("results/exp1/exp1_cond_seed[0-4]/raw/metrics.csv"))]
+check("baseline training loss at 2e5", 0.586, float(np.mean(_l)), 2e-3)
+_l = [pd.read_csv(f).query("group == 'train' and iter == 200000")["train_loss"].iloc[0]
+      for f in sorted(glob.glob("results/exp1/ablation_width256_seed*/raw/metrics.csv"))]
+check("width-256 training loss at 2e5", 0.460, float(np.mean(_l)), 2e-3)
+
+print("\nAppendix E: instance vs training randomness (results/exp1/seedsplit_*), population sd")
+_ss = {}
+for _k in ("train", "inst"):
+    _ss[_k] = np.array([pd.read_csv(f).query("group == 'train' and iter == 200000")["trace_cov_mean"].iloc[0]
+                        for f in sorted(glob.glob(f"results/exp1/seedsplit_{_k}_s*/raw/metrics.csv"))])
+check("seed split: runs per sweep", 10, len(_ss["train"]), 0)
+check("seed split: instances per sweep", 10, len(_ss["inst"]), 0)
+check("training seed varied: mean", 0.338, _ss["train"].mean(), 2e-3)
+check("training seed varied: sd", 0.064, _ss["train"].std(ddof=0), 1e-2)
+check("instance varied: mean", 0.404, _ss["inst"].mean(), 2e-3)
+check("instance varied: sd", 0.121, _ss["inst"].std(ddof=0), 1e-2)
+_vi, _vr = _ss["inst"].var(), _ss["train"].var()
+check("instance share of variance", 0.78, _vi / (_vi + _vr), 1e-2)
+_all = np.concatenate([_ss["train"], _ss["inst"]])
+check("seed split: smallest value", 0.18, round(_all.min(), 2), 1e-9)
+check("seed split: largest value", 0.57, round(_all.max(), 2), 1e-9)
+
+print("\nAppendix E: class-conditional CIFAR-10 (results/exp3/exp3_cifar_class_*)")
+for _h, _run, _lo, _hi in ((0.0, "exp3_cifar_class_h0", 0.64, 0.83), (0.4, "exp3_cifar_class_h0p4", 0.62, 1.30)):
+    _d = pd.read_csv(f"results/exp3/{_run}/raw/metrics.csv").sort_values("iter")
+    _r = _d["trace_cov_mean"] / _d["trace_cov_kernel_mean"]
+    check(f"class h={_h:g}: min ratio to within-class scatter", _lo, round(_r.min(), 2), 1e-9)
+    check(f"class h={_h:g}: max ratio", _hi, round(_r.max(), 2), 1e-9)
+    check(f"class h={_h:g}: ratio at 60000", 0.76, round(_r.iloc[-1], 2), 1e-9)
+    check(f"class h={_h:g}: first loss", 0.22, round(_d["train_loss"].iloc[0], 2), 1e-9)
+    check(f"class h={_h:g}: last loss", 0.06, round(_d["train_loss"].iloc[-1], 2), 1e-9)
+check("class h=0: within-class scatter", 717, round(pd.read_csv(
+    "results/exp3/exp3_cifar_class_h0/raw/metrics.csv")["trace_cov_kernel_mean"].iloc[0]), 1e-9)
+
 print("\nsanity: the image-scale numbers and floats the main text quotes")
 for s in (r"\label{sec:cifarddpm}", r"\label{tab:cifarddpm}", r"\label{tab:exp1}",
           r"\label{tab:p7kernel}", r"$179.1$", r"$0.431$", r"$48/48$",
