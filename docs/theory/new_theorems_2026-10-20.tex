@@ -1,0 +1,507 @@
+% New theory for the paper (20 October 2026): three theorems and one conjecture, written as
+% candidates for Section 4 (T1), Section 2/Appendix (T2) and Section 5 (T3).
+%
+% Status. The statements and proofs below were drafted in this session: for each theorem,
+% independent solver runs (pure reasoning, no computation) produced complete proofs, and the
+% cleaned proof was then attacked by fresh-context verifiers (general adversarial, one-line-lemma
+% extraction, specification check, consecutive pass), 4 agreements to confirm, 2 dissents to
+% refute. The vote record is in docs/review/venue_acceptance_plan_2026-10-20.md, Section 9.
+% These are drafts for the author to check line by line before anything enters main.tex;
+% remarks marked [not voted] were derived by a single solver and not put to the vote.
+%
+% Notation follows paper/main.tex, Appendix B. References "Lemma B.x", "Theorem 4.x" are to the
+% numbering of the build of 20 October 2026 (main at 222d129).
+%
+% Compile: pdflatex new_theorems_2026-10-20.tex
+
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+\usepackage[colorlinks=true,linkcolor=blue]{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\R}{\mathbb R}
+\newcommand{\E}{\mathbb E}
+\newcommand{\N}{\mathcal N}
+\newcommand{\Ppos}{\mathcal P_{>0}}
+\newcommand{\nn}{\mathrm{nn}}
+\newcommand{\eps}{\varepsilon}
+\DeclareMathOperator{\tr}{tr}
+\DeclareMathOperator{\Cov}{Cov}
+\DeclareMathOperator{\Var}{Var}
+\DeclareMathOperator{\aff}{aff}
+\DeclareMathOperator{\conv}{conv}
+\DeclareMathOperator{\dist}{dist}
+
+\title{New results for ``Atomic Endpoints of Averaged and Guided\\ Empirical Conditional Flows''\\[2pt]
+\large Drafts of 20 October 2026, for the author to check}
+\date{}
+
+\begin{document}
+\maketitle
+
+\paragraph{Summary.}
+\begin{enumerate}[label=T\arabic*.,leftmargin=2.5em]
+\item \emph{Dominance theorem} (Section~\ref{sec:t1}). A combination $\sum_kc_kv_{p_k}$ of exact prior
+  fields with $\sum_kc_k=1$, $K<\infty$, keeps the training atoms for every data set and all positive
+  priors whenever its coefficients are convex or one of them dominates,
+  $c_j\ge\sum_{k\ne j}|c_k|+\gamma$, uniformly along a schedule of bounded variation. Conversely, every
+  constant non-dominant coefficient vector with a negative entry leaves the atoms for some data in
+  $\R^2$. It contains Theorem~4.6 and the finite case of Theorem~4.1, explains Theorem~4.7 as a
+  non-dominant example, and covers guidance schedules that change sign, which the paper lists as
+  open. Theorem~4.1 stays for general mixtures $\Pi$ (Proposition~4.2 needs a continuum of priors,
+  where the constants of T1 degenerate).
+\item \emph{Schedule invariance} (Section~\ref{sec:t2}). For every Gaussian path
+  $X_t=\alpha_tX_1+\sigma_tX_0$ the exact combined flow is, in $y=x/\alpha_t$ and
+  $\lambda=\log(\alpha_t/\sigma_t)$, the same equation $dy/d\lambda=\bar m-y$. For paths that start from
+  pure noise ($\alpha_0=0$, e.g.\ rectified flow or a variance-preserving path run to $\alpha=0$) the
+  endpoint map $x_0\mapsto X_1$ is the same as for the linear path, so all endpoint statements of the
+  paper transfer. Samplers that start at a finite noise level (variance-exploding or EDM with finite
+  $\sigma_{\max}$, discrete DDPM schedules with $\alpha_T>0$) start the same equation at a finite
+  $\lambda_0$; for them only the almost-sure and positive-probability statements transfer.
+\item \emph{Off-support sinks survive learned errors} (Section~\ref{sec:t3}). At a non-atom sink of
+  Theorem~4.9, a learned field whose scaled error $(1-t)|\Delta|$ stays below a fixed threshold
+  still ends within $\limsup(1-t)|P_{L^\perp}\Delta|$ of the non-atom point, with positive
+  probability. Along the tie directions the error is suppressed by the factor $1/\beta$.
+\item \emph{Conjecture} (Section~\ref{sec:t4}). Stochastic samplers with non-vanishing churn remove
+  the off-support endpoints.
+\end{enumerate}
+
+\section*{Setting and facts used}
+
+Atoms $a_1,\dots,a_N\in\R^d$ are distinct, $A=\{a_j\}$, $R=\max_j|a_j|$, $\sigma=\min_{i\ne l}|a_i-a_l|$,
+$D=\max_{i,l}|a_i-a_l|$. $\Ppos$ is the set of probability vectors on $\{1,\dots,N\}$ with positive
+entries. For $t\in(0,1)$: $\eps=1-t$, $\tau=-\log\eps$, $\beta=t/\eps^2=e^{2\tau}-e^\tau$,
+$b_j=x\cdot a_j-\frac t2|a_j|^2$, $q_{p,j}=p_je^{\beta b_j}/\sum_lp_le^{\beta b_l}$, $m_p=\sum_jq_{p,j}a_j$,
+$v_p=(m_p-x)/\eps$. For $c\in\R^K$ with $\sum_kc_k=1$, $v_c=\sum_kc_kv_{p_k}=(\bar m-x)/\eps$ with
+$\bar m=\sum_kc_km_{p_k}$; in the time $\tau$, $\dot x=\bar m-x$. $\nn(z)$ is the set of atoms nearest to
+$z$ and $\mathcal C'=\{z:z\in\aff\nn(z)\}$. $\pi_0=\N(0,I_d)$.
+
+We use, from Appendix~B of the paper: Lemma~B.1 (basic facts: $D_xm_p=\beta\Cov_{q_p}(a)$,
+$\tr\Cov_q(a)=\sum_jq_j|a_j-y|^2-|m-y|^2$ for every $y$, concentration on $\nn(z)$); the paragraph on
+solutions (Carath\'eodory solutions, $C^1$ flow diffeomorphisms, Liouville); Lemma~B.3 (volume
+expansion makes non-atom basins null); Lemma~B.4 (signed combinations: for bounded measurable $c$
+with $\sum_kc_k=1$, of bounded variation on $[t_0,1)$, every trajectory is bounded, has
+$\int_{\tau_0}^\infty|\dot x|^2d\tau<\infty$ and converges to a point of $\mathcal C'$); and
+$\operatorname{div}_x(\bar m-x)=\beta\Theta-d$ with $\Theta=\sum_kc_k\tr\Cov_{q_{p_k}}(a)$. For T1(B)
+and T3 we use Theorem~4.9(a) and its blow-up coordinates (equation (11), Lemma~B.5).
+
+% ==========================================================================================
+\section{T1: the dominance theorem}
+\label{sec:t1}
+
+\begin{definition}
+Let $c\in\R^K$ with $\sum_kc_k=1$ and $\|c\|_1=\sum_k|c_k|$. Call $c$ \emph{convex} if all
+$c_k\ge0$, and \emph{$\gamma$-dominant} ($\gamma>0$) if some index $j$ has
+$c_j\ge\sum_{k\ne j}|c_k|+\gamma$; call it \emph{non-dominant} if $\max_kc_k<\|c\|_1/2$. A dominant
+coefficient is positive, since $\sum_kc_k=1>0$.
+\end{definition}
+
+\begin{theorem}[Dominance theorem]\label{thm:dominance}
+\begin{enumerate}[label=(\Alph*),leftmargin=2em]
+\item Let $p_1,\dots,p_K\in\Ppos$ and let $c:[0,1)\to\R^K$ be bounded and measurable, with
+  $\sum_kc_k(t)=1$, of bounded variation on $[t_0,1)$. Suppose there is $\gamma>0$ such that for
+  every $t\in[t_0,1)$, $c(t)$ is convex or $\gamma$-dominant (which one, and which index dominates,
+  may change with $t$). Then the initial points whose trajectory of $v_c$ has a non-atom limit
+  form a Lebesgue-null set, and under every absolutely continuous source law the endpoint is a
+  training atom almost surely.
+\item Let $d\ge2$ and let $c\in\R^K$ be constant with $\sum_kc_k=1$, $\min_kc_k<0$ and
+  $\max_kc_k<\|c\|_1/2$. Then there are distinct atoms in $\R^d$ and $p_1,\dots,p_K\in\Ppos$ such
+  that the endpoint law of $v_c$ from $\pi_0$ puts positive mass on a non-atom point.
+\end{enumerate}
+\end{theorem}
+
+\paragraph{Notation for the proof.} $q_k=q_{p_k}(x,t)$, $m_k=m_{p_k}$, $T_k=\tr\Cov_{q_k}(a)\in[0,R^2]$,
+$C=\sup_t\|c(t)\|_1$, $\rho=\max_{k,l,i}p_{k,i}/p_{l,i}\ge1$.
+
+\begin{lemma}[Three elementary facts]\label{lem:t1facts}
+\begin{enumerate}[label=(\roman*),leftmargin=2em]
+\item $\tr\Cov_q(a)\ge\frac{\sigma^2}2(1-\max_iq_i)$ for every probability vector $q$.
+\item $q_{l,i}\le\rho^2q_{k,i}$ for all $k,l,i$ and all $(x,t)$.
+\item For $z\in\R^d$ with $r=\dist(z,A)$, $S=\nn(z)$, $u_k=m_k-z$ and
+  $A_k=\sum_iq_{k,i}|a_i-z|^2$: $T_k=A_k-|u_k|^2$, $|u_k|^2\le A_k$, and
+  $A_k=r^2+\sum_{a_i\notin S}q_{k,i}(|a_i-z|^2-r^2)\ge r^2$.
+\end{enumerate}
+\end{lemma}
+\begin{proof}
+(i) Expanding around the mean, $\sum_{i,l}q_iq_l|a_i-a_l|^2=2\tr\Cov_q(a)$, so
+$\tr\Cov_q(a)\ge\frac{\sigma^2}2\sum_{i\ne l}q_iq_l=\frac{\sigma^2}2(1-\sum_iq_i^2)\ge\frac{\sigma^2}2(1-\max_iq_i)$.
+(ii) With $Z_k=\sum_ip_{k,i}e^{\beta b_i}$, $q_{l,i}/q_{k,i}=(p_{l,i}/p_{k,i})(Z_k/Z_l)$ and
+$Z_k/Z_l\le\max_ip_{k,i}/p_{l,i}\le\rho$. (iii) Lemma~B.1 with $y=z$, and Jensen.
+\end{proof}
+
+\begin{lemma}[Convex times]\label{lem:t1convex}
+Let $z\notin A$, $r=\dist(z,A)$. If $c$ is convex and $|\bar m-z|\le r/2$, then
+$\Theta\ge\theta_c:=\sigma^2r/(4KD\rho^2)$.
+\end{lemma}
+\begin{proof}
+Pick $k_0$ with $c_{k_0}\ge1/K$, let $i^*$ maximise $q_{k_0,i}$ and $\delta=1-q_{k_0,i^*}$. As all
+$T_k\ge0$, Lemma~\ref{lem:t1facts}(i) gives $\Theta\ge T_{k_0}/K\ge\sigma^2\delta/(2K)$. By
+Lemma~\ref{lem:t1facts}(ii), $\sum_{i\ne i^*}q_{l,i}\le\rho^2\delta$ for every $l$, so
+$|m_l-a_{i^*}|\le D\rho^2\delta$ and, by convexity, $|\bar m-a_{i^*}|\le D\rho^2\delta$. Then
+$r\le|z-a_{i^*}|\le r/2+D\rho^2\delta$, so $\delta\ge r/(2D\rho^2)$.
+\end{proof}
+
+\begin{lemma}[Dominant times]\label{lem:t1dominant}
+Let $z\notin A$, $r=\dist(z,A)$, $\Delta=\bar m-z$, and
+$e=\max_k\sum_{a_i\notin\nn(z)}q_{k,i}(|a_i-z|^2-r^2)\ge0$. If $c$ is $\gamma$-dominant, then
+\[
+\Theta\ \ge\ \gamma r^2-(C+1)e-2\big(2C|\Delta|\sqrt{r^2+e}+|\Delta|^2\big).
+\]
+\end{lemma}
+\begin{proof}
+Let $j$ be the dominant index, $P=\sum_{k\ne j,c_k>0}c_k$, $Q=\sum_{k\ne j,c_k<0}|c_k|$, $W=P+Q\le C$.
+From $c_j+P-Q=1$ and $c_j\ge W+\gamma$: $2P\le1-\gamma$ (so $\gamma\le1$), $c_j\ge1-P\ge\frac12$,
+$W<c_j$. By
+Lemma~\ref{lem:t1facts}(iii), $\Theta=\sum_kc_kA_k-F$ with $F=\sum_kc_k|u_k|^2$, and
+$\sum_kc_kA_k\ge r^2-Qe$ because only indices $k\ne j$ can carry negative coefficients and
+$A_k-r^2\in[0,e]$. Put $V=\sum_{k\ne j}c_ku_k$. Since $\sum_kc_ku_k=\Delta$, $c_ju_j=\Delta-V$; also
+$|V|\le W\sqrt{r^2+e}$ and, by Cauchy--Schwarz, $|V|^2\le W\sum_{k\ne j}|c_k||u_k|^2$. Hence
+\[
+c_j|u_j|^2\le\frac{(|V|+|\Delta|)^2}{c_j}\le\frac{|V|^2}{c_j}+E,\qquad
+E=2\big(2|\Delta|W\sqrt{r^2+e}+|\Delta|^2\big),
+\]
+using $c_j\ge\frac12$, so $F\le\sum_{k\ne j}\big(W|c_k|/c_j+c_k\big)|u_k|^2+E$. For $c_k<0$ the
+coefficient is $|c_k|(W/c_j-1)\le0$; for $c_k>0$ it is at most $2c_k$, and $|u_k|^2\le r^2+e$. So
+$F\le2P(r^2+e)+E\le(1-\gamma)(r^2+e)+E$ and $\Theta\ge\gamma r^2-(Q+1-\gamma)e-E$.
+\end{proof}
+
+\begin{proof}[Proof of Theorem~\ref{thm:dominance}(A)]
+By Lemma~B.4 every trajectory is bounded, has $\int_{\tau_0}^\infty|\dot x|^2<\infty$ and converges to a
+point of $\mathcal C'$; $|\bar m|\le CR$. By Lemma~B.3 it suffices to show
+$\int_{\tau_0}^n(\beta\Theta-d)\,d\tau\to+\infty$ along every trajectory whose limit $z$ is not an atom.
+Fix one, put $r=\dist(z,A)>0$, $\Delta=\bar m-z$, $g=|\bar m-x|=|\dot x|$ a.e., and $e(\tau)$ as in
+Lemma~\ref{lem:t1dominant}; $e(\tau)\to0$ by Lemma~B.1(c), and $|\Delta|\le g+|x-z|$.
+
+\emph{Constants.} $\theta_0=\min(\gamma r^2/2,\theta_c)$. Choose $e_0\in(0,r^2]$ with
+$(C+1)e_0\le\gamma r^2/4$, then $\eta\in(0,r/4]$ with $2(4\sqrt2\,Cr\eta+4\eta^2)\le\gamma r^2/4$, then
+$\tau_1\ge\tau_0$ with $|x-z|\le\eta$ and $e\le e_0$ for $\tau\ge\tau_1$. At every $\tau\ge\tau_1$ with
+$g(\tau)\le\eta$ we have $|\Delta|\le2\eta\le r/2$, and Lemma~\ref{lem:t1convex} or
+Lemma~\ref{lem:t1dominant} gives $\Theta\ge\theta_0$. Always $\Theta\ge-M$ with $M=CR^2+1$.
+
+\emph{Divergence.} Raising $t_0$ if necessary, $\tau_0>0$. $\beta$ is positive and increasing for
+$\tau>0$, and
+$\beta(\tau+1)/\beta(\tau)\le\Lambda:=e^2+e(e-1)/(e^{\tau_0}-1)$ for $\tau\ge\tau_0>0$. For integers
+$n\ge\lceil\tau_1\rceil$ let $I_n=[n,n+1]$ and $B_n=\{\tau\in I_n:g>\eta\}$; by Chebyshev,
+$|B_n|\le\eta^{-2}\int_{I_n}g^2\to0$. Take $n_2\ge\max(\lceil\tau_1\rceil,\tau_0+1)$ with
+$|B_n|\le\min\{\frac14,\theta_0/(4M\Lambda^2)\}$ for $n\ge n_2$. Then
+\[
+\int_{I_n}\beta\Theta\ \ge\ \beta(n)\theta_0(1-|B_n|)-M\beta(n+1)|B_n|
+\ \ge\ \beta(n)\Big(\tfrac34\theta_0-\tfrac{\theta_0}{4\Lambda}\Big)\ \ge\ \tfrac12\theta_0\beta(n),
+\]
+so $J_n=\int_{I_n}(\beta\Theta-d)\ge\frac12\theta_0\beta(n)-d\to\infty$, and
+$\int_{\tau_0}^n\operatorname{div}f=\int_{\tau_0}^{n_2}\operatorname{div}f+\sum_{m=n_2}^{n-1}J_m\to+\infty$.
+Lemma~B.3 concludes.
+\end{proof}
+
+\begin{lemma}[Short resultants in the plane]\label{lem:t1polygon}
+Let $\ell_1,\dots,\ell_n>0$ with sum $P$ and maximum $\ell_{\max}$. There are unit vectors
+$s_i\in\R^2$ with $|\sum_i\ell_is_i|=\max(0,2\ell_{\max}-P)$.
+\end{lemma}
+\begin{proof}
+If $2\ell_{\max}\ge P$, point the largest vector opposite all the others. Otherwise sort decreasingly
+and let $m$ be minimal with $\sum_{i\le m}\ell_i\ge P/2$; the three group lengths
+$x=\sum_{i<m}\ell_i$, $\ell_m$ and $y=\sum_{i>m}\ell_i$ are each at most $P/2$, hence satisfy the
+triangle inequalities, and three such lengths close to a triangle. Point every vector of a group
+along its side of the triangle.
+\end{proof}
+
+\begin{lemma}[Prescribed means]\label{lem:t1means}
+If $A\subset\R^2$ is finite and $y\in\operatorname{int}\conv A$, some $p\in\Ppos$ (on $A$) has
+$\E_p[a]=y$.
+\end{lemma}
+\begin{proof}
+Let $U$ be uniform on $A$ with mean $\bar u$. For small $\alpha>0$,
+$y_\alpha=(y-\alpha\bar u)/(1-\alpha)\in\conv A$; write $y_\alpha=\sum_ir_ia_i$ and take
+$p=\alpha U+(1-\alpha)r$, which has $p_i\ge\alpha/|A|$ and mean $y$.
+\end{proof}
+
+\begin{proof}[Proof of Theorem~\ref{thm:dominance}(B)]
+Let $P_\pm=\{k:\pm c_k>0\}$, $c_+=\sum_{P_+}c_k$, $c_-=\sum_{P_-}|c_k|>0$, so $c_+=1+c_-$, and let
+$c_j=\max_kc_k$. Non-dominance means $2c_j-c_+<c_-$.
+
+\emph{Directions.} By Lemma~\ref{lem:t1polygon} applied to $(c_k)_{k\in P_+}$ in a $2$-plane
+$E\subset\R^d$, there are unit vectors $v_k\in E$ with $w=\sum_{P_+}c_kv_k$ and
+$|w|=\max(0,2c_j-c_+)<c_-$. Put $y=w/c_-$, so $|y|<1$.
+
+\emph{Atoms.} Pick $n\ge3$ with $\cos(\pi/n)>|y|$ and let $A$ consist of the distinct points among
+the $v_k$ together with the vertices of a regular $n$-gon on the unit circle of $E$. All atoms have
+norm $1$, $A$ contains three non-collinear points, and $\conv A$ contains the disc of radius
+$\cos(\pi/n)$, so $0$ and $y$ are interior points of $\conv A$ in $E$. Lemma~\ref{lem:t1means} gives
+$p_0,p_y\in\Ppos$ with means $0$ and $y$. Since $A$ is not contained in a line, $\Cov_p(a)\succ0$ on
+$E$ for every $p\in\Ppos$; let $\lambda_0>0$ be the smaller of the least eigenvalues on $E$ of
+$\Cov_{p_0}$ and $\Cov_{p_y}$.
+
+\emph{Priors.} Let $\delta=\min\{\frac12,c_-\lambda_0/(4c_+)\}$ and set
+$p_k=(1-\delta)\mathbf 1_{v_k}+\delta p_0$ for $k\in P_+$ (mean $(1-\delta)v_k$),
+$p_k=(1-\delta)p_y+\delta p_0$ for $k\in P_-$ (mean $(1-\delta)y$), and $p_k=p_0$ if $c_k=0$. All lie
+in $\Ppos$.
+
+\emph{Verification.} Take $z=0$. Every atom is at distance $1$, so $\nn(0)=A$, $\aff A=E\ni0$, and
+$0$ is a non-atom point of $\mathcal C'$ with $S=A$ and $L=E$. At the profile $\xi^\star=0$,
+$\pi_k(0)=p_k$ and $M(0)=(1-\delta)(w-c_-y)=0=z$. For $k\in P_+$,
+$\tr\Cov_{p_k}=1-(1-\delta)^2\le2\delta$ since all atoms are unit vectors, so
+$\Cov_{p_k}\preceq2\delta I$; for $k\in P_-$, the covariance of a mixture dominates the mixture of
+covariances, so $\Cov_{p_k}\succeq\lambda_0I$. Hence
+$\Gamma(0)\preceq(2\delta c_+-c_-\lambda_0)I\preceq-\frac12c_-\lambda_0I\prec0$ on $L$, and
+Theorem~4.9(a) gives positive probability of the endpoint $0$ under $\pi_0$.
+\end{proof}
+
+\begin{corollary}[Consequences]\label{cor:dominance}
+Let all priors lie in $\Ppos$ (for label-conditioned fields: $h>0$).
+\begin{enumerate}[label=(\roman*),leftmargin=2em]
+\item \emph{Two fields, any bounded schedule.} For $c(t)=(1+w(t),-w(t))$ with $w$ bounded,
+  measurable and of bounded variation on $[t_0,1)$, of any sign, every $c(t)$ is convex
+  ($w\in[-1,0]$) or $1$-dominant ($c_1-|c_2|=1$ for $w>0$, $c_2-|c_1|=1$ for $w<-1$). So guidance
+  with any bounded schedule of bounded variation, including schedules that change sign
+  \cite{jain2025attraction}, keeps the atoms; and $p_u$ need not be uniform.
+\item \emph{One positive coefficient.} If exactly one $c_j>0$, then
+  $c_j-\sum_{k\ne j}|c_k|=\sum_kc_k=1$. This covers guidance with several negative prompts,
+  $(1+\sum_iw_i)v_c-\sum_iw_iv_{n_i}$, and guidance against a label-averaged field,
+  $(1+w)v_p-w\sum_k\lambda_kv_{p_k}$.
+\item \emph{Guided label averaging.} For $c=((1+w)\lambda_1,\dots,(1+w)\lambda_K,-w)$, $w>0$, $c$ is
+  dominant iff $\lambda_{\max}>(1+2w)/(2(1+w))$, i.e.\ the averaging keeps more than
+  $1-1/(2(1+w))$ of its weight on one label; then $\gamma=(1+w)(2\lambda_{\max}-1)-w$. For
+  $\lambda=(\frac12,\frac12)$ it is non-dominant for every $w>0$, consistent with Theorem~4.7.
+\item \emph{Composable conjunctions.} For $c=(1-\sum_iw_i,w_1,\dots,w_n)$ with $w_i>0$ and
+  $W=\sum_iw_i>1$ (the AND operator of composable diffusion), $c$ is dominant iff
+  $W-w_{\max}<\frac12$. Two concepts of equal weight $w>\frac12$ are non-dominant.
+\end{enumerate}
+\end{corollary}
+
+\begin{remark}[The constant, and dimension one; not voted]\label{rem:kappa}
+With $\kappa(c)=\sup\{\sum_kc_k|u_k|^2:u_k\in\R^m,\ |u_k|\le1,\ \sum_kc_ku_k=0\}$, $m\ge2$, $A$ the
+largest coefficient, $B$ the other positive mass and $C$ the negative mass, one solver obtained
+$\kappa=B/(1-B)$ if $B\le\frac12$ and $\kappa=1+C-(A-B)_+^2/C$ if $B\ge\frac12$; so $\kappa<1$ exactly
+under dominance and $\kappa>1$ for non-dominant $c$ with a negative entry. In dimension one the
+criterion changes: the solver shows that $c=(\frac7{20},\frac7{20},\frac7{20},-\frac1{20})$ is
+non-dominant but keeps the atoms for all data on a line (the scalar version of $\kappa$ is a
+signed-sum problem), while every non-dominant $c$ with at most two positive entries leaves already
+on two atoms. Part (B) therefore needs tie dimension at least two in general. These two claims
+should be checked before they are used.
+\end{remark}
+
+\begin{remark}[Open boundary]
+The boundary $\max_kc_k=\|c\|_1/2$ with a negative entry, and schedules whose dominance margin tends
+to zero, are not covered.
+\end{remark}
+
+% ==========================================================================================
+\section{T2: schedule invariance}
+\label{sec:t2}
+
+A \emph{Gaussian path} is $(\alpha,\sigma)$ on $[0,1]$, continuous on $[0,1]$ and $C^1$ on $[0,1)$, with
+$\alpha_0=0$, $\sigma_0=1$, $\alpha_1=1$, $\sigma_1=0$, $\alpha_t>0$ on $(0,1]$, $\sigma_t>0$ on $[0,1)$, and
+$\lambda_t=\log(\alpha_t/\sigma_t)$ of class $C^1$ on $(0,1)$ with $\lambda'>0$. For $p\in\Ppos$ let
+$I\sim p$, $X_1=a_I$, $X_0\sim\N(0,I_d)$ independent, $X_t=\alpha_tX_1+\sigma_tX_0$, and
+$v^{\alpha,\sigma}_p(x,t)=\E[\alpha_t'X_1+\sigma_t'X_0\mid X_t=x]$ (continuous Bayes version). For
+$c$ bounded measurable with $\sum_kc_k=1$, $V_c=\sum_kc_k(t)v^{\alpha,\sigma}_{p_k}$. Let
+$\tilde m_p(y,\lambda)=\sum_j\pi_{p,j}a_j$ with $\pi_{p,j}\propto p_j\exp(e^{2\lambda}(y\cdot a_j-|a_j|^2/2))$.
+
+\begin{theorem}[Schedule invariance]\label{thm:schedule-invariance}
+\begin{enumerate}[label=(\alph*),leftmargin=2em]
+\item $v^{\alpha,\sigma}_p=\frac{\sigma'}\sigma x+\big(\alpha'-\frac{\sigma'\alpha}\sigma\big)m_p$, where
+  $m_p(x,t)=\tilde m_p(x/\alpha_t,\lambda_t)$, and $\alpha'-\sigma'\alpha/\sigma=\alpha\lambda'$.
+\item $x(t)$ is a Carath\'eodory solution of $\dot x=V_c$ on an interval $J\subset(0,1)$ iff
+  $Y(\lambda)=x(t)/\alpha_t$, $\lambda=\lambda_t$, solves
+  \[
+  \frac{dY}{d\lambda}=\sum_k\tilde c_k(\lambda)\,\tilde m_{p_k}(Y,\lambda)-Y,\qquad\tilde c(\lambda_t)=c(t),
+  \]
+  on $\lambda(J)$. For the linear path this is the paper's equation $\dot x=\bar m-x$ in the time
+  $\tau$, under $Y=x/t$ and $\lambda=\log(t/(1-t))=\log(e^\tau-1)$.
+\item For two Gaussian paths and schedules with the same $\tilde c$, the solutions from the same
+  $x_0$ at $t=0$ exist and are unique on $[0,1)$, and $\lim_{t\uparrow1}x(t)$ exists for one iff
+  for the other, with the same value. Explicitly,
+  $x(t)=(\alpha_t+\sigma_t)\,x_{\rm lin}\big(\alpha_t/(\alpha_t+\sigma_t)\big)$.
+\item Consequently every statement about the endpoint law under $\N(0,I_d)$ at $t=0$ that holds for
+  the linear path holds verbatim for every Gaussian path, with schedules read as functions of
+  $\lambda$. Combinations with $\sum_kc_k=1$ of data predictions, $\eps$-predictions, scores or
+  velocities at the same $(x,t)$ define the same combined field.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+\emph{(a)} Given $I=j$ and $X_t=x$, $X_0=(x-\alpha_ta_j)/\sigma_t$, so
+$\alpha'X_1+\sigma'X_0=\frac{\sigma'}\sigma X_t+\big(\alpha'-\frac{\sigma'\alpha}\sigma\big)X_1$ pointwise, and
+Bayes' rule gives the formula with $m_p=\sum_jq_ja_j$, $q_j\propto p_j\exp(-|x-\alpha a_j|^2/2\sigma^2)$;
+the right side is continuous, hence the Bayes version. Expanding the square, the $j$-independent term
+cancels and $(\alpha/\sigma^2)x\cdot a_j-(\alpha^2/2\sigma^2)|a_j|^2=e^{2\lambda}(y\cdot a_j-|a_j|^2/2)$ with
+$y=x/\alpha$. Finally $\lambda'=\alpha'/\alpha-\sigma'/\sigma$ gives $\alpha\lambda'=\alpha'-\sigma'\alpha/\sigma$ and
+$\sigma'/\sigma-\alpha'/\alpha=-\lambda'$.
+
+\emph{(b)} Using $\sum_kc_k=1$, $V_c=\frac{\sigma'}\sigma x+\alpha\lambda'\,M$ with
+$M=\sum_k\tilde c_k(\lambda_t)\tilde m_{p_k}(x/\alpha_t,\lambda_t)$. For $y=x/\alpha$, which is absolutely
+continuous on compacts, a.e.\ $y'=(\frac{\sigma'}\sigma-\frac{\alpha'}\alpha)y+\lambda'M=\lambda'(M-y)$. The
+substitution rule for the $C^1$ increasing bijection $\lambda$ (valid for integrands bounded on compacts;
+it also makes $\tilde c=c\circ\lambda^{-1}$ measurable, since $\lambda^{-1}$ is locally Lipschitz) turns
+this into the integral form of $dY/d\lambda=\tilde M-Y$, and conversely; from $y'=\lambda'(M-y)$,
+$x'=\alpha'y+\alpha\lambda'(M-y)=\frac{\sigma'}\sigma x+\alpha\lambda'M$. For the linear path,
+$\sigma'/\sigma=-1/(1-t)$, $\alpha\lambda'=1/(1-t)$, $e^{2\lambda}=t^2/(1-t)^2$, and the weights become
+$p_j\exp(\beta(x\cdot a_j-\frac t2|a_j|^2))$.
+
+\emph{(c)} \emph{Existence and uniqueness from $t=0$.} In $(\lambda,y)$ the start is singular
+($\lambda\to-\infty$, $\lambda'$ may blow up), so we work in $x$. On $[0,T]$, $T<1$, the functions
+$\sigma'/\sigma$, $\alpha\lambda'=\alpha'-\sigma'\alpha/\sigma$ and $\theta=\alpha/\sigma^2$ are continuous (with
+$\theta(0)=0$), and $D_xm_p=\theta\Cov_q$ with $\|\Cov_q\|\le R^2$. So $V_c$ has linear growth and is
+Lipschitz in $x$ with an integrable constant, and a Bielecki-norm contraction for
+$x\mapsto x_0+\int_0^tV_c(x(s),s)\,ds$ gives a unique solution on $[0,T]$, hence on $[0,1)$, depending
+continuously on $x_0$.
+
+\emph{Same $\lambda$-curve.} Let $Y(\mu)=x(\lambda^{-1}(\mu))/\alpha$ and $\hat Y$ the analogue for the
+other path. Both solve the equation of (b) on $\R$ with the same $\tilde c$, and
+$e^\mu Y(\mu)=x(t)/\sigma_t\to x_0$ as $\mu\to-\infty$, likewise for $\hat Y$. Let
+$W=e^\mu(Y-\hat Y)$. The $-Y$ term cancels the derivative of $e^\mu$, so a.e.
+$W'=e^\mu\sum_k\tilde c_k(\tilde m_{p_k}(Y)-\tilde m_{p_k}(\hat Y))$, and since
+$D_y\tilde m_p=e^{2\mu}\Cov_\pi$, $|W'|\le k(\mu)|W|$ with $k=CR^2e^{2\mu}$, integrable on
+$(-\infty,\mu_1]$. As $W\to0$ at $-\infty$, $|W(\mu)|\le\Phi(\mu):=\int_{-\infty}^\mu k|W|$,
+$\Phi'\le k\Phi$, and with $K(\mu)=\int_{-\infty}^\mu k$, $\Phi e^{-K}$ is nonincreasing with limit $0$ at
+$-\infty$; so $\Phi\equiv0$ and $Y=\hat Y$. Since $\alpha_t\to1$ and $\lambda_t\to\infty$ as $t\uparrow1$,
+$\lim x$ exists iff $\lim_{\mu\to\infty}Y$ exists, with the same value, and the same holds for $\hat x$. The
+explicit relation follows from $\lambda_{\rm lin}(s)=\lambda_t$ at $s=\alpha_t/(\alpha_t+\sigma_t)$.
+
+\emph{(d)} The set $D$ of $x_0$ with a limit is Borel (Cauchy criterion over rational times, joint
+continuity in $(t,x_0)$) and the endpoint map is Borel on $D$; both are the same for every path, so
+$\Pr(X_0\in D,\ X_1\in S)$ is the same for every Borel $S$. Each of data prediction, $\eps$-prediction,
+score and velocity is an affine function $a+b\,m_p$ of $m_p$ with $p$-independent coefficients and
+$b\ne0$, so sums with $\sum_kc_k=1$ commute with the conversions.
+\end{proof}
+
+\begin{remark}
+\emph{Why $\sum_kc_k=1$.} With $s=\sum_kc_k$ the $\lambda$-equation gains $(s-1)\frac{d\log\sigma}{d\lambda}y$,
+which depends on the path ($-e^\lambda/(1+e^\lambda)$ for the linear path, $-e^{2\lambda}/(1+e^{2\lambda})$ for
+$\alpha=\sin\frac{\pi t}2$, $\sigma=\cos\frac{\pi t}2$). \emph{Normalisations.} With $\sigma_0\ne1$ the endpoint
+map is $x_0\mapsto\Phi_{\rm lin}(x_0/\sigma_0)$; schedules must be matched in $\lambda$, not in $t$.
+\emph{Finite start.} If $\alpha_0>0$ (variance-exploding or EDM with finite $\sigma_{\max}$, discrete
+DDPM with $\alpha_T>0$), the sampler starts the $\lambda$-equation at a finite $\lambda_0$ from a Gaussian
+that is not the path marginal there, so the endpoint map and the endpoint weights (e.g.\ $p_j$ in
+Theorem~3.4) differ from the linear path's. Statements of the form ``the endpoint is an atom almost
+surely'' and ``the endpoint equals a given non-atom point with positive probability'' still hold:
+the flow maps are diffeomorphisms, Lemma~B.3 applies from any starting time, and the open basins of
+Theorem~4.9(a) pull back to nonempty open sets, which a Gaussian charges.
+\emph{Novelty.} The reduction to $(x/\alpha,\log\text{SNR})$ is the empirical-target case of the schedule
+invariance of probability-flow ODEs used by Karras et al.\ (2022); the contribution here is only
+that all endpoint statements of the paper transfer, including guided and averaged fields. The result
+concerns deterministic samplers.
+\end{remark}
+
+% ==========================================================================================
+\section{T3: off-support sinks survive learned errors}
+\label{sec:t3}
+
+Fix $z$, $S=\nn(z)$ with $|S|\ge2$ and $z\in\aff S$, $L=\operatorname{span}\{a-z:a\in S\}$, constant $c$ with
+$\sum_kc_k=1$ and $p_k\in\Ppos$, and $M$, $G=M-z$, $\Gamma=DG$ as in Theorem~4.9. Blow-up coordinates:
+$\xi=\beta P_L(x-tz)$, $\eta=P_{L^\perp}(x-z)$, so $x-z=\xi/\beta-\eps P_Lz+\eta$.
+
+\begin{theorem}[Robust off-support sinks]\label{thm:robust-sink}
+Let $\xi^\star$ be a profile with $\Gamma(\xi^\star)\prec0$ on $L$. There are $\rho>0$, $\eta_0>0$ and
+$t_1\in(0,1)$ such that the following holds for every $\Delta:\R^d\times[0,1)\to\R^d$ that is measurable
+in $t$, $C^1$ in $x$ with locally bounded derivative and of linear growth on each $[0,T]$, $T<1$, and
+satisfies
+\[
+(1-t)\,|\Delta(x,t)|\le\eta_0\quad\text{for }t\in[t_1,1),\ x\in W_t:=\{|\beta P_L(x-tz)-\xi^\star|\le\rho,\
+|P_{L^\perp}(x-z)|\le\rho\}.
+\]
+Let $O$ be the set of $x_0$ whose trajectory of $v_c+\Delta$ lies in $\operatorname{int}W_{t_1}$ at
+time $t_1$. Then $O$ is open and nonempty, and for $x_0\in O$ the trajectory stays in $W_t$ for all
+$t\in[t_1,1)$ and
+\begin{enumerate}[label=(\roman*),leftmargin=2em]
+\item $P_L(x_t-z)\to0$;
+\item $\limsup_{t\uparrow1}|x_t-z|\le\limsup_{t\uparrow1}(1-t)|P_{L^\perp}\Delta(x_t,t)|\le\eta_0$;
+\item if $(1-t)\sup_{W_t}|\Delta|\to0$, then $x_t\to z$.
+\end{enumerate}
+In particular the perturbed flow stays asymptotically within $\eta_0$ of the non-atom $z$ with
+probability $\pi_0(O)>0$.
+\end{theorem}
+
+\begin{proof}
+\emph{Perturbed blow-up equations.} In the time $\tau$, $\dot x=\bar m-x+\eps\Delta$ a.e. With
+$\dot\beta/\beta-1=1/t$ and $1/(t\beta)=\eps^2/t^2$,
+\[
+\frac{d\xi}{d\tau}=\beta\big[G(\xi)+\mathcal R+\eps P_L\Delta\big],\qquad
+\frac{d\eta}{d\tau}=-\eta+\mathcal E+\eps P_{L^\perp}\Delta,
+\]
+with $\mathcal R=(\eps^2/t^2)\xi+P_L(\bar m-M(\xi))$ and $\mathcal E=P_{L^\perp}(\bar m-z)$ as in equation~(11):
+$P_L(\bar m-x-\eps z)=P_L(\bar m-z)-\xi/\beta$, and $P_L(\bar m-z)=G(\xi)+P_L(\bar m-M(\xi))$ because
+$M(\xi)-z\in L$ (here $\sum_kc_k=1$ is used).
+
+\emph{Monotonicity.} Let $\lambda>0$ be the least eigenvalue of $-\Gamma(\xi^\star)$ and choose $\rho_0>0$
+with $\|\Gamma(\xi)-\Gamma(\xi^\star)\|\le\lambda/2$ for $|\xi-\xi^\star|\le\rho_0$. Integrating $\Gamma$ along
+the segment, $\langle h,G(\xi^\star+h)\rangle\le-\frac\lambda2|h|^2$ for $h\in L$, $|h|\le\rho_0$.
+
+\emph{Constants, fixed before $\Delta$.} Apply Lemma~B.5(i) to the compact
+$K=\overline B_L(\xi^\star,\rho_0)$ to get $\bar\rho$ and $\bar\tau$. Put $\rho=\min(\rho_0,\bar\rho)$ and
+$\eta_0=\rho\min(\lambda/4,1/2)$, and choose $\tau_1\ge\max(\bar\tau,1)$ such that
+$|\mathcal R|\le\lambda\rho/8$ and $|\mathcal E|\le\rho/4$ on $\{\xi\in K,|\eta|\le\bar\rho\}$ for
+$\tau\ge\tau_1$; $t_1=1-e^{-\tau_1}$. Then $W_t$ lies in the region of Lemma~B.5(i).
+
+\emph{Inequalities.} At a.e.\ $\tau\ge\tau_1$ with $x\in W_\tau$, for $h=\xi-\xi^\star$, $V=|h|^2$, $U=|\eta|^2$:
+$V'\le\lambda\beta|h|(\frac34\rho-|h|)$ and $U'\le2|\eta|(\frac34\rho-|\eta|)$.
+
+\emph{Invariance.} If $u$ is absolutely continuous on $[a,b]$ and $u'\le0$ a.e.\ on $\{u>c'\}$, then
+$u(b)\le\max(c',u(a))$. Let $\mathcal X=\{\tau\ge\tau_1:x(\tau)\notin W_\tau\}$ and suppose it is nonempty,
+with $T=\inf\mathcal X$. Its complement is closed, so $x\in W$ on $[\tau_1,T]$, and the barrier statement with
+$c'=9\rho^2/16$ gives $V(T),U(T)<\rho^2$, which persists on $[T,T+\delta)$, contradicting $T=\inf\mathcal X$.
+So $x_t\in W_t$ for $t\ge t_1$ and $|\xi|\le|\xi^\star|+\rho$.
+
+\emph{Conclusions.} (i) $|P_L(x_t-z)|\le(|\xi^\star|+\rho)/\beta+\eps|z|\to0$. (ii) By variation of
+constants for $\eta$, $\limsup|\eta|\le\limsup(|\mathcal E|+\eps|P_{L^\perp}\Delta|)$, and $|\mathcal E|\to0$
+on $W$; combine with (i). (iii) follows from (ii). $O$ is the preimage of the nonempty open set
+$\operatorname{int}W_{t_1}$ under the flow homeomorphism from $0$ to $t_1$, so $\pi_0(O)>0$.
+\end{proof}
+
+\begin{remark}[Sharpness]
+(a) The bound (ii) is attained: for a unit $e\in L^\perp$ and $\Delta=\eta_0e/(1-t)$, $x_t\to z+\eta_0e$.
+(b) A tangential error $\Delta=\eta_0e/(1-t)$, $e\in L$, still gives $x_t\to z$: in the tie directions the
+restoring stiffness is $\lambda\beta\to\infty$, so the displacement $\xi/\beta$ is $O(\eta_0/(\lambda\beta))$.
+If $\aff S=\R^d$, the endpoint is exactly $z$ for every admissible $\Delta$. (c) $\eta_0$ must be of
+order $\rho$; and $\pi_0(O)$ has no lower bound uniform in $\Delta$, because $\Delta$ is unrestricted
+before $t_1$.
+\end{remark}
+
+\begin{remark}[Contrast with an atom]
+Near an atom ($L=\{0\}$) the restoring rate is $1$ in $\tau$ in every direction, the same scale as the
+forcing $\eps\Delta$, so an endpoint error of order $\limsup(1-t)|\Delta|$ appears in every direction
+(Theorem~5.1). At an off-support sink only the component normal to the tie survives, so the
+endpoint error is smaller. The admissible error is not larger, however: $\eta_0=\rho\min(\lambda/4,1/2)$
+shrinks with the spectral gap $\lambda$ of $-\Gamma(\xi^\star)$, which tends to zero as the guidance
+strength approaches the threshold, while an atom tolerates errors of order $\rho/4$
+(Proposition~5.2).
+\end{remark}
+
+% ==========================================================================================
+\section{T4: stochastic samplers (conjecture)}
+\label{sec:t4}
+
+\begin{conjecture}\label{conj:sde}
+For a stochastic sampler whose noise has constant churn in log-SNR time (for example the reverse
+SDE, or EDM's stochastic sampler with $S_{\rm churn}>0$ held fixed), applied to any bounded
+combination $\sum_kc_kv_{p_k}$ with $p_k\in\Ppos$, the endpoint is a training atom almost surely.
+In particular guided label averaging produces no off-support endpoints under such samplers.
+\end{conjecture}
+
+\paragraph{Heuristic.} In the profile coordinate $\xi=\beta P_L(x-tz)$ the noise of size
+$\sigma_t\sqrt{d\lambda}$ in $y$ becomes $O(1)$ per unit of the fast time $\sigma$, because the profile
+scale is $1/\beta=e^{-2\lambda}$ and $d\sigma=\beta\,d\tau$. The profile then follows a diffusion with drift
+$\nabla\Psi$ (Theorem~4.9) and non-vanishing noise over an infinite fast-time horizon, which leaves every
+bounded neighbourhood of a sink, while far from the profiles the drift has a definite size.
+\emph{What a proof needs:} a transience statement for this nonautonomous diffusion, and convergence
+of $x$ to an atom once $\xi$ escapes. \emph{Test:} Euler--Maruyama on the exact field of Theorem~4.7
+($B=2$, $w=5w_c$) with churn $\zeta\in\{0,0.1,0.5,1\}$ and terminal gaps $10^{-2},\dots,10^{-6}$; the
+conjecture predicts that the midpoint mass falls to zero as the gap shrinks for every $\zeta>0$ and
+stays at the ODE value for $\zeta=0$.
+
+\begin{thebibliography}{9}
+\bibitem{jain2025attraction} Jain et al.\ (2025), cited in the paper as \texttt{jain2025attraction}.
+\end{thebibliography}
+
+\end{document}
