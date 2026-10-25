@@ -1,0 +1,68 @@
+{
+ "A1 closed form of F_w": {
+  "ok": true,
+  "symbolic_zero": true,
+  "max_abs_numeric": 4.203196678536953e-15
+ },
+ "A2 F_w'(0) and its zero": {
+  "ok": true,
+  "w_at_zero": "[sinh(B)**(-2)]"
+ },
+ "A3 sign of F_w on s>0 is that of cosh^2 s - w sinh^2 B": {
+  "ok": true
+ },
+ "A4 moving-barrier derivative": {
+  "ok": true
+ },
+ "A5 F_w >= kappa min(s^3,1) for w <= w_c (grid, 60 digits)": {
+  "ok": true,
+  "min_ratio": 2.0000678807154815
+ },
+ "A6 2 tanh(1) sinh(1)^2 > 1": {
+  "ok": true,
+  "value": 2.1036720959354884
+ },
+ "A7 tie slope = C_u - (1+w) Var(means)": {
+  "ok": true
+ },
+ "A8 |(1+w)u - wv|^2 identity (Thm schedule, Step 1)": {
+  "ok": true
+ },
+ "B1 d xi/d sigma = G(xi) + R (blow-up equation)": {
+  "ok": true,
+  "max_rel_err": 3.728656728797781e-16
+ },
+ "B2 d eta/d tau = -eta + E": {
+  "ok": true,
+  "max_abs_err": 4.440892098500626e-16
+ },
+ "B3 Lemma offtie logit identity": {
+  "ok": true,
+  "max_rel_err": 4.2272740595212745e-16
+ },
+ "B4 x - z = xi/beta - eps P_L z + eta": {
+  "ok": true,
+  "max_abs_err": 2.220446049250313e-16
+ },
+ "B5 printed form x - z = xi/beta + eps P_Lperp z - eps P_L z + eta (typo check)": {
+  "ok": false,
+  "max_abs_err": 1.1845079789901216,
+  "note": "expected FAIL: the printed form has an extra eps P_Lperp z; harmless, both tend to 0"
+ },
+ "B6 Gamma = sum c_k Cov(P_L a) (symmetric)": {
+  "ok": true,
+  "max_abs_err": 3.2236313618483337e-10
+ },
+ "B7 grad_L Psi = G": {
+  "ok": true,
+  "max_abs_err": 2.775881746686082e-10
+ },
+ "C1 simplex threshold (1-m^2)/m^2 and common equilibrium": {
+  "ok": true,
+  "max_rel_err": 1.6992270536777216e-13
+ },
+ "C2 two atoms: sech^2 B / tanh^2 B = 1/sinh^2 B": {
+  "ok": true,
+  "max_abs_err": 1.3500311979441904e-12
+ }
+}

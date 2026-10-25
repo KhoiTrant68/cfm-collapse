@@ -1,0 +1,186 @@
+--- a/paper/main.tex
++++ b/paper/main.tex
+@@ -217,8 +217,8 @@
+ $X_0\sim\pi_0=\N(0,I_d)$ and $t\sim\mathrm{Unif}(0,1)$ independently, and put $X_1=x^I$, $Y=y^I$,
+ $X_t=(1-t)X_0+tX_1$ and $U=X_1-X_0$.
+ 
+-\paragraph{Conditioning and objective.} At bandwidth~$h>0$, draw $\varepsilon\sim\N(0,I_k)$
+-independently and set $\widetilde Y=Y+h\varepsilon$, with label kernel
++\paragraph{Conditioning and objective.} At bandwidth~$h>0$, draw $\omega\sim\N(0,I_k)$
++independently and set $\widetilde Y=Y+h\omega$, with label kernel
+ $K_h(u)=(2\pi h^2)^{-k/2}\exp(-|u|^2/2h^2)$. We minimise
+ \begin{equation}
+ L_h(v)=\E\big[\,|U-v(X_t,t,\widetilde Y)|^2\,\big]
+@@ -234,7 +234,7 @@
+ \begin{assumption}[Standing]
+ \label{as:standing}
+ \emph{(i)} $\D$ is fixed: the expectation in \eqref{eq:objective} is over
+-$(I,X_0,t,\varepsilon)$ only. \emph{(ii)} The interpolant is the linear one above.
++$(I,X_0,t,\omega)$ only. \emph{(ii)} The interpolant is the linear one above.
+ \emph{(iii)} Labels identify: $y^i\neq y^j$ for $i\neq j$.
+ \end{assumption}
+ 
+@@ -259,8 +259,9 @@
+ $\inf_v L_h=\E[\Var(U\mid X_t,t,\widetilde Y)]$. \proofin{apx:pf-projection}
+ \end{restatable}
+ 
+-The minimiser is unique only almost everywhere; since $(X_t,t,\widetilde Y)$ has a positive
+-density, we always use its explicit continuous version. All the explicit fields below are
++The minimiser is unique only almost everywhere; for $h>0$ the triple $(X_t,t,\widetilde Y)$ has a
++positive density, and at $h=0$ the label takes only the values $y^i$, so we always use the explicit
++continuous version. All the explicit fields below are
+ locally Lipschitz on $\R^d\times[0,1)$, so their flows are well posed (Lemma~\ref{lem:wellposed}).
+ 
+ \begin{restatable}[Exact conditional collapse; $h=0$]{proposition}{propcollapse}
+@@ -277,7 +278,7 @@
+ (Proposition~\ref{prop:uncond}). Both exact flows memorise; they differ in the conditional
+ variance, $0$ against $\tr\Xhat$.
+ 
+-Blurring the label, $\widetilde Y=y^i+h\varepsilon$, turns the minimiser into the velocity of a
++Blurring the label, $\widetilde Y=y^i+h\omega$, turns the minimiser into the velocity of a
+ Nadaraya--Watson regression over the atoms~\citep{nadaraya1964estimating,watson1964smooth}.
+ 
+ \begin{restatable}[Kernel-weighted population minimiser]{proposition}{propkernelfield}
+@@ -620,8 +621,8 @@
+ 
+ \begin{restatable}[Matrix threshold for guided label averaging]{corollary}{corspectral}
+ \label{cor:spectral-threshold}
+-Let $M_{\mathrm{av}}$ average the restricted means of finitely many conditional priors and
+-$M_{\mathrm u}$ be that of the unconditional prior, and suppose $M_{\mathrm{av}}(\xi_\star)=
++Let $M_{\mathrm{av}}$ average the restricted means of finitely many conditional priors in $\Ppos$
++and $M_{\mathrm u}$ be that of the unconditional prior, and suppose $M_{\mathrm{av}}(\xi_\star)=
+ M_{\mathrm u}(\xi_\star)=z$ for some $\xi_\star\in L$. Let $C_{\mathrm{av}}$, $C_{\mathrm u}$ be their
+ derivatives on $L$ at $\xi_\star$, and assume $D=C_{\mathrm u}-C_{\mathrm{av}}\succ0$ on $L$. For
+ \[
+@@ -952,7 +953,7 @@
+ $\rhohat_X=N^{-1}\sum_i\delta_{x^i}$ & empirical law of the training inputs (the atoms)\\
+ $\pi_0=\N(0,I_d)$ & source law\\
+ $X_t=(1-t)X_0+tX_1$, $U=X_1-X_0$ & linear interpolant and regression target\\
+-$h$, $K_h$, $\widetilde Y=Y+h\varepsilon$ & label bandwidth, Gaussian label kernel, noised label\\
++$h$, $K_h$, $\widetilde Y=Y+h\omega$ & label bandwidth, Gaussian label kernel, noised label\\
+ $\vstar$, $v_{\mathrm{unc}}^\star$ & exact conditional and unconditional minimisers of \eqref{eq:objective}\\
+ $p^{(h)}(y)$, $p_1^{(h)}(\cdot\mid y)$ & label weights $p_i^{(h)}(y)\propto K_h(y-y^i)$; endpoint law at query $y$\\
+ $\Ppos$ & probability vectors on $\{1,\dots,N\}$ with all entries positive\\
+@@ -1076,8 +1077,9 @@
+ \]
+ and the push-forward is a narrowly continuous weak solution. For uniqueness, let
+ $(\mu_t)_{t\le T}$, $T<1$, be any narrowly continuous solution with $\mu_0$ as initial datum, and set
+-$\psi(x,s)=\varphi(\Phi_{s,T}(x))$ for $s\in[0,T]$. The backward flow exists on $[0,T]$ by the growth
+-bound of (b), so $\psi$ is $C^1$, and $\psi(\cdot,s)$ is supported in the compact set
++$\psi(x,s)=\varphi(\Phi_{s,T}(x))$ for $s\in[0,T]$. The backward flow exists on $[0,T]$, since the Gr\"onwall
++argument of (b), run backward from $T$, gives $|x_s|+M\le(|x_T|+M)(1-s)/(1-T)$ for $s\le T$; so
++$\psi$ is $C^1$, and $\psi(\cdot,s)$ is supported in the compact set
+ $\Phi_{T,s}(\operatorname{supp}\varphi)$, which stays in a fixed ball for $s\in[0,T]$. Since
+ $s\mapsto\psi(\Phi_{0,s}(x),s)=\varphi(\Phi_{0,T}(x))$ is constant, differentiation in $s$ gives
+ \[
+@@ -1195,7 +1197,7 @@
+ \phantomsection\label{apx:pf-kernel-field}
+ \propkernelfield*
+ \begin{proof}
+-Given $I=i$, the variables $X_t=(1-t)X_0+tx^i$ and $\widetilde Y=y^i+h\eps$ are independent, with
++Given $I=i$, the variables $X_t=(1-t)X_0+tx^i$ and $\widetilde Y=y^i+h\omega$ are independent, with
+ the density of Lemma~\ref{lem:cov} and the density $K_h(\cdot-y^i)$ of $\N(y^i,h^2I_k)$
+ respectively. Since $\Pr(I=i)=1/N$, Bayes' rule gives
+ \[
+@@ -1494,9 +1496,9 @@
+ $\beta R^2$ in operator norm, uniformly in $p$. By dominated convergence, $v_\Pi$ and
+ \[
+ D_xv_\Pi=\frac{1}{\eps}\Bigl(\int\beta\Cov_{q_p}(a)\,\Pi(dp)-I_d\Bigr),\qquad
+-\|D_xv_\Pi\|_{\rm op}\le\frac{\beta(T)R^2+1}{1-T}\quad\text{on }\R^d\times[0,T],
++\|D_xv_\Pi\|_{\rm op}\le\frac{\beta_TR^2+1}{1-T}\quad\text{on }\R^d\times[0,T],
+ \]
+-are continuous, so $v_\Pi$ is globally Lipschitz in $x$ on $\R^d\times[0,T]$ for every $T<1$.
++with $\beta_T=T/(1-T)^2$ the value of $\beta$ at $t=T$, are continuous, so $v_\Pi$ is globally Lipschitz in $x$ on $\R^d\times[0,T]$ for every $T<1$.
+ Trajectories therefore exist and are unique on $[0,1)$, and the flow maps are $C^1$
+ diffeomorphisms. Fix $t_0>0$ and work in the time $\tau\ge\tau_0=-\log(1-t_0)$, in which
+ $\dot x=m_\Pi-x$.
+@@ -1650,7 +1652,8 @@
+ equation reads $\dot x=\bar m-x$ with $\bar m=\sum_kc_km_{p_k}$ and $|\bar m|\le\bar cR$.
+ 
+ By Lemma~\ref{lem:basic}(a), $v_c$ is $C^1$ in $x$ with
+-$\|D_xv_c\|_{\rm op}\le(\bar c\beta(T)R^2+1)/(1-T)$ on $\R^d\times[0,T]$ for every $T<1$, and it has
++$\|D_xv_c\|_{\rm op}\le(\bar c\beta_TR^2+1)/(1-T)$, with $\beta_T=T/(1-T)^2$, on $\R^d\times[0,T]$
++for every $T<1$, and it has
+ linear growth, so the paragraph on solutions applies and Carath\'eodory trajectories exist and are
+ unique. As in the proof of Lemma~\ref{lem:conv}, $|x(\tau)|\le X:=\max\{|x(\tau_0)|,\bar cR\}$.
+ 
+@@ -1757,7 +1760,8 @@
+ \frac{\beta(n+1)}{\beta(n)}=e\,\frac{e^{n+1}-1}{e^n-1}\le\frac{e^2}{1-e^{-n}}\le\frac{e^2}{1-e^{-1}}=:C_\beta .
+ \]
+ For integers $n\ge\max\{1,\tau_0\}$ so large that $\eta_n\le r^2/4$ and
+-$C_\beta\int_n^{n+1}|\mu_w|^2\le r^2/4$, monotonicity of $\beta$ gives
++$C_\beta\int_n^{n+1}|\mu_w|^2\le r^2/4$, monotonicity of $\beta$, applied to the positive factor
++$r^2-\eta_n$ and to $|\mu_w|^2\ge0$, gives
+ \begin{align*}
+ \int_n^{n+1}\beta\Theta\,d\tau
+ &\ge\int_n^{n+1}\beta\,(r^2-\eta_n)\,d\tau-\int_n^{n+1}\beta|\mu_w|^2\,d\tau
+@@ -2037,7 +2041,7 @@
+ \log\frac{q_{p,j}}{q_{p,i}}=\log\frac{p_j}{p_i}-\frac{\beta t}2\delta_j
+ +\beta\big\langle\eps P_{L^\perp}z+\eta,\,a_j-a_i\big\rangle+\langle\xi,a_j-a_i\rangle,
+ \]
+-and for $a_i,a_{i'}\in S$ the logit difference is $\langle\xi,a_i-a_{i'}\rangle$, so the
++and for $a_i,a_{i'}\in S$ the logit difference is $\log(p_i/p_{i'})+\langle\xi,a_i-a_{i'}\rangle$, so the
+ posterior conditioned on $S$ is exactly $\pi(\xi)$. Consequently: (i) for every compact
+ $K\subset L$ there are $\rho,c>0$ and $\tau_0$ such that for $\xi\in K$, $|\eta|\le\rho$ and
+ $\tau\ge\tau_0$ the posterior mass off $S$ is $O(e^{-c\beta})$, its first and second derivatives
+@@ -2121,8 +2125,9 @@
+ $\varepsilon_\delta>0$ and $T_\delta$ with $|D_{(y,\eta)}f|+|D_{(y,\eta)}g|\le\delta$ on
+ $\{|y|,|\eta|\le\varepsilon_\delta\}\times[T_\delta,\infty)$. Then there are $\varepsilon>0$ and $T$
+ such that, for every $T'\ge T$, the states at time $T'$ in the $\varepsilon$-ball whose trajectories
+-stay in it and converge to $(0,0)$ form a $C^1$ graph of codimension $n_+$ over the stable and
+-normal coordinates.
++stay in it and converge to $(0,0)$ lie on a $C^1$ graph of codimension $n_+$ over the stable and
++normal coordinates, and every state on this graph close enough to $(0,0)$ has such a trajectory.
++In particular, if $n_+=0$, every state close enough to $(0,0)$ does.
+ \end{lemma}
+ \begin{proof}
+ Split $L=L^s\oplus L^u$ into the negative and positive eigenspaces of $\Gamma$, with projections
+@@ -2165,7 +2170,8 @@
+ letting $S\to\infty$, boundedness forces the terminal term to vanish. The decaying set is
+ therefore the graph of $y_u(T')=\Psi_{T'}(s_0,\eta_0)$. This graph is $C^1$ by the standard
+ differentiability of the fixed point of a uniform contraction whose nonlinearities have uniformly
+-continuous derivatives, and its codimension is $\dim L^u=n_+$.
++continuous derivatives, and its codimension is $\dim L^u=n_+$. This proves the lemma with
++$\varepsilon/2$ in place of $\varepsilon$.
+ % TODO (citation, not a gap in the argument): the C^1 dependence of the Lyapunov--Perron fixed
+ % point on (s_0,\eta_0) is invoked from standard invariant-manifold theory without a reference;
+ % add a precise citation (e.g. a stable-manifold theorem for nonautonomous systems).
+@@ -2217,8 +2223,9 @@
+ \label{eq:pf:spec:escape}
+ \end{equation}
+ where the minimum runs over the proper faces of $\operatorname{conv}P_LS$ and is positive by
+-hypothesis. In particular all profiles lie in a ball, and being isolated (each is hyperbolic) they
+-are finitely many.
++hypothesis. In particular all profiles lie in a ball. They are the zeros of the continuous map
++$G$, a closed set, and each is isolated because it is hyperbolic; a bounded closed set of isolated
++points is finite, so there are finitely many profiles.
+ 
+ \emph{Part (c): no escape to infinity.} Let
+ \[
+@@ -2409,7 +2416,7 @@
+ Let $Z_t$ solve $\dot Z_t=f(Z_t,t)+\Delta(Z_t,t)$ from the same $X_0$.
+ Suppose the solution and its variation-of-constants formula exist through $T<1$.
+ Define $r(t)=\E|\Delta(Y_t,t)|^2$ and $m(t)=\E|\Delta(Z_t,t)|^2$.
+-If $m(t)\le K(t)r(t)$ almost everywhere and
++If $m(t)\le K(t)r(t)$ almost everywhere for a measurable $K\ge0$ and
+ \[
+ B_T:=\eps_T\int_0^T\frac{\sqrt{K(t)r(t)}}{\eps_t}\,dt<\infty,
+ \]
+@@ -2533,7 +2540,7 @@
+ \begin{proposition}[Endpoint smoothing]
+ \label{prop:tgtnoise}
+ Fix $\rho\ge0$ and replace the endpoint by $X_1=x^I+\rho\,\xi$ with $\xi\sim\N(0,I_d)$ independent
+-of $(I,X_0,\varepsilon)$ and redrawn every step, keeping label bandwidth $h>0$. Write
++of $(I,X_0,\omega)$ and redrawn every step, keeping label bandwidth $h>0$. Write
+ $s_t^2=(1-t)^2+t^2\rho^2$ and $\varphi_s$ for the $\N(0,s^2I_d)$ density. Then $\vstar$ is a
+ weighted average of per-atom fields with spatial weights $\varphi_{s_t}(x-tx^i)$ in place of
+ $\src{i}$, given in \eqref{eq:tgtfield}, and the endpoint law is
+@@ -2600,7 +2607,7 @@
+ posterior is Gaussian and analytic. The velocity network is a 4-layer, width-128 MLP with SiLU
+ activations and a 64-dimensional time embedding, trained with Adam (learning rate $10^{-3}$,
+ batch $256$) for $2\times10^5$ iterations without early stopping; label smoothing adds
+-$h\varepsilon$ to the label at every step. Samples are generated with $100$ RK4 steps to
++$h\omega$ to the label at every step. Samples are generated with $100$ RK4 steps to
+ $t=1-10^{-3}$, $M=1000$ per condition, at $20$ training and $8$ held-out conditions. The seed fixes
+ both the problem instance and the training randomness. Before measurement, the analytic posterior
+ satisfies the normal equations to $1.8\times10^{-15}$ and closed-form integration of $(\star)$ maps

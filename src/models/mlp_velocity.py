@@ -23,12 +23,15 @@ class SinusoidalTimeEmbedding(nn.Module):
         self.max_period = max_period
 
     def forward(self, t: torch.Tensor) -> torch.Tensor:
-        # t: (batch,) or (batch, 1) -> (batch, dim)
-        t = t.reshape(-1).to(torch.float32)
+        # t: (batch,) or (batch, 1) -> (batch, dim). Float64 input stays float64: in float32,
+        # t = 0.99 and 0.99 + 1e-9 embed identically, which makes the field a step function of t
+        # near t = 1 and stalls adaptive ODE solvers. Every other input is computed in float32.
+        dtype = torch.float64 if t.dtype == torch.float64 else torch.float32
+        t = t.reshape(-1).to(dtype)
         half = self.dim // 2
         freqs = torch.exp(
             -math.log(self.max_period)
-            * torch.arange(half, device=t.device, dtype=torch.float32)
+            * torch.arange(half, device=t.device, dtype=dtype)
             / half
         )
         args = t[:, None] * freqs[None, :]

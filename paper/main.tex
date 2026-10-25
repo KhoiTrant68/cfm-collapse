@@ -85,12 +85,14 @@ converges, and the exceptional initial points form a null set that can be a hype
 Composing the two modifications breaks this. Guidance applied to a label-averaged field can
 converge to a non-training point with positive probability: for two examples whose averaged
 priors have log-odds $\pm2B$, this happens exactly when the guidance strength exceeds
-$1/\sinh^2B$, and it persists under perturbation. For a learned field at an identifying label,
+$1/\sinh^2B$, and it persists under perturbation of the priors, mixture weights and guidance
+strength. For a learned field at an identifying label,
 the endpoint lies within the limiting scaled field error of its training example; for data
 prediction this is the late-time prediction error. Exact-field computations confirm the
-threshold, and trained networks, from small MLPs to a 35.75M-parameter CIFAR-10 U-Net, reach
-the hard-conditioning endpoint, and on the synthetic problem they track the label-smoothing
-reference.
+threshold. Trained networks, from small MLPs to a 35.75M-parameter CIFAR-10 U-Net, exhibit
+finite-time collapse consistent with the hard-conditioning theory, and on the synthetic problem
+their finite-cutoff variance tracks the label-smoothing reference; these observations do not
+establish asymptotic endpoint convergence of the learned flows.
 \end{abstract}
 
 % ==========================================================================
@@ -116,16 +118,18 @@ modifications can, by themselves, move the endpoints of the exact field off the 
 and what a learned field must do to inherit the answer.
 \begin{itemize}\itemsep1pt
 \item \emph{Positive modifications keep the training examples} (Section~\ref{sec:intervention-atomicity}).
-  Positive mixtures of exact fields with strictly positive priors, and nonnegative guidance
+  Positive mixtures of prior-indexed exact fields (\emph{positive field mixtures}) with strictly
+  positive priors, and nonnegative guidance
   with a fixed strength or a bounded schedule of bounded variation, end on a training example
   for almost every initial point (Theorems~\ref{thm:posmix} and~\ref{thm:schedule}). The
   exceptional set is null but can be a hyperplane (Proposition~\ref{prop:hyperplane}).
 \item \emph{Their composition can leave} (Section~\ref{sec:composition}). Guidance applied to a
   label-averaged field can converge to a circumcentre of training examples with positive
   probability; on two examples the threshold is exactly $w>1/\sinh^2B$, and the effect is stable
-  under perturbation (Theorem~\ref{thm:composition}, Proposition~\ref{prop:composition-open}). In
-  any dimension the sign pattern of a signed posterior covariance decides whether such a point
-  attracts sources (Theorem~\ref{thm:spectral}).
+  under perturbation of the priors, mixture weights and guidance strength (Theorem~\ref{thm:composition}, Proposition~\ref{prop:composition-open}). For
+  hyperbolic profiles in any dimension, the eigenvalue signs of a signed posterior covariance
+  matrix distinguish open attracting basins from null basins; a complete classification also
+  needs a condition on the faces of the tied atoms (Theorem~\ref{thm:spectral}).
   Averaging and guidance commute, so the composition, not the order, decides the support.
 \item \emph{Learned fields inherit collapse unless their scaled error persists}
   (Section~\ref{sec:transfer}). A learned endpoint is within $\limsup_{t\uparrow1}(1-t)|\Delta|$
@@ -152,7 +156,7 @@ Intervention on the exact field & Endpoint support & Result\\
 \midrule
 Hard conditioning, identifying label & one atom, every source & Prop.~\ref{prop:collapse}\\
 Gaussian label noise, $h>0$ & atoms, reweighted & Thm.~\ref{thm:endpoint}\\
-Positive mixtures of priors, including label averaging and guidance $w\in[-1,0)$ & atoms, a.s. & Thm.~\ref{thm:posmix}, Cor.~\ref{cor:negcfg}\\
+Positive field mixtures, including label averaging and guidance $w\in[-1,0)$ & atoms, a.s. & Thm.~\ref{thm:posmix}, Cor.~\ref{cor:negcfg}\\
 Guidance, fixed $w\ge0$ or bounded schedule of bounded variation & atoms, a.s.\ ($h>0$); one atom ($h=0$) & Prop.~\ref{prop:cfgatom}, Thm.~\ref{thm:schedule}\\
 Guidance after label averaging & can add a circumcentre with positive probability & Thm.~\ref{thm:composition}, \ref{thm:spectral}\\
 Averaging identifying hard-label fields ($h=0$) & can move every endpoint to a circumcentre & Sec.~\ref{sec:posmix}\\
@@ -213,8 +217,8 @@ $y^i\in\R^k$, and write $\rhohat_X=N^{-1}\sum_i\delta_{x^i}$. Draw $I\sim\mathrm
 $X_0\sim\pi_0=\N(0,I_d)$ and $t\sim\mathrm{Unif}(0,1)$ independently, and put $X_1=x^I$, $Y=y^I$,
 $X_t=(1-t)X_0+tX_1$ and $U=X_1-X_0$.
 
-\paragraph{Conditioning and objective.} At bandwidth~$h>0$, draw $\varepsilon\sim\N(0,I_k)$
-independently and set $\widetilde Y=Y+h\varepsilon$, with label kernel
+\paragraph{Conditioning and objective.} At bandwidth~$h>0$, draw $\omega\sim\N(0,I_k)$
+independently and set $\widetilde Y=Y+h\omega$, with label kernel
 $K_h(u)=(2\pi h^2)^{-k/2}\exp(-|u|^2/2h^2)$. We minimise
 \begin{equation}
 L_h(v)=\E\big[\,|U-v(X_t,t,\widetilde Y)|^2\,\big]
@@ -230,7 +234,7 @@ statements concern training labels; at $h>0$ the reference is defined at every l
 \begin{assumption}[Standing]
 \label{as:standing}
 \emph{(i)} $\D$ is fixed: the expectation in \eqref{eq:objective} is over
-$(I,X_0,t,\varepsilon)$ only. \emph{(ii)} The interpolant is the linear one above.
+$(I,X_0,t,\omega)$ only. \emph{(ii)} The interpolant is the linear one above.
 \emph{(iii)} Labels identify: $y^i\neq y^j$ for $i\neq j$.
 \end{assumption}
 
@@ -255,8 +259,9 @@ so the a.e.-unique minimiser is $\vstar(x,t,y)=\E[U\mid X_t=x,t,\widetilde Y=y]$
 $\inf_v L_h=\E[\Var(U\mid X_t,t,\widetilde Y)]$. \proofin{apx:pf-projection}
 \end{restatable}
 
-The minimiser is unique only almost everywhere; since $(X_t,t,\widetilde Y)$ has a positive
-density, we always use its explicit continuous version. All the explicit fields below are
+The minimiser is unique only almost everywhere; for $h>0$ the triple $(X_t,t,\widetilde Y)$ has a
+positive density, and at $h=0$ the label takes only the values $y^i$, so we always use the explicit
+continuous version. All the explicit fields below are
 locally Lipschitz on $\R^d\times[0,1)$, so their flows are well posed (Lemma~\ref{lem:wellposed}).
 
 \begin{restatable}[Exact conditional collapse; $h=0$]{proposition}{propcollapse}
@@ -273,7 +278,7 @@ The unconditional minimiser instead reaches the full empirical law $\rhohat_X$
 (Proposition~\ref{prop:uncond}). Both exact flows memorise; they differ in the conditional
 variance, $0$ against $\tr\Xhat$.
 
-Blurring the label, $\widetilde Y=y^i+h\varepsilon$, turns the minimiser into the velocity of a
+Blurring the label, $\widetilde Y=y^i+h\omega$, turns the minimiser into the velocity of a
 Nadaraya--Watson regression over the atoms~\citep{nadaraya1964estimating,watson1964smooth}.
 
 \begin{restatable}[Kernel-weighted population minimiser]{proposition}{propkernelfield}
@@ -378,10 +383,10 @@ Figure~\ref{fig:composition}).}
 \label{fig:proof-template}
 \end{figure}
 
-\subsection{Positive mixtures of priors keep the atoms}
+\subsection{Positive field mixtures keep the atoms}
 \label{sec:posmix}
 
-\begin{restatable}[Positive prior mixtures]{theorem}{thmposmix}
+\begin{restatable}[Positive field mixtures]{theorem}{thmposmix}
 \label{thm:posmix}
 Let $\Pi$ be a probability measure on $\Ppos$ and $v_\Pi(x,t)=\int v_p(x,t)\,\Pi(dp)$. The
 flow of $v_\Pi$ is well posed on $[0,1)$, and:
@@ -403,7 +408,11 @@ averaged posterior covariance trace, and near a non-atom limit positivity of the
 away from zero.
 \end{proofsketch}
 
-Label averaging is the case where $\Pi$ is the law of $p^{(h)}(y-U)$ for $U\sim\varphi$.
+The field $v_\Pi$ is a mixture of prior-indexed exact fields, not the field of a mixed prior: in
+general $\int v_p\,\Pi(dp)\neq v_{\int p\,\Pi(dp)}$, because the posterior weights $q_{p,j}$ are
+not linear in $p$, and Section~\ref{sec:intervention-tests} finds that the two give different
+atom assignments. Label averaging is the case where $\Pi$ is the law of $p^{(h)}(y-U)$ for
+$U\sim\varphi$.
 
 \begin{restatable}[Label resolution reweights the atoms and never moves them]{proposition}{propfiltered}
 \label{prop:filtered}
@@ -547,7 +556,12 @@ set of parameters $(\lambda_1,B_1,B_2,B_u,w)$, with $\lambda_2=1-\lambda_1$ and
 $\lambda_1\in(0,1)$, containing every configuration of Theorem~\ref{thm:composition}(a).
 \proofin{apx:pf-composition-open}
 \end{restatable}
-The limit $0$ is the circumcentre of the atoms and already belongs to $\mathcal C'$: composition
+Proposition~\ref{prop:composition-open} concerns a generalised family of reference fields: the
+standard guidance of Section~\ref{sec:setup} has a uniform unconditional prior, $B_u=0$, and
+$B_u\neq0$ is a mathematical extension. The perturbations are of the priors, the mixture weights
+and the guidance strength; the atoms stay at $\{-1,1\}$, and perturbations of the atom geometry
+are not covered. The limit $0$ is the circumcentre of the atoms and already belongs to
+$\mathcal C'$: composition
 changes the volume behaviour of the flow at a candidate, not the set of candidates. The
 one-dimensional statement isolates a mechanism that does not depend on dimension: in any
 dimension a non-atom candidate can attract a set of sources of positive measure only if the
@@ -607,8 +621,8 @@ at the nonhyperbolic threshold $w=w_c$, which its proof treats separately.
 
 \begin{restatable}[Matrix threshold for guided label averaging]{corollary}{corspectral}
 \label{cor:spectral-threshold}
-Let $M_{\mathrm{av}}$ average the restricted means of finitely many conditional priors and
-$M_{\mathrm u}$ be that of the unconditional prior, and suppose $M_{\mathrm{av}}(\xi_\star)=
+Let $M_{\mathrm{av}}$ average the restricted means of finitely many conditional priors in $\Ppos$
+and $M_{\mathrm u}$ be that of the unconditional prior, and suppose $M_{\mathrm{av}}(\xi_\star)=
 M_{\mathrm u}(\xi_\star)=z$ for some $\xi_\star\in L$. Let $C_{\mathrm{av}}$, $C_{\mathrm u}$ be their
 derivatives on $L$ at $\xi_\star$, and assume $D=C_{\mathrm u}-C_{\mathrm{av}}\succ0$ on $L$. For
 \[
@@ -665,7 +679,12 @@ The argument is elementary; its use is the reading. A learned trajectory stays a
 atom only if the scaled error $(1-t)|\Delta|$, equivalently the error of the implied endpoint
 prediction, stays away from zero up to $t=1$; errors of order $o((1-t)^{-1})$ still collapse.
 At positive bandwidth the same holds near an atom once the trajectory enters a small ball with a
-small scaled error there.
+small scaled error there. The bound is a pathwise stability certificate, informative when the
+scaled error is controlled independently of the endpoint, for instance by an estimate of the
+learned field. It is not a separate test of the endpoint: since
+$(1-t)\Delta(Z_t,t)=(1-t)v_\theta(Z_t,t)+Z_t-a$, if $v_\theta$ stays bounded along a trajectory
+with $Z_t\to z$, then $(1-t)\Delta(Z_t,t)\to z-a$ and the bound holds with equality, so a
+correlation between the two measured quantities would carry little additional information.
 
 \begin{restatable}[Local transfer at positive bandwidth]{proposition}{proplocaltransfer}
 \label{prop:localtransfer}
@@ -776,7 +795,7 @@ spans less than a decade (Table~\ref{tab:cifarddpm}).}
 atoms, and $h\in\{0.3,1\}$ give 200 paired cells across single-field, guidance ($w=3,12$),
 label-average and prior-average arms. With $128$ common sources and terminal gap $10^{-6}$, the
 largest cellwise 95th percentile of the nearest-atom distance is $6.11937\times10^{-6}$
-(Figure~\ref{fig:intervention-validation}, left), and no sample exceeds the prespecified threshold of $1\%$ of the minimum atom separation. Doubling the
+(Figure~\ref{fig:intervention-validation}, left, in Appendix~\ref{app:intervention-protocol}), and no sample exceeds the prespecified threshold of $1\%$ of the minimum atom separation. Doubling the
 log-time RK4 resolution leaves every atom assignment unchanged. Field and prior averages differ
 in paired assignments by up to $31.25\%$, so they are distinct interventions. These are
 finite-time consistency checks, not a numerical proof. Near the symmetric tie of two atoms,
@@ -818,7 +837,8 @@ computations that agree with the theorem; they do not prove it.
 $F_w$ of \eqref{eq:composition-mean} for $B=2$; its slope at the tie $s=0$ is
 $(1+w)\operatorname{sech}^2B-w$, positive below $w_c=1/\sinh^2B$ and negative above, where the
 non-training midpoint attracts. (b) Probability under $\pi_0$ that the trajectory ends at the
-midpoint, against $w/w_c$; exact-flow computations with certified stopping rules and bisection
+midpoint, against $w/w_c$; floating-point exact-flow computations with stopping criteria
+justified by the proof, and bisection
 (values in Table~\ref{tab:composition}). Below the threshold only the source $x_0=0$ reaches the
 midpoint.}
 \label{fig:composition}
@@ -848,15 +868,6 @@ seeds, so these are descriptive values, not hypothesis tests.}
 \label{tab:learned-averages}
 \end{table}
 
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.98\textwidth]{fig_intervention_validation.pdf}
-\caption{Intervention diagnostics. Left: mean exact-field finite-cutoff distances for $d=2$,
-random atoms, $h=1$, averaged over five geometry seeds. Middle: sources at offset $10^{-8}$ from
-a symmetric tie under field averaging; delayed departure at a finite cutoff does not imply a
-non-atom limit. Right: learned versus exact field averages from five checkpoints.}
-\label{fig:intervention-validation}
-\end{figure}
 \FloatBarrier
 
 % ==========================================================================
@@ -883,12 +894,13 @@ within-class variance instead of collapsing (Appendix~\ref{app:exp4}).
 \label{sec:conclusion}
 
 The exact empirical conditional flow ends on its training examples, and so do its positive
-modifications: positive mixtures of priors, including label averaging and negative guidance, and
+modifications: positive mixtures of prior-indexed exact fields, including label averaging and
+negative guidance, and
 nonnegative guidance with a fixed strength or a bounded schedule of bounded variation. Every
 trajectory converges, and the exceptional initial points form a null set that can be a
 hyperplane. Composition is different: guidance applied to a label-averaged field can converge to
 a circumcentre of training examples with positive probability, with an explicit threshold on two
-atoms that is stable under perturbation. A learned endpoint stays near its training example
+atoms that is stable under perturbation of the priors and the guidance strength. A learned endpoint stays near its training example
 unless the scaled field error persists along the trajectory, which small training loss alone does
 not rule out. Open questions are when guided averaging leaves the support with many atoms in high
 dimension, how the endpoint weights of averaged fields depend on the averaging scale, and which
@@ -926,8 +938,8 @@ intervention proof uses, then treats positive mixtures, guidance and their compo
 Appendix~\ref{app:transfer} proves the transfer results of Section~\ref{sec:transfer} and contains
 the two statements on what training loss can certify. Appendix~\ref{app:noise} treats endpoint
 noise, and Appendix~\ref{app:expdetails} gives experimental details. Each main-text result is
-restated, with its original number, immediately before its proof; longer proofs open with a short
-overview and are divided into named steps. Table~\ref{tab:notation} collects the notation,
+restated, with its original number, immediately before its proof, and the longest proofs open
+with a short overview. Table~\ref{tab:notation} collects the notation,
 Table~\ref{tab:roadmap} shows where each result is proved and what it uses, and
 Figure~\ref{fig:proof-dependencies} draws the dependencies between the proofs.
 
@@ -941,12 +953,12 @@ $\D=\{(x^i,y^i)\}_{i=1}^N$, $d$, $k$ & training set, data dimension, label dimen
 $\rhohat_X=N^{-1}\sum_i\delta_{x^i}$ & empirical law of the training inputs (the atoms)\\
 $\pi_0=\N(0,I_d)$ & source law\\
 $X_t=(1-t)X_0+tX_1$, $U=X_1-X_0$ & linear interpolant and regression target\\
-$h$, $K_h$, $\widetilde Y=Y+h\varepsilon$ & label bandwidth, Gaussian label kernel, noised label\\
+$h$, $K_h$, $\widetilde Y=Y+h\omega$ & label bandwidth, Gaussian label kernel, noised label\\
 $\vstar$, $v_{\mathrm{unc}}^\star$ & exact conditional and unconditional minimisers of \eqref{eq:objective}\\
 $p^{(h)}(y)$, $p_1^{(h)}(\cdot\mid y)$ & label weights $p_i^{(h)}(y)\propto K_h(y-y^i)$; endpoint law at query $y$\\
 $\Ppos$ & probability vectors on $\{1,\dots,N\}$ with all entries positive\\
 $v_p$, $q_{p,j}$, $m_p$ & field of prior $p$ \eqref{eq:prior-field}, its posterior weights, posterior mean\\
-$v_\Pi$, $v_\varphi$, $v_w$, $v_{\varphi,w}$ & prior mixture, label average, guided field, guided label average\\
+$v_\Pi$, $v_\varphi$, $v_w$, $v_{\varphi,w}$ & field mixture, label average, guided field, guided label average\\
 $\nn(z)$; $\mathcal C\subseteq\mathcal C'$ & nearest atoms of $z$; candidate limits $z\in\operatorname{conv}\nn(z)$, resp.\ $\operatorname{aff}\nn(z)$\\
 $a_j=x^j$, $A$, $R=\max_j|a_j|$ & atoms, atom set, atom radius (Appendix~\ref{app:intervention-proofs})\\
 $\eps=1-t$, $\tau=-\log\eps$ & time to the end; logarithmic time, in which $\dot x=\bar m-x$\\
@@ -1013,8 +1025,17 @@ $X_t$ has the density $p(x\mid I=i,t)=(1-t)^{-d}\src{i}>0$. The factor $(1-t)^{-
 depend on $i$, so it cancels in every posterior over $I$.
 \end{lemma}
 \begin{proof}
-The inverse map is $x\mapsto(x-tx^i)/(1-t)$ with Jacobian determinant $(1-t)^{-d}$, and $X_0$
-is independent of $I$ with the positive density $\pi_0$.
+Conditionally on $I=i$ we have $X_t=T_{i,t}(X_0)$ with $T_{i,t}(x_0)=(1-t)x_0+tx^i$. This map is
+an affine bijection of $\R^d$ with inverse $T_{i,t}^{-1}(x)=(x-tx^i)/(1-t)$ and constant Jacobian
+$DT_{i,t}^{-1}=(1-t)^{-1}I_d$. Since $X_0$ is independent of $I$ and has the density $\pi_0$, the
+change-of-variables formula gives
+\begin{align*}
+p(x\mid I=i,t)
+&=\pi_0\bigl(T_{i,t}^{-1}(x)\bigr)\,\bigl|\det DT_{i,t}^{-1}(x)\bigr|
+=\src{i}\,\Bigl|\det\Bigl(\frac{I_d}{1-t}\Bigr)\Bigr|
+=(1-t)^{-d}\src{i},
+\end{align*}
+which is positive because $\pi_0>0$. The factor $(1-t)^{-d}$ is the same for every $i$.
 \end{proof}
 
 \begin{lemma}[Well-posedness]
@@ -1027,18 +1048,51 @@ $\mu_t=(\Phi_t)_\#\mu_0$ pushed forward by the flow $\Phi_t$ is the unique narro
 solution of $\partial_t\mu_t+\nabla\!\cdot(v\mu_t)=0$ on $[0,1)$ with initial datum $\mu_0$.
 \end{lemma}
 \begin{proof}
-(a) is clear. (b) Local existence and uniqueness follow from (a)
-\citep[Ch.~II]{hartman2002ode}. Since $|v(x,t)|\le(M+|x|)/(1-t)$, the function $g(t)=|x_t|+M$
-satisfies $g(t)\le g(0)+\int_0^tg(s)/(1-s)\,ds$, and Gr\"onwall's inequality gives
-$g(t)\le g(0)/(1-t)$, so solutions do not blow up before $t=1$. (c) The push-forward solves the equation weakly: for
-$\varphi\in C_c^\infty$, $\frac{d}{dt}\int\varphi\,d\mu_t=\int\nabla\varphi\cdot v\,d\mu_t$. For
-uniqueness, let $(\mu_t)_{t\le T}$, $T<1$, be a narrowly continuous solution and
-$\psi(x,s)=\varphi(\Phi_{s,T}(x))$, where $\Phi_{s,T}$ is the flow from time $s$ to $T$. The flow
-exists backward on $[0,T]$ by the same growth bound, so $\psi$ is $C^1$ with compact support in
-$x$ and solves $\partial_s\psi+v\cdot\nabla\psi=0$, $\psi(\cdot,T)=\varphi$. The weak form extends to
-such test functions by mollification in time \citep[Ch.~8]{ambrosio2008gradient}, so
-$\int\psi(\cdot,s)\,d\mu_s$ is constant in $s$ and
-$\int\varphi\,d\mu_T=\int\varphi\circ\Phi_{0,T}\,d\mu_0$; that is, $\mu_T=(\Phi_T)_\#\mu_0$.
+(a) The weights are $C^\infty$ by assumption and $(x,t)\mapsto(x^i-x)/(1-t)$ is $C^\infty$ on
+$\R^d\times[0,1)$, so $v$ is $C^\infty$.
+
+(b) By (a), $v$ is locally Lipschitz, so local solutions exist and are unique
+\citep[Ch.~II]{hartman2002ode}; it remains to exclude blow-up before $t=1$. Since the weights are
+nonnegative and sum to one,
+\[
+|v(x,t)|\le\sum_iw_i(x,t)\,\frac{|x^i|+|x|}{1-t}\le\frac{M+|x|}{1-t}.
+\]
+Hence $g(t)=|x_t|+M$ satisfies
+\[
+g(t)\le|x_0|+M+\int_0^t|v(x_s,s)|\,ds\le g(0)+\int_0^t\frac{g(s)}{1-s}\,ds,
+\]
+and Gr\"onwall's inequality yields
+\[
+g(t)\le g(0)\exp\Bigl(\int_0^t\frac{ds}{1-s}\Bigr)=\frac{g(0)}{1-t}.
+\]
+Thus $|x_t|+M\le(|x_0|+M)/(1-t)$, and the solution exists on all of $[0,1)$.
+
+(c) Let $\Phi_{s,r}$ denote the flow from time $s$ to time $r$, and $\Phi_t=\Phi_{0,t}$. For
+$\varphi\in C_c^\infty$ and $t<1$, the integrand below vanishes unless $\Phi_t(x)\in\supp\varphi$,
+so it is bounded uniformly in $x$ and in the time variable on $[0,t]$ because $v$ is continuous;
+hence
+\[
+\frac{d}{dt}\int\varphi\,d\mu_t=\frac{d}{dt}\int\varphi(\Phi_t(x))\,\mu_0(dx)
+=\int\nabla\varphi(\Phi_t(x))\cdot v(\Phi_t(x),t)\,\mu_0(dx)=\int\nabla\varphi\cdot v\,d\mu_t,
+\]
+and the push-forward is a narrowly continuous weak solution. For uniqueness, let
+$(\mu_t)_{t\le T}$, $T<1$, be any narrowly continuous solution with $\mu_0$ as initial datum, and set
+$\psi(x,s)=\varphi(\Phi_{s,T}(x))$ for $s\in[0,T]$. The backward flow exists on $[0,T]$, since the Gr\"onwall
+argument of (b), run backward from $T$, gives $|x_s|+M\le(|x_T|+M)(1-s)/(1-T)$ for $s\le T$; so
+$\psi$ is $C^1$, and $\psi(\cdot,s)$ is supported in the compact set
+$\Phi_{T,s}(\operatorname{supp}\varphi)$, which stays in a fixed ball for $s\in[0,T]$. Since
+$s\mapsto\psi(\Phi_{0,s}(x),s)=\varphi(\Phi_{0,T}(x))$ is constant, differentiation in $s$ gives
+\[
+\partial_s\psi+v\cdot\nabla\psi=0,\qquad\psi(\cdot,T)=\varphi .
+\]
+The weak form extends to such test functions by mollification in time
+\citep[Ch.~8]{ambrosio2008gradient}, and therefore
+\[
+\frac{d}{ds}\int\psi(\cdot,s)\,d\mu_s=\int\bigl(\partial_s\psi+v\cdot\nabla\psi\bigr)(\cdot,s)\,d\mu_s=0 .
+\]
+Evaluating at $s=T$ and $s=0$ yields
+$\int\varphi\,d\mu_T=\int\psi(\cdot,0)\,d\mu_0=\int\varphi\circ\Phi_{0,T}\,d\mu_0$. As $\varphi$ is
+arbitrary, $\mu_T=(\Phi_T)_\#\mu_0$.
 \end{proof}
 
 \begin{lemma}[Equivalent mixture coupling]
@@ -1049,9 +1103,24 @@ $\E[X_1-X_0\mid X_t=x,t]=\sum_i\Pr(I=i\mid X_t=x,t)\,\frac{x^i-x}{1-t}$. For
 $p=p^{(h)}(y)$ this is $\vstar(x,t,y)$ of \eqref{eq:kernel-field}.
 \end{lemma}
 \begin{proof}
-The posterior follows from Bayes' rule and Lemma~\ref{lem:cov}. Given $I=i$ and $X_t=x$,
-$X_0=(x-tx^i)/(1-t)$, so $X_1-X_0=(x^i-x)/(1-t)$. With $p_i^{(h)}(y)\propto K_h(y-y^i)$ the
-posterior weights are those of \eqref{eq:kernel-field}.
+By Bayes' rule and Lemma~\ref{lem:cov}, in which the factor $(1-t)^{-d}$ cancels,
+\[
+\Pr(I=i\mid X_t=x,t)=\frac{p_i\,p(x\mid I=i,t)}{\sum_jp_j\,p(x\mid I=j,t)}
+=\frac{p_i\,\src{i}}{\sum_jp_j\,\src{j}} .
+\]
+On the event $\{I=i,\ X_t=x\}$ we have $X_0=(x-tx^i)/(1-t)$ and $X_1=x^i$, so
+\[
+X_1-X_0=x^i-\frac{x-tx^i}{1-t}=\frac{(1-t)x^i-x+tx^i}{1-t}=\frac{x^i-x}{1-t}.
+\]
+Conditioning on $I$ therefore gives
+\begin{align*}
+\E[X_1-X_0\mid X_t=x,t]
+&=\sum_i\Pr(I=i\mid X_t=x,t)\,\E[X_1-X_0\mid I=i,X_t=x,t]\\
+&=\sum_i\Pr(I=i\mid X_t=x,t)\,\frac{x^i-x}{1-t}.
+\end{align*}
+For $p=p^{(h)}(y)$ the normalisation $\sum_jK_h(y-y^j)$ of the label weights cancels in the
+posterior, which becomes $\src{i}\KK{i}/\sum_j\src{j}\KK{j}=w_i^{(h)}(x,t,y)$; the last display is
+then $\vstar(x,t,y)$ of \eqref{eq:kernel-field}.
 \end{proof}
 
 \subsection{Hard conditioning}
@@ -1060,21 +1129,42 @@ posterior weights are those of \eqref{eq:kernel-field}.
 \phantomsection\label{apx:pf-projection}
 \propprojection*
 \begin{proof}
-Let $\mathcal G=\sigma(X_t,t,\widetilde Y)$ and $m=\E[U\mid\mathcal G]$. Expanding
-$|U-v|^2=|U-m|^2+|m-v|^2+2\langle U-m,m-v\rangle$ and using
-$\E\langle U-m,m-v\rangle=\E\langle\E[U-m\mid\mathcal G],m-v\rangle=0$ gives
-$L_h(v)=\E[\Var(U\mid\mathcal G)]+\E|v-m|^2$, which is minimised exactly when $v=m$ almost
-everywhere.
+Let $\mathcal G=\sigma(X_t,t,\widetilde Y)$ and $m=\E[U\mid\mathcal G]$. Since $X_1$ is bounded and
+$X_0$ is Gaussian, $\E|U|^2<\infty$, so $m$ is square integrable, and $v=v(X_t,t,\widetilde Y)$ is
+$\mathcal G$-measurable and square integrable by assumption. Expanding the square,
+\begin{align*}
+L_h(v)
+&=\E|U-m|^2+\E|m-v|^2+2\,\E\langle U-m,\,m-v\rangle\\
+&=\E\bigl[\E\bigl[|U-m|^2\bigm|\mathcal G\bigr]\bigr]+\E|m-v|^2
++2\,\E\bigl\langle\E[U-m\mid\mathcal G],\,m-v\bigr\rangle\\
+&=\E\bigl[\Var(U\mid\mathcal G)\bigr]+\E|v-m|^2 ,
+\end{align*}
+where the cross term is integrable by Cauchy--Schwarz, $m-v$ is taken out of the inner conditional
+expectation because it is $\mathcal G$-measurable, and $\E[U-m\mid\mathcal G]=0$. The first term
+does not depend on $v$, so $L_h$ is minimised exactly when $v=m$ almost everywhere, with minimum
+$\E[\Var(U\mid\mathcal G)]$.
 \end{proof}
 
 \phantomsection\label{apx:pf-collapse}
 \propcollapse*
 \begin{proof}
-By Assumption~\ref{as:standing}(iii), $Y=y^i$ forces $I=i$, and given $X_t=x$,
-$X_0=(x-tx^i)/(1-t)$ by Lemma~\ref{lem:cov}. Hence $U=x^i-X_0=(x^i-x)/(1-t)$ is a function of the
-conditioning variables, which gives (a) and $L_0(v_0^\star)=0$, that is (b). Along
-$\dot x_t=(x^i-x_t)/(1-t)$, $\frac{d}{dt}\frac{x_t-x^i}{1-t}=0$, so $x_t=(1-t)x_0+tx^i\to x^i$
-for every $x_0$, which gives (c) and (d).
+By Assumption~\ref{as:standing}(iii) the event $\{Y=y^i\}$ equals $\{I=i\}$, and given $X_t=x$ on
+this event, Lemma~\ref{lem:cov} gives $X_0=(x-tx^i)/(1-t)$. Hence
+\[
+U=x^i-X_0=x^i-\frac{x-tx^i}{1-t}=\frac{x^i-x}{1-t}
+\]
+is a function of the conditioning variables $(X_t,t,Y)$, so
+$v_0^\star(x,t,y^i)=\E[U\mid X_t=x,t,Y=y^i]=(x^i-x)/(1-t)$, which is (a). Then
+$U=v_0^\star(X_t,t,Y)$ almost surely, so $L_0(v_0^\star)=0$; as $L_0\ge0$, this is (b). For (c), the
+field is Lipschitz in $x$ on $[0,T]$ for each $T<1$, so the solution is unique, and along it
+\[
+\frac{d}{dt}\,\frac{x_t-x^i}{1-t}=\frac{\dot x_t}{1-t}+\frac{x_t-x^i}{(1-t)^2}
+=\frac{x^i-x_t}{(1-t)^2}+\frac{x_t-x^i}{(1-t)^2}=0 .
+\]
+Hence $(x_t-x^i)/(1-t)=x_0-x^i$, that is $x_t=(1-t)x_0+tx^i$, and $|x_t-x^i|=(1-t)|x_0-x^i|\to0$ for
+every $x_0$. For (d), the time-$t$ marginal of the flow from $\pi_0$ is the law of
+$(1-t)X_0+tx^i$, which converges weakly to $\delta_{x^i}$ as $t\uparrow1$; its covariance is
+$0$.
 \end{proof}
 
 \begin{proposition}[Unconditional endpoint]
@@ -1085,10 +1175,20 @@ differ.
 \end{proposition}
 \begin{proof}
 \label{apx:pf-uncond}
-This is Lemma~\ref{lem:mixture-coupling} with $p$ uniform, and the endpoint law follows as in the
-proof of Theorem~\ref{thm:endpoint}. Given $X_t=x$, $U$ takes the values $(x^i-x)/(1-t)$ with the
-positive probabilities $q_i$, so $\Var(U\mid X_t,t)>0$ when two atoms differ, and
-Proposition~\ref{prop:projection} gives a positive minimal loss.
+The unconditional objective is \eqref{eq:objective} without the label, and
+Proposition~\ref{prop:projection} applies verbatim with $\mathcal G=\sigma(X_t,t)$. Its minimiser
+$\E[U\mid X_t=x,t]$ is given by Lemma~\ref{lem:mixture-coupling} with $p$ uniform, which yields
+the weights $q_i\propto\src{i}$; the endpoint law follows as in the proof of
+Theorem~\ref{thm:endpoint} with $p^{(h)}(y)$ replaced by the uniform vector, so
+$p_1^{\mathrm{unc}}=N^{-1}\sum_i\delta_{x^i}=\rhohat_X$. Given $X_t=x$, $U$ takes the value
+$u_i=(x^i-x)/(1-t)$ with probability $q_i>0$, so with $\bar u=\sum_jq_ju_j$
+\[
+\Var(U\mid X_t=x,t)=\sum_iq_i\,|u_i-\bar u|^2 ,
+\]
+which vanishes only if all $u_i$ coincide, that is, only if all atoms coincide. When two atoms
+differ the conditional variance is therefore positive for every $(x,t)$, and
+Proposition~\ref{prop:projection} gives the positive minimal loss
+$\E[\Var(U\mid X_t,t)]$.
 \end{proof}
 
 \subsection{Label smoothing}
@@ -1097,10 +1197,24 @@ Proposition~\ref{prop:projection} gives a positive minimal loss.
 \phantomsection\label{apx:pf-kernel-field}
 \propkernelfield*
 \begin{proof}
-Given $I=i$, $X_t=(1-t)X_0+tx^i$ and $\widetilde Y=y^i+h\eps$ are conditionally independent, so
-by Bayes' rule and Lemma~\ref{lem:cov}
-$\Pr(I=i\mid X_t=x,t,\widetilde Y=y)\propto\src{i}\KK{i}$, which is $w_i^{(h)}$. Given $I=i$ and
-$X_t=x$, $U=(x^i-x)/(1-t)$, and Proposition~\ref{prop:projection} gives \eqref{eq:kernel-field}.
+Given $I=i$, the variables $X_t=(1-t)X_0+tx^i$ and $\widetilde Y=y^i+h\omega$ are independent, with
+the density of Lemma~\ref{lem:cov} and the density $K_h(\cdot-y^i)$ of $\N(y^i,h^2I_k)$
+respectively. Since $\Pr(I=i)=1/N$, Bayes' rule gives
+\[
+\Pr(I=i\mid X_t=x,t,\widetilde Y=y)
+=\frac{N^{-1}(1-t)^{-d}\src{i}\,\KK{i}}{\sum_jN^{-1}(1-t)^{-d}\src{j}\,\KK{j}}
+=w_i^{(h)}(x,t,y).
+\]
+On $\{I=i,\ X_t=x\}$ we have $U=(x^i-x)/(1-t)$, as in the proof of
+Lemma~\ref{lem:mixture-coupling}, and conditioning additionally on $\widetilde Y$ does not change
+this value. Therefore
+\[
+\E[U\mid X_t=x,t,\widetilde Y=y]
+=\sum_i\Pr(I=i\mid X_t=x,t,\widetilde Y=y)\,\frac{x^i-x}{1-t}
+=\sum_iw_i^{(h)}(x,t,y)\,\frac{x^i-x}{1-t},
+\]
+and Proposition~\ref{prop:projection} identifies this conditional expectation with the minimiser,
+which is \eqref{eq:kernel-field}.
 \end{proof}
 
 \phantomsection\label{apx:pf-endpoint}
@@ -1108,38 +1222,73 @@ $X_t=x$, $U=(x^i-x)/(1-t)$, and Proposition~\ref{prop:projection} gives \eqref{e
 \begin{proof}
 Let $\Phi_t$ be the flow of $\vstar(\cdot,\cdot,y)$, which is well posed by
 Lemma~\ref{lem:wellposed} since the weights $w_i^{(h)}$ are smooth, positive and sum to one.
-Consider the coupling of Lemma~\ref{lem:mixture-coupling} with $p=p^{(h)}(y)$ and let
-$p_t=\law(X_t)$. For $\varphi\in C_c^\infty$, conditioning on $X_t$ gives
-$\frac{d}{dt}\E\varphi(X_t)=\E\langle\nabla\varphi(X_t),X_1-X_0\rangle
-=\E\langle\nabla\varphi(X_t),\vstar(X_t,t,y)\rangle$, so $p_t$ solves the continuity equation of
-$\vstar$ with $p_0=\pi_0$, and it is narrowly continuous because $t\mapsto X_t$ is continuous.
-By Lemma~\ref{lem:wellposed}(c), $p_t=(\Phi_t)_\#\pi_0$. Since
-$X_t\to x^I$ almost surely, $p_t$ converges weakly to $\law(x^I)=\sum_ip_i^{(h)}(y)\delta_{x^i}$.
+Consider the coupling of Lemma~\ref{lem:mixture-coupling} with $p=p^{(h)}(y)$, in which the time
+$t$ is deterministic, and let $p_t=\law(X_t)$. For $\varphi\in C_c^\infty$, the derivative
+$\frac{d}{dt}\varphi(X_t)=\langle\nabla\varphi(X_t),X_1-X_0\rangle$ is dominated by
+$\|\nabla\varphi\|_\infty(|X_0|+|X_1|)$, which is integrable, so
+\begin{align*}
+\frac{d}{dt}\E\varphi(X_t)
+&=\E\langle\nabla\varphi(X_t),\,X_1-X_0\rangle
+=\E\bigl\langle\nabla\varphi(X_t),\,\E[X_1-X_0\mid X_t]\bigr\rangle
+=\E\langle\nabla\varphi(X_t),\,\vstar(X_t,t,y)\rangle ,
+\end{align*}
+where the second equality conditions on $X_t$ and the third is Lemma~\ref{lem:mixture-coupling}.
+Thus $(p_t)$ is a weak solution of the continuity equation of $\vstar(\cdot,\cdot,y)$ with
+$p_0=\pi_0$, and it is narrowly continuous because $t\mapsto X_t$ is continuous. By
+Lemma~\ref{lem:wellposed}(c), $p_t=(\Phi_t)_\#\pi_0$ for every $t<1$. Finally,
+$X_t=(1-t)X_0+tx^I\to x^I$ almost surely as $t\uparrow1$, so for bounded continuous $\varphi$
+dominated convergence gives
+\[
+\int\varphi\,d(\Phi_t)_\#\pi_0=\E\varphi(X_t)\longrightarrow\E\varphi(x^I)
+=\sum_ip_i^{(h)}(y)\,\varphi(x^i),
+\]
+which is \eqref{eq:endpoint}.
 \end{proof}
 
 \phantomsection\label{apx:pf-zerobw}
 \corzerobw*
 \begin{proof}
-Uniformly in $i$, $K_h(y-y^i)=(2\pi h^2)^{-k/2}[1+O(h^{-2})]$, so $p_i^{(h)}(y)\to1/N$ as
-$h\to\infty$, and the endpoint laws converge to $\rhohat_X=p_1^{\mathrm{unc}}$ by
-Theorem~\ref{thm:endpoint} and Proposition~\ref{prop:uncond}. For $i\neq i^\star$,
-$K_h(y-y^i)/K_h(y-y^{i^\star})=\exp[-(|y-y^i|^2-|y-y^{i^\star}|^2)/(2h^2)]\to0$ as $h\to0$, so
-$p_i^{(h)}(y)\to\ind\{i=i^\star\}$, and Theorem~\ref{thm:endpoint} gives
-$p_1^{(h)}(\cdot\mid y)\Rightarrow\delta_{x^{i^\star}}$.
+The normalising constant $(2\pi h^2)^{-k/2}$ of $K_h$ cancels in the label weights, so
+\[
+p_i^{(h)}(y)=\frac{\exp\bigl(-|y-y^i|^2/2h^2\bigr)}{\sum_j\exp\bigl(-|y-y^j|^2/2h^2\bigr)} .
+\]
+As $h\to\infty$ every exponential tends to $1$, so $p_i^{(h)}(y)\to1/N$. By
+Theorem~\ref{thm:endpoint}, $p_1^{(h)}(\cdot\mid y)=\sum_ip_i^{(h)}(y)\delta_{x^i}$ has fixed atoms
+and converging weights, so for bounded continuous $\varphi$,
+$\int\varphi\,dp_1^{(h)}(\cdot\mid y)=\sum_ip_i^{(h)}(y)\varphi(x^i)\to N^{-1}\sum_i\varphi(x^i)$,
+that is $p_1^{(h)}(\cdot\mid y)\Rightarrow\rhohat_X=p_1^{\mathrm{unc}}$ by
+Proposition~\ref{prop:uncond}. For $h\to0$, let $i\ne i^\star$ and
+$g_i=|y-y^i|^2-|y-y^{i^\star}|^2>0$, which is positive because $y^{i^\star}$ is the unique nearest
+label. Then
+\[
+p_i^{(h)}(y)\le\frac{p_i^{(h)}(y)}{p_{i^\star}^{(h)}(y)}
+=\frac{K_h(y-y^i)}{K_h(y-y^{i^\star})}=\exp\Bigl(-\frac{g_i}{2h^2}\Bigr)\longrightarrow0,
+\]
+and $p_{i^\star}^{(h)}(y)=1-\sum_{i\ne i^\star}p_i^{(h)}(y)\to1$. As before,
+Theorem~\ref{thm:endpoint} gives $p_1^{(h)}(\cdot\mid y)\Rightarrow\delta_{x^{i^\star}}$.
 \end{proof}
 
 \phantomsection\label{apx:pf-atomicity}
 \propatomicity*
 \begin{proof}
 Write $\mathcal X=\{x^1,\dots,x^N\}$. By Theorem~\ref{thm:endpoint} for $h>0$ and
-Proposition~\ref{prop:collapse}(d) at $h=0$, $\supp p_1^{(h)}(\cdot\mid y)\subseteq\mathcal X$. For
-any coupling $(X,X')$ of $p_1^{(h)}(\cdot\mid y)$ and $p(\cdot\mid y)$, $X\in\mathcal X$ almost
-surely, so $\E|X-X'|^2\ge\E\dist(X',\mathcal X)^2=\int\dist(x,\mathcal X)^2\,p(dx\mid y)$, with
-$+\infty$ allowed. Taking the infimum over couplings gives \eqref{eq:w2floor}; the right side
-does not involve $h$, and it is positive because $\mathcal X$ is $p(\cdot\mid y)$-null. Finally,
-with $M=\max_i|x^i|$, $((|x|-M)_+)^2\le\dist(x,\mathcal X)^2\le(|x|+M)^2$, so the right side is
-finite exactly when $p(\cdot\mid y)$ has a finite second moment; the product coupling then bounds
-the left side, as the atomic law has a finite second moment.
+Proposition~\ref{prop:collapse}(d) at $h=0$, $\supp p_1^{(h)}(\cdot\mid y)\subseteq\mathcal X$. Let
+$(X,X')$ be any coupling of $p_1^{(h)}(\cdot\mid y)$ and $p(\cdot\mid y)$. Since $X\in\mathcal X$
+almost surely, $|X-X'|\ge\dist(X',\mathcal X)$, and therefore, with $+\infty$ allowed,
+\[
+\E|X-X'|^2\ \ge\ \E\dist(X',\mathcal X)^2\ =\ \int\dist(x,\mathcal X)^2\,p(dx\mid y).
+\]
+Taking the infimum over couplings gives \eqref{eq:w2floor}; the right side does not involve $h$.
+It is positive because $\dist(x,\mathcal X)>0$ for $x\notin\mathcal X$ and $\mathcal X$ is
+$p(\cdot\mid y)$-null, so the integrand is positive $p(\cdot\mid y)$-almost everywhere. For the
+finiteness claim, let $M=\max_i|x^i|$. The triangle inequality gives
+$|x|-M\le|x-x^i|\le|x|+M$ for every $i$, hence
+\[
+\bigl((|x|-M)_+\bigr)^2\ \le\ \dist(x,\mathcal X)^2\ \le\ (|x|+M)^2 ,
+\]
+and since $((|x|-M)_+)^2\ge\tfrac12|x|^2-M^2$, the right side of \eqref{eq:w2floor} is finite exactly
+when $p(\cdot\mid y)$ has a finite second moment. In that case the product coupling bounds the left
+side by $2M^2+2\int|x|^2p(dx\mid y)<\infty$; otherwise both sides are $+\infty$.
 \end{proof}
 
 % ==========================================================================
@@ -1178,23 +1327,57 @@ Let $p\in\Ppos$.
 \end{enumerate}
 \end{lemma}
 \begin{proof}
-(a) $\nabla_x\log q_{p,j}=\beta(a_j-m_p)$ gives $D_xm_p$; the trace is
-$\sum_jq_{p,j}|a_j|^2-|m_p|^2\in[0,R^2]$. With $Z=\sum_jp_je^{b_j/\alpha}$,
-$\partial_\alpha H_p=\log Z-\alpha^{-1}\sum_jq_{p,j}b_j$, while
-$D_{\rm KL}(q_p\Vert p)=\sum_jq_{p,j}\log(q_{p,j}/p_j)=\alpha^{-1}\sum_jq_{p,j}b_j-\log Z$. The
-other derivatives are direct. (b) $H_p$ is a $p$-weighted soft maximum of the $b_j$. The first
-KL bound uses $\log Z\ge\min_jb_j/\alpha$; the second uses
-$\sum_jq_{p,j}\log(q_{p,j}/p_j)\le\sum_jq_{p,j}\log(1/p_j)$. (c) Take $a_i\in\nn(z)$. Since
-$|x_n-t_na_j|^2-|x_n-t_na_i|^2\to|z-a_j|^2-|z-a_i|^2>0$, the difference exceeds some $g>0$ for
-large $n$, and
+(a) Since $\nabla_xb_j=a_j$ and $q_{p,j}=p_je^{\beta b_j}/\sum_\ell p_\ell e^{\beta b_\ell}$,
+\[
+\nabla_x\log q_{p,j}=\beta a_j-\beta\sum_\ell q_{p,\ell}a_\ell=\beta(a_j-m_p),
+\]
+and therefore
+\[
+D_xm_p=\sum_ja_j\,(\nabla_xq_{p,j})^\top=\beta\sum_jq_{p,j}\,a_j(a_j-m_p)^\top
+=\beta\Bigl(\sum_jq_{p,j}a_ja_j^\top-m_pm_p^\top\Bigr)=\beta\Cov_{q_p}(a).
+\]
+Its trace is $\sum_jq_{p,j}|a_j|^2-|m_p|^2$, which is nonnegative as a variance and at most
+$\sum_jq_{p,j}|a_j|^2\le R^2$. Put $Z=\sum_jp_je^{b_j/\alpha}$, so that $H_p=\alpha\log Z$ and
+$q_{p,j}=p_je^{b_j/\alpha}/Z$. Treating $x,t,\alpha$ as independent variables,
+\begin{align*}
+\nabla_xH_p&=\alpha\sum_jq_{p,j}\,\frac{\nabla_xb_j}{\alpha}=m_p,\qquad
+\partial_tH_p=\sum_jq_{p,j}\,\partial_tb_j=-\frac12\sum_jq_{p,j}|a_j|^2,\\
+\partial_\alpha H_p&=\log Z+\alpha\sum_jq_{p,j}\Bigl(-\frac{b_j}{\alpha^2}\Bigr)
+=\log Z-\frac1\alpha\sum_jq_{p,j}b_j .
+\end{align*}
+On the other hand $\log(q_{p,j}/p_j)=b_j/\alpha-\log Z$, so
+$D_{\rm KL}(q_p\Vert p)=\alpha^{-1}\sum_jq_{p,j}b_j-\log Z=-\partial_\alpha H_p$.
+
+(b) As $\sum_jp_j=1$, we have $e^{\min_jb_j/\alpha}\le Z\le e^{\max_jb_j/\alpha}$, and multiplying
+the logarithm by $\alpha$ gives $\min_jb_j\le H_p\le\max_jb_j$, a bound free of $p$. The relative
+entropy is nonnegative, and the two upper bounds follow from
+\begin{align*}
+D_{\rm KL}(q_p\Vert p)&=\frac1\alpha\sum_jq_{p,j}b_j-\log Z
+\le\frac{\max_jb_j}{\alpha}-\frac{\min_jb_j}{\alpha},\\
+D_{\rm KL}(q_p\Vert p)&=\sum_jq_{p,j}\log\frac{q_{p,j}}{p_j}
+\le\sum_jq_{p,j}\log\frac1{p_j}\le\log\frac1{\min_jp_j},
+\end{align*}
+where the first uses $\log Z\ge\min_jb_j/\alpha$ and the second uses $q_{p,j}\le1$.
+
+(c) Take $a_i\in\nn(z)$ and $a_j\notin\nn(z)$. As $n\to\infty$,
+\[
+|x_n-t_na_j|^2-|x_n-t_na_i|^2\longrightarrow|z-a_j|^2-|z-a_i|^2>0,
+\]
+so this difference exceeds some $g>0$ for all large $n$. Since
+$q_{p,j}\propto p_j\exp(-|x-ta_j|^2/2\eps^2)$, for such $n$
 \begin{equation}
-q_{p,j}(x_n,t_n)\le\frac{q_{p,j}}{q_{p,i}}(x_n,t_n)\le\frac{p_j}{p_i}\,e^{-g/(2\eps_n^2)}\to0 .
+q_{p,j}(x_n,t_n)\le\frac{q_{p,j}}{q_{p,i}}(x_n,t_n)
+=\frac{p_j}{p_i}\exp\Bigl(-\frac{|x_n-t_na_j|^2-|x_n-t_na_i|^2}{2\eps_n^2}\Bigr)
+\le\frac{p_j}{p_i}\,e^{-g/(2\eps_n^2)}\to0 .
 \label{eq:pf:int:conc}
 \end{equation}
-(d) If $z,z'\in\operatorname{aff}S$ are both equidistant from $S$, subtracting
-$|z-a_i|^2=|z-a_j|^2$ from $|z'-a_i|^2=|z'-a_j|^2$ gives $(z-z')\cdot(a_i-a_j)=0$ for all
-$a_i,a_j\in S$, while $z-z'$ lies in the span of these differences; so $z=z'$. There are finitely
-many $S$, and each point of $\mathcal C'$ is the equidistant point of $\operatorname{aff}\nn(z)$.
+
+(d) Let $z,z'\in\operatorname{aff}S$ both be equidistant from $S$, and let $a_i,a_j\in S$. Expanding
+$|z-a_i|^2=|z-a_j|^2$ gives $2z\cdot(a_j-a_i)=|a_j|^2-|a_i|^2$, and the same identity holds for
+$z'$. Subtracting, $(z-z')\cdot(a_i-a_j)=0$ for all $a_i,a_j\in S$. Since $z-z'$ lies in the span of
+these differences, $|z-z'|^2=0$. Each point $z\in\mathcal C'$ is the equidistant point of
+$\operatorname{aff}\nn(z)$, which by the above is determined by the subset $\nn(z)\subseteq A$;
+there are finitely many such subsets, so $\mathcal C\subseteq\mathcal C'$ are finite.
 \end{proof}
 
 \emph{Solutions.} The fields below are measurable in time, $C^1$ in space with locally bounded
@@ -1224,22 +1407,33 @@ $\mathcal C'$. If ``$\operatorname{aff}$'' is replaced by ``$\operatorname{conv}
 hypothesis, the limit lies in $\mathcal C$.
 \end{lemma}
 \begin{proof}
-Variation of constants gives $|x(\tau)|\le X:=\max\{|x(\tau_0)|,\bar M\}$, so
-$|\dot x|\le V_{\max}:=X+\bar M$. \emph{Step 1: speed away from candidates.} Let $K$ be a compact
-set disjoint from $\mathcal C'$. There are $\eta_K>0$ and $\tau_K$ with $|\bar m(x,\tau)-x|\ge\eta_K$
-for all $x\in K$ and $\tau\ge\tau_K$. Otherwise there are $x_n\in K$ and $\tau_n\to\infty$ with
-$\bar m(x_n,\tau_n)-x_n\to0$; along a subsequence $x_n\to z\in K$, so $\bar m(x_n,\tau_n)\to z$,
-and the hypothesis gives $z\in\operatorname{aff}\nn(z)$, that is $z\in\mathcal C'$, a
-contradiction. \emph{Step 2: no limit point outside the candidates.} The $\omega$-limit set
-$\Omega$ is nonempty, compact and connected, as the intersection of the nested compact connected
-sets $\overline{\{x(\tau):\tau\ge T\}}$. Suppose $z\in\Omega\setminus\mathcal C'$ and take $\rho>0$
-with $K=\overline{B_\rho(z)}$ disjoint from the finite set $\mathcal C'$. If $x$ eventually stays in
-$K$, then $|\dot x|\ge\eta_K$ for almost every late time, and the kinetic energy is infinite.
-Otherwise $x$ enters $B_{\rho/2}(z)$ and then leaves $K$ infinitely often; each such passage lasts
-at least $\rho/(2V_{\max})$ inside $K$ and, after $\tau_K$, costs kinetic energy at least
-$\eta_K^2\rho/(2V_{\max})$, again infinite in total. \emph{Step 3.} So $\Omega\subseteq\mathcal C'$,
-a finite set, and connectedness makes $\Omega$ a single point. The same argument with
-$\mathcal C$ proves the last claim.
+By variation of constants,
+\[
+x(\tau)=e^{-(\tau-\tau_0)}x(\tau_0)+\int_{\tau_0}^\tau e^{-(\tau-s)}\,\bar m(x(s),s)\,ds,
+\qquad
+|x(\tau)|\le e^{-(\tau-\tau_0)}|x(\tau_0)|+\bigl(1-e^{-(\tau-\tau_0)}\bigr)\bar M,
+\]
+so $|x(\tau)|\le X:=\max\{|x(\tau_0)|,\bar M\}$ and $|\dot x|\le|\bar m|+|x|\le V_{\max}:=X+\bar M$.
+
+We first show that the speed is bounded below away from the candidates. Let $K$ be a compact set
+disjoint from $\mathcal C'$. We claim there are $\eta_K>0$ and $\tau_K$ with
+$|\bar m(x,\tau)-x|\ge\eta_K$ for all $x\in K$ and $\tau\ge\tau_K$. Otherwise there are $x_n\in K$
+and $\tau_n\to\infty$ with $\bar m(x_n,\tau_n)-x_n\to0$; along a subsequence $x_n\to z\in K$, so
+$\bar m(x_n,\tau_n)\to z$, and the hypothesis gives $z\in\operatorname{aff}\nn(z)$, that is
+$z\in\mathcal C'$, a contradiction.
+
+Next, the $\omega$-limit set $\Omega$ of the trajectory is nonempty, compact and connected, as
+the intersection of the nested compact connected sets $\overline{\{x(\tau):\tau\ge T\}}$. Suppose
+that $z\in\Omega\setminus\mathcal C'$, and take $\rho>0$ such that $K=\overline{B_\rho(z)}$ is
+disjoint from the finite set $\mathcal C'$. If $x$ eventually stays in $K$, then $|\dot x|\ge\eta_K$
+for almost every late time, and $\int|\dot x|^2\,d\tau=\infty$. Otherwise, since $z\in\Omega$, the
+trajectory enters $B_{\rho/2}(z)$ and then leaves $K$ at arbitrarily late times. Each such passage
+covers a distance at least $\rho/2$ at speed at most $V_{\max}$, so it spends a time at least
+$\rho/(2V_{\max})$ in $K$, and after $\tau_K$ it costs kinetic energy at least
+$\eta_K^2\rho/(2V_{\max})$; infinitely many disjoint passages again give infinite energy. Both cases
+contradict the hypothesis, so $\Omega\subseteq\mathcal C'$. As $\mathcal C'$ is finite and $\Omega$
+is connected, $\Omega$ is a single point, which is the limit of $x(\tau)$. The same argument with
+$\mathcal C$ in place of $\mathcal C'$ proves the last claim.
 \end{proof}
 
 \begin{lemma}[Volume expansion makes non-atom basins null]
@@ -1258,20 +1452,29 @@ $\sum_j\tilde q_j\delta_{a_j}$ for some probability vector $\tilde q$.
 \end{lemma}
 \begin{proof}
 Let $\Phi_\tau$ be the flow map from $\tau_0$ to $\tau$ and $J_\tau=\det D\Phi_\tau>0$. By
-Liouville's formula and \eqref{eq:pf:divinfinity}, $J_n(\xi)\to\infty$ at every $\xi$ whose
-trajectory has a non-atom limit. Fix a ball $K_0=B_L$ and let $E\subseteq K_0$ be the set of such
-$\xi$. It is Borel, because the limit map is the pointwise limit of the continuous maps $\Phi_n$
-and $A$ is closed. All $\Phi_n(K_0)$ lie in the ball $B$ of radius $\max\{L,\bar M\}$. Change of
-variables for the injective map $\Phi_n$ and Fatou's lemma give
+Liouville's formula,
 \[
-\int_E\liminf_nJ_n\,d\xi\ \le\ \liminf_n\int_EJ_n\,d\xi\ =\ \liminf_n\operatorname{Leb}(\Phi_n(E))
-\ \le\ \operatorname{Leb}(B).
+J_n(\xi)=\exp\Bigl(\int_{\tau_0}^n\operatorname{div}_xf\bigl(\Phi_s(\xi),s\bigr)\,ds\Bigr),
 \]
-The integrand on the left is $+\infty$ on $E$, so $\operatorname{Leb}(E)=0$; let $L\to\infty$. A
-$C^1$ diffeomorphism maps null sets to null sets, which gives the claim at time $0$. Under an
-absolutely continuous source the limit $X_1$ of the trajectory then lies in $A$ almost surely; it
-is a measurable function of the initial point, and since $x_t\to X_1$ pointwise, dominated
-convergence shows that the marginals converge weakly to $\law(X_1)=\sum_j\tilde q_j\delta_{a_j}$.
+so \eqref{eq:pf:divinfinity} gives $J_n(\xi)\to\infty$ at every $\xi$ whose trajectory has a
+non-atom limit. Fix a ball $K_0=B_L$ and let $E\subseteq K_0$ be the set of such $\xi$. It is Borel,
+because the limit map is the pointwise limit of the continuous maps $\Phi_n$ and $A$ is closed. As
+in the proof of Lemma~\ref{lem:conv}, $|\Phi_n(\xi)|\le\max\{|\xi|,\bar M\}$, so all $\Phi_n(K_0)$
+lie in the ball $B$ of radius $\max\{L,\bar M\}$. The change-of-variables formula for the injective
+$C^1$ map $\Phi_n$ and Fatou's lemma give
+\begin{align*}
+\int_E\liminf_{n\to\infty}J_n\,d\xi
+\ \le\ \liminf_{n\to\infty}\int_EJ_n\,d\xi
+\ =\ \liminf_{n\to\infty}\operatorname{Leb}\bigl(\Phi_n(E)\bigr)
+\ \le\ \operatorname{Leb}(B)\ <\ \infty .
+\end{align*}
+The integrand on the left equals $+\infty$ on $E$, so $\operatorname{Leb}(E)=0$, and letting
+$L\to\infty$ proves the claim at time $\tau_0$. A $C^1$ diffeomorphism maps null sets to null
+sets, which gives the claim at time $0$. Under an absolutely continuous source, the limit $X_1$ of
+the trajectory therefore lies in $A$ almost surely; it is a measurable function of the initial
+point, and since $x_t\to X_1$ pointwise, dominated convergence gives
+$\E\varphi(x_t)\to\E\varphi(X_1)$ for bounded continuous $\varphi$, so the marginals converge
+weakly to $\law(X_1)=\sum_j\tilde q_j\delta_{a_j}$.
 \end{proof}
 
 \subsection{Positive mixtures}
@@ -1279,118 +1482,157 @@ convergence shows that the marginals converge weakly to $\law(X_1)=\sum_j\tilde 
 
 \thmposmix*
 \paragraph{Proof overview.} We verify the two hypotheses of the template of
-Appendix~\ref{apx:general-steps}. Steps~1--2 build the energy
+Appendix~\ref{apx:general-steps}. After establishing well-posedness, we construct the energy
 $W=\tfrac12|x|^2-F+\tfrac12\eps R^2$ from the averaged log-partition function $F$; its explicit
-time dependence only lowers $W$, so the kinetic energy is finite. Step~3 checks the concentration
-hypothesis of Lemma~\ref{lem:conv}. Step~4 shows $\operatorname{div}_xf=\beta V-d$, where the
-averaged covariance trace $V$ stays away from zero near a non-atom limit because every prior is
-strictly positive; Lemma~\ref{lem:volume} concludes.
+time dependence only lowers $W$, so the kinetic energy is finite, and the concentration hypothesis
+of Lemma~\ref{lem:conv} yields convergence. We then show $\operatorname{div}_xf=\beta V-d$, where
+the averaged covariance trace $V$ stays away from zero near a non-atom limit because every prior is
+strictly positive, and Lemma~\ref{lem:volume} concludes.
 \begin{proof}
-Let $m_\Pi=\int m_p\,\Pi(dp)$, so $v_\Pi=(m_\Pi-x)/\eps$ and $|m_\Pi|\le R$.
+Let $m_\Pi=\int m_p\,\Pi(dp)$, so that $v_\Pi=(m_\Pi-x)/\eps$ and $|m_\Pi|\le R$.
 
-\emph{Step 1: well-posedness.} The integrand $m_p(x,t)$ is continuous in $(p,x,t)$ and bounded,
-and by Lemma~\ref{lem:basic}(a) its $x$-derivative is continuous and bounded by $\beta R^2$ in
-operator norm, uniformly in $p$. By dominated convergence $v_\Pi$ and $D_xv_\Pi$ are continuous,
-and $v_\Pi$ is globally Lipschitz in $x$ on $\R^d\times[0,T]$ for every $T<1$. So trajectories
-exist and are unique on $[0,1)$, and the flow maps are $C^1$ diffeomorphisms. Fix $t_0>0$ and
-work in the time $\tau\ge\tau_0=-\log(1-t_0)$, where $\dot x=m_\Pi-x$.
-
-\emph{Step 2: finite kinetic energy.} Let $F(x,\tau)=\int H_p(x,t(\tau),\alpha(\tau))\,\Pi(dp)$
-and $W=\tfrac12|x|^2-F+\tfrac12\eps R^2$. By Lemma~\ref{lem:basic}(a,b) the derivatives of $H_p$
-are bounded uniformly in $p$ on compact subsets of $\R^d\times(0,1)\times(0,\infty)$; for
-$\partial_\alpha H_p$ this uses the first KL bound, which does not involve $\min_jp_j$, as $\Pi$
-may charge priors near the boundary of the simplex. So $F$ is $C^1$, its derivatives are the
-integrals of those of $H_p$, and along a trajectory
-\begin{align*}
-\dot W&=(x-m_\Pi)\cdot\dot x-\eps\,\partial_tF-\dot\alpha\,\partial_\alpha F-\tfrac12\eps R^2\\
-&=-|\dot x|^2+\dot\alpha\int D_{\rm KL}(q_p\Vert p)\,\Pi(dp)
-+\frac\eps2\Big(\int\sum_jq_{p,j}|a_j|^2\,\Pi(dp)-R^2\Big)\ \le\ -|\dot x|^2,
-\end{align*}
-since $\dot\alpha<0$ and $|a_j|\le R$. Because $F\le\max_jb_j$,
+The integrand $m_p(x,t)$ is continuous in $(p,x,t)$ and bounded by $R$, and by
+Lemma~\ref{lem:basic}(a) its $x$-derivative $\beta\Cov_{q_p}(a)$ is continuous and bounded by
+$\beta R^2$ in operator norm, uniformly in $p$. By dominated convergence, $v_\Pi$ and
 \[
-W\ge\min_j\Big\{\tfrac12|x|^2-x\cdot a_j+\tfrac t2|a_j|^2+\tfrac\eps2R^2\Big\}
-=\min_j\Big\{\tfrac12|x-a_j|^2+\tfrac\eps2\big(R^2-|a_j|^2\big)\Big\}\ge0 .
+D_xv_\Pi=\frac{1}{\eps}\Bigl(\int\beta\Cov_{q_p}(a)\,\Pi(dp)-I_d\Bigr),\qquad
+\|D_xv_\Pi\|_{\rm op}\le\frac{\beta_TR^2+1}{1-T}\quad\text{on }\R^d\times[0,T],
 \]
-Hence $\int_{\tau_0}^\infty|\dot x|^2\,d\tau\le W(\tau_0)<\infty$.
+with $\beta_T=T/(1-T)^2$ the value of $\beta$ at $t=T$, are continuous, so $v_\Pi$ is globally Lipschitz in $x$ on $\R^d\times[0,T]$ for every $T<1$.
+Trajectories therefore exist and are unique on $[0,1)$, and the flow maps are $C^1$
+diffeomorphisms. Fix $t_0>0$ and work in the time $\tau\ge\tau_0=-\log(1-t_0)$, in which
+$\dot x=m_\Pi-x$.
 
-\emph{Step 3: convergence.} If $x_n\to z$ and $\tau_n\to\infty$, Lemma~\ref{lem:basic}(c) and
-dominated convergence over $\Pi$ show that the weights $\int q_{p,j}\,d\Pi$ of atoms outside
-$\nn(z)$ tend to zero, so every limit point of $m_\Pi(x_n,t_n)$ lies in
-$\operatorname{conv}\nn(z)$. Lemma~\ref{lem:conv} gives convergence to a point of $\mathcal C$.
+Let $F(x,\tau)=\int H_p(x,t(\tau),\alpha(\tau))\,\Pi(dp)$ and $W=\tfrac12|x|^2-F+\tfrac12\eps R^2$.
+By Lemma~\ref{lem:basic}(a,b), the derivatives of $H_p$ are bounded uniformly in $p$ on compact
+subsets of $\R^d\times(0,1)\times(0,\infty)$; for $\partial_\alpha H_p$ this uses the first KL
+bound, which does not involve $\min_jp_j$, as $\Pi$ may charge priors near the boundary of the
+simplex. So $F$ is $C^1$, its derivatives are the integrals of those of $H_p$, and in particular
+$\nabla_xF=m_\Pi$. Using $\dot t=\eps$, $\dot\eps=-\eps$ and $x-m_\Pi=-\dot x$, along a trajectory
+\begin{align*}
+\dot W
+&=(x-\nabla_xF)\cdot\dot x-\dot t\,\partial_tF-\dot\alpha\,\partial_\alpha F+\tfrac12\dot\eps R^2\\
+&=(x-m_\Pi)\cdot\dot x-\eps\,\partial_tF-\dot\alpha\,\partial_\alpha F-\tfrac12\eps R^2\\
+&=-|\dot x|^2+\dot\alpha\int D_{\rm KL}(q_p\Vert p)\,\Pi(dp)
++\frac\eps2\Bigl(\int\sum_jq_{p,j}|a_j|^2\,\Pi(dp)-R^2\Bigr)\\
+&\le-|\dot x|^2 ,
+\end{align*}
+where the third line inserts $\partial_tH_p$ and $\partial_\alpha H_p$ from
+Lemma~\ref{lem:basic}(a), and the inequality uses $\dot\alpha<0$, $D_{\rm KL}\ge0$ and
+$|a_j|\le R$. Because $H_p\le\max_jb_j$ for every $p$, also $F\le\max_jb_j$, and
+\begin{align*}
+W&\ge\min_j\Bigl\{\tfrac12|x|^2-x\cdot a_j+\tfrac t2|a_j|^2+\tfrac\eps2R^2\Bigr\}\\
+&=\min_j\Bigl\{\tfrac12|x-a_j|^2-\tfrac{1-t}2|a_j|^2+\tfrac\eps2R^2\Bigr\}
+=\min_j\Bigl\{\tfrac12|x-a_j|^2+\tfrac\eps2\bigl(R^2-|a_j|^2\bigr)\Bigr\}\ \ge\ 0 .
+\end{align*}
+Integrating $\dot W\le-|\dot x|^2$ over $[\tau_0,T]$ and letting $T\to\infty$ yields
+$\int_{\tau_0}^\infty|\dot x|^2\,d\tau\le W(\tau_0)<\infty$.
 
-\emph{Step 4: volume expansion.} For $r$ in the closed simplex and $p\in\Ppos$ let
+Now let $x_n\to z$ and $\tau_n\to\infty$. By Lemma~\ref{lem:basic}(c) and dominated convergence over
+$\Pi$, the weights $\int q_{p,j}\,d\Pi$ of the atoms outside $\nn(z)$ tend to zero, so every limit
+point of $m_\Pi(x_n,t_n)=\sum_j\bigl(\int q_{p,j}\,d\Pi\bigr)a_j$ lies in $\operatorname{conv}\nn(z)$.
+Lemma~\ref{lem:conv} gives convergence of every trajectory to a point of $\mathcal C$, which is~(a).
+
+It remains to verify \eqref{eq:pf:divinfinity}. For $r$ in the closed simplex and $p\in\Ppos$ let
 $Q_{p,j}(r)=p_jr_j/\sum_\ell p_\ell r_\ell$ (the denominator is positive), and
 \[
-M(r)=\int\sum_jQ_{p,j}(r)a_j\,\Pi(dp),\qquad V(r)=\int\tr\Cov_{Q_p(r)}(a)\,\Pi(dp).
+M(r)=\int\sum_jQ_{p,j}(r)\,a_j\,\Pi(dp),\qquad V(r)=\int\tr\Cov_{Q_p(r)}(a)\,\Pi(dp).
 \]
-By dominated convergence $M$ and $V$ are continuous. Since $p_j>0$, $Q_p(r)$ has the same support
-as $r$, and $\tr\Cov_Q(a)=\sum_jQ_j|a_j-\sum_\ell Q_\ell a_\ell|^2$ vanishes exactly when $Q$ is a
-vertex, the atoms being distinct. So $V(r)=0$ exactly at the vertices. For $\delta>0$ the compact
+By dominated convergence $M$ and $V$ are continuous. Since $p_j>0$, $Q_p(r)$ has the same support as
+$r$, and $\tr\Cov_Q(a)=\sum_jQ_j|a_j-\sum_\ell Q_\ell a_\ell|^2$ vanishes exactly when $Q$ is a
+vertex, the atoms being distinct; hence $V(r)=0$ exactly at the vertices. For $\delta>0$ the compact
 set $K_\delta=\{r:\dist(M(r),A)\ge\delta\}$ contains no vertex, as $M(e_j)=a_j$, so
 $\kappa_\delta:=\min_{K_\delta}V>0$ whenever $K_\delta\neq\emptyset$. With
 $r_j(x,t)=e^{\beta b_j}/\sum_\ell e^{\beta b_\ell}$ we have $q_{p,j}=Q_{p,j}(r)$ and $m_\Pi=M(r)$,
 and Lemma~\ref{lem:basic}(a) gives, for $f=m_\Pi-x$,
 \[
-\operatorname{div}_xf=\beta\,V(r(x,t))-d .
+\operatorname{div}_xf=\tr D_xm_\Pi-d=\beta\int\tr\Cov_{q_p}(a)\,\Pi(dp)-d=\beta\,V(r(x,t))-d .
 \]
-Consider a trajectory with limit $z\notin A$ and put $\rho=\dist(z,A)>0$. Eventually
-$|x-z|\le\rho/4$. Call a time good if $|\dot x|\le\rho/4$; there $m_\Pi=x+\dot x$ satisfies
-$\dist(m_\Pi,A)\ge\rho/2$, so $V\ge\kappa_{\rho/2}$. The other times have measure at most
-$16\rho^{-2}\int|\dot x|^2<\infty$, so good times fill at least half of $[n-1,n]$ for large $n$.
-As $V\ge0$ and $\beta$ increases,
-$\int_{\tau_0}^n\operatorname{div}f\,d\tau\ge\tfrac12\kappa_{\rho/2}\beta(n-1)-d(n-\tau_0)\to+\infty$.
-Lemma~\ref{lem:volume} completes the proof.
+Consider a trajectory with limit $z\notin A$ and put $\rho=\dist(z,A)>0$; eventually
+$|x-z|\le\rho/4$. Call a time good if $|\dot x|\le\rho/4$. At a good late time
+$|m_\Pi-z|\le|\dot x|+|x-z|\le\rho/2$, since $m_\Pi=x+\dot x$, so $\dist(m_\Pi,A)\ge\rho/2$ and
+$V\ge\kappa_{\rho/2}$. By Chebyshev's inequality the other times in $[n-1,n]$ have measure at most
+$16\rho^{-2}\int_{n-1}^\infty|\dot x|^2\,d\tau\to0$, so the good times $G_n\subseteq[n-1,n]$ have
+measure at least $\tfrac12$ for large $n$. As $V\ge0$ and $\beta$ increases,
+\begin{align*}
+\int_{\tau_0}^n\operatorname{div}_xf\,d\tau
+=\int_{\tau_0}^n\beta V\,d\tau-d(n-\tau_0)
+\ \ge\ \int_{G_n}\beta V\,d\tau-d(n-\tau_0)
+\ \ge\ \tfrac12\kappa_{\rho/2}\,\beta(n-1)-d(n-\tau_0),
+\end{align*}
+which tends to $+\infty$ because $\beta(n-1)=e^{2(n-1)}-e^{n-1}$ grows exponentially.
+Lemma~\ref{lem:volume} gives (b) and (c).
 \end{proof}
 
 \phantomsection\label{apx:pf-filtered}
 \propfiltered*
 \begin{proof}
-(a) By Proposition~\ref{prop:kernel-field}, averaging $w_i^{(h)}(x,t,y-u)$ over $u\sim\varphi$
-gives nonnegative weights $\tilde w_i$ summing to one; at $t=0$ all spatial factors equal
-$\pi_0(x)$, so $w_i^{(h)}(x,0,y')=p_i^{(h)}(y')$. (b) Merge atoms at a common location by adding
-their weights; this changes neither the field nor positivity. By
-Lemma~\ref{lem:mixture-coupling}, $\vstar(\cdot,\cdot,y')=v_{p^{(h)}(y')}$, and
-$u\mapsto p^{(h)}(y-u)$ is continuous with values in $\Ppos$ because $K_h>0$. With $\Pi$ the image
-of $\varphi$ under this map, $v_\varphi(\cdot,\cdot,y)=v_\Pi$, and Theorem~\ref{thm:posmix}
-applies.
+(a) By Proposition~\ref{prop:kernel-field} and Fubini's theorem for the finite sum,
+\[
+v_\varphi(x,t,y)=\int\sum_iw_i^{(h)}(x,t,y-u)\,\frac{x^i-x}{1-t}\,\varphi(du)
+=\sum_i\tilde w_i(x,t,y)\,\frac{x^i-x}{1-t},\qquad
+\tilde w_i=\int w_i^{(h)}(x,t,y-u)\,\varphi(du),
+\]
+and $\tilde w_i\ge0$, $\sum_i\tilde w_i=1$, because the same holds for $w_i^{(h)}$. At $t=0$ every
+spatial factor equals $\pi_0(x)$ and cancels, so $w_i^{(h)}(x,0,y')=p_i^{(h)}(y')$ and
+$\tilde w_i(x,0,y)=\int p_i^{(h)}(y-u)\,\varphi(du)=q_i(y)$.
+
+(b) Merge atoms at a common location by adding their weights; this changes neither the field nor
+the positivity of the priors. By Lemma~\ref{lem:mixture-coupling},
+$\vstar(\cdot,\cdot,y')=v_{p^{(h)}(y')}$, and $u\mapsto p^{(h)}(y-u)$ is continuous with values in
+$\Ppos$ because $K_h>0$. With $\Pi$ the image of $\varphi$ under this map,
+\[
+v_\varphi(\cdot,\cdot,y)=\int v_{p^{(h)}(y-u)}\,\varphi(du)=\int v_p\,\Pi(dp)=v_\Pi ,
+\]
+and Theorem~\ref{thm:posmix} gives the convergence to a point $z\in\operatorname{conv}\nn(z)$, the
+almost sure atomicity under absolutely continuous sources, and the form of the endpoint law.
 \end{proof}
 
 \phantomsection\label{apx:pf-hyperplane}
 \prophyperplane*
 \begin{proof}
-Let $c=(x^1+x^2)/2$, so $x^{1,2}=c\pm\nu$, and $A_0=|\nu|^2>0$.
-
-\emph{Step 1: a scalar equation.} Since $|x-t(c-\nu)|^2-|x-t(c+\nu)|^2=4t\,\nu\cdot(x-tc)$, we have
-$q_{p,1}/q_{p,2}=e^{2\beta\zeta}$ with $\zeta=\nu\cdot(x-tc)$, and $m_p=c+\nu\tanh(\beta\zeta)$. In
-the time $\tau$, $\dot\zeta=\nu\cdot(m_p-x)-\eps\,\nu\cdot c$ and $\nu\cdot x=\zeta+t\,\nu\cdot c$, so
-the terms in $\nu\cdot c$ cancel:
+Let $c=(x^1+x^2)/2$, so that $x^{1,2}=c\pm\nu$, and put $A_0=|\nu|^2>0$ and
+$\zeta=\nu\cdot(x-tc)$. Since
 \[
-\dot\zeta=A_0\tanh(\beta\zeta)-\zeta,\qquad\zeta(0)=\nu\cdot x_0 .
+|x-t(c-\nu)|^2-|x-t(c+\nu)|^2=|x-tc+t\nu|^2-|x-tc-t\nu|^2=4t\,\nu\cdot(x-tc)=4t\zeta
 \]
-The right side is odd in $\zeta$ and Lipschitz in $\zeta$ with constant $A_0\beta(\tau)+1$, so
-solutions are unique forward and backward in time.
+and the prior is uniform, the posterior odds are
+$q_{p,1}/q_{p,2}=\exp(4t\zeta/2\eps^2)=e^{2\beta\zeta}$. Hence $q_{p,1}-q_{p,2}=\tanh(\beta\zeta)$
+and $m_p=c+\nu\tanh(\beta\zeta)$. In the time $\tau$, $\dot x=m_p-x$ and $\dot t=\eps$, so with
+$\nu\cdot x=\zeta+t\,\nu\cdot c$ and $t+\eps=1$,
+\begin{align*}
+\dot\zeta&=\nu\cdot\dot x-\dot t\,\nu\cdot c
+=\nu\cdot c+A_0\tanh(\beta\zeta)-\nu\cdot x-\eps\,\nu\cdot c\\
+&=A_0\tanh(\beta\zeta)-\zeta+(1-t-\eps)\,\nu\cdot c
+=A_0\tanh(\beta\zeta)-\zeta,
+\end{align*}
+with $\zeta(0)=\nu\cdot x_0$. The right side is odd in $\zeta$ and Lipschitz in $\zeta$ with constant
+$A_0\beta(\tau)+1$, so solutions are unique forward and backward in time.
 
-\emph{Step 2: the hyperplane.} If $\nu\cdot x_0=0$, uniqueness gives $\zeta\equiv0$, so
-$m_p\equiv c$ and $x_t=(1-t)x_0+tc\to c$.
+If $\nu\cdot x_0=0$, uniqueness gives $\zeta\equiv0$, hence $m_p\equiv c$ and, by the computation in
+the proof of Proposition~\ref{prop:collapse}(c), $x_t=(1-t)x_0+tc\to c$.
 
-\emph{Step 3: off the hyperplane.} Let $\nu\cdot x_0>0$; the other sign follows by oddness. By
-uniqueness $\zeta$ never reaches the solution $0$, so $\zeta>0$. Take $\tau_1$ with
-$A_0\beta(\tau)>2$ for $\tau\ge\tau_1$. For $\tau\ge\tau_1$ and $0<\zeta\le A_0/4$, $\dot\zeta>0$:
-if $\beta\zeta\le1$, concavity of $\tanh$ on $[0,1]$ and $\tanh1>\tfrac12$ give
-$\tanh(\beta\zeta)\ge\beta\zeta/2$ and $\dot\zeta\ge(A_0\beta/2-1)\zeta>0$; if $\beta\zeta>1$,
-then $\dot\zeta>A_0\tanh1-A_0/4>0$. Let $\underline\zeta=\min\{\zeta(\tau_1),A_0/4\}$. If
-$\zeta(\tau_2)<\underline\zeta$ for some $\tau_2>\tau_1$, let
-$\tau'=\sup\{\tau\in[\tau_1,\tau_2]:\zeta(\tau)\ge\underline\zeta\}$; then
+Let now $\nu\cdot x_0>0$; the other sign follows by oddness. By uniqueness $\zeta$ never reaches the
+solution $\zeta\equiv0$, so $\zeta>0$ throughout. Take $\tau_1$ with $A_0\beta(\tau)>2$ for
+$\tau\ge\tau_1$. For $\tau\ge\tau_1$ and $0<\zeta\le A_0/4$ we have $\dot\zeta>0$. Indeed, if
+$\beta\zeta\le1$, concavity of $\tanh$ on $[0,1]$ and $\tanh1>\tfrac12$ give
+$\tanh(\beta\zeta)\ge\beta\zeta\tanh1\ge\beta\zeta/2$, so
+\[
+\dot\zeta\ge\Bigl(\frac{A_0\beta}2-1\Bigr)\zeta>0 ;
+\]
+if $\beta\zeta>1$, then $\dot\zeta>A_0\tanh1-A_0/4>A_0/4>0$. Let
+$\underline\zeta=\min\{\zeta(\tau_1),A_0/4\}$. If $\zeta(\tau_2)<\underline\zeta$ for some
+$\tau_2>\tau_1$, let $\tau'=\sup\{\tau\in[\tau_1,\tau_2]:\zeta(\tau)\ge\underline\zeta\}$. Then
 $\zeta(\tau')=\underline\zeta$ and $0<\zeta<\underline\zeta$ on $(\tau',\tau_2]$, where $\zeta$
-increases, so $\zeta(\tau_2)>\underline\zeta$, a contradiction. Thus $\zeta\ge\underline\zeta>0$
-on $[\tau_1,\infty)$.
+increases, so $\zeta(\tau_2)>\underline\zeta$, a contradiction. Thus $\zeta\ge\underline\zeta>0$ on
+$[\tau_1,\infty)$.
 
-\emph{Step 4: the limit.} By Theorem~\ref{thm:posmix} the trajectory converges to some
-$z\in\mathcal C=\{c-\nu,c,c+\nu\}$: a point with one nearest atom is in $\mathcal C$ only if it is
-that atom, and a point equidistant from both atoms lies on the segment between them only if it
-is $c$. As $\zeta\to\nu\cdot(z-c)\ge\underline\zeta>0$ and $\nu\cdot(z-c)$ equals $-A_0,0,A_0$ at
-the three candidates, $z=c+\nu=x^1$. The midpoint is not an atom, so the exceptional set is
-exactly the hyperplane $\{\nu\cdot x_0=0\}$, of Hausdorff dimension $d-1$.
+By Theorem~\ref{thm:posmix}(a) the trajectory converges to some $z\in\mathcal C$, and here
+$\mathcal C=\{c-\nu,c,c+\nu\}$: a point with one nearest atom lies in $\mathcal C$ only if it is that
+atom, and a point equidistant from both atoms lies on the segment between them only if it is $c$.
+Since $\zeta\to\nu\cdot(z-c)$ and $\nu\cdot(z-c)$ equals $-A_0$, $0$, $A_0$ at the three candidates,
+$\zeta\ge\underline\zeta>0$ forces $z=c+\nu=x^1$. The midpoint is not an atom, so the exceptional
+set is exactly the hyperplane $\{\nu\cdot x_0=0\}$, of Hausdorff dimension $d-1$.
 \end{proof}
 
 \subsection{Guidance}
@@ -1406,91 +1648,134 @@ $\int_{\tau_0}^\infty|\dot x|^2\,d\tau<\infty$ with $\tau_0=-\log(1-t_0)$, and c
 point of $\mathcal C'$.
 \end{lemma}
 \begin{proof}
-Let $\bar c=\sup_t\sum_k|c_k(t)|$ and $p_{\min}=\min_{k,j}p_{k,j}>0$. In the time $\tau$,
-$\dot x=\bar m-x$ with $\bar m=\sum_kc_km_{p_k}$, and $|\bar m|\le\bar cR$.
+Let $\bar c=\sup_t\sum_k|c_k(t)|$ and $p_{\min}=\min_{k,j}p_{k,j}>0$. In the time $\tau$ the
+equation reads $\dot x=\bar m-x$ with $\bar m=\sum_kc_km_{p_k}$ and $|\bar m|\le\bar cR$.
 
-\emph{Step 1: well-posedness.} By Lemma~\ref{lem:basic}(a), $v_c$ is $C^1$ in $x$ with derivative
-bounded by $(\bar c\beta(T)R^2+1)/(1-T)$ on $\R^d\times[0,T]$ for every $T<1$, and of linear
-growth, so the paragraph on solutions applies. As in Lemma~\ref{lem:conv},
-$|x(\tau)|\le X:=\max\{|x(\tau_0)|,\bar cR\}$.
+By Lemma~\ref{lem:basic}(a), $v_c$ is $C^1$ in $x$ with
+$\|D_xv_c\|_{\rm op}\le(\bar c\beta_TR^2+1)/(1-T)$, with $\beta_T=T/(1-T)^2$, on $\R^d\times[0,T]$
+for every $T<1$, and it has
+linear growth, so the paragraph on solutions applies and Carath\'eodory trajectories exist and are
+unique. As in the proof of Lemma~\ref{lem:conv}, $|x(\tau)|\le X:=\max\{|x(\tau_0)|,\bar cR\}$.
 
-\emph{Step 2: finite kinetic energy.} Let $h_k(\tau)=H_{p_k}(x(\tau),t(\tau),\alpha(\tau))$. It is
-locally absolutely continuous, with $\dot h_k=m_{p_k}\cdot\dot x+r_k$ and
-$r_k=\eps\,\partial_tH_{p_k}+\dot\alpha\,\partial_\alpha H_{p_k}$. The second KL bound of
-Lemma~\ref{lem:basic}(b) gives $|r_k|\le\tfrac12R^2\eps+\log(1/p_{\min})|\dot\alpha|$, so
-$\int_{\tau_0}^\infty|r_k|\,d\tau\le\tfrac12R^2\eps(\tau_0)+\log(1/p_{\min})\alpha(\tau_0)$. Since
-$\dot x=\bar m-x$, for almost every $\tau$
+For the energy, let $h_k(\tau)=H_{p_k}(x(\tau),t(\tau),\alpha(\tau))$. It is locally absolutely
+continuous, and by the chain rule and $\nabla_xH_{p_k}=m_{p_k}$,
 \[
-|\dot x|^2=\sum_kc_k\,m_{p_k}\cdot\dot x-x\cdot\dot x
-=\sum_kc_k(\dot h_k-r_k)-\tfrac{d}{d\tau}\tfrac12|x|^2 .
+\dot h_k=m_{p_k}\cdot\dot x+r_k,\qquad
+r_k=\eps\,\partial_tH_{p_k}+\dot\alpha\,\partial_\alpha H_{p_k}.
+\]
+By Lemma~\ref{lem:basic}(a) and the second KL bound of Lemma~\ref{lem:basic}(b),
+$|r_k|\le\tfrac12R^2\eps+\log(1/p_{\min})\,|\dot\alpha|$. Since $\eps=e^{-\tau}$ and $\alpha$
+decreases to $0$,
+\[
+\int_{\tau_0}^\infty|r_k|\,d\tau\le\tfrac12R^2\eps(\tau_0)+\log(1/p_{\min})\,\alpha(\tau_0)<\infty .
+\]
+Using $\dot x=\bar m-x$, for almost every $\tau$,
+\[
+|\dot x|^2=\dot x\cdot(\bar m-x)=\sum_kc_k\,m_{p_k}\cdot\dot x-x\cdot\dot x
+=\sum_kc_k\bigl(\dot h_k-r_k\bigr)-\frac{d}{d\tau}\,\frac12|x|^2 .
 \]
 On $[t_0,1)$, changing each $c_k$ on the countable set of its discontinuities there makes it
-right-continuous without changing the trajectory, any Lebesgue integral, or increasing its
-variation. As $h_k$ is continuous and of bounded variation, integration by parts gives, for
-$\tau'>\tau_0$,
-$\int_{\tau_0}^{\tau'}c_k\dot h_k\,d\tau=c_k(\tau')h_k(\tau')-c_k(\tau_0)h_k(\tau_0)
--\int_{(\tau_0,\tau']}h_k\,dc_k$. On the trajectory $|h_k|\le\max_j|b_j|\le XR+R^2/2=:\bar H$, so
+right-continuous without changing the trajectory or any Lebesgue integral, and without increasing
+its variation. Since $h_k$ is continuous and of locally bounded variation, integration by parts
+gives, for $\tau'>\tau_0$,
 \[
-\int_{\tau_0}^{\tau'}|\dot x|^2\,d\tau\le\tfrac12|x(\tau_0)|^2+\sum_k\Big(2\bar c\bar H
-+\bar H\operatorname{Var}_{[t_0,1)}c_k+\int_{\tau_0}^\infty|c_kr_k|\,d\tau\Big)
+\int_{\tau_0}^{\tau'}c_k\dot h_k\,d\tau=c_k(\tau')h_k(\tau')-c_k(\tau_0)h_k(\tau_0)
+-\int_{(\tau_0,\tau']}h_k\,dc_k .
 \]
+On the trajectory $|b_j|\le|x||a_j|+\tfrac12|a_j|^2\le XR+\tfrac12R^2=:\bar H$, and
+$\min_jb_j\le h_k\le\max_jb_j$ by Lemma~\ref{lem:basic}(b), so $|h_k|\le\bar H$. Integrating the
+identity for $|\dot x|^2$ and using $|c_k|\le\bar c$,
+\begin{align*}
+\int_{\tau_0}^{\tau'}|\dot x|^2\,d\tau
+&=\sum_k\int_{\tau_0}^{\tau'}c_k\dot h_k\,d\tau-\sum_k\int_{\tau_0}^{\tau'}c_kr_k\,d\tau
++\tfrac12|x(\tau_0)|^2-\tfrac12|x(\tau')|^2\\
+&\le\tfrac12|x(\tau_0)|^2+\sum_k\Bigl(2\bar c\bar H+\bar H\operatorname{Var}_{[t_0,1)}c_k
++\int_{\tau_0}^\infty|c_kr_k|\,d\tau\Bigr)
+\end{align*}
 for every $\tau'$, and the kinetic energy is finite.
 
-\emph{Step 3: convergence.} Let $x_n\to z$ and $\tau_n\to\infty$, and write
-$\bar m(x_n,\tau_n)=\sum_j\gamma_{n,j}a_j$ with $\gamma_{n,j}=\sum_kc_k(t_n)q_{p_k,j}(x_n,t_n)$.
-Then $\sum_j\gamma_{n,j}=1$, $|\gamma_{n,j}|\le\bar c$, and $\gamma_{n,j}\to0$ for
-$a_j\notin\nn(z)$ by Lemma~\ref{lem:basic}(c). With $\sigma_n=\sum_{a_j\in\nn(z)}\gamma_{n,j}\to1$,
-the point $\sum_{a_j\in\nn(z)}(\gamma_{n,j}/\sigma_n)a_j$ lies in $\operatorname{aff}\nn(z)$ and
-differs from $\bar m(x_n,\tau_n)$ by at most
-$R\sum_{a_j\notin\nn(z)}|\gamma_{n,j}|+|1-\sigma_n^{-1}|N\bar cR\to0$. Lemma~\ref{lem:conv}
-applies.
+Finally, let $x_n\to z$ and $\tau_n\to\infty$, and write $\bar m(x_n,\tau_n)=\sum_j\gamma_{n,j}a_j$
+with $\gamma_{n,j}=\sum_kc_k(t_n)\,q_{p_k,j}(x_n,t_n)$. Then $\sum_j\gamma_{n,j}=1$,
+$|\gamma_{n,j}|\le\bar c$, and $\gamma_{n,j}\to0$ for $a_j\notin\nn(z)$ by Lemma~\ref{lem:basic}(c).
+With $\sigma_n=\sum_{a_j\in\nn(z)}\gamma_{n,j}\to1$, the point
+$z_n=\sum_{a_j\in\nn(z)}(\gamma_{n,j}/\sigma_n)a_j$ lies in $\operatorname{aff}\nn(z)$, and
+\[
+\bigl|\bar m(x_n,\tau_n)-z_n\bigr|
+\le\Bigl|\sum_{a_j\notin\nn(z)}\gamma_{n,j}a_j\Bigr|
++\bigl|1-\sigma_n^{-1}\bigr|\,\Bigl|\sum_{a_j\in\nn(z)}\gamma_{n,j}a_j\Bigr|
+\le R\sum_{a_j\notin\nn(z)}|\gamma_{n,j}|+\bigl|1-\sigma_n^{-1}\bigr|N\bar cR\to0 .
+\]
+Hence every limit point of $\bar m(x_n,\tau_n)$ lies in $\operatorname{aff}\nn(z)$, and
+Lemma~\ref{lem:conv} gives convergence to a point of $\mathcal C'$.
 \end{proof}
 
 \phantomsection\label{apx:pf-schedule}
 \thmschedule*
 \paragraph{Proof overview.} With coefficients of both signs the energy of
-Theorem~\ref{thm:posmix} is no longer monotone. Lemma~\ref{lem:signedconv} below replaces it: the
+Theorem~\ref{thm:posmix} is no longer monotone. Lemma~\ref{lem:signedconv} replaces it: the
 log-partition function of each prior is integrated by parts against the coefficients, which costs
 their total variation, and the time dependence costs at most $\log(1/\min_jp_j)$. For the volume
-step, an exact identity writes the guided covariance trace as
+hypothesis, an exact identity writes the guided covariance trace as
 $r^2-|\mu_w|^2+w(1+w)|\mu_c-\mu_u|^2$ plus vanishing terms; the middle term is small in mean
 square along a converging trajectory, and the last is nonnegative for $w\ge0$.
 \begin{proof}
 Let $p_c=p^{(h)}(y)$ and $p_u=p^{\mathrm{unc}}$, both in $\Ppos$. The field is $v_c$ of
-Lemma~\ref{lem:signedconv} with $K=2$ and $c=(1+w,-w)$, bounded by $1+2\bar w$ and of bounded
-variation; so trajectories are unique, have finite kinetic energy, and converge to points of
-$\mathcal C'$. It remains to verify \eqref{eq:pf:divinfinity} for Lemma~\ref{lem:volume}.
+Lemma~\ref{lem:signedconv} with $K=2$ and $c=(1+w,-w)$, which is bounded by $1+2\bar w$ and of
+bounded variation on $[t_0,1)$. Hence trajectories are unique, have finite kinetic energy, and
+converge to points of $\mathcal C'$, and it remains to verify \eqref{eq:pf:divinfinity} for
+Lemma~\ref{lem:volume}.
 
-\emph{Step 1: the guided covariance trace.} Consider a trajectory with limit $z\notin A$, let
-$S=\nn(z)$ and $r=\dist(z,A)>0$, and write $\mu_c=m_{p_c}-z$, $\mu_u=m_{p_u}-z$ and
-$\mu_w=(1+w)\mu_c-w\mu_u=\dot x+x-z$ along the trajectory. Every atom of $S$ is at distance $r$
-from $z$, so for each prior $p$
-\[
-\tr\Cov_{q_p}(a)=\sum_jq_{p,j}|a_j-z|^2-|m_p-z|^2=r^2-|m_p-z|^2+e_p,\qquad
-e_p=\sum_{a_j\notin S}q_{p,j}\big(|a_j-z|^2-r^2\big)\ge0,
-\]
+Consider a trajectory with limit $z\notin A$, let $S=\nn(z)$ and $r=\dist(z,A)>0$, and write
+$\mu_c=m_{p_c}-z$, $\mu_u=m_{p_u}-z$ and $\mu_w=(1+w)\mu_c-w\mu_u$, so that $\mu_w=\dot x+x-z$
+along the trajectory. Every atom of $S$ is at distance $r$ from $z$, so for each prior $p$
+\begin{align*}
+\tr\Cov_{q_p}(a)
+&=\sum_jq_{p,j}|a_j-z|^2-|m_p-z|^2
+=r^2\sum_{a_j\in S}q_{p,j}+\sum_{a_j\notin S}q_{p,j}|a_j-z|^2-|m_p-z|^2\\
+&=r^2-|m_p-z|^2+e_p,\qquad
+e_p=\sum_{a_j\notin S}q_{p,j}\bigl(|a_j-z|^2-r^2\bigr)\ge0,
+\end{align*}
 and $e_{p_c},e_{p_u}\to0$ along the trajectory by Lemma~\ref{lem:basic}(c). Expanding both sides
-verifies $|(1+w)u-wv|^2=(1+w)|u|^2-w|v|^2+w(1+w)|u-v|^2$, so the trace
-$\Theta=(1+w)\tr\Cov_{q_{p_c}}(a)-w\tr\Cov_{q_{p_u}}(a)$ satisfies
+verifies, for vectors $u,v$,
 \[
-\Theta=r^2-|\mu_w|^2+w(1+w)|\mu_c-\mu_u|^2+(1+w)e_{p_c}-we_{p_u}
+(1+w)|u|^2-w|v|^2=|(1+w)u-wv|^2-w(1+w)|u-v|^2 .
+\]
+With $u=\mu_c$ and $v=\mu_u$, the combined trace
+$\Theta=(1+w)\tr\Cov_{q_{p_c}}(a)-w\tr\Cov_{q_{p_u}}(a)$ is therefore
+\begin{align*}
+\Theta
+&=r^2-\bigl((1+w)|\mu_c|^2-w|\mu_u|^2\bigr)+(1+w)e_{p_c}-we_{p_u}\\
+&=r^2-|\mu_w|^2+w(1+w)|\mu_c-\mu_u|^2+(1+w)e_{p_c}-we_{p_u}
 \ \ge\ r^2-|\mu_w|^2-\bar we_{p_u},
-\]
-using $0\le w\le\bar w$. By Lemma~\ref{lem:basic}(a), $f=(1+w)m_{p_c}-wm_{p_u}-x$ has
-$\operatorname{div}_xf=\beta\Theta-d$.
+\end{align*}
+using $0\le w\le\bar w$ and $e_{p_c}\ge0$. By Lemma~\ref{lem:basic}(a), the field
+$f=(1+w)m_{p_c}-wm_{p_u}-x$ has $\operatorname{div}_xf=\beta\Theta-d$.
 
-\emph{Step 2: divergence.} Convergence and finite energy give
-$\int_n^{n+1}|\mu_w|^2\,d\tau\le2\int_n^{n+1}(|x-z|^2+|\dot x|^2)\,d\tau\to0$. Let
-$\eta_n=\bar w\sup_{[n,n+1]}e_{p_u}\to0$ and $C_\beta=\sup_{n\ge1}\beta(n+1)/\beta(n)\le
-e^2/(1-e^{-1})$. For integers $n\ge\max\{1,\tau_0\}$ so large that $\eta_n\le r^2/4$ and
-$C_\beta\int_n^{n+1}|\mu_w|^2\le r^2/4$, monotonicity of $\beta$ gives
+Convergence and finite energy give
 \[
-\int_n^{n+1}\beta\Theta\,d\tau\ \ge\ \beta(n)(r^2-\eta_n)-\beta(n+1)\int_n^{n+1}|\mu_w|^2\,d\tau
-\ \ge\ \tfrac12r^2\beta(n).
+\int_n^{n+1}|\mu_w|^2\,d\tau\le2\int_n^{n+1}\bigl(|x-z|^2+|\dot x|^2\bigr)\,d\tau\longrightarrow0 .
 \]
-On the bounded remainder of $[\tau_0,\infty)$, $|\Theta|\le(1+2\bar w)R^2$ and $\beta$ is bounded,
-so $\int_{\tau_0}^n\operatorname{div}f\,d\tau\ge-C_0+\tfrac12r^2\beta(n-1)-d(n-\tau_0)\to+\infty$
-for a constant $C_0$. Lemma~\ref{lem:volume} completes the proof.
+Let $\eta_n=\bar w\sup_{[n,n+1]}e_{p_u}\to0$. Since $\beta(\tau)=e^\tau(e^\tau-1)$, for $n\ge1$
+\[
+\frac{\beta(n+1)}{\beta(n)}=e\,\frac{e^{n+1}-1}{e^n-1}\le\frac{e^2}{1-e^{-n}}\le\frac{e^2}{1-e^{-1}}=:C_\beta .
+\]
+For integers $n\ge\max\{1,\tau_0\}$ so large that $\eta_n\le r^2/4$ and
+$C_\beta\int_n^{n+1}|\mu_w|^2\le r^2/4$, monotonicity of $\beta$, applied to the positive factor
+$r^2-\eta_n$ and to $|\mu_w|^2\ge0$, gives
+\begin{align*}
+\int_n^{n+1}\beta\Theta\,d\tau
+&\ge\int_n^{n+1}\beta\,(r^2-\eta_n)\,d\tau-\int_n^{n+1}\beta|\mu_w|^2\,d\tau
+\ge\beta(n)(r^2-\eta_n)-\beta(n+1)\int_n^{n+1}|\mu_w|^2\,d\tau\\
+&\ge\beta(n)\Bigl(r^2-\frac{r^2}4\Bigr)-\beta(n)\,C_\beta\int_n^{n+1}|\mu_w|^2\,d\tau
+\ \ge\ \tfrac12r^2\beta(n).
+\end{align*}
+On the bounded remainder of $[\tau_0,\infty)$, $|\Theta|\le(1+2\bar w)R^2$ and $\beta$ is bounded.
+Summing over the unit intervals and keeping only the last one, there is a constant $C_0$ with
+\[
+\int_{\tau_0}^n\operatorname{div}_xf\,d\tau\ \ge\ -C_0+\tfrac12r^2\beta(n-1)-d(n-\tau_0)
+\longrightarrow+\infty ,
+\]
+and Lemma~\ref{lem:volume} completes the proof.
 \end{proof}
 
 \phantomsection\label{apx:pf-cfgatom}
@@ -1498,37 +1783,63 @@ for a constant $C_0$. Lemma~\ref{lem:volume} completes the proof.
 \begin{proof}
 (a) This is Theorem~\ref{thm:schedule} with the constant schedule $w(t)\equiv w$.
 
-(b) Dots denote derivatives in the original time $t$. The conditional mean is $a_i$ and the
-unconditional mean is $m=\sum_jq_ja_j$ with $q_j\propto\exp(-|x-ta_j|^2/(2\eps^2))$; the field
-is smooth with linear growth on $[0,T]$, $T<1$, so solutions exist and are unique. Write
-$D_j=|x-ta_j|^2$, $\zeta=x-ta_i$ and $Y=|\zeta|^2$. We show, for $0<t_0<t<1$,
+(b) Here dots denote derivatives in the original time $t$. At the hard label the conditional
+field is $(a_i-x)/\eps$, and the unconditional field is $(m-x)/\eps$ with $m=\sum_jq_ja_j$ and
+$q_j\propto\exp(-|x-ta_j|^2/2\eps^2)$. The guided field is therefore
+$\bigl((1+w)a_i-wm-x\bigr)/\eps$; it is smooth with linear growth on $[0,T]$ for $T<1$, so solutions
+exist and are unique. Write $D_j=|x-ta_j|^2$, $\zeta=x-ta_i$ and $Y=|\zeta|^2$. We show, for
+$0<t_0<t<1$,
 \begin{equation}
 |x_t-ta_i|^2\le\eps^2\left[\frac{|x_{t_0}-t_0a_i|^2}{(1-t_0)^2}
 +2w\log N\log\frac{t(1-t_0)}{t_0(1-t)}\right],
 \label{eq:guided-hard-rate}
 \end{equation}
-whose right side tends to zero; hence $x_t\to a_i$ for every initial point.
+whose right side tends to zero, since $\eps^2\log(1/\eps)\to0$; as
+$|x_t-a_i|\le|x_t-ta_i|+\eps|a_i|$, this gives $x_t\to a_i$ for every initial point.
 
-\emph{Step 1: a Gibbs inequality.} With $\mathrm H(q)=-\sum_jq_j\log q_j\le\log N$ and the term
-$j=i$ of the partition function,
-$\sum_jq_jD_j=2\eps^2\big(\mathrm H(q)-\log\sum_je^{-D_j/(2\eps^2)}\big)\le D_i+2\eps^2\log N$.
-Since $D_j-D_i=2t\zeta\cdot(a_i-a_j)+t^2|a_i-a_j|^2$, this gives
-$2t\zeta\cdot(a_i-m)\le2\eps^2\log N$.
-
-\emph{Step 2: integration.} The guided field is $((1+w)a_i-wm-x)/\eps$, so
-$\dot\zeta=(-\zeta+w(a_i-m))/\eps$ and, by Step 1 and $w\ge0$,
+The key estimate is a Gibbs inequality. With $Z=\sum_je^{-D_j/2\eps^2}$ we have
+$\log q_j=-D_j/2\eps^2-\log Z$, so the entropy $\mathrm H(q)=-\sum_jq_j\log q_j\le\log N$ satisfies
+$\mathrm H(q)=\sum_jq_jD_j/2\eps^2+\log Z$. Keeping only the term $j=i$ of $Z$ gives
+$\log Z\ge-D_i/2\eps^2$, and hence
 \[
-\dot Y\le-\frac{2Y}{\eps}+\frac{2w\eps\log N}{t},\qquad
-\frac{d}{dt}\Big(\frac{Y}{\eps^2}\Big)\le\frac{2w\log N}{t(1-t)}.
+\sum_jq_jD_j=2\eps^2\bigl(\mathrm H(q)-\log Z\bigr)\le2\eps^2\log N+D_i .
 \]
-Integrating from $t_0$ gives \eqref{eq:guided-hard-rate}.
+Since $x-ta_j=\zeta+t(a_i-a_j)$,
+\[
+D_j-D_i=2t\,\zeta\cdot(a_i-a_j)+t^2|a_i-a_j|^2,\qquad
+\sum_jq_j(D_j-D_i)=2t\,\zeta\cdot(a_i-m)+t^2\sum_jq_j|a_i-a_j|^2,
+\]
+and the previous display yields
+\[
+2t\,\zeta\cdot(a_i-m)\le\sum_jq_j(D_j-D_i)\le2\eps^2\log N .
+\]
+From the form of the guided field and $\eps=1-t$,
+\[
+\dot\zeta=\frac{(1+w)a_i-wm-x}{\eps}-a_i=\frac{ta_i-x+w(a_i-m)}{\eps}=\frac{-\zeta+w(a_i-m)}{\eps},
+\]
+so by the Gibbs bound and $w\ge0$
+\begin{align*}
+\dot Y=2\zeta\cdot\dot\zeta&=-\frac{2Y}{\eps}+\frac{2w\,\zeta\cdot(a_i-m)}{\eps}
+\le-\frac{2Y}{\eps}+\frac{2w\eps\log N}{t},\\
+\frac{d}{dt}\Bigl(\frac{Y}{\eps^2}\Bigr)&=\frac{\dot Y}{\eps^2}+\frac{2Y}{\eps^3}
+\le\frac{2w\log N}{t\eps}=\frac{2w\log N}{t(1-t)} .
+\end{align*}
+Integrating from $t_0$ to $t$ with $\int_{t_0}^t\frac{ds}{s(1-s)}=\log\frac{t(1-t_0)}{t_0(1-t)}$ and
+multiplying by $\eps^2$ gives \eqref{eq:guided-hard-rate}.
 
 \emph{Time-dependent guidance at a hard label.} For a measurable, locally bounded
 $w:[0,1)\to[0,\infty)$ the same computation holds for almost every $t$ and gives
-$|x_t-ta_i|^2\le\eps^2\big[|x_{t_0}-t_0a_i|^2/(1-t_0)^2+2\log N\int_{t_0}^tw(s)\,ds/(s(1-s))\big]$.
-If $w(s)\le W_0(1-s)^{-\gamma}$ on $[t_0,1)$ with $0<\gamma<2$, the integral is at most
-$W_0(1-t)^{-\gamma}/(t_0\gamma)$, so $|x_t-ta_i|^2=O((1-t)^{2-\gamma})\to0$ for every initial point.
-This condition is sufficient only.
+\[
+|x_t-ta_i|^2\le\eps^2\Bigl[\frac{|x_{t_0}-t_0a_i|^2}{(1-t_0)^2}
++2\log N\int_{t_0}^t\frac{w(s)\,ds}{s(1-s)}\Bigr].
+\]
+If $w(s)\le W_0(1-s)^{-\gamma}$ on $[t_0,1)$ with $0<\gamma<2$, then
+\[
+\int_{t_0}^t\frac{w(s)\,ds}{s(1-s)}\le\frac{W_0}{t_0}\int_{t_0}^t(1-s)^{-1-\gamma}\,ds
+\le\frac{W_0}{t_0\gamma}(1-t)^{-\gamma},
+\]
+so $|x_t-ta_i|^2=O((1-t)^{2-\gamma})\to0$ for every initial point. This condition is sufficient
+only.
 \end{proof}
 
 \subsection{Composition}
@@ -1536,103 +1847,144 @@ This condition is sufficient only.
 
 \thmcomposition*
 \paragraph{Proof overview.} On the line the composite field reduces to the scalar
-function $F_w$ of \eqref{eq:composition-mean} (Step~1). Lemma~\ref{lem:signedconv} gives
-convergence to $\{-1,0,1\}$, and flows on the line preserve order (Step~2). For (a), a barrier
-$|x|<\delta(1-t)^2/t$ that moves inward faster than the boundary traps an open interval of sources
-(Step~3). For (b), $F_w\ge\kappa\min\{s^3,1\}$ on $s\ge0$, and a lower barrier keeps every positive
-source away from $0$ (Step~4).
+function $F_w$ of \eqref{eq:composition-mean}. Lemma~\ref{lem:signedconv} gives convergence to
+$\{-1,0,1\}$, and flows on the line preserve order. For (a), a barrier $|x|<\delta(1-t)^2/t$ that
+moves inward faster than the boundary traps an open interval of sources. For (b),
+$F_w\ge\kappa\min\{s^3,1\}$ on $s\ge0$, and a lower barrier keeps every positive source away
+from~$0$.
 \begin{proof}
-\emph{Step 1: the field.} With the Gaussian kernel $K_h$ of Section~\ref{sec:setup}, at a query
+We first compute the field. With the Gaussian kernel $K_h$ of Section~\ref{sec:setup}, at a query
 $y'$ the label weights of the atoms $1$ and $-1$ have log-ratio
-$\log[K_h(y'-\ell)/K_h(y'+\ell)]=2y'\ell/h^2$, so the averaged queries $y'=u_0$ and $y'=-u_0$ give
-priors $p_+,p_-\in\Ppos$ with log-odds $+2B$ and $-2B$ for the atom $1$; the unconditional prior
-is uniform. For a prior with log-odds $2b$, the posterior log-odds of the atom $1$ at $(x,t)$ is
-$2b+[(x+t)^2-(x-t)^2]/(2\eps^2)=2(s+b)$ with $s=tx/\eps^2$, so the posterior mean is $\tanh(s+b)$.
-Hence $v_{\varphi,w}=(F_w(s)-x)/\eps$ with $F_w$ as in \eqref{eq:composition-mean}. The closed
-form follows from $\tanh(s+B)+\tanh(s-B)=2\sinh2s/(\cosh2s+\cosh2B)$,
-$\tanh s=\sinh2s/(\cosh2s+1)$, $\cosh2s+1=2\cosh^2s$ and $\cosh2B-1=2\sinh^2B$. Thus $F_w$ is odd,
-and for $s>0$ the sign of $F_w(s)$ is that of $\cosh^2s-w\sinh^2B$.
-
-\emph{Step 2: convergence and monotonicity.} The field is $v_c$ of Lemma~\ref{lem:signedconv}
-with priors $p_+,p_-,p^{\mathrm{unc}}$ and constant coefficients
-$(\tfrac{1+w}2,\tfrac{1+w}2,-w)$, so every trajectory converges to a point of
-$\mathcal C'=\{-1,0,1\}$. The coefficients are constant, so trajectories are classical; they
-cannot cross, so the time-$t$ flow maps are increasing homeomorphisms of $\R$. Since
-$F_w(0)=0$, $x\equiv0$ is a trajectory, trajectories from $x_0>0$ stay positive, and those from
-$-x_0$ are reflections of those from $x_0$. In the time $\tau$, $\dot x=F_w(\beta x)-x$.
-
-\emph{Step 3: part (a), a moving barrier.} Let $w\sinh^2B>1$ and $s_u>0$ with
-$\cosh s_u=\sqrt w\sinh B$, so $F_w<0$ on $(0,s_u)$. Fix $\delta\in(0,s_u)$, put
-$\gamma=-F_w(\delta)>0$ and $b(t)=\delta\eps^2/t$, so that $s=\delta$ at $x=b(t)$. In the original
-time,
 \[
-v_{\varphi,w}(b(t),t)-b'(t)=-\frac\gamma\eps-\frac{\delta\eps}{t}
-+\delta\Big(\frac{2\eps}t+\frac{\eps^2}{t^2}\Big)
-=\frac1\eps\Big[-\gamma+\delta\Big(\frac{\eps^2}t+\frac{\eps^3}{t^2}\Big)\Big].
+\log\frac{K_h(y'-\ell)}{K_h(y'+\ell)}=\frac{(y'+\ell)^2-(y'-\ell)^2}{2h^2}=\frac{2y'\ell}{h^2},
 \]
-The bracket decreases to $-\gamma$ as $t\uparrow1$, so there is $t_1\in(0,1)$ with
-$v_{\varphi,w}(b(t),t)<b'(t)$ on $[t_1,1)$, and by oddness $v_{\varphi,w}(-b(t),t)>-b'(t)$. If
-$|x(t_1)|<b(t_1)$, then $|x(t)|<b(t)$ for all $t\ge t_1$: at a first time $t_2$ with
-$x(t_2)=b(t_2)$, the function $x-b$ would vanish after being negative, so $(x-b)'(t_2)\ge0$,
-contradicting $(x-b)'(t_2)<0$; the lower barrier is symmetric. Hence $|x(t)|\le\delta\eps^2/t\to0$.
-The set $U$ of initial
-points whose time-$t_1$ image lies in $(-b(t_1),b(t_1))$ is an open interval containing $0$, so
-$\pi_0(U)>0$. Every trajectory converges, so pointwise and dominated convergence, as at the end of
-the proof of Lemma~\ref{lem:volume}, give the endpoint law
-$P_{-1}\delta_{-1}+P_0\delta_0+P_1\delta_1$ with $P_0\ge\pi_0(U)>0$.
+so the averaged queries $y'=u_0$ and $y'=-u_0$ give priors $p_+,p_-\in\Ppos$ with log-odds $+2B$ and
+$-2B$ for the atom $1$, while the unconditional prior is uniform. For a prior with log-odds $2b$,
+the posterior log-odds of the atom $1$ at $(x,t)$ is
+\[
+2b+\frac{|x+t|^2-|x-t|^2}{2\eps^2}=2b+\frac{2tx}{\eps^2}=2(s+b),\qquad s=\frac{tx}{\eps^2},
+\]
+so the posterior mean is $\tanh(s+b)$. Hence $v_{\varphi,w}=(F_w(s)-x)/\eps$ with $F_w$ as in
+\eqref{eq:composition-mean}. For its closed form, $\tanh\theta+\tanh\vartheta=
+\sinh(\theta+\vartheta)/(\cosh\theta\cosh\vartheta)$ and
+$2\cosh(s+B)\cosh(s-B)=\cosh2s+\cosh2B$ give
+$\tanh(s+B)+\tanh(s-B)=2\sinh2s/(\cosh2s+\cosh2B)$, while $\tanh s=\sinh2s/(\cosh2s+1)$. Therefore,
+using $\cosh2s+1=2\cosh^2s$ and $\cosh2B-1=2\sinh^2B$,
+\begin{align*}
+F_w(s)
+&=\frac{(1+w)\sinh2s}{\cosh2s+\cosh2B}-\frac{w\sinh2s}{\cosh2s+1}
+=\sinh2s\,\frac{(1+w)(\cosh2s+1)-w(\cosh2s+\cosh2B)}{(\cosh2s+\cosh2B)(\cosh2s+1)}\\
+&=\sinh2s\,\frac{\cosh2s+1-w(\cosh2B-1)}{(\cosh2s+\cosh2B)\,2\cosh^2s}
+=\frac{\sinh2s}{\cosh^2s}\cdot\frac{\cosh^2s-w\sinh^2B}{\cosh2s+\cosh2B}\\
+&=\frac{2\tanh(s)\,\bigl(\cosh^2s-w\sinh^2B\bigr)}{\cosh2s+\cosh2B}.
+\end{align*}
+Thus $F_w$ is odd, and for $s>0$ the sign of $F_w(s)$ is that of $\cosh^2s-w\sinh^2B$.
 
-\emph{Step 4: part (b), a lower barrier.} Let $w\sinh^2B\le1$. Then
-$\cosh^2s-w\sinh^2B\ge\sinh^2s$, so for $s\ge0$
+The field is $v_c$ of Lemma~\ref{lem:signedconv} with priors $p_+,p_-,p^{\mathrm{unc}}$ and constant
+coefficients $(\tfrac{1+w}2,\tfrac{1+w}2,-w)$, so every trajectory converges to a point of
+$\mathcal C'=\{-1,0,1\}$. The coefficients are constant, so trajectories are classical; they cannot
+cross, and the time-$t$ flow maps are increasing homeomorphisms of $\R$. Since $F_w(0)=0$,
+$x\equiv0$ is a trajectory, trajectories from $x_0>0$ stay positive, and by oddness of $F_w$ those
+from $-x_0$ are reflections of those from $x_0$. In the time $\tau$, $\dot x=F_w(\beta x)-x$.
+
+For (a), let $w\sinh^2B>1$ and let $s_u>0$ satisfy $\cosh s_u=\sqrt w\sinh B$, so that $F_w<0$ on
+$(0,s_u)$. Fix $\delta\in(0,s_u)$, put $\gamma=-F_w(\delta)>0$ and $b(t)=\delta\eps^2/t$, so that
+$s=\delta$ at $x=b(t)$. In the original time, $b'(t)=-\delta(2\eps/t+\eps^2/t^2)$ and
+$v_{\varphi,w}(b(t),t)=(F_w(\delta)-b(t))/\eps$, so
+\begin{align*}
+v_{\varphi,w}(b(t),t)-b'(t)
+&=-\frac\gamma\eps-\frac{\delta\eps}{t}+\delta\Bigl(\frac{2\eps}t+\frac{\eps^2}{t^2}\Bigr)
+=-\frac\gamma\eps+\delta\Bigl(\frac{\eps}t+\frac{\eps^2}{t^2}\Bigr)\\
+&=\frac1\eps\Bigl[-\gamma+\delta\Bigl(\frac{\eps^2}t+\frac{\eps^3}{t^2}\Bigr)\Bigr].
+\end{align*}
+The bracket decreases to $-\gamma$ as $t\uparrow1$, so there is $t_1\in(0,1)$ with
+$v_{\varphi,w}(b(t),t)<b'(t)$ on $[t_1,1)$, and by oddness $v_{\varphi,w}(-b(t),t)>-b'(t)$ there.
+Let $|x(t_1)|<b(t_1)$. If $|x|$ reached $b$ after $t_1$, then at the first such time $t_2$, say with
+$x(t_2)=b(t_2)$, the function $x-b$ would vanish after being negative on $[t_1,t_2)$, so
+$(x-b)'(t_2)\ge0$; this contradicts
+$(x-b)'(t_2)=v_{\varphi,w}(b(t_2),t_2)-b'(t_2)<0$, and the lower barrier is symmetric. Hence
+$|x(t)|<b(t)=\delta\eps^2/t\to0$. The set $U$ of initial points whose time-$t_1$ image lies in
+$(-b(t_1),b(t_1))$ is the preimage of an open interval containing $0$ under an increasing
+homeomorphism fixing $0$, so it is an open interval containing $0$ and $\pi_0(U)>0$. Every trajectory
+converges, so pointwise and dominated convergence, as at the end of the proof of
+Lemma~\ref{lem:volume}, give the endpoint law $P_{-1}\delta_{-1}+P_0\delta_0+P_1\delta_1$ with
+$P_0\ge\pi_0(U)>0$.
+
+For (b), let $w\sinh^2B\le1$. Then $\cosh^2s-w\sinh^2B\ge\cosh^2s-1=\sinh^2s$, so for $s\ge0$
 \[
 F_w(s)\ \ge\ \frac{2\tanh(s)\sinh^2(s)}{\cosh2s+\cosh2B}\ \ge\ \kappa\min\{s^3,1\},
-\qquad\kappa=\frac1{\cosh2+\cosh2B}:
+\qquad\kappa=\frac1{\cosh2+\cosh2B}.
 \]
-on $[0,1]$ use $\tanh s\ge s\tanh1\ge s/2$, $\sinh s\ge s$ and $\cosh2s\le\cosh2$; on
-$[1,\infty)$ use $\tanh s\ge\tanh1$, that $\sinh^2s/(\cosh2s+\cosh2B)$ increases in $s$, and
-$2\tanh(1)\sinh^2(1)>1$ (as $\tanh1>\tfrac12$ and $\sinh1>1$). Let $x_0>0$ and work in the time
-$\tau\ge\tau_0>0$. As $F_w\ge0$ on $[0,\infty)$, $\dot x\ge-x$ and
+On $[0,1]$ this uses $\tanh s\ge s\tanh1\ge s/2$, $\sinh s\ge s$ and $\cosh2s\le\cosh2$, which give
+$F_w(s)\ge2(s/2)s^2\kappa=\kappa s^3$. On $[1,\infty)$ it uses $\tanh s\ge\tanh1$, that
+$\sinh^2s/(\cosh2s+\cosh2B)=u/(1+2u+\cosh2B)$ with $u=\sinh^2s$ increases in $s$, and
+$2\tanh(1)\sinh^2(1)>1$ (as $\tanh1>\tfrac12$ and $\sinh1>1$), which give $F_w(s)\ge\kappa$.
+
+Let $x_0>0$ and work in the time $\tau\ge\tau_0>0$. As $F_w\ge0$ on $[0,\infty)$, $\dot x\ge-x$ and
 $x(\tau)\ge x(\tau_0)e^{-(\tau-\tau_0)}$. Put $\theta(\tau)=(\kappa\beta(\tau)^3)^{-1/2}$, which
-decreases and satisfies $\theta(\tau)e^\tau\to0$ because $\beta(\tau)\ge e^{2\tau}/2$ for
-$\tau\ge\log2$. If $\theta(\tau)<x\le\kappa/2$, then $\dot x>0$: when $\beta x\le1$,
-$\dot x\ge\kappa\beta^3x^3-x=x(\kappa\beta^3x^2-1)>0$, and when $\beta x>1$,
-$\dot x\ge\kappa-x\ge\kappa/2$. Choose $\tau_2\ge\tau_0$ with $x(\tau_2)>\theta(\tau_2)$ and
-$\theta(\tau_2)<\kappa/2$, and put $\underline x=\min\{x(\tau_2),\kappa/2\}$, so
-$\underline x>\theta(\tau)$ for $\tau\ge\tau_2$. If $x(\tau_3)<\underline x$ for some
-$\tau_3>\tau_2$, let $\tau'=\sup\{\tau\in[\tau_2,\tau_3]:x(\tau)\ge\underline x\}$; then
+decreases; since $\beta(\tau)\ge e^{2\tau}/2$ for $\tau\ge\log2$, we have
+$\theta(\tau)e^\tau\le(8/\kappa)^{1/2}e^{-2\tau}\to0$. If $\theta(\tau)<x\le\kappa/2$, then
+$\dot x>0$: when $\beta x\le1$,
+\[
+\dot x=F_w(\beta x)-x\ge\kappa\beta^3x^3-x=x\bigl(\kappa\beta^3x^2-1\bigr)>0,
+\]
+and when $\beta x>1$, $\dot x\ge\kappa-x\ge\kappa/2$. Choose $\tau_2\ge\tau_0$ with
+$x(\tau_2)>\theta(\tau_2)$ and $\theta(\tau_2)<\kappa/2$, and put
+$\underline x=\min\{x(\tau_2),\kappa/2\}$, so that $\underline x>\theta(\tau)$ for $\tau\ge\tau_2$.
+Suppose $x(\tau_3)<\underline x$ for some $\tau_3>\tau_2$, and let
+$\tau'=\sup\{\tau\in[\tau_2,\tau_3]:x(\tau)\ge\underline x\}$. Then
 $x(\tau')=\underline x>\theta(\tau')$ and $x<\underline x\le\kappa/2$ on $(\tau',\tau_3]$. If
-$x>\theta$ on all of $(\tau',\tau_3]$, $x$ increases there and $x(\tau_3)>\underline x$;
-otherwise the first time $\tau''>\tau'$ with $x=\theta$ has $x(\tau'')\ge\underline x>\theta(\tau'')$
-because $x$ increases on $(\tau',\tau'')$. Both are contradictions, so $x\ge\underline x>0$ on
-$[\tau_2,\infty)$, and the limit of $x$ is $1$. By oddness every $x_0<0$ converges to $-1$.
+$x>\theta$ on all of $(\tau',\tau_3]$, then $x$ increases there and $x(\tau_3)>\underline x$;
+otherwise the first time $\tau''>\tau'$ with $x=\theta$ satisfies
+$x(\tau'')\ge\underline x>\theta(\tau'')$ because $x$ increases on $(\tau',\tau'')$. Both are
+contradictions, so $x\ge\underline x>0$ on $[\tau_2,\infty)$, and the limit of $x$ in
+$\{-1,0,1\}$ is $1$. By oddness every $x_0<0$ converges to $-1$.
 \end{proof}
 
 \phantomsection\label{apx:pf-composition-open}
 \propcompositionopen*
 \begin{proof}
-The form of the field follows from the posterior means $\tanh(s+B_k)$ and $\tanh(s+B_u)$ of
-Step~1 above and $\sum_k\lambda_k=1$. As $F'(s^\star)<0$, there is $\delta>0$ with
-$F(c_+)<0<F(c_-)$ for $c_\pm=s^\star\pm\delta$. Let $b_\pm(t)=c_\pm\eps^2/t$, so $b_-<b_+$ and
-$s=c_\pm$ at $x=b_\pm(t)$. As in Step~3 above,
+By the computation at the beginning of the proof of Theorem~\ref{thm:composition}, the prior with
+log-odds $2B_k$ has posterior mean $\tanh(s+B_k)$, and the unconditional prior has posterior mean
+$\tanh(s+B_u)$. The coefficients $(1+w)\lambda_k$ and $-w$ sum to one because
+$\sum_k\lambda_k=1$, so the composite field is $(F(s)-x)/\eps$ with $F$ as stated.
+
+As $F'(s^\star)<0$ and $F(s^\star)=0$, there is $\delta>0$ with $F(c_+)<0<F(c_-)$ for
+$c_\pm=s^\star\pm\delta$. Let $b_\pm(t)=c_\pm\eps^2/t$, so that $b_-<b_+$ and $s=c_\pm$ at
+$x=b_\pm(t)$. Since $b_\pm'(t)=-c_\pm(2\eps/t+\eps^2/t^2)$ and
+$v(b_\pm(t),t)=(F(c_\pm)-b_\pm(t))/\eps$, the computation in the proof of
+Theorem~\ref{thm:composition}(a) gives
 \[
-v(b_\pm(t),t)-b_\pm'(t)=\frac1\eps\Big[F(c_\pm)+c_\pm\Big(\frac{\eps^2}t+\frac{\eps^3}{t^2}\Big)\Big],
+v(b_\pm(t),t)-b_\pm'(t)
+=\frac{F(c_\pm)}\eps-\frac{c_\pm\eps}{t}+c_\pm\Bigl(\frac{2\eps}t+\frac{\eps^2}{t^2}\Bigr)
+=\frac1\eps\Bigl[F(c_\pm)+c_\pm\Bigl(\frac{\eps^2}t+\frac{\eps^3}{t^2}\Bigr)\Bigr],
 \]
 and $c_\pm$ times the parenthesis tends to $0$ as $t\uparrow1$, whatever the sign of $c_\pm$.
-Choose $t_1\in(0,1)$ with $|c_\pm|(\eps^2/t+\eps^3/t^2)<\min\{-F(c_+),F(c_-)\}$ for $t\ge t_1$. Then
-$v(b_+,t)<b_+'$ and $v(b_-,t)>b_-'$ on $[t_1,1)$; the coefficients are constant, so trajectories
-are classical, and the comparison argument keeps those with $x(t_1)\in(b_-(t_1),b_+(t_1))$ between
-the barriers, where $|x(t)|\le\max\{|c_+|,|c_-|\}\eps^2/t\to0$. Since $F'$ is bounded and $t_1<1$,
-the field is Lipschitz in $x$ on $[0,t_1]$, the flow from $0$ to $t_1$ is an increasing
-homeomorphism of $\R$, and the preimage of $(b_-(t_1),b_+(t_1))$ is a nonempty open interval.
+Choose $t_1\in(0,1)$ with $|c_\pm|(\eps^2/t+\eps^3/t^2)<\min\{-F(c_+),F(c_-)\}$ for $t\ge t_1$.
+Then $v(b_+,t)<b_+'$ and $v(b_-,t)>b_-'$ on $[t_1,1)$. The coefficients are constant, so
+trajectories are classical, and the first-crossing argument of Theorem~\ref{thm:composition}(a)
+keeps every trajectory with $x(t_1)\in(b_-(t_1),b_+(t_1))$ between the barriers, where
+\[
+|x(t)|\le\max\{|c_+|,|c_-|\}\,\frac{\eps^2}{t}\longrightarrow0 .
+\]
+Since $F'$ is bounded and $t_1<1$, the field has $|\partial_xv|=|F'(s)\,t/\eps^2-1|/\eps$ bounded on
+$\R\times[0,t_1]$, so the flow from $0$ to $t_1$ is an increasing homeomorphism of $\R$, and the
+preimage of $(b_-(t_1),b_+(t_1))$ is a nonempty open interval of initial points converging to~$0$.
 
 For the parameter statement, fix two components and parameters
 $\vartheta=(\lambda_1,B_1,B_2,B_u,w)$ with $\lambda_2=1-\lambda_1$; the map
 $(\vartheta,s)\mapsto F_\vartheta(s)$ is smooth. At a configuration of
 Theorem~\ref{thm:composition}(a), $\vartheta_0=(\tfrac12,B,-B,0,w)$ with $w\sinh^2B>1$, we have
-$F_{\vartheta_0}(0)=0$ and $\partial_sF_{\vartheta_0}(0)=\operatorname{sech}^2B-w\tanh^2B<0$. The
-implicit function theorem gives a continuous root $s^\star(\vartheta)$ near $\vartheta_0$ with
+$F_{\vartheta_0}=F_w$, so $F_{\vartheta_0}(0)=0$ and
+\[
+\partial_sF_{\vartheta_0}(0)=(1+w)\operatorname{sech}^2B-w
+=\operatorname{sech}^2B-w\tanh^2B
+=\operatorname{sech}^2B\,\bigl(1-w\sinh^2B\bigr)<0 .
+\]
+The implicit function theorem gives a continuous root $s^\star(\vartheta)$ near $\vartheta_0$ with
 $s^\star(\vartheta_0)=0$, and by continuity $\partial_sF_\vartheta(s^\star(\vartheta))<0$ on a smaller
-neighbourhood, which we intersect with $\{\lambda_1\in(0,1)\}$. The union of these
-neighbourhoods is the required open set.
+neighbourhood, which we intersect with $\{\lambda_1\in(0,1)\}$. The union of these neighbourhoods
+over all such $\vartheta_0$ is the required open set.
 \end{proof}
 
 
@@ -1650,18 +2002,35 @@ without it $M(\xi)=z$ would have no solution.
 
 \emph{Coordinates.} For $t>0$ put
 \[
-\xi=\beta P_L(x-tz)\in L,\qquad \eta=P_{L^\perp}(x-z),\qquad
-x=tz+\beta^{-1}\xi+\eps P_{L^\perp}z+\eta,
+\xi=\beta P_L(x-tz)\in L,\qquad \eta=P_{L^\perp}(x-z),
 \]
-and the fast time $\sigma$ with $d\sigma/d\tau=\beta$. From $d\beta/d\tau=\beta(1+t)/t$ and
-$dx/d\tau=\bar m-x$,
+so that $P_Lx=tP_Lz+\beta^{-1}\xi$ and $P_{L^\perp}x=P_{L^\perp}z+\eta$, that is,
+\[
+x=tz+\beta^{-1}\xi+\eps P_{L^\perp}z+\eta,\qquad x-z=\beta^{-1}\xi-\eps P_Lz+\eta,
+\]
+and introduce the fast time $\sigma$ with $d\sigma/d\tau=\beta$. Since $\beta=te^{2\tau}$ and
+$t=1-e^{-\tau}$, we have $d\beta/d\tau=2e^{2\tau}-e^\tau=\beta(1+t)/t$. With $dx/d\tau=\bar m-x$,
+$dt/d\tau=\eps$ and $P_L(x+\eps z)=P_Lz+\beta^{-1}\xi$,
+\begin{align*}
+\frac{d\xi}{d\tau}
+&=\frac{1}{\beta}\frac{d\beta}{d\tau}\,\xi+\beta P_L\Bigl(\frac{dx}{d\tau}-\eps z\Bigr)
+=\frac{1+t}{t}\,\xi+\beta P_L(\bar m-z)-\beta P_L(x+\eps z-z)\\
+&=\frac{1+t}{t}\,\xi+\beta P_L(\bar m-z)-\xi
+=\frac{\xi}{t}+\beta P_L(\bar m-z),
+\end{align*}
+and dividing by $\beta$, with $1/(t\beta)=\eps^2/t^2$,
+\[
+\frac{d\xi}{d\sigma}=\frac{\eps^2}{t^2}\,\xi+P_L(\bar m-z),\qquad
+\frac{d\eta}{d\tau}=P_{L^\perp}(\bar m-x)=P_{L^\perp}(\bar m-z)-\eta .
+\]
+Since $M(\xi)-z\in L$, we have $P_L(\bar m-z)=G(\xi)+P_L(\bar m-M(\xi))$ with $G=M-z$, and therefore
 \begin{equation}
 \frac{d\xi}{d\sigma}=G(\xi)+\mathcal R,\qquad
 \frac{d\eta}{d\tau}=-\eta+\mathcal E,\qquad
 \mathcal R=\frac{\eps^2}{t^2}\xi+P_L(\bar m-M(\xi)),\quad \mathcal E=P_{L^\perp}(\bar m-z),
 \label{eq:pf:spec:blowup}
 \end{equation}
-where $G=M-z$ and $\bar m=\sum_kc_km_{p_k}$ is evaluated at $x$. Since $\beta=e^{2\tau}-e^\tau$,
+where $\bar m=\sum_kc_km_{p_k}$ is evaluated at $x$. Since $\beta=e^{2\tau}-e^\tau$,
 $\sigma=\tfrac12e^{2\tau}-e^\tau+O(1)$, so $\sigma\sim\beta/2$.
 
 \begin{lemma}[Off-tie atoms are exponentially small]
@@ -1672,7 +2041,7 @@ prior $p$,
 \log\frac{q_{p,j}}{q_{p,i}}=\log\frac{p_j}{p_i}-\frac{\beta t}2\delta_j
 +\beta\big\langle\eps P_{L^\perp}z+\eta,\,a_j-a_i\big\rangle+\langle\xi,a_j-a_i\rangle,
 \]
-and for $a_i,a_{i'}\in S$ the logit difference is $\langle\xi,a_i-a_{i'}\rangle$, so the
+and for $a_i,a_{i'}\in S$ the logit difference is $\log(p_i/p_{i'})+\langle\xi,a_i-a_{i'}\rangle$, so the
 posterior conditioned on $S$ is exactly $\pi(\xi)$. Consequently: (i) for every compact
 $K\subset L$ there are $\rho,c>0$ and $\tau_0$ such that for $\xi\in K$, $|\eta|\le\rho$ and
 $\tau\ge\tau_0$ the posterior mass off $S$ is $O(e^{-c\beta})$, its first and second derivatives
@@ -1682,16 +2051,65 @@ $O(e^{-c\beta})$ without any bound on $\xi$, because then $\eta\to0$, $\xi=o(\be
 $\beta\eps=t/\eps=o(\beta)$; hence $\mathcal R\to0$.
 \end{lemma}
 \begin{proof}
-With $x=tz+w$, $|x-ta_j|^2-|x-ta_i|^2=t^2\delta_j-2t\langle w,a_j-a_i\rangle$; dividing by
-$-2\eps^2$ and using $t^2/\eps^2=\beta t$, $t/\eps^2=\beta$ and $P_Lw=\xi/\beta$ gives the
-display. For $a_i,a_{i'}\in S$ the vector $a_i-a_{i'}$ lies in $L$, orthogonal to
-$\eps P_{L^\perp}z+\eta$, and $\delta$ vanishes. In (i) choose $\rho$ with
-$\rho\max_{j,i}|a_j-a_i|\le\frac t4\min_j\delta_j$ and then $\tau_0$ so large that the remaining
-terms use at most another quarter of the gap; each derivative of a softmax in $\eta$ costs at
-most a factor $C\beta$, and in $\xi$ a bounded factor. The restricted means have
-$P_{L^\perp}$-component $P_{L^\perp}z$ and $\sum_kc_k=1$, so $\mathcal E$ and
-$P_L(\bar m-M)$ consist only of off-$S$ contributions, while $\eps^2/t^2\to0$. (ii) is the same
-estimate with $\eta$, $\xi/\beta$ and $\eps$ tending to zero.
+With $x=tz+u$, where $u=x-tz=\beta^{-1}\xi+\eps P_{L^\perp}z+\eta$,
+\[
+|x-ta_j|^2-|x-ta_i|^2=|u-t(a_j-z)|^2-|u-t(a_i-z)|^2=t^2\delta_j-2t\langle u,a_j-a_i\rangle .
+\]
+Since $q_{p,j}\propto p_j\exp(-|x-ta_j|^2/2\eps^2)$, $t^2/\eps^2=\beta t$ and $t/\eps^2=\beta$,
+\begin{align*}
+\log\frac{q_{p,j}}{q_{p,i}}
+&=\log\frac{p_j}{p_i}-\frac{t^2\delta_j}{2\eps^2}+\frac{t}{\eps^2}\langle u,a_j-a_i\rangle
+=\log\frac{p_j}{p_i}-\frac{\beta t}{2}\delta_j+\beta\langle u,a_j-a_i\rangle\\
+&=\log\frac{p_j}{p_i}-\frac{\beta t}2\delta_j
++\beta\bigl\langle\eps P_{L^\perp}z+\eta,\,a_j-a_i\bigr\rangle+\langle\xi,a_j-a_i\rangle ,
+\end{align*}
+which is the display. For $a_i,a_{i'}\in S$ the vector $a_i-a_{i'}$ lies in $L$, hence is orthogonal
+to $\eps P_{L^\perp}z+\eta$, and the gap $|a_i-z|^2-|a_{i'}-z|^2$ vanishes; so the logit difference is
+$\log(p_i/p_{i'})+\langle\xi,a_i-a_{i'}\rangle$, and the posterior conditioned on $S$ is $\pi(\xi)$.
+
+If $S=A$, as for the simplex and box configurations of Section~\ref{sec:intervention-tests},
+there are no off-tie atoms: the posterior of each prior is $\pi_k(\xi)$, so $\bar m=M(\xi)$,
+$\mathcal R=(\eps^2/t^2)\xi$ and $\mathcal E=P_{L^\perp}(M(\xi)-z)=0$. The off-$S$ mass then
+vanishes identically, $\mathcal R$ has derivative $(\eps^2/t^2)I\to0$, and along a trajectory with
+$x_t\to z$, $(\eps^2/t^2)\xi=o(\eps^2\beta)=o(1)$; so (i) and (ii) hold without the quantities
+below. Assume from now on that $S\subsetneq A$.
+
+For (i), let $D_A=\max_{j,i}|a_j-a_i|$, $\delta_{\min}=\min_{a_j\notin S}\delta_j$ and
+$\Lambda=\max_{j,i}|\log(p_j/p_i)|$ over the finitely many priors. Choose $\rho$ with
+$\rho D_A\le\delta_{\min}/8$, and then $\tau_0$ so large that $t\ge\tfrac12$ and
+$\eps|P_{L^\perp}z|D_A\le\delta_{\min}/16$ for $\tau\ge\tau_0$. For $\xi\in K$, $|\eta|\le\rho$ and
+$\tau\ge\tau_0$, the display gives, for $a_j\notin S$ and $a_i\in S$,
+\[
+\log\frac{q_{p,j}}{q_{p,i}}
+\le\Lambda-\frac{\beta}{4}\delta_{\min}+\beta\Bigl(\frac{\delta_{\min}}{16}+\frac{\delta_{\min}}{8}\Bigr)
++D_A\max_K|\xi|
+=\Lambda+D_A\max_K|\xi|-\frac{\beta}{16}\delta_{\min},
+\]
+so the posterior mass off $S$, which is at most $\sum_{a_j\notin S}q_{p,j}/q_{p,i}$, is at most
+$N\exp(\Lambda+D_A\max_K|\xi|)e^{-\beta\delta_{\min}/16}=O(e^{-c\beta})$ with $c=\delta_{\min}/16$. The logits are affine in $(\xi,\eta)$, with
+$\eta$-gradients $\beta(a_j-a_i)$ and $\xi$-gradients $a_j-a_i$; each derivative of a softmax weight
+is that weight times a combination of logit gradients, so the first and second derivatives of the
+off-$S$ weights are $O(\beta e^{-c\beta})$ and $O(\beta^2e^{-c\beta})$. Write
+$\omega_k=\sum_{a_j\notin S}q_{p_k,j}$. Since the restricted means have $P_{L^\perp}$-component
+$P_{L^\perp}z$ and $\sum_kc_k=1$,
+\begin{align*}
+\bar m-M(\xi)
+&=\sum_kc_k\Bigl(\sum_{a_j\in S}q_{p_k,j}a_j+\sum_{a_j\notin S}q_{p_k,j}a_j
+-\E_{\pi_k(\xi)}[a]\Bigr)
+=\sum_kc_k\Bigl(\sum_{a_j\notin S}q_{p_k,j}a_j-\omega_k\,\E_{\pi_k(\xi)}[a]\Bigr),\\
+\mathcal E&=P_{L^\perp}\bigl(\bar m-M(\xi)\bigr),
+\end{align*}
+using $\sum_{a_j\in S}q_{p_k,j}a_j=(1-\omega_k)\E_{\pi_k(\xi)}[a]$ and $P_{L^\perp}M(\xi)=P_{L^\perp}z$.
+Both $P_L(\bar m-M(\xi))$ and $\mathcal E$ thus consist only of off-$S$ contributions and are
+$O(e^{-c\beta})$ with first and second derivatives $O(\beta^2e^{-c\beta})$, while the remaining term
+$(\eps^2/t^2)\xi$ of $\mathcal R$ has derivative $(\eps^2/t^2)I\to0$. Hence $\mathcal R,\mathcal E\to0$
+in $C^1$ on $K\times\{|\eta|\le\rho\}$, with derivatives uniformly Lipschitz.
+
+For (ii), along a trajectory with $x_t\to z$ we have $\eta\to0$, $\xi/\beta=P_L(x-tz)\to0$ and
+$\beta\eps/\beta=\eps\to0$, so the last two terms of the display are $o(\beta)$ and the log-ratio is
+at most $\Lambda-\frac{\beta t}{2}\delta_{\min}+o(\beta)$; the off-$S$ mass is therefore
+$O(e^{-c\beta})$ without any bound on $\xi$. Then $P_L(\bar m-M(\xi))\to0$ by the decomposition
+above, and $(\eps^2/t^2)\xi=o(\eps^2\beta)=o(1)$ because $\eps^2\beta=t$; hence $\mathcal R\to0$.
 \end{proof}
 
 \begin{lemma}[Lyapunov--Perron graph]
@@ -1707,112 +2125,186 @@ $\tau$, and $f(0,0,\tau),g(0,0,\tau)\to0$. Suppose that for every $\delta>0$ the
 $\varepsilon_\delta>0$ and $T_\delta$ with $|D_{(y,\eta)}f|+|D_{(y,\eta)}g|\le\delta$ on
 $\{|y|,|\eta|\le\varepsilon_\delta\}\times[T_\delta,\infty)$. Then there are $\varepsilon>0$ and $T$
 such that, for every $T'\ge T$, the states at time $T'$ in the $\varepsilon$-ball whose trajectories
-stay in it and converge to $(0,0)$ form a $C^1$ graph of codimension $n_+$ over the stable and
-normal coordinates.
+stay in it and converge to $(0,0)$ lie on a $C^1$ graph of codimension $n_+$ over the stable and
+normal coordinates, and every state on this graph close enough to $(0,0)$ has such a trajectory.
+In particular, if $n_+=0$, every state close enough to $(0,0)$ does.
 \end{lemma}
 \begin{proof}
 Split $L=L^s\oplus L^u$ into the negative and positive eigenspaces of $\Gamma$, with projections
-$P_s,P_u$, and use the norm $\max\{|y_s|,|y_u|,|\eta|\}$. The evolutions satisfy
-$|e^{\Gamma_s\int_s^r\beta}|\le e^{-a\int_s^r\beta}$ for $r\ge s$ and
-$|e^{\Gamma_u\int_s^r\beta}|\le e^{-a\int_r^s\beta}$ for $r\le s$, and
+$P_s,P_u$ and restrictions $\Gamma_s,\Gamma_u$, and use the norm $\max\{|y_s|,|y_u|,|\eta|\}$. Since
+$\Gamma_s\preceq-a$ and $\Gamma_u\succeq a$, the linear evolutions satisfy
 \[
-\int_T^re^{-a\int_s^r\beta}\beta(s)\,ds\le a^{-1},\qquad
+\bigl|e^{\Gamma_s\int_s^r\beta}\bigr|\le e^{-a\int_s^r\beta}\quad(r\ge s),\qquad
+\bigl|e^{-\Gamma_u\int_r^s\beta}\bigr|\le e^{-a\int_r^s\beta}\quad(r\le s),
+\]
+and, as $\frac{d}{ds}e^{-a\int_s^r\beta}=a\beta(s)e^{-a\int_s^r\beta}$ and $\int^\infty\beta=\infty$,
+\begin{align*}
+\int_T^re^{-a\int_s^r\beta}\beta(s)\,ds&=\frac{1-e^{-a\int_T^r\beta}}{a}\le a^{-1},\qquad
 \int_r^\infty e^{-a\int_r^s\beta}\beta(s)\,ds=a^{-1},\qquad
 \int_T^re^{-(r-s)}\,ds\le1 .
-\]
+\end{align*}
 Fix $\delta$ with $\kappa=4\delta\max\{a^{-1},1\}<\tfrac12$, then $\varepsilon=\varepsilon_\delta$, and
-then $T\ge T_\delta$ with $\sup_{\tau\ge T}(|f(0,0,\tau)|+|g(0,0,\tau)|)\le\delta\varepsilon$. Multiply
-$f,g$ by a smooth cutoff $\chi(y/\varepsilon,\eta/\varepsilon)$ equal to $1$ on the
-$\varepsilon/2$-ball; the cut-off nonlinearities are then globally Lipschitz with constant at most
-$C\delta$, the extra term from $D\chi$ being bounded by $C\varepsilon^{-1}(\delta\varepsilon+\delta\varepsilon)$.
+then $T\ge T_\delta$ with $\sup_{\tau\ge T}(|f(0,0,\tau)|+|g(0,0,\tau)|)\le\delta\varepsilon$.
+Multiply $f,g$ by a smooth cutoff $\chi(y/\varepsilon,\eta/\varepsilon)$ equal to $1$ on the
+$\varepsilon/2$-ball and supported in the $\varepsilon$-ball. On the $\varepsilon$-ball,
+$|f(y,\eta,\tau)|\le|f(0,0,\tau)|+\delta|(y,\eta)|\le2\delta\varepsilon$, and likewise for $g$, so
+the cut-off nonlinearities are globally Lipschitz with constant at most
+$\delta+C\varepsilon^{-1}\cdot2\delta\varepsilon\le C\delta$, the second term coming from $D\chi$.
 These choices hold for every starting time $T'\ge T$. For $(s_0,\eta_0)$ in the stable and normal
-coordinates, the Lyapunov--Perron map
+coordinates, consider the Lyapunov--Perron map
 \begin{align*}
 y_s(r)&=e^{\Gamma_s\int_{T'}^r\beta}s_0+\int_{T'}^re^{\Gamma_s\int_s^r\beta}\beta(s)P_sf\,ds,\qquad
 y_u(r)=-\int_r^\infty e^{-\Gamma_u\int_r^s\beta}\beta(s)P_uf\,ds,\\
-\eta(r)&=e^{-(r-T')}\eta_0+\int_{T'}^re^{-(r-s)}g\,ds
+\eta(r)&=e^{-(r-T')}\eta_0+\int_{T'}^re^{-(r-s)}g\,ds ,
 \end{align*}
-maps the bounded continuous functions tending to zero into themselves (split each integral into a
-fixed initial piece, killed by the kernel, and a tail where the forcing is small) and is a
-contraction with constant at most $C\kappa<1$ after shrinking $\delta$. Its fixed point has size
-at most $C(|s_0|+|\eta_0|+\delta\varepsilon)$, which is below $\varepsilon/2$ for small data and small
-$\delta$, so it solves the uncut system. Conversely, a solution that stays in the
-$\varepsilon/2$-ball and tends to zero satisfies these equations: variation of constants gives the
-stable and normal ones, and on $L^u$ boundedness forces the terminal term at infinity to vanish.
-The decaying set is therefore the graph of $y_u(T')=\Psi_{T'}(s_0,\eta_0)$, which is $C^1$ by the
-standard differentiability of the fixed point of a uniform contraction whose nonlinearities have
-uniformly continuous derivatives. Its codimension is $\dim L^u=n_+$.
+with $f,g$ evaluated along $(y(s),\eta(s),s)$. By the kernel bounds above it maps the bounded
+continuous functions on $[T',\infty)$ tending to zero into themselves (split each integral into a
+fixed initial piece, which the kernel sends to zero, and a tail where the forcing is small), and two
+inputs at sup-distance $\Delta$ are mapped to outputs at distance at most
+$C\delta\max\{a^{-1},1\}\Delta\le C\kappa\Delta$; after shrinking $\delta$ it is a contraction. Its
+fixed point has size at most $C(|s_0|+|\eta_0|+\delta\varepsilon)$, which is below $\varepsilon/2$
+for small data and small $\delta$, so the cutoff is inactive and it solves the original system.
+Conversely, a solution that stays in the $\varepsilon/2$-ball and tends to zero satisfies these
+equations: variation of constants gives the stable and normal ones, and on $L^u$, writing
+$y_u(r)=e^{-\Gamma_u\int_r^{S}\beta}y_u(S)-\int_r^Se^{-\Gamma_u\int_r^s\beta}\beta P_uf\,ds$ and
+letting $S\to\infty$, boundedness forces the terminal term to vanish. The decaying set is
+therefore the graph of $y_u(T')=\Psi_{T'}(s_0,\eta_0)$. This graph is $C^1$ by the standard
+differentiability of the fixed point of a uniform contraction whose nonlinearities have uniformly
+continuous derivatives, and its codimension is $\dim L^u=n_+$. This proves the lemma with
+$\varepsilon/2$ in place of $\varepsilon$.
+% TODO (citation, not a gap in the argument): the C^1 dependence of the Lyapunov--Perron fixed
+% point on (s_0,\eta_0) is invoked from standard invariant-manifold theory without a reference;
+% add a precise citation (e.g. a stable-manifold theorem for nonautonomous systems).
 \end{proof}
 
 \thmspectral*
 \begin{proof}
-\emph{(a) and (b).} Put $y=\xi-\xi_\star$ and $G(\xi_\star+y)=\Gamma(\xi_\star)y+N(y)$ with
-$N(0)=DN(0)=0$. In the time $\tau$, \eqref{eq:pf:spec:blowup} has the form of
-Lemma~\ref{lem:lp} with $f=N+\mathcal R(\xi_\star+\cdot)$ and $g=\mathcal E(\xi_\star+\cdot)$: $DN$
-is small near $0$, and by Lemma~\ref{lem:offtie}(i) the derivatives of $\mathcal R$ and $\mathcal E$
-are small for large $\tau$, uniformly Lipschitz, and $f(0,0,\tau),g(0,0,\tau)\to0$. Since
-$x-z=\beta^{-1}\xi+\eps P_{L^\perp}z-\eps P_Lz+\eta$, the profile basin consists of the initial
-points whose $(y,\eta)$ tend to $0$. If $\Gamma(\xi_\star)\prec0$ then $n_+=0$, every small
-$(y,\eta)$ at time $T$ converges, and pulling this open set back by the flow and the affine map
-$x\mapsto(\xi,\eta)$ gives a nonempty open set of initial points, of positive $\pi_0$-probability.
-If $n_+\ge1$, every trajectory of the basin lies in the $\varepsilon$-ball from some integer time
-$T'\ge T$ on, hence on the graph of Lemma~\ref{lem:lp} at that time; a countable union of $C^1$
-graphs of positive codimension is null, and the $C^1$ flow diffeomorphism and the affine
-coordinate map preserve null sets.
+\emph{Parts (a) and (b).} Put $y=\xi-\xi_\star$ and write $G(\xi_\star+y)=\Gamma(\xi_\star)y+N(y)$
+with $N(0)=DN(0)=0$. Multiplying the first equation of \eqref{eq:pf:spec:blowup} by
+$d\sigma/d\tau=\beta$ gives, in the time $\tau$,
+\[
+\frac{dy}{d\tau}=\beta\bigl\{\Gamma(\xi_\star)y+N(y)+\mathcal R(\xi_\star+y,\eta,\tau)\bigr\},\qquad
+\frac{d\eta}{d\tau}=-\eta+\mathcal E(\xi_\star+y,\eta,\tau),
+\]
+which has the form of Lemma~\ref{lem:lp} with $f=N+\mathcal R(\xi_\star+\cdot)$ and
+$g=\mathcal E(\xi_\star+\cdot)$: $DN$ is small near $0$, and by Lemma~\ref{lem:offtie}(i) the
+derivatives of $\mathcal R$ and $\mathcal E$ are small for large $\tau$ and uniformly Lipschitz,
+while $f(0,0,\tau),g(0,0,\tau)\to0$. Since
+\[
+x-z=\beta^{-1}\xi-\eps P_Lz+\eta,
+\]
+a trajectory with $(y,\eta)\to0$ has $x_t\to z$, and the profile basin consists exactly of the
+initial points whose $(y,\eta)$ tend to $0$. If $\Gamma(\xi_\star)\prec0$, then $n_+=0$, every
+sufficiently small $(y,\eta)$ at time $T$ converges to $0$, and pulling this open set back by the
+flow from time $0$ to $T$ and the affine map $x\mapsto(\xi,\eta)$ gives a nonempty open set of
+initial points, of positive $\pi_0$-probability. If $n_+\ge1$, every trajectory of the basin lies
+in the $\varepsilon$-ball from some integer time $T'\ge T$ on, hence on the graph of
+Lemma~\ref{lem:lp} at that time. The basin is thus contained in a countable union of preimages of
+$C^1$ graphs of positive codimension; such graphs are null, and the $C^1$ flow diffeomorphisms and
+the affine coordinate map preserve null sets.
 
-\emph{(c), face condition.} Let $b_j=P_La_j$ for $a_j\in S$. Since $z\in\operatorname{aff}S$,
-$\operatorname{aff}\{b_j\}=P_Lz+L$, so a unit $v\in L$ is not constant on $\{b_j\}$ and the
-maximisers $F(v)$ of $\langle v,b_j\rangle$ span a proper face. If $|\xi_n|\to\infty$ with
-$\xi_n/|\xi_n|\to v$, the weights $\pi_k(\xi_n)\propto p_{k,j}e^{\langle\xi_n,b_j\rangle}$ vanish off
-$F(v)$, so every cluster point of $P_LM(\xi_n)=\sum_kc_k\E_{\pi_k(\xi_n)}[b]$ lies in
-$\operatorname{aff}F(v)$, even with signed $c_k$ summing to one. As $G=P_LM-P_Lz$ and there are
-finitely many faces,
+\emph{Part (c): the face condition.} Let $b_j=P_La_j$ for $a_j\in S$. Since
+$z\in\operatorname{aff}S$, $\operatorname{aff}\{b_j\}=P_Lz+L$, so a unit vector $v\in L$ is not
+constant on $\{b_j\}$, and the set $F(v)$ of maximisers of $\langle v,b_j\rangle$ spans a proper
+face. Let $|\xi_n|\to\infty$ with $\xi_n/|\xi_n|\to v$. For $a_j$ with $b_j\notin F(v)$ and $a_i$
+with $b_i\in F(v)$,
+\[
+\log\frac{\pi_k(\xi_n)_j}{\pi_k(\xi_n)_i}=\log\frac{p_{k,j}}{p_{k,i}}
++|\xi_n|\Bigl(\Bigl\langle\frac{\xi_n}{|\xi_n|},b_j-b_i\Bigr\rangle\Bigr)\longrightarrow-\infty,
+\]
+because the inner product tends to $\langle v,b_j-b_i\rangle<0$; here $\langle\xi,a_j\rangle=
+\langle\xi,b_j\rangle$ as $\xi\in L$. Hence the weights $\pi_k(\xi_n)$ vanish off $F(v)$, and, as
+in the last part of the proof of Lemma~\ref{lem:signedconv}, every cluster point of
+$P_LM(\xi_n)=\sum_kc_k\E_{\pi_k(\xi_n)}[b]$ lies in $\operatorname{aff}F(v)$, even with signed $c_k$
+summing to one. Since $G=P_LM-P_Lz$, there are finitely many faces, and every sequence with
+$|\xi_n|\to\infty$ has a subsequence along which $\xi_n/|\xi_n|$ converges,
 \begin{equation}
-\liminf_{|\xi|\to\infty}|G(\xi)|\ \ge\ \min_F\dist\big(P_Lz,\operatorname{aff}F\big)=:2\delta_0>0 .
+\liminf_{|\xi|\to\infty}|G(\xi)|\ \ge\ \min_F\dist\big(P_Lz,\operatorname{aff}F\big)=:2\delta_0>0 ,
 \label{eq:pf:spec:escape}
 \end{equation}
-In particular all profiles lie in a ball, and being isolated they are finitely many.
+where the minimum runs over the proper faces of $\operatorname{conv}P_LS$ and is positive by
+hypothesis. In particular all profiles lie in a ball. They are the zeros of the continuous map
+$G$, a closed set, and each is isolated because it is hyperbolic; a bounded closed set of isolated
+points is finite, so there are finitely many profiles.
 
-\emph{(c), no escape.} Let $\Psi(\xi)=\sum_kc_k\log\sum_{a_j\in S}p_{k,j}e^{\langle\xi,a_j\rangle}
--\langle\xi,z\rangle$. Then $\nabla_L\Psi=G$, $G$ is bounded, and $|\Psi(\xi)|\le C(1+|\xi|)$. Take a
+\emph{Part (c): no escape to infinity.} Let
+\[
+\Psi(\xi)=\sum_kc_k\log\sum_{a_j\in S}p_{k,j}e^{\langle\xi,a_j\rangle}-\langle\xi,z\rangle .
+\]
+The gradient of a log-sum-exp is the tilted mean, so $\nabla_L\Psi=\sum_kc_k\E_{\pi_k(\xi)}[P_La]
+-P_Lz=G$; moreover $G$ is bounded, and $|\Psi(\xi)|\le C(1+|\xi|)$ because each log-sum-exp lies
+between $\min_j\langle\xi,a_j\rangle+\log\min_jp_{k,j}$ and $\max_j\langle\xi,a_j\rangle$. Take a
 trajectory with $x_t\to z$. By Lemma~\ref{lem:offtie}(ii), $\mathcal R\to0$, so $d\xi/d\sigma$ is
 bounded by some $K$ after some $\sigma_1$, and $\xi/\sigma\to0$ because $\xi=o(\beta)$ and
 $\sigma\sim\beta/2$. By \eqref{eq:pf:spec:escape} there is $R_0$ with $|G|\ge\delta_0$ outside
-$B_{R_0}$; enlarging $\sigma_1$, $|\mathcal R|\le\delta_0/2$ for $\sigma\ge\sigma_1$, and there
+$B_{R_0}$; enlarging $\sigma_1$, $|\mathcal R|\le\delta_0/2$ for $\sigma\ge\sigma_1$, and then
 \[
-\frac{d}{d\sigma}\Psi(\xi)=\langle G,G+\mathcal R\rangle\ \ge\ \tfrac12|G|^2\ \ge\ c_0:=\tfrac12\delta_0^2
+\frac{d}{d\sigma}\Psi(\xi)=\langle G,\,G+\mathcal R\rangle\ \ge\ |G|^2-|G||\mathcal R|
+\ \ge\ \tfrac12|G|^2\ \ge\ c_0:=\tfrac12\delta_0^2
 \quad\text{whenever }|\xi|\ge R_0 .
 \]
-An excursion outside $B_{R_0}$ after $\sigma_1$ that begins on $\partial B_{R_0}$, or at
-$\xi(\sigma_1)$, and returns to $\partial B_{R_0}$ lasts at most
-$(\max_{\overline B}\Psi-\min_{\overline B}\Psi)/c_0$ with $\overline B$ the closed ball of radius
-$\max\{R_0,|\xi(\sigma_1)|\}$, and so reaches at most a bounded distance. If $\xi$ were unbounded it
-would therefore stay outside $B_{R_0}$ from some time on, and then
-$\Psi(\xi(\sigma))\ge c_0\sigma-O(1)$, contradicting $|\Psi(\xi)|\le C(1+|\xi|)=o(\sigma)$. So $\xi$
-is bounded, and then $\mathcal R=O(\beta^{-1})+O(e^{-c\beta})$, so
-$\int|\mathcal R|^2d\sigma=\int|\mathcal R|^2\beta\,d\tau<\infty$. From
-$\frac{d}{d\sigma}\Psi\ge\frac12|G|^2-\frac12|\mathcal R|^2$ and boundedness of $\Psi(\xi)$,
-$\int|G(\xi)|^2d\sigma<\infty$; $G$ is Lipschitz on the bounded region and $\dot\xi$ is bounded, so
-$G(\xi(\sigma))\to0$. The $\omega$-limit set is nonempty, compact, connected and contained in the
-finite set of profiles, hence one profile $\xi_\star$, and the trajectory lies in its basin. With
-(a) and (b), the endpoint basin of $z$ is the finite union of profile basins, null if no profile
-is a sink and containing an open set otherwise.
+Let $\overline B$ be the closed ball of radius $\max\{R_0,|\xi(\sigma_1)|\}$. An excursion outside
+$B_{R_0}$ after $\sigma_1$ that begins on $\partial B_{R_0}$, or at $\xi(\sigma_1)$, and returns to
+$\partial B_{R_0}$ increases $\Psi$ at rate at least $c_0$, so it lasts at most
+$(\max_{\overline B}\Psi-\min_{\overline B}\Psi)/c_0$ and, at speed at most $K$, reaches at most a
+bounded distance. If $\xi$ were unbounded it would therefore stay outside $B_{R_0}$ from some time
+on, and then $\Psi(\xi(\sigma))\ge c_0\sigma-O(1)$, contradicting
+$|\Psi(\xi)|\le C(1+|\xi|)=o(\sigma)$. So $\xi$ is bounded. Then $\mathcal R=O(\eps^2)+O(e^{-c\beta})
+=O(\beta^{-1})+O(e^{-c\beta})$, and
+\[
+\int^\infty|\mathcal R|^2\,d\sigma=\int^\infty|\mathcal R|^2\beta\,d\tau
+\le C\int^\infty\bigl(\beta^{-1}+\beta e^{-2c\beta}\bigr)\,d\tau<\infty .
+\]
+From $\frac{d}{d\sigma}\Psi\ge|G|^2-|G||\mathcal R|\ge\frac12|G|^2-\frac12|\mathcal R|^2$ and the
+boundedness of $\Psi(\xi)$, integration gives $\int^\infty|G(\xi)|^2\,d\sigma<\infty$. As $G$ is
+Lipschitz on the bounded region visited and $d\xi/d\sigma$ is bounded, $\sigma\mapsto|G(\xi(\sigma))|^2$
+is uniformly continuous, hence $G(\xi(\sigma))\to0$. The $\omega$-limit set of $\xi$ is nonempty,
+compact, connected and, by continuity of $G$, contained in the finite set of profiles; hence it
+is one profile $\xi_\star$, and the trajectory lies in its basin. Combined with (a) and (b), the
+endpoint basin of $z$ is the finite union of the profile basins, which is null if no profile is a
+sink and contains an open set otherwise.
 \end{proof}
 
 \corspectral*
 \begin{proof}
 The guided label average is $\sum_kc_kv_{p_k}$ with coefficients $(1+w)\lambda_k$ on the
 conditional priors and $-w$ on the uniform one, which sum to one, so Theorem~\ref{thm:spectral}
-applies with $M_w=(1+w)M_{\mathrm{av}}-wM_{\mathrm u}$. Then $M_w(\xi_\star)=z$ and
-$\Gamma_w(\xi_\star)=(1+w)C_{\mathrm{av}}-wC_{\mathrm u}=C_{\mathrm{av}}-wD$. Congruence by
-$D^{-1/2}$ shows $\Gamma_w\prec0$ on $L$ exactly when $w>w_c^{\mathrm{spec}}$, and part (a) gives
-positive probability. For the two atoms of Theorem~\ref{thm:composition}, with $\xi=s$,
-$C_{\mathrm{av}}=\operatorname{sech}^2B$, $C_{\mathrm u}=1$ and $D=\tanh^2B$, so
-$w_c^{\mathrm{spec}}=\operatorname{sech}^2B/\tanh^2B=1/\sinh^2B$. For a regular simplex of $N$
-unit atoms around $z=0$ with priors $p_{k,j}\propto e^{B\ind\{j=k\}}$ averaged uniformly, the
-restricted mean of prior $k$ at $\xi=0$ is $ma_k$ with $m=(e^B-1)/(e^B+N-1)$, so by symmetry
-$C_{\mathrm{av}}=\frac{1-m^2}{N-1}I$, $C_{\mathrm u}=\frac1{N-1}I$, and
-$w_c^{\mathrm{spec}}=(1-m^2)/m^2$.
+applies with $M_w=(1+w)M_{\mathrm{av}}-wM_{\mathrm u}$. Then $M_w(\xi_\star)=(1+w)z-wz=z$, so
+$\xi_\star$ is a profile, and
+\[
+\Gamma_w(\xi_\star)=(1+w)C_{\mathrm{av}}-wC_{\mathrm u}=C_{\mathrm{av}}-w\,(C_{\mathrm u}-C_{\mathrm{av}})
+=C_{\mathrm{av}}-wD .
+\]
+Congruence by $D^{-1/2}$ preserves definiteness, and
+$D^{-1/2}\Gamma_w(\xi_\star)D^{-1/2}=D^{-1/2}C_{\mathrm{av}}D^{-1/2}-wI_L$, so $\Gamma_w(\xi_\star)\prec0$
+on $L$ exactly when $w>w_c^{\mathrm{spec}}$. In that case $\xi_\star$ is hyperbolic, and part (a)
+gives positive probability.
+
+For the two atoms of Theorem~\ref{thm:composition}, $S=\{-1,1\}$, $z=0$, $L=\R$ and $\xi=s$. The
+restricted means are $\tanh(\xi\pm B)$ for the two conditional priors and $\tanh\xi$ for the uniform
+one, so $M_{\mathrm{av}}(0)=M_{\mathrm u}(0)=0$ and
+\[
+C_{\mathrm{av}}=\tfrac12\bigl(\operatorname{sech}^2B+\operatorname{sech}^2(-B)\bigr)=\operatorname{sech}^2B,
+\qquad C_{\mathrm u}=1,\qquad D=1-\operatorname{sech}^2B=\tanh^2B,
+\]
+whence $w_c^{\mathrm{spec}}=\operatorname{sech}^2B/\tanh^2B=1/\sinh^2B$.
+
+For a regular simplex of $N$ unit atoms around $z=0$, $L$ is their span, $\sum_ja_j=0$ and
+$\sum_ja_ja_j^\top=\frac{N}{N-1}I_L$. Take the priors $p_{k,j}\propto e^{B\ind\{j=k\}}$, averaged
+uniformly. At $\xi=0$, using $\sum_{j\ne k}a_j=-a_k$, the restricted mean of prior $k$ is
+\[
+\E_{p_k}[a]=\frac{e^Ba_k+\sum_{j\ne k}a_j}{e^B+N-1}=\frac{e^B-1}{e^B+N-1}\,a_k=m\,a_k ,
+\]
+so $M_{\mathrm{av}}(0)=\frac mN\sum_ka_k=0=M_{\mathrm u}(0)$. Moreover
+$\E_{p_k}[aa^\top]=\bigl((e^B-1)a_ka_k^\top+\frac{N}{N-1}I_L\bigr)/(e^B+N-1)$, and averaging over $k$
+with $\frac1N\sum_ka_ka_k^\top=\frac1{N-1}I_L$ gives
+\begin{align*}
+C_{\mathrm{av}}&=\frac1N\sum_k\Bigl(\E_{p_k}[aa^\top]-m^2a_ka_k^\top\Bigr)
+=\frac{1}{e^B+N-1}\Bigl(\frac{e^B-1}{N-1}+\frac{N}{N-1}\Bigr)I_L-\frac{m^2}{N-1}I_L
+=\frac{1-m^2}{N-1}\,I_L,\\
+C_{\mathrm u}&=\frac1N\sum_ka_ka_k^\top=\frac1{N-1}\,I_L,\qquad D=\frac{m^2}{N-1}\,I_L .
+\end{align*}
+For $B\ne0$, $m\ne0$ and $D\succ0$, and $w_c^{\mathrm{spec}}=(1-m^2)/m^2$.
 \end{proof}
 
 % ==========================================================================
@@ -1825,64 +2317,89 @@ $w_c^{\mathrm{spec}}=(1-m^2)/m^2$.
 \phantomsection\label{apx:pf-transfer}
 \thmtransfer*
 \begin{proof}
-Let $Y_t=Z_t-a$. Then $\dot Y_t=-Y_t/(1-t)+\Delta(Z_t,t)$ almost everywhere, and $Y_t/(1-t)$ is
-absolutely continuous on each $[0,T]$ with
-$\frac{d}{dt}\frac{Y_t}{1-t}=\frac{\dot Y_t}{1-t}+\frac{Y_t}{(1-t)^2}=\frac{\Delta(Z_t,t)}{1-t}$.
-Integrating from $0$ and multiplying by $1-t$ gives the identity in \eqref{eq:transfer}; the same
-computation started at $t_0\in[0,1)$ gives
-$Z_t-a=\frac{1-t}{1-t_0}(Z_{t_0}-a)+(1-t)\int_{t_0}^t\Delta(Z_s,s)(1-s)^{-1}ds$.
+Let $Y_t=Z_t-a$, so that $\dot Y_t=-Y_t/(1-t)+\Delta(Z_t,t)$ for almost every $t$. On each $[0,T]$
+the function $Y_t/(1-t)$ is absolutely continuous, as the product of an absolutely continuous
+function and a smooth one, and
+\[
+\frac{d}{dt}\,\frac{Y_t}{1-t}=\frac{\dot Y_t}{1-t}+\frac{Y_t}{(1-t)^2}
+=\frac{1}{1-t}\Bigl(-\frac{Y_t}{1-t}+\Delta(Z_t,t)\Bigr)+\frac{Y_t}{(1-t)^2}
+=\frac{\Delta(Z_t,t)}{1-t}.
+\]
+Integrating from $0$ to $t$ and multiplying by $1-t$ gives the identity in \eqref{eq:transfer}; the
+same computation started at $t_0\in[0,1)$ gives
+\begin{equation}
+Z_t-a=\frac{1-t}{1-t_0}\,(Z_{t_0}-a)+(1-t)\int_{t_0}^t\frac{\Delta(Z_s,s)}{1-s}\,ds .
+\label{eq:pf:transfer-t0}
+\end{equation}
 For the limit, let $E(s)=(1-s)|\Delta(Z_s,s)|$ and $L=\limsup_{s\uparrow1}E(s)$; assume
 $L<\infty$, the other case being trivial. Given $\eta>0$, pick $s_0<1$ with $E\le L+\eta$ on
 $[s_0,1)$. Then for $t>s_0$
-\[
+\begin{align*}
 (1-t)\int_0^t\frac{|\Delta(Z_s,s)|}{1-s}\,ds
-\le(1-t)\int_0^{s_0}\frac{|\Delta(Z_s,s)|}{1-s}\,ds+(L+\eta)(1-t)\int_{s_0}^t\frac{ds}{(1-s)^2}
-=(1-t)C_{s_0}+(L+\eta)\Big(1-\frac{1-t}{1-s_0}\Big),
+&\le(1-t)\int_0^{s_0}\frac{|\Delta(Z_s,s)|}{1-s}\,ds+(1-t)\int_{s_0}^t\frac{E(s)}{(1-s)^2}\,ds\\
+&\le(1-t)\,C_{s_0}+(L+\eta)(1-t)\Bigl(\frac1{1-t}-\frac1{1-s_0}\Bigr)\\
+&=(1-t)\,C_{s_0}+(L+\eta)\Bigl(1-\frac{1-t}{1-s_0}\Bigr),
+\end{align*}
+where $C_{s_0}=\int_0^{s_0}|\Delta(Z_s,s)|(1-s)^{-1}ds<\infty$ by integrability. Together with
+$(1-t)|x_0-a|\to0$, the identity gives $\limsup_t|Z_t-a|\le L+\eta$ for every $\eta>0$.
+
+For $\Delta(x,t)=c/(1-t)$ the equation becomes $\dot Z=(a+c-Z)/(1-t)$, whose solution is
+$Z_t=(1-t)x_0+t(a+c)$ by the computation in the proof of Proposition~\ref{prop:collapse}(c), so
+$|Z_t-a|\to|c|$, while $(1-t)|\Delta|\equiv|c|$. Finally, for a data-prediction field,
+\[
+\Delta(x,t)=v_\theta(x,t)-\frac{a-x}{1-t}=\frac{\hat x_1(x,t)-x}{1-t}-\frac{a-x}{1-t}
+=\frac{\hat x_1(x,t)-a}{1-t},
 \]
-with $C_{s_0}<\infty$ by integrability. Together with $(1-t)|x_0-a|\to0$ this gives
-$\limsup_t|Z_t-a|\le L+\eta$ for every $\eta>0$. For $\Delta=c/(1-t)$ the equation is
-$\dot Z=(a+c-Z)/(1-t)$, with solution $Z_t=(1-t)x_0+t(a+c)\to a+c$, while
-$(1-t)|\Delta|\equiv|c|$. Finally, $v_\theta-(a-x)/(1-t)=(\hat x_1-a)/(1-t)$, so
-$(1-t)|\Delta(Z_t,t)|=|\hat x_1(Z_t,t)-a|$.
+so $(1-t)|\Delta(Z_t,t)|=|\hat x_1(Z_t,t)-a|$, and the bound becomes the stated one.
 \end{proof}
 
 \phantomsection\label{apx:pf-localtransfer}
 \proplocaltransfer*
-\paragraph{Proof overview.} Near $a$ the exact field is the hard field
-$(a-x)/(1-t)$ plus an exponentially small error (Step~1). Adding it to $\Delta$, the identity of
-Theorem~\ref{thm:transfer} traps the trajectory in the ball (Step~2) and gives the limit
-(Step~3).
+\paragraph{Proof overview.} Near $a$ the exact field is the hard field $(a-x)/(1-t)$ plus an
+exponentially small error. Adding this error to $\Delta$, the identity of
+Theorem~\ref{thm:transfer} first traps the trajectory in the ball and then gives the limit.
 \begin{proof}
-Let $p=p^{(h)}(y)\in\Ppos$.
+Let $p=p^{(h)}(y)\in\Ppos$, so that $v^\star=(m_p-x)/(1-t)$ by Lemma~\ref{lem:mixture-coupling}.
 
-\emph{Step 1: the exact field is close to the hard field near $a$.} For $|x-a|\le\rho$ and
-$j\ne i$, $|x-x^j|^2-|x-a|^2\ge(D-\rho)^2-\rho^2=D(D-2\rho)>0$. By uniform continuity of
-$(x,t)\mapsto|x-tx^j|^2-|x-ta|^2$ on $\overline{B_\rho(a)}\times[0,1]$, there is $t_1<1$ such that
-this difference is at least $g=D(D-2\rho)/2$ for all $j\ne i$, $|x-a|\le\rho$ and $t\in[t_1,1]$.
-As in \eqref{eq:pf:int:conc},
+We first compare the exact field with the hard field near $a$. For $|x-a|\le\rho$ and $j\ne i$,
+$|x-x^j|\ge|x^j-a|-|x-a|\ge D-\rho>0$, so
 \[
-|m_p(x,t)-a|=\Big|\sum_{j\ne i}q_{p,j}(x^j-a)\Big|\le\sum_{j\ne i}\frac{q_{p,j}}{q_{p,i}}|x^j-a|
+|x-x^j|^2-|x-a|^2\ge(D-\rho)^2-\rho^2=D(D-2\rho)>0 .
+\]
+By uniform continuity of $(x,t)\mapsto|x-tx^j|^2-|x-ta|^2$ on $\overline{B_\rho(a)}\times[0,1]$,
+whose value at $t=1$ is the left side above, there is $t_1<1$ such that this difference is at least
+$g=D(D-2\rho)/2$ for all $j\ne i$, $|x-a|\le\rho$ and $t\in[t_1,1]$. As in \eqref{eq:pf:int:conc},
+for such $(x,t)$
+\[
+|m_p(x,t)-a|=\Bigl|\sum_{j\ne i}q_{p,j}(x^j-a)\Bigr|\le\sum_{j\ne i}\frac{q_{p,j}}{q_{p,i}}|x^j-a|
 \le C_pe^{-g/(2(1-t)^2)}=:e_\star(t),\qquad C_p=\sum_{j\ne i}\frac{p_j}{p_i}|x^j-a|.
 \]
-Choose $t_\star\ge t_1$ with $e_\star\le\rho/4$ on $[t_\star,1)$.
+Choose $t_\star\ge t_1$ with $e_\star\le\rho/4$ on $[t_\star,1)$; it depends only on the atoms, $p$
+and $\rho$.
 
-\emph{Step 2: trapping.} Write $\dot Z=(a-Z)/(1-t)+\tilde\Delta$ with
-$\tilde\Delta=(m_p(Z,t)-a)/(1-t)+\Delta(Z,t)$. By the identity of Theorem~\ref{thm:transfer}
-started at $t_0$,
+Write $\dot Z=(a-Z)/(1-t)+\tilde\Delta$ with
+$\tilde\Delta=(m_p(Z,t)-a)/(1-t)+\Delta(Z,t)$, and let $[t_0,T_{\max})$ be the maximal interval of
+existence. While $Z$ stays in $\overline{B_\rho(a)}$, the two bounds give
+$(1-s)|\tilde\Delta(Z_s,s)|\le e_\star(s)+\rho/4\le\rho/2$, so \eqref{eq:pf:transfer-t0} with
+$\tilde\Delta$ in place of $\Delta$ yields
+\begin{align*}
+|Z_t-a|
+&\le\frac{1-t}{1-t_0}\,|Z_{t_0}-a|+(1-t)\int_{t_0}^t\frac{(1-s)|\tilde\Delta(Z_s,s)|}{(1-s)^2}\,ds\\
+&<\frac\rho4+\frac\rho2\,(1-t)\Bigl(\frac1{1-t}-\frac1{1-t_0}\Bigr)\ \le\ \frac{3\rho}4 .
+\end{align*}
+At a first exit time from $\overline{B_\rho(a)}$ we would have $|Z-a|=\rho$, contradicting this
+bound up to that time; so $Z$ stays in the ball. If $T_{\max}<1$, the solution would remain in the
+compact subset $\overline{B_\rho(a)}\times[t_0,T_{\max}]$ of $\R^d\times[0,1)$, which a maximal
+solution of a locally Lipschitz equation cannot do; so $T_{\max}=1$ and $|Z_t-a|<\rho$ on
+$[t_0,1)$.
+
+Finally, Theorem~\ref{thm:transfer} applied from $t_0$ with $\tilde\Delta$ gives
 \[
-Z_t-a=\frac{1-t}{1-t_0}(Z_{t_0}-a)+(1-t)\int_{t_0}^t\frac{\tilde\Delta(Z_s,s)}{1-s}\,ds .
+\limsup_{t\uparrow1}|Z_t-a|\le\limsup_{t\uparrow1}(1-t)|\tilde\Delta(Z_t,t)|
+\le\limsup_{t\uparrow1}\bigl[e_\star(t)+(1-t)|\Delta(Z_t,t)|\bigr]
+=\limsup_{t\uparrow1}(1-t)|\Delta(Z_t,t)|,
 \]
-While $Z$ stays in $\overline{B_\rho(a)}$, $(1-s)|\tilde\Delta(Z_s,s)|\le\rho/2$ and
-$(1-t)\int_{t_0}^t(1-s)^{-2}ds\le1$, so $|Z_t-a|<\rho/4+\rho/2=3\rho/4$. Let $[t_0,T_{\max})$ be the
-maximal interval of existence. At a first exit time from $\overline{B_\rho(a)}$ we would have
-$|Z-a|=\rho$, contradicting the bound $3\rho/4$ up to that time; so $Z$ stays in the ball. If
-$T_{\max}<1$, the solution would remain in the compact subset
-$\overline{B_\rho(a)}\times[t_0,T_{\max}]$ of $\R^d\times[0,1)$, which a maximal solution of a
-locally Lipschitz equation cannot do; so $T_{\max}=1$.
-
-\emph{Step 3: the limit.} Theorem~\ref{thm:transfer} applied from $t_0$ with $\tilde\Delta$ gives
-$\limsup|Z_t-a|\le\limsup(1-t)|\tilde\Delta(Z_t,t)|\le\limsup[e_\star(t)+(1-t)|\Delta(Z_t,t)|]$, and
-$e_\star(t)\to0$.
+since $e_\star(t)\to0$.
 \end{proof}
 
 \subsection{What training loss can certify}
@@ -1899,7 +2416,7 @@ $\eps_t=1-t$, $Y_t=ta+\eps_tX_0$, and $f(x,t)=(a-x)/\eps_t$.
 Let $Z_t$ solve $\dot Z_t=f(Z_t,t)+\Delta(Z_t,t)$ from the same $X_0$.
 Suppose the solution and its variation-of-constants formula exist through $T<1$.
 Define $r(t)=\E|\Delta(Y_t,t)|^2$ and $m(t)=\E|\Delta(Z_t,t)|^2$.
-If $m(t)\le K(t)r(t)$ almost everywhere and
+If $m(t)\le K(t)r(t)$ almost everywhere for a measurable $K\ge0$ and
 \[
 B_T:=\eps_T\int_0^T\frac{\sqrt{K(t)r(t)}}{\eps_t}\,dt<\infty,
 \]
@@ -1918,14 +2435,34 @@ Without risk transfer, $W_2(\nu_T,\law(Y_T))\le\sqrt{T(1-T)\int_0^T m(t)\,dt}$.
 \end{theorem}
 
 \begin{proof}
-Under the shared initialisation, variation of constants gives
-$Z_T-Y_T=\eps_T\int_0^T\Delta(Z_t,t)/\eps_t\,dt$. Minkowski's integral inequality bounds its
-$L^2$ norm by $\eps_T\int_0^T\sqrt{m(t)}/\eps_t\,dt$, which gives~\eqref{eq:risktransfer}.
-Weighted Cauchy--Schwarz gives the next bound, and applied directly to $m$ it uses
-$\eps_T^2\int_0^T\eps_t^{-2}\,dt=T(1-T)$. For any square-integrable coupling $(U,V)$, Jensen's
-inequality bounds the mean difference by $\|U-V\|_{L^2}$, and
-$|S(\law U)-S(\law V)|\le\|(U-\E U)-(V-\E V)\|_{L^2}\le\|U-V\|_{L^2}$; infimising over couplings
-gives~\eqref{eq:riskmoments}.
+Since $\dot Y_t=a-X_0=(a-Y_t)/\eps_t=f(Y_t,t)$, the difference $D_t=Z_t-Y_t$ solves
+$\dot D_t=-D_t/\eps_t+\Delta(Z_t,t)$ with $D_0=0$ under the shared initialisation. As in the proof
+of Theorem~\ref{thm:transfer}, $\frac{d}{dt}(D_t/\eps_t)=\Delta(Z_t,t)/\eps_t$, so
+\[
+Z_T-Y_T=\eps_T\int_0^T\frac{\Delta(Z_t,t)}{\eps_t}\,dt .
+\]
+Minkowski's integral inequality and $m\le Kr$ give
+\[
+W_2\bigl(\nu_T,\law(Y_T)\bigr)\le\|Z_T-Y_T\|_{L^2}
+\le\eps_T\int_0^T\frac{\|\Delta(Z_t,t)\|_{L^2}}{\eps_t}\,dt
+=\eps_T\int_0^T\frac{\sqrt{m(t)}}{\eps_t}\,dt\le B_T,
+\]
+which is \eqref{eq:risktransfer}. Writing $\sqrt{K r}/\eps=\sqrt{wr}\cdot\sqrt{K/(\eps^2w)}$, the
+Cauchy--Schwarz inequality gives the weighted bound on $B_T$. Applied instead directly to $m$,
+\[
+\eps_T\int_0^T\frac{\sqrt{m(t)}}{\eps_t}\,dt
+\le\Bigl(\int_0^Tm(t)\,dt\Bigr)^{1/2}\Bigl(\eps_T^2\int_0^T\frac{dt}{\eps_t^2}\Bigr)^{1/2}
+=\sqrt{T(1-T)\int_0^Tm(t)\,dt},
+\]
+because $\eps_T^2\int_0^T\eps_t^{-2}\,dt=\eps_T^2(\eps_T^{-1}-1)=T(1-T)$. For the moments, let
+$(U,V)$ be any square-integrable coupling. Jensen's inequality gives
+$|\E U-\E V|\le\|U-V\|_{L^2}$, and since $S(\law U)=\|U-\E U\|_{L^2}$ and centring is an orthogonal
+projection in $L^2$,
+\[
+|S(\law U)-S(\law V)|\le\|(U-\E U)-(V-\E V)\|_{L^2}\le\|U-V\|_{L^2}.
+\]
+With $(U,V)=(Z_T,Y_T)$, $\E Y_T=Ta$ and $S(\law Y_T)=\eps_T\sqrt d$, this gives
+\eqref{eq:riskmoments}.
 \end{proof}
 
 In particular $W_2(\nu_T,\delta_a)\le(1-T)\sqrt{|a|^2+d}+B_T$. The theorem does not infer $K$
@@ -1960,16 +2497,33 @@ k_\delta(t)=
 \end{cases}
 \]
 With Carath\'eodory solutions at the two time jumps, $U_t=Z_t-ta$ satisfies
-$\dot U_t=k_\delta(t)U_t$: it contracts to $\delta X_0$, is amplified by $e^{A_\delta}=1/\delta$, and
-then stays at $X_0$. Hence $Z_1=a+X_0$. At each observed label the teacher-law residual is
-$\Delta(Y_t,t)=(1+\eps_tk_\delta(t))X_0$, and averaging these identical conditional losses gives
+$\dot U_t=\dot Z_t-a=k_\delta(t)U_t$ with $U_0=X_0$. Solving on the three intervals,
 \[
-L_0(v_\delta)=d\left[\int_{\delta/2}^{\delta}
-\left(1+\frac{2A_\delta\eps}{\delta}\right)^2d\eps+\frac\delta2\right]
-=d\delta\left(1+\tfrac32 A_\delta+\tfrac76 A_\delta^2\right)\longrightarrow0,
+U_t=
+\begin{cases}
+(1-t)X_0,&0\le t\le1-\delta,\\
+\delta X_0\exp\bigl(2A_\delta(t-1+\delta)/\delta\bigr),&1-\delta\le t\le1-\delta/2,\\
+\delta e^{A_\delta}X_0=X_0,&1-\delta/2\le t\le1,
+\end{cases}
 \]
-while $W_2(\nu_1,\delta_a)=\sqrt d$ and $\tr\Cov(\nu_1)=d$. The spatial Lipschitz constants are
-finite for each $\delta$ but not bounded uniformly as $\delta\downarrow0$.
+so $Z_1=a+X_0$ and $\nu_1=\N(a,I_d)$. At each observed label the teacher point is
+$Y_t=tx^j+\eps_tX_0$ and the hard field is $f(Y_t,t)=x^j-X_0$, so the residual is
+\[
+\Delta(Y_t,t)=v_\delta(Y_t,t,y^j)-f(Y_t,t)=k_\delta(t)\,\eps_tX_0+X_0=\bigl(1+\eps_tk_\delta(t)\bigr)X_0,
+\]
+which vanishes for $t<1-\delta$ and does not depend on $j$. Averaging these identical conditional
+losses over $t\sim\mathrm{Unif}(0,1)$, with $\E|X_0|^2=d$ and the substitution $\eps=1-t$,
+\begin{align*}
+L_0(v_\delta)
+&=d\int_0^1\bigl(1+\eps_tk_\delta(t)\bigr)^2\,dt
+=d\left[\int_{\delta/2}^{\delta}\Bigl(1+\frac{2A_\delta\eps}{\delta}\Bigr)^2d\eps+\frac\delta2\right]
+=d\left[\delta\int_{1/2}^{1}\bigl(1+2A_\delta u\bigr)^2du+\frac\delta2\right]\\
+&=d\left[\delta\Bigl(u+2A_\delta u^2+\tfrac43A_\delta^2u^3\Bigr)\Big|_{1/2}^{1}+\frac\delta2\right]
+=d\delta\Bigl(1+\tfrac32A_\delta+\tfrac76A_\delta^2\Bigr)\longrightarrow0,
+\end{align*}
+because $\delta\log^2(1/\delta)\to0$, while $W_2(\nu_1,\delta_a)=(\E|X_0|^2)^{1/2}=\sqrt d$ and
+$\tr\Cov(\nu_1)=d$. The spatial Lipschitz constants $|k_\delta|$ are finite for each $\delta$ but
+not bounded uniformly as $\delta\downarrow0$.
 \end{proof}
 
 The example identifies the missing distributional transfer in a loss-only argument; it is not
@@ -1986,7 +2540,7 @@ Adding noise to the endpoint does so.
 \begin{proposition}[Endpoint smoothing]
 \label{prop:tgtnoise}
 Fix $\rho\ge0$ and replace the endpoint by $X_1=x^I+\rho\,\xi$ with $\xi\sim\N(0,I_d)$ independent
-of $(I,X_0,\varepsilon)$ and redrawn every step, keeping label bandwidth $h>0$. Write
+of $(I,X_0,\omega)$ and redrawn every step, keeping label bandwidth $h>0$. Write
 $s_t^2=(1-t)^2+t^2\rho^2$ and $\varphi_s$ for the $\N(0,s^2I_d)$ density. Then $\vstar$ is a
 weighted average of per-atom fields with spatial weights $\varphi_{s_t}(x-tx^i)$ in place of
 $\src{i}$, given in \eqref{eq:tgtfield}, and the endpoint law is
@@ -2003,22 +2557,39 @@ and $\vstar$ extends continuously to $t=1$.
 \begin{proof}
 \label{apx:pf-tgtnoise}
 For $\rho=0$ this is Theorem~\ref{thm:endpoint}, with $\N(x^i,0)$ read as $\delta_{x^i}$; let
-$\rho>0$. Given $I=i$, $r:=x-tx^i=(1-t)X_0+t\rho\xi\sim\N(0,s_t^2I_d)$, so
-$p(x\mid I=i,t)=\varphi_{s_t}(x-tx^i)$ and, as in Proposition~\ref{prop:kernel-field},
-$w_i:=\Pr(I=i\mid X_t=x,t,\widetilde Y=y)\propto\varphi_{s_t}(x-tx^i)\KK{i}$. As $(X_0,\xi,r)$ is
-jointly Gaussian, $\E[X_0\mid r]=(1-t)r/s_t^2$ and $\E[\xi\mid r]=t\rho r/s_t^2$, so with
-$U=x^i+\rho\xi-X_0$ and Proposition~\ref{prop:projection}
+$\rho>0$. Given $I=i$, $X_t=(1-t)X_0+t(x^i+\rho\xi)$, so
+\[
+r:=X_t-tx^i=(1-t)X_0+t\rho\,\xi\sim\N(0,s_t^2I_d),\qquad p(x\mid I=i,t)=\varphi_{s_t}(x-tx^i).
+\]
+Since $\widetilde Y$ is conditionally independent of $(X_0,\xi)$ given $I$, Bayes' rule as in the
+proof of Proposition~\ref{prop:kernel-field} gives
+$w_i:=\Pr(I=i\mid X_t=x,t,\widetilde Y=y)\propto\varphi_{s_t}(x-tx^i)\KK{i}$. The vector
+$(X_0,\xi,r)$ is jointly Gaussian with $\Cov(X_0,r)=(1-t)I_d$ and $\Cov(\xi,r)=t\rho\,I_d$, so
+\[
+\E[X_0\mid r]=\frac{1-t}{s_t^2}\,r,\qquad \E[\xi\mid r]=\frac{t\rho}{s_t^2}\,r .
+\]
+With $U=x^i+\rho\xi-X_0$ on $\{I=i\}$ and $r=x-tx^i$ on $\{X_t=x\}$, conditioning on $I$ and
+Proposition~\ref{prop:projection} give
 \begin{equation}
-\vstar(x,t,y)=\sum_iw_i\Big[x^i+\frac{t\rho^2-(1-t)}{s_t^2}\,(x-tx^i)\Big].
+\vstar(x,t,y)=\sum_iw_i\,\E[U\mid I=i,X_t=x,t]
+=\sum_iw_i\Big[x^i+\frac{t\rho^2-(1-t)}{s_t^2}\,(x-tx^i)\Big].
 \label{eq:tgtfield}
 \end{equation}
-As $s_t^2\ge\rho^2/(1+\rho^2)>0$, this field is smooth on $\R^d\times[0,1]$ with linear growth,
-so its flow is global, and the uniqueness argument of Lemma~\ref{lem:wellposed}(c), which uses
-only local Lipschitz continuity and the absence of blow-up, applies up to $t=1$. For the coupling $I\sim p^{(h)}(y)$,
-$X_0\sim\pi_0$, $\xi\sim\N(0,I_d)$ independent and $X_1=x^I+\rho\xi$, the same computation shows that
-the conditional velocity is $\vstar$, so as in the proof of Theorem~\ref{thm:endpoint} the
-endpoint law is $\law(x^I+\rho\xi)$, which is \eqref{eq:tgtendpoint}, an absolutely continuous
-Gaussian mixture.
+The minimum of $s_t^2=(1-t)^2+t^2\rho^2$ over $t\in[0,1]$ is attained at $t=1/(1+\rho^2)$, so
+$s_t^2\ge\rho^2/(1+\rho^2)>0$. Hence the weights and the coefficient in \eqref{eq:tgtfield} are
+smooth on $\R^d\times[0,1]$, the field has linear growth, and its flow is global; the uniqueness
+argument of Lemma~\ref{lem:wellposed}(c), which uses only local Lipschitz continuity and the absence
+of blow-up, applies up to $t=1$. For the coupling with $I\sim p^{(h)}(y)$, $X_0\sim\pi_0$ and
+$\xi\sim\N(0,I_d)$ independent and $X_1=x^I+\rho\xi$, the same computation, with prior weights
+$p^{(h)}_i(y)\propto\KK{i}$, shows that the conditional velocity is $\vstar$. As in the proof of
+Theorem~\ref{thm:endpoint}, the endpoint law is therefore $\law(x^I+\rho\xi)=\sum_ip_i^{(h)}(y)\,
+\N(x^i,\rho^2I_d)$, an absolutely continuous Gaussian mixture. Its mean is
+$\sum_ip_i^{(h)}(y)x^i=\bar x_h(y)$, and by the law of total covariance
+\[
+\Cov(x^I+\rho\xi)=\E\bigl[\Cov(x^I+\rho\xi\mid I)\bigr]+\Cov\bigl(\E[x^I+\rho\xi\mid I]\bigr)
+=\rho^2I_d+\Cov(x^I)=\rho^2I_d+\Covh(y),
+\]
+which is \eqref{eq:tgtendpoint}.
 \end{proof}
 
 % ==========================================================================
@@ -2036,7 +2607,7 @@ $1\times2$ matrix $A$ and $\eta\sim\N(0,0.1^2)$, and $N=200$ training pairs are 
 posterior is Gaussian and analytic. The velocity network is a 4-layer, width-128 MLP with SiLU
 activations and a 64-dimensional time embedding, trained with Adam (learning rate $10^{-3}$,
 batch $256$) for $2\times10^5$ iterations without early stopping; label smoothing adds
-$h\varepsilon$ to the label at every step. Samples are generated with $100$ RK4 steps to
+$h\omega$ to the label at every step. Samples are generated with $100$ RK4 steps to
 $t=1-10^{-3}$, $M=1000$ per condition, at $20$ training and $8$ held-out conditions. The seed fixes
 both the problem instance and the training randomness. Before measurement, the analytic posterior
 satisfies the normal equations to $1.8\times10^{-15}$ and closed-form integration of $(\star)$ maps
@@ -2203,6 +2774,16 @@ reference.}
 \subsection{Interventions}
 \label{app:intervention-protocol}
 
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.98\textwidth]{fig_intervention_validation.pdf}
+\caption{Intervention diagnostics. Left: mean exact-field finite-cutoff distances for $d=2$,
+random atoms, $h=1$, averaged over five geometry seeds. Middle: sources at offset $10^{-8}$ from
+a symmetric tie under field averaging; delayed departure at a finite cutoff does not imply a
+non-atom limit. Right: learned versus exact field averages from five checkpoints.}
+\label{fig:intervention-validation}
+\end{figure}
+
 \paragraph{Exact-field stress test.} Geometry seeds 201--205 generate $N=12$ atoms in dimensions
 $2$ and $8$; the near-duplicate control moves the second atom to distance $0.02$ from the first.
 For each $h\in\{0.3,1\}$ the arms are guidance at $w=0,3,12$, a uniform average of five fields at
@@ -2285,10 +2866,12 @@ $B$ & $w_c$ & $\le0.9$ & $1.1$ & $2$ & $10$ & $1$ & $3$\\
 Theorem~\ref{thm:composition} ends at the non-training midpoint $0$, with threshold
 $w_c=1/\sinh^2B$. The entry $0$ (at $w/w_c\in\{0.5,0.9\}$) means that only the source $x_0=0$
 reaches the midpoint, as Theorem~\ref{thm:composition}(b) states; the other entries are
-exact-flow computations with certified stopping rules and bisection.}
+floating-point exact-flow computations with stopping criteria justified by the proof, and
+bisection; they are not verified by interval arithmetic.}
 \label{tab:composition}
 \end{table}
 
+\FloatBarrier
 \paragraph{Learned label averages.} The five networks have problem seeds 1001--1005, $h=0.1$ and
 $2\times10^5$ training steps. For each, the first and last training labels and two fresh queries
 are evaluated at three radii $r/\operatorname{sd}(y)\in\{0,0.5,1.5\}$, giving 60 model--query cells.
