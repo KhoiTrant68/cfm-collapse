@@ -129,7 +129,10 @@ bằng tiếng Anh để dán thẳng vào paper hoặc rebuttal.
 - Tiền đề quả cầu của Prop 5.2 không thỏa ở mạng nào. Điều này chỉ ra đúng chỗ còn thiếu: sai số ngoài quỹ đạo.
 - Run cfm_v_sep seed 2 không chạy xong do bộ giải (nếu dùng biến thể đó).
 
-## 4. Đề xuất sửa câu chữ (chưa áp dụng)
+## 4. Đề xuất sửa câu chữ
+
+E-1 đến E-6 đã được áp dụng ở commit `f2eef6d` (27/10). E-7 đến E-10 chưa áp dụng, vì chúng cần đưa EXP-A/B/C
+vào paper trước.
 
 **E-1. Intro, đoạn sau các bullet (P1).**
 > Before: "Among the interventions analysed (Table~\ref{tab:interventions}), non-training endpoints thus arise only from a support change such as endpoint noise, from averaging hard-label fields, from composing label averaging with guidance, or, for learned fields, from an error that does not vanish at the scale $(1-t)^{-1}$ up to the end of sampling. For a practitioner this says where samples off the training set can come from: not from label noise, label averaging or guidance applied separately to the field that training defines, but from their composition, from a change of the target's support, or from a learned field whose endpoint prediction does not converge."
