@@ -157,6 +157,15 @@ Không lỗi nào làm đổi kết luận. Số dòng dưới đây là của `
 - Cách diễn đạt đã đúng mức:
   - Các phép tính exact được gọi là "finite-time computations … do not prove it".
   - Pilot learned-averages được ghi rõ là thống kê có chệch, không có null.
+- **Appendix chi tiết thí nghiệm (rà ngày 26/10, `app:expdetails`): không có lỗi cần sửa.**
+  - Đã kiểm bằng tay `tr Γ` của tam giác và simplex ở mọi mức w, w_c = 1,160 và 4,802, cùng hai phương
+    trình tích phân (ṡ = βF + (1 + ε/t)s, vì 1 + ε/t = 1/t; và 1/(tβ) = ε²/t²).
+  - Số ô (200 = 5 seed × 2 chiều × 2 bộ atom × 2 giá trị h × 5 arm) đúng. Toàn bộ Table composition khớp
+    kết quả exact độc lập.
+  - Tiêu chí on-atom (d₁² ≤ d₂²/9 trên ảnh train của run) khớp với code. Các đường dẫn artifacts và script
+    được nhắc tới đều có trong repo.
+  - Chưa kiểm: số liệu EXP-2/EXP-3, bảng ablation và các số của rectangle/box. `scripts/verify_paper_numbers.py`
+    chưa chạy lại vì máy local không có Python và server đang lỗi host key.
 - Ba câu tự giới hạn của paper nay đã có số đo để thay:
   - (a) "The composition theorem has no trained-network counterpart yet" → EXP-A.
   - (b) "error along learned trajectories, which we … have not measured" → EXP-B.
@@ -248,7 +257,9 @@ Chi tiết trong `docs/review/exp_b_c_results_2026-10-23.md`.
    ngưỡng, còn dự đoán v thì không. Câu này trả lời trước câu hỏi "định lý có liên quan tới mạng thật không".
 3. Thay "have not measured" trong Limitations bằng EXP-B: K(t) ~ (1−t)⁻², cận theo loss thiếu khoảng 100 lần,
    tiền đề quả cầu không thỏa.
-4. Thay câu thận trọng về CIFAR-10 ở `sec:p7` bằng phép tách của EXP-C.
+4. Thay câu thận trọng về CIFAR-10 ở `sec:p7` bằng phép tách của EXP-C. Cần nói rõ phép tách đo trên ba
+   run `heff`, còn con số 38% đến từ run `exp3_cifar_ddpm_h6` (không còn trọng số). Trên các run `heff`,
+   tỉ lệ off-atom với Euler 50 bước là 0,298 ± 0,058.
 5. Nói thẳng về việc basin co lại theo số chiều (d = 8) trong phần thảo luận của Theorem composition.
 6. Tra thêm tài liệu về tính mới của kết quả composition (mục 4).
 

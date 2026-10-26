@@ -78,11 +78,26 @@ vì sai số ngoài quỹ đạo.
    exact cho 0%. Chỉ 19% mẫu kết thúc ở cùng atom mà trường exact chọn; con số này giảm khi h tăng
    (h = 4: 52%). K(t) = m/r tại 1−t ≈ 10⁻³ là 724 ở h = 0 và 5·10³–7,5·10³ ở h > 0, tức là sai số dọc
    quỹ đạo học được lớn hơn nhiều so với trên quỹ đạo teacher, như EXP-B.
-4. **Đối chiếu với paper:** con số 38% của paper (h = 6, tiêu chí 50k, M = 256) nằm trong khoảng
-   0,349 ± 0,056 đo ở đây.
+4. **Đối chiếu với paper** (sửa ngày 26/10; bản trước ghi nhầm rằng paper dùng tiêu chí 50k).
+   - Paper tính on-atom trên 2000 ảnh train của run (`scripts/reeval_exp3_cifar_ddpm.py`, `problem.X`),
+     với M = 256 nguồn cho mỗi điều kiện.
+   - Vậy đại lượng so sánh đúng là cột Euler 50 theo 2000 ảnh:
+
+     | h | paper | EXP-C (Euler 50, 2000 ảnh) |
+     |---|---|---|
+     | 4 | 0,171 | 0,173 ± 0,029 |
+     | 5 | 0,283 | 0,246 ± 0,040 |
+     | 6 | 0,380 | 0,298 ± 0,058 |
+
+   - Ở h = 6, con số của paper cao hơn khoảng 1,4 sd. Có hai khác biệt có thể giải thích: paper đo trên
+     run `exp3_cifar_ddpm_h6`, run này không còn giữ trọng số; EXP-C dùng 3 run `heff` khác và chỉ 16 nguồn
+     cho mỗi điều kiện.
+   - Phép tách ở trên (exact cho 0%, phần lớn do sai số của mạng) áp dụng cho các run `heff`. Con số 38%
+     của paper chưa được đo lại trực tiếp.
 
 **Gợi ý cho paper.** Câu ở `sec:p7` "this combines learned-field, truncation and discretisation effects and
 does not identify a limiting support" có thể thay bằng phép tách vừa đo. Trường exact không có mẫu off-atom
 nào ở cả hai mốc cắt. Thay Euler bằng RK4 hội tụ chỉ giảm tỉ lệ off-atom khoảng 4 điểm phần trăm. Vậy phần
-lớn mẫu off-atom ở h = 6 đến từ sai số của mạng. Đây là đúng tình huống mà Theorem `thm:transfer` mô tả:
+lớn mẫu off-atom ở h = 6 đến từ sai số của mạng. Khi viết vào paper, cần nói rõ phép tách này đo trên ba
+run `heff`, còn con số 38% đến từ một run khác (xem mục 4). Đây là đúng tình huống mà Theorem `thm:transfer` mô tả:
 sai số tỉ lệ (1−t)|Δ| không triệt tiêu.
