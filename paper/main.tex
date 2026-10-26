@@ -125,7 +125,8 @@ and what a learned field must do to inherit the answer.
   exceptional set is null but can be a hyperplane (Proposition~\ref{prop:hyperplane}).
 \item \emph{Their composition can leave} (Section~\ref{sec:composition}). Guidance applied to a
   label-averaged field can converge to a circumcentre of training examples with positive
-  probability; on two examples the threshold is exactly $w>1/\sinh^2B$, and the effect is stable
+  probability; for two examples whose averaged priors have log-odds $\pm2B$, the threshold is
+  exactly $w>1/\sinh^2B$, and the effect is stable
   under perturbation of the priors, mixture weights and guidance strength (Theorem~\ref{thm:composition}, Proposition~\ref{prop:composition-open}). For
   hyperbolic profiles in any dimension, the eigenvalue signs of a signed posterior covariance
   matrix distinguish open attracting basins from null basins; a complete classification also
@@ -136,14 +137,15 @@ and what a learned field must do to inherit the answer.
   of its training example, where $\Delta$ is the field error along the trajectory
   (Theorem~\ref{thm:transfer}); small regression loss alone does not control this quantity.
 \end{itemize}
-Among the interventions analysed (Table~\ref{tab:interventions}), non-training endpoints thus
-arise only from a support change such as endpoint noise, from averaging hard-label fields, from
-composing label averaging with guidance, or, for learned fields, from an error that does not
-vanish at the scale $(1-t)^{-1}$ up to the end of sampling. For a practitioner this says where
-samples off the training set can come from: not from label noise, label averaging or guidance
-applied separately to the field that training defines, but from their composition, from a
-change of the target's support, or from a learned field whose endpoint prediction does not
-converge. Section~\ref{sec:experiments} tests
+Among the interventions analysed (Table~\ref{tab:interventions}), non-training endpoints of
+positive probability thus arise only from a support change such as endpoint noise, from averaging
+hard-label fields, from composing label averaging with guidance, or, for learned fields at an
+identifying label, from an error that does not vanish at the scale $(1-t)^{-1}$ up to the end of
+sampling. For a practitioner this says where samples off the training set can come from: not from
+label noise, from label averaging at positive bandwidth or from nonnegative guidance applied
+separately to the field that training defines, but from their composition, from averaging
+hard-label fields, from a change of the target's support, or from a learned field whose endpoint
+prediction does not converge to its training example. Section~\ref{sec:experiments} tests
 the exact statements numerically and measures collapse in trained networks. Proofs are in
 Appendices~\ref{app:proofs}--\ref{app:transfer}, which open with a notation table and a proof
 roadmap (Tables~\ref{tab:notation} and~\ref{tab:roadmap}).
@@ -157,7 +159,7 @@ Intervention on the exact field & Endpoint support & Result\\
 Hard conditioning, identifying label & one atom, every source & Prop.~\ref{prop:collapse}\\
 Gaussian label noise, $h>0$ & atoms, reweighted & Thm.~\ref{thm:endpoint}\\
 Positive field mixtures, including label averaging and guidance $w\in[-1,0)$ & atoms, a.s. & Thm.~\ref{thm:posmix}, Cor.~\ref{cor:negcfg}\\
-Guidance, fixed $w\ge0$ or bounded schedule of bounded variation & atoms, a.s.\ ($h>0$); one atom ($h=0$) & Prop.~\ref{prop:cfgatom}, Thm.~\ref{thm:schedule}\\
+Guidance $w\ge0$, fixed or a bounded schedule of bounded variation & atoms, a.s.\ ($h>0$); one atom ($h=0$) & Prop.~\ref{prop:cfgatom}, Thm.~\ref{thm:schedule}\\
 Guidance after label averaging & can add a circumcentre with positive probability & Thm.~\ref{thm:composition}, \ref{thm:spectral}\\
 Averaging identifying hard-label fields ($h=0$) & can move every endpoint to a circumcentre & Sec.~\ref{sec:posmix}\\
 Endpoint noise $\rho>0$ & atoms convolved with $\N(0,\rho^2I_d)$ & Prop.~\ref{prop:tgtnoise}\\
@@ -641,7 +643,9 @@ numerically. Nonhyperbolic profiles and faces whose affine hull contains $P_Lz$ 
 
 Table~\ref{tab:interventions} summarises what each intervention does to the support of the exact
 endpoint law. Endpoint noise, $X_1=x^I+\rho\xi$, is the only one among them that leaves the
-atoms for every source (Proposition~\ref{prop:tgtnoise}).
+atoms in every configuration: its endpoint law has a density (Proposition~\ref{prop:tgtnoise}).
+Averaging hard-label fields can also move every endpoint, but only in configurations such as the
+symmetric tie of Section~\ref{sec:posmix}.
 
 % ==========================================================================
 \section{From exact fields to learned fields}
@@ -893,17 +897,18 @@ within-class variance instead of collapsing (Appendix~\ref{app:exp4}).
 \section{Conclusion}
 \label{sec:conclusion}
 
-The exact empirical conditional flow ends on its training examples, and so do its positive
-modifications: positive mixtures of prior-indexed exact fields, including label averaging and
-negative guidance, and
-nonnegative guidance with a fixed strength or a bounded schedule of bounded variation. Every
+The exact empirical conditional flow ends on its training examples, and at positive label
+bandwidth so do its positive modifications: positive mixtures of exact fields with strictly
+positive priors, including label averaging and guidance with $w\in[-1,0)$, and nonnegative
+guidance with a fixed strength or a bounded schedule of bounded variation. Every
 trajectory converges, and the exceptional initial points form a null set that can be a
 hyperplane. Composition is different: guidance applied to a label-averaged field can converge to
 a circumcentre of training examples with positive probability, with an explicit threshold on two
-atoms that is stable under perturbation of the priors and the guidance strength. A learned endpoint stays near its training example
+atoms, above which the off-atom basin persists under perturbation of the priors, mixture weights
+and guidance strength. A learned endpoint stays near its training example
 unless the scaled field error persists along the trajectory, which small training loss alone does
-not rule out. Open questions are when guided averaging leaves the support with many atoms in high
-dimension, how the endpoint weights of averaged fields depend on the averaging scale, and which
+not rule out. Open questions are when guided averaging leaves the support beyond hyperbolic
+profiles and the face condition, how large its basins are in high dimension, how the endpoint weights of averaged fields depend on the averaging scale, and which
 mechanism produces the off-atom samples of trained samplers at image scale.
 
 \label{endmain}

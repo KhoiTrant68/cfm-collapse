@@ -86,8 +86,11 @@ Không lỗi nào làm đổi kết luận. Số dòng dưới đây là của `
 - Nhiễu nhãn được đổi tên thành ω. ξ đã dùng cho nhiễu endpoint trong Prop `prop:tgtnoise`; ω chỉ còn
   xuất hiện trong cụm "ω-limit" và trọng số cục bộ ω_k của Lemma `lem:offtie`.
 - Bản sau khi sửa biên dịch ra 46 trang, giống bản gốc: không lỗi, không overfull box.
-- Có một cảnh báo đã tồn tại từ trước và không do các sửa này: `\eqref{eq:pf:transfer-t0}` ở dòng 2376
-  (bản gốc) báo undefined, dù label có trong `.aux`. Chưa tìm ra nguyên nhân.
+- Cảnh báo `\eqref{eq:pf:transfer-t0}` undefined mà tôi ghi trước đây hóa ra không phải lỗi của paper
+  (đính chính ngày 27/10).
+  - Nguyên nhân: tôi biên dịch với `-output-directory`, và pdflatex đọc một file `paper/main.aux` cũ (ngày
+    20/10, không nằm trong git) không có label mới này.
+  - Bản build sạch của thư mục `paper/` cho "(13) with Δ̃ in place of Δ", không còn "??" nào, 46 trang.
 
 1. **Dòng 2040, phát biểu Lemma `lem:offtie`.** Câu "the logit difference is ⟨ξ, a_i − a_{i'}⟩" thiếu
    số hạng log(p_i/p_{i'}). Chứng minh ở dòng 2064 có số hạng này, và kết luận "posterior trên S là π(ξ)"
@@ -274,3 +277,74 @@ Chi tiết trong `docs/review/exp_b_c_results_2026-10-23.md`.
   - Bộ giải đã được đối chứng: trường exact cho 0,4434 / 0,1797 / 0,0488 / 0; distill khớp exact.
   - Số seed nhỏ (3–5), nên các khoảng ± chỉ là mô tả.
 - **Tính mới:** trung bình. Lý do là công cụ tìm tài liệu bị hạn chế trong phiên này.
+
+## 8. Lượt kiểm tra bổ sung (26–27/10) trên bản đã sửa
+
+Các unit được dựng lại từ `paper/main.tex` sau 8 sửa ở mục 3, và có thêm unit U9. U9 đặt các tuyên bố của
+abstract, intro, Table 1, Section 4.4, Limitations và Conclusion cạnh 22 phát biểu hình thức.
+
+**Lượt 4: cả 8 unit đều CORRECT.** Mỗi unit giờ có 4 lượt HOLDS và 0 lượt bác, tức đạt ngưỡng xác nhận
+4-HOLDS của skill. Lượt 5 không cần chạy.
+
+| Unit | 4 lượt | Tấn công đã chạy (tất cả CORRECT) |
+|---|---|---|
+| U1 | 4/4 | #5 |
+| U2 | 4/4 | #5 |
+| U3 | 4/4 | #5, #40 |
+| U4 | 4/4 | #5, #40 |
+| U5 | 4/4 | #5, #40, #4 (thử với hỗn hợp dương, w = 0 và đúng ngưỡng: lập luận dừng đúng ở bước cần F′(s*) < 0) |
+| U6 | 4/4 | #5, #40 |
+| U7 | 4/4 | #40, #18 |
+| U8 | 4/4 | #40 |
+
+**Điểm mới từ các lượt tấn công** (không điểm nào là lỗi toán):
+- **#18 trên Thm transfer.** Bất đẳng thức đúng với mọi đường cong liên tục tuyệt đối và mọi điểm a, và
+  thành đẳng thức khi vế phải hội tụ. Paper đã tự nói điều này (main.tex:677–686), chỉ là unit không chứa
+  đoạn đó.
+  - Gợi ý đáng làm: chứng minh của Prop localtransfer thực ra cho một cận tiên nghiệm,
+    limsup|Z_t − a| ≤ limsup_{t↑1} sup_{|x−a|≤ρ} (1−t)|Δ(x,t)| ≤ ρ/4. Cận này không phụ thuộc quỹ đạo, nên
+    hữu ích hơn dạng hiện tại.
+- **#5 trên U1 và U4.**
+  - Lớp nghiệm của phương trình liên tục chưa được định nghĩa hình thức.
+  - "BV trên [t₀, 1)" phải hiểu là tổng biến phân hữu hạn trên cả khoảng.
+  - Hale Ch. I chỉ chứng minh luồng C¹ cho trường liên tục theo t. Trường hợp Carathéodory dựa vào phác
+    thảo trong paper; phác thảo đó đúng.
+- **#40 trên U7.** Câu "áp dụng Theorem từ t₀" nên nói rõ rằng phương trình không đổi dạng khi dời gốc
+  thời gian. Giả thiết khả tích của Δ là thừa.
+
+**U9, đối chiếu tuyên bố với định lý: có tuyên bố vượt quá điều được chứng minh.** Mọi điểm dưới đây đều
+sửa được bằng câu chữ; abstract đã có đủ điều kiện. Tôi đã tự đối chiếu từng điểm với main.tex:
+1. **Câu "practitioner" ở intro (dòng 142–146):** "not from label noise, label averaging or guidance applied
+   separately to the field that training defines". Câu này mâu thuẫn với dòng 140, Table 1 hàng 6 và dòng
+   430–431: lấy trung bình hai trường hard-label (h = 0) đưa mọi nguồn về trung điểm. Cần thêm "at positive
+   label bandwidth".
+2. **Cũng câu đó:** "a learned field whose endpoint prediction does not converge" phải là "does not converge
+   to its training example". Một dự đoán hội tụ về điểm b khác atom cũng cho endpoint ngoài tập train.
+3. **Kết luận (dòng 896–898):** "positive mixtures of prior-indexed exact fields, including label averaging
+   and negative guidance" thiếu "with strictly positive priors (h > 0)". Thêm nữa, "negative guidance" chỉ
+   được chứng minh cho w ∈ [−1, 0).
+4. **Section 4.4 (dòng 642–643):** "Endpoint noise … is the only one among them that leaves the atoms for
+   every source" mâu thuẫn với Table 1 hàng 6. Thêm nữa, Prop tgtnoise chỉ cho kết luận hầu chắc chắn theo
+   π₀. Nên viết: "the only one that leaves the atoms in every configuration: its endpoint law has a density".
+5. **Câu tóm tắt ở intro (dòng 139–142):** "for learned fields, from an error that does not vanish at the
+   scale (1−t)⁻¹" chỉ đúng ở nhãn định danh. Ở h > 0, agent dựng được phản ví dụ:
+   Δ = −2 tanh(s)/(1−t) cho sai số tỉ lệ dọc quỹ đạo → 0, nhưng một tập mở các nguồn hội tụ về trung điểm.
+   Cần thêm "at an identifying label".
+6. **Lỗi nhỏ.**
+   - Ở intro, B chưa được định nghĩa ("on two examples the threshold is exactly w > 1/sinh²B").
+   - Kết luận ghi "threshold … stable under perturbation", trong khi cái được chứng minh ổn định là basin
+     ngoài atom.
+   - Limitations có thể thêm các trường hợp chưa được phủ: w cố định < −1, và lịch guidance không BV.
+   - Câu hỏi mở "many atoms in high dimension" trong kết luận nói thấp hơn Theorem spectral; nên viết
+     "beyond hyperbolic profiles and the face condition".
+
+**Một điểm U9 nêu sai:** agent cho rằng Table 1 không có cơ sở cho lịch guidance ở h = 0. Nhận xét ở
+main.tex:501–503, kèm appendix "Time-dependent guidance at a hard label" (đã được U4 kiểm 4 lượt), phủ mọi
+lịch đo được, bị chặn địa phương và không âm với w = O((1−t)^{−γ}), γ < 2. Vì vậy mọi lịch bị chặn đều
+được phủ. Chỉ nên viết rõ "w ≥ 0" cho cả hai trường hợp trong hàng đó.
+
+**Số liệu:** `scripts/verify_paper_numbers.py`, chạy bằng `.venv` của repo, cho 429/429 số khớp với bản đã sửa.
+
+**Kết luận cập nhật:** phần toán được xác nhận ở ngưỡng 4-HOLDS cho cả 8 unit. Phần cần sửa trước khi nộp
+không nằm ở chứng minh, mà ở 5–6 câu tóm tắt trong intro, Section 4.4 và Conclusion đã bỏ mất các điều kiện
+h > 0, prior dương ngặt và nhãn định danh.
