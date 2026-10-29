@@ -25,8 +25,10 @@ from scripts.learned_composition import (B_LIST, DIAG_QUERIES, EPS_OUT, N_EVAL, 
 import matplotlib.pyplot as plt  # noqa: E402  (after figstyle has set the backend)
 
 LABEL = {"cfm_v": "CFM (main)", "cfm_v_tis": "CFM, late-t sampling", "cfm_v_sep": "CFM, separate unc.",
+         "cfm_v_s": "CFM, velocity pred. + s input", "cfm_x": "CFM, data pred.",
          "cfm_x_s": "CFM, data pred. + s input", "distill_x_s": "distilled exact (positive control)"}
 COLOR = {"cfm_v": COLORS["generated"], "cfm_v_tis": OI["orange"], "cfm_v_sep": OI["purple"],
+         "cfm_v_s": OI["yellow"], "cfm_x": OI["green"],
          "cfm_x_s": OI["sky"], "distill_x_s": COLORS["accent"]}
 EXACT_OF = {"L0": "E1", "L1": "E2", "L2": "E3", "L3": "E4", "L4": "E1"}
 T95 = {2: 12.706, 3: 4.303, 4: 3.182, 5: 2.776, 6: 2.571}
@@ -50,6 +52,10 @@ def load(root):
     for v in VARIANTS:
         for d in sorted(root.glob(f"{v}_seed[0-9]")):
             if (d / "summary.json").exists() and (d / "final_states.npz").exists():
+                metadata = json.loads((d / "summary.json").read_text())
+                if metadata.get("smoke", False) or metadata.get("n_sources") != N_EVAL:
+                    print("skipping", d, "(smoke or incompatible source count)")
+                    continue
                 # An older fixed-step RK4 evaluation is not comparable; such runs are skipped.
                 if "ROS2" not in json.loads((d / "summary.json").read_text()).get("solver", ""):
                     print("skipping", d, "(not evaluated with the ROS2 solver)")

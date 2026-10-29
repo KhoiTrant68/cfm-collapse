@@ -11,6 +11,8 @@ threshold is w_c = 1/sinh^2 B; guidance is swept as w = r w_c.
 Variants (one network per seed unless noted):
 
   cfm_v        standard CFM: velocity output, t ~ U(0,1), condition dropout 0.1     [main]
+  cfm_v_s      as cfm_v, with the boundary-layer coordinate asinh(s) as an extra input
+  cfm_x        data prediction with data MSE, without the boundary-layer input
   cfm_v_tis    as cfm_v, but eps = 1-t is drawn half uniform, half log-uniform on
                [1e-5, 1], with importance weights so the objective is unchanged
   cfm_v_sep    as cfm_v, with a separate unconditional network instead of dropout
@@ -76,7 +78,7 @@ EPS_DIAG = (0.7, 0.5, 0.4, 0.3, 0.2, 0.1, 0.05, 0.02, 0.01, 0.005, 1e-3, 1e-4, 1
 DIAG_QUERIES = (-3.0, -2.0, -1.0, 0.0, 1.0, 2.0, 3.0)   # conditional branches; plus unconditional
 S_GRID = np.linspace(-3.0, 3.0, 601)
 X_GRID = 1.5 * np.sinh(12.0 * np.linspace(-1.0, 1.0, 801)) / math.sinh(12.0)  # dense near 0
-VARIANTS = ("cfm_v", "cfm_v_tis", "cfm_v_sep", "cfm_x_s", "distill_x_s")
+VARIANTS = ("cfm_v", "cfm_v_tis", "cfm_v_sep", "cfm_x_s", "distill_x_s", "cfm_v_s", "cfm_x")
 TIS_EPS_MIN = 1e-5
 
 
@@ -136,7 +138,7 @@ class Field(torch.nn.Module):
     def __init__(self, variant: str, width: int = 128, depth: int = 4):
         super().__init__()
         self.variant = variant
-        self.data_pred = variant in ("cfm_x_s", "distill_x_s")
+        self.data_pred = variant in ("cfm_x", "cfm_x_s", "distill_x_s")
         self.sfeat = variant.endswith("_s")
         extra = int(self.sfeat)
         if variant == "cfm_v_sep":
@@ -202,7 +204,7 @@ def loss_fn(field, b, variant):
         _, vu = field(b["xt"], b["eps"], b["y"], ~ones)
         return ((vc - b["u"]) ** 2).mean() + ((vu - b["u"]) ** 2).mean()
     m, v = field(b["xt"], b["eps"], b["y"], b["cond"])
-    if variant == "cfm_x_s":
+    if variant in ("cfm_x", "cfm_x_s"):
         return ((m - b["a"]) ** 2).mean()
     if variant == "distill_x_s":
         return ((m - exact_m(b["xt"], b["eps"], b["y"], b["cond"])) ** 2).mean()
@@ -228,7 +230,11 @@ def train(field, variant, steps, batch, lr, seed, device, log_every=1000):
         loss.backward()
         torch.nn.utils.clip_grad_norm_(field.parameters(), 1.0)
         opt.step(); sched.step()
-        run += loss.item() if (k + 1) % 50 == 0 else 0.0
+        if (k + 1) % 50 == 0:
+            loss_value = loss.item()
+            if not math.isfinite(loss_value):
+                raise RuntimeError(f"Non-finite training loss at step {k + 1}")
+            run += loss_value
         if (k + 1) % log_every == 0:
             curve.append({"step": k + 1, "loss": run / (log_every // 50), "seconds": time.time() - t0})
             run = 0.0
@@ -419,12 +425,15 @@ def evaluate_arms(field, device, smoke=False):
                 if arm == "L3" or r in r_controls:
                     configs.append((arm, B, r, r * w_c(B)))
     if smoke:
-        configs = configs[:6]
+        # Exercise the stiff composite above the exact threshold, not just r=0 controls.
+        configs = [("L0", 0.0, 0.0, 0.0), ("L3", 1.0, 2.0, 2.0 * w_c(1.0))]
     rows, finals = [], {}
     for arm, B, r, w in configs:
         F = learned_mean(field, *arm_coefficients(arm, B, w), device)
         xs = ros2_states(F, x0, rtol=EVAL_RTOL[0])[:, 0].T                    # (len(EPS_OUT), n)
         tight = ros2_states(F, x0, rtol=EVAL_RTOL[1])[:, 0].T if arm == "L3" else None
+        if not torch.isfinite(xs).all() or (tight is not None and not torch.isfinite(tight).all()):
+            raise RuntimeError(f"Non-finite trajectories: {arm}, B={B}, r={r}")
         row = {"arm": arm, "B": B, "r": r, "w": w, "by_eps": []}
         for i, eps in enumerate(EPS_OUT):
             fine = xs[i]
@@ -486,6 +495,8 @@ def main() -> int:
     ap.add_argument("--no-eval", action="store_true", help="train and validate only (LR pilot)")
     ap.add_argument("--eval-only", action="store_true", help="reload field.pt and re-evaluate the arms")
     args = ap.parse_args()
+    if args.steps < 10 or args.batch < 2:
+        ap.error("--steps must be at least 10 and --batch at least 2")
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
     torch.manual_seed(args.seed)
@@ -506,6 +517,10 @@ def main() -> int:
                    "lr": args.lr, "p_drop": P_DROP, "ell": ELL, "h": H,
                    "optimizer": "AdamW wd=0, cosine, clip 1", "train_seconds": time.time() - start,
                    "curve": curve, "python": sys.version, "torch": torch.__version__}
+        summary.update(data_prediction=field.data_pred, boundary_layer_input=field.sfeat,
+                       parameter_count=sum(p.numel() for p in field.parameters()),
+                       cuda_version=torch.version.cuda,
+                       device=torch.cuda.get_device_name() if device == "cuda" else "cpu")
     field.eval()
     summary["validation"] = validation(field, device)
     if not args.no_eval:
@@ -514,7 +529,8 @@ def main() -> int:
                             eps_diag=np.array(EPS_DIAG), **field_diagnostics(field, device))
         rows, finals = evaluate_arms(field, device, smoke=args.smoke)
         summary.update(arms=rows, eps_out=EPS_OUT, solver="ROS2 per source, step doubling; x then s = beta x", rtol=EVAL_RTOL,
-                       n_sources=N_EVAL, source_seed=SOURCE_SEED)
+                       n_sources=512 if args.smoke else N_EVAL, source_seed=SOURCE_SEED,
+                       smoke=args.smoke)
         np.savez_compressed(out / "final_states.npz", **finals)
     summary["seconds"] = time.time() - start
     (out / "summary.json").write_text(json.dumps(summary, indent=1), encoding="utf-8")
