@@ -1,0 +1,1521 @@
+{
+  "occupancy_checks": 19008,
+  "mismatches": [],
+  "run_counts": {
+    "learned_composition_20261021": {
+      "cfm_v": 5,
+      "cfm_v_sep": 4,
+      "cfm_v_tis": 5,
+      "cfm_x_s": 5,
+      "distill_x_s": 5
+    },
+    "learned_composition_2d_20261021": {
+      "cfm_v": 5,
+      "cfm_x_s": 5,
+      "distill_x_s": 5
+    }
+  },
+  "composite_at_2wc_last_cutoff_delta005": {
+    "learned_composition_20261021": {
+      "cfm_v": {
+        "mean": 0.0,
+        "population_sd": 0.0,
+        "seeds": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "cfm_v_sep": {
+        "mean": 0.0,
+        "population_sd": 0.0,
+        "seeds": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "cfm_v_tis": {
+        "mean": 0.0,
+        "population_sd": 0.0,
+        "seeds": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "cfm_x_s": {
+        "mean": 0.40107421875,
+        "population_sd": 0.005920900934071921,
+        "seeds": [
+          0.396484375,
+          0.3984375,
+          0.41162109375,
+          0.4033203125,
+          0.3955078125
+        ]
+      },
+      "distill_x_s": {
+        "mean": 0.4072265625,
+        "population_sd": 0.0,
+        "seeds": [
+          0.4072265625,
+          0.4072265625,
+          0.4072265625,
+          0.4072265625,
+          0.4072265625
+        ]
+      }
+    },
+    "learned_composition_2d_20261021": {
+      "cfm_v": {
+        "mean": 0.0,
+        "population_sd": 0.0,
+        "seeds": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "cfm_x_s": {
+        "mean": 0.143359375,
+        "population_sd": 0.004207160005573831,
+        "seeds": [
+          0.14501953125,
+          0.14697265625,
+          0.14697265625,
+          0.1357421875,
+          0.14208984375
+        ]
+      },
+      "distill_x_s": {
+        "mean": 0.1400390625,
+        "population_sd": 0.003959596666545565,
+        "seeds": [
+          0.14794921875,
+          0.1376953125,
+          0.13818359375,
+          0.13818359375,
+          0.13818359375
+        ]
+      }
+    }
+  },
+  "max_saved_solver_class_disagreement": {
+    "learned_composition_20261021": 0.0107421875,
+    "learned_composition_2d_20261021": 0.00634765625
+  },
+  "provenance": [
+    {
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed0",
+      "summary_sha256": "12abbd0de679e6fa8a9d61f1417c0d77a27e66e02f196614bec35e707469c97e",
+      "checkpoint_exists": true
+    },
+    {
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed1",
+      "summary_sha256": "05623cc4c82ae3695a1a09011fdd743a494569fe3b95a234184bed0e298a0981",
+      "checkpoint_exists": true
+    },
+    {
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed2",
+      "summary_sha256": "d9ea441a992910534488a21f2310ff56bad32171fa113b7c0884f6eb29ea82d4",
+      "checkpoint_exists": true
+    },
+    {
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed3",
+      "summary_sha256": "f568f8b813accbf57382cc6f0f0c5654c15d0d404d08abc5066638b4db28bdd1",
+      "checkpoint_exists": true
+    },
+    {
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed4",
+      "summary_sha256": "7d2df6561ae266c9f272aa84eda59c46f647af072cc74b9451f0f85aa094ecdd",
+      "checkpoint_exists": true
+    },
+    {
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_sep_seed0",
+      "summary_sha256": "8bd795b80aeb12bdd455ec15c595cc545b4074a21e015e640f46f8df48da56fd",
+      "checkpoint_exists": true
+    },
+    {
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_sep_seed1",
+      "summary_sha256": "06321783465a4b4691fbef732548f2db01dd9fb1eebd2e31e8e04793b77097b9",
+      "checkpoint_exists": true
+    },
+    {
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_sep_seed3",
+      "summary_sha256": "f7499dd591c11e0339b12e9c598ff1b31eb4ade361d8fd4fb4b0ef3340ce9e97",
+      "checkpoint_exists": true
+    },
+    {
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_sep_seed4",
+      "summary_sha256": "d73836dc191f63c20bf2a511369bcaaa57ab1c8171becc599aaae37747182ad4",
+      "checkpoint_exists": true
+    },
+    {
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_tis_seed0",
+      "summary_sha256": "4116487396dc8f80169ce253002d7321f91a947ceeab9d58f6a55e5749ae83cc",
+      "checkpoint_exists": true
+    },
+    {
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_tis_seed1",
+      "summary_sha256": "f8d74a12301c3fbf2b1009ea60f989c79f4f40cbd7fcaed7fca2ce725628f247",
+      "checkpoint_exists": true
+    },
+    {
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_tis_seed2",
+      "summary_sha256": "aea0515d112da69a82160e76bf3474c913ce07ce1824544664c1857d3363544a",
+      "checkpoint_exists": true
+    },
+    {
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_tis_seed3",
+      "summary_sha256": "b5f278f9886f5968a204d773e6052221a3d341d3b746c5b7d364c2299e50b250",
+      "checkpoint_exists": true
+    },
+    {
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_tis_seed4",
+      "summary_sha256": "90d056678b4f4b189c7b20fdc5ec3b0d0c12f0e8386b5f366f8a8b39fd18b1ec",
+      "checkpoint_exists": true
+    },
+    {
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_x_s_seed0",
+      "summary_sha256": "b45df7a2d82943962a0dc890d4dd6955f92b9f2a3a0bb3e3431ca570d98c1efa",
+      "checkpoint_exists": true
+    },
+    {
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_x_s_seed1",
+      "summary_sha256": "5c311b64d5d943adee8fc6efbf10b51f3472d9ca33279396738fe8d8c51215cf",
+      "checkpoint_exists": true
+    },
+    {
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_x_s_seed2",
+      "summary_sha256": "751acb39b50e40ae94578efe055217d6d1f1e642ec452eaed423aa753283031e",
+      "checkpoint_exists": true
+    },
+    {
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_x_s_seed3",
+      "summary_sha256": "d49cce1cb58e5529f4f673e4f3b0516d8d81b79a995d101983a7274bf0fde042",
+      "checkpoint_exists": true
+    },
+    {
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_x_s_seed4",
+      "summary_sha256": "44f343423c845a40bf979c38b8da100fc2b76642806974835391bc44b095f62f",
+      "checkpoint_exists": true
+    },
+    {
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\distill_x_s_seed0",
+      "summary_sha256": "66396d143b28b7ff31cb284fb49e5e01a6b5176d1a25737ab8902ff20b3904f2",
+      "checkpoint_exists": true
+    },
+    {
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\distill_x_s_seed1",
+      "summary_sha256": "cc49f7ab1ea8b3adc2455e9f50f9f17818c8b7de454ebbc0c8e8f1f16abd1151",
+      "checkpoint_exists": true
+    },
+    {
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\distill_x_s_seed2",
+      "summary_sha256": "f0d376431a4a29115e95feb85b789146c45265fe0c492f0a4ecca40e570750c9",
+      "checkpoint_exists": true
+    },
+    {
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\distill_x_s_seed3",
+      "summary_sha256": "e6000d1e97c0ac14f872c38e07fbb729335fda72168dc5f4b9ee6be404e7e6fc",
+      "checkpoint_exists": true
+    },
+    {
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\distill_x_s_seed4",
+      "summary_sha256": "7e6a72bebec33576fadcc1784e5a6a925d3b683057a6335735585ad9774d8f5f",
+      "checkpoint_exists": true
+    },
+    {
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_v_seed0",
+      "summary_sha256": "9f544d4ceb76c09d03a020765860cc767a10adf7c7c8fb9b79868543404f8eb2",
+      "checkpoint_exists": true
+    },
+    {
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_v_seed1",
+      "summary_sha256": "9782ae10f3105d49abe4aed9f5ddd5556ee1251fff522e19e30756c0337c4454",
+      "checkpoint_exists": true
+    },
+    {
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_v_seed2",
+      "summary_sha256": "23c671a7d9c541b99e9e57a162e99798ea5ea4dce1ddedef8ce355d6aea8443d",
+      "checkpoint_exists": true
+    },
+    {
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_v_seed3",
+      "summary_sha256": "ecae2ed84a24565acf495d958dad4b1a81e2f1a5a8d624b0721e8515eb7dd692",
+      "checkpoint_exists": true
+    },
+    {
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_v_seed4",
+      "summary_sha256": "a31637a9485a9516477f6ec6c71eb78bbad39c3dc66995496d3d4e7fa3fa340b",
+      "checkpoint_exists": true
+    },
+    {
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_x_s_seed0",
+      "summary_sha256": "798fc1ffd94ab92a05892ffe49cc3c4871b363e0bcb7a9cf943238b1bb1d9d37",
+      "checkpoint_exists": true
+    },
+    {
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_x_s_seed1",
+      "summary_sha256": "45489b08f5add971d1668f3138d857067ec9a5b4a45815f2dd105100807dc575",
+      "checkpoint_exists": true
+    },
+    {
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_x_s_seed2",
+      "summary_sha256": "b0f6fedc0f8afb62b4affa0925ee0e8b7e4306c975001ecff9faed2809d5b746",
+      "checkpoint_exists": true
+    },
+    {
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_x_s_seed3",
+      "summary_sha256": "865647f4d1e69391ad41c4c76a65653fbb460b835ed52f4f90e1cc286bf95aa9",
+      "checkpoint_exists": true
+    },
+    {
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_x_s_seed4",
+      "summary_sha256": "8e6a4f9bb60a1d383c4f1ff985bf05ed7c05432912d81040703fc4e83b0c51b7",
+      "checkpoint_exists": true
+    },
+    {
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\distill_x_s_seed0",
+      "summary_sha256": "db6399559f6c5d059e10cebce8136884e07219fcdd5039c21745d65be1af3987",
+      "checkpoint_exists": true
+    },
+    {
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\distill_x_s_seed1",
+      "summary_sha256": "f2d30fd3a6009f9b11bb6cc3c64afbf644851658aa8f952957d31dc6eab5277d",
+      "checkpoint_exists": true
+    },
+    {
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\distill_x_s_seed2",
+      "summary_sha256": "e4e2da0b32afff7ce53c77fc32b4421acfe86cd780065bdab513777185ff8791",
+      "checkpoint_exists": true
+    },
+    {
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\distill_x_s_seed3",
+      "summary_sha256": "bde494b1f60ebcb5bc4201df35535a66c6e73fd2cf9010ea0fbc4c3b937ef6da",
+      "checkpoint_exists": true
+    },
+    {
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\distill_x_s_seed4",
+      "summary_sha256": "e48d78285ab98370391cf409165e0cbfd4b07f280a18e2295fc6016e9c011a4d",
+      "checkpoint_exists": true
+    }
+  ],
+  "scope": "Recomputed midpoint occupancies from saved final states of 39 ROS2 runs; no training, integration, or proof rerun. 300 control arm keys lack saved arrays by the scripts intentional save policy; their JSON summaries were not independently recomputed. Excluded legacy untracked cfm_v_sep seed2.",
+  "unavailable_saved_state_keys": [
+    {
+      "missing_key": "L2_B1_r0.5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed0"
+    },
+    {
+      "missing_key": "L4_B1_r0.5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed0"
+    },
+    {
+      "missing_key": "L2_B1_r0.8",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed0"
+    },
+    {
+      "missing_key": "L4_B1_r0.8",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed0"
+    },
+    {
+      "missing_key": "L2_B1_r0.9",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed0"
+    },
+    {
+      "missing_key": "L4_B1_r0.9",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed0"
+    },
+    {
+      "missing_key": "L2_B1_r1.1",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed0"
+    },
+    {
+      "missing_key": "L4_B1_r1.1",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed0"
+    },
+    {
+      "missing_key": "L2_B1_r1.2",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed0"
+    },
+    {
+      "missing_key": "L4_B1_r1.2",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed0"
+    },
+    {
+      "missing_key": "L2_B1_r1.5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed0"
+    },
+    {
+      "missing_key": "L4_B1_r1.5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed0"
+    },
+    {
+      "missing_key": "L2_B1_r5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed0"
+    },
+    {
+      "missing_key": "L4_B1_r5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed0"
+    },
+    {
+      "missing_key": "L2_B2_r0.5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed0"
+    },
+    {
+      "missing_key": "L4_B2_r0.5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed0"
+    },
+    {
+      "missing_key": "L2_B2_r0.8",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed0"
+    },
+    {
+      "missing_key": "L4_B2_r0.8",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed0"
+    },
+    {
+      "missing_key": "L2_B2_r0.9",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed0"
+    },
+    {
+      "missing_key": "L4_B2_r0.9",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed0"
+    },
+    {
+      "missing_key": "L2_B2_r1.1",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed0"
+    },
+    {
+      "missing_key": "L4_B2_r1.1",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed0"
+    },
+    {
+      "missing_key": "L2_B2_r1.2",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed0"
+    },
+    {
+      "missing_key": "L4_B2_r1.2",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed0"
+    },
+    {
+      "missing_key": "L2_B2_r1.5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed0"
+    },
+    {
+      "missing_key": "L4_B2_r1.5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed0"
+    },
+    {
+      "missing_key": "L2_B2_r5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed0"
+    },
+    {
+      "missing_key": "L4_B2_r5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed0"
+    },
+    {
+      "missing_key": "L2_B3_r0.5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed0"
+    },
+    {
+      "missing_key": "L4_B3_r0.5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed0"
+    },
+    {
+      "missing_key": "L2_B3_r0.8",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed0"
+    },
+    {
+      "missing_key": "L4_B3_r0.8",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed0"
+    },
+    {
+      "missing_key": "L2_B3_r0.9",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed0"
+    },
+    {
+      "missing_key": "L4_B3_r0.9",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed0"
+    },
+    {
+      "missing_key": "L2_B3_r1.1",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed0"
+    },
+    {
+      "missing_key": "L4_B3_r1.1",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed0"
+    },
+    {
+      "missing_key": "L2_B3_r1.2",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed0"
+    },
+    {
+      "missing_key": "L4_B3_r1.2",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed0"
+    },
+    {
+      "missing_key": "L2_B3_r1.5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed0"
+    },
+    {
+      "missing_key": "L4_B3_r1.5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed0"
+    },
+    {
+      "missing_key": "L2_B3_r5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed0"
+    },
+    {
+      "missing_key": "L4_B3_r5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed0"
+    },
+    {
+      "missing_key": "L2_B1_r0.5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed1"
+    },
+    {
+      "missing_key": "L4_B1_r0.5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed1"
+    },
+    {
+      "missing_key": "L2_B1_r0.8",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed1"
+    },
+    {
+      "missing_key": "L4_B1_r0.8",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed1"
+    },
+    {
+      "missing_key": "L2_B1_r0.9",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed1"
+    },
+    {
+      "missing_key": "L4_B1_r0.9",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed1"
+    },
+    {
+      "missing_key": "L2_B1_r1.1",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed1"
+    },
+    {
+      "missing_key": "L4_B1_r1.1",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed1"
+    },
+    {
+      "missing_key": "L2_B1_r1.2",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed1"
+    },
+    {
+      "missing_key": "L4_B1_r1.2",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed1"
+    },
+    {
+      "missing_key": "L2_B1_r1.5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed1"
+    },
+    {
+      "missing_key": "L4_B1_r1.5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed1"
+    },
+    {
+      "missing_key": "L2_B1_r5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed1"
+    },
+    {
+      "missing_key": "L4_B1_r5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed1"
+    },
+    {
+      "missing_key": "L2_B2_r0.5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed1"
+    },
+    {
+      "missing_key": "L4_B2_r0.5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed1"
+    },
+    {
+      "missing_key": "L2_B2_r0.8",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed1"
+    },
+    {
+      "missing_key": "L4_B2_r0.8",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed1"
+    },
+    {
+      "missing_key": "L2_B2_r0.9",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed1"
+    },
+    {
+      "missing_key": "L4_B2_r0.9",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed1"
+    },
+    {
+      "missing_key": "L2_B2_r1.1",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed1"
+    },
+    {
+      "missing_key": "L4_B2_r1.1",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed1"
+    },
+    {
+      "missing_key": "L2_B2_r1.2",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed1"
+    },
+    {
+      "missing_key": "L4_B2_r1.2",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed1"
+    },
+    {
+      "missing_key": "L2_B2_r1.5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed1"
+    },
+    {
+      "missing_key": "L4_B2_r1.5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed1"
+    },
+    {
+      "missing_key": "L2_B2_r5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed1"
+    },
+    {
+      "missing_key": "L4_B2_r5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed1"
+    },
+    {
+      "missing_key": "L2_B3_r0.5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed1"
+    },
+    {
+      "missing_key": "L4_B3_r0.5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed1"
+    },
+    {
+      "missing_key": "L2_B3_r0.8",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed1"
+    },
+    {
+      "missing_key": "L4_B3_r0.8",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed1"
+    },
+    {
+      "missing_key": "L2_B3_r0.9",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed1"
+    },
+    {
+      "missing_key": "L4_B3_r0.9",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed1"
+    },
+    {
+      "missing_key": "L2_B3_r1.1",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed1"
+    },
+    {
+      "missing_key": "L4_B3_r1.1",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed1"
+    },
+    {
+      "missing_key": "L2_B3_r1.2",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed1"
+    },
+    {
+      "missing_key": "L4_B3_r1.2",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed1"
+    },
+    {
+      "missing_key": "L2_B3_r1.5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed1"
+    },
+    {
+      "missing_key": "L4_B3_r1.5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed1"
+    },
+    {
+      "missing_key": "L2_B3_r5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed1"
+    },
+    {
+      "missing_key": "L4_B3_r5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed1"
+    },
+    {
+      "missing_key": "L2_B1_r0.5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed2"
+    },
+    {
+      "missing_key": "L4_B1_r0.5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed2"
+    },
+    {
+      "missing_key": "L2_B1_r0.8",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed2"
+    },
+    {
+      "missing_key": "L4_B1_r0.8",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed2"
+    },
+    {
+      "missing_key": "L2_B1_r0.9",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed2"
+    },
+    {
+      "missing_key": "L4_B1_r0.9",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed2"
+    },
+    {
+      "missing_key": "L2_B1_r1.1",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed2"
+    },
+    {
+      "missing_key": "L4_B1_r1.1",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed2"
+    },
+    {
+      "missing_key": "L2_B1_r1.2",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed2"
+    },
+    {
+      "missing_key": "L4_B1_r1.2",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed2"
+    },
+    {
+      "missing_key": "L2_B1_r1.5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed2"
+    },
+    {
+      "missing_key": "L4_B1_r1.5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed2"
+    },
+    {
+      "missing_key": "L2_B1_r5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed2"
+    },
+    {
+      "missing_key": "L4_B1_r5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed2"
+    },
+    {
+      "missing_key": "L2_B2_r0.5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed2"
+    },
+    {
+      "missing_key": "L4_B2_r0.5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed2"
+    },
+    {
+      "missing_key": "L2_B2_r0.8",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed2"
+    },
+    {
+      "missing_key": "L4_B2_r0.8",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed2"
+    },
+    {
+      "missing_key": "L2_B2_r0.9",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed2"
+    },
+    {
+      "missing_key": "L4_B2_r0.9",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed2"
+    },
+    {
+      "missing_key": "L2_B2_r1.1",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed2"
+    },
+    {
+      "missing_key": "L4_B2_r1.1",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed2"
+    },
+    {
+      "missing_key": "L2_B2_r1.2",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed2"
+    },
+    {
+      "missing_key": "L4_B2_r1.2",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed2"
+    },
+    {
+      "missing_key": "L2_B2_r1.5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed2"
+    },
+    {
+      "missing_key": "L4_B2_r1.5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed2"
+    },
+    {
+      "missing_key": "L2_B2_r5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed2"
+    },
+    {
+      "missing_key": "L4_B2_r5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed2"
+    },
+    {
+      "missing_key": "L2_B3_r0.5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed2"
+    },
+    {
+      "missing_key": "L4_B3_r0.5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed2"
+    },
+    {
+      "missing_key": "L2_B3_r0.8",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed2"
+    },
+    {
+      "missing_key": "L4_B3_r0.8",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed2"
+    },
+    {
+      "missing_key": "L2_B3_r0.9",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed2"
+    },
+    {
+      "missing_key": "L4_B3_r0.9",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed2"
+    },
+    {
+      "missing_key": "L2_B3_r1.1",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed2"
+    },
+    {
+      "missing_key": "L4_B3_r1.1",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed2"
+    },
+    {
+      "missing_key": "L2_B3_r1.2",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed2"
+    },
+    {
+      "missing_key": "L4_B3_r1.2",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed2"
+    },
+    {
+      "missing_key": "L2_B3_r1.5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed2"
+    },
+    {
+      "missing_key": "L4_B3_r1.5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed2"
+    },
+    {
+      "missing_key": "L2_B3_r5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed2"
+    },
+    {
+      "missing_key": "L4_B3_r5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed2"
+    },
+    {
+      "missing_key": "L2_B1_r0.5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed3"
+    },
+    {
+      "missing_key": "L4_B1_r0.5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed3"
+    },
+    {
+      "missing_key": "L2_B1_r0.8",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed3"
+    },
+    {
+      "missing_key": "L4_B1_r0.8",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed3"
+    },
+    {
+      "missing_key": "L2_B1_r0.9",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed3"
+    },
+    {
+      "missing_key": "L4_B1_r0.9",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed3"
+    },
+    {
+      "missing_key": "L2_B1_r1.1",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed3"
+    },
+    {
+      "missing_key": "L4_B1_r1.1",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed3"
+    },
+    {
+      "missing_key": "L2_B1_r1.2",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed3"
+    },
+    {
+      "missing_key": "L4_B1_r1.2",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed3"
+    },
+    {
+      "missing_key": "L2_B1_r1.5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed3"
+    },
+    {
+      "missing_key": "L4_B1_r1.5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed3"
+    },
+    {
+      "missing_key": "L2_B1_r5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed3"
+    },
+    {
+      "missing_key": "L4_B1_r5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed3"
+    },
+    {
+      "missing_key": "L2_B2_r0.5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed3"
+    },
+    {
+      "missing_key": "L4_B2_r0.5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed3"
+    },
+    {
+      "missing_key": "L2_B2_r0.8",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed3"
+    },
+    {
+      "missing_key": "L4_B2_r0.8",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed3"
+    },
+    {
+      "missing_key": "L2_B2_r0.9",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed3"
+    },
+    {
+      "missing_key": "L4_B2_r0.9",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed3"
+    },
+    {
+      "missing_key": "L2_B2_r1.1",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed3"
+    },
+    {
+      "missing_key": "L4_B2_r1.1",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed3"
+    },
+    {
+      "missing_key": "L2_B2_r1.2",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed3"
+    },
+    {
+      "missing_key": "L4_B2_r1.2",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed3"
+    },
+    {
+      "missing_key": "L2_B2_r1.5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed3"
+    },
+    {
+      "missing_key": "L4_B2_r1.5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed3"
+    },
+    {
+      "missing_key": "L2_B2_r5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed3"
+    },
+    {
+      "missing_key": "L4_B2_r5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed3"
+    },
+    {
+      "missing_key": "L2_B3_r0.5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed3"
+    },
+    {
+      "missing_key": "L4_B3_r0.5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed3"
+    },
+    {
+      "missing_key": "L2_B3_r0.8",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed3"
+    },
+    {
+      "missing_key": "L4_B3_r0.8",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed3"
+    },
+    {
+      "missing_key": "L2_B3_r0.9",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed3"
+    },
+    {
+      "missing_key": "L4_B3_r0.9",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed3"
+    },
+    {
+      "missing_key": "L2_B3_r1.1",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed3"
+    },
+    {
+      "missing_key": "L4_B3_r1.1",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed3"
+    },
+    {
+      "missing_key": "L2_B3_r1.2",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed3"
+    },
+    {
+      "missing_key": "L4_B3_r1.2",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed3"
+    },
+    {
+      "missing_key": "L2_B3_r1.5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed3"
+    },
+    {
+      "missing_key": "L4_B3_r1.5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed3"
+    },
+    {
+      "missing_key": "L2_B3_r5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed3"
+    },
+    {
+      "missing_key": "L4_B3_r5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed3"
+    },
+    {
+      "missing_key": "L2_B1_r0.5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed4"
+    },
+    {
+      "missing_key": "L4_B1_r0.5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed4"
+    },
+    {
+      "missing_key": "L2_B1_r0.8",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed4"
+    },
+    {
+      "missing_key": "L4_B1_r0.8",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed4"
+    },
+    {
+      "missing_key": "L2_B1_r0.9",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed4"
+    },
+    {
+      "missing_key": "L4_B1_r0.9",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed4"
+    },
+    {
+      "missing_key": "L2_B1_r1.1",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed4"
+    },
+    {
+      "missing_key": "L4_B1_r1.1",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed4"
+    },
+    {
+      "missing_key": "L2_B1_r1.2",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed4"
+    },
+    {
+      "missing_key": "L4_B1_r1.2",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed4"
+    },
+    {
+      "missing_key": "L2_B1_r1.5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed4"
+    },
+    {
+      "missing_key": "L4_B1_r1.5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed4"
+    },
+    {
+      "missing_key": "L2_B1_r5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed4"
+    },
+    {
+      "missing_key": "L4_B1_r5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed4"
+    },
+    {
+      "missing_key": "L2_B2_r0.5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed4"
+    },
+    {
+      "missing_key": "L4_B2_r0.5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed4"
+    },
+    {
+      "missing_key": "L2_B2_r0.8",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed4"
+    },
+    {
+      "missing_key": "L4_B2_r0.8",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed4"
+    },
+    {
+      "missing_key": "L2_B2_r0.9",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed4"
+    },
+    {
+      "missing_key": "L4_B2_r0.9",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed4"
+    },
+    {
+      "missing_key": "L2_B2_r1.1",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed4"
+    },
+    {
+      "missing_key": "L4_B2_r1.1",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed4"
+    },
+    {
+      "missing_key": "L2_B2_r1.2",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed4"
+    },
+    {
+      "missing_key": "L4_B2_r1.2",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed4"
+    },
+    {
+      "missing_key": "L2_B2_r1.5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed4"
+    },
+    {
+      "missing_key": "L4_B2_r1.5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed4"
+    },
+    {
+      "missing_key": "L2_B2_r5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed4"
+    },
+    {
+      "missing_key": "L4_B2_r5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed4"
+    },
+    {
+      "missing_key": "L2_B3_r0.5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed4"
+    },
+    {
+      "missing_key": "L4_B3_r0.5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed4"
+    },
+    {
+      "missing_key": "L2_B3_r0.8",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed4"
+    },
+    {
+      "missing_key": "L4_B3_r0.8",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed4"
+    },
+    {
+      "missing_key": "L2_B3_r0.9",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed4"
+    },
+    {
+      "missing_key": "L4_B3_r0.9",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed4"
+    },
+    {
+      "missing_key": "L2_B3_r1.1",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed4"
+    },
+    {
+      "missing_key": "L4_B3_r1.1",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed4"
+    },
+    {
+      "missing_key": "L2_B3_r1.2",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed4"
+    },
+    {
+      "missing_key": "L4_B3_r1.2",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed4"
+    },
+    {
+      "missing_key": "L2_B3_r1.5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed4"
+    },
+    {
+      "missing_key": "L4_B3_r1.5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed4"
+    },
+    {
+      "missing_key": "L2_B3_r5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed4"
+    },
+    {
+      "missing_key": "L4_B3_r5",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_seed4"
+    },
+    {
+      "missing_key": "L2_r0",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_v_seed0"
+    },
+    {
+      "missing_key": "L2_r2",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_v_seed0"
+    },
+    {
+      "missing_key": "L2_r10",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_v_seed0"
+    },
+    {
+      "missing_key": "L4_r0",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_v_seed0"
+    },
+    {
+      "missing_key": "L4_r2",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_v_seed0"
+    },
+    {
+      "missing_key": "L4_r10",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_v_seed0"
+    },
+    {
+      "missing_key": "L2_r0",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_v_seed1"
+    },
+    {
+      "missing_key": "L2_r2",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_v_seed1"
+    },
+    {
+      "missing_key": "L2_r10",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_v_seed1"
+    },
+    {
+      "missing_key": "L4_r0",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_v_seed1"
+    },
+    {
+      "missing_key": "L4_r2",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_v_seed1"
+    },
+    {
+      "missing_key": "L4_r10",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_v_seed1"
+    },
+    {
+      "missing_key": "L2_r0",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_v_seed2"
+    },
+    {
+      "missing_key": "L2_r2",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_v_seed2"
+    },
+    {
+      "missing_key": "L2_r10",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_v_seed2"
+    },
+    {
+      "missing_key": "L4_r0",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_v_seed2"
+    },
+    {
+      "missing_key": "L4_r2",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_v_seed2"
+    },
+    {
+      "missing_key": "L4_r10",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_v_seed2"
+    },
+    {
+      "missing_key": "L2_r0",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_v_seed3"
+    },
+    {
+      "missing_key": "L2_r2",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_v_seed3"
+    },
+    {
+      "missing_key": "L2_r10",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_v_seed3"
+    },
+    {
+      "missing_key": "L4_r0",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_v_seed3"
+    },
+    {
+      "missing_key": "L4_r2",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_v_seed3"
+    },
+    {
+      "missing_key": "L4_r10",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_v_seed3"
+    },
+    {
+      "missing_key": "L2_r0",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_v_seed4"
+    },
+    {
+      "missing_key": "L2_r2",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_v_seed4"
+    },
+    {
+      "missing_key": "L2_r10",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_v_seed4"
+    },
+    {
+      "missing_key": "L4_r0",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_v_seed4"
+    },
+    {
+      "missing_key": "L4_r2",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_v_seed4"
+    },
+    {
+      "missing_key": "L4_r10",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_v_seed4"
+    },
+    {
+      "missing_key": "L2_r0",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_x_s_seed0"
+    },
+    {
+      "missing_key": "L2_r2",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_x_s_seed0"
+    },
+    {
+      "missing_key": "L2_r10",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_x_s_seed0"
+    },
+    {
+      "missing_key": "L4_r0",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_x_s_seed0"
+    },
+    {
+      "missing_key": "L4_r2",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_x_s_seed0"
+    },
+    {
+      "missing_key": "L4_r10",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_x_s_seed0"
+    },
+    {
+      "missing_key": "L2_r0",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_x_s_seed1"
+    },
+    {
+      "missing_key": "L2_r2",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_x_s_seed1"
+    },
+    {
+      "missing_key": "L2_r10",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_x_s_seed1"
+    },
+    {
+      "missing_key": "L4_r0",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_x_s_seed1"
+    },
+    {
+      "missing_key": "L4_r2",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_x_s_seed1"
+    },
+    {
+      "missing_key": "L4_r10",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_x_s_seed1"
+    },
+    {
+      "missing_key": "L2_r0",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_x_s_seed2"
+    },
+    {
+      "missing_key": "L2_r2",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_x_s_seed2"
+    },
+    {
+      "missing_key": "L2_r10",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_x_s_seed2"
+    },
+    {
+      "missing_key": "L4_r0",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_x_s_seed2"
+    },
+    {
+      "missing_key": "L4_r2",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_x_s_seed2"
+    },
+    {
+      "missing_key": "L4_r10",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_x_s_seed2"
+    },
+    {
+      "missing_key": "L2_r0",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_x_s_seed3"
+    },
+    {
+      "missing_key": "L2_r2",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_x_s_seed3"
+    },
+    {
+      "missing_key": "L2_r10",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_x_s_seed3"
+    },
+    {
+      "missing_key": "L4_r0",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_x_s_seed3"
+    },
+    {
+      "missing_key": "L4_r2",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_x_s_seed3"
+    },
+    {
+      "missing_key": "L4_r10",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_x_s_seed3"
+    },
+    {
+      "missing_key": "L2_r0",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_x_s_seed4"
+    },
+    {
+      "missing_key": "L2_r2",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_x_s_seed4"
+    },
+    {
+      "missing_key": "L2_r10",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_x_s_seed4"
+    },
+    {
+      "missing_key": "L4_r0",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_x_s_seed4"
+    },
+    {
+      "missing_key": "L4_r2",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_x_s_seed4"
+    },
+    {
+      "missing_key": "L4_r10",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\cfm_x_s_seed4"
+    },
+    {
+      "missing_key": "L2_r0",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\distill_x_s_seed0"
+    },
+    {
+      "missing_key": "L2_r2",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\distill_x_s_seed0"
+    },
+    {
+      "missing_key": "L2_r10",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\distill_x_s_seed0"
+    },
+    {
+      "missing_key": "L4_r0",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\distill_x_s_seed0"
+    },
+    {
+      "missing_key": "L4_r2",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\distill_x_s_seed0"
+    },
+    {
+      "missing_key": "L4_r10",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\distill_x_s_seed0"
+    },
+    {
+      "missing_key": "L2_r0",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\distill_x_s_seed1"
+    },
+    {
+      "missing_key": "L2_r2",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\distill_x_s_seed1"
+    },
+    {
+      "missing_key": "L2_r10",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\distill_x_s_seed1"
+    },
+    {
+      "missing_key": "L4_r0",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\distill_x_s_seed1"
+    },
+    {
+      "missing_key": "L4_r2",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\distill_x_s_seed1"
+    },
+    {
+      "missing_key": "L4_r10",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\distill_x_s_seed1"
+    },
+    {
+      "missing_key": "L2_r0",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\distill_x_s_seed2"
+    },
+    {
+      "missing_key": "L2_r2",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\distill_x_s_seed2"
+    },
+    {
+      "missing_key": "L2_r10",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\distill_x_s_seed2"
+    },
+    {
+      "missing_key": "L4_r0",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\distill_x_s_seed2"
+    },
+    {
+      "missing_key": "L4_r2",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\distill_x_s_seed2"
+    },
+    {
+      "missing_key": "L4_r10",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\distill_x_s_seed2"
+    },
+    {
+      "missing_key": "L2_r0",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\distill_x_s_seed3"
+    },
+    {
+      "missing_key": "L2_r2",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\distill_x_s_seed3"
+    },
+    {
+      "missing_key": "L2_r10",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\distill_x_s_seed3"
+    },
+    {
+      "missing_key": "L4_r0",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\distill_x_s_seed3"
+    },
+    {
+      "missing_key": "L4_r2",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\distill_x_s_seed3"
+    },
+    {
+      "missing_key": "L4_r10",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\distill_x_s_seed3"
+    },
+    {
+      "missing_key": "L2_r0",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\distill_x_s_seed4"
+    },
+    {
+      "missing_key": "L2_r2",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\distill_x_s_seed4"
+    },
+    {
+      "missing_key": "L2_r10",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\distill_x_s_seed4"
+    },
+    {
+      "missing_key": "L4_r0",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\distill_x_s_seed4"
+    },
+    {
+      "missing_key": "L4_r2",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\distill_x_s_seed4"
+    },
+    {
+      "missing_key": "L4_r10",
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_2d_20261021\\distill_x_s_seed4"
+    }
+  ],
+  "excluded_runs": [
+    {
+      "run": ".claude\\worktrees\\phd-skills-reviewer-defense-5171d8\\results\\learned_composition_20261021\\cfm_v_sep_seed2",
+      "reason": "Untracked legacy output; 16384 sources, solver and rtol metadata absent. Current committed summaries use four cfm_v_sep seeds and ROS2 with 2048 sources."
+    }
+  ]
+}

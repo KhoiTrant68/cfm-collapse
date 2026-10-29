@@ -1,6 +1,6 @@
 # Integrating the report of 19 October 2026
 
-Source: `report.md` in the main checkout (untracked, SHA256
+Source: [archived report](archive/report_2026-10-19.md), originally `report.md` in the main checkout (SHA256
 `f58c1dc785740d5936ceed8474095a5da7b0940f8151c64df0162e559099afab`). It holds a review of
 `paper/main.tex`, an assessment of the stage-2 proofs, a handoff with tasks A–E, the stage-2
 proofs themselves (T1–T4, T4+, T6; T5 open) and a revision plan. `paper/main.tex` remains the
