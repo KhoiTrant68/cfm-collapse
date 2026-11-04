@@ -685,6 +685,90 @@ for _n, _w in (("rect2", 1.0), ("cube8", 1.0)):
 check("triangle w_c", 1.160, round(_frac("tri2", "w_over_wc", 1.1)[0]["w_c_formula"], 3), 1e-9)
 check("simplex w_c", 4.802, round(_frac("simplex8", "w_over_wc", 1.1)[0]["w_c_formula"], 3), 1e-9)
 
+print("\nSection 6.2 / Table tab:learned-composition: learned guided label averaging")
+# Recomputed here from the per-seed summaries, independently of make_learned_composition_figure.py.
+_LC1, _LC2 = pathlib.Path("results/learned_composition_20261021"), pathlib.Path("results/learned_composition_2d_20261021")
+
+
+def _lc_occ(root, variant, B=None, eps=1e-5, delta=0.05):
+    per = {}
+    for p in sorted(root.glob(f"{variant}_seed*/summary.json")):
+        for a in json.loads(p.read_text(encoding="utf-8"))["arms"]:
+            if a["arm"] == "L3" and (B is None or a["B"] == B):
+                e = next(e for e in a["by_eps"] if abs(e["eps"] - eps) < 1e-12)
+                per.setdefault(a["r"], []).append(e[f"occ_{delta:g}"])
+    return {r: (float(np.mean(v)), float(np.std(v)), len(v)) for r, v in per.items()}
+
+
+_ex1 = {(r["B"], r["r"]): r["basin_probability"] for r in json.loads(
+    (_LC1 / "exact/summary.json").read_text(encoding="utf-8"))["rows"] if r["arm"] == "E4"}
+_ex2 = {r["r"]: r["midpoint_fraction"] for r in json.loads(
+    (_LC2 / "exact/exact.json").read_text(encoding="utf-8"))["rows"]}
+_xs1, _xs2 = _lc_occ(_LC1, "cfm_x_s", 1.0), _lc_occ(_LC2, "cfm_x_s")
+check("B=1 2w_c data-prediction mean", 0.401, round(_xs1[2.0][0], 3), 1e-9)
+check("B=1 2w_c data-prediction sd", 0.006, round(_xs1[2.0][1], 3), 1e-9)
+check("B=1 2w_c exact", 0.406, round(_ex1[(1.0, 2.0)], 3), 1e-9)
+check("B=1 w_c data-prediction mean", 0.014, round(_xs1[1.0][0], 3), 1e-9)
+check("B=1 w_c data-prediction sd", 0.009, round(_xs1[1.0][1], 3), 1e-9)
+check("triangle 2w_c data-prediction mean", 0.143, round(_xs2[2.0][0], 3), 1e-9)
+check("triangle 2w_c data-prediction sd", 0.004, round(_xs2[2.0][1], 3), 1e-9)
+check("triangle 2w_c exact", 0.133, round(_ex2[2.0], 3), 1e-9)
+check("velocity B in {1,2}: max seed-mean occupancy", 0.001,
+      round(max(m for B in (1.0, 2.0) for m, _, _ in _lc_occ(_LC1, "cfm_v", B).values()), 3), 1e-9)
+check("velocity triangle: max seed-mean occupancy", 0.0, max(m for m, _, _ in _lc_occ(_LC2, "cfm_v").values()), 0)
+for _v in ("cfm_v_tis", "cfm_v_sep"):
+    check(f"{_v} B=1: max seed-mean occupancy", 0.0, max(m for m, _, _ in _lc_occ(_LC1, _v, 1.0).values()), 0)
+check("separate-unconditional seeds", 4, _lc_occ(_LC1, "cfm_v_sep", 1.0)[2.0][2], 0)
+# eps = 1e-3 and 1e-5 agree to three decimals at B = 1 (appendix text).
+for _v in ("cfm_v", "cfm_v_tis", "cfm_v_sep", "cfm_x_s", "distill_x_s"):
+    _a, _b = _lc_occ(_LC1, _v, 1.0, 1e-3), _lc_occ(_LC1, _v, 1.0, 1e-5)
+    check(f"{_v} B=1: max |occ(1e-3) - occ(1e-5)| (3 dp)", 0.0,
+          max(abs(round(_a[r][0], 3) - round(_b[r][0], 3)) for r in _a), 0)
+
+# Table rows: every cell of tab:learned-composition against the recomputation.
+_tab = tex[tex.index(r"\newcommand{\lctable}"):tex.index(r"\label{tab:learned-composition}")]
+_names = {"exact": "exact", "velocity CFM": "cfm_v", r"\quad log-uniform $1-t$": "cfm_v_tis",
+          r"\quad separate unconditional": "cfm_v_sep", "data, rescaled input": "cfm_x_s",
+          "distillation (control)": "distill_x_s"}
+_cols, _cfg, _n = (0.0, 1.0, 1.1, 2.0, 5.0, 10.0), None, 0
+for _line in _tab.splitlines():
+    _cells = [c.strip() for c in _line.rstrip("\\").split("&")]
+    if len(_cells) != 8 or _cells[1] not in _names:
+        continue
+    _cfg = {"$B=1$": 1.0, "$B=2$": 2.0, "$B=3$": 3.0, "triangle": "tri"}.get(_cells[0], _cfg)
+    _v = _names[_cells[1]]
+    for _r, _c in zip(_cols, _cells[2:]):
+        if _c == "--":
+            continue
+        _m = [float(x) for x in _c.strip("$").split(r"\pm")]
+        if _v == "exact":
+            _want = [_ex2[_r]] if _cfg == "tri" else [_ex1[(_cfg, _r)]]
+        else:
+            _o = (_lc_occ(_LC2, _v) if _cfg == "tri" else _lc_occ(_LC1, _v, _cfg))[_r]
+            _want = [_o[0], _o[1]]
+        _good = all(abs(a - round(b, 3)) < 1e-9 for a, b in zip(_m, _want))
+        ok, fail, _n = ok + _good, fail + (not _good), _n + 1
+        if not _good:
+            print(f"  BAD table {_cfg} {_v} w/w_c={_r}: paper={_m} file={_want}")
+print(f"  table cells checked: {_n}")
+
+# Boundary layer, held-out excess risk and solver tolerance, from the generated SUMMARY.md.
+_md = (_LC1 / "SUMMARY.md").read_text(encoding="utf-8").splitlines()
+def _md_row(prefix, section="## Boundary layer"):
+    start = next(i for i, l in enumerate(_md) if l.startswith(section))
+    return [c.strip() for c in next(l for l in _md[start:] if l.startswith(prefix)).strip("|").split("|")]
+check("E_BL velocity at 1-t=1e-5", 0.67, round(float(_md_row("| cfm_v | E_BL cond")[-1]), 2), 1e-9)
+check("E_BL data-prediction at 1-t=1e-5", 0.0024, float(_md_row("| cfm_x_s | E_BL cond")[-1]), 1e-9)
+check("held-out excess risk velocity t>=0.999 (1e-7)", 1.4, round(1e7 * float(_md_row("| cfm_v |", "## Validation")[-1]), 1), 1e-9)
+check("held-out excess risk data-prediction t>=0.999 (1e-7)", 9.4, round(1e7 * float(_md_row("| cfm_x_s |", "## Validation")[-1]), 1), 1e-9)
+check("data-prediction threshold ratio near t=1", 0.87, float(_md_row("| cfm_x_s | ŵ_c(t)/w_c")[-1]), 1e-9)
+_tol = [l for l in _md if l.startswith("Largest fraction of sources whose class")][0]
+check("tolerance class disagreement (%)", 1.07, round(100 * float(_tol.rstrip(".").split()[-1]), 2), 1e-9)
+for s in (r"$0.401\pm0.006$ against $0.406$", r"$0.143\pm0.004$", r"($0.014\pm0.009$ at $w=w_c$",
+          r"$1.4\times10^{-7}$ against", r"$9.4\times10^{-7}$", r"is $0.67$, against $0.0024$",
+          r"at most $1.07\%$", r"about $0.87\,w_c$"):
+    in_tex(s)
+
 print("\nsanity: the image-scale numbers and floats the main text quotes")
 for s in (r"\label{sec:cifarddpm}", r"\label{tab:cifarddpm}", r"\label{tab:exp1}",
           r"\label{tab:p7kernel}", r"$179.1$", r"$0.431$", r"$48/48$",

@@ -69,3 +69,19 @@ machine. Ten sequential runs imply 21–34 hours as a planning reference, not an
 Measure the first completed run before refining the ETA (report times in Asia/Bangkok).
 Ten checkpoints occupy roughly 2.4 MB; saved trajectories/diagnostics and logs add storage.
 No API costs. Loss-weighting controls and 2D ablations are not part of this first queue.
+
+## Launch record — 5 November 2026
+
+The 29 October queue never ran: the server holds only the preflight
+(`results/composition_ablation_preflight_20261029`), and the checkout is now
+`/home/jovyan/cfm-research/cfm-collapse` at 341ff48 (the hashes of `scripts/learned_composition.py`
+and `src/models/mlp_velocity.py` match the local copies). GPU indices changed: with
+`CUDA_DEVICE_ORDER=PCI_BUS_ID`, index 2 is the A30 (0 and 1 are L40s). The unit tests passed
+(7 tests) before launch.
+
+The ten runs were launched concurrently, not sequentially, by
+`scripts/server_composition_ablation_parallel.sh 2 results/composition_ablation_20261105` in tmux
+session `cfm-ablation-20261105`, at 2026-11-05 01:27 Asia/Bangkok. Protocol and arguments are
+those above; each run is single-threaded on the CPU and writes its own directory, so concurrency
+does not change results. `STATUS`, `progress.tsv`, `FAILED` (if any) and per-run logs are in the
+campaign directory. Results are read once `STATUS` reads COMPLETE.
