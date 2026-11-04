@@ -774,9 +774,46 @@ all $t\in[t_0,1)$ and $\limsup_{t\uparrow1}|Z_t-a|\le\limsup_{t\uparrow1}(1-t)|\
 \end{restatable}
 }%
 
-Both statements are conditional: they neither infer the error along trajectories from the
-training loss nor assert that a trained network enters the ball. They name what a measurement
-would need, for instance to explain the off-atom CIFAR-10 samples of Section~\ref{sec:cifarddpm}.
+\moveblock{regular}{%
+Whether a learned field can end on an atom at all, a training example or the midpoint of
+Theorem~\ref{thm:composition}, depends on how its regularity degenerates at $t=1$.
+
+\begin{restatable}[Regular learned fields]{proposition}{propregular}
+\label{prop:regular}
+Let $v_\theta$ be continuous and locally Lipschitz in $x$ on $\R^d\times[0,1)$.
+\begin{enumerate}[label=(\alph*),leftmargin=2em]
+\item If its spatial Lipschitz constant $L(t)$ and $|v_\theta(0,t)|$ are integrable on $[0,1)$,
+  the endpoint map $x_0\mapsto X_1$ is a bi-Lipschitz homeomorphism of $\R^d$; under every
+  absolutely continuous source the endpoint law is absolutely continuous and has no atom.
+\item Let $d=1$ and $v_\theta=(\hat x_1-x)/(1-t)$ on $[t_0,1)$, where $\hat x_1$ is bounded and
+  continuous and $\partial_x\hat x_1$ is continuous on $\R\times[t_0,1]$, and let
+  $g=\hat x_1(\cdot,1)$ have finitely many fixed points. Every trajectory converges to a fixed
+  point of $g$; a fixed point $z$ with $g'(z)>1$ is the limit of at most one initial point, and
+  one with $g'(z)<1$ is the limit of a nonempty open interval of initial points.
+\end{enumerate}
+\proofin{apx:pf-regular}
+\end{restatable}
+
+An MLP with Lipschitz activations that outputs a velocity from a smooth embedding of
+$t\in[0,1]$, such as the standard CFM network of Section~\ref{sec:intervention-tests}, satisfies
+(a): its endpoint law has no atom anywhere, and collapse can only be approached at a finite
+cutoff. The same MLP predicting data satisfies (b) once its output is clipped to a bounded range,
+and so does its guided label average, with
+$g_w=(1+w)\bar g_\varphi-w\,g_{\mathrm{unc}}$ formed from the networks' predictions at $t=1$. The
+exact composite carries no threshold there: every exact mean tends to the nearest atom off the
+tie, for every label and every $w$, and $w_c=1/\sinh^2B$ is set at the scale $|x|\sim(1-t)^2$
+around the tie. Under (b) the off-atom basin is therefore decided by the slope
+$g_w'(0)=(1+w)\bar g_\varphi'(0)-w\,g_{\mathrm{unc}}'(0)$ of the networks' limits, which the exact
+field does not constrain. Reproducing the exact threshold requires a prediction whose spatial
+derivative is unbounded near the tie as $t\uparrow1$, as for an input $\operatorname{asinh}(tx/(1-t)^2)$.
+}%
+\ificlr Proposition~\ref{prop:regular} in Appendix~\ref{apx:pf-regular} says what a learned field needs to end on an atom at all. A velocity MLP with a smooth embedding of $t\in[0,1]$ has an integrable spatial Lipschitz constant, so its endpoint law has no atom; a data-predicting one whose bounded prediction is $C^1$ up to $t=1$ ends at the fixed points of that prediction, where every exact mean equals the nearest atom for every label and every $w$. The threshold $w_c$, set at the scale $|x|\sim(1-t)^2$, is then invisible; reproducing it needs a prediction whose spatial derivative is unbounded near the tie, as with the input $\operatorname{asinh}(tx/(1-t)^2)$.
+\fi
+
+Theorem~\ref{thm:transfer} and Proposition~\ref{prop:localtransfer} are conditional: they neither infer the error along trajectories from the
+training loss nor assert that a trained network enters the ball. \ificlr Appendix~\ref{app:measured-transfer} measures both on EXP-1 and CIFAR-10.\else They name what a measurement
+would need, for instance to explain the off-atom CIFAR-10 samples of Section~\ref{sec:cifarddpm};
+Appendix~\ref{app:measured-transfer} reports such measurements.\fi
 
 % ==========================================================================
 \section{Experiments}
@@ -878,9 +915,9 @@ spans less than a decade (Table~\ref{tab:cifarddpm}).}
 atoms, and $h\in\{0.3,1\}$ give 200 paired cells across single-field, guidance ($w=3,12$),
 label-average and prior-average arms. With $128$ common sources and terminal gap $10^{-6}$, the
 largest cellwise 95th percentile of the nearest-atom distance is $6.11937\times10^{-6}$
-(Figure~\ref{fig:intervention-validation}, left, in Appendix~\ref{app:intervention-protocol}), and no sample exceeds the prespecified threshold of $1\%$ of the minimum atom separation. Doubling the
+(Figure~\ref{fig:intervention-validation}, left, in Appendix~\ref{app:intervention-protocol}), and no sample exceeds the prespecified threshold of $1\%$ of the minimum atom separation. \moveblock{stressextra}{Doubling the
 log-time RK4 resolution leaves every atom assignment unchanged. Field and prior averages differ
-in paired assignments by up to $31.25\%$, so they are distinct interventions. These are
+in paired assignments by up to $31.25\%$, so they are distinct interventions.}\ificlr\else{} \fi These are
 finite-time consistency checks, not a numerical proof. \moveblock{neartie}{Near the symmetric tie of two atoms,
 sources at small offsets stay close to the midpoint until very small gaps
 (Figure~\ref{fig:intervention-validation}, middle), and four of six
@@ -901,7 +938,10 @@ With $w=1$ and $B\approx2$, unequal mixture weights $(0.6,0.4)$, unequal $(B_1,B
 unconditional log-odds $2B_u=0.6$, or a combination of all three keep basin probabilities between
 $0.71$ and $0.86$, as Proposition~\ref{prop:composition-open} predicts.}\ificlr Perturbed
 configurations keep basin probabilities between $0.71$ and $0.86$
-(Appendix~\ref{app:intervention-protocol}).\fi
+(Appendix~\ref{app:intervention-protocol}).\fi{} On eight CIFAR-10 pairs, with all $2000$
+training images in the field, the exact composite ends no source at the midpoint for $w\le0.9w_c$
+and a positive fraction in every pair at $1.1w_c$, up to $0.29$ at $2w_c$
+(Appendix~\ref{app:cifar-composition}).
 
 \paragraph{Learned guided label averaging.} We train networks by flow matching on the two atoms
 of Theorem~\ref{thm:composition} ($\ell=h=1$) and on an equilateral triangle with one
@@ -1010,8 +1050,9 @@ with different supports, schedules that are unbounded or change sign, composites
 guided label averaging, and, in the spectral classification, nonhyperbolic profiles and faces
 whose affine hull contains the projected candidate are not covered,
 and the endpoint weights of averaged fields are not identified. The transfer statements are
-conditional on the error along learned trajectories, which we do not infer from the loss and have
-not measured. The exact-field computations are finite-time numerical evaluations, the
+conditional on the error along learned trajectories, which we do not infer from the loss; on
+EXP-1 it exceeds the training-law error by orders of magnitude near $t=1$
+(Appendix~\ref{app:measured-transfer}). The exact-field computations are finite-time numerical evaluations, the
 learned experiments use five seeds, the learned composition $d\le2$ and the synthetic
 problems $d\le10$, and the image
 experiments use one mask and $N{=}2000$, with instance and optimisation randomness confounded
@@ -1034,7 +1075,7 @@ and guidance strength. A learned endpoint stays near its training example
 unless the scaled field error persists along the trajectory, which small training loss alone does
 not rule out. \fi
 Open questions are when guided averaging leaves the support beyond hyperbolic
-profiles and the face condition, how large its basins are in high dimension, \ificlr\else how the endpoint weights of averaged fields depend on the averaging scale, \fi and which
+profiles and the face condition, how its basins scale with the number of atoms near a candidate, \ificlr\else how the endpoint weights of averaged fields depend on the averaging scale, \fi and which
 mechanism produces the off-atom samples of trained samplers at image scale.
 
 \label{endmain}
@@ -1146,6 +1187,7 @@ Thm.~\ref{thm:composition}, Prop.~\ref{prop:composition-open} & \ref{apx:pf-comp
 Thm.~\ref{thm:spectral}, Cor.~\ref{cor:spectral-threshold} & \ref{apx:pf-spectral} & Lemmas~\ref{lem:offtie}, \ref{lem:lp}: blow-up, Lyapunov--Perron graph; profile potential and face condition\\
 \addlinespace
 Thm.~\ref{thm:transfer}, Prop.~\ref{prop:localtransfer} & \ref{apx:pf-transfer-all} & variation of constants; concentration (Lemma~\ref{lem:basic}(c))\\
+Prop.~\ref{prop:regular} & \ref{apx:pf-regular} & Gr\"onwall in both time directions; crossing and trapping arguments in one dimension\\
 Thm.~\ref{thm:risktransfer}, Prop.~\ref{prop:loss-no-certificate} & \ref{app:teacher-risk} & Minkowski's inequality; an explicit affine field\\
 Prop.~\ref{prop:tgtnoise} & \ref{app:noise} & Gaussian conditioning; Lemma~\ref{lem:wellposed}\\
 \bottomrule
@@ -2566,6 +2608,92 @@ Finally, Theorem~\ref{thm:transfer} applied from $t_0$ with $\tilde\Delta$ gives
 since $e_\star(t)\to0$.
 \end{proof}
 
+\subsection{Regular learned fields}
+\label{apx:pf-regular}
+
+\ificlr\placeblock{regular}\else\propregular*\fi
+Throughout, extend $v_\theta$ to negative times by $v_\theta(x,t)=v_\theta(x,0)$ (in (b), by
+$v_\theta(x,t)=v_\theta(x,t_0)$ for $t<t_0$), so that it is continuous and locally Lipschitz on an
+open set and the existence, uniqueness, continuous-dependence and extension theorems apply. We
+use Gr\"onwall's inequality with an integrable kernel in both time directions: if $u\ge0$ is
+continuous on $[\alpha,\beta]$, $A\ge0$ and $L\ge0$ is integrable, then
+$u(s)\le A+\int_\alpha^sLu$ implies $u(s)\le Ae^{\int_\alpha^sL}$, and $u(s)\le A+\int_s^\beta Lu$
+implies $u(s)\le Ae^{\int_s^\beta L}$. The function $L$ is a supremum of continuous functions of
+$t$, hence lower semicontinuous and measurable.
+
+\begin{proof}[Proof of (a)]
+Let $\Lambda=\int_0^1L$, $\kappa=\int_0^1|v_\theta(0,t)|\,dt$, so that
+$|v_\theta(x,t)|\le|v_\theta(0,t)|+L(t)|x|$. On the maximal interval $[0,T^*)$ of a solution,
+$|X_t|\le|x_0|+\int_0^t(|v_\theta(0,r)|+L|X_r|)\,dr$, hence $|X_t|\le R:=(|x_0|+\kappa)e^\Lambda$,
+and the extension theorem gives $T^*=1$. For $r<t<1$,
+$|X_t-X_r|\le\int_r^t(|v_\theta(0,\cdot)|+LR)\to0$ as $r\uparrow1$, so $X_1$ exists. For two
+solutions, $d(t)=|X_t-Y_t|$ satisfies $d(t)\le d(0)+\int_0^tLd$ and, for $r\le t$,
+$d(r)\le d(t)+\int_r^tLd$; the two Gr\"onwall inequalities give
+$e^{-\Lambda}d(0)\le d(t)\le e^\Lambda d(0)$, and letting $t\uparrow1$,
+$e^{-\Lambda}|x_0-y_0|\le|\Phi(x_0)-\Phi(y_0)|\le e^\Lambda|x_0-y_0|$ for the endpoint map
+$\Phi$.
+
+For surjectivity fix $z$ and $t_n\uparrow1$, and let $Y^n$ be the solution with $Y^n_{t_n}=z$.
+Backward Gr\"onwall bounds $|Y^n|$ by $a=(|z|+\kappa)e^\Lambda$ on its backward interval, so
+$Y^n$ reaches time~$0$; let $x_n=Y^n_0$. Forward, $|Y^n_t|\le R'=(a+\kappa)e^\Lambda$ uniformly in
+$n$, and $\varepsilon_n=\int_{t_n}^1(|v_\theta(0,\cdot)|+LR')\to0$. For $m>n$,
+$|x_n-x_m|\le e^\Lambda|Y^n_{t_m}-Y^m_{t_m}|=e^\Lambda|Y^n_{t_m}-Y^n_{t_n}|\le e^\Lambda\varepsilon_n$,
+so $x_n\to x^\ast$, and $|\Phi(x_n)-z|=|Y^n_1-Y^n_{t_n}|\le\varepsilon_n$ gives $\Phi(x^\ast)=z$ by
+continuity. Hence $\Phi$ is a bi-Lipschitz bijection.
+
+Finally $X_1=\Phi(X_0)$. If $N$ is a Lebesgue-null Borel set, $\Phi^{-1}(N)$ is Borel and, as the
+image of $N$ under the $e^\Lambda$-Lipschitz map $\Phi^{-1}$, null; so
+$\Pr(X_1\in N)=\Pr(X_0\in\Phi^{-1}(N))=0$ for an absolutely continuous $X_0$. Points are null
+sets, so the endpoint law has no atom.
+\end{proof}
+
+\begin{proof}[Proof of (b)]
+Write $m=\hat x_1$, $M=\sup|m|$ and $h=g-\mathrm{id}$. On compact subsets of $\R\times[t_0,1)$,
+$\partial_xm$ is bounded and $1-t$ is bounded below, so $v_\theta$ is locally Lipschitz, solutions
+are unique, and two solutions ordered at $t_0$ remain strictly ordered. Since
+$\frac{d}{dt}\frac{X_t}{1-t}=\frac{m(X_t,t)}{(1-t)^2}$,
+\[
+X_t=\frac{1-t}{1-t_0}X_{t_0}+(1-t)\int_{t_0}^t\frac{m(X_r,r)}{(1-r)^2}\,dr,
+\qquad |X_t|\le|X_{t_0}|+M,
+\]
+so every solution exists on $[t_0,1)$ and is bounded.
+
+\emph{Convergence.} Let $a=\liminf X_t<b=\limsup X_t$. Since $g$ has finitely many fixed points,
+some $c\in(a,b)$ has $h(c)\ne0$, say $h(c)>0$; by continuity of $m(c,\cdot)$ at $t=1$ there is $t_1$
+with $m(c,t)>c$ on $[t_1,1]$. Take $t_1\le t_2<t_3$ with $X_{t_2}>c>X_{t_3}$ and
+$\tau=\sup\{r\in[t_2,t_3]:X_r\ge c\}$. Then $X_\tau=c$ and $X<c$ on $(\tau,t_3]$, so
+$\dot X_\tau\le0$, whereas the equation gives $\dot X_\tau=(m(c,\tau)-c)/(1-\tau)>0$. The case
+$h(c)<0$ is symmetric, so $X_t\to\ell$. If $h(\ell)=2\eta>0$, joint continuity of $m$ at $(\ell,1)$
+gives $\dot X_t\ge\eta/(1-t)$ for $t$ near $1$, so $X_t\to\infty$, a contradiction; likewise for
+$h(\ell)<0$. Hence $g(\ell)=\ell$.
+
+\emph{Repelling fixed points.} Let $g'(z)>1$ and suppose solutions $X<Y$ both converge to $z$. Then
+$D=Y-X>0$ satisfies $\dot D=D(\partial_xm(\xi_t,t)-1)/(1-t)$ with $\xi_t$ between $X_t$ and $Y_t$.
+With $\kappa=(g'(z)-1)/2$, continuity of $\partial_xm$ at $(z,1)$ gives $\partial_xm>1+\kappa$
+near $(z,1)$, so $\frac{d}{dt}\log D\ge\kappa/(1-t)$ for $t$ near $1$ and $D_t\to\infty$, a
+contradiction.
+
+\emph{Attracting fixed points.} Let $g'(z)<1$. Choose $\delta>0$ with $h(z-\delta)>0>h(z+\delta)$
+and no other fixed point in $[z-\delta,z+\delta]$, and $t_1<1$ with $m(z-\delta,t)>z-\delta$ and
+$m(z+\delta,t)<z+\delta$ on $[t_1,1]$. A solution in $[z-\delta,z+\delta]$ at $t_1$ cannot leave it:
+at a last time $\tau$ with $X_\tau=z+\delta$ before an exit one would have $\dot X_\tau\ge0$, while
+the equation gives $\dot X_\tau<0$, and symmetrically at $z-\delta$. By the convergence step it
+tends to $z$. The map $F:X_{t_0}\mapsto X_{t_1}$ is continuous, and by the formula above
+$F(x)\ge\frac{1-t_1}{1-t_0}x-M\to\infty$ as $x\to\infty$ and $F(x)\to-\infty$ as $x\to-\infty$, so
+$F$ is onto. Hence $F^{-1}((z-\delta,z+\delta))$ is a nonempty open set of initial points, all
+converging to $z$.
+\end{proof}
+
+The hypotheses are needed. The exact field toward one atom, $(a-x)/(1-t)$, has
+$L(t)=1/(1-t)$, which is not integrable, and every trajectory ends at $a$. For (b), let
+$\chi$ be smooth with $\chi=0$ on $[-1,1]$ and $\chi=1$ outside $[-2,2]$, let $g$ be bounded with
+$g(x)=2x$ on $[-1,1]$ and finitely many fixed points, and let $m(x,t)=g(x)\chi(x/(1-t))$ for
+$t<1$ and $m(\cdot,1)=g$. Then $m$ is bounded and continuous on $\R\times[t_0,1]$, but
+$\partial_xm(0,t)=0\ne g'(0)$, and every $x_0$ with $|x_0|\le1-t_0$ follows
+$X_t=x_0(1-t)/(1-t_0)\to0$, although $g'(0)=2$: an input at the scale $x/(1-t)$ defeats
+(b). The input $\operatorname{asinh}(tx/(1-t)^2)$ of Section~\ref{sec:intervention-tests} acts at
+the scale of the tie in the same way.
+
 \subsection{What training loss can certify}
 \label{app:teacher-risk}
 
@@ -2693,6 +2821,39 @@ not bounded uniformly as $\delta\downarrow0$.
 The example identifies the missing distributional transfer in a loss-only argument; it is not
 evidence that trained networks realise this field. Theorem~\ref{thm:transfer} applies to it with
 equality: along each trajectory $(1-t)|\Delta(Z_t,t)|=|X_0|=|Z_1-a|$ on $[1-\delta/2,1)$.
+
+\subsection{Measured transfer}
+\label{app:measured-transfer}
+
+\paragraph{Risk transfer on EXP-1.} \texttt{exp\_b\_transfer\_exp1.py} evaluates, for the five
+EXP-1 seeds at $h=0$ and $h=0.1$ and their checkpoints, the error $\Delta$ of the learned field
+against the hard-label teacher $f$ of Theorem~\ref{thm:risktransfer} both on the teacher law,
+$r(t)=\E|\Delta(Y_t,t)|^2$, and along the learned trajectories from the same sources,
+$m(t)=\E|\Delta(Z_t,t)|^2$, with $1000$ sources at each of the $20$ training conditions; the
+ratio $K=m/r$ is the median over conditions, then the mean and standard deviation over seeds. At
+$h=0$ and $2\times10^5$ steps, $K=1.46\pm0.29$ at $1-t=0.5$, $127\pm40$ at $0.1$,
+$(3.1\pm2.9)\times10^3$ at $10^{-2}$, $(2.1\pm2.3)\times10^5$ at $10^{-3}$ and
+$(2.0\pm2.2)\times10^7$ at $10^{-4}$: the error the loss measures is several orders of magnitude
+smaller than the error the sampler meets near $t=1$, growing roughly like $(1-t)^{-2}$. The
+resulting certificate $B_T=0.637\pm0.31$ at $1-T=10^{-3}$ equals the root-mean-square distance
+to the atom, $0.637\pm0.31$, and to the teacher path, $0.636\pm0.31$, while the same expression
+with $K\equiv1$, built from the training-law error alone, is $0.0065\pm0.0008$ and bounds neither. As remarked after
+Theorem~\ref{thm:transfer}, this agreement is the identity of the theorem, not an independent
+prediction; what the measurement adds is that $r$ and $m$ differ by the factor $K$.
+
+\paragraph{Off-atom CIFAR-10 samples.} \texttt{exp\_c\_cifar\_transfer.py} reintegrates the
+$60000$-iteration DDPM checkpoints of Section~\ref{sec:cifarddpm} (three seeds, $48$ conditions,
+$16$ shared sources) and the exact field at the same bandwidth, and counts as off-atom the samples
+whose distance to the nearest training image is at least $1/3$ of that to the second nearest. Refining
+the integrator and the cutoff lowers the off-atom fraction of the networks only slightly: from
+$0.173\pm0.029$, $0.246\pm0.040$ and $0.298\pm0.058$ at $h=4,5,6$ (Euler, $50$ steps,
+$1-T=10^{-3}$) to $0.158\pm0.031$, $0.212\pm0.036$ and $0.254\pm0.047$ (RK4, $1-T=10^{-4}$),
+while the exact field has none at either cutoff and the $h=0$ networks have none. Measured
+against all $50000$ CIFAR-10 training images instead of the $2000$ used, the fractions are
+slightly larger, so the off-atom samples are not near other dataset images. The remaining
+discrepancy is therefore not a solver or cutoff artefact. The U-Net normalises its features, so
+it need not have the integrable global Lipschitz constant of Proposition~\ref{prop:regular}(a),
+and we do not attribute the fractions further.
 
 % ==========================================================================
 \section{Endpoint noise}
@@ -2960,7 +3121,7 @@ For each $h\in\{0.3,1\}$ the arms are guidance at $w=0,3,12$, a uniform average 
 label offsets $\{-2,-1,0,1,2\}h$, and the field of the average of their normalised priors. Each
 cell uses 128 common Gaussian sources and double-precision log-time RK4 with 256 or 512 steps per
 segment through the gaps $10^{-2},10^{-4},10^{-6}$. The 200 cells are nested within five geometry
-seeds.
+seeds. \placeblock{stressextra}
 
 \paragraph{Ties.} In one dimension the atoms and labels are $\{-1,1\}$, with initial sources
 $0,\pm10^{-12},\pm10^{-8},\pm10^{-4},\pm10^{-2}$ and $h\in\{0.05,0.2,1\}$. We compare the average of
@@ -3082,6 +3243,31 @@ exact endpoints are atoms almost surely, keep the learned two-atom midpoint occu
 $0.001$, except for the label average of the velocity networks at $B=3$. The data-predicting network starts slightly
 early ($0.014\pm0.009$ at $w=w_c$, $B=1$): its fitted tie slope changes sign at about $0.87\,w_c$
 near $t=1$.
+
+\paragraph{Guided label averaging on CIFAR-10.}
+\label{app:cifar-composition}
+\texttt{cifar\_composition\_exact.py} applies the composite of Theorem~\ref{thm:composition} to the
+EXP-3 problem of Section~\ref{sec:cifarddpm} ($N=2000$ images in $\R^{3072}$, labels their top
+halves), averaging the exact conditional fields at the labels $y^i,y^j$ of a pair and guiding
+against the unconditional one. The label bandwidth is set to $h=|y^i-y^j|/2$, so that $B=1$ and
+$w_c=0.724$. We use eight pairs whose midpoint $z=(x^i+x^j)/2$ is farther than
+$\sqrt{5.2}\,r$, $r=|x^i-x^j|/2$, from every other training image, and $512$ shared Gaussian
+sources. Each trajectory of the full $2000$-atom field is integrated with an adaptive
+Bogacki--Shampine method (relative tolerance $10^{-6}$) until all three posteriors put all but
+$10^{-12}$ of their mass on the pair, where the flow along $x^i-x^j$ is exactly the
+one-dimensional flow of Theorem~\ref{thm:composition} and is finished with Radau and classified by
+the roots of $F_w$, or on one atom, which is then the endpoint; no source remained unresolved.
+For $w/w_c\in\{0,0.5,0.9\}$ no source in any pair ends at the midpoint. At $w/w_c=1.1$ every
+pair has some ($0.006$ to $0.043$, mean $0.025$), and the fraction peaks at $w/w_c=2$ ($0.027$ to
+$0.291$, mean $0.186$) before falling at $5$ (mean $0.150$) and $10$ (mean $0.042$), as guidance
+pulls more sources onto the pair's atoms; the fraction ending on the pair or its midpoint grows
+from $0.06$--$0.96$ at $w=0$ to $0.58$--$1$ at $w=10w_c$. Pairs whose midpoint is farther from
+the other images tend to have larger midpoint fractions. On the first pair, a hand-off at
+$10^{-9}$ or a relative tolerance of $10^{-8}$ changes the midpoint fractions by at most $0.03$
+and leaves the threshold unchanged; individual endpoints agree for at least $91\%$ of sources up
+to $w=2w_c$ but only about half at $w=5w_c$, so we report fractions only. The midpoints are blends of two training images, not
+training images, and the threshold is the two-atom $w_c$ at $d=3072$ with the other $1998$ atoms
+present. Outputs are under \texttt{results/\iclrallow cifar\_composition\_exact\_20261105/}.
 
 \begin{table}[htb]
 \centering\footnotesize\setlength{\tabcolsep}{3.5pt}

@@ -769,6 +769,76 @@ for s in (r"$0.401\pm0.006$ against $0.406$", r"$0.143\pm0.004$", r"($0.014\pm0.
           r"at most $1.07\%$", r"about $0.87\,w_c$"):
     in_tex(s)
 
+print("\nAppendix app:measured-transfer: EXP-B and EXP-C (from the generated SUMMARY.md files)")
+
+
+def _md_cells(path, header_prefix, row_prefix):
+    lines = pathlib.Path(path).read_text(encoding="utf-8").splitlines()
+    start = next(i for i, l in enumerate(lines) if l.startswith(header_prefix))
+    row = next(l for l in lines[start:] if l.startswith(row_prefix))
+    import re
+    return [c.strip() for c in re.split(r"(?<!\\)\|", row.strip("|"))]
+
+
+def _pm(cell):
+    a, b = cell.replace("±", " ").split()
+    return float(a), float(b)
+
+
+_b = _md_cells("results/exp_b_transfer_20261022/SUMMARY.md", "## h = 0", "| 200000 |")
+for _col, (_m, _s, _scale) in zip(range(1, 6), ((1.46, 0.29, 1), (127, 40, 1), (3.1, 2.9, 1e3),
+                                             (2.1, 2.3, 1e5), (2.0, 2.2, 1e7))):
+    _fm, _fs = _pm(_b[_col])
+    check(f"EXP-B K col {_col} mean", _m * _scale, _fm, 0.03)
+    check(f"EXP-B K col {_col} sd", _s * _scale, _fs, 0.03)
+check("EXP-B |Z_T - Y_T|", 0.636, _pm(_b[6])[0], 1e-9)
+check("EXP-B B_T", 0.637, _pm(_b[7])[0], 1e-9)
+check("EXP-B B_T sd", 0.31, _pm(_b[7])[1], 1e-9)
+check("EXP-B B_T^loss (x1e-4)", 65, round(_pm(_b[8])[0] * 1e4), 1e-9)
+check("EXP-B B_T^loss sd (x1e-4)", 8, round(_pm(_b[8])[1] * 1e4), 1e-9)
+check("EXP-B |Z_T - a|", 0.637, _pm(_b[9])[0], 1e-9)
+for _h, (_e50, _rk4) in {"4": ((0.173, 0.029), (0.158, 0.031)), "5": ((0.246, 0.040), (0.212, 0.036)),
+                         "6": ((0.298, 0.058), (0.254, 0.047))}.items():
+    _c = _md_cells("results/exp_c_cifar_transfer_20261022/SUMMARY.md", "| h | ckpt", f"| {_h} | 60000 |")
+    _eu = _pm(_c[2].split("\\|")[0]); _rk = _pm(_c[6].split("\\|")[0])
+    _ex3, _ex4 = _pm(_c[4].split("\\|")[0]), _pm(_c[5].split("\\|")[0])
+    _all = _pm(_c[2].split("\\|")[1])
+    check(f"EXP-C h={_h} Euler 1e-3 mean", _e50[0], _eu[0], 1e-9)
+    check(f"EXP-C h={_h} Euler 1e-3 sd", _e50[1], _eu[1], 1e-9)
+    check(f"EXP-C h={_h} RK4 1e-4 mean", _rk4[0], _rk[0], 1e-9)
+    check(f"EXP-C h={_h} RK4 1e-4 sd", _rk4[1], _rk[1], 1e-9)
+    check(f"EXP-C h={_h} exact at both cutoffs", 0.0, _ex3[0] + _ex4[0], 0)
+    check(f"EXP-C h={_h}: all-50000 fraction larger", 1.0, float(_all[0] > _eu[0]), 0)
+_c0 = _md_cells("results/exp_c_cifar_transfer_20261022/SUMMARY.md", "| h | ckpt", "| 0 | 60000 |")
+check("EXP-C h=0 networks off-atom", 0.0, _pm(_c0[2].split("\\|")[0])[0] + _pm(_c0[6].split("\\|")[0])[0], 0)
+
+print("\nAppendix app:cifar-composition: exact guided label averaging on CIFAR-10 pairs")
+_cc = json.loads(pathlib.Path("results/cifar_composition_exact_20261105/summary.json").read_text())
+_P = _cc["pairs"]
+_mid = lambda r: [p["mid"][r] for p in _P]
+check("CIFAR comp: eight pairs", 8, len(_P), 0)
+check("CIFAR comp: no unresolved source", 0.0, max(p["unresolved"] for p in _P), 0)
+check("CIFAR comp: w_c", 0.724, _P[0]["w_c"], 1e-3)
+check("CIFAR comp: min margin >= 5.2", 1.0, float(min(p["margin_sq"] for p in _P) >= 5.2), 0)
+for _r in ("0.0", "0.5", "0.9"):
+    check(f"CIFAR comp: no midpoint at w/w_c={_r}", 0.0, max(_mid(_r)), 0)
+check("CIFAR comp: every pair positive at 1.1", 1.0, float(min(_mid("1.1")) > 0), 0)
+check("CIFAR comp 1.1 min", 0.006, min(_mid("1.1")), 5e-4)
+check("CIFAR comp 1.1 max", 0.043, max(_mid("1.1")), 5e-4)
+for _r, _m in (("1.1", 0.025), ("2.0", 0.186), ("5.0", 0.150), ("10.0", 0.042)):
+    check(f"CIFAR comp mean at {_r}", _m, sum(_mid(_r)) / 8, 5e-4)
+check("CIFAR comp 2 min", 0.027, min(_mid("2.0")), 5e-4)
+check("CIFAR comp 2 max (0.291, main text 0.29)", 0.291, max(_mid("2.0")), 5e-4)
+check("CIFAR comp basin w=0 min", 0.06, min(p["basin"]["0.0"] for p in _P), 5e-3)
+check("CIFAR comp basin w=0 max", 0.96, max(p["basin"]["0.0"] for p in _P), 5e-3)
+check("CIFAR comp basin w=10 min", 0.58, min(p["basin"]["10.0"] for p in _P), 5e-3)
+_S = _cc["sensitivity"]
+check("CIFAR comp sensitivity: fractions within 0.03", 1.0,
+      float(max(abs(v["midpoint"] - v["main_midpoint"]) for o in _S.values() for v in o.values()) <= 0.03), 0)
+check("CIFAR comp sensitivity: agree >= 0.91 up to 2", 1.0,
+      float(min(v["agree"] for o in _S.values() for k, v in o.items() if float(k) <= 2) >= 0.91), 0)
+check("CIFAR comp sensitivity: about half at 5", 0.5, min(o["5.0"]["agree"] for o in _S.values()), 0.05)
+
 print("\nsanity: the image-scale numbers and floats the main text quotes")
 for s in (r"\label{sec:cifarddpm}", r"\label{tab:cifarddpm}", r"\label{tab:exp1}",
           r"\label{tab:p7kernel}", r"$179.1$", r"$0.431$", r"$48/48$",
