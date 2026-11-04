@@ -729,7 +729,9 @@ for _v in ("cfm_v", "cfm_v_tis", "cfm_v_sep", "cfm_x_s", "distill_x_s"):
 _tab = tex[tex.index(r"\newcommand{\lctable}"):tex.index(r"\label{tab:learned-composition}")]
 _names = {"exact": "exact", "velocity CFM": "cfm_v", r"\quad log-uniform $1-t$": "cfm_v_tis",
           r"\quad separate unconditional": "cfm_v_sep", "data, rescaled input": "cfm_x_s",
-          "distillation (control)": "distill_x_s"}
+          "distillation (control)": "distill_x_s", r"\quad rescaled input": "cfm_v_s",
+          "data, plain input": "cfm_x"}
+_ABL = pathlib.Path("results/composition_ablation_20261105")
 _cols, _cfg, _n = (0.0, 1.0, 1.1, 2.0, 5.0, 10.0), None, 0
 for _line in _tab.splitlines():
     _cells = [c.strip() for c in _line.rstrip("\\").split("&")]
@@ -744,13 +746,44 @@ for _line in _tab.splitlines():
         if _v == "exact":
             _want = [_ex2[_r]] if _cfg == "tri" else [_ex1[(_cfg, _r)]]
         else:
-            _o = (_lc_occ(_LC2, _v) if _cfg == "tri" else _lc_occ(_LC1, _v, _cfg))[_r]
+            _root1 = _ABL if _v in ("cfm_v_s", "cfm_x") else _LC1
+            _o = (_lc_occ(_LC2, _v) if _cfg == "tri" else _lc_occ(_root1, _v, _cfg))[_r]
             _want = [_o[0], _o[1]]
         _good = all(abs(a - round(b, 3)) < 1e-9 for a, b in zip(_m, _want))
         ok, fail, _n = ok + _good, fail + (not _good), _n + 1
         if not _good:
             print(f"  BAD table {_cfg} {_v} w/w_c={_r}: paper={_m} file={_want}")
 print(f"  table cells checked: {_n}")
+
+print("\nAppendix app:learned-composition: ablation cfm_v_s / cfm_x (per seed)")
+
+
+def _seeds(v, B, r, eps=1e-5):
+    out = []
+    for s in range(5):
+        d = json.loads((_ABL / f"{v}_seed{s}/summary.json").read_text(encoding="utf-8"))
+        a = next(a for a in d["arms"] if a["arm"] == "L3" and a["B"] == B and a["r"] == r)
+        out.append(next(e for e in a["by_eps"] if abs(e["eps"] - eps) < 1e-12)["occ_0.05"])
+    return out
+
+
+_vs = _lc_occ(_ABL, "cfm_v_s", 1.0)[5.0]
+check("cfm_v_s B=1 5w_c mean (main text)", 0.881, round(_vs[0], 3), 1e-9)
+check("cfm_v_s B=1 5w_c sd (main text)", 0.003, round(_vs[1], 3), 1e-9)
+check("cfm_v_s B=1 5w_c seed min", 0.877, round(min(_seeds("cfm_v_s", 1.0, 5.0)), 3), 1e-9)
+check("cfm_v_s B=1 5w_c seed max", 0.885, round(max(_seeds("cfm_v_s", 1.0, 5.0)), 3), 1e-9)
+_s2 = sorted(_seeds("cfm_v_s", 1.0, 2.0))
+check("cfm_v_s B=1 2w_c failing seed", 0.0, _s2[0], 0)
+check("cfm_v_s B=1 2w_c others min", 0.299, round(_s2[1], 3), 1e-9)
+check("cfm_v_s B=1 2w_c others max", 0.406, round(_s2[4], 3), 1e-9)
+_match = lambda B, r: sum(abs(x - _ex1[(B, r)]) < 0.05 for x in _seeds("cfm_v_s", B, r))
+check("cfm_v_s B=2 10w_c seeds matching exact", 4, _match(2.0, 10.0), 0)
+check("cfm_v_s B=2 5w_c seeds matching exact", 2, _match(2.0, 5.0), 0)
+check("cfm_x w>=5w_c: every seed < 0.001", 1.0, float(max(
+    x for B in (1.0, 2.0, 3.0) for r in (5.0, 10.0) for x in _seeds("cfm_x", B, r)) < 1e-3), 0)
+_x2 = sorted(_seeds("cfm_x", 1.0, 2.0))
+check("cfm_x B=1 2w_c one seed", 0.415, round(_x2[4], 3), 1e-9)
+check("cfm_x B=1 2w_c others none", 0.0, max(_x2[:4]), 0)
 
 # Boundary layer, held-out excess risk and solver tolerance, from the generated SUMMARY.md.
 _md = (_LC1 / "SUMMARY.md").read_text(encoding="utf-8").splitlines()

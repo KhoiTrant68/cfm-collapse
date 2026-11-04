@@ -683,7 +683,7 @@ null basin. Theorem~\ref{thm:spectral}(b) also covers saddles with $\tr\Gamma\le
 the positive-measure counterpart in any dimension. In one dimension trace and eigenvalue
 coincide, and the roots $0$ and $\pm s_u$ of $F_w$ recover Theorem~\ref{thm:composition}, except
 at the nonhyperbolic threshold $w=w_c$, which its proof treats separately.
-\ificlr Corollary~\ref{cor:spectral-threshold} gives an explicit matrix threshold, $1/\sinh^2B$ for two atoms.
+\ificlr Corollary~\ref{cor:spectral-threshold} gives an explicit matrix threshold, $1/\sinh^2B$ for two atoms. In $d\in\{2,8\}$, sources and saddles, including those the trace test misses, put no source at $z$, and sinks keep a positive fraction (Table~\ref{tab:spectral}).
 \fi
 \moveblock{corspectral}{%
 \begin{restatable}[Matrix threshold for guided label averaging]{corollary}{corspectral}
@@ -953,12 +953,16 @@ neither log-uniform sampling of $1-t$ nor a separate unconditional network chang
 network that predicts the data with the loss $|\hat m-X_1|^2$, which has the same minimiser, and
 receives the blow-up coordinate $\operatorname{asinh}(tx/(1-t)^2)$ as an extra input follows the
 exact probabilities: $0.401\pm0.006$ against $0.406$ at $B=1$ and $w=2w_c$, and $0.143\pm0.004$
-against $0.133$ on the triangle at $2w_c$. The velocity
+against $0.133$ on the triangle at $2w_c$. \moveblock{lossrisk}{The velocity
 network has the smaller held-out excess risk for $t\ge0.999$ ($1.4\times10^{-7}$ against
 $9.4\times10^{-7}$), yet its posterior mean misses the boundary layer at the tie: at
 $1-t=10^{-5}$ its mean squared error over $|s|\le3$ is $0.67$, against $0.0024$. Small loss does not
-decide the endpoint, as Section~\ref{sec:transfer} anticipates. The successful network changes
-the output, the loss weighting and the input together, and these runs do not separate them.
+decide the endpoint, as Section~\ref{sec:transfer} anticipates.}\ificlr The velocity network has
+the smaller held-out loss near $t=1$ (Appendix~\ref{app:learned-composition}).\fi{} Of the changes the successful network
+makes, the input decides: a velocity network with it matches the exact probabilities in most seeds
+($0.881\pm0.003$ against $0.878$ at $B=1$, $w=5w_c$), while a data-predicting network without it
+leaves the midpoint empty at $w\ge5w_c$, as Proposition~\ref{prop:regular}(b) leads one to expect
+(Appendix~\ref{app:learned-composition}).
 
 \moveblock{spectralexp}{%
 \paragraph{The spectral criterion beyond the line.} We integrate the exact flow of
@@ -974,8 +978,6 @@ positive at $5\,w_c$ ($0.019$ for the simplex, $0.002$ for the box) and below th
 resolution of $1/2048$ at $1.1$ and $2\,w_c$ (Table~\ref{tab:spectral}). These are finite-time
 computations that agree with the theorem; they do not prove it.
 }%
-\ificlr \paragraph{Beyond the line.} In four configurations with $d\in\{2,8\}$, source and saddle profiles, including saddles where the trace test is silent, end with no source at $z$, and sink profiles keep a positive fraction of the sources (Table~\ref{tab:spectral}).
-\fi
 
 \moveblock{compfig}{%
 \begin{figure}[t]
@@ -1000,9 +1002,10 @@ midpoint.}
 \caption{Learned versus exact guided label averaging: probability that the composite ends at the
 midpoint, against $w/w_c$, (a) on the two atoms of Theorem~\ref{thm:composition} and (b) on the
 triangle with $B=2$. Lines: exact field. Filled markers: networks predicting the data from a
-rescaled input; open markers: standard velocity CFM. Markers give the mean and standard deviation over
+rescaled input; open markers: standard velocity CFM. \ificlr Mean and standard deviation over five
+seeds; values and protocol in Table~\ref{tab:learned-composition}.\else Markers give the mean and standard deviation over
 five seeds of the fraction of $2048$ shared sources within $0.05$ of the midpoint at
-$1-t=10^{-5}$ (values in Table~\ref{tab:learned-composition}).}
+$1-t=10^{-5}$ (values in Table~\ref{tab:learned-composition}).\fi}
 \label{fig:learned-composition}
 \end{figure}
 
@@ -1045,7 +1048,7 @@ seeds, so these are descriptive values, not hypothesis tests.}
 The theorems concern exact fields of a fixed training set and do not say that a trained network
 implements them; the\ificlr{} label-averaging pilot of Appendix~\ref{app:intervention-protocol}\else{} pilot above\fi{} shows that learned label averages need not follow the exact
 ones, and in the composition experiments whether a network reproduces the off-atom basin
-depends on its parametrisation, in a way these runs do not attribute to one change. The positive-bandwidth results need strictly positive priors on a common support. Mixtures
+depends on its parametrisation, chiefly on its input, and not in every seed. The positive-bandwidth results need strictly positive priors on a common support. Mixtures
 with different supports, schedules that are unbounded or change sign, composites other than
 guided label averaging, and, in the spectral classification, nonhyperbolic profiles and faces
 whose affine hull contains the projected candidate are not covered,
@@ -1074,9 +1077,9 @@ atoms, above which the off-atom basin persists under perturbation of the priors,
 and guidance strength. A learned endpoint stays near its training example
 unless the scaled field error persists along the trajectory, which small training loss alone does
 not rule out. \fi
-Open questions are when guided averaging leaves the support beyond hyperbolic
-profiles and the face condition, how its basins scale with the number of atoms near a candidate, \ificlr\else how the endpoint weights of averaged fields depend on the averaging scale, \fi and which
-mechanism produces the off-atom samples of trained samplers at image scale.
+\ificlr Nonhyperbolic profiles and the off-atom samples of trained image samplers remain open.\else Open questions are when guided averaging leaves the support beyond hyperbolic
+profiles and the face condition, how its basins scale with the number of atoms near a candidate, how the endpoint weights of averaged fields depend on the averaging scale, and which
+mechanism produces the off-atom samples of trained samplers at image scale.\fi
 
 \label{endmain}
 \subsection*{Reproducibility statement}
@@ -3242,7 +3245,22 @@ exact one. The label average alone, single-label guidance and guided prior avera
 exact endpoints are atoms almost surely, keep the learned two-atom midpoint occupancy at most
 $0.001$, except for the label average of the velocity networks at $B=3$. The data-predicting network starts slightly
 early ($0.014\pm0.009$ at $w=w_c$, $B=1$): its fitted tie slope changes sign at about $0.87\,w_c$
-near $t=1$.
+near $t=1$. \placeblock{lossrisk}
+
+\paragraph{Which change matters.} Two ablations separate the changes, with five seeds each and
+the same training and integration. \texttt{cfm\_v\_s} keeps the velocity output and its loss and
+adds only the input $\operatorname{asinh}(tx/(1-t)^2)$; \texttt{cfm\_x} predicts the data with the
+data loss and has no extra input (rows ``rescaled input'' and ``data, plain input'' of
+Table~\ref{tab:learned-composition}). With the input, a velocity network reproduces the exact
+probabilities when it succeeds, but not in every seed: at $B=1$ all five seeds give
+$0.877$--$0.885$ at $5w_c$ and four give $0.299$--$0.406$ at $2w_c$ while one gives $0$; at $B=2$
+four seeds match at $10w_c$ and two at $5w_c$; at $B=3$ it fails as the velocity network does.
+Without the input, the data-predicting network places less than $0.001$ of its sources at the
+midpoint at $w\ge5w_c$ for every $B$ and seed; at $B=1$ and $2w_c$ one seed places $0.415$ and the
+others none. Its endpoints are then fixed points of its prediction at $t=1$, which
+Proposition~\ref{prop:regular}(b) describes for a bounded prediction, although the trained network
+is not clipped. In these runs the rescaled input is necessary, and the data parametrisation makes
+it reliable across seeds.
 
 \paragraph{Guided label averaging on CIFAR-10.}
 \label{app:cifar-composition}
@@ -3282,6 +3300,8 @@ $B=1$ & exact & $0.000$ & $0.000$ & $0.050$ & $0.406$ & $0.878$ & $0.991$\\
  & velocity CFM & $0.000\pm0.000$ & $0.000\pm0.000$ & $0.000\pm0.000$ & $0.000\pm0.000$ & $0.000\pm0.000$ & $0.000\pm0.000$\\
  & \quad log-uniform $1-t$ & $0.000\pm0.000$ & $0.000\pm0.000$ & $0.000\pm0.000$ & $0.000\pm0.000$ & $0.000\pm0.000$ & $0.000\pm0.000$\\
  & \quad separate unconditional & $0.000\pm0.000$ & $0.000\pm0.000$ & $0.000\pm0.000$ & $0.000\pm0.000$ & $0.000\pm0.000$ & $0.000\pm0.000$\\
+ & \quad rescaled input & $0.000\pm0.000$ & $0.012\pm0.014$ & $0.023\pm0.026$ & $0.294\pm0.152$ & $0.881\pm0.003$ & $0.991\pm0.000$\\
+ & data, plain input & $0.000\pm0.000$ & $0.001\pm0.003$ & $0.003\pm0.005$ & $0.083\pm0.166$ & $0.000\pm0.000$ & $0.000\pm0.000$\\
  & data, rescaled input & $0.000\pm0.000$ & $0.014\pm0.009$ & $0.054\pm0.004$ & $0.401\pm0.006$ & $0.878\pm0.001$ & $0.991\pm0.000$\\
  & distillation (control) & $0.000\pm0.000$ & $0.000\pm0.000$ & $0.049\pm0.000$ & $0.407\pm0.000$ & $0.878\pm0.000$ & $0.991\pm0.000$\\
 \midrule
@@ -3289,6 +3309,8 @@ $B=2$ & exact & $0.000$ & $0.000$ & $0.021$ & $0.182$ & $0.532$ & $0.809$\\
  & velocity CFM & $0.001\pm0.001$ & $0.001\pm0.002$ & $0.001\pm0.002$ & $0.001\pm0.001$ & $0.001\pm0.001$ & $0.000\pm0.000$\\
  & \quad log-uniform $1-t$ & $0.000\pm0.000$ & $0.000\pm0.000$ & $0.000\pm0.000$ & $0.000\pm0.000$ & $0.000\pm0.000$ & $0.000\pm0.000$\\
  & \quad separate unconditional & $0.000\pm0.000$ & $0.004\pm0.006$ & $0.002\pm0.003$ & $0.002\pm0.003$ & $0.000\pm0.001$ & $0.000\pm0.000$\\
+ & \quad rescaled input & $0.009\pm0.018$ & $0.019\pm0.035$ & $0.021\pm0.038$ & $0.038\pm0.066$ & $0.212\pm0.259$ & $0.646\pm0.323$\\
+ & data, plain input & $0.000\pm0.001$ & $0.000\pm0.000$ & $0.000\pm0.000$ & $0.000\pm0.000$ & $0.000\pm0.000$ & $0.000\pm0.000$\\
  & data, rescaled input & $0.000\pm0.000$ & $0.004\pm0.007$ & $0.020\pm0.015$ & $0.177\pm0.007$ & $0.530\pm0.004$ & $0.808\pm0.003$\\
  & distillation (control) & $0.000\pm0.000$ & $0.000\pm0.000$ & $0.018\pm0.001$ & $0.179\pm0.000$ & $0.535\pm0.000$ & $0.809\pm0.000$\\
 \midrule
@@ -3296,6 +3318,8 @@ $B=3$ & exact & $0.000$ & $0.000$ & $0.008$ & $0.069$ & $0.221$ & $0.396$\\
  & velocity CFM & $0.048\pm0.083$ & $0.048\pm0.086$ & $0.048\pm0.086$ & $0.049\pm0.088$ & $0.051\pm0.094$ & $0.056\pm0.104$\\
  & \quad log-uniform $1-t$ & $0.023\pm0.045$ & $0.023\pm0.046$ & $0.022\pm0.045$ & $0.020\pm0.040$ & $0.009\pm0.019$ & $0.001\pm0.001$\\
  & \quad separate unconditional & $0.081\pm0.137$ & $0.085\pm0.147$ & $0.085\pm0.147$ & $0.090\pm0.154$ & $0.105\pm0.181$ & $0.126\pm0.219$\\
+ & \quad rescaled input & $0.034\pm0.067$ & $0.036\pm0.072$ & $0.037\pm0.073$ & $0.038\pm0.076$ & $0.044\pm0.087$ & $0.061\pm0.121$\\
+ & data, plain input & $0.000\pm0.000$ & $0.000\pm0.000$ & $0.000\pm0.000$ & $0.000\pm0.000$ & $0.000\pm0.000$ & $0.000\pm0.000$\\
  & data, rescaled input & $0.000\pm0.000$ & $0.010\pm0.013$ & $0.013\pm0.016$ & $0.056\pm0.030$ & $0.167\pm0.084$ & $0.378\pm0.009$\\
  & distillation (control) & $0.000\pm0.000$ & $0.000\pm0.000$ & $0.008\pm0.000$ & $0.066\pm0.000$ & $0.217\pm0.000$ & $0.395\pm0.000$\\
 \midrule
