@@ -85,3 +85,21 @@ session `cfm-ablation-20261105`, at 2026-11-05 01:27 Asia/Bangkok. Protocol and 
 those above; each run is single-threaded on the CPU and writes its own directory, so concurrency
 does not change results. `STATUS`, `progress.tsv`, `FAILED` (if any) and per-run logs are in the
 campaign directory. Results are read once `STATUS` reads COMPLETE.
+
+Result (read 5 November 2026, after COMPLETE at 05:02 Asia/Bangkok): the asinh input is what
+lets a network reproduce the off-atom basin. `cfm_v_s` matches the exact midpoint probabilities
+in most seeds (B=1, 5w_c: 0.881 ± 0.003 against 0.878) but not all; `cfm_x` leaves the midpoint
+empty at w ≥ 5w_c for every B and seed. Summary: `results/composition_ablation_20261105/SUMMARY.md`
+(`scripts/summarize_composition_ablation.py`); paper: §6.2, Limitations, Table
+`tab:learned-composition`, appendix paragraph "Which change matters".
+
+## Triangle ablation — launch record, 5 November 2026
+
+`scripts/learned_composition_2d.py` gained the variants `cfm_v_s` (velocity, asinh input) and
+`cfm_x` (data prediction, no extra input); the three existing variants are unchanged. Both new
+variants passed a 50-step smoke run locally. The ten runs (two variants, seeds 0–4, 200k steps,
+batch 2048, lr 3e-3) were launched concurrently by
+`scripts/server_composition_ablation_2d_parallel.sh 2 results/composition_ablation_2d_20261105`
+in tmux session `cfm-ablation2d-20261105` on the A30, at 2026-11-05 22:20 Asia/Bangkok. Each run
+trains and evaluates in one process (the 2D script has no separate evaluation step). Earlier 2D
+runs took 1.0–2.2 h each; results are read once `STATUS` reads COMPLETE.

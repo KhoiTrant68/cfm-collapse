@@ -148,6 +148,14 @@ lục. Câu "have not measured" (EXP-B) và EXP-C chưa đưa vào bài. Ablatio
 chạy trên server (`results/composition_ablation_20261105`); khi có kết quả, sửa câu "these runs do
 not separate them" ở §6.2 và câu tương ứng ở Limitations.
 
+**Cập nhật cùng ngày (commit c3d8a3c, 1cee746, baf15b8):** EXP-B và EXP-C đã vào phụ lục C.4
+(Q7, Q8). Ablation xong: input asinh quyết định, `cfm_x` không bám ngưỡng (V2 đã xử lý; xem
+"Which change matters"). Prop 5.3 mới giải thích vì sao một trường đều tới $t=1$ không có atom và
+vì sao data prediction bị chặn không thấy $w_c$ (V3); đây là chứng minh mới, tác giả cần kiểm lại.
+Exact composite trên 8 cặp CIFAR-10 giữ nguyên ngưỡng $w_c$ ở $d=3072$ (V7, Q về "chỉ hai
+điểm"). Abstract và intro đã cập nhật; bản ICLR kết thúc ở trang 9. Còn mở: ablation trên tam
+giác (`results/composition_ablation_2d_20261105`, đang chạy).
+
 **E1. Limitations (`main.tex:970–976`).** Sửa hai câu đã lỗi thời. Thay "which we do not infer
 from the loss and have not measured" bằng "which we do not infer from the loss; Appendix X reports
 measurements along learned EXP-1 trajectories". Thay "The composition theorem has no
