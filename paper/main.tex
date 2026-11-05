@@ -113,7 +113,8 @@ $1/\sinh^2B$, and it persists under perturbation of the priors, mixture weights 
 strength. For a learned field at an identifying label,
 the endpoint lies within the limiting scaled field error of its training example; for data
 prediction this is the late-time prediction error. Exact-field computations confirm the
-threshold. Trained networks, from small MLPs to a 35.75M-parameter CIFAR-10 U-Net, exhibit
+threshold, also on pairs of CIFAR-10 images; in our runs, trained networks reproduce the
+off-atom basin only when their input resolves the scale $(1-t)^2$ at the tie. Trained networks, from small MLPs to a 35.75M-parameter CIFAR-10 U-Net, exhibit
 finite-time collapse consistent with the hard-conditioning theory, and on the synthetic problem
 their finite-cutoff variance tracks the label-smoothing reference; these observations do not
 establish asymptotic endpoint convergence of the learned flows.
@@ -156,12 +157,15 @@ and what a learned field must do to inherit the answer.
   matrix distinguish open attracting basins from null basins; a complete classification also
   needs a condition on the faces of the tied atoms (Theorem~\ref{thm:spectral}).
   Averaging and guidance commute, so the composition, not the order, decides the support.
-  Trained networks can reproduce the off-atom basin, a standard velocity network does not
+  The threshold holds unchanged on pairs of CIFAR-10 images; in our runs a trained network
+  reproduces the off-atom basin only with an input that resolves the tie at the scale $(1-t)^2$
   (Section~\ref{sec:intervention-tests}).
 \item \emph{Learned fields inherit collapse unless their scaled error persists}
   (Section~\ref{sec:transfer}). A learned endpoint is within $\limsup_{t\uparrow1}(1-t)|\Delta|$
   of its training example, where $\Delta$ is the field error along the trajectory
-  (Theorem~\ref{thm:transfer}); small regression loss alone does not control this quantity.
+  (Theorem~\ref{thm:transfer}); small regression loss alone does not control this quantity. A
+  field with integrable Lipschitz constant up to $t=1$ has an endpoint law without atoms
+  (Proposition~\ref{prop:regular}).
 \end{itemize}
 Among the interventions analysed (Table~\ref{tab:interventions}), non-training endpoints of
 positive probability thus arise only from a support change such as endpoint noise, from averaging
@@ -531,9 +535,10 @@ Theorem~\ref{thm:posmix} hold. With Proposition~\ref{prop:cfgatom}(a), every fix
 $w\ge-1$ gives atomic endpoints almost surely when $h>0$.
 \end{corollary}
 
-Samplers often vary guidance in time: \citet{kynkaanniemi2024interval} apply it on an interval of
+\ificlr Samplers often vary guidance in time~\citep{kynkaanniemi2024interval,jain2025attraction};
+for exact fields, bounded nonnegative schedules keep the atoms.\else Samplers often vary guidance in time: \citet{kynkaanniemi2024interval} apply it on an interval of
 noise levels, and \citet{jain2025attraction} withhold or reverse it early in sampling to reduce
-memorisation. For exact fields, bounded nonnegative schedules keep the atoms.
+memorisation. For exact fields, bounded nonnegative schedules keep the atoms.\fi
 
 \begin{restatable}[Guidance schedules of bounded variation]{theorem}{thmschedule}
 \label{thm:schedule}
@@ -544,11 +549,12 @@ every trajectory converges to a point of $\mathcal C'$, and the initial points w
 not an atom form a Lebesgue-null set. In particular the endpoint is an atom almost surely under
 every absolutely continuous source. \proofin{apx:pf-schedule}
 \end{restatable}
-Proposition~\ref{prop:cfgatom}(a) is the constant case. The change of the energy with $w$ is
+\ificlr At a hard label, schedules $w(t)=O((1-t)^{-\gamma})$ with $\gamma<2$ still collapse
+(Appendix~\ref{apx:pf-cfgatom}).\else Proposition~\ref{prop:cfgatom}(a) is the constant case. The change of the energy with $w$ is
 controlled by the total variation of $w$ and by the relative entropy of a posterior to a fixed
 positive prior, at most $\log(1/\min_jp_j)$. At a hard label, schedules
 $w(t)=O((1-t)^{-\gamma})$ with $\gamma<2$ still collapse (Appendix~\ref{apx:pf-cfgatom}); this
-is sufficient, not sharp.
+is sufficient, not sharp.\fi
 
 \subsection{Composing the two interventions can leave the atoms}
 \label{sec:composition}
@@ -749,7 +755,7 @@ $\limsup_{t\uparrow1}|Z_t-a|\le\limsup_{t\uparrow1}|\hat x_1(Z_t,t)-a|$.
 \proofin{apx:pf-transfer}
 \end{restatable}
 
-The argument is elementary; its use is the reading. A learned trajectory stays away from its
+\ificlr\else The argument is elementary; its use is the reading. \fi A learned trajectory stays away from its
 atom only if the scaled error $(1-t)|\Delta|$, equivalently the error of the implied endpoint
 prediction, stays away from zero up to $t=1$; errors of order $o((1-t)^{-1})$ still collapse.
 At positive bandwidth the same holds near an atom once the trajectory enters a small ball with a
@@ -811,7 +817,7 @@ derivative is unbounded near the tie as $t\uparrow1$, as for an input $\operator
 \fi
 
 Theorem~\ref{thm:transfer} and Proposition~\ref{prop:localtransfer} are conditional: they neither infer the error along trajectories from the
-training loss nor assert that a trained network enters the ball. \ificlr Appendix~\ref{app:measured-transfer} measures both on EXP-1 and CIFAR-10.\else They name what a measurement
+training loss nor assert that a trained network enters the ball. \ificlr Appendix~\ref{app:measured-transfer} measures the trajectory error on EXP-1 and the off-atom CIFAR-10 samples.\else They name what a measurement
 would need, for instance to explain the off-atom CIFAR-10 samples of Section~\ref{sec:cifarddpm};
 Appendix~\ref{app:measured-transfer} reports such measurements.\fi
 
@@ -831,9 +837,9 @@ population standard deviations. Appendix~\ref{app:expdetails} gives all settings
 \paragraph{Hard conditioning.} On EXP-1 the conditional variance tracks the posterior,
 $\tr\Sigmapost=1.018$, up to $\sim\!10^4$ iterations, then collapses: $0.396\pm0.127$ at
 $2\times10^5$ and $0.120\pm0.054$ at $10^6$ with a cosine schedule, while the velocity approaches $(\star)$ and the
-generated mean moves to $x^i$ (Figure~\ref{fig:exp1-collapse}, Table~\ref{tab:exp1}). The
+generated mean moves to $x^i$ (Figure~\ref{fig:exp1-collapse}, Table~\ref{tab:exp1}). \ificlr\else The
 distance of the generated mean to the training atom and to the posterior mean cross near $10^5$
-iterations. The unconditional baseline keeps
+iterations. \fi The unconditional baseline keeps
 $\tr\Cov=1.926\pm0.171$ against $\tr\Xhat=1.931$, as Proposition~\ref{prop:uncond} predicts. The
 memorisation ratio of \citet{yoon2023memorization} reaches $0.650\pm0.033$ conditionally and
 $0.389\pm0.032$ unconditionally. A bimodal mixture posterior (EXP-2) and MNIST inpainting
@@ -917,8 +923,8 @@ label-average and prior-average arms. With $128$ common sources and terminal gap
 largest cellwise 95th percentile of the nearest-atom distance is $6.11937\times10^{-6}$
 (Figure~\ref{fig:intervention-validation}, left, in Appendix~\ref{app:intervention-protocol}), and no sample exceeds the prespecified threshold of $1\%$ of the minimum atom separation. \moveblock{stressextra}{Doubling the
 log-time RK4 resolution leaves every atom assignment unchanged. Field and prior averages differ
-in paired assignments by up to $31.25\%$, so they are distinct interventions.}\ificlr\else{} \fi These are
-finite-time consistency checks, not a numerical proof. \moveblock{neartie}{Near the symmetric tie of two atoms,
+in paired assignments by up to $31.25\%$, so they are distinct interventions.}\ificlr\else{} These are
+finite-time consistency checks, not a numerical proof. \fi\moveblock{neartie}{Near the symmetric tie of two atoms,
 sources at small offsets stay close to the midpoint until very small gaps
 (Figure~\ref{fig:intervention-validation}, middle), and four of six
 adaptive near-tie integrations fail at small bandwidths; we report these failures
@@ -948,8 +954,8 @@ of Theorem~\ref{thm:composition} ($\ell=h=1$) and on an equilateral triangle wit
 conditional prior favouring each vertex ($B=2$), five seeds each, and integrate the learned
 composite with an adaptive stiff solver (Appendix~\ref{app:learned-composition}). A standard CFM network, with velocity output and
 condition dropout, places at most $0.001$ of the sources at the midpoint at $B\in\{1,2\}$ and none
-on the triangle, at every guidance strength (Figure~\ref{fig:learned-composition}); at $B=1$,
-neither log-uniform sampling of $1-t$ nor a separate unconditional network changes this. A
+on the triangle, at every guidance strength (Figure~\ref{fig:learned-composition})\ificlr.\else; at $B=1$,
+neither log-uniform sampling of $1-t$ nor a separate unconditional network changes this.\fi{} A
 network that predicts the data with the loss $|\hat m-X_1|^2$, which has the same minimiser, and
 receives the blow-up coordinate $\operatorname{asinh}(tx/(1-t)^2)$ as an extra input follows the
 exact probabilities: $0.401\pm0.006$ against $0.406$ at $B=1$ and $w=2w_c$, and $0.143\pm0.004$
@@ -998,7 +1004,7 @@ midpoint.}
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\ificlr0.76\else0.98\fi\textwidth]{fig_learned_composition.pdf}
+\includegraphics[width=\ificlr0.72\else0.98\fi\textwidth]{fig_learned_composition.pdf}
 \caption{Learned versus exact guided label averaging: probability that the composite ends at the
 midpoint, against $w/w_c$, (a) on the two atoms of Theorem~\ref{thm:composition} and (b) on the
 triangle with $B=2$. Lines: exact field. Filled markers: networks predicting the data from a
@@ -1059,14 +1065,14 @@ EXP-1 it exceeds the training-law error by orders of magnitude near $t=1$
 learned experiments use five seeds, the learned composition $d\le2$ and the synthetic
 problems $d\le10$, and the image
 experiments use one mask and $N{=}2000$, with instance and optimisation randomness confounded
-there (on EXP-1 the two are separated in Appendix~\ref{app:exp}). Class-conditional training, where labels are shared, retains the
-within-class variance instead of collapsing (Appendix~\ref{app:exp4}).
+there\ificlr.\else{} (on EXP-1 the two are separated in Appendix~\ref{app:exp}). Class-conditional training, where labels are shared, retains the
+within-class variance instead of collapsing (Appendix~\ref{app:exp4}).\fi
 
 % ==========================================================================
 \section{Conclusion}
 \label{sec:conclusion}
 
-\ificlr The exact empirical conditional flow and its positive modifications end on training examples; composing label averaging with guidance can leave them, and a learned endpoint stays near its training example unless the scaled field error persists along the trajectory. \else The exact empirical conditional flow ends on its training examples, and at positive label
+\ificlr The exact flow and its positive modifications end on training examples, guided label averaging can leave them, and a learned endpoint stays near its example unless its scaled error persists. \else The exact empirical conditional flow ends on its training examples, and at positive label
 bandwidth so do its positive modifications: positive mixtures of exact fields with strictly
 positive priors, including label averaging and guidance with $w\in[-1,0)$, and nonnegative
 guidance with a fixed strength or a bounded schedule of bounded variation. Every
@@ -1077,7 +1083,7 @@ atoms, above which the off-atom basin persists under perturbation of the priors,
 and guidance strength. A learned endpoint stays near its training example
 unless the scaled field error persists along the trajectory, which small training loss alone does
 not rule out. \fi
-\ificlr Nonhyperbolic profiles and the off-atom samples of trained image samplers remain open.\else Open questions are when guided averaging leaves the support beyond hyperbolic
+\ificlr\else Open questions are when guided averaging leaves the support beyond hyperbolic
 profiles and the face condition, how its basins scale with the number of atoms near a candidate, how the endpoint weights of averaged fields depend on the averaging scale, and which
 mechanism produces the off-atom samples of trained samplers at image scale.\fi
 
@@ -3270,7 +3276,9 @@ halves), averaging the exact conditional fields at the labels $y^i,y^j$ of a pai
 against the unconditional one. The label bandwidth is set to $h=|y^i-y^j|/2$, so that $B=1$ and
 $w_c=0.724$. We use eight pairs whose midpoint $z=(x^i+x^j)/2$ is farther than
 $\sqrt{5.2}\,r$, $r=|x^i-x^j|/2$, from every other training image, and $512$ shared Gaussian
-sources. Each trajectory of the full $2000$-atom field is integrated with an adaptive
+sources. Such pairs are mutual nearest neighbours, here at $0.54$ to $0.90$ times the median
+nearest-neighbour distance of the $2000$ images: similar but distinct images
+(Figure~\ref{fig:cifar-composition}a). Each trajectory of the full $2000$-atom field is integrated with an adaptive
 Bogacki--Shampine method (relative tolerance $10^{-6}$) until all three posteriors put all but
 $10^{-12}$ of their mass on the pair, where the flow along $x^i-x^j$ is exactly the
 one-dimensional flow of Theorem~\ref{thm:composition} and is finished with Radau and classified by
@@ -3285,7 +3293,18 @@ $10^{-9}$ or a relative tolerance of $10^{-8}$ changes the midpoint fractions by
 and leaves the threshold unchanged; individual endpoints agree for at least $91\%$ of sources up
 to $w=2w_c$ but only about half at $w=5w_c$, so we report fractions only. The midpoints are blends of two training images, not
 training images, and the threshold is the two-atom $w_c$ at $d=3072$ with the other $1998$ atoms
-present. Outputs are under \texttt{results/\iclrallow cifar\_composition\_exact\_20261105/}.
+present. Outputs are under \texttt{results/\iclrallow cifar\_composition\_exact\_20261105/};
+\texttt{make\_cifar\_composition\_figure.py} draws Figure~\ref{fig:cifar-composition}.
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=\textwidth]{fig_cifar_composition.pdf}
+\caption{Exact guided label averaging on CIFAR-10 ($N=2000$, $d=3072$, $B=1$). (a) Three of the
+eight pairs: the training images $x^i,x^j$ and the midpoint $z$ (framed), which the composite
+reaches with positive probability for $w>w_c$. (b) Fraction of $512$ shared sources ending at $z$
+for each pair (thin) and the mean over pairs (thick); it is zero for $w\le0.9w_c$ in every pair.}
+\label{fig:cifar-composition}
+\end{figure}
 
 \begin{table}[htb]
 \centering\footnotesize\setlength{\tabcolsep}{3.5pt}

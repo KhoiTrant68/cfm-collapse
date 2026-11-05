@@ -853,6 +853,15 @@ check("CIFAR comp: eight pairs", 8, len(_P), 0)
 check("CIFAR comp: no unresolved source", 0.0, max(p["unresolved"] for p in _P), 0)
 check("CIFAR comp: w_c", 0.724, _P[0]["w_c"], 1e-3)
 check("CIFAR comp: min margin >= 5.2", 1.0, float(min(p["margin_sq"] for p in _P) >= 5.2), 0)
+_fc = json.loads(pathlib.Path("paper/figures/fig_cifar_composition.json").read_text(encoding="utf-8"))
+_rel = [p["dist"] / _fc["median_nn"] for p in _fc["pairs"]]
+check("CIFAR comp: pairs are mutual nearest neighbours", 1.0, float(all(p["mutual_nn"] for p in _fc["pairs"])), 0)
+check("CIFAR comp: min distance / median NN", 0.54, round(min(_rel), 2), 1e-9)
+check("CIFAR comp: max distance / median NN", 0.90, round(max(_rel), 2), 1e-9)
+check("CIFAR comp: figure pairs = summary pairs", 1.0,
+      float(sorted(map(tuple, (p["pair"] for p in _fc["pairs"]))) == sorted(tuple(p["pair"]) for p in _P)), 0)
+check("CIFAR comp: 2r equals figure distance", 0.0,
+      max(abs(2 * p["r"] - q["dist"]) for p, q in zip(_P, _fc["pairs"])), 1e-4)
 for _r in ("0.0", "0.5", "0.9"):
     check(f"CIFAR comp: no midpoint at w/w_c={_r}", 0.0, max(_mid(_r)), 0)
 check("CIFAR comp: every pair positive at 1.1", 1.0, float(min(_mid("1.1")) > 0), 0)
