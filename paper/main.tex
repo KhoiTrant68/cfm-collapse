@@ -98,26 +98,26 @@ Empirical Conditional Flows}
 \raggedbottom
 
 \begin{abstract}
-We ask which interventions on the exact empirical conditional flow-matching field can move
-its endpoints off the training set. At an identifying label the exact field returns one
-training example, and Gaussian label noise only reweights the examples. At positive label
-bandwidth, two common modifications keep the endpoints on the training examples for almost
-every initial point: positive mixtures of exact fields with strictly positive priors, which
-include averaging over labels and negative guidance, and classifier-free guidance with a fixed
-nonnegative strength or a bounded nonnegative schedule of bounded variation. Every trajectory
-converges, and the exceptional initial points form a null set that can be a hyperplane.
-Composing the two modifications breaks this. Guidance applied to a label-averaged field can
-converge to a non-training point with positive probability: for two examples whose averaged
-priors have log-odds $\pm2B$, this happens exactly when the guidance strength exceeds
-$1/\sinh^2B$, and it persists under perturbation of the priors, mixture weights and guidance
-strength. For a learned field at an identifying label,
-the endpoint lies within the limiting scaled field error of its training example; for data
-prediction this is the late-time prediction error. Exact-field computations confirm the
-threshold, also on pairs of CIFAR-10 images; in our runs, trained networks reproduce the
-off-atom basin only when their input resolves the scale $(1-t)^2$ at the tie. Trained networks, from small MLPs to a 35.75M-parameter CIFAR-10 U-Net, exhibit
-finite-time collapse consistent with the hard-conditioning theory, and on the synthetic problem
-their finite-cutoff variance tracks the label-smoothing reference; these observations do not
-establish asymptotic endpoint convergence of the learned flows.
+Label noise, coarse label resolution and classifier-free guidance are the knobs a practitioner
+turns on a conditional flow-matching sampler. Applied to the exact empirical field at positive
+label bandwidth, none of them alone moves the endpoints off the training set, and exactly one
+composition does. Positive mixtures of exact fields with strictly positive priors, which include
+averaging over labels and negative guidance, and guidance with a fixed nonnegative strength or a
+bounded schedule of bounded variation end on a training example from almost every initial point,
+and every trajectory converges. Guidance applied to a label-averaged field instead reaches a blend
+of training examples with positive probability: for two examples whose averaged priors have
+log-odds $\pm2B$, exactly when the guidance strength exceeds $1/\sinh^2B$, stably under
+perturbation of the priors, mixture weights and strength; a signed posterior covariance decides
+the general case. This basin sits in a layer of width $(1-t)^2$ at the tie. A learned field whose
+spatial Lipschitz constant is integrable up to $t=1$ has no endpoint atom at all, and in our runs standard
+velocity networks do not reproduce the basin, while networks given the coordinate
+$\operatorname{asinh}(tx/(1-t)^2)$ do. At an identifying label a learned endpoint lies within the
+limiting scaled field error of its training example, so in standard models a sample far from the
+training set reflects that late-time error rather than the sampler. Exact computations confirm
+the threshold, also on isolated pairs of CIFAR-10 images; trained networks from small MLPs to a
+35.75M-parameter U-Net collapse in finite time as the hard-conditioning theory predicts, although
+at image scale some samples stay off the training set and the variance departs from the
+label-smoothing reference.
 \end{abstract}
 
 % ==========================================================================
@@ -157,9 +157,9 @@ and what a learned field must do to inherit the answer.
   matrix distinguish open attracting basins from null basins; a complete classification also
   needs a condition on the faces of the tied atoms (Theorem~\ref{thm:spectral}).
   Averaging and guidance commute, so the composition, not the order, decides the support.
-  The threshold holds unchanged on pairs of CIFAR-10 images; in our runs a trained network
-  reproduces the off-atom basin only with an input that resolves the tie at the scale $(1-t)^2$
-  (Section~\ref{sec:intervention-tests}).
+  We read this as an existence result that marks where the positive theorems stop: the basin
+  lives at the scale $(1-t)^2$ at the tie, and in our runs only networks given an input that
+  resolves that scale reproduce it (Section~\ref{sec:intervention-tests}).
 \item \emph{Learned fields inherit collapse unless their scaled error persists}
   (Section~\ref{sec:transfer}). A learned endpoint is within $\limsup_{t\uparrow1}(1-t)|\Delta|$
   of its training example, where $\Delta$ is the field error along the trajectory
@@ -167,15 +167,13 @@ and what a learned field must do to inherit the answer.
   field with integrable Lipschitz constant up to $t=1$ has an endpoint law without atoms
   (Proposition~\ref{prop:regular}).
 \end{itemize}
-Among the interventions analysed (Table~\ref{tab:interventions}), non-training endpoints of
-positive probability thus arise only from a support change such as endpoint noise, from averaging
-hard-label fields, from composing label averaging with guidance, or, for learned fields at an
-identifying label, from an error that does not vanish at the scale $(1-t)^{-1}$ up to the end of
-sampling. \ificlr\else For a practitioner this says where samples off the training set can come from: not from
-label noise, from label averaging at positive bandwidth or from nonnegative guidance applied
-separately to the field that training defines, but from their composition, from averaging
-hard-label fields, from a change of the target's support, or from a learned field whose endpoint
-prediction does not converge to its training example. \fi
+No single intervention analysed here (Table~\ref{tab:interventions}) creates new samples from
+the field that training defines, and one composition does, through a boundary layer that standard
+networks do not resolve. Non-training endpoints of positive probability arise only from a support
+change such as endpoint noise, from averaging hard-label fields, from composing label averaging
+with guidance, and, for learned fields at an identifying label, from an error that does not vanish
+at the scale $(1-t)^{-1}$ up to the end of sampling. In standard models, a sample far from the
+training set therefore points to the error of the learned field near $t=1$, not to the sampler.
 Section~\ref{sec:experiments} tests
 the exact statements numerically and measures collapse in trained networks. Proofs are in
 Appendices~\ref{app:proofs}--\ref{app:transfer}, which open with a notation table and a proof
@@ -605,7 +603,7 @@ barrier keeps every positive source away from $0$.
 \end{proofsketch}
 \fi
 For labels far apart relative to $h$, e.g.\ $u_0=\ell\gg h$, the threshold $1/\sinh^2(\ell^2/h^2)$
-is exponentially small (Figure~\ref{fig:composition}). The effect does not rely on symmetry\ificlr: it persists under perturbation of the priors, the mixture weights and the guidance strength, though not of the atom geometry (Proposition~\ref{prop:composition-open} in Appendix~\ref{apx:pf-composition-open}).\else:\fi
+is exponentially small (Figure~\ref{fig:composition}). The effect does not rely on symmetry\ificlr: it persists under perturbation of the priors, the mixture weights and the guidance strength, though not of the atom geometry (Proposition~\ref{prop:composition-open} in Appendix~\ref{apx:pf-composition-open}). We read the theorem as an existence result at the boundary of Theorems~\ref{thm:posmix} and~\ref{thm:schedule}, not as a mechanism expected in standard trained models (Sections~\ref{sec:transfer} and~\ref{sec:intervention-tests}).\else:\fi
 
 \moveblock{compopenprop}{%
 \begin{restatable}[The off-atom basin persists under perturbation]{proposition}{propcompositionopen}
@@ -641,6 +639,7 @@ in any dimension.
 \subsection{A spectral criterion in any dimension}
 \label{sec:spectral}
 
+\moveblock{spectraldefs}{%
 The trace $\Theta$ decides Step~2 only through its sign; in more than one dimension the relevant
 object is the matrix whose trace it is. Fix a non-atom candidate $z\in\mathcal C'$ with tied
 nearest atoms $S=\nn(z)$, so $|S|\ge2$ and $z\in\operatorname{aff}S$, and let
@@ -654,7 +653,20 @@ M(\xi)=\sum_kc_k\,\E_{\pi_k(\xi)}[a],\qquad
 \]
 The rescaled position $\xi=\beta P_L(x-tz)$ generalises $s$ of Section~\ref{sec:composition}; a
 \emph{profile} is a root of $M(\xi)=z$, \emph{hyperbolic} if $\Gamma$ is invertible there.
-
+}%
+\ificlr Beyond two atoms the same question is decided by a matrix. At a non-atom candidate $z$ with
+tied nearest atoms $S$, the rescaled position $\beta P_L(x_t-tz)$ of a trajectory converging to $z$
+tends to a \emph{profile}, a root of the restricted posterior mean of the field, and the signed
+posterior covariance $\Gamma$ at the profile plays the role of $F_w'(0)$.
+Theorem~\ref{thm:spectral} in Appendix~\ref{apx:pf-spectral} shows that $\Gamma\prec0$ gives an
+open basin, so the endpoint law has an atom at $z$, that a positive eigenvalue gives a null basin,
+and that these cases are exhaustive under a face condition; Corollary~\ref{cor:spectral-threshold}
+gives the matrix threshold, $1/\sinh^2B$ for two atoms. In $d\in\{2,8\}$, sources and saddles,
+including those the trace test misses, put no source at $z$; sinks keep a positive fraction,
+except at $d=8$ and $w\le2w_c$, where it falls below the resolution $1/2048$
+(Table~\ref{tab:spectral}).
+\fi
+\moveblock{spectralthm}{%
 \begin{restatable}[Spectral classification of off-support endpoints]{theorem}{thmspectral}
 \label{thm:spectral}
 Let $\xi_\star$ be a hyperbolic profile, and call its basin the set of initial points with
@@ -670,6 +682,7 @@ $x_t\to z$ and $\beta P_L(x_t-tz)\to\xi_\star$.
 \end{enumerate}
 \proofin{apx:pf-spectral}
 \end{restatable}
+}%
 
 \moveblock{sketchspectral}{%
 \begin{proofsketch}
@@ -684,13 +697,13 @@ $\xi=o(\sigma)$; so profiles cannot escape to infinity.
 }%
 
 
+\moveblock{spectralafter}{%
 Lemma~\ref{lem:volume} uses only $\Theta=\tr\Gamma$: a profile with $\tr\Gamma>0$ already has a
 null basin. Theorem~\ref{thm:spectral}(b) also covers saddles with $\tr\Gamma\le0$, and (a) gives
 the positive-measure counterpart in any dimension. In one dimension trace and eigenvalue
 coincide, and the roots $0$ and $\pm s_u$ of $F_w$ recover Theorem~\ref{thm:composition}, except
 at the nonhyperbolic threshold $w=w_c$, which its proof treats separately.
-\ificlr Corollary~\ref{cor:spectral-threshold} gives an explicit matrix threshold, $1/\sinh^2B$ for two atoms. In $d\in\{2,8\}$, sources and saddles, including those the trace test misses, put no source at $z$; sinks keep a positive fraction, except at $d=8$ and $w\le2w_c$, where it falls below the resolution $1/2048$ (Table~\ref{tab:spectral}).
-\fi
+}%
 \moveblock{corspectral}{%
 \begin{restatable}[Matrix threshold for guided label averaging]{corollary}{corspectral}
 \label{cor:spectral-threshold}
@@ -1074,20 +1087,25 @@ within-class variance instead of collapsing (Appendix~\ref{app:exp4}).\fi
 \section{Conclusion}
 \label{sec:conclusion}
 
-\ificlr The exact flow and its positive modifications end on training examples, guided label averaging can leave them, and a learned endpoint stays near its example unless its scaled error persists. \else The exact empirical conditional flow ends on its training examples, and at positive label
-bandwidth so do its positive modifications: positive mixtures of exact fields with strictly
-positive priors, including label averaging and guidance with $w\in[-1,0)$, and nonnegative
-guidance with a fixed strength or a bounded schedule of bounded variation. Every
-trajectory converges, and the exceptional initial points form a null set that can be a
-hyperplane. Composition is different: guidance applied to a label-averaged field can converge to
-a circumcentre of training examples with positive probability, with an explicit threshold on two
-atoms, above which the off-atom basin persists under perturbation of the priors, mixture weights
-and guidance strength. A learned endpoint stays near its training example
-unless the scaled field error persists along the trajectory, which small training loss alone does
-not rule out. \fi
-\ificlr\else Open questions are when guided averaging leaves the support beyond hyperbolic
-profiles and the face condition, how its basins scale with the number of atoms near a candidate, how the endpoint weights of averaged fields depend on the averaging scale, and which
-mechanism produces the off-atom samples of trained samplers at image scale.\fi
+Within the exact empirical field, the sampler-side interventions studied here do not create new
+samples on their own: at positive label bandwidth, label noise, label averaging, negative guidance
+and nonnegative guidance with a bounded schedule reweight the training examples and end on them
+almost surely. The one composition that leaves them, guidance on a label-averaged field, reaches
+blends of training examples, and only above an explicit threshold.
+
+\emph{Implications.} For a practitioner, guidance strength and label noise on their own decide which training
+examples the exact field returns, not whether it returns one; what moves a trained sampler away
+from them is the error of the learned field near $t=1$ (Theorem~\ref{thm:transfer}). For the
+memorisation debate, the composition result is an existence result, not a mechanism we expect in
+standard models: its basin is set at the scale $(1-t)^2$, a velocity network with integrable
+Lipschitz constant has no endpoint atom at all (Proposition~\ref{prop:regular}), and standard
+velocity networks did not reproduce the basin in our runs. A network given an input that resolves
+that scale does reproduce it, so the distinction can be tested.
+
+\emph{Open questions.} Nonhyperbolic profiles and degenerate faces\ificlr\else, how the endpoint
+weights of averaged fields depend on the averaging scale\fi, how basins scale with many atoms near a
+candidate, learned composition beyond $d\le2$, and the mechanism behind the off-atom samples of
+trained image samplers.
 
 \label{endmain}
 \subsection*{Reproducibility statement}
@@ -2206,7 +2224,9 @@ over all such $\vartheta_0$ is the required open set.
 \subsection{Spectral classification}
 \label{apx:pf-spectral}
 
-Throughout, $z$, $S$ and $L$ are as in Section~\ref{sec:spectral}; $P_L,P_{L^\perp}$ are the
+\ificlr\placeblock{spectraldefs}
+
+Throughout, $z$, $S$ and $L$ are as above\else Throughout, $z$, $S$ and $L$ are as in Section~\ref{sec:spectral}\fi; $P_L,P_{L^\perp}$ are the
 orthogonal projections, $m=\dim L\ge1$, $n=d-m$, and the field is
 $\sum_kc_kv_{p_k}$ with finitely many $p_k\in\Ppos$ and constants $\sum_kc_k=1$. By
 Lemma~\ref{lem:signedconv} its trajectories exist, are unique and converge, and the flow maps
@@ -2392,8 +2412,9 @@ $\varepsilon/2$ in place of $\varepsilon$.
 % add a precise citation (e.g. a stable-manifold theorem for nonautonomous systems).
 \end{proof}
 
-\thmspectral*
+\ificlr\placeblock{spectralthm}\else\thmspectral*\fi
 \placeblock{sketchspectral}
+\placeblock{spectralafter}
 \begin{proof}
 \emph{Parts (a) and (b).} Put $y=\xi-\xi_\star$ and write $G(\xi_\star+y)=\Gamma(\xi_\star)y+N(y)$
 with $N(0)=DN(0)=0$. Multiplying the first equation of \eqref{eq:pf:spec:blowup} by
