@@ -880,6 +880,28 @@ check("CIFAR comp sensitivity: fractions within 0.03", 1.0,
 check("CIFAR comp sensitivity: agree >= 0.91 up to 2", 1.0,
       float(min(v["agree"] for o in _S.values() for k, v in o.items() if float(k) <= 2) >= 0.91), 0)
 check("CIFAR comp sensitivity: about half at 5", 0.5, min(o["5.0"]["agree"] for o in _S.values()), 0.05)
+# All eight pairs under both settings (App. E.3).
+_SP = _cc["sensitivity_pairs"]
+_pairs_sp = {k for o in _SP.values() for k in o}
+check("CIFAR comp sensitivity: all eight pairs, both settings", 16,
+      sum(len(o) for o in _SP.values()), 0)
+_allsets = lambda key, r: [_cc_pair[r] for _cc_pair in [  # noqa: E731
+    {str(k): v for k, v in p["mid"].items()} for p in _cc["pairs"] if f"{p['pair'][0]}/{p['pair'][1]}" == key]] + \
+    [_SP[n][key][r]["midpoint"] for n in _SP]
+check("CIFAR comp sensitivity: none at 0.9 in any setting", 0.0,
+      max(max(_allsets(k, "0.9")) for k in _pairs_sp), 0)
+check("CIFAR comp sensitivity: min at 1.1 over settings (0.006)", 0.006,
+      min(min(_allsets(k, "1.1")) for k in _pairs_sp), 5e-4)
+check("CIFAR comp sensitivity: max at 1.1 over settings (0.047)", 0.047,
+      max(max(_allsets(k, "1.1")) for k in _pairs_sp), 5e-4)
+check("CIFAR comp sensitivity: spread at 1.1 (0.006)", 0.006,
+      max(max(_allsets(k, "1.1")) - min(_allsets(k, "1.1")) for k in _pairs_sp), 5e-4)
+check("CIFAR comp sensitivity: spread at 2 (0.018)", 0.018,
+      max(max(_allsets(k, "2.0")) - min(_allsets(k, "2.0")) for k in _pairs_sp), 5e-4)
+check("CIFAR comp sensitivity: agree >= 0.99 at 1.1", 1.0,
+      float(min(o[k]["1.1"]["agree"] for o in _SP.values() for k in o) >= 0.99), 0)
+check("CIFAR comp sensitivity: agree >= 0.87 at 2", 1.0,
+      float(min(o[k]["2.0"]["agree"] for o in _SP.values() for k in o) >= 0.87), 0)
 
 print("\nsanity: the image-scale numbers and floats the main text quotes")
 for s in (r"\label{sec:cifarddpm}", r"\label{tab:cifarddpm}", r"\label{tab:exp1}",

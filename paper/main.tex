@@ -111,7 +111,7 @@ perturbation of the priors, mixture weights and strength; a signed posterior cov
 the general case. This basin sits in a layer of width $(1-t)^2$ at the tie. A learned field whose
 spatial Lipschitz constant is integrable up to $t=1$ has no endpoint atom at all, and in our runs standard
 velocity networks do not reproduce the basin, while networks given the coordinate
-$\operatorname{asinh}(tx/(1-t)^2)$ do. At an identifying label a learned endpoint lies within the
+$\operatorname{asinh}(tx/(1-t)^2)$, centred at the known tie, do. At an identifying label a learned endpoint lies within the
 limiting scaled field error of its training example, so in standard models a sample far from the
 training set reflects that late-time error rather than the sampler. Exact computations confirm
 the threshold, also on isolated pairs of CIFAR-10 images; trained networks from small MLPs to a
@@ -136,7 +136,8 @@ identifying label, and on a label-weighted mixture of examples when Gaussian noi
 the labels (Section~\ref{sec:theory}, Figure~\ref{fig:mechanism}).
 
 Practical samplers modify this field. Labels are noised during training~\citep{ho2022cascaded};
-a network that resolves labels only coarsely averages the field over nearby labels; and
+a network that resolves labels only coarsely may average the field over nearby labels, a
+hypothesis we test in one form; and
 sampling adds classifier-free guidance~\citep{ho2022classifier}, often with a strength that
 varies in time~\citep{kynkaanniemi2024interval,jain2025attraction}. We ask which of these
 modifications can, by themselves, move the endpoints of the exact field off the training set,
@@ -379,8 +380,8 @@ matching $\tr\Covh$ to a posterior variance matches a second moment, not the pos
 \section{Interventions on exact fields}
 \label{sec:intervention-atomicity}
 
-Learners and samplers modify the exact field: a learner that resolves labels only coarsely
-averages it over nearby labels, and a sampler adds classifier-free guidance. We ask which
+Learners and samplers modify the exact field: averaging it over nearby labels models a
+learner that resolves labels only coarsely, and a sampler adds classifier-free guidance. We ask which
 modifications keep the endpoints on the training atoms.
 
 Assume the atoms $x^1,\dots,x^N$ are distinct (atoms at one location can be merged by adding
@@ -564,8 +565,14 @@ is sufficient, not sharp.\fi
 \label{sec:composition}
 
 Averaging the guided field over labels gives $(1+w)v_\varphi-wv_{\mathrm{unc}}^\star$, which is
-also guidance applied to the averaged field; it idealises classifier-free guidance applied to a
-network that resolves labels only coarsely. Neither result above covers this composite:
+also guidance applied to the averaged field. \ificlr The average is over fields, not priors: the
+optimum of a label bottleneck averages the priors, and guidance on it ends on an atom almost
+surely (Proposition~\ref{prop:bottleneck}).\else The average is over fields, with weights that do
+not depend on the position; it models a sampler that averages several label queries, or a network
+whose output is smooth in its label input. A network that discards label information instead
+averages the priors: the optimum of a label bottleneck is a single exact field with a strictly
+positive prior, and guidance on it ends on an atom almost surely
+(Proposition~\ref{prop:bottleneck} in Appendix~\ref{apx:pf-bottleneck}).\fi Neither result above covers this composite:
 Theorem~\ref{thm:posmix} needs nonnegative coefficients, and Theorem~\ref{thm:schedule} has a
 single conditional prior. Two atoms suffice to show that it can leave the atoms.
 
@@ -978,8 +985,8 @@ condition dropout, places at most $0.001$ of the sources at the midpoint at $B\i
 on the triangle, at every guidance strength (Figure~\ref{fig:learned-composition})\ificlr.\else; at $B=1$,
 neither log-uniform sampling of $1-t$ nor a separate unconditional network changes this.\fi{} A
 network that predicts the data with the loss $|\hat m-X_1|^2$, which has the same minimiser, and
-receives the blow-up coordinate $\operatorname{asinh}(tx/(1-t)^2)$ as an extra input follows the
-exact probabilities: $0.401\pm0.006$ against $0.406$ at $B=1$ and $w=2w_c$, and $0.143\pm0.004$
+receives the blow-up coordinate $\operatorname{asinh}(tx/(1-t)^2)$, centred at the known tie
+$z=0$, as an extra input follows the exact probabilities: $0.401\pm0.006$ against $0.406$ at $B=1$ and $w=2w_c$, and $0.143\pm0.004$
 against $0.133$ on the triangle at $2w_c$. \moveblock{lossrisk}{The velocity
 network has the smaller held-out excess risk for $t\ge0.999$ ($1.4\times10^{-7}$ against
 $9.4\times10^{-7}$), yet its posterior mean misses the boundary layer at the tie: at
@@ -1105,15 +1112,17 @@ from them is the error of the learned field near $t=1$ (Theorem~\ref{thm:transfe
 memorisation debate, the composition result is an existence result, not a mechanism we expect in
 standard models: its basin is set at the scale $(1-t)^2$, a velocity network with integrable
 Lipschitz constant has no endpoint atom at all (Proposition~\ref{prop:regular}), and standard
-velocity networks did not reproduce the basin in our runs. A network given an input that resolves
-that scale does reproduce it, so the distinction can be tested.
+velocity networks did not reproduce the basin in our runs; a label bottleneck does not even
+produce the averaged field (Proposition~\ref{prop:bottleneck}).\ificlr\else{} A network given an
+input that resolves that scale does reproduce the basin, so the distinction can be tested.\fi
 
-\emph{Open questions.} Nonhyperbolic profiles and degenerate faces\ificlr\else, how the endpoint
-weights of averaged fields depend on the averaging scale\fi, how basins scale with many atoms near a
+\ificlr\emph{Open questions:} nonhyperbolic profiles, many atoms near a candidate, learned
+composition beyond $d\le2$, and the off-atom samples of trained image samplers.\else
+\emph{Open questions.} Nonhyperbolic profiles and degenerate faces, how the endpoint
+weights of averaged fields depend on the averaging scale, how basins scale with many atoms near a
 candidate, learned composition beyond $d\le2$, and the mechanism behind the off-atom samples of
-trained image samplers.
+trained image samplers.\fi\label{endmain}
 
-\label{endmain}
 \subsection*{Reproducibility statement}
 All numbers are produced by code in the supplementary material (anonymised for review).
 Theory checks: \texttt{composition\_counterexample.py} (with
@@ -2050,6 +2059,55 @@ Summing over the unit intervals and keeping only the last one, there is a consta
 and Lemma~\ref{lem:volume} completes the proof.
 \end{proof}
 
+\phantomsection\label{apx:pf-bottleneck}
+\paragraph{A label bottleneck averages priors, not fields.} Theorem~\ref{thm:composition} averages
+fields with position-independent weights. The next statement shows that the optimum of a network
+that sees its label only through a coarse code is of a different kind, and that guidance on it
+does not leave the atoms.
+
+\begin{proposition}[Label bottleneck]
+\label{prop:bottleneck}
+Let $h>0$, let $I$ be uniform on $\{1,\dots,N\}$, let the noised label of example $I$ be $\widetilde Y=y^I+h\omega$ with density $K_h(\cdot-y^I)>0$, and let $Q$ be a measurable map
+from labels into a countable set $\mathcal Q$ with $\Pr(Q(\widetilde Y)=c)>0$ for every
+$c\in\mathcal Q$. Put
+\[
+\bar p_{c,i}=\Pr\bigl(I=i\mid Q(\widetilde Y)=c\bigr)
+=\frac{\int_{Q^{-1}(c)}K_h(y-y^i)\,dy}{\sum_j\int_{Q^{-1}(c)}K_h(y-y^j)\,dy}.
+\]
+\begin{enumerate}[label=(\alph*),leftmargin=2em]
+\item $\bar p_c\in\Ppos$ for every $c$, and among fields $u(x,t,c)$ the flow-matching risk
+  $\E\,|u(X_t,t,Q(\widetilde Y))-(X_1-X_0)|^2$ is minimised by $u(\cdot,\cdot,c)=v_{\bar p_c}$,
+  uniquely up to Lebesgue-null sets of $(x,t)$.
+\item For every $c$ and every schedule $w$ as in Theorem~\ref{thm:schedule}, the field
+  $(1+w(t))v_{\bar p_c}-w(t)v_{\mathrm{unc}}^\star$ has unique trajectories, every trajectory
+  converges, and the initial points whose limit is not an atom form a Lebesgue-null set.
+\end{enumerate}
+\end{proposition}
+\begin{proof}
+(a) Since $\Pr(Q(\widetilde Y)=c)=N^{-1}\sum_j\int_{Q^{-1}(c)}K_h(y-y^j)\,dy>0$, the set
+$Q^{-1}(c)$ has positive Lebesgue measure, and $K_h>0$ makes every integral in the numerator of
+$\bar p_{c,i}$ positive, so $\bar p_c\in\Ppos$. The risk is a sum over
+$c\in\mathcal Q$ of $\Pr(Q(\widetilde Y)=c)$ times the conditional risk given
+$Q(\widetilde Y)=c$, and $u(\cdot,\cdot,c)$ enters only the $c$-th term, which is minimised by
+the conditional mean $\E[X_1-X_0\mid X_t=x,t,\,Q(\widetilde Y)=c]$; uniqueness up to null sets
+holds because $X_t$ has a positive density for $t<1$. Conditionally on $Q(\widetilde Y)=c$, $I$ has
+law $\bar p_c$, $X_1=x^I$, and $X_0\sim\pi_0$ is independent of $I$, since $X_0$ is independent of
+$(I,\widetilde Y)$. Lemma~\ref{lem:mixture-coupling} identifies the conditional mean with
+$v_{\bar p_c}$.
+
+(b) The proof of Theorem~\ref{thm:schedule} uses the conditional prior $p_c=p^{(h)}(y)$ only
+through $p_c\in\Ppos$. Replacing it by $\bar p_c$, which lies in $\Ppos$ by (a), gives the claim.
+\end{proof}
+
+In general $v_{\bar p_c}$ is not a positive field mixture $v_\Pi$ with a fixed $\Pi$: writing
+$\bar p_c$ as the average of the label weights $p^{(h)}(y)$ under the law $\nu_c$ of
+$\widetilde Y$ given $Q(\widetilde Y)=c$, the field $v_{\bar p_c}$ averages the fields
+$v_{p^{(h)}(y)}$ under $\nu_c$ reweighted by
+$\sum_j p^{(h)}_j(y)\,\pi_0\bigl((x-tx^j)/(1-t)\bigr)$, a factor that depends on $(x,t)$. A bottleneck
+therefore realises neither the hypothesis of Theorem~\ref{thm:composition} nor its conclusion: at
+a single coarse query, guidance ends on an atom almost surely. The composition needs the average
+to be taken over fields, by the sampler or by a network smooth in its label input.
+
 \phantomsection\label{apx:pf-cfgatom}
 \propcfgatom*
 \placeblock{sketchcfg}
@@ -2925,9 +2983,17 @@ while the exact field has none at either cutoff and the $h=0$ networks have none
 against all $50000$ CIFAR-10 training images instead of the $2000$ used, the fractions are
 slightly larger, so the off-atom samples are not near other dataset images. Two refinement levels
 do not establish convergence, but the fractions change little between them, so solver and cutoff
-error are unlikely to account for them. The U-Net normalises its features, so
-it need not have the integrable global Lipschitz constant of Proposition~\ref{prop:regular}(a),
-and we do not attribute the fractions further.
+error are unlikely to account for them. The fractions grow with $h$ while the exact field has
+none, so they come from the learned field, not from the sampler. Two accounts of how trained
+image denoisers depart from the empirical optimum predict such samples. A convolutional network
+with a limited receptive field behaves like a locally optimal denoiser that assembles each patch
+from training patches at any position, and its samples are patch mosaics rather than training
+images \citep{kamb2024creativity,niedoba2024mechanistic}. Independently, the U-Net normalises its
+features, so it need not have the integrable global Lipschitz constant of
+Proposition~\ref{prop:regular}(a), which excludes endpoint atoms but not off-atom endpoints. We
+did not test the patch-mosaic account, which would compare each off-atom completion with its
+nearest training patches: the checkpoints of these runs were not kept after the measurements
+above, so the attribution remains open.
 
 % ==========================================================================
 \section{Endpoint noise}
@@ -3341,7 +3407,9 @@ halves), averaging the exact conditional fields at the labels $y^i,y^j$ of a pai
 against the unconditional one. The label bandwidth is set to $h=|y^i-y^j|/2$, so that $B=1$ and
 $w_c=0.724$. We use eight pairs whose midpoint $z=(x^i+x^j)/2$ is farther than
 $\sqrt{5.2}\,r$, $r=|x^i-x^j|/2$, from every other training image, and $512$ shared Gaussian
-sources. Such pairs are mutual nearest neighbours, here at $0.54$ to $0.90$ times the median
+sources. Of the $81$ mutual-nearest-neighbour pairs among the $2000$ images, all have no other
+image within $r$ of their midpoint, as Theorem~\ref{thm:spectral}(c) requires, and these eight
+are the ones with the largest margin. Their images lie at $0.54$ to $0.90$ times the median
 nearest-neighbour distance of the $2000$ images: similar but distinct images
 (Figure~\ref{fig:cifar-composition}a). Each trajectory of the full $2000$-atom field is integrated with an adaptive
 Bogacki--Shampine method (relative tolerance $10^{-6}$) until all three posteriors put all but
@@ -3353,11 +3421,14 @@ pair has some ($0.006$ to $0.043$, mean $0.025$), and the fraction peaks at $w/w
 $0.291$, mean $0.186$) before falling at $5$ (mean $0.150$) and $10$ (mean $0.042$), as guidance
 pulls more sources onto the pair's atoms; the fraction ending on the pair or its midpoint grows
 from $0.06$--$0.96$ at $w=0$ to $0.58$--$1$ at $w=10w_c$. Pairs whose midpoint is farther from
-the other images tend to have larger midpoint fractions. On the first pair, a hand-off at
-$10^{-9}$ or a relative tolerance of $10^{-8}$ changes the midpoint fractions by at most $0.03$
-and leaves the threshold unchanged; individual endpoints agree for at least $91\%$ of sources up
-to $w=2w_c$ but only about half at $w=5w_c$, so we report fractions only; the other seven pairs
-were not rerun at other tolerances. The midpoints are blends of two training images, not
+the other images tend to have larger midpoint fractions. We reran all eight pairs at
+$w/w_c\in\{0.9,1.1,2\}$ with a hand-off at $10^{-9}$ and, separately, a relative tolerance of
+$10^{-8}$. No source ends at the midpoint at $0.9w_c$ in any pair or setting. At $1.1w_c$ every
+pair stays positive in all three settings, from $0.006$ ($3$ of $512$ sources, in two pairs, the
+same in every setting) to $0.047$, and the three settings differ by at most $0.006$ in any pair;
+at $2w_c$ they differ by at most $0.018$. Individual endpoints agree with the main run for at
+least $99\%$ of sources at $1.1w_c$ and $87\%$ at $2w_c$, and on the first pair only about half
+at $w=5w_c$, so we report fractions only. The midpoints are blends of two training images, not
 training images. The threshold itself is not new evidence: the midpoint of each pair is a
 candidate whose only nearest atoms are $x^i,x^j$, all priors are positive, and
 Theorem~\ref{thm:spectral}(c) with the two-atom computation of Corollary~\ref{cor:spectral-threshold}

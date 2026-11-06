@@ -270,5 +270,293 @@
     "agree": 0.5
    }
   }
+ },
+ "sensitivity_pairs": {
+  "handoff1e-9": {
+   "1104/1984": {
+    "0.9": {
+     "midpoint": 0.0,
+     "main_midpoint": 0.0,
+     "agree": 1.0
+    },
+    "1.1": {
+     "midpoint": 0.005859375,
+     "main_midpoint": 0.005859375,
+     "agree": 1.0
+    },
+    "2.0": {
+     "midpoint": 0.064453125,
+     "main_midpoint": 0.06640625,
+     "agree": 0.978515625
+    }
+   },
+   "1315/1877": {
+    "0.9": {
+     "midpoint": 0.0,
+     "main_midpoint": 0.0,
+     "agree": 1.0
+    },
+    "1.1": {
+     "midpoint": 0.02734375,
+     "main_midpoint": 0.029296875,
+     "agree": 0.998046875
+    },
+    "2.0": {
+     "midpoint": 0.146484375,
+     "main_midpoint": 0.1328125,
+     "agree": 0.947265625
+    }
+   },
+   "1491/1514": {
+    "0.9": {
+     "midpoint": 0.0,
+     "main_midpoint": 0.0,
+     "agree": 1.0
+    },
+    "1.1": {
+     "midpoint": 0.041015625,
+     "main_midpoint": 0.04296875,
+     "agree": 0.994140625
+    },
+    "2.0": {
+     "midpoint": 0.279296875,
+     "main_midpoint": 0.28515625,
+     "agree": 0.873046875
+    }
+   },
+   "1578/1677": {
+    "0.9": {
+     "midpoint": 0.0,
+     "main_midpoint": 0.0,
+     "agree": 1.0
+    },
+    "1.1": {
+     "midpoint": 0.0234375,
+     "main_midpoint": 0.0234375,
+     "agree": 0.9921875
+    },
+    "2.0": {
+     "midpoint": 0.19921875,
+     "main_midpoint": 0.1953125,
+     "agree": 0.9140625
+    }
+   },
+   "158/230": {
+    "0.9": {
+     "midpoint": 0.0,
+     "main_midpoint": 0.0,
+     "agree": 1.0
+    },
+    "1.1": {
+     "midpoint": 0.029296875,
+     "main_midpoint": 0.02734375,
+     "agree": 0.998046875
+    },
+    "2.0": {
+     "midpoint": 0.244140625,
+     "main_midpoint": 0.26171875,
+     "agree": 0.92578125
+    }
+   },
+   "17/678": {
+    "0.9": {
+     "midpoint": 0.0,
+     "main_midpoint": 0.0,
+     "agree": 1.0
+    },
+    "1.1": {
+     "midpoint": 0.005859375,
+     "main_midpoint": 0.005859375,
+     "agree": 1.0
+    },
+    "2.0": {
+     "midpoint": 0.029296875,
+     "main_midpoint": 0.02734375,
+     "agree": 0.990234375
+    }
+   },
+   "292/1938": {
+    "0.9": {
+     "midpoint": 0.0,
+     "main_midpoint": 0.0,
+     "agree": 1.0
+    },
+    "1.1": {
+     "midpoint": 0.029296875,
+     "main_midpoint": 0.029296875,
+     "agree": 0.9921875
+    },
+    "2.0": {
+     "midpoint": 0.291015625,
+     "main_midpoint": 0.291015625,
+     "agree": 0.916015625
+    },
+    "5.0": {
+     "midpoint": 0.205078125,
+     "main_midpoint": 0.234375,
+     "agree": 0.490234375
+    }
+   },
+   "81/819": {
+    "0.9": {
+     "midpoint": 0.0,
+     "main_midpoint": 0.0,
+     "agree": 1.0
+    },
+    "1.1": {
+     "midpoint": 0.029296875,
+     "main_midpoint": 0.03515625,
+     "agree": 0.994140625
+    },
+    "2.0": {
+     "midpoint": 0.232421875,
+     "main_midpoint": 0.2265625,
+     "agree": 0.927734375
+    }
+   }
+  },
+  "rtol1e-8": {
+   "1104/1984": {
+    "0.9": {
+     "midpoint": 0.0,
+     "main_midpoint": 0.0,
+     "agree": 1.0
+    },
+    "1.1": {
+     "midpoint": 0.005859375,
+     "main_midpoint": 0.005859375,
+     "agree": 1.0
+    },
+    "2.0": {
+     "midpoint": 0.056640625,
+     "main_midpoint": 0.06640625,
+     "agree": 0.97265625
+    }
+   },
+   "1315/1877": {
+    "0.9": {
+     "midpoint": 0.0,
+     "main_midpoint": 0.0,
+     "agree": 1.0
+    },
+    "1.1": {
+     "midpoint": 0.02734375,
+     "main_midpoint": 0.029296875,
+     "agree": 0.998046875
+    },
+    "2.0": {
+     "midpoint": 0.13671875,
+     "main_midpoint": 0.1328125,
+     "agree": 0.931640625
+    }
+   },
+   "1491/1514": {
+    "0.9": {
+     "midpoint": 0.0,
+     "main_midpoint": 0.0,
+     "agree": 1.0
+    },
+    "1.1": {
+     "midpoint": 0.046875,
+     "main_midpoint": 0.04296875,
+     "agree": 0.99609375
+    },
+    "2.0": {
+     "midpoint": 0.2890625,
+     "main_midpoint": 0.28515625,
+     "agree": 0.87109375
+    }
+   },
+   "1578/1677": {
+    "0.9": {
+     "midpoint": 0.0,
+     "main_midpoint": 0.0,
+     "agree": 1.0
+    },
+    "1.1": {
+     "midpoint": 0.025390625,
+     "main_midpoint": 0.0234375,
+     "agree": 0.994140625
+    },
+    "2.0": {
+     "midpoint": 0.20703125,
+     "main_midpoint": 0.1953125,
+     "agree": 0.921875
+    }
+   },
+   "158/230": {
+    "0.9": {
+     "midpoint": 0.0,
+     "main_midpoint": 0.0,
+     "agree": 1.0
+    },
+    "1.1": {
+     "midpoint": 0.02734375,
+     "main_midpoint": 0.02734375,
+     "agree": 0.99609375
+    },
+    "2.0": {
+     "midpoint": 0.24609375,
+     "main_midpoint": 0.26171875,
+     "agree": 0.916015625
+    }
+   },
+   "17/678": {
+    "0.9": {
+     "midpoint": 0.0,
+     "main_midpoint": 0.0,
+     "agree": 1.0
+    },
+    "1.1": {
+     "midpoint": 0.005859375,
+     "main_midpoint": 0.005859375,
+     "agree": 1.0
+    },
+    "2.0": {
+     "midpoint": 0.029296875,
+     "main_midpoint": 0.02734375,
+     "agree": 0.986328125
+    }
+   },
+   "292/1938": {
+    "0.9": {
+     "midpoint": 0.0,
+     "main_midpoint": 0.0,
+     "agree": 1.0
+    },
+    "1.1": {
+     "midpoint": 0.02734375,
+     "main_midpoint": 0.029296875,
+     "agree": 0.9921875
+    },
+    "2.0": {
+     "midpoint": 0.29296875,
+     "main_midpoint": 0.291015625,
+     "agree": 0.9140625
+    },
+    "5.0": {
+     "midpoint": 0.21484375,
+     "main_midpoint": 0.234375,
+     "agree": 0.5
+    }
+   },
+   "81/819": {
+    "0.9": {
+     "midpoint": 0.0,
+     "main_midpoint": 0.0,
+     "agree": 1.0
+    },
+    "1.1": {
+     "midpoint": 0.029296875,
+     "main_midpoint": 0.03515625,
+     "agree": 0.994140625
+    },
+    "2.0": {
+     "midpoint": 0.240234375,
+     "main_midpoint": 0.2265625,
+     "agree": 0.939453125
+    }
+   }
+  }
  }
 }
