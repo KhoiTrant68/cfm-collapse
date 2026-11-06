@@ -689,7 +689,7 @@ null basin. Theorem~\ref{thm:spectral}(b) also covers saddles with $\tr\Gamma\le
 the positive-measure counterpart in any dimension. In one dimension trace and eigenvalue
 coincide, and the roots $0$ and $\pm s_u$ of $F_w$ recover Theorem~\ref{thm:composition}, except
 at the nonhyperbolic threshold $w=w_c$, which its proof treats separately.
-\ificlr Corollary~\ref{cor:spectral-threshold} gives an explicit matrix threshold, $1/\sinh^2B$ for two atoms. In $d\in\{2,8\}$, sources and saddles, including those the trace test misses, put no source at $z$, and sinks keep a positive fraction (Table~\ref{tab:spectral}).
+\ificlr Corollary~\ref{cor:spectral-threshold} gives an explicit matrix threshold, $1/\sinh^2B$ for two atoms. In $d\in\{2,8\}$, sources and saddles, including those the trace test misses, put no source at $z$; sinks keep a positive fraction, except at $d=8$ and $w\le2w_c$, where it falls below the resolution $1/2048$ (Table~\ref{tab:spectral}).
 \fi
 \moveblock{corspectral}{%
 \begin{restatable}[Matrix threshold for guided label averaging]{corollary}{corspectral}
@@ -801,7 +801,7 @@ Let $v_\theta$ be continuous and locally Lipschitz in $x$ on $\R^d\times[0,1)$.
 \end{restatable}
 
 An MLP with Lipschitz activations that outputs a velocity from a smooth embedding of
-$t\in[0,1]$, such as the standard CFM network of Section~\ref{sec:intervention-tests}, satisfies
+$t\in[0,1]$, such as the standard conditional flow matching (CFM) network of Section~\ref{sec:intervention-tests}, satisfies
 (a): its endpoint law has no atom anywhere, and collapse can only be approached at a finite
 cutoff. The same MLP predicting data satisfies (b) once its output is clipped to a bounded range,
 and so does its guided label average, with
@@ -813,7 +813,7 @@ $g_w'(0)=(1+w)\bar g_\varphi'(0)-w\,g_{\mathrm{unc}}'(0)$ of the networks' limit
 field does not constrain. Reproducing the exact threshold requires a prediction whose spatial
 derivative is unbounded near the tie as $t\uparrow1$, as for an input $\operatorname{asinh}(tx/(1-t)^2)$.
 }%
-\ificlr Proposition~\ref{prop:regular} in Appendix~\ref{apx:pf-regular} says what a learned field needs to end on an atom at all. A velocity MLP with a smooth embedding of $t\in[0,1]$ has an integrable spatial Lipschitz constant, so its endpoint law has no atom; a data-predicting one whose bounded prediction is $C^1$ up to $t=1$ ends at the fixed points of that prediction, where every exact mean equals the nearest atom for every label and every $w$. The threshold $w_c$, set at the scale $|x|\sim(1-t)^2$, is then invisible; reproducing it needs a prediction whose spatial derivative is unbounded near the tie, as with the input $\operatorname{asinh}(tx/(1-t)^2)$.
+\ificlr Proposition~\ref{prop:regular} in Appendix~\ref{apx:pf-regular} says what a learned field needs to end on an atom at all. A velocity MLP with a smooth embedding of $t\in[0,1]$ has an integrable spatial Lipschitz constant, so its endpoint law has no atom; in $d=1$, a data-predicting one whose bounded prediction is $C^1$ up to $t=1$ ends at the fixed points of that prediction, where every exact mean equals the nearest atom for every label and every $w$. The threshold $w_c$, set at the scale $|x|\sim(1-t)^2$, is then invisible; reproducing it needs a prediction whose spatial derivative is unbounded near the tie, as with the input $\operatorname{asinh}(tx/(1-t)^2)$.
 \fi
 
 Theorem~\ref{thm:transfer} and Proposition~\ref{prop:localtransfer} are conditional: they neither infer the error along trajectories from the
@@ -944,15 +944,17 @@ With $w=1$ and $B\approx2$, unequal mixture weights $(0.6,0.4)$, unequal $(B_1,B
 unconditional log-odds $2B_u=0.6$, or a combination of all three keep basin probabilities between
 $0.71$ and $0.86$, as Proposition~\ref{prop:composition-open} predicts.}\ificlr Perturbed
 configurations keep basin probabilities between $0.71$ and $0.86$
-(Appendix~\ref{app:intervention-protocol}).\fi{} On eight CIFAR-10 pairs, with all $2000$
-training images in the field, the exact composite ends no source at the midpoint for $w\le0.9w_c$
-and a positive fraction in every pair at $1.1w_c$, up to $0.29$ at $2w_c$
-(Appendix~\ref{app:cifar-composition}).
+(Appendix~\ref{app:intervention-protocol}).\fi{} \ificlr On eight CIFAR-10 pairs with all $2000$
+images in the field, the exact composite shows the threshold that Theorem~\ref{thm:spectral}(c)
+predicts, with midpoint fractions up to $0.29$ (Appendix~\ref{app:cifar-composition}).\else On eight CIFAR-10 pairs, with all $2000$
+training images in the field, Theorem~\ref{thm:spectral}(c) predicts the same threshold; the exact
+composite ends no source at the midpoint for $w\le0.9w_c$ and a positive fraction in every pair at
+$1.1w_c$, up to $0.29$ at $2w_c$ (Appendix~\ref{app:cifar-composition}).\fi
 
 \paragraph{Learned guided label averaging.} We train networks by flow matching on the two atoms
 of Theorem~\ref{thm:composition} ($\ell=h=1$) and on an equilateral triangle with one
 conditional prior favouring each vertex ($B=2$), five seeds each, and integrate the learned
-composite with an adaptive stiff solver (Appendix~\ref{app:learned-composition}). A standard CFM network, with velocity output and
+composite with an adaptive stiff solver (Appendix~\ref{app:learned-composition}). A standard \ificlr conditional flow matching (CFM)\else CFM\fi{} network, with velocity output and
 condition dropout, places at most $0.001$ of the sources at the midpoint at $B\in\{1,2\}$ and none
 on the triangle, at every guidance strength (Figure~\ref{fig:learned-composition})\ificlr.\else; at $B=1$,
 neither log-uniform sampling of $1-t$ nor a separate unconditional network changes this.\fi{} A
@@ -965,7 +967,7 @@ $9.4\times10^{-7}$), yet its posterior mean misses the boundary layer at the tie
 $1-t=10^{-5}$ its mean squared error over $|s|\le3$ is $0.67$, against $0.0024$. Small loss does not
 decide the endpoint, as Section~\ref{sec:transfer} anticipates.}\ificlr The velocity network has
 the smaller held-out loss near $t=1$ (Appendix~\ref{app:learned-composition}).\fi{} Of the changes the successful network
-makes, the input decides: a velocity network with it matches the exact probabilities in most seeds
+makes, the input matters most in these runs: a velocity network with it matches the exact probabilities in most seeds
 ($0.881\pm0.003$ against $0.878$ at $B=1$, $w=5w_c$), while a data-predicting network without it
 leaves the midpoint empty at $w\ge5w_c$, as Proposition~\ref{prop:regular}(b) leads one to expect
 (Appendix~\ref{app:learned-composition}).
@@ -2859,8 +2861,9 @@ $0.173\pm0.029$, $0.246\pm0.040$ and $0.298\pm0.058$ at $h=4,5,6$ (Euler, $50$ s
 $1-T=10^{-3}$) to $0.158\pm0.031$, $0.212\pm0.036$ and $0.254\pm0.047$ (RK4, $1-T=10^{-4}$),
 while the exact field has none at either cutoff and the $h=0$ networks have none. Measured
 against all $50000$ CIFAR-10 training images instead of the $2000$ used, the fractions are
-slightly larger, so the off-atom samples are not near other dataset images. The remaining
-discrepancy is therefore not a solver or cutoff artefact. The U-Net normalises its features, so
+slightly larger, so the off-atom samples are not near other dataset images. Two refinement levels
+do not establish convergence, but the fractions change little between them, so solver and cutoff
+error are unlikely to account for them. The U-Net normalises its features, so
 it need not have the integrable global Lipschitz constant of Proposition~\ref{prop:regular}(a),
 and we do not attribute the fractions further.
 
@@ -3291,9 +3294,14 @@ from $0.06$--$0.96$ at $w=0$ to $0.58$--$1$ at $w=10w_c$. Pairs whose midpoint i
 the other images tend to have larger midpoint fractions. On the first pair, a hand-off at
 $10^{-9}$ or a relative tolerance of $10^{-8}$ changes the midpoint fractions by at most $0.03$
 and leaves the threshold unchanged; individual endpoints agree for at least $91\%$ of sources up
-to $w=2w_c$ but only about half at $w=5w_c$, so we report fractions only. The midpoints are blends of two training images, not
-training images, and the threshold is the two-atom $w_c$ at $d=3072$ with the other $1998$ atoms
-present. Outputs are under \texttt{results/\iclrallow cifar\_composition\_exact\_20261105/};
+to $w=2w_c$ but only about half at $w=5w_c$, so we report fractions only; the other seven pairs
+were not rerun at other tolerances. The midpoints are blends of two training images, not
+training images. The threshold itself is not new evidence: the midpoint of each pair is a
+candidate whose only nearest atoms are $x^i,x^j$, all priors are positive, and
+Theorem~\ref{thm:spectral}(c) with the two-atom computation of Corollary~\ref{cor:spectral-threshold}
+gives $\Pr(X_1=z)>0$ exactly when $w>w_c$. The computation is a consistency check of that
+prediction at $d=3072$ with the other $1998$ atoms present, and it measures the basin sizes,
+which the theorem does not give. Outputs are under \texttt{results/\iclrallow cifar\_composition\_exact\_20261105/};
 \texttt{make\_cifar\_composition\_figure.py} draws Figure~\ref{fig:cifar-composition}.
 
 \begin{figure}[htb]

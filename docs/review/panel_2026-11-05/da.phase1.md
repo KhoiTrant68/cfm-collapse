@@ -1,0 +1,26 @@
+## Contract Paraphrase
+
+D1 (methodology_rigor, mandatory, owned by the methodology seat): From an adversarial stance, this asks whether the experimental and analytical apparatus could survive a hostile replication attempt. I would press on whether the setups that are meant to test the theory actually instantiate its assumptions, whether seeds, variance and sample counts are reported so that differences are not noise, and whether enough detail is given for an outsider to rerun the experiments. I do not score this dimension, but weaknesses here feed my challenge of whether the evidence supports the central thesis.
+
+D2 (domain_accuracy, mandatory, owned by the domain seat): The adversarial reading is whether the manuscript describes the existing literature honestly: are earlier results about the same phenomenon given proper credit or quietly reframed as new, are standard terms used in their accepted sense, and do any stated facts about prior methods conflict with what those works actually show. I do not score it, but a misrepresented prior result that the novelty claim depends on is something I will flag to the owner.
+
+D3 (argumentative_coherence, mandatory, owned by me): This is the core of my seat. I test whether the central thesis follows from its premises without gaps: whether the stated theorems actually imply the headline claims, whether the assumptions used in the proofs match the regime in which the conclusions are drawn, whether the empirical evidence is evidence for the specific mechanism claimed rather than for a weaker or alternative one, and whether the paper commits overgeneralisation, circularity, equivocation between related but distinct objects, or cherry-picked confirmation. I also build the strongest counter-argument and check whether the manuscript defeats it.
+
+D4 (cross_disciplinary_relevance, high, owned by the perspective seat): Adversarially, this asks whether claims of broader significance to neighbouring communities are earned or merely asserted, and whether definitions are self-contained enough for a reader outside the immediate subfield to check the reasoning. I do not score it.
+
+D5 (writing_and_structure, normal, owned by the EIC seat): This concerns organisation, clarity, figure and table quality and venue formatting conventions. From my angle, the relevant question is only whether presentation hides weaknesses, for example a key assumption buried in an appendix or a figure whose axes overstate an effect. I do not score it.
+
+D6 (venue_fit_and_contribution, mandatory, owned by the EIC seat): This asks whether the work is original and significant for its intended readership and suits its configured target. My adversarial interest is whether the claimed contribution survives once known results are subtracted, but I make no venue-fit judgement and do not score it.
+
+## Scoring Plan
+
+### D3: argumentative_coherence
+dimension_id: D3
+what_to_look_for: For each headline claim in the abstract, introduction and conclusion, trace it to a specific theorem, proposition or experiment and check that (a) the formal statement's hypotheses (e.g. finite empirical data, exact versus learned velocity fields, idealised versus discretised sampling, specific guidance scales or averaging schemes) cover the regime the prose claims, (b) the quantifiers and limits in the result (as time goes to the endpoint, as sample size grows, for all versus for some inputs) match the strength of the wording, (c) the objects being compared are the same objects across theory and experiment rather than closely related surrogates, (d) experiments discriminate the claimed mechanism from plausible alternatives (capacity limits, optimisation effects, preprocessing or rescaling artefacts), and (e) the strongest counter-argument, including counterexamples or known results pointing the other way, is stated and answered.
+what_triggers_block: A headline claim relies on a theorem whose hypotheses demonstrably fail in the setting where the claim is applied (for example an exact-field result used to explain learned-model behaviour without a stated bridging argument or bound), or the empirical section supports only a weaker or different mechanism than the one asserted, or a central inference contains an unaddressed logical gap or equivocation that a revision could repair without discarding the thesis.
+what_triggers_warn: Claims are directionally supported but overstated relative to the results (a limit statement presented as a finite-sample guarantee, a few configurations presented as general behaviour), alternative explanations are acknowledged but only partially ruled out, limitations are present but scattered or minimised, or the counter-argument is engaged only superficially; none of these individually undermines the core thesis.
+what_triggers_fatal: The central thesis is internally contradicted by the manuscript's own results or proofs, rests on a circular argument (the conclusion is built into the definitions or assumptions), or depends on a theorem that is false as stated with no correct version supporting the claim, so the core argument cannot stand without being replaced.
+
+criteria_binding_unavailable
+
+[CONTRACT-ACKNOWLEDGED]
