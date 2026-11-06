@@ -212,11 +212,17 @@ of~\citet{ho2022cascaded}, which \citet{sadat2024cads} anneal at inference;
 be positive averages. Guidance does not sample the guided target law in
 general~\citep{chidambaram2024guidance}, and \citet{jain2025attraction} link its timing to
 memorisation in trained text-to-image models. For convergence,
-\citet[Theorem~3.7, version~3]{liu2025pde} prove almost-everywhere recovery of compact supports
-for score flows, and \citet[Theorem~3.18 and Remark~3.19]{liu2026geometric} give an original-flow
-criterion for mixed scores that assumes no nonminimising critical limit points. On a common
-finite support we prove convergence of every trajectory and null non-atom basins without such a
-premise, and show that the conclusion fails for some signed combinations. Small regression
+\citet[Theorem~3.7, version~3]{liu2025pde} prove that almost every trajectory of a single score
+flow converges to the compact data support, and \citet[Theorem~3.18]{liu2026geometric} prove that
+a mixture or guidance of two scores with a constant weight converges to a local minimiser of a
+distance potential, under the hypothesis that the limit set of the trajectory contains no
+non-minimising critical point; whether this holds for almost every initial point is left open
+(their Remark~3.19). For guidance with a fixed $w>0$ on a common finite support, where those
+critical points include the midpoints of tied atoms, we prove without that hypothesis that every
+trajectory converges and that the initial points ending off the atoms form a null set; we extend
+this to bounded schedules and to averages over any family of positive priors, and show that it
+fails for some signed combinations of more than two fields
+(Appendix~\ref{apx:comparison} compares the statements). Small regression
 error without stability control gives poor endpoint guarantees
 \citep[Theorem~1]{benton2024error}; \citet[Appendix~D]{beltran2026reward} construct
 small-teacher-error examples with poor samples. Our affine example and transfer bound specialise
@@ -1524,6 +1530,41 @@ side by $2M^2+2\int|x|^2p(dx\mid y)<\infty$; otherwise both sides are $+\infty$.
 % ==========================================================================
 \section{Proofs for Section~\ref{sec:intervention-atomicity}}
 \label{app:intervention-proofs}
+
+\subsection{Relation to the closest convergence theorems}
+\label{apx:comparison}
+
+Table~\ref{tab:comparison} sets the positive results of Section~\ref{sec:intervention-atomicity}
+beside the two closest convergence theorems. The settings differ: \citet{liu2025pde,liu2026geometric}
+integrate the probability-flow ODE of the heat flow, and we integrate the conditional
+flow-matching field of the linear interpolant, so the comparison is between the analogous
+statements, not a claim that one implies the other. The configuration that separates them is
+guidance with a fixed $w>0$ between a conditional and the unconditional prior on one finite
+support. There the distance potential of \citet{liu2026geometric} is the squared distance to the
+atoms, whose non-minimising critical points include the midpoints of tied atoms, and their
+Theorem~3.18 gives convergence to an atom only for trajectories whose limit set avoids such
+points. Proposition~\ref{prop:cfgatom} needs no such hypothesis: every trajectory converges, and
+the initial points whose limit is not an atom form a null set. We do not treat two different
+supports, which \citet{liu2026geometric} do.
+
+\begin{table}[htb]
+\centering\footnotesize\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}p{0.14\textwidth}p{0.24\textwidth}p{0.27\textwidth}p{0.29\textwidth}@{}}
+\toprule
+& \citet[Thm.~3.7]{liu2025pde} & \citet[Thm.~3.18]{liu2026geometric} & This paper\\
+\midrule
+Field & score ODE of the heat flow & mixed score $\lambda s_1+(1-\lambda)s_2$ of two heat flows & exact conditional flow-matching fields, linear interpolant\\
+Support & any compact set & two finite sets, possibly different & one finite set, strictly positive priors\\
+Combination & one score & two scores, constant $\lambda\ge0$; $\lambda>1$ is guidance & any probability measure over priors (Thm.~\ref{thm:posmix}); guidance $w\ge0$, fixed or a bounded schedule of bounded variation (Prop.~\ref{prop:cfgatom}, Thm.~\ref{thm:schedule}); signed finite combinations (Thms.~\ref{thm:composition}, \ref{thm:spectral})\\
+Hypothesis on trajectories & none & limit set contains no non-minimising critical point & none\\
+Conclusion & almost every trajectory converges to a point of the support; rate $\sqrt t$ for finite support & convergence to a local minimiser of the distance potential; almost-everywhere validity open (Rem.~3.19) & every trajectory converges; almost every initial point ends on an atom for positive combinations and guidance; some signed combinations end at a non-atom with positive probability\\
+\bottomrule
+\end{tabular}
+\caption{The closest convergence theorems and the positive results of
+Section~\ref{sec:intervention-atomicity}. The two settings integrate different ODEs; the table
+compares analogous statements.}
+\label{tab:comparison}
+\end{table}
 
 \subsection{Notation and basic facts}
 \label{apx:intervention-notation}
