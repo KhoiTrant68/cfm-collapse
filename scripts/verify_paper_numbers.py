@@ -903,6 +903,20 @@ check("CIFAR comp sensitivity: agree >= 0.99 at 1.1", 1.0,
 check("CIFAR comp sensitivity: agree >= 0.87 at 2", 1.0,
       float(min(o[k]["2.0"]["agree"] for o in _SP.values() for k in o) >= 0.87), 0)
 
+print("\nnear-threshold basin law (App. threshold-scaling)")
+_ts = json.loads(pathlib.Path("results/composition_threshold_scaling_20261107/summary.json").read_text())
+check("separatrix value C* = 1", 1.0, _ts["C_star"], 1e-9)
+_tsr = {(r["B"], r["delta"]): r["ratio_P"] for r in _ts["rows"]}
+for _d, _wants in ((0.3, (0.928, 0.951, 0.955)), (0.01, (0.9975, 0.9982, 0.9983)),
+                   (0.0003, (0.99992, 0.99995, 0.99995))):
+    for _B, _w in zip((1.0, 2.0, 3.0), _wants):
+        check(f"exact/predicted P0, B={_B:g}, delta={_d:g}", _w, _tsr[(_B, _d)],
+              5e-4 if _d == 0.3 else 5e-5 if _d == 0.01 else 5e-6)
+check("within 0.01% at delta = 3e-4", 1.0, float(max(1 - _tsr[(b, 0.0003)] for b in (1.0, 2.0, 3.0)) < 1e-4), 0)
+for _B in (1.0, 2.0, 3.0):        # deficit proportional to delta: (1 - ratio)/delta roughly constant
+    _k = [(1 - _tsr[(_B, d)]) / d for d in (0.01, 0.003, 0.001, 0.0003)]
+    check(f"deficit/delta stable, B={_B:g}", 1.0, float(max(_k) / min(_k) < 1.2), 0)
+
 print("\nsanity: the image-scale numbers and floats the main text quotes")
 for s in (r"\label{sec:cifarddpm}", r"\label{tab:cifarddpm}", r"\label{tab:exp1}",
           r"\label{tab:p7kernel}", r"$179.1$", r"$0.431$", r"$48/48$",

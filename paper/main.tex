@@ -964,8 +964,9 @@ outer roots of $F_w$, or $s$ inside the moving barrier around a root with $F_w'<
 line preserve order, so the basin of the midpoint is an interval, located by bisection.\fi{}
 \ificlr The exact lines of Figure~\ref{fig:learned-composition}(a) give\else Figure~\ref{fig:composition}(b) gives\fi{} its $\pi_0$-probability, and Table~\ref{tab:composition}
 in Appendix~\ref{app:intervention-protocol} lists the values. Below the threshold $w_c=1/\sinh^2B$,
-sources at $\pm10^{-9}$ already reach the atoms; just above it the basin is narrow, and it widens
-with $w/w_c$. \moveblock{compperturb}{The numerical unstable roots agree with the closed form $\cosh s_u=\sqrt w\sinh B$.
+sources at $\pm10^{-9}$ already reach the atoms; just above it the basin probability grows
+linearly\ificlr{} (Appendix~\ref{apx:threshold-scaling}).\else, as $\sqrt{2/\pi}\,(w/w_c-1)/\cosh B$ to within $0.01\%$ at $w=1.0003w_c$, a formal
+law derived in Appendix~\ref{apx:threshold-scaling}.\fi \moveblock{compperturb}{The numerical unstable roots agree with the closed form $\cosh s_u=\sqrt w\sinh B$.
 With $w=1$ and $B\approx2$, unequal mixture weights $(0.6,0.4)$, unequal $(B_1,B_2)=(2,-1.5)$, an
 unconditional log-odds $2B_u=0.6$, or a combination of all three keep basin probabilities between
 $0.71$ and $0.86$, as Proposition~\ref{prop:composition-open} predicts.}\ificlr Perturbed
@@ -2271,6 +2272,40 @@ $x(\tau'')\ge\underline x>\theta(\tau'')$ because $x$ increases on $(\tau',\tau'
 contradictions, so $x\ge\underline x>0$ on $[\tau_2,\infty)$, and the limit of $x$ in
 $\{-1,0,1\}$ is $1$. By oddness every $x_0<0$ converges to $-1$.
 \end{proof}
+
+\paragraph{Size of the basin just above the threshold.}\label{apx:threshold-scaling} Take the
+symmetric configuration of Theorem~\ref{thm:composition} (atoms $\pm1$, priors with log-odds
+$\pm2B$ averaged with equal weights, uniform unconditional prior) with the source $\N(0,1)$, and
+write $w=(1+\delta)w_c$. The theorem gives $P_0>0$ for $\delta>0$ and $P_0=0$ for $\delta\le0$; a
+formal computation gives the rate. Since $\cosh^2s-w\sinh^2B=\sinh^2s-\delta$,
+\[
+F_w(s)=\frac{2\tanh(s)\,(\sinh^2s-\delta)}{\cosh2s+\cosh2B}
+=\frac{s\,(s^2-\delta)}{\cosh^2B}+O(|s|^5+\delta|s|^3).
+\]
+While $\delta\beta\ll1$ the flow in $x$ is close to $\dot x=-x$, so $x\approx x_0e^{-\tau}$ and
+$s\approx x_0e^\tau$. With $\sigma=s/\sqrt\delta$ and $e^{2\theta}=\delta\beta/\cosh^2B$, the
+equation $\dot s=\beta F_w(s)+(1+\eps/t)s$ tends formally, as $\delta\downarrow0$, to
+\[
+\frac{d\sigma}{d\theta}=e^{2\theta}\sigma(\sigma^2-1)+\sigma,\qquad
+\sigma\sim Ce^\theta\ (\theta\to-\infty),\qquad C=\frac{x_0\cosh B}{\delta}.
+\]
+This is a Bernoulli equation: $z=\sigma^{-2}$ solves $dz/d\theta=2(e^{2\theta}-1)z-2e^{2\theta}$,
+and with $u=e^{2\theta}$ its solutions are $z=(Ke^u+u+1)/u$, where $C^{-2}=K+1$. For $K>0$,
+$z\to\infty$ and $\sigma\to0$; for $K<0$, $z$ vanishes at a finite $\theta$ and $\sigma$ escapes;
+$K=0$ is the separatrix, with $\sigma\to1$. The separatrix value is therefore $C^\ast=1$, the
+basin is formally $|x_0|<\delta/\cosh B$, and
+\[
+P_0=\sqrt{2/\pi}\;\frac{w/w_c-1}{\cosh B}+o\bigl(w/w_c-1\bigr),\qquad w\downarrow w_c .
+\]
+We have not bounded the neglected terms, so this is a formal asymptotic law, not a theorem. The
+exact computation of Appendix~\ref{app:intervention-protocol}, run at
+$\delta\in\{0.3,0.1,0.03,0.01,0.003,0.001,0.0003\}$ by
+\texttt{composition\_threshold\_scaling.py}, agrees with it: for $B=1,2,3$ the ratio of the
+exact $P_0$ to the prediction is $0.928$, $0.951$ and $0.955$ at $\delta=0.3$, $0.9975$,
+$0.9982$ and $0.9983$ at $\delta=0.01$, and $0.99992$, $0.99995$ and $0.99995$ at
+$\delta=3\times10^{-4}$, and the deficit decreases in proportion to $\delta$. The basin
+probability therefore vanishes continuously, and linearly, at the threshold: the endpoint law
+does not jump at $w_c$.
 
 \phantomsection\label{apx:pf-composition-open}
 \ificlr\placeblock{compopenprop}\else\propcompositionopen*\fi
