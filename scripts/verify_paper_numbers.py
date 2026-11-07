@@ -886,6 +886,36 @@ for _h, (_e50, _rk4) in {"4": ((0.173, 0.029), (0.158, 0.031)), "5": ((0.246, 0.
     check(f"EXP-C h={_h} RK4 1e-4 sd", _rk4[1], _rk[1], 1e-9)
     check(f"EXP-C h={_h} exact at both cutoffs", 0.0, _ex3[0] + _ex4[0], 0)
     check(f"EXP-C h={_h}: all-50000 fraction larger", 1.0, float(_all[0] > _eu[0]), 0)
+# Scaled field error along the learned CIFAR-10 trajectories (App. C.4), from the EXP-C JSON.
+import math as _m
+_ecj = {}
+for _f in sorted(pathlib.Path("results/exp_c_cifar_transfer_20261022").glob("*/ckpt_60000.json")):
+    _r = json.loads(_f.read_text()); _g = _r["grid_tau"]
+    _at = lambda e: min(range(len(_g)), key=lambda k: abs(_g[k] - _m.log(1 / e)))
+    _ecj[_r["run"]] = {"h": _r["h"], "off": 1 - _r["cutoffs"][2]["learned"]["on_atom_run"],
+                       "e4": _m.exp(-_g[_at(1e-4)]) * _m.sqrt(_r["m"][_at(1e-4)]),
+                       "e1": _m.exp(-_g[_at(1e-1)]) * _m.sqrt(_r["m"][_at(1e-1)]),
+                       "x4": _m.exp(-_g[_at(1e-4)]) * _m.sqrt(_r["r"][_at(1e-4)])}
+for _h, _lo, _hi in ((0.0, 1.08, 1.17), (4.0, 3.79, 4.09), (5.0, 4.14, 4.49), (6.0, 4.48, 5.01)):
+    _v = [v["e4"] for v in _ecj.values() if v["h"] == _h]
+    check(f"EXP-C scaled error h={_h:g} min", _lo, round(min(_v), 2), 1e-9)
+    check(f"EXP-C scaled error h={_h:g} max", _hi, round(max(_v), 2), 1e-9)
+_pos = [v for v in _ecj.values() if v["h"] > 0]
+check("EXP-C scaled error at 1-t=0.1 within 0.18", 1.0, float(max(v["e4"] - v["e1"] for v in _pos) <= 0.18), 0)
+check("EXP-C exact-path scaled error", 0.006, round(max(v["x4"] for v in _ecj.values() if v["h"] > 0), 3), 1e-9)
+from scipy.stats import spearmanr as _sp
+check("EXP-C rank correlation", 0.92, round(float(_sp([v["off"] for v in _pos], [v["e4"] for v in _pos])[0]), 2), 1e-9)
+for _h in (4.0, 5.0, 6.0):
+    _g6 = [v for v in _pos if v["h"] == _h]
+    check(f"EXP-C h={_h:g}: largest error has largest fraction", 1.0,
+          float(max(_g6, key=lambda v: v["e4"]) is max(_g6, key=lambda v: v["off"])), 0)
+_Xc = np.load("results/cifar_composition_exact_20261105/cifar2000_seed0.npz")["X"].astype(np.float64)
+_n2 = (_Xc ** 2).sum(1); _D2 = _n2[:, None] + _n2[None] - 2 * _Xc @ _Xc.T; np.fill_diagonal(_D2, np.inf)
+check("CIFAR median NN distance", 20.5, round(float(np.median(np.sqrt(_D2.min(1)))), 1), 1e-9)
+for s in (r"$3.79$ to $4.09$, $4.14$ to $4.49$ and $4.48$ to $5.01$", r"within $0.18$", r"$1.08$ to $1.17$",
+          r"against $0.006$ on the exact path", r"fraction is $0.92$", r"is $20.5$"):
+    in_tex(s)
+
 _c0 = _md_cells("results/exp_c_cifar_transfer_20261022/SUMMARY.md", "| h | ckpt", "| 0 | 60000 |")
 check("EXP-C h=0 networks off-atom", 0.0, _pm(_c0[2].split("\\|")[0])[0] + _pm(_c0[6].split("\\|")[0])[0], 0)
 

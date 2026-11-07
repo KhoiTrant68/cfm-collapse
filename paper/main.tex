@@ -863,11 +863,11 @@ derivative is unbounded near the tie as $t\uparrow1$, as for an input $\operator
 \fi
 
 Theorem~\ref{thm:transfer} and Proposition~\ref{prop:localtransfer} are conditional: they neither infer the error along trajectories from the
-training loss nor assert that a trained network enters the ball. \ificlr Appendix~\ref{app:measured-transfer} measures it on EXP-1; for the off-atom CIFAR-10 samples it only rules out the sampler.\else They name what a measurement
+training loss nor assert that a trained network enters the ball. \ificlr Appendix~\ref{app:measured-transfer} measures it on EXP-1, and on CIFAR-10 finds it persisting on average where off-atom samples appear.\else They name what a measurement
 would need, for instance to explain the off-atom CIFAR-10 samples of Section~\ref{sec:cifarddpm}.
 Appendix~\ref{app:measured-transfer} measures the trajectory error on EXP-1; for the CIFAR-10
-samples it rules out solver and cutoff error but does not measure the trajectory error, so their
-cause is open.\fi
+samples it rules out solver and cutoff error and finds that the scaled error persists on average
+over samples, but does not split it by sample, so their cause is not established.\fi
 
 % ==========================================================================
 \section{Experiments}
@@ -1136,7 +1136,8 @@ blends of training examples, and only above an explicit threshold.
 examples the exact field returns, not whether it returns one, so at the exact optimum none of them
 protects training data. At an identifying label, what moves a trained sampler away from them is
 the error of the learned field near $t=1$ (Theorem~\ref{thm:transfer}); at positive bandwidth,
-as for our off-atom image samples, this rests only on ruling out the sampler. For the
+as for our off-atom image samples, it rests on ruling out the sampler and on an average, not
+per-sample, error measurement. For the
 memorisation debate, the composition result is an existence result, not a mechanism we expect in
 standard models: its basin is set at the scale $(1-t)^2$,\ificlr{} which standard velocity networks did
 not resolve in our runs (Proposition~\ref{prop:regular}),\else{} a velocity network with integrable
@@ -3057,7 +3058,18 @@ against all $50000$ CIFAR-10 training images instead of the $2000$ used, the fra
 slightly larger, so the off-atom samples are not near other dataset images. Two refinement levels
 do not establish convergence, but the fractions change little between them, so solver and cutoff
 error are unlikely to account for them. The fractions grow with $h$ while the exact field has
-none, so they come from the learned field, not from the sampler. Two accounts of how trained
+none, so they come from the learned field, not from the sampler. The same integrations record
+the scaled error $(1-t)|\Delta|$ along the learned trajectories against the exact field at the
+same bandwidth, $|\Delta|$ being the norm in $\R^{3072}$ of images in $[-1,1]$; the median
+nearest-neighbour distance of the training images of the first instance is $20.5$. Its root mean square over the samples does not vanish: at
+$1-t=10^{-4}$ it is $3.79$ to $4.09$, $4.14$ to $4.49$ and $4.48$ to $5.01$ over the seeds at
+$h=4,5,6$, and already within $0.18$ of that at $1-t=0.1$, against $0.006$ on the exact path and
+$1.08$ to $1.17$ for the $h=0$ networks against the hard-label teacher, which have no off-atom
+sample. Over the nine runs at $h>0$ its rank correlation with the off-atom fraction is $0.92$,
+and within each $h$ the seed with the largest error has the largest fraction. These are averages
+over all samples: they show that the scaled error of Theorem~\ref{thm:transfer} persists where the
+off-atom samples appear, not that it is larger on those samples, which needs a per-sample split
+and therefore the weights. Two accounts of how trained
 image denoisers depart from the empirical optimum predict such samples. A convolutional network
 with a limited receptive field behaves like a locally optimal denoiser that assembles each patch
 from training patches at any position, and its samples are patch mosaics rather than training
