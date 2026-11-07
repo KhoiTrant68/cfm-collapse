@@ -1,0 +1,14 @@
+  step 20000 loss 0.19792 243s
+  step 40000 loss 0.19793 479s
+  step 60000 loss 0.19600 715s
+  step 80000 loss 0.19938 955s
+  step 100000 loss 0.19655 1177s
+  step 120000 loss 0.19874 1399s
+  step 140000 loss 0.19567 1619s
+  step 160000 loss 0.19920 1841s
+  step 180000 loss 0.19912 2074s
+  step 200000 loss 0.19861 2340s
+  L1 r=0: occ_0.05@1e-5 = 0.0000  solver disagree None
+  L3 r=0: occ_0.05@1e-5 = 0.0000  solver disagree 0.03857421875
+  L3 r=0.5: occ_0.05@1e-5 = 0.0000  solver disagree 0.02392578125
+  L3 r=0.9: occ_0.05@1e-5 = 0.0000  solver disagree 0.0380859375

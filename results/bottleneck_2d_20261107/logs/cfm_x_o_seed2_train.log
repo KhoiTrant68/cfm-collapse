@@ -1,0 +1,25 @@
+  step 20000 loss 0.19804 208s
+  step 40000 loss 0.19806 420s
+  step 60000 loss 0.19601 632s
+  step 80000 loss 0.19955 846s
+  step 100000 loss 0.19656 1056s
+  step 120000 loss 0.19876 1258s
+  step 140000 loss 0.19563 1468s
+  step 160000 loss 0.19927 1671s
+  step 180000 loss 0.19913 1881s
+  step 200000 loss 0.19863 2094s
+  L1 r=0: occ_0.05@1e-5 = 0.0000  solver disagree None
+  L3 r=0: occ_0.05@1e-5 = 0.0000  solver disagree 0.0
+  L3 r=0.5: occ_0.05@1e-5 = 0.0000  solver disagree 0.0
+  L3 r=0.9: occ_0.05@1e-5 = 0.0000  solver disagree 0.00048828125
+  L3 r=1.1: occ_0.05@1e-5 = 0.0000  solver disagree 0.0
+  L3 r=2: occ_0.05@1e-5 = 0.0000  solver disagree 0.0
+  L3 r=5: occ_0.05@1e-5 = 0.0000  solver disagree 0.0
+  L3 r=10: occ_0.05@1e-5 = 0.0000  solver disagree 0.0
+  L2 r=0: occ_0.05@1e-5 = 0.0000  solver disagree None
+  L2 r=2: occ_0.05@1e-5 = 0.0000  solver disagree None
+  L2 r=10: occ_0.05@1e-5 = 0.0000  solver disagree None
+  L4 r=0: occ_0.05@1e-5 = 0.0000  solver disagree None
+  L4 r=2: occ_0.05@1e-5 = 0.0000  solver disagree None
+  L4 r=10: occ_0.05@1e-5 = 0.0000  solver disagree None
+wrote results/bottleneck_2d_20261107/cfm_x_o_seed2 in 12397s

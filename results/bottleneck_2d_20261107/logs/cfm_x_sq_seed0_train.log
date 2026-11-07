@@ -1,0 +1,22 @@
+  step 20000 loss 0.21759 216s
+  step 40000 loss 0.21861 432s
+  step 60000 loss 0.21605 650s
+  step 80000 loss 0.21648 864s
+  step 100000 loss 0.21527 1075s
+  step 120000 loss 0.21220 1280s
+  step 140000 loss 0.21849 1485s
+  step 160000 loss 0.21520 1695s
+  step 180000 loss 0.21772 1904s
+  step 200000 loss 0.21841 2132s
+  L1 r=0: occ_0.05@1e-5 = 0.0000  solver disagree None
+  L3 r=0: occ_0.05@1e-5 = 0.0000  solver disagree 0.0
+  L3 r=0.5: occ_0.05@1e-5 = 0.0000  solver disagree 0.0
+  L3 r=0.9: occ_0.05@1e-5 = 0.0000  solver disagree 0.0
+  L3 r=1.1: occ_0.05@1e-5 = 0.0000  solver disagree 0.0
+  L3 r=2: occ_0.05@1e-5 = 0.1348  solver disagree 0.0
+  L3 r=5: occ_0.05@1e-5 = 0.7178  solver disagree 0.0
+  L3 r=10: occ_0.05@1e-5 = 0.9888  solver disagree 0.0
+  L2 r=0: occ_0.05@1e-5 = 0.0000  solver disagree None
+  L2 r=2: occ_0.05@1e-5 = 0.0000  solver disagree None
+  L2 r=10: occ_0.05@1e-5 = 0.9209  solver disagree None
+wrote results/bottleneck_2d_20261107/cfm_x_sq_seed0 in 11115s

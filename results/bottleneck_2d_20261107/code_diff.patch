@@ -1,0 +1,148 @@
+diff --git a/scripts/learned_composition_2d.py b/scripts/learned_composition_2d.py
+index 0e1a947..ae6f6d1 100644
+--- a/scripts/learned_composition_2d.py
++++ b/scripts/learned_composition_2d.py
+@@ -48,7 +48,24 @@ H = 1.0
+ B = 2.0                                              # the triangle of Section 6.2
+ R_LIST = (0.0, 0.5, 0.9, 1.1, 2.0, 5.0, 10.0)
+ R_CONTROLS = (0.0, 2.0, 10.0)
+-VARIANTS = ("cfm_v", "cfm_x_s", "distill_x_s")
++VARIANTS = ("cfm_v", "cfm_x_s", "distill_x_s", "cfm_v_s", "cfm_x",   # cfm_v_s, cfm_x: ablation
++            "cfm_x_sq", "cfm_x_o", "cfm_x_a")
++# cfm_x_sq: as cfm_x_s, but the network sees only the cell argmax(y) of its label (a label bottleneck,
++#   Proposition prop:bottleneck): its optimum at cell k is the exact field of the averaged prior
++#   pbar_k = (alpha, (1-alpha)/2, (1-alpha)/2), a vertex prior with B_Q = log(2 alpha/(1-alpha)).
++# cfm_x_o: asinh(t (x - C_OFF)/eps^2), centred off the tie; cfm_x_a: asinh(t (x - a_k)/eps^2) for the
++#   three atoms, which needs only the training data. Both are tie-agnostic controls for cfm_x_s.
++C_OFF = (0.3, 0.2)
++
++
++def alpha_cell() -> float:
++    """Pr(argmax(e_0 + H Z) = 0) for Z ~ N(0, I_3)."""
++    from scipy.integrate import quad
++    from scipy.stats import norm
++    return quad(lambda z: norm.pdf(z) * norm.cdf(z + 1 / H) ** 2, -12, 12, epsabs=1e-13)[0]
++
++
++B_Q = math.log(2 * alpha_cell() / (1 - alpha_cell()))
+ N_EXACT = 4096
+ U_END = 1e4
+ XI_GRID = np.stack(np.meshgrid(np.linspace(-3, 3, 21), np.linspace(-3, 3, 21)), -1).reshape(-1, 2)
+@@ -78,16 +95,21 @@ def exact_m(x, eps, y, cond):
+ class Field2D(torch.nn.Module):
+     def __init__(self, variant: str, width: int = 128, depth: int = 4):
+         super().__init__()
+-        self.data_pred = variant != "cfm_v"
+-        self.sfeat = variant.endswith("_s")
+-        # Condition (y * mask, mask) as in 1D; the s-variants add asinh(beta x), beta = t/(1-t)^2.
+-        self.net = MLPVelocity(2, cond_dim=3 + 1 + 2 * self.sfeat, width=width, depth=depth)
++        self.data_pred = variant not in ("cfm_v", "cfm_v_s")
++        self.quant = variant.endswith("_sq")
++        self.centres = {"_s": [(0.0, 0.0)], "_sq": [(0.0, 0.0)], "_o": [C_OFF], "_a": ATOMS.tolist()}.get(
++            "_" + variant.rsplit("_", 1)[-1], []) if variant not in ("cfm_v", "cfm_x") else []
++        # Condition (y * mask, mask) as in 1D; the s-variants add asinh(beta (x - c)), beta = t/(1-t)^2.
++        self.net = MLPVelocity(2, cond_dim=3 + 1 + 2 * len(self.centres), width=width, depth=depth)
+ 
+     def forward(self, x, eps, y, cond):
+         """x: (n, 2); eps: (n, 1); y: (n, 3); cond: (n, 1) bool. Returns (m_hat, v)."""
+         t = 1 - eps
+         c = cond.to(x.dtype)
+-        feats = [torch.asinh(t * x / eps ** 2)] if self.sfeat else []
++        feats = [torch.asinh(t * (x - torch.tensor(cc, dtype=x.dtype, device=x.device)) / eps ** 2)
++                 for cc in self.centres]
++        if self.quant:
++            y = torch.nn.functional.one_hot(y.argmax(-1), 3).to(x.dtype)
+         out = self.net(x, t, torch.cat([y * c, c] + feats, -1))
+         if self.data_pred:
+             return out, (out - x) / eps
+@@ -116,7 +138,7 @@ def boundary_layer_batch(n, gen, device):
+ 
+ def loss_fn(field, b, variant):
+     m, v = field(b["xt"], b["eps"], b["y"], b["cond"])
+-    if variant == "cfm_x_s":
++    if variant.startswith("cfm_x"):
+         return ((m - b["a"]) ** 2).mean()
+     if variant == "distill_x_s":
+         return ((m - exact_m(b["xt"], b["eps"], b["y"], b["cond"])) ** 2).mean()
+@@ -203,10 +225,12 @@ def sources(device):
+ 
+ def evaluate_arms(field, device, smoke=False):
+     x0 = sources(device)[:512 if smoke else N_EVAL].double()
+-    configs = [("L1", 0.0)] + [("L3", r) for r in R_LIST] + [(a, r) for a in ("L2", "L4") for r in R_CONTROLS]
++    controls = ("L2",) if field.quant else ("L2", "L4")
++    unit = w_c(B_Q) if field.quant else w_c()
++    configs = [("L1", 0.0)] + [("L3", r) for r in R_LIST] + [(a, r) for a in controls for r in R_CONTROLS]
+     rows, finals = [], {}
+     for name, r in configs[:3] if smoke else configs:
+-        w = r * w_c()
++        w = r * unit
+         F = learned_mean(field, *arm(name, w, device), device)
+         # ros2_states returns (n, 2, len(EPS_OUT)); kept as (len(EPS_OUT), n, 2).
+         xs = ros2_states(F, x0, rtol=EVAL_RTOL[0]).permute(2, 0, 1)
+@@ -256,9 +280,9 @@ def field_diagnostics(field, device):
+     return {"jac0": jac, "m0": m0, "ebl": ebl}
+ 
+ 
+-def exact_classes(w, x0):
++def exact_classes(w, x0, Bv=B):
+     """Exact composite from x0 (n, 2): endpoint class (0-2 atom, 3 midpoint) and x at t = 1 - 1e-2."""
+-    fld = ExactField(ATOMS, vertex_priors(3, B), w)
++    fld = ExactField(ATOMS, vertex_priors(3, Bv), w)
+     n = len(x0)
+     tau0, h = math.log(2.0), math.log(2.0) / 2000          # RK4 in x up to t = 1/2
+ 
+@@ -289,16 +313,16 @@ def exact_classes(w, x0):
+     return out
+ 
+ 
+-def run_exact(out):
++def run_exact(out, Bv=B):
+     x0 = sources("cpu")[:N_EXACT].double().numpy()
+     rows, arrays = [], {}
+     for r in R_LIST:
+-        w = r * w_c()
++        w = r * w_c(Bv)
+         start = time.time()
+-        res = exact_classes(w, x0)
++        res = exact_classes(w, x0, Bv)
+         arrays[f"classes_r{r:g}"] = res["classes"].astype(np.int8)
+         row = {"r": r, "w": w, "midpoint_fraction": float((res["classes"] == 3).mean()),
+-               "gamma0": ((1 - m_of(B) ** 2) - w * m_of(B) ** 2) / 2, "tau_end": res["tau_end"],
++               "gamma0": ((1 - m_of(Bv) ** 2) - w * m_of(Bv) ** 2) / 2, "tau_end": res["tau_end"],
+                "seconds": time.time() - start}
+         if "x_eps_1e-2" in res:
+             row["occ_0.05_eps_1e-2"] = float((np.linalg.norm(res["x_eps_1e-2"], axis=1) < 0.05).mean())
+@@ -306,7 +330,7 @@ def run_exact(out):
+         print(row, flush=True)
+     out.mkdir(parents=True, exist_ok=True)
+     np.savez_compressed(out / "exact_classes.npz", **arrays)
+-    (out / "exact.json").write_text(json.dumps({"B": B, "w_c": w_c(), "n_sources": N_EXACT, "u_end": U_END,
++    (out / "exact.json").write_text(json.dumps({"B": Bv, "w_c": w_c(Bv), "n_sources": N_EXACT, "u_end": U_END,
+                                                 "rows": rows}, indent=1), encoding="utf-8")
+ 
+ 
+@@ -320,11 +344,15 @@ def main() -> int:
+     ap.add_argument("--out", default=OUT)
+     ap.add_argument("--smoke", action="store_true")
+     ap.add_argument("--exact", action="store_true")
++    ap.add_argument("--exact-bottleneck", action="store_true", help="exact composite at the cell priors B_Q")
+     ap.add_argument("--eval-only", action="store_true", help="reload field.pt and re-evaluate the arms")
+     args = ap.parse_args()
+     if args.exact:
+         run_exact(pathlib.Path(args.out) / "exact")
+         return 0
++    if args.exact_bottleneck:
++        run_exact(pathlib.Path(args.out) / "exact_bottleneck", B_Q)
++        return 0
+     device = "cuda" if torch.cuda.is_available() else "cpu"
+     torch.manual_seed(args.seed)
+     out = pathlib.Path(args.out) / f"{args.variant}_seed{args.seed}"
+@@ -339,7 +367,7 @@ def main() -> int:
+         curve = train(field, args.variant, args.steps, args.batch, args.lr, args.seed, device)
+         torch.save(field.state_dict(), out / "field.pt")
+         summary = {"variant": args.variant, "seed": args.seed, "steps": args.steps, "batch": args.batch,
+-                   "lr": args.lr, "B": B, "w_c": w_c(), "p_drop": P_DROP, "h": H, "atoms": ATOMS.tolist(),
++                   "lr": args.lr, "B": B, "w_c": w_c(), "B_Q": B_Q, "w_c_Q": w_c(B_Q), "p_drop": P_DROP, "h": H, "atoms": ATOMS.tolist(),
+                    "curve": curve, "python": sys.version, "torch": torch.__version__}
+     field.eval()
+     np.savez_compressed(out / "field_diagnostics.npz", eps_diag=np.array(EPS_DIAG), xi_grid=XI_GRID,

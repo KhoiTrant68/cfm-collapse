@@ -917,6 +917,58 @@ for _B in (1.0, 2.0, 3.0):        # deficit proportional to delta: (1 - ratio)/d
     _k = [(1 - _tsr[(_B, d)]) / d for d in (0.01, 0.003, 0.001, 0.0003)]
     check(f"deficit/delta stable, B={_B:g}", 1.0, float(max(_k) / min(_k) < 1.2), 0)
 
+print("\nlabel bottleneck and off-tie input on the triangle (App. bottleneck-runs)")
+_BN = pathlib.Path("results/bottleneck_2d_20261107")
+_bns = json.loads((_BN / "summary.json").read_text())
+check("B_Q (4 d.p.)", 1.2413, round(_bns["B_Q"], 4), 1e-9)
+check("w_c(B_Q) (3 d.p.)", 3.926, round(_bns["w_c_Q"], 3), 1e-9)
+
+
+def _bn_last(v, arm, r):
+    out = []
+    for s in range(3):
+        rows = json.loads((_BN / f"{v}_seed{s}" / "summary.json").read_text())["arms"]
+        out.append(next(a for a in rows if a["arm"] == arm and a["r"] == r)["by_eps"][-1])
+    return out
+
+
+check("off-tie: no midpoint in L3 at any w", 0.0,
+      max(e["occ_0.05"] for r in (0, 0.5, 0.9, 1.1, 2, 5, 10) for e in _bn_last("cfm_x_o", "L3", r)), 0)
+check("off-tie: atoms >= 0.96 at w <= 2w_c", 1.0,
+      float(min(e["atoms_0.05"] for r in (0, 0.5, 0.9, 1.1, 2) for e in _bn_last("cfm_x_o", "L3", r)) >= 0.96), 0)
+check("exact L3 at 2w_c", 0.133, _bns["exact"]["2.0"] if "2.0" in _bns["exact"] else _bns["exact"]["2"], 5e-4)
+check("exact L3 at 10w_c", 0.952, _bns["exact"]["10.0"] if "10.0" in _bns["exact"] else _bns["exact"]["10"], 5e-4)
+_exq = {float(k): v for k, v in _bns["exact_bottleneck"].items()}
+for _r, _w in ((5, 0.757), (10, 0.972), (2, 0.179)):
+    check(f"exact bottleneck composite at {_r}w_c(B_Q)", _w, _exq[_r], 5e-4)
+for _r, _w in ((5, (0.718, 0.817, 0.747)),):
+    for _s, (_c, _e) in enumerate(zip(_w, _bn_last("cfm_x_sq", "L3", _r))):
+        check(f"bottleneck L3 at 5, seed {_s}", _c, _e["occ_0.05"], 5e-4)
+_o10 = [e["occ_0.05"] for e in _bn_last("cfm_x_sq", "L3", 10)]
+check("bottleneck L3 at 10: min", 0.983, round(min(_o10), 3), 1e-9)
+check("bottleneck L3 at 10: max", 0.989, round(max(_o10), 3), 1e-9)
+_o2 = [e["occ_0.05"] for e in _bn_last("cfm_x_sq", "L3", 2)]
+check("bottleneck L3 at 2: min", 0.0, min(_o2), 0)
+check("bottleneck L3 at 2: max", 0.226, round(max(_o2), 3), 1e-9)
+check("bottleneck L2: no midpoint at w <= 2", 0.0,
+      max(e["occ_0.05"] for r in (0, 2) for e in _bn_last("cfm_x_sq", "L2", r)), 0)
+_a2 = [e["atoms_0.05"] for e in _bn_last("cfm_x_sq", "L2", 2)]
+check("bottleneck L2 at 2: min at atom (2 d.p.)", 0.14, round(min(_a2), 2), 1e-9)
+check("bottleneck L2 at 2: max at atom (2 d.p.)", 0.64, round(max(_a2), 2), 1e-9)
+_l10 = _bn_last("cfm_x_sq", "L2", 10)
+check("bottleneck L2 at 10: largest midpoint (2 d.p.)", 0.92, round(max(e["occ_0.05"] for e in _l10), 2), 1e-9)
+check("bottleneck L2 at 10: other seeds at atom <= 0.013", 1.0,
+      float(sorted(e["atoms_0.05"] for e in _l10)[1] <= 0.013 and sum(e["atoms_0.05"] <= 0.013 for e in _l10) >= 2), 0)
+_dis = []
+for _s in (1, 2):
+    for _ln in (_BN / "logs" / f"cfm_x_a_seed{_s}_train.log").read_text().splitlines():
+        if "L3 r=0:" in _ln:
+            _dis.append(float(_ln.split()[-1]))
+check("atom-centred: min disagreement at w=0 (%)", 4, round(100 * min(_dis)), 0.5)
+check("atom-centred: max disagreement at w=0 (%)", 27, round(100 * max(_dis)), 0.5)
+check("atom-centred seed 0 crashed", 1.0,
+      float("sources unfinished" in (_BN / "logs" / "cfm_x_a_seed0_train.log").read_text()), 0)
+
 print("\nsanity: the image-scale numbers and floats the main text quotes")
 for s in (r"\label{sec:cifarddpm}", r"\label{tab:cifarddpm}", r"\label{tab:exp1}",
           r"\label{tab:p7kernel}", r"$179.1$", r"$0.431$", r"$48/48$",

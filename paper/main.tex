@@ -987,7 +987,7 @@ on the triangle, at every guidance strength (Figure~\ref{fig:learned-composition
 neither log-uniform sampling of $1-t$ nor a separate unconditional network changes this.\fi{} A
 network that predicts the data with the loss $|\hat m-X_1|^2$, which has the same minimiser, and
 receives the blow-up coordinate $\operatorname{asinh}(tx/(1-t)^2)$, centred at the known tie
-$z=0$, as an extra input follows the exact probabilities: $0.401\pm0.006$ against $0.406$ at $B=1$ and $w=2w_c$, and $0.143\pm0.004$
+$z=0$ (centred elsewhere it leaves the midpoint empty, Appendix~\ref{apx:bottleneck-runs}), as an extra input follows the exact probabilities: $0.401\pm0.006$ against $0.406$ at $B=1$ and $w=2w_c$, and $0.143\pm0.004$
 against $0.133$ on the triangle at $2w_c$. \moveblock{lossrisk}{The velocity
 network has the smaller held-out excess risk for $t\ge0.999$ ($1.4\times10^{-7}$ against
 $9.4\times10^{-7}$), yet its posterior mean misses the boundary layer at the tie: at
@@ -3433,6 +3433,32 @@ others none. Its endpoints are then fixed points of its prediction at $t=1$, whi
 Proposition~\ref{prop:regular}(b) describes for a bounded prediction, although the trained network
 is not clipped. In these runs the rescaled input is necessary, and the data parametrisation makes
 it reliable across seeds.
+
+\paragraph{Tie-centring and a label bottleneck.}
+\label{apx:bottleneck-runs}
+On the triangle, further data-predicting networks, three seeds each, use the loss and training of
+the rescaled-input network (\texttt{server\_bottleneck\_2d\_cpu.sh}). \texttt{cfm\_x\_o} receives the
+rescaled input centred at $(0.3,0.2)$ instead of the tie $z=0$. Its label average places no source
+at the midpoint at any guidance strength in any seed, against $0.133$ for the exact field at $2w_c$
+and $0.952$ at $10w_c$, and at $w\le2w_c$ at least $0.96$ of its sources end within $0.05$ of an
+atom. In these runs the composition is learned only by a network told where the tie is. A
+variant with one rescaled input centred at each vertex (\texttt{cfm\_x\_a}) could not be
+evaluated: its learned composite is so stiff that the two solver tolerances disagree on the
+endpoint class of $4\%$ and $27\%$ of the sources already at $w=0$, and in one seed the tight solver
+did not finish; we stopped these runs.
+
+\texttt{cfm\_x\_sq} sees its noised label only through the cell $\arg\max_k y_k$, a bottleneck as in
+Proposition~\ref{prop:bottleneck}. The cell priors favour their vertex with $B_Q=1.2413$, so
+$w_c(B_Q)=3.926$, and its guidance strengths are in units of $w_c(B_Q)$. Averaging its field over
+labels averages the three cell fields, and the learned composite follows the exact composite of
+those fields: $0.718$, $0.817$ and $0.747$ against $0.757$ at $5w_c(B_Q)$, $0.983$ to $0.989$
+against $0.972$ at $10w_c(B_Q)$, and $0$ to $0.226$ against $0.179$ at $2w_c(B_Q)$. Single-label
+guidance places no source at the midpoint at $w\le2w_c(B_Q)$ in any seed, as
+Proposition~\ref{prop:bottleneck}(b) states for the exact field, but only $0.14$ to $0.64$ of the
+sources end within $0.05$ of an atom at $2w_c(B_Q)$. At $10w_c(B_Q)\approx39$, where guidance
+amplifies the learning error most, one seed places $0.92$ of its sources at the midpoint and the
+other two end at neither the atoms nor the midpoint (at most $0.013$ at an atom). These are errors
+of the learned field, whose exact endpoints are atoms almost surely.
 
 \paragraph{Guided label averaging on CIFAR-10.}
 \label{app:cifar-composition}
