@@ -1,0 +1,17 @@
+Suggested-reference check (script output, not a reviewer finding; #1001)
+Seats read: R2, R3 (complete).
+
+| Seat | # | Reference | Result |
+|---|---|---|---|
+| R2 | 1 | Somepalli, G. et al. (2023) "Understanding and Mitigating Copying in Diffusion Models" | Found in an index |
+| R2 | 2 | Wen, Y. (2024) "Detecting, Explaining, and Mitigating Memorization in Diffusion Models" | Found in an index |
+| R2 | 3 | Wu, Y. (2024) "Theoretical Insights for Diffusion Guidance: A Case Study for Gaussian Mixture Models" | Found in an index |
+| R2 | 4 | Bradley, A. et al. (2024) "Classifier-Free Guidance is a Predictor-Corrector" | Found in an index |
+| R2 | 5 | Karras, T. et al. (2024) "Guiding a Diffusion Model with a Bad Version of Itself" arXiv:2406.02507 | Found in an index |
+| R3 | 1 | Silverman, B. W. et al. (1987) "The bootstrap: to smooth or not to smooth?" | Found in an index |
+| R3 | 2 | Györfi, L. et al. (2002) "A Distribution-Free Theory of Nonparametric Regression" | Found in an index |
+| R3 | 3 | Graf, S. et al. (2000) "Foundations of Quantization for Probability Distributions" | Found in an index |
+| R3 | 4 | Shokri, R. et al. (2017) "Membership Inference Attacks Against Machine Learning Models" arXiv:1610.05820 | Found in an index |
+| R3 | 5 | Dwork, C. et al. (2006) "Calibrating Noise to Sensitivity in Private Data Analysis" | Found in an index |
+
+"Found" means an index holds a record with this DOI or arXiv ID and title, or with this title. It does not show that the work supports the recommendation, or that the authors and year are right.

@@ -1,0 +1,182 @@
+{
+  "checker": "audit_panel_claims/1",
+  "seats": [
+    "eic",
+    "methodology",
+    "domain",
+    "perspective",
+    "da"
+  ],
+  "unread": [],
+  "manuscript_sha256": "7bbc9cb4695ff593d4a9fca4fd16b20e236eecc47370b4b7a9fbe044d9cc5335",
+  "items": [
+    {
+      "claim_id": "c001",
+      "seat": "methodology",
+      "finding_id": "W4",
+      "text": "Proposition C.2(b) does not predict an empty midpoint for the plain data-predicting network\n**Severity**: Minor\n**Evidence Anchor**: text: Section 6.2, \"leaves the midpoint empty at w ≥ 5wc, as Proposition C.2(b) leads one to expect\"\n**Confidence**: 4 — this reading of Prop. C.2(b) follows from its statement and the remark after it\n\nProposition C.2(b) says that, for a bounded prediction that is C¹ up to t = 1, the off-atom mass is decided by the sign of g_w′(0) − 1. The remark after it adds that the exact field does not constrain this quantity. The proposition therefore explains why the outcome is uncontrolled, not why it should be empty. In the paper's own data, one seed at B = 1, 2 wc places 0.415 at the midpoint. The trained network is also not clipped, as the appendix concedes, so the hypotheses are not verified. Rephrasing to \"is consistent with Proposition C.2(b), under which the outcome depends on the slope of the network's limit at the tie\" would match what is proved."
+    },
+    {
+      "claim_id": "c002",
+      "seat": "domain",
+      "finding_id": "W3",
+      "text": "Trained-model evidence that perturbing the conditioning reduces replication is not discussed\n**Severity**: Minor\n**Evidence Anchor**: absence: Section 1 Related work and Section 3 discussion after Proposition 3.6 — expected discussion of empirical work reporting that randomising or noising the conditioning signal reduces training-data replication in trained text-to-image diffusion models; checked Section 1 Related work, Section 3, Section 6.1, Appendix C.4, Appendix E.2, reference list\n**Confidence**: 4 — this is a standard mitigation line in the memorisation literature\nProposition 3.6 and the surrounding text state that label smoothing \"never generates new samples\" for the exact field. Empirical work on trained text-to-image models reports that randomising captions or adding noise to text embeddings reduces copying (Somepalli et al., 2023, \"Understanding and Mitigating Copying in Diffusion Models\"). Wen et al. (2024) link memorisation to the magnitude of the text-conditional guidance signal and mitigate it at inference. These findings appear to sit in tension with the exact-field result. The paper's own framework resolves the tension, because Theorem 5.1 places any such effect in the learned field. Making that link explicit would be a genuine contribution to how the community reads these mitigations, and would keep readers from thinking the paper contradicts them."
+    },
+    {
+      "claim_id": "c003",
+      "seat": "eic",
+      "finding_id": "W6",
+      "text": "Two dense passages obscure rather than state the result\n**Severity**: Minor\n**Evidence Anchor**: text: §4.4 last sentence \"sources and saddles, including those the trace test misses, put no source at z\"\n**Confidence**: 3 — readability judgement; the extraction may have lost formatting\n\nThe closing sentence of Section 4.4 uses \"source\" in two senses (a profile type and an initial point) and its exception clause about d = 8 and w at most 2w_c is hard to parse. The abstract has a similar problem: it packs the threshold, its stability, the spectral case, the (1-t)^2 layer, the integrable-Lipschitz statement, the asinh input, the transfer bound and the CIFAR-10 and U-Net results into one paragraph, which will read poorly as an OpenReview snippet. Shortening the abstract to the three claims of the contribution list and rewording the Section 4.4 sentence would cost nothing technically."
+    },
+    {
+      "claim_id": "c004",
+      "seat": "da",
+      "finding_id": "M2",
+      "text": "The one off-atom composition depends on a field average over labels, but the paper's own Proposition B.6 shows that a label bottleneck (the concrete coarse-resolution learner) averages priors and keeps the atoms. Framing \"coarse label resolution\" as a practitioner knob that yields the composite therefore overstates the practical reach of Theorem 4.6.\n\nIn the abstract and introduction, state that field-level label averaging is a modelling hypothesis that a bottleneck does not realise, and move the existence-result caveat into the abstract.\n\n**Evidence Anchor**: text: Abstract l.11 \"Label noise, coarse label resolution and classifier-free guidance are the knobs a\"; Conclusion \"label bottleneck does not even produce the averaged field\""
+    },
+    {
+      "claim_id": "c005",
+      "seat": "domain",
+      "finding_id": "W2",
+      "text": "Image-scale support for the late-time-error attribution is by elimination, and the main text overstates what Appendix C.4 measures\n**Severity**: Major\n**Evidence Anchor**: text: Section 5, lines 355–356, \"Appendix C.4 measures the\" and \"trajectory error on EXP-1 and the off-atom CIFAR-10 samples\"\n**Confidence**: 4 — based on reading Section 5, Section 6.1 and Appendix C.4 together\nSection 5 says that Appendix C.4 measures the trajectory error on the off-atom CIFAR-10 samples. For EXP-1, C.4 does measure the error ∆ along learned trajectories (the K = m/r ratios). For CIFAR-10 it does not measure ∆ at all. It reports off-atom fractions under two integrator settings (for example 0.158 ± 0.031 to 0.254 ± 0.047 at h = 4 to 6), notes that the exact field has none, concludes that the samples \"come from the learned field, not from the sampler\", and ends with \"the attribution remains open\" because the checkpoints were not kept. The comparison with the exact field does rule out the sampler. It does not show that these samples arise through the mechanism of Theorem 5.1: a scaled error that persists up to t = 1. In addition, Theorem 5.1 is stated at an identifying hard label, and at h = 0 the U-Net has no off-atom samples. The off-atom samples all occur at h > 0, which only the local Proposition C.1 covers, and C.1 is conditional on entering a small ball. The practitioner-facing sentence in Section 8 therefore rests, at image scale, on an elimination argument plus the EXP-1 measurement in d = 2. This is the regime my card cares most about: whether the paper explains off-atom samples in a real model. At present it does not explain them; it shows only where they do not come from. The fix is to correct the Section 5 sentence and state the image-scale limitation in the Implications paragraph. Better still, measure (1 − t)|∆| along off-atom CIFAR trajectories from retrained checkpoints, using the exact field as the teacher."
+    },
+    {
+      "claim_id": "c006",
+      "seat": "eic",
+      "finding_id": "W1",
+      "text": "The distinctive headline has no demonstrated route to practical samplers\n**Severity**: Major\n**Evidence Anchor**: text: §4.3 after Theorem 4.6 \"not as a mechanism expected in standard trained models\"\n**Confidence**: 4 — area-chair judgement of ICLR significance in the memorisation and guidance literature\n\nThe positive theorems of Sections 4.1 and 4.2 refine a picture that the community already holds (the exact empirical field returns training examples), so the paper's novelty for the ICLR audience rests mostly on the composition result of Section 4.3 and its spectral extension. The authors frame that result, candidly, as an existence result: the basin lives at scale (1-t)^2 near the tie, Proposition C.2 rules out endpoint atoms for velocity networks with integrable Lipschitz constant, standard velocity CFM networks place at most 0.001 of sources at the midpoint, and the Conclusion adds that a label bottleneck does not even produce the averaged field. The successful network is given an input centred at the known tie, which a practitioner would not have. The paper therefore leaves the reader with an object whose practical relevance it argues against. To strengthen the case, the authors should state in the Introduction what a practitioner or a memorisation auditor can test or change because of this result (for example, whether the threshold or the boundary-layer scale predicts anything measurable in a standard model, or whether the asinh input is a design recommendation or only a probe), or else re-centre the headline on the positive and transfer results and present the composition as a boundary marker. The honesty of the current framing is a strength; the gap is that significance is asserted through scope limits rather than shown through a consequence."
+    },
+    {
+      "claim_id": "c007",
+      "seat": "eic",
+      "finding_id": "W3",
+      "text": "Statement-level comparison with Liu and Zuazua leaves the equivalence question open\n**Severity**: Minor\n**Evidence Anchor**: text: Appendix B.1 \"so the comparison is between the analogous statements, not a claim that one implies the other\"\n**Confidence**: 3 — familiarity with Gaussian-path reparametrisations between score and flow-matching ODEs, not a verified derivation\n\nThe new comparison in Appendix B.1 and Table 4 is a clear improvement and states the configuration that separates the results (fixed w > 0 on one finite support, where Liu and Zuazua need a hypothesis on the limit set and leave almost-everywhere validity open in their Remark 3.19). For an empirical measure, the heat-flow probability-flow ODE and the linear-interpolant flow-matching field are commonly related by a change of scale and time. If that holds here, Proposition 4.3 directly settles the case of their open remark for one common support, which would sharpen the novelty claim; if it fails, saying why would forestall the obvious reviewer question. Either way, one sentence in B.1, and a pointer from the Related Work paragraph, would make the delta exact rather than analogical."
+    },
+    {
+      "claim_id": "c008",
+      "seat": "domain",
+      "finding_id": "W1",
+      "text": "Main-text implication for the memorisation debate is not positioned against the inductive-bias account of off-training samples\n**Severity**: Major\n**Evidence Anchor**: text: Section 1, lines 095–096, \"a sample far from the training set therefore points\" and \"not to the sampler\"\n**Confidence**: 4 — the closed-form denoiser and locality literature is my core area\nIn the introduction and in the conclusion's Implications paragraph, the paper says that a sample far from the training set reflects \"the error of the learned field near t = 1\". In the current literature, the leading explanation for why trained diffusion models produce non-training samples although the empirical optimum memorises is that the network has structured inductive biases, chiefly locality and translation equivariance, together with geometry-adaptive representations. These biases make it approximate a different, well-defined denoiser (Kamb & Ganguli, 2025; Niedoba et al., 2024; Kadkhodaie et al., 2024). In that account the departure from the empirical field is a systematic, predictable mechanism. Calling it \"error\" is not neutral: it implies that a more accurate learner would memorise, which is one side of an active debate. The paper cites Kamb & Ganguli and Kadkhodaie et al. only in a list headed \"That the empirical minimiser memorises is well established\". That list misrepresents the main thesis of both works, which is about generalisation. Niedoba et al. appear only in Appendix C.4, as one of two untested accounts. The Appendix C.4 summary of these works (patch mosaics assembled from training patches at any position) is broadly accurate, but readers of the main text will not see it. The theorems are unaffected. The fix is to reposition the implication in Section 1 and Section 8: say that Theorem 5.1 locates where any non-memorising mechanism must act (the scaled late-time field error), and that the locality accounts are candidate structured forms of that departure. Also cite Kadkhodaie et al. and Kamb & Ganguli for what they show."
+    },
+    {
+      "claim_id": "c009",
+      "seat": "perspective",
+      "finding_id": "W2",
+      "text": "The privacy consequence in the Ethics statement is not turned into anything an auditor can use\nThe Ethics statement says the results bear on privacy and help with auditing and extraction, and that the positive theorems matter \"when conditional models are trained on sensitive data\". It never says what follows. From my side, the useful reading is a negative one: at the exact optimum, label noise, label averaging, negative guidance and bounded guidance schedules are not privacy mitigations, because they only reweight the atoms. Seen from the attacker's side, the reweighting is partly computable from the training set and the query label via p^(h)(y), so the paper also shows which record a given label and guidance setting will return. Neither consequence is stated, and the paper does not connect to the formal notions an auditor would use, such as membership inference or differential privacy. A related citation (Sesmat et al. 2026) is in the bibliography but not used for this purpose. Suggested remedy: two or three sentences in the Implications paragraph or the Ethics statement, stating that these knobs are not mitigations and that only support-changing mechanisms (and, for a formal guarantee, randomisation calibrated in the DP sense) can be. I am not asking for new experiments.\n**Severity**: Minor\n**Evidence Anchor**: text: Ethics Statement \"which is relevant when conditional models are trained on sensitive data\"\n**Confidence**: 4 — direct experience with training-data extraction audits; no claim about the theorems themselves"
+    },
+    {
+      "claim_id": "c010",
+      "seat": "perspective",
+      "finding_id": "W4",
+      "text": "The threshold and linear law are not practitioner diagnostics, yet the abstract frames the setting through practitioner knobs\nThe abstract opens with \"the knobs a practitioner turns\" and then gives the exact threshold 1/sinh²B and the tie-centred coordinate. To use either as a diagnostic one needs B = u₀ℓ/h², which requires a known two-point averaging measure φ over fields and known label geometry, plus the location of the tie. The paper itself shows that the most natural practitioner mechanism, a label bottleneck, gives prior averaging and therefore not this composite (Proposition B.6). It also shows that the reproducing network fails when its input is centred away from the tie. No knob a practitioner actually turns is shown to produce the field-level average that Theorem 4.6 needs. The body is careful about this (S3), but the abstract's practitioner framing invites an overreading. Suggested remedy: say in the abstract or the Implications paragraph that the composite has no identified practical instance and that the threshold is a structural boundary, not a tuning rule for guidance strength.\n**Severity**: Minor\n**Evidence Anchor**: text: §6.2 \"centred at the known tie z = 0 (centred elsewhere it leaves the midpoint empty, Appendix E.3)\"\n**Confidence**: 3 — the practical reading is mine; the facts come from the paper; I may be missing a practitioner setting that produces field averages"
+    },
+    {
+      "claim_id": "c011",
+      "seat": "eic",
+      "finding_id": "W5",
+      "text": "Most supporting evidence sits in appendix figures and tables\n**Severity**: Minor\n**Evidence Anchor**: text: §4 proof strategy \"composition is where Step 2 fails (Figure 4)\"\n**Confidence**: 4 — count of main-text cross-references against the figures and tables present in pages 1–9\n\nThe main text contains Table 1 and Figures 1 and 2; it cites Figures 4, 5, 6, 7, 8, 10 and 11 and Tables 5, 6, 8, 10, 11 and 12, all in the appendix, often for the numbers that support the sentence in which they appear (for example the perturbed basin probabilities, the CIFAR-10 midpoint fractions, the near-tie failures and the image-scale slopes). Each individual jump is non-essential, but together they make Section 6 hard to evaluate on its own. Moving the image-scale off-atom numbers (Table 8 or Figure 6) into the main text, at the cost of compressing Section 4.4 or Section 6.1, would help."
+    },
+    {
+      "claim_id": "c012",
+      "seat": "methodology",
+      "finding_id": "W6",
+      "text": "The remark after the bottleneck proposition is literally false as worded\n**Severity**: Minor\n**Evidence Anchor**: text: Appendix B.5, remark after Proposition B.6, \"is not a positive field mixture vΠ with a fixed Π\"\n**Confidence**: 4 — the counter-reading is immediate from the definition of vΠ in Theorem 4.1\n\nThe field v_p̄c is trivially a positive field mixture vΠ, with Π = δ_p̄c, a point mass on a strictly positive prior. That is in fact why part (b) holds. The intended statement is that v_p̄c differs from the field average ∫ v_p(h)(y) νc(dy), because the reweighting depends on (x, t). The mathematics of Proposition B.6 is correct: (a) follows from the conditional-risk decomposition and the independence of X0 from (I, Y), and (b) is right because the proof of Theorem 4.5 uses the conditional prior only through strict positivity, which I checked. Only the sentence needs fixing."
+    },
+    {
+      "claim_id": "c013",
+      "seat": "methodology",
+      "finding_id": "W3",
+      "text": "The solver-tolerance and cutoff checks for the learned composite are reported for the two-atom runs only\n**Severity**: Minor\n**Evidence Anchor**: text: Appendix E.3, learned guided label averaging, \"in the two-atom runs the endpoint classes of the composite differ between the two tolerances for at most 1.07% of the sources\"\n**Confidence**: 3 — the triangle check may exist in the artifacts, but the paper does not report it\n\nThe triangle comparison in the main text (0.143 ± 0.004 against 0.133 at 2 wc) and the triangle ablations in Table 12 have no stated ROS2 tolerance agreement. The paper also says occupancy is unchanged between ϵ = 10⁻³ and 10⁻⁵ only \"at B = 1\". This matters because the same appendix shows how stiff these composites can be: cfm_x_a was stopped when the two tolerances disagreed on 4% and 27% of endpoints at w = 0. Reporting the tolerance disagreement and the cutoff invariance for B = 2, B = 3 and the triangle would close the gap. I expect the conclusions to survive."
+    },
+    {
+      "claim_id": "c014",
+      "seat": "methodology",
+      "finding_id": "W5",
+      "text": "The abstract drops a hypothesis of Proposition C.2(a)\n**Severity**: Minor\n**Evidence Anchor**: text: Abstract, \"A learned field whose spatial Lipschitz constant is integrable up to t = 1 has no endpoint atom at all\"\n**Confidence**: 5 — direct comparison with the statement of Proposition C.2(a)\n\nProposition C.2(a) also requires |vθ(0, t)| to be integrable on [0, 1). Without that, the bounds of the proof give neither boundedness nor a well-defined endpoint map. For the MLPs in question the hypothesis is harmless, but the abstract states it as a general claim. Adding \"and bounded at the origin\" or \"(under mild growth conditions)\" would make it accurate."
+    },
+    {
+      "claim_id": "c015",
+      "seat": "da",
+      "finding_id": "M3",
+      "text": "The transfer claim that off-training samples reflect late-time field error \"rather than the sampler\" is close to definitional. Theorem 5.1 is an identity plus a lim sup, which App. C.4 concedes, and it holds only at an identifying label, yet it is used to interpret h greater than 0 image samples.\n\nRestrict the inference to identifying labels, or state what observation could falsify the field-versus-sampler attribution at h greater than 0.\n\n**Evidence Anchor**: text: Abstract l.27 \"so in standard models a sample far from the training set reflects that\"; App. C.4 \"this agreement is the identity of the theorem\""
+    },
+    {
+      "claim_id": "c016",
+      "seat": "perspective",
+      "finding_id": "W5",
+      "text": "Endpoint noise is called a \"remedy\", but statistically it is a smoothed bootstrap with no privacy content of its own\nAppendix D presents endpoint smoothing as the way to move the support, and Table 1 and the Introduction list it as the only intervention that removes the atoms in every configuration. Proposition D.1 shows the endpoint law is a Gaussian kernel density estimate around the weighted atoms, so sampling from it is the smoothed bootstrap. That literature (and practical privacy auditing) knows that for small ρ the samples are near-copies of training records, and that for large ρ fidelity is lost. Removing atoms is necessary for novelty in the paper's sense, but it is neither sufficient for novelty in the auditor's sense nor a privacy guarantee. Suggested remedy: either drop \"remedy\" or qualify it as support-level only, and mention the smoothed-bootstrap and KDE reading so statisticians see the trade-off at once.\n**Severity**: Minor\n**Evidence Anchor**: text: Appendix D \"a remedy must move the support\"\n**Confidence**: 4 — smoothed-bootstrap and KDE theory and their known disclosure behaviour"
+    },
+    {
+      "claim_id": "c017",
+      "seat": "da",
+      "finding_id": "M1",
+      "text": "\"Collapse\" equivocates between the exact endpoint atom of Proposition 3.2 and small conditional variance at a finite cutoff. Proposition C.2(a) rules out endpoint atoms for standard velocity networks, so the experiments cannot show collapse \"as the theory predicts\" in the theorem's sense.\n\nDefine finite-cutoff collapse separately from the endpoint atom, and restate the experimental claim as convergence toward the exact minimiser at a cutoff.\n\n**Evidence Anchor**: text: Abstract l.30 \"collapse in finite time as the hard-conditioning theory\"; App. C.2 \"endpoint law has no atom anywhere, and collapse can only be approached at a finite cutoff.\""
+    },
+    {
+      "claim_id": "c018",
+      "seat": "eic",
+      "finding_id": "W4",
+      "text": "Section 4.4 cannot be read without the appendix\n**Severity**: Minor\n**Evidence Anchor**: absence: main text §4.4 — expected a definition of the signed posterior covariance Γ, of a hyperbolic profile and of the face condition; checked §1 contributions, §2 Setup and Notation, Table 1 and its caption, §4 proof strategy, §4.4\n**Confidence**: 4 — direct reading of the main text\n\nSection 4.4 is promoted to the abstract (\"a signed posterior covariance decides the general case\") and to the contribution list, but its objects (the profile, Γ, the face condition, the trace test) are defined only in Appendix B.7. A reader of the nine pages cannot state the criterion. A two- or three-line definition of Γ at the profile, with the two-atom specialisation Γ = F'_w(0), would make the general claim checkable from the main text."
+    },
+    {
+      "claim_id": "c019",
+      "seat": "domain",
+      "finding_id": "W4",
+      "text": "The guidance-theory literature is thin\n**Severity**: Minor\n**Evidence Anchor**: absence: Section 1 Related work — expected theoretical analyses of classifier-free guidance as a modified sampling dynamics and of guidance against a second model; checked Section 1 Related work, Section 4.2, Section 4.3, Appendix B.1, reference list\n**Confidence**: 3 — I know these works exist and are relevant; I am less sure how much each overlaps with the convergence statements\nOn guidance theory the paper cites only Chidambaram et al. (2024), Liu & Zuazua (2026) and the schedule papers. Several closely related analyses are missing. Wu et al. (2024) analyse diffusion guidance for Gaussian mixtures and show that it concentrates mass and reduces diversity, a population-level counterpart to \"guidance decides which atom, not whether\". Bradley & Nakkiran (2024) characterise what CFG actually samples. Autoguidance (Karras et al., 2024) guides a model against a degraded version of itself rather than against an unconditional model. That is a signed combination of two different fields, the setting in which the paper's spectral criterion (Theorem B.10) and its observation that some signed combinations of more than two fields leave the atoms would be most practically relevant. None of these changes a result, but discussing them would show where the guidance results sit in current guidance theory."
+    },
+    {
+      "claim_id": "c020",
+      "seat": "methodology",
+      "finding_id": "W2",
+      "text": "The CIFAR composite fractions at 5 wc and 10 wc have no sensitivity check\n**Severity**: Minor\n**Evidence Anchor**: text: Appendix E.3, guided label averaging on CIFAR-10, \"We reran all eight pairs at w/wc ∈ {0.9, 1.1, 2}\"\n**Confidence**: 4 — follows directly from the protocol as described\n\nThe hand-off and tolerance reruns cover w/wc ∈ {0.9, 1.1, 2} only. On the first pair, individual endpoints at 5 wc agree with the main run for only about half the sources. Yet the text and Figure 12(b) describe a shape: a peak at 2 wc followed by a fall to means of 0.150 at 5 wc and 0.042 at 10 wc, which the paper attributes to guidance pulling sources onto the atoms. The threshold claim, which the paper correctly calls a consistency check of Theorem B.10(c), is unaffected. The large-w basin sizes are a single-setting measurement in a regime where the per-source classification is unstable. Either extend the reruns to 5 and 10 wc, or mark those points in Figure 12(b) as unchecked."
+    },
+    {
+      "claim_id": "c021",
+      "seat": "perspective",
+      "finding_id": "W3",
+      "text": "The atomic-support statements are fixed-N, and their practical bite in the large-N, dense-label regime is not discussed\nRead as kernel regression, Theorem 3.4 and Proposition 3.6 are exact statements at fixed N (Corollary 3.5 says \"at fixed N\"). The lower bound (4) is the expected squared distance from the posterior to the nearest atom. With dense data it shrinks as N grows, and at a fixed h with k-dimensional labels the effective number of atoms n_eff grows as well. So in the regime of practitioners (large N, labels with near neighbours), \"never leaves the training set\" can hold exactly while the gap to the posterior is statistically negligible, and an atomic law with large n_eff can be indistinguishable in practice from a smooth one at any resolution an evaluator uses. This is the classical consistency regime of Nadaraya–Watson estimators (h → 0 with enough points in each label window). A reader from my field will ask where the paper sits relative to it. The paper reports n_eff on EXP-1 (Table 6) and the nearest-neighbour label spacing on CIFAR (Appendix E.2), so the ingredients are there. Suggested remedy: a short remark saying that the positive theorems are about support, not about distance to the posterior, and how the bound in (4) scales with N and with the label-window occupancy. Then readers will not take atomic support as a large-N failure of generalisation, and will not take it as irrelevant either.\n**Severity**: Minor\n**Evidence Anchor**: text: Proposition 3.6 \"and this lower bound does not depend on h\"\n**Confidence**: 4 — kernel-regression consistency theory is my core field; I have not checked whether an appendix treats N-scaling and found none in the main text or the appendix parts I read"
+    },
+    {
+      "claim_id": "c022",
+      "seat": "domain",
+      "finding_id": "W5",
+      "text": "The practitioner framing of the composition result exceeds the evidence that trained models implement field averaging\n**Severity**: Minor\n**Evidence Anchor**: text: Section 1, lines 045–046, \"a hypothesis we test in one form\"\n**Confidence**: 4 — based on Section 4.3, Proposition B.6, the Appendix E.3 pilot and the ablations\nThe introduction motivates field averaging as what \"a network that resolves labels only coarsely may\" do, and the abstract opens with the knobs \"a practitioner turns\". Yet each test in the paper of whether a network averages fields comes out negative or inconclusive. A label bottleneck averages priors and keeps the atoms (Proposition B.6 and the cfm x sq runs). The learned label-average pilot does not follow the exact averages. Standard velocity CFM networks place at most 0.001 of their sources at the midpoint, and an input centred away from the tie leaves the midpoint empty. Sections 4.3 and 8 already call this an existence result. The abstract and the introduction could say just as plainly that the composition is not known to arise in any practical sampler, so that the abstract does not read as a statement about real CFG pipelines."
+    },
+    {
+      "claim_id": "c023",
+      "seat": "methodology",
+      "finding_id": "W1",
+      "text": "The near-threshold continuity and linearity are stated as fact in two places\n**Severity**: Minor\n**Evidence Anchor**: text: Appendix B.6, end of \"Size of the basin just above the threshold\", \"The basin probability therefore vanishes continuously, and linearly, at the threshold\"\n**Confidence**: 4 — I re-derived the formal law; its status rests on the paper's own disclaimer one sentence earlier\n\nRight after its disclaimer, Appendix B.6 concludes with \"therefore\" that P0 vanishes continuously and linearly at wc and that the endpoint law does not jump there. Section 6.2 likewise says \"just above it the basin probability grows linearly (Appendix B.6)\" with no qualifier. Theorem 4.6 proves P0 > 0 for w > wc and P0 = 0 for w ≤ wc. It does not prove right-continuity at wc, let alone the linear rate. Both currently rest on a formal expansion plus exact-flow computations down to δ = 3 × 10⁻⁴. The remedy is one phrase in each place (\"formally and numerically\"). A stronger alternative is to prove it via the cubic-comparison route sketched above, which looks short given the exact Bernoulli structure."
+    },
+    {
+      "claim_id": "c024",
+      "seat": "perspective",
+      "finding_id": "W1",
+      "text": "\"New samples\" is used for endpoints that are blends of training examples, which privacy readers would count as leakage\nThe Introduction says one composition \"creates new samples\", and Table 1 and Section 4.3 describe that composition as leaving the atoms. The endpoints it produces are circumcentres. On the CIFAR pairs these are pixel midpoints of two similar training images (Appendix E.3 notes they lie at 0.54–0.90 of the median nearest-neighbour distance). In privacy and memorisation auditing, such a sample counts as reconstruction of two training records, not a novel sample. The Yoon et al. ratio criterion would also flag a midpoint as off-atom even though it shows both sources. In the same way, the patch-mosaic account in Appendix C.4, which the paper leaves untested, would give off-atom samples that still copy training content locally. The mathematics is fine; the vocabulary is what will mislead adjacent-field readers. Suggested remedy: use \"non-training endpoint\" or \"blend\" instead of \"new sample\" throughout, and add one sentence saying that being off-atom under the finite-cutoff criterion is not evidence of non-leakage.\n**Severity**: Minor\n**Evidence Anchor**: text: §1 \"No single intervention analysed here (Table 1) creates new samples from the field that training\"\n**Confidence**: 4 — privacy and memorisation auditing practice; the reading of the circumcentre as a blend comes from the paper's own Appendix E.3"
+    },
+    {
+      "claim_id": "c025",
+      "seat": "da",
+      "finding_id": "M4",
+      "text": "The CIFAR-10 composition check is presented as confirming the threshold, but it uses the 8 largest-margin pairs out of 81, a bandwidth tuned per pair to B = 1 and an averaging measure on the pair's own labels, and the appendix concedes the threshold is not new evidence.\n\nDescribe it in the abstract as a consistency check of Theorem B.10(c) on selected pairs, and report midpoint fractions over all 81 mutual-nearest-neighbour pairs or a random subset.\n\n**Evidence Anchor**: text: App. E.3 \"these eight are the ones with the largest margin\"; Abstract l.28 \"Exact computations confirm the threshold,\""
+    },
+    {
+      "claim_id": "c026",
+      "seat": "domain",
+      "finding_id": "W6",
+      "text": "The practically dominant regime of shared labels is treated only in an appendix\n**Severity**: Minor\n**Evidence Anchor**: text: Section 2, line 141, \"Labels identify\"\n**Confidence**: 4 — class- and text-conditioned samplers almost always share labels across training examples\nAssumption 1(iii) requires identifying labels. In real conditional samplers (class labels, shared captions) many training examples share a label. Appendix E.2 handles this correctly: the exact endpoint law becomes the within-class empirical law, and the U-Net with one-hot class labels keeps 0.62 to 1.30 of the within-class scatter. This is the result most directly relevant to the memorisation debate for class-conditional models. Two sentences in Section 3 or Section 6.1 stating it would make the scope of \"collapse\" clear to a domain reader: collapse is onto one image only when the label identifies it, and onto the empirical class otherwise."
+    },
+    {
+      "claim_id": "c027",
+      "seat": "eic",
+      "finding_id": "W2",
+      "text": "The practical takeaway is stated more generally than the transfer theorem covers\n**Severity**: Minor\n**Evidence Anchor**: text: §1 closing paragraph \"a sample far from the training set therefore points to the error of the learned field\" and §6.1 \"38% of the finite-cutoff samples are off-atom by the nearest-neighbour criterion\"\n**Confidence**: 3 — reading of the stated scope of Theorem 5.1 against the reported experiments\n\nThe abstract correctly qualifies the takeaway with \"at an identifying label\", but the Introduction and the Implications paragraph state it for standard models in general. Theorem 5.1 is a hard-conditioning statement, and Proposition C.1 at positive bandwidth requires the trajectory to enter a small ball, which the paper does not assert for trained networks. The image-scale result that a reader will find most interesting, 38% off-atom samples at h = 6 with a log-log slope of 0.481 or -0.156 against the reference, is at positive bandwidth and is explicitly not attributed to any single cause. The paper should restrict the practical sentence to the setting the theorem covers, or say directly that the off-atom CIFAR-10 samples are not yet explained by the transfer bound."
+    },
+    {
+      "claim_id": "c028",
+      "seat": "methodology",
+      "finding_id": "W7",
+      "text": "Sign slip in the first line of the Θ display in the proof of Theorem 4.5\n**Severity**: Minor\n**Evidence Anchor**: equation: Appendix B.5, proof of Theorem 4.5, first line of the display for Θ = (1 + w) tr Cov_qpc(a) − w tr Cov_qpu(a)\n**Confidence**: 2 — this may be a text-extraction artefact\n\nExpanding Θ with tr Cov_qp(a) = r² − |mp − z|² + ep gives r² − (1 + w)|µc|² + w|µu|² + (1 + w)epc − w·epu. The extracted text shows \"− w|µu|²\". The second line, obtained through the stated identity, is correct, and so is the final bound Θ ≥ r² − |µw|² − w̄·epu. Please check the typeset version."
+    }
+  ]
+}
