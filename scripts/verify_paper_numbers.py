@@ -814,10 +814,36 @@ check("held-out excess risk velocity t>=0.999 (1e-7)", 1.4, round(1e7 * float(_m
 check("held-out excess risk data-prediction t>=0.999 (1e-7)", 9.4, round(1e7 * float(_md_row("| cfm_x_s |", "## Validation")[-1]), 1), 1e-9)
 check("data-prediction threshold ratio near t=1", 0.87, float(_md_row("| cfm_x_s | ŵ_c(t)/w_c")[-1]), 1e-9)
 _tol = [l for l in _md if l.startswith("Largest fraction of sources whose class")][0]
-check("tolerance class disagreement (%)", 1.07, round(100 * float(_tol.rstrip(".").split()[-1]), 2), 1e-9)
+check("tolerance class disagreement, original two-atom runs (%)", 1.07, round(100 * float(_tol.rstrip(".").split()[-1]), 2), 1e-9)
 for s in (r"$0.401\pm0.006$ against $0.406$", r"$0.143\pm0.004$", r"($0.014\pm0.009$ at $w=w_c$",
           r"$1.4\times10^{-7}$ against", r"$9.4\times10^{-7}$", r"is $0.67$, against $0.0024$",
-          r"at most $1.07\%$", r"about $0.87\,w_c$"):
+          r"about $0.87\,w_c$"):
+    in_tex(s)
+
+# Solver checks of the learned composite over every learned run (App. E.3, R5 of panel 2026-11-07).
+_SC = json.loads(pathlib.Path("results/composite_solver_checks_20261108.json").read_text(encoding="utf-8"))
+_tri = lambda r: r["dir"].endswith("_2d_20261021") or r["dir"].endswith("_2d_20261105") or "bottleneck" in r["dir"]
+_one = [r for r in _SC if not _tri(r)]
+_two = [r for r in _SC if _tri(r) and r["variant"] != "cfm_x_o"]
+_xo = [r for r in _SC if r["variant"] == "cfm_x_o"][0]
+check("solver: two-atom class disagreement (%)", 1.32, round(100 * max(r["tol_max"] for r in _one), 2), 1e-9)
+check("solver: triangle class disagreement (%)", 0.98, round(100 * max(r["tol_max"] for r in _two), 2), 1e-9)
+check("solver: two-atom occupancy change between tolerances", 0.005, round(max(r["tol_occ_max"] for r in _one), 3), 1e-9)
+check("solver: triangle occupancy change between tolerances <= 0.009", 1.0, float(max(r["tol_occ_max"] for r in _two) <= 0.0095), 0)
+check("solver: off-tie class disagreement (%)", 53, round(100 * _xo["tol_max"]), 0)
+check("solver: off-tie occupancy change < 0.011", 1.0, float(_xo["tol_occ_max"] < 0.011), 0)
+check("solver: two-atom eps change B<3 <= 0.020", 0.020, round(max(r["eps_max"] for r in _one if r["B"] < 3), 3), 1e-9)
+check("solver: two-atom eps change B=3", 0.049, round(max(r["eps_max"] for r in _one if r["B"] == 3), 3), 1e-9)
+check("solver: B=3 max is a velocity network", 1.0, float(max((r for r in _one if r["B"] == 3), key=lambda r: r["eps_max"])["variant"].startswith("cfm_v")), 0)
+check("solver: triangle eps change", 0.055, round(max(r["eps_max"] for r in _SC if _tri(r)), 3), 1e-9)
+_xs0 = json.loads(pathlib.Path("results/learned_composition_2d_20261021/cfm_x_s_seed0/summary.json").read_text())
+_a5 = [a for a in _xs0["arms"] if a["arm"] == "L3" and a["r"] == 5.0][0]
+_by5 = {round(e["eps"], 12): e for e in _a5["by_eps"]}
+check("solver: triangle seed rising 1e-3", 0.680, round(_by5[1e-3]["occ_0.05"], 3), 1e-9)
+check("solver: triangle seed rising 1e-5", 0.735, round(_by5[1e-5]["occ_0.05"], 3), 1e-9)
+for s in (r"at most $1.32\%$ of the sources", r"$0.98\%$ on the triangle", r"$0.005$ and $0.009$",
+          r"up to $53\%$", r"below $0.011$", r"at most $0.020$", r"(up to $0.049$)", r"at most $0.055$",
+          r"($0.680$ to $0.735$)"):
     in_tex(s)
 
 print("\nAppendix app:measured-transfer: EXP-B and EXP-C (from the generated SUMMARY.md files)")
@@ -898,6 +924,43 @@ check("CIFAR comp sensitivity: fractions within 0.03", 1.0,
 check("CIFAR comp sensitivity: agree >= 0.91 up to 2", 1.0,
       float(min(v["agree"] for o in _S.values() for k, v in o.items() if float(k) <= 2) >= 0.91), 0)
 check("CIFAR comp sensitivity: about half at 5", 0.5, min(o["5.0"]["agree"] for o in _S.values()), 0.05)
+
+# Random pairs and large-w sensitivity (R4, R9 of panel 2026-11-07).
+_cr = json.loads(pathlib.Path("results/cifar_composition_random_20261108/summary.json").read_text())
+_rp = _cr["random"]
+_rm = lambda r: [p["mid"][r] for p in _rp]
+check("CIFAR random: 81 mutual pairs", 81, _cr["n_mutual_pairs"], 0)
+check("CIFAR random: min margin all pairs (1 d.p.)", 3.2, round(_cr["min_margin_sq_all"], 1), 1e-9)
+check("CIFAR random: twelve pairs", 12, len(_rp), 0)
+check("CIFAR random: disjoint from main pairs", 1.0, float(not ({tuple(p["pair"]) for p in _rp} & {tuple(p["pair"]) for p in _P})), 0)
+check("CIFAR random: none at 0.9", 0.0, max(_rm("0.9")), 0)
+check("CIFAR random: ten positive at 1.1", 10, sum(x > 0 for x in _rm("1.1")), 0)
+check("CIFAR random 1.1 min positive", 0.002, round(min(x for x in _rm("1.1") if x > 0), 3), 1e-9)
+check("CIFAR random 1.1 max", 0.014, round(max(_rm("1.1")), 3), 1e-9)
+check("CIFAR random: all positive at 2", 1.0, float(min(_rm("2.0")) > 0), 0)
+check("CIFAR random 2 min", 0.006, round(min(_rm("2.0")), 3), 1e-9)
+check("CIFAR random 2 max", 0.088, round(max(_rm("2.0")), 3), 1e-9)
+check("CIFAR random 2 mean", 0.042, round(sum(_rm("2.0")) / 12, 3), 1e-9)
+check("CIFAR random 5 mean", 0.038, round(sum(_rm("5.0")) / 12, 3), 1e-9)
+check("CIFAR random: at most one unresolved source", 1.0, float(max(p["unresolved"] for p in _rp) <= 1 / 512 + 1e-12), 0)
+_SL = [v for o in _cr["sensitivity"].values() for k in ("5.0", "10.0") for v in o[k].values()]
+check("CIFAR large-w: 2 settings x 2 ratios x 8 pairs", 32, len(_SL), 0)
+check("CIFAR large-w agree min (%)", 41, round(100 * min(v["agree"] for v in _SL)), 0)
+check("CIFAR large-w agree max (%)", 92, round(100 * max(v["agree"] for v in _SL)), 0)
+check("CIFAR large-w coarse min (%)", 66, round(100 * min(v["agree_coarse"] for v in _SL)), 0)
+check("CIFAR large-w coarse max (%)", 98, round(100 * max(v["agree_coarse"] for v in _SL)), 0)
+for _k, _m in (("5.0", 0.064), ("10.0", 0.029)):
+    check(f"CIFAR large-w max change at {_k}", _m, round(max(abs(v["midpoint"] - v["main_midpoint"])
+          for o in _cr["sensitivity"].values() for v in o[_k].values()), 3), 1e-9)
+_means = lambda k: [sum(v["midpoint"] for v in o[k].values()) / 8 for o in _cr["sensitivity"].values()] + [sum(_mid(k)) / 8]
+check("CIFAR large-w mean at 5 min", 0.139, round(min(_means("5.0")), 3), 1e-9)
+check("CIFAR large-w mean at 5 max", 0.150, round(max(_means("5.0")), 3), 1e-9)
+check("CIFAR large-w mean at 10 min", 0.040, round(min(_means("10.0")), 3), 1e-9)
+check("CIFAR large-w mean at 10 max", 0.042, round(max(_means("10.0")), 3), 1e-9)
+for s in (r"only $41\%$ to $92\%$", r"$66\%$ to $98\%$", r"at most $0.064$ at $5w_c$ and $0.029$",
+          r"$0.139$ to $0.150$", r"$0.040$ to $0.042$", r"seed $20261108$", r"at least $3.2$",
+          r"($0.002$ to $0.014$)", r"($0.006$ to $0.088$, mean $0.042$)", r"the mean is $0.038$"):
+    in_tex(s)
 # All eight pairs under both settings (App. E.3).
 _SP = _cc["sensitivity_pairs"]
 _pairs_sp = {k for o in _SP.values() for k in o}
