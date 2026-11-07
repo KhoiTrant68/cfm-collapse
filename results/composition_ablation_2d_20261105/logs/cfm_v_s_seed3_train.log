@@ -1,0 +1,25 @@
+  step 20000 loss 0.51136 151s
+  step 40000 loss 0.50734 301s
+  step 60000 loss 0.50857 451s
+  step 80000 loss 0.50096 602s
+  step 100000 loss 0.48639 752s
+  step 120000 loss 0.49786 903s
+  step 140000 loss 0.49018 1053s
+  step 160000 loss 0.49537 1204s
+  step 180000 loss 0.49664 1354s
+  step 200000 loss 0.48887 1504s
+  L1 r=0: occ_0.05@1e-5 = 0.0000  solver disagree None
+  L3 r=0: occ_0.05@1e-5 = 0.0000  solver disagree 0.0
+  L3 r=0.5: occ_0.05@1e-5 = 0.0010  solver disagree 0.0
+  L3 r=0.9: occ_0.05@1e-5 = 0.0156  solver disagree 0.0009765625
+  L3 r=1.1: occ_0.05@1e-5 = 0.0293  solver disagree 0.00390625
+  L3 r=2: occ_0.05@1e-5 = 0.1738  solver disagree 0.0029296875
+  L3 r=5: occ_0.05@1e-5 = 0.6987  solver disagree 0.0
+  L3 r=10: occ_0.05@1e-5 = 0.9482  solver disagree 0.0
+  L2 r=0: occ_0.05@1e-5 = 0.0000  solver disagree None
+  L2 r=2: occ_0.05@1e-5 = 0.0000  solver disagree None
+  L2 r=10: occ_0.05@1e-5 = 0.0000  solver disagree None
+  L4 r=0: occ_0.05@1e-5 = 0.0000  solver disagree None
+  L4 r=2: occ_0.05@1e-5 = 0.0000  solver disagree None
+  L4 r=10: occ_0.05@1e-5 = 0.0000  solver disagree None
+wrote results/composition_ablation_2d_20261105/cfm_v_s_seed3 in 11332s

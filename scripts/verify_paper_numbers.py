@@ -732,6 +732,7 @@ _names = {"exact": "exact", "velocity CFM": "cfm_v", r"\quad log-uniform $1-t$":
           "distillation (control)": "distill_x_s", r"\quad rescaled input": "cfm_v_s",
           "data, plain input": "cfm_x"}
 _ABL = pathlib.Path("results/composition_ablation_20261105")
+_ABL2 = pathlib.Path("results/composition_ablation_2d_20261105")
 _cols, _cfg, _n = (0.0, 1.0, 1.1, 2.0, 5.0, 10.0), None, 0
 for _line in _tab.splitlines():
     _cells = [c.strip() for c in _line.rstrip("\\").split("&")]
@@ -747,13 +748,30 @@ for _line in _tab.splitlines():
             _want = [_ex2[_r]] if _cfg == "tri" else [_ex1[(_cfg, _r)]]
         else:
             _root1 = _ABL if _v in ("cfm_v_s", "cfm_x") else _LC1
-            _o = (_lc_occ(_LC2, _v) if _cfg == "tri" else _lc_occ(_root1, _v, _cfg))[_r]
+            _root2 = _ABL2 if _v in ("cfm_v_s", "cfm_x") else _LC2
+            _o = (_lc_occ(_root2, _v) if _cfg == "tri" else _lc_occ(_root1, _v, _cfg))[_r]
             _want = [_o[0], _o[1]]
         _good = all(abs(a - round(b, 3)) < 1e-9 for a, b in zip(_m, _want))
         ok, fail, _n = ok + _good, fail + (not _good), _n + 1
         if not _good:
             print(f"  BAD table {_cfg} {_v} w/w_c={_r}: paper={_m} file={_want}")
 print(f"  table cells checked: {_n}")
+
+def _abl2_seeds(v, r):
+    out = []
+    for p in sorted(_ABL2.glob(f"{v}_seed*/summary.json")):
+        a = next(a for a in json.loads(p.read_text(encoding="utf-8"))["arms"] if a["arm"] == "L3" and a["r"] == r)
+        out.append(next(e for e in a["by_eps"] if abs(e["eps"] - 1e-5) < 1e-12)["occ_0.05"])
+    return out
+
+
+for _r, _lo, _hi, _bad in ((5.0, 0.687, 0.735, 0.055), (10.0, 0.948, 0.971, 0.013)):
+    _o = sorted(_abl2_seeds("cfm_v_s", _r))
+    check(f"triangle cfm_v_s {_r:g}w_c: failing seed", _bad, round(_o[0], 3), 1e-9)
+    check(f"triangle cfm_v_s {_r:g}w_c: min of other four", _lo, round(_o[1], 3), 1e-9)
+    check(f"triangle cfm_v_s {_r:g}w_c: max", _hi, round(_o[-1], 3), 1e-9)
+check("triangle cfm_x: no midpoint at any w", 0.0,
+      max(max(_abl2_seeds("cfm_x", r)) for r in (0.0, 0.5, 0.9, 1.1, 2.0, 5.0, 10.0)), 0)
 
 print("\nAppendix app:learned-composition: ablation cfm_v_s / cfm_x (per seed)")
 

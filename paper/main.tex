@@ -3427,8 +3427,11 @@ Table~\ref{tab:learned-composition}). With the input, a velocity network reprodu
 probabilities when it succeeds, but not in every seed: at $B=1$ all five seeds give
 $0.877$--$0.885$ at $5w_c$ and four give $0.299$--$0.406$ at $2w_c$ while one gives $0$; at $B=2$
 four seeds match at $10w_c$ and two at $5w_c$; at $B=3$ it fails as the velocity network does.
+On the triangle four of five seeds match the exact probabilities ($0.687$--$0.735$ against
+$0.673$ at $5w_c$, $0.948$--$0.971$ against $0.952$ at $10w_c$) and one fails
+($0.055$ and $0.013$).
 Without the input, the data-predicting network places less than $0.001$ of its sources at the
-midpoint at $w\ge5w_c$ for every $B$ and seed; at $B=1$ and $2w_c$ one seed places $0.415$ and the
+midpoint at $w\ge5w_c$ for every $B$ and seed, and none at any $w$ on the triangle; at $B=1$ and $2w_c$ one seed places $0.415$ and the
 others none. Its endpoints are then fixed points of its prediction at $t=1$, which
 Proposition~\ref{prop:regular}(b) describes for a bounded prediction, although the trained network
 is not clipped. In these runs the rescaled input is necessary, and the data parametrisation makes
@@ -3546,6 +3549,8 @@ $B=3$ & exact & $0.000$ & $0.000$ & $0.008$ & $0.069$ & $0.221$ & $0.396$\\
 \midrule
 triangle & exact & $0.000$ & -- & $0.002$ & $0.133$ & $0.673$ & $0.952$\\
  & velocity CFM & $0.000\pm0.000$ & -- & $0.000\pm0.000$ & $0.000\pm0.000$ & $0.000\pm0.000$ & $0.000\pm0.000$\\
+ & \quad rescaled input & $0.000\pm0.000$ & -- & $0.015\pm0.011$ & $0.146\pm0.077$ & $0.579\pm0.262$ & $0.769\pm0.378$\\
+ & data, plain input & $0.000\pm0.000$ & -- & $0.000\pm0.000$ & $0.000\pm0.000$ & $0.000\pm0.000$ & $0.000\pm0.000$\\
  & data, rescaled input & $0.000\pm0.000$ & -- & $0.001\pm0.002$ & $0.143\pm0.004$ & $0.692\pm0.023$ & $0.962\pm0.005$\\
  & distillation (control) & $0.002\pm0.005$ & -- & $0.007\pm0.011$ & $0.140\pm0.004$ & $0.699\pm0.037$ & $0.961\pm0.012$\\
 \bottomrule
