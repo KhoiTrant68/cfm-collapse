@@ -215,8 +215,9 @@ on-atom samples at $h=4,6$ (Appendix~\ref{app:measured-transfer}).
 a fixed training set, $(1-t)|\Delta|$ can be evaluated along sampling trajectories near $t=1$;
 by Theorem~\ref{thm:transfer} this, and not the regression loss, is what bounds the distance of an
 endpoint from its training example at an identifying label. On retrained CIFAR-10 U-Nets it
-separates off-atom from on-atom samples with AUC about $0.98$, and already with AUC at least $0.95$
-by $t\approx0.53$ (Appendix~\ref{app:measured-transfer}). Evaluating it needs the exact field, a
+already separates the samples that end off the training set from the others with AUC at least
+$0.95$ by $t\approx0.53$, long before the endpoint, where it reduces to the distance to the nearest
+training image (Appendix~\ref{app:measured-transfer}). Evaluating it needs the exact field, a
 sum over the training set at every step, so it suits audits rather than deployment.
 \emph{(iv) The statements concern support at fixed $N$.} The floor in~\eqref{eq:w2floor} is the
 mean squared distance from the posterior to the nearest training point, which typically decreases
@@ -3071,7 +3072,8 @@ ratio $K=m/r$ is the median over conditions, then the mean and standard deviatio
 $h=0$ and $2\times10^5$ steps, $K=1.46\pm0.29$ at $1-t=0.5$, $127\pm40$ at $0.1$,
 $(3.1\pm2.9)\times10^3$ at $10^{-2}$, $(2.1\pm2.3)\times10^5$ at $10^{-3}$ and
 $(2.0\pm2.2)\times10^7$ at $10^{-4}$: the error the loss measures is several orders of magnitude
-smaller than the error the sampler meets near $t=1$, growing roughly like $(1-t)^{-2}$. The
+smaller than the error the sampler meets near $t=1$, growing like $(1-t)^{-2}$ over the last two decades
+(local exponents $1.8$ and $2.0$). The
 resulting certificate $B_T=0.637\pm0.31$ at $1-T=10^{-3}$ equals the root-mean-square distance
 to the atom, $0.637\pm0.31$, and to the teacher path, $0.636\pm0.31$, while the same expression
 with $K\equiv1$, built from the training-law error alone, is $0.0065\pm0.0008$ and bounds neither. As remarked after
@@ -3109,22 +3111,21 @@ same network error along the exact trajectory from the same source. The
 off-atom fractions at $1-T=10^{-4}$ reproduce the ones above: $0.168\pm0.012$ at $h=4$ and
 $0.276\pm0.008$ at $h=6$, none at $h=0$, and none for the exact field. Along the exact
 trajectories the final scaled error of the network is at most $0.006$, so where the exact field
-ends the network matches it. Along the learned trajectories the final scaled error separates the two groups:
-its median is $6.2$--$7.1$ for off-atom and $2.5$--$2.9$ for on-atom samples, and it ranks an
-off-atom above an on-atom sample with probability (AUC) $0.985$ at $h=4$ and $0.977$ at $h=6$; at
-$h=0$ its median is $1.08$. The off-atom samples are therefore the ones whose learned field
-departs most from the exact one, as the attribution requires, and no off-atom endpoint has a small
-scaled error. The separation is not confined to late times: at $t\approx0.63$ the medians are
-already $7.2$--$8.0$ against $2.2$--$3.0$; pooled over seeds, the AUC is $0.97$ at $h=4$ and
-$0.95$ at $h=6$ by $t\approx0.53$ and stays between $0.977$ and $0.990$ from $t\approx0.71$ on.
-From $t\approx0.86$ on both medians stay nearly constant, while the network's error along the
-exact trajectories falls to $0.006$. The limit in Theorem~\ref{thm:transfer} is thus
-reached early, and what decides an off-atom endpoint is error the network carries through the
-second half of sampling, not error that appears only at the end. That every endpoint lies within
-its final scaled error of the nearest training image, which holds for at least $99.7\%$ of
-samples, is the identity behind the theorem and checks the bookkeeping only. At positive
-bandwidth Proposition~\ref{prop:localtransfer} is local, so this is a consistency check of the
-attribution, not a proof of it.
+ends the network matches it. Along the learned trajectories the final scaled error has median
+$6.2$--$7.1$ for off-atom and $2.5$--$2.9$ for on-atom samples, with AUC $0.985$ at $h=4$ and
+$0.977$ at $h=6$, and median $1.08$ at $h=0$. These final values are bookkeeping, not evidence: at
+the cutoff $m^*$ is the nearest training image and $\hat m$ the endpoint, so the final scaled error
+equals the distance $d_1$ to the nearest training image within $0.2\%$ for every sample, and the
+off-atom criterion is a condition on $d_1$. The informative observation is that the separation
+appears well before the end: at $t\approx0.63$ the medians are already $7.2$--$8.0$ against
+$2.2$--$3.0$, and pooled over seeds the AUC is $0.97$ at $h=4$ and $0.95$ at $h=6$ by
+$t\approx0.53$, where $m^*$ is a posterior mean over many training images rather than the nearest
+one, and stays between $0.977$ and $0.990$ from $t\approx0.71$ on. From $t\approx0.86$ on both
+medians stay nearly constant, while the network's error along the exact trajectories falls to
+$0.006$. The limit in Theorem~\ref{thm:transfer} is thus reached early, and what decides an
+off-atom endpoint is error the network carries through the second half of sampling, not error that
+appears only at the end. At positive bandwidth Proposition~\ref{prop:localtransfer} is local, so
+this is a consistency check of the attribution, not a proof of it.
 
 The same network evaluated along the exact trajectory from the same source does not separate the
 groups: from $t\approx0.71$ on, the AUC of that error is $0.49$--$0.52$ at $h=4$ and

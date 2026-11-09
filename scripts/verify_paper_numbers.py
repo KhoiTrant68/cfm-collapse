@@ -868,6 +868,11 @@ for _col, (_m, _s, _scale) in zip(range(1, 6), ((1.46, 0.29, 1), (127, 40, 1), (
     _fm, _fs = _pm(_b[_col])
     check(f"EXP-B K col {_col} mean", _m * _scale, _fm, 0.03)
     check(f"EXP-B K col {_col} sd", _s * _scale, _fs, 0.03)
+# Local growth exponent of K over the last two decades of 1-t (the "(1-t)^{-2}" claim).
+_K = [_pm(_b[c])[0] for c in (3, 4, 5)]
+check("EXP-B K exponent 1e-2..1e-3", 1.8, round(np.log10(_K[1] / _K[0]), 1), 1e-9)
+check("EXP-B K exponent 1e-3..1e-4", 2.0, round(np.log10(_K[2] / _K[1]), 1), 1e-9)
+in_tex(r"growing like $(1-t)^{-2}$ over the last two decades")
 check("EXP-B |Z_T - Y_T|", 0.636, _pm(_b[6])[0], 1e-9)
 check("EXP-B B_T", 0.637, _pm(_b[7])[0], 1e-9)
 check("EXP-B B_T sd", 0.31, _pm(_b[7])[1], 1e-9)
@@ -916,17 +921,22 @@ def _pooled_auc(h):
     return _auc(np.concatenate(_P), np.concatenate(_N))
 check("S10 h=4 AUC (pooled)", 0.985, round(_pooled_auc(4), 3), 1e-9)
 check("S10 h=6 AUC (pooled)", 0.977, round(_pooled_auc(6), 3), 1e-9)
-check("S10 AUC about 0.98", 0.98, round(_st.mean(r["auc_final"] for r in _pos), 2), 1e-9)
 check("S10 h=0 on median", 1.08, round(_g(0)[0]["e_final_on_median"], 2), 1e-9)
 _p63 = [r["profile_median"]["0.6321"] for r in _pos]
 check("S10 t=0.63 off min", 7.2, _r1(min(p["off"] for p in _p63)), 1e-9)
 check("S10 t=0.63 off max", 8.0, _r1(max(p["off"] for p in _p63)), 1e-9)
 check("S10 t=0.63 on min", 2.2, _r1(min(p["on"] for p in _p63)), 1e-9)
 check("S10 t=0.63 on max", 3.0, _r1(max(p["on"] for p in _p63)), 1e-9)
-check("S10 d1 <= e for >= 99.7%", 1.0, float(min(r["d1_le_e_final"] for r in _s10.values()) >= 0.997), 0)
+# Final scaled error equals d1 within 0.2% for every sample (why the final AUC is bookkeeping).
+_rd = 0.0
+for _f in sorted(pathlib.Path("results/s10_cifar_transfer_20261108").glob("*/per_sample_ckpt_60000.npz")):
+    _z = np.load(_f); _k = len(_z["eps_out"]) - 1
+    _e = _z["e_learned"][:, -1].astype(np.float64)
+    _rd = max(_rd, float(np.max(np.abs(_z[f"learned_d1_{_k}"].astype(np.float64) - _e) / _e)))
+check("S10 final error = d1 within 0.2%", 1.0, float(_rd <= 0.002), 0)
 for s in (r"$0.168\pm0.012$", r"$0.276\pm0.008$", r"at most $0.006$", r"$6.2$--$7.1$", r"$2.5$--$2.9$",
-          r"(AUC) $0.985$ at $h=4$ and $0.977$ at $h=6$", r"median is $1.08$",
-          r"$7.2$--$8.0$ against $2.2$--$3.0$", r"$99.7\%$", r"AUC about $0.98$"):
+          r"AUC $0.985$ at $h=4$ and", r"median $1.08$ at $h=0$", r"within $0.2\%$ for every sample",
+          r"$7.2$--$8.0$ against", r"AUC at least" + "\n" + r"$0.95$ by $t\approx0.53$"):
     in_tex(s)
 # Pooled S10 analyses (scripts/summarize_s10_cifar.py): AUC over time, exact-path AUC, threshold rule.
 _q = json.loads(pathlib.Path("results/s10_cifar_transfer_20261108/s10_pooled_ckpt_60000.json").read_text())
@@ -951,8 +961,8 @@ for _h, _lo, _hi in ((4, 55, 67), (6, 23, 28)):
     _sa = [r["same_atom_on"] for r in _g(_h)]
     check(f"S10 h={_h} same image min %", _lo, round(100 * min(_sa)), 1e-9)
     check(f"S10 h={_h} same image max %", _hi, round(100 * max(_sa)), 1e-9)
-for s in (r"$0.97$ at $h=4$ and", r"$0.95$ at $h=6$ by $t\approx0.53$", r"between $0.977$ and $0.990$ from $t\approx0.71$",
-          r"AUC at least $0.95$", r"$0.49$--$0.52$ at $h=4$ and", r"$0.53$--$0.58$ at $h=6$",
+for s in (r"$0.97$ at $h=4$ and", r"$0.95$ at $h=6$ by" + "\n" + r"$t\approx0.53$", r"between $0.977$ and $0.990$ from $t\approx0.71$",
+          r"$0.49$--$0.52$ at $h=4$ and", r"$0.53$--$0.58$ at $h=6$",
           r"above $4$ flags $94\%$ and $95\%$", r"$7\%$ and $12\%$ of the on-atom", r"$55$--$67\%$ at $h=4$ and $23$--$28\%$",
           r"only $23$--$67\%$ of"):
     in_tex(s)
