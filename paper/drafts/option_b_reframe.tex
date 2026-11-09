@@ -1,0 +1,160 @@
+% ==========================================================================
+% DRAFT — Option B reframing (EIC W1, perspective W1–W5; panel 2026-11-07)
+% Replacement passages for the ICLR build of main.tex. Not \input anywhere.
+%
+% Goal: lead with the result a practitioner or auditor can use (sampler knobs
+% reweight training examples, they do not protect them; late-time field error,
+% not loss, is what moves a learned sampler off the data), and present the
+% composition result as a boundary marker of the positive theorems.
+%
+% Review items this draft is meant to close or advance:
+%   R1  rescope practical framing of the composition result  -> abstract, intro, Implications
+%   R2  Thm 5.1 takeaway restricted to identifying labels    -> kept, wording unchanged in substance
+%   R6  inductive-bias positioning                           -> intro sentence kept (lines 181–189)
+%   R8  "collapse" vs endpoint atom                          -> abstract keeps "approach the endpoint"
+%   R9  CIFAR pairs as a consistency check                   -> abstract keeps that wording
+%   perspective W1 "new samples" = blends                    -> intro list + practice paragraph
+%   perspective W2 Ethics not usable                         -> Ethics rewrite
+%   perspective W3 fixed-N                                   -> practice paragraph, last item
+%   perspective W4 practitioner knobs                        -> abstract no longer opens on them
+%   perspective W5 endpoint noise is a smoothed bootstrap    -> practice paragraph, first item
+%
+% TODO before merging:
+%   [T1] refs.bib has no differential-privacy reference. Add one (e.g. Dwork & Roth 2014,
+%        "The Algorithmic Foundations of Differential Privacy") or drop the DP clause.
+%   [T2] "~10^5" quotes K = (2.1 ± 2.3)×10^5 at 1-t = 1e-3 (App. measured-transfer, EXP-1, h = 0).
+%        The sd is as large as the mean; keep "orders of magnitude" if you prefer not to quote it.
+%   [T3] The N^{-2/d} remark is copied from the non-ICLR branch after Prop. atomicity
+%        (main.tex lines 394–397); either enable that branch in the ICLR build or keep it here.
+%   [T4] Check the abstract length against the ICLR limit after editing.
+%   [T5] If S10 gives a clean per-time profile, add one clause to the third practice item
+%        pointing to App. measured-transfer for the CIFAR measurement.
+% ==========================================================================
+
+
+% --------------------------------------------------------------------------
+% 1. ABSTRACT  (replaces main.tex lines 101–122)
+% --------------------------------------------------------------------------
+\begin{abstract}
+Label noise, coarse label resolution and classifier-free guidance modify the field a conditional
+flow-matching sampler integrates, and some of them are used to reduce the replication of training
+data. Applied to the exact empirical field at positive label bandwidth, none of them does: they
+decide which training example is returned, not whether one is. Label noise reweights the training
+examples with weights computable from the training set; positive mixtures of exact fields, which
+include averaging over labels and negative guidance, and guidance with a fixed nonnegative strength
+or a bounded schedule of bounded variation end on a training example from almost every initial
+point, and every trajectory converges. What moves a learned sampler off the training set is
+therefore its field error late in sampling: at an identifying label a learned endpoint lies within
+the limiting scaled field error of its training example, a quantity the regression loss does not
+control, and in our runs the error met along trajectories exceeds the error on the training law by
+orders of magnitude near $t=1$. At positive bandwidth we prove only a local version. The positive
+theorems stop at one composition: guidance applied to a label-averaged field reaches a blend of
+training examples with positive probability, for two examples whose averaged priors have log-odds
+$\pm2B$ exactly when the guidance strength exceeds $1/\sinh^2B$, stably under perturbation; a signed
+posterior covariance decides the general case. We present it as a boundary marker, not a practical
+mechanism: we know of no trained model that averages its field over labels, the basin sits in a
+layer of width $(1-t)^2$ at the tie, and standard velocity networks do not reproduce it, while
+networks given a coordinate that resolves this scale at the known tie do. Exact computations agree
+with the threshold, also in a consistency check on CIFAR-10 image pairs. At a finite cutoff,
+trained networks from small MLPs to a 35.75M-parameter U-Net approach the hard-conditioning
+endpoint as predicted, although at image scale some samples stay off the training set and the
+variance departs from the label-smoothing reference.
+\end{abstract}
+
+
+% --------------------------------------------------------------------------
+% 2. INTRODUCTION, end of the second paragraph and contribution list
+%    (replaces main.tex lines 144–177, up to "\ificlr\else{} Non-training endpoints")
+% --------------------------------------------------------------------------
+varies in time~\citep{kynkaanniemi2024interval} and is sometimes withheld or reversed early in
+sampling to reduce memorisation~\citep{jain2025attraction}. We ask which of these
+modifications can, by themselves, move the endpoints of the exact field off the training set,
+and what a learned field must do to inherit the answer.
+\begin{itemize}\itemsep1pt
+\item \emph{Sampler-side modifications reweight the training examples}
+  (Section~\ref{sec:intervention-atomicity}). Label noise returns training examples with weights
+  $p^{(h)}(y)$ computable from the training set (Theorem~\ref{thm:endpoint}). Positive mixtures of
+  prior-indexed exact fields (\emph{positive field mixtures}) with strictly positive priors, and
+  nonnegative guidance with a fixed strength or a bounded schedule of bounded variation, end on a
+  training example for almost every initial point (Theorems~\ref{thm:posmix}
+  and~\ref{thm:schedule}). The exceptional set is null but can be a hyperplane
+  (Proposition~\ref{prop:hyperplane}).
+\item \emph{Learned fields leave only through late-time error} (Section~\ref{sec:transfer}). A
+  learned endpoint is within $\limsup_{t\uparrow1}(1-t)|\Delta|$ of its training example, where
+  $\Delta$ is the field error along the trajectory (Theorem~\ref{thm:transfer}). Small regression
+  loss does not control this quantity: on EXP-1 the error along trajectories
+  exceeds the training-law error by a factor that grows roughly like $(1-t)^{-2}$
+  (Appendix~\ref{app:measured-transfer}). A field with integrable Lipschitz constant up to $t=1$
+  has an endpoint law without atoms (Proposition~\ref{prop:regular}).
+\item \emph{One composition marks where these results stop} (Section~\ref{sec:composition}).
+  Guidance applied to a label-averaged field can converge to a circumcentre of training examples,
+  a blend of them, with positive probability; for two examples whose averaged priors have log-odds
+  $\pm2B$, the threshold is exactly $w>1/\sinh^2B$, and the effect is stable under perturbation of
+  the priors, mixture weights and guidance strength (Theorem~\ref{thm:composition},
+  Proposition~\ref{prop:composition-open}). For hyperbolic profiles in any dimension, the
+  eigenvalue signs of a signed posterior covariance matrix distinguish open attracting basins
+  from null basins; a complete classification also needs a condition on the faces of the tied
+  atoms (Theorem~\ref{thm:spectral}). Averaging and guidance commute, so the composition, not the
+  order, decides the support. We read this as a boundary marker, not as a mechanism of
+  standard models: the basin lives at the scale $(1-t)^2$ at the tie, only networks given an
+  input that resolves that scale reproduce it (Section~\ref{sec:intervention-tests}), and a label
+  bottleneck averages priors rather than fields (Proposition~\ref{prop:bottleneck}).
+\end{itemize}
+No single intervention analysed here (Table~\ref{tab:interventions}) moves the endpoints of the
+field that training defines off the training examples, and the one composition that does reaches
+blends of them, through a boundary layer that standard networks do not resolve.
+
+\paragraph{What this means in practice.} Four consequences follow without new assumptions.
+\emph{(i) The knobs are not privacy mitigations.} At the exact optimum, label noise, label
+averaging, negative guidance and bounded guidance schedules only reweight training examples, and
+the blends reached by the composition are convex combinations of training images, which an audit
+should count as leakage rather than as new samples. Changing the support needs a mechanism such as
+endpoint noise (Proposition~\ref{prop:tgtnoise}), whose endpoint law is a Gaussian kernel density
+estimate around the weighted training examples, so sampling from it is a smoothed bootstrap; it carries no formal privacy guarantee unless its
+randomisation is calibrated in the sense of differential privacy~\citep{TODO-dwork2014}.
+\emph{(ii) Which record is returned is predictable.} Under label noise the returned record and
+its probability, $p_i^{(h)}(y)$, are computable from the training set and the query label
+(Theorem~\ref{thm:endpoint}), so an auditor can rank, for any label, the records an exact-optimum
+model returns; under guidance the support is the same but the weights have no closed form.
+\emph{(iii) Monitor late-time field error, not the loss.} Because the exact field is explicit for
+a fixed training set, $(1-t)|\Delta|$ can be evaluated along sampling trajectories near $t=1$;
+by Theorem~\ref{thm:transfer} this, and not the regression loss, is what bounds the distance of an
+endpoint from its training example at an identifying label.
+\emph{(iv) The statements concern support at fixed $N$.} The floor in~\eqref{eq:w2floor} is the
+mean squared distance from the posterior to the nearest training point, which typically decreases
+like $N^{-2/d}$, so atomic support is compatible with a small distance to the posterior at large
+$N$ and says nothing on its own about how well the weights match it.
+
+
+% --------------------------------------------------------------------------
+% 3. CONCLUSION, Implications (replaces main.tex lines 1135–1147, ICLR branch)
+% --------------------------------------------------------------------------
+\emph{Implications.} For a practitioner, label noise, label averaging and guidance decide which
+training examples the exact field returns, not whether it returns one, so at the exact optimum
+none of them protects training data; under label noise the returned records are even predictable
+from the training set. At an identifying label, what moves a trained sampler away from the
+training examples is the error of the learned field near $t=1$ (Theorem~\ref{thm:transfer}),
+which the regression loss does not control, so late-time field error is the quantity to measure.
+At positive bandwidth, as for our off-atom image samples, this attribution rests only on ruling
+out the sampler. The composition result is a boundary marker of these statements, not a mechanism
+we expect in standard models: its basin is set at the scale $(1-t)^2$, which standard velocity
+networks did not resolve in our runs (Proposition~\ref{prop:regular}), and a label bottleneck does
+not produce the averaged field (Proposition~\ref{prop:bottleneck}). Open are nonhyperbolic
+profiles, many atoms near a candidate, learned composition beyond $d\le2$, and the off-atom
+samples of trained image samplers.
+
+
+% --------------------------------------------------------------------------
+% 4. ETHICS STATEMENT (replaces main.tex lines 1173–1180)
+% --------------------------------------------------------------------------
+\subsection*{Ethics statement}
+This work studies memorisation in conditional flow-matching models: when the exact empirical field
+and its common modifications return training examples. The consequence for sensitive data is
+negative: at the exact optimum, label noise, label averaging, negative guidance and bounded
+guidance schedules are not privacy mitigations, because they only reweight the training examples,
+and the blends reached by the one composition that leaves them are combinations of training
+records. Under label noise the returned record is also predictable from the training set and the
+query label, which helps auditors and, equally, anyone attempting extraction. Moving the support
+requires a change such as endpoint noise, and a formal guarantee requires randomisation calibrated
+in the sense of differential privacy, which we do not analyse. All experiments use synthetic data
+and the public CIFAR-10 and MNIST datasets; no personal or human-subject data are involved.

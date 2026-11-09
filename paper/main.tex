@@ -99,27 +99,28 @@ Empirical Conditional Flows}
 
 \begin{abstract}
 Label noise, coarse label resolution and classifier-free guidance modify the field a conditional
-flow-matching sampler integrates. Applied to the exact empirical field at positive
-label bandwidth, none of them alone moves the endpoints off the training set, and exactly one
-composition does. Positive mixtures of exact fields with strictly positive priors, which include
-averaging over labels and negative guidance, and guidance with a fixed nonnegative strength or a
-bounded schedule of bounded variation end on a training example from almost every initial point,
-and every trajectory converges. Guidance applied to a label-averaged field instead reaches a blend
-of training examples with positive probability: for two examples whose averaged priors have
-log-odds $\pm2B$, exactly when the guidance strength exceeds $1/\sinh^2B$, stably under
-perturbation; a signed posterior covariance decides
-the general case. This is an existence result that marks where the positive theorems stop: we know
-of no trained model that averages its field over labels, a label bottleneck averages priors instead,
-and the basin sits in a layer of width $(1-t)^2$ at the tie. A learned field whose spatial
-Lipschitz constant and value at a point are integrable up to $t=1$ has no endpoint atom at all, and in our runs standard
-velocity networks do not reproduce the basin, while networks given the coordinate
-$\operatorname{asinh}(tx/(1-t)^2)$, centred at the known tie, do. At an identifying label a learned endpoint lies within the
-limiting scaled field error of its training example, so there a sample far from the training set
-reflects that late-time error rather than the sampler; at positive bandwidth we prove only a local
-version. Exact computations agree with the threshold, also in a consistency check on CIFAR-10
-image pairs. At a finite cutoff, trained networks from small MLPs to a 35.75M-parameter U-Net
-approach the hard-conditioning endpoint as predicted, although at image scale some samples stay
-off the training set and the variance departs from the label-smoothing reference.
+flow-matching sampler integrates, and some of them are used to reduce the replication of training
+data. Applied to the exact empirical field at positive label bandwidth, none of them does: they
+decide which training example is returned, not whether one is. Label noise reweights the training
+examples with weights computable from the training set; positive mixtures of exact fields, which
+include averaging over labels and negative guidance, and guidance with a fixed nonnegative strength
+or a bounded schedule of bounded variation end on a training example from almost every initial
+point, and every trajectory converges. What moves a learned sampler off the training set is
+therefore its field error late in sampling: at an identifying label a learned endpoint lies within
+the limiting scaled field error of its training example, a quantity the regression loss does not
+control, and in our runs the error met along trajectories exceeds the error on the training law by
+orders of magnitude near $t=1$. At positive bandwidth we prove only a local version. The positive
+theorems stop at one composition: guidance applied to a label-averaged field reaches a blend of
+training examples with positive probability, for two examples whose averaged priors have log-odds
+$\pm2B$ exactly when the guidance strength exceeds $1/\sinh^2B$, stably under perturbation; a signed
+posterior covariance decides the general case. We present it as a boundary marker, not a practical
+mechanism: we know of no trained model that averages its field over labels, the basin sits in a
+layer of width $(1-t)^2$ at the tie, and standard velocity networks do not reproduce it, while
+networks given a coordinate that resolves this scale at the known tie do. Exact computations agree
+with the threshold, also in a consistency check on CIFAR-10 image pairs. At a finite cutoff,
+trained networks from small MLPs to a 35.75M-parameter U-Net approach the hard-conditioning
+endpoint as predicted, although at image scale some samples stay off the training set and the
+variance departs from the label-smoothing reference.
 \end{abstract}
 
 % ==========================================================================
@@ -141,40 +142,43 @@ Practical samplers modify this field. Labels are noised during training~\citep{h
 a network that resolves labels only coarsely may average the field over nearby labels, a
 hypothesis we test in one form; and
 sampling adds classifier-free guidance~\citep{ho2022classifier}, often with a strength that
-varies in time~\citep{kynkaanniemi2024interval,jain2025attraction}. We ask which of these
+varies in time~\citep{kynkaanniemi2024interval} and is sometimes withheld or reversed early in
+sampling to reduce memorisation~\citep{jain2025attraction}. We ask which of these
 modifications can, by themselves, move the endpoints of the exact field off the training set,
 and what a learned field must do to inherit the answer.
 \begin{itemize}\itemsep1pt
-\item \emph{Positive modifications keep the training examples} (Section~\ref{sec:intervention-atomicity}).
-  Positive mixtures of prior-indexed exact fields (\emph{positive field mixtures}) with strictly
-  positive priors, and nonnegative guidance
-  with a fixed strength or a bounded schedule of bounded variation, end on a training example
-  for almost every initial point (Theorems~\ref{thm:posmix} and~\ref{thm:schedule}). The
-  exceptional set is null but can be a hyperplane (Proposition~\ref{prop:hyperplane}).
-\item \emph{Their composition can leave} (Section~\ref{sec:composition}). Guidance applied to a
-  label-averaged field can converge to a circumcentre of training examples with positive
-  probability; for two examples whose averaged priors have log-odds $\pm2B$, the threshold is
-  exactly $w>1/\sinh^2B$, and the effect is stable
-  under perturbation of the priors, mixture weights and guidance strength (Theorem~\ref{thm:composition}, Proposition~\ref{prop:composition-open}). For
-  hyperbolic profiles in any dimension, the eigenvalue signs of a signed posterior covariance
-  matrix distinguish open attracting basins from null basins; a complete classification also
-  needs a condition on the faces of the tied atoms (Theorem~\ref{thm:spectral}).
-  Averaging and guidance commute, so the composition, not the order, decides the support.
-  We read this as an existence result that marks where the positive theorems stop: the basin
-  lives at the scale $(1-t)^2$ at the tie, and in our runs only networks given an input that
-  resolves that scale reproduce it (Section~\ref{sec:intervention-tests}).\ificlr\else{} We know of no trained
-  model that averages its field over labels; a label bottleneck averages priors instead and keeps
-  the atoms (Proposition~\ref{prop:bottleneck}).\fi
-\item \emph{Learned fields inherit collapse unless their scaled error persists}
-  (Section~\ref{sec:transfer}). A learned endpoint is within $\limsup_{t\uparrow1}(1-t)|\Delta|$
-  of its training example, where $\Delta$ is the field error along the trajectory
-  (Theorem~\ref{thm:transfer}); small regression loss alone does not control this quantity. A
-  field with integrable Lipschitz constant up to $t=1$ has an endpoint law without atoms
-  (Proposition~\ref{prop:regular}).
+\item \emph{Sampler-side modifications reweight the training examples}
+  (Section~\ref{sec:intervention-atomicity}). Label noise returns training examples with weights
+  $p^{(h)}(y)$ computable from the training set (Theorem~\ref{thm:endpoint}). Positive mixtures of
+  prior-indexed exact fields (\emph{positive field mixtures}) with strictly positive priors, and
+  nonnegative guidance with a fixed strength or a bounded schedule of bounded variation, end on a
+  training example for almost every initial point (Theorems~\ref{thm:posmix}
+  and~\ref{thm:schedule}). The exceptional set is null but can be a hyperplane
+  (Proposition~\ref{prop:hyperplane}).
+\item \emph{Learned fields leave only through late-time error} (Section~\ref{sec:transfer}). A
+  learned endpoint is within $\limsup_{t\uparrow1}(1-t)|\Delta|$ of its training example, where
+  $\Delta$ is the field error along the trajectory (Theorem~\ref{thm:transfer}). Small regression
+  loss does not control this quantity: on EXP-1 the error along trajectories
+  exceeds the training-law error by a factor that grows roughly like $(1-t)^{-2}$
+  (Appendix~\ref{app:measured-transfer}). A field with integrable Lipschitz constant up to $t=1$
+  has an endpoint law without atoms (Proposition~\ref{prop:regular}).
+\item \emph{One composition marks where these results stop} (Section~\ref{sec:composition}).
+  Guidance applied to a label-averaged field can converge to a circumcentre of training examples,
+  a blend of them, with positive probability; for two examples whose averaged priors have log-odds
+  $\pm2B$, the threshold is exactly $w>1/\sinh^2B$, and the effect is stable under perturbation of
+  the priors, mixture weights and guidance strength (Theorem~\ref{thm:composition},
+  Proposition~\ref{prop:composition-open}). For hyperbolic profiles in any dimension, the
+  eigenvalue signs of a signed posterior covariance matrix distinguish open attracting basins
+  from null basins; a complete classification also needs a condition on the faces of the tied
+  atoms (Theorem~\ref{thm:spectral}). Averaging and guidance commute, so the composition, not the
+  order, decides the support. We read this as a boundary marker, not as a mechanism of
+  standard models: the basin lives at the scale $(1-t)^2$ at the tie, only networks given an
+  input that resolves that scale reproduce it (Section~\ref{sec:intervention-tests}), and a label
+  bottleneck averages priors rather than fields (Proposition~\ref{prop:bottleneck}).
 \end{itemize}
 No single intervention analysed here (Table~\ref{tab:interventions}) moves the endpoints of the
-field that training defines off the training examples, and one composition does, through a
-boundary layer that standard networks do not resolve.\ificlr\else{} Non-training endpoints of positive
+field that training defines off the training examples, and the one composition that does reaches
+blends of them, through a boundary layer that standard networks do not resolve.\ificlr\else{} Non-training endpoints of positive
 probability arise only from a support change such as endpoint noise, from averaging hard-label
 fields, from composing label averaging with guidance, and, for learned fields at an identifying
 label, from an error that does not vanish at the scale $(1-t)^{-1}$ up to the end of sampling.\fi{} At
@@ -191,6 +195,33 @@ attribution. Section~\ref{sec:experiments} tests the exact statements numericall
 finite-cutoff collapse in trained networks. Proofs are in
 Appendices~\ref{app:proofs}--\ref{app:transfer}, which open with a notation table and a proof
 roadmap (Tables~\ref{tab:notation} and~\ref{tab:roadmap}).
+
+\paragraph{What this means in practice.} Four consequences follow without new assumptions.
+\emph{(i) The knobs are not privacy mitigations.} At the exact optimum, label noise, label
+averaging, negative guidance and bounded guidance schedules only reweight training examples, and
+the blends reached by the composition are convex combinations of training images, which an audit
+should count as leakage rather than as new samples. Changing the support needs a mechanism such as
+endpoint noise (Proposition~\ref{prop:tgtnoise}), whose endpoint law is a Gaussian kernel density
+estimate around the weighted training examples, so sampling from it is a smoothed bootstrap; it carries no formal privacy guarantee unless its
+randomisation is calibrated in the sense of differential privacy~\citep{dwork2014algorithmic}.
+\emph{(ii) Which record is returned is predictable.} Under label noise the returned record and
+its probability, $p_i^{(h)}(y)$, are computable from the training set and the query label
+(Theorem~\ref{thm:endpoint}), so an auditor can rank, for any label, the records an exact-optimum
+model returns; under guidance the support is the same but the weights have no closed form. For a
+trained model this is a reference, not a per-sample prediction: on retrained CIFAR-10 U-Nets the
+learned and the exact field return the same image from the same source for only $23$--$67\%$ of
+on-atom samples at $h=4,6$ (Appendix~\ref{app:measured-transfer}).
+\emph{(iii) Monitor late-time field error, not the loss.} Because the exact field is explicit for
+a fixed training set, $(1-t)|\Delta|$ can be evaluated along sampling trajectories near $t=1$;
+by Theorem~\ref{thm:transfer} this, and not the regression loss, is what bounds the distance of an
+endpoint from its training example at an identifying label. On retrained CIFAR-10 U-Nets it
+separates off-atom from on-atom samples with AUC about $0.98$, and already with AUC at least $0.95$
+by $t\approx0.53$ (Appendix~\ref{app:measured-transfer}). Evaluating it needs the exact field, a
+sum over the training set at every step, so it suits audits rather than deployment.
+\emph{(iv) The statements concern support at fixed $N$.} The floor in~\eqref{eq:w2floor} is the
+mean squared distance from the posterior to the nearest training point, which typically decreases
+like $N^{-2/d}$, so atomic support is compatible with a small distance to the posterior at large
+$N$ and says nothing on its own about how well the weights match it.
 
 \begin{table}[t]
 \centering\footnotesize
@@ -863,11 +894,11 @@ derivative is unbounded near the tie as $t\uparrow1$, as for an input $\operator
 \fi
 
 Theorem~\ref{thm:transfer} and Proposition~\ref{prop:localtransfer} are conditional: they neither infer the error along trajectories from the
-training loss nor assert that a trained network enters the ball. \ificlr Appendix~\ref{app:measured-transfer} measures it on EXP-1, and on CIFAR-10 finds it persisting on average where off-atom samples appear.\else They name what a measurement
+training loss nor assert that a trained network enters the ball. \ificlr Appendix~\ref{app:measured-transfer} measures it on EXP-1; on CIFAR-10 the off-atom samples are those with large scaled error.\else They name what a measurement
 would need, for instance to explain the off-atom CIFAR-10 samples of Section~\ref{sec:cifarddpm}.
 Appendix~\ref{app:measured-transfer} measures the trajectory error on EXP-1; for the CIFAR-10
-samples it rules out solver and cutoff error and finds that the scaled error persists on average
-over samples, but does not split it by sample, so their cause is not established.\fi
+samples it rules out solver and cutoff error and shows that the off-atom samples are those with
+large scaled error along their trajectories; the mechanism behind that error is open.\fi
 
 % ==========================================================================
 \section{Experiments}
@@ -1132,18 +1163,17 @@ and nonnegative guidance with a bounded schedule reweight the training examples 
 almost surely.\fi The one composition that leaves them, guidance on a label-averaged field, reaches
 blends of training examples, and only above an explicit threshold.
 
-\emph{Implications.} For a practitioner, guidance strength and label noise on their own decide which training
-examples the exact field returns, not whether it returns one, so at the exact optimum none of them
-protects training data. At an identifying label, what moves a trained sampler away from them is
-the error of the learned field near $t=1$ (Theorem~\ref{thm:transfer}); at positive bandwidth,
-as for our off-atom image samples, it rests on ruling out the sampler and on an average, not
-per-sample, error measurement. For the
-memorisation debate, the composition result is an existence result, not a mechanism we expect in
-standard models: its basin is set at the scale $(1-t)^2$,\ificlr{} which standard velocity networks did
-not resolve in our runs (Proposition~\ref{prop:regular}),\else{} a velocity network with integrable
-Lipschitz constant has no endpoint atom at all (Proposition~\ref{prop:regular}), and standard
-velocity networks did not reproduce the basin in our runs,\fi{} and a label bottleneck does not even
-produce the averaged field (Proposition~\ref{prop:bottleneck}).\ificlr{} Open are nonhyperbolic
+\emph{Implications.} For a practitioner, label noise, label averaging and guidance decide which
+training examples the exact field returns, not whether it returns one, so at the exact optimum
+none of them protects training data; under label noise the returned records are even predictable
+from the training set. At an identifying label, what moves a trained sampler away from the
+training examples is the error of the learned field near $t=1$ (Theorem~\ref{thm:transfer}),
+which the regression loss does not control, so late-time field error is the quantity to measure.
+At positive bandwidth, as for our off-atom image samples, the theorem is only local, but the
+measured scaled error separates those samples from the on-atom ones. The composition result is a boundary marker of these statements, not a mechanism
+we expect in standard models: its basin is set at the scale $(1-t)^2$, which standard velocity
+networks did not resolve in our runs (Proposition~\ref{prop:regular}), and a label bottleneck does
+not produce the averaged field (Proposition~\ref{prop:bottleneck}).\ificlr{} Open are nonhyperbolic
 profiles, many atoms near a candidate, learned composition beyond $d\le2$, and the off-atom
 samples of trained image samplers.\else{} A network given an
 input that resolves that scale does reproduce the basin, so the distinction can be tested.
@@ -1171,14 +1201,16 @@ Appendices~\ref{app:proofs}--\ref{app:noise}.
 % process before submission.
 \ificlr
 \subsection*{Ethics statement}
-This work studies memorisation in conditional flow-matching models: when the exact
-empirical field and its common modifications return training examples. Results of this kind
-bear on privacy, because a model that returns its training data can leak it, and they can
-inform both the auditing of trained models and attempts to extract data from them. Our
-results show that label noise, positive field mixtures and nonnegative guidance do not, by
-themselves, move the exact field's endpoints off the training set, which is relevant when
-conditional models are trained on sensitive data. All experiments use synthetic data and the
-public CIFAR-10 and MNIST datasets; no personal or human-subject data are involved.
+This work studies memorisation in conditional flow-matching models: when the exact empirical field
+and its common modifications return training examples. The consequence for sensitive data is
+negative: at the exact optimum, label noise, label averaging, negative guidance and bounded
+guidance schedules are not privacy mitigations, because they only reweight the training examples,
+and the blends reached by the one composition that leaves them are combinations of training
+records. Under label noise the returned record is also predictable from the training set and the
+query label, which helps auditors and, equally, anyone attempting extraction. Moving the support
+requires a change such as endpoint noise, and a formal guarantee requires randomisation calibrated
+in the sense of differential privacy, which we do not analyse. All experiments use synthetic data
+and the public CIFAR-10 and MNIST datasets; no personal or human-subject data are involved.
 
 \subsection*{Use of large language models}
 % CHECK: confirm the uses listed below and name any others.
@@ -3058,18 +3090,7 @@ against all $50000$ CIFAR-10 training images instead of the $2000$ used, the fra
 slightly larger, so the off-atom samples are not near other dataset images. Two refinement levels
 do not establish convergence, but the fractions change little between them, so solver and cutoff
 error are unlikely to account for them. The fractions grow with $h$ while the exact field has
-none, so they come from the learned field, not from the sampler. The same integrations record
-the scaled error $(1-t)|\Delta|$ along the learned trajectories against the exact field at the
-same bandwidth, $|\Delta|$ being the norm in $\R^{3072}$ of images in $[-1,1]$; the median
-nearest-neighbour distance of the training images of the first instance is $20.5$. Its root mean square over the samples does not vanish: at
-$1-t=10^{-4}$ it is $3.79$ to $4.09$, $4.14$ to $4.49$ and $4.48$ to $5.01$ over the seeds at
-$h=4,5,6$, and already within $0.18$ of that at $1-t=0.1$, against $0.006$ on the exact path and
-$1.08$ to $1.17$ for the $h=0$ networks against the hard-label teacher, which have no off-atom
-sample. Over the nine runs at $h>0$ its rank correlation with the off-atom fraction is $0.92$,
-and within each $h$ the seed with the largest error has the largest fraction. These are averages
-over all samples: they show that the scaled error of Theorem~\ref{thm:transfer} persists where the
-off-atom samples appear, not that it is larger on those samples, which needs a per-sample split
-and therefore the weights. Two accounts of how trained
+none, so they come from the learned field, not from the sampler. Two accounts of how trained
 image denoisers depart from the empirical optimum predict such samples. A convolutional network
 with a limited receptive field behaves like a locally optimal denoiser that assembles each patch
 from training patches at any position, and its samples are patch mosaics rather than training
@@ -3077,8 +3098,45 @@ images \citep{kamb2024creativity,niedoba2024mechanistic}. Independently, the U-N
 features, so it need not have the integrable global Lipschitz constant of
 Proposition~\ref{prop:regular}(a), which excludes endpoint atoms but not off-atom endpoints. We
 did not test the patch-mosaic account, which would compare each off-atom completion with its
-nearest training patches: the checkpoints of these runs were not kept after the measurements
-above, so the attribution remains open.
+nearest training patches, so the mechanism remains open; the measurements below narrow it.
+
+\paragraph{Scaled field error of the off-atom CIFAR-10 samples.} Since the original checkpoints
+were not kept, we retrained the networks of Section~\ref{sec:cifarddpm} with the same
+configuration at $h=4$ and $h=6$ (three seeds each) and at $h=0$ (one seed), and recorded, along
+each learned RK4 trajectory from the same $48\times16$ sources, the scaled error
+$(1-t)|\Delta(Z_t,t)|=|\hat m-m^*|$ against the exact field at the training bandwidth, and the
+same network error along the exact trajectory from the same source. The
+off-atom fractions at $1-T=10^{-4}$ reproduce the ones above: $0.168\pm0.012$ at $h=4$ and
+$0.276\pm0.008$ at $h=6$, none at $h=0$, and none for the exact field. Along the exact
+trajectories the final scaled error of the network is at most $0.006$, so where the exact field
+ends the network matches it. Along the learned trajectories the final scaled error separates the two groups:
+its median is $6.2$--$7.1$ for off-atom and $2.5$--$2.9$ for on-atom samples, and it ranks an
+off-atom above an on-atom sample with probability (AUC) $0.985$ at $h=4$ and $0.977$ at $h=6$; at
+$h=0$ its median is $1.08$. The off-atom samples are therefore the ones whose learned field
+departs most from the exact one, as the attribution requires, and no off-atom endpoint has a small
+scaled error. The separation is not confined to late times: at $t\approx0.63$ the medians are
+already $7.2$--$8.0$ against $2.2$--$3.0$; pooled over seeds, the AUC is $0.97$ at $h=4$ and
+$0.95$ at $h=6$ by $t\approx0.53$ and stays between $0.977$ and $0.990$ from $t\approx0.71$ on.
+From $t\approx0.86$ on both medians stay nearly constant, while the network's error along the
+exact trajectories falls to $0.006$. The limit in Theorem~\ref{thm:transfer} is thus
+reached early, and what decides an off-atom endpoint is error the network carries through the
+second half of sampling, not error that appears only at the end. That every endpoint lies within
+its final scaled error of the nearest training image, which holds for at least $99.7\%$ of
+samples, is the identity behind the theorem and checks the bookkeeping only. At positive
+bandwidth Proposition~\ref{prop:localtransfer} is local, so this is a consistency check of the
+attribution, not a proof of it.
+
+The same network evaluated along the exact trajectory from the same source does not separate the
+groups: from $t\approx0.71$ on, the AUC of that error is $0.49$--$0.52$ at $h=4$ and
+$0.53$--$0.58$ at $h=6$. The off-atom samples are therefore not those started where the network
+is inaccurate on the exact path; their error arises along their own trajectories, in regions the
+exact field does not visit from that source. This narrows the mechanism discussed above without
+settling it. As a monitoring rule, a final scaled error above $4$ flags $94\%$ and $95\%$ of the
+off-atom samples at $h=4$ and $h=6$, and $7\%$ and $12\%$ of the on-atom ones. Finally, the
+learned and the exact field often return different training images from the same source: among
+on-atom samples they agree for all at $h=0$, but for $55$--$67\%$ at $h=4$ and $23$--$28\%$ at
+$h=6$. Theorem~\ref{thm:endpoint} fixes which images the exact field returns and with what
+weights; these runs do not test whether the learned endpoint law has the same weights.
 
 % ==========================================================================
 \section{Endpoint noise}

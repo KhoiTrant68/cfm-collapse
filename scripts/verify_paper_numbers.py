@@ -886,34 +886,75 @@ for _h, (_e50, _rk4) in {"4": ((0.173, 0.029), (0.158, 0.031)), "5": ((0.246, 0.
     check(f"EXP-C h={_h} RK4 1e-4 sd", _rk4[1], _rk[1], 1e-9)
     check(f"EXP-C h={_h} exact at both cutoffs", 0.0, _ex3[0] + _ex4[0], 0)
     check(f"EXP-C h={_h}: all-50000 fraction larger", 1.0, float(_all[0] > _eu[0]), 0)
-# Scaled field error along the learned CIFAR-10 trajectories (App. C.4), from the EXP-C JSON.
-import math as _m
-_ecj = {}
-for _f in sorted(pathlib.Path("results/exp_c_cifar_transfer_20261022").glob("*/ckpt_60000.json")):
-    _r = json.loads(_f.read_text()); _g = _r["grid_tau"]
-    _at = lambda e: min(range(len(_g)), key=lambda k: abs(_g[k] - _m.log(1 / e)))
-    _ecj[_r["run"]] = {"h": _r["h"], "off": 1 - _r["cutoffs"][2]["learned"]["on_atom_run"],
-                       "e4": _m.exp(-_g[_at(1e-4)]) * _m.sqrt(_r["m"][_at(1e-4)]),
-                       "e1": _m.exp(-_g[_at(1e-1)]) * _m.sqrt(_r["m"][_at(1e-1)]),
-                       "x4": _m.exp(-_g[_at(1e-4)]) * _m.sqrt(_r["r"][_at(1e-4)])}
-for _h, _lo, _hi in ((0.0, 1.08, 1.17), (4.0, 3.79, 4.09), (5.0, 4.14, 4.49), (6.0, 4.48, 5.01)):
-    _v = [v["e4"] for v in _ecj.values() if v["h"] == _h]
-    check(f"EXP-C scaled error h={_h:g} min", _lo, round(min(_v), 2), 1e-9)
-    check(f"EXP-C scaled error h={_h:g} max", _hi, round(max(_v), 2), 1e-9)
-_pos = [v for v in _ecj.values() if v["h"] > 0]
-check("EXP-C scaled error at 1-t=0.1 within 0.18", 1.0, float(max(v["e4"] - v["e1"] for v in _pos) <= 0.18), 0)
-check("EXP-C exact-path scaled error", 0.006, round(max(v["x4"] for v in _ecj.values() if v["h"] > 0), 3), 1e-9)
-from scipy.stats import spearmanr as _sp
-check("EXP-C rank correlation", 0.92, round(float(_sp([v["off"] for v in _pos], [v["e4"] for v in _pos])[0]), 2), 1e-9)
-for _h in (4.0, 5.0, 6.0):
-    _g6 = [v for v in _pos if v["h"] == _h]
-    check(f"EXP-C h={_h:g}: largest error has largest fraction", 1.0,
-          float(max(_g6, key=lambda v: v["e4"]) is max(_g6, key=lambda v: v["off"])), 0)
-_Xc = np.load("results/cifar_composition_exact_20261105/cifar2000_seed0.npz")["X"].astype(np.float64)
-_n2 = (_Xc ** 2).sum(1); _D2 = _n2[:, None] + _n2[None] - 2 * _Xc @ _Xc.T; np.fill_diagonal(_D2, np.inf)
-check("CIFAR median NN distance", 20.5, round(float(np.median(np.sqrt(_D2.min(1)))), 1), 1e-9)
-for s in (r"$3.79$ to $4.09$, $4.14$ to $4.49$ and $4.48$ to $5.01$", r"within $0.18$", r"$1.08$ to $1.17$",
-          r"against $0.006$ on the exact path", r"fraction is $0.92$", r"is $20.5$"):
+# Per-sample scaled field error of the retrained CIFAR-10 networks (S10, App. C.4).
+import statistics as _st
+_s10 = {r["run"]: r for r in json.loads(pathlib.Path(
+    "results/s10_cifar_transfer_20261108/s10_summary_ckpt_60000.json").read_text())}
+_g = lambda h: [r for k, r in _s10.items() if f"_h{h}_" in k]
+check("S10 run count", 7, len(_s10), 0)
+for _h, _mu, _sd in ((4, 0.168, 0.012), (6, 0.276, 0.008)):
+    _f = [r["off_frac"] for r in _g(_h)]
+    check(f"S10 h={_h} off-atom mean", _mu, round(_st.mean(_f), 3), 1e-9)
+    check(f"S10 h={_h} off-atom sd", _sd, round(_st.stdev(_f), 3), 1e-9)
+check("S10 h=0 off-atom", 0.0, _g(0)[0]["off_frac"], 0)
+check("S10 exact off-atom", 0.0, max(r["exact_off_frac"] for r in _s10.values()), 0)
+check("S10 exact final error <= 0.006", 1.0, float(max(r["exact_e_final_max"] for r in _s10.values()) <= 0.006), 0)
+_pos = _g(4) + _g(6)
+_r1 = lambda v: round(v + 1e-12, 1)
+check("S10 off median min", 6.2, _r1(min(r["e_final_off_median"] for r in _pos)), 1e-9)
+check("S10 off median max", 7.1, _r1(max(r["e_final_off_median"] for r in _pos)), 1e-9)
+check("S10 on median min", 2.5, _r1(min(r["e_final_on_median"] for r in _pos)), 1e-9)
+check("S10 on median max", 2.9, _r1(max(r["e_final_on_median"] for r in _pos)), 1e-9)
+# AUC pooled over the samples of all seeds at one bandwidth (per-run values are in the JSON).
+def _auc(pos, neg):  # P(pos > neg) + P(pos = neg)/2, as in scripts/summarize_s10_cifar.py
+    return float(((pos[:, None] > neg[None]).sum() + 0.5 * (pos[:, None] == neg[None]).sum()) / (len(pos) * len(neg)))
+def _pooled_auc(h):
+    _P, _N = [], []
+    for _f in sorted(pathlib.Path("results/s10_cifar_transfer_20261108").glob(f"*_h{h}_*/per_sample_ckpt_60000.npz")):
+        _z = np.load(_f); _k = len(_z["eps_out"]) - 1; _o = _z[f"learned_ratio_{_k}"] >= 1 / 3
+        _P.append(_z["e_learned"][_o, -1]); _N.append(_z["e_learned"][~_o, -1])
+    return _auc(np.concatenate(_P), np.concatenate(_N))
+check("S10 h=4 AUC (pooled)", 0.985, round(_pooled_auc(4), 3), 1e-9)
+check("S10 h=6 AUC (pooled)", 0.977, round(_pooled_auc(6), 3), 1e-9)
+check("S10 AUC about 0.98", 0.98, round(_st.mean(r["auc_final"] for r in _pos), 2), 1e-9)
+check("S10 h=0 on median", 1.08, round(_g(0)[0]["e_final_on_median"], 2), 1e-9)
+_p63 = [r["profile_median"]["0.6321"] for r in _pos]
+check("S10 t=0.63 off min", 7.2, _r1(min(p["off"] for p in _p63)), 1e-9)
+check("S10 t=0.63 off max", 8.0, _r1(max(p["off"] for p in _p63)), 1e-9)
+check("S10 t=0.63 on min", 2.2, _r1(min(p["on"] for p in _p63)), 1e-9)
+check("S10 t=0.63 on max", 3.0, _r1(max(p["on"] for p in _p63)), 1e-9)
+check("S10 d1 <= e for >= 99.7%", 1.0, float(min(r["d1_le_e_final"] for r in _s10.values()) >= 0.997), 0)
+for s in (r"$0.168\pm0.012$", r"$0.276\pm0.008$", r"at most $0.006$", r"$6.2$--$7.1$", r"$2.5$--$2.9$",
+          r"(AUC) $0.985$ at $h=4$ and $0.977$ at $h=6$", r"median is $1.08$",
+          r"$7.2$--$8.0$ against $2.2$--$3.0$", r"$99.7\%$", r"AUC about $0.98$"):
+    in_tex(s)
+# Pooled S10 analyses (scripts/summarize_s10_cifar.py): AUC over time, exact-path AUC, threshold rule.
+_q = json.loads(pathlib.Path("results/s10_cifar_transfer_20261108/s10_pooled_ckpt_60000.json").read_text())
+_tq = _q["h4"]["t"]; _j5 = min(range(len(_tq)), key=lambda i: abs(_tq[i] - 0.53))
+_late = [i for i, v in enumerate(_tq) if v >= 0.7]
+check("S10 first late grid time 0.71", 0.71, round(_tq[_late[0]], 2), 1e-9)
+check("S10 grid time 0.53", 0.53, round(_tq[_j5], 2), 1e-9)
+check("S10 h=4 AUC at t=0.53", 0.97, round(_q["h4"]["auc_learned"][_j5], 2), 1e-9)
+check("S10 h=6 AUC at t=0.53", 0.95, round(_q["h6"]["auc_learned"][_j5], 2), 1e-9)
+_lL = [_q[h]["auc_learned"][i] for h in ("h4", "h6") for i in _late]
+check("S10 late learned AUC min", 0.977, round(min(_lL), 3), 1e-9)
+check("S10 late learned AUC max", 0.990, round(max(_lL), 3), 1e-9)
+for _h, _lo, _hi in (("h4", 0.49, 0.52), ("h6", 0.53, 0.58)):
+    _x = [_q[_h]["auc_exact_path"][i] for i in _late]
+    check(f"S10 {_h} exact-path AUC min", _lo, round(min(_x), 2), 1e-9)
+    check(f"S10 {_h} exact-path AUC max", _hi, round(max(_x), 2), 1e-9)
+for _h, _tp, _fp in (("h4", 94, 7), ("h6", 95, 12)):
+    check(f"S10 {_h} threshold 4 TPR %", _tp, round(100 * _q[_h]["threshold"]["4"]["tpr"]), 1e-9)
+    check(f"S10 {_h} threshold 4 FPR %", _fp, round(100 * _q[_h]["threshold"]["4"]["fpr"]), 1e-9)
+check("S10 h=0 same image", 1.0, _g(0)[0]["same_atom_on"], 0)
+for _h, _lo, _hi in ((4, 55, 67), (6, 23, 28)):
+    _sa = [r["same_atom_on"] for r in _g(_h)]
+    check(f"S10 h={_h} same image min %", _lo, round(100 * min(_sa)), 1e-9)
+    check(f"S10 h={_h} same image max %", _hi, round(100 * max(_sa)), 1e-9)
+for s in (r"$0.97$ at $h=4$ and", r"$0.95$ at $h=6$ by $t\approx0.53$", r"between $0.977$ and $0.990$ from $t\approx0.71$",
+          r"AUC at least $0.95$", r"$0.49$--$0.52$ at $h=4$ and", r"$0.53$--$0.58$ at $h=6$",
+          r"above $4$ flags $94\%$ and $95\%$", r"$7\%$ and $12\%$ of the on-atom", r"$55$--$67\%$ at $h=4$ and $23$--$28\%$",
+          r"only $23$--$67\%$ of"):
     in_tex(s)
 
 _c0 = _md_cells("results/exp_c_cifar_transfer_20261022/SUMMARY.md", "| h | ckpt", "| 0 | 60000 |")
