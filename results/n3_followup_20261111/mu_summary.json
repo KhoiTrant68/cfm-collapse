@@ -1,0 +1,166 @@
+[
+ {
+  "run": "mu_public",
+  "n": 200,
+  "off_frac": 1.0,
+  "precond": {
+   "name": "VPPrecond",
+   "sigma_data": 0.5,
+   "inferred": true
+  },
+  "steps": [
+   {
+    "sigma": 1.9233398370400518,
+    "t": 0.3420744955237646,
+    "mu_learned_med_off": 4.924904823303223,
+    "mu_learned_med_on": null,
+    "frac_mu_below_1_off": 0.0,
+    "frac_mu_below_1_on": null,
+    "mu_exact_med": 13.047247606286863,
+    "auc_mu_learned": NaN,
+    "rho_med_off": -0.684684332934005,
+    "rho_med_on": null,
+    "auc_rho": NaN,
+    "rho_over_sigma_med_off": -0.35598718424493747
+   },
+   {
+    "sigma": 0.5853481231945422,
+    "t": 0.630776285264689,
+    "mu_learned_med_off": 2.7064327001571655,
+    "mu_learned_med_on": null,
+    "frac_mu_below_1_off": 0.0,
+    "frac_mu_below_1_on": null,
+    "mu_exact_med": 8.006691924449432e-10,
+    "auc_mu_learned": NaN,
+    "rho_med_off": -0.7071535649240188,
+    "rho_med_on": null,
+    "auc_rho": NaN,
+    "rho_over_sigma_med_off": -1.2080905992569386
+   },
+   {
+    "sigma": 0.13951646873101678,
+    "t": 0.8775652019436063,
+    "mu_learned_med_off": 1.6835030317306519,
+    "mu_learned_med_on": null,
+    "frac_mu_below_1_off": 0.0,
+    "frac_mu_below_1_on": null,
+    "mu_exact_med": 0.0,
+    "auc_mu_learned": NaN,
+    "rho_med_off": -0.477383678013383,
+    "rho_med_on": null,
+    "auc_rho": NaN,
+    "rho_over_sigma_med_off": -3.421701268355374
+   },
+   {
+    "sigma": 0.022934518372333384,
+    "t": 0.9775796808491456,
+    "mu_learned_med_off": 2.071874737739563,
+    "mu_learned_med_on": null,
+    "frac_mu_below_1_off": 0.0,
+    "frac_mu_below_1_on": null,
+    "mu_exact_med": 0.0,
+    "auc_mu_learned": NaN,
+    "rho_med_off": -1.0254226448788493,
+    "rho_med_on": null,
+    "auc_rho": NaN,
+    "rho_over_sigma_med_off": -44.710886369248904
+   },
+   {
+    "sigma": 0.002000000000000003,
+    "t": 0.998003992015968,
+    "mu_learned_med_off": 1.001101016998291,
+    "mu_learned_med_on": null,
+    "frac_mu_below_1_off": 0.415,
+    "frac_mu_below_1_on": null,
+    "mu_exact_med": 0.0,
+    "auc_mu_learned": NaN,
+    "rho_med_off": 0.000897188624460088,
+    "rho_med_on": null,
+    "auc_rho": NaN,
+    "rho_over_sigma_med_off": 0.4485943122300433
+   }
+  ]
+ },
+ {
+  "run": "mu_sub1000",
+  "n": 100,
+  "off_frac": 1.0,
+  "precond": {
+   "name": "EDMPrecond",
+   "sigma_data": 0.5,
+   "inferred": true
+  },
+  "steps": [
+   {
+    "sigma": 1.9233398370400518,
+    "t": 0.3420744955237646,
+    "mu_learned_med_off": 3.5365384817123413,
+    "mu_learned_med_on": null,
+    "frac_mu_below_1_off": 0.0,
+    "frac_mu_below_1_on": null,
+    "mu_exact_med": 0.36686772742645757,
+    "auc_mu_learned": NaN,
+    "rho_med_off": -18.110505546721228,
+    "rho_med_on": null,
+    "auc_rho": NaN,
+    "rho_over_sigma_med_off": -9.416175549398812
+   },
+   {
+    "sigma": 0.5853481231945422,
+    "t": 0.630776285264689,
+    "mu_learned_med_off": 1.9240742325782776,
+    "mu_learned_med_on": null,
+    "frac_mu_below_1_off": 0.0,
+    "frac_mu_below_1_on": null,
+    "mu_exact_med": 0.0,
+    "auc_mu_learned": NaN,
+    "rho_med_off": -1.8770180183897516,
+    "rho_med_on": null,
+    "auc_rho": NaN,
+    "rho_over_sigma_med_off": -3.206669576637421
+   },
+   {
+    "sigma": 0.13951646873101678,
+    "t": 0.8775652019436063,
+    "mu_learned_med_off": 1.1728216409683228,
+    "mu_learned_med_on": null,
+    "frac_mu_below_1_off": 0.0,
+    "frac_mu_below_1_on": null,
+    "mu_exact_med": 0.0,
+    "auc_mu_learned": NaN,
+    "rho_med_off": -0.1093624723245662,
+    "rho_med_on": null,
+    "auc_rho": NaN,
+    "rho_over_sigma_med_off": -0.7838678352403936
+   },
+   {
+    "sigma": 0.022934518372333384,
+    "t": 0.9775796808491456,
+    "mu_learned_med_off": 1.0041733384132385,
+    "mu_learned_med_on": null,
+    "frac_mu_below_1_off": 0.15,
+    "frac_mu_below_1_on": null,
+    "mu_exact_med": 0.0,
+    "auc_mu_learned": NaN,
+    "rho_med_off": 0.016275167721397588,
+    "rho_med_on": null,
+    "auc_rho": NaN,
+    "rho_over_sigma_med_off": 0.7096363419181639
+   },
+   {
+    "sigma": 0.002000000000000003,
+    "t": 0.998003992015968,
+    "mu_learned_med_off": 0.9883489906787872,
+    "mu_learned_med_on": null,
+    "frac_mu_below_1_off": 1.0,
+    "frac_mu_below_1_on": null,
+    "mu_exact_med": 0.0,
+    "auc_mu_learned": NaN,
+    "rho_med_off": 0.013607979777806367,
+    "rho_med_on": null,
+    "auc_rho": NaN,
+    "rho_over_sigma_med_off": 6.803989888903173
+   }
+  ]
+ }
+]

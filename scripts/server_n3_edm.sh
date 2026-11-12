@@ -24,6 +24,7 @@ STAGES=${STAGES:-"1 2"}
 SUBSETS=${SUBSETS:-"500 1000 2000 5000"}
 DURATION=${DURATION:-10}
 BATCH=${BATCH:-128}
+BATCH_GPU=${BATCH_GPU:-}   # EDM --batch-gpu: micro-batch per step, for a GPU shared with other jobs
 NPC=${NPC:-100}
 OUT=${OUT:-results/n3_edm_20261109}
 PUBLIC=${PUBLIC:-https://nvlabs-fi-cdn.nvidia.com/edm/pretrained/edm-cifar10-32x32-cond-vp.pkl}
@@ -60,7 +61,7 @@ for st in $STAGES; do
         [ -n "$st_file" ] && resume=(--resume "$st_file")
         (cd "$EDM_REPO" && $PYTHON -m torch.distributed.run --standalone --nproc_per_node=1 train.py \
           --outdir "$tdir" --data "$zip" --cond 1 --arch ddpmpp --batch "$BATCH" --augment 0 \
-          --duration "$DURATION" --snap 50 --dump 100 --seed 0 "${resume[@]}") \
+          --duration "$DURATION" --snap 50 --dump 100 --seed 0 ${BATCH_GPU:+--batch-gpu "$BATCH_GPU"} "${resume[@]}") \
           > "$OUT/train_$name.log" 2>&1 || { echo "[$name] training failed"; exit 1; }
         touch "$tdir/DONE"
         snap=$(ls "$tdir"/*/network-snapshot-*.pkl | sort | tail -1)
