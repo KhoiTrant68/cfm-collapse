@@ -54,6 +54,8 @@ DTAU_EXACT = 0.005                   # exact field: beta tr Cov * dtau must stay
 GRID_EVERY = 0.25                    # tau spacing of the r(t), m(t) records
 RATIO = 1.0 / 3.0
 MICRO = 128                          # U-Net micro-batch
+if __import__("os").environ.get("S10_SMOKE") == "1":   # pipeline check only (scripts/server_s10_cifar.sh)
+    N_COND, M, DTAU, DTAU_EXACT, GRID_EVERY = 2, 2, 0.25, 0.25, 1.0
 
 
 def build_unet(cfg, C, device):
@@ -185,12 +187,16 @@ def evaluate(run, ck, device, cifar50k):
     def mean_hat(x, tau):
         return (x + learned_f(x.float(), tau)).flatten(1).double()
 
-    # r(t), m(t) on the grid: Delta = (m_hat - m*)/eps
-    r_t, m_t = [], []
+    # r(t), m(t) on the grid: Delta = (m_hat - m*)/eps. Per sample we also keep the scaled error
+    # (1-t)|Delta| = |m_hat - m*| along both paths (saved to per_sample_ckpt_*.npz).
+    r_t, m_t, e_learned, e_exact = [], [], [], []
     for j, tg in enumerate(grid):
         eps = math.exp(-tg)
-        m_t.append(float(((mean_hat(B[j], tg) - mean_star(B[j], tg)) ** 2).sum(1).mean()) / eps ** 2)
-        r_t.append(float(((mean_hat(Cx[j].float(), tg) - mean_star(Cx[j], tg)) ** 2).sum(1).mean()) / eps ** 2)
+        dl = ((mean_hat(B[j], tg) - mean_star(B[j], tg)) ** 2).sum(1)
+        de = ((mean_hat(Cx[j].float(), tg) - mean_star(Cx[j], tg)) ** 2).sum(1)
+        m_t.append(float(dl.mean()) / eps ** 2)
+        r_t.append(float(de.mean()) / eps ** 2)
+        e_learned.append(dl.sqrt().float().cpu()); e_exact.append(de.sqrt().float().cpu())
 
     def atom_stats(x):
         flat = x.flatten(1)
@@ -216,6 +222,20 @@ def evaluate(run, ck, device, cifar50k):
                                "same_atom_learned_2dtau": float((iB == iB2).float().mean()),
                                "dist_learned_exact_rmse": float(((B[j].double() - Cx[j]) ** 2).flatten(1).mean(1).sqrt().mean())})
     res["same_atom_euler50_exact_1e-3"] = float((iA == atom_stats(Cx[jA])[1]).float().mean())
+
+    def nearest(x):
+        flat = x.flatten(1).double()
+        ratio, i = nn_ratio(flat, Xflat)
+        return ratio.float().cpu(), i.cpu(), (flat - Xflat[i]).norm(dim=1).float().cpu()
+    ps = {"grid_tau": np.array(grid), "rows": rows.cpu().numpy(), "e_learned": torch.stack(e_learned, 1).numpy(),
+          "e_exact": torch.stack(e_exact, 1).numpy(), "eps_out": np.array(EPS_OUT)}
+    for k, e in enumerate(EPS_OUT):
+        j = grid.index(taus_out[k])
+        for tag, xs in (("learned", B[j]), ("exact", Cx[j])):
+            ratio, i, d1 = nearest(xs)
+            ps[f"{tag}_ratio_{k}"], ps[f"{tag}_nn_{k}"], ps[f"{tag}_d1_{k}"] = ratio.numpy(), i.numpy(), d1.numpy()
+        ps[f"learned_exact_dist_{k}"] = (B[j].double() - Cx[j]).flatten(1).norm(dim=1).float().cpu().numpy()
+    res["_per_sample"] = ps
     return res
 
 
@@ -229,6 +249,8 @@ def run(names, ckpt_iter, device):
         start = time.time()
         print(f"{name} ckpt {ckpt_iter}", flush=True)
         res = evaluate(name, ck, device, cifar50k)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        np.savez_compressed(out.parent / f"per_sample_ckpt_{ckpt_iter}.npz", **res.pop("_per_sample"))
         res.update(seconds=time.time() - start, dtau=DTAU, dtau_exact=DTAU_EXACT, eps_out=EPS_OUT, source_seed=SOURCE_SEED,
                    torch=torch.__version__, python=sys.version)
         out.parent.mkdir(parents=True, exist_ok=True)
@@ -270,11 +292,15 @@ def summarize():
 
 
 def main() -> int:
+    global EXP3, OUT
     ap = argparse.ArgumentParser()
     ap.add_argument("--runs", nargs="+", default=RUNS)
     ap.add_argument("--checkpoint", type=int, default=60000)
     ap.add_argument("--summarize", action="store_true")
+    ap.add_argument("--exp3-root", default=str(EXP3), help="directory of the trained runs")
+    ap.add_argument("--out-dir", default=str(OUT), help="where the JSON and per-sample npz go")
     args = ap.parse_args()
+    EXP3, OUT = pathlib.Path(args.exp3_root), pathlib.Path(args.out_dir)
     if args.summarize:
         summarize()
     else:

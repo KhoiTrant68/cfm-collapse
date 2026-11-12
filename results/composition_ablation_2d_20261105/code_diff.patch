@@ -1,0 +1,31 @@
+diff --git a/scripts/learned_composition_2d.py b/scripts/learned_composition_2d.py
+index 0e1a947..0670677 100644
+--- a/scripts/learned_composition_2d.py
++++ b/scripts/learned_composition_2d.py
+@@ -48,7 +48,7 @@ H = 1.0
+ B = 2.0                                              # the triangle of Section 6.2
+ R_LIST = (0.0, 0.5, 0.9, 1.1, 2.0, 5.0, 10.0)
+ R_CONTROLS = (0.0, 2.0, 10.0)
+-VARIANTS = ("cfm_v", "cfm_x_s", "distill_x_s")
++VARIANTS = ("cfm_v", "cfm_x_s", "distill_x_s", "cfm_v_s", "cfm_x")   # last two: ablation
+ N_EXACT = 4096
+ U_END = 1e4
+ XI_GRID = np.stack(np.meshgrid(np.linspace(-3, 3, 21), np.linspace(-3, 3, 21)), -1).reshape(-1, 2)
+@@ -78,7 +78,7 @@ def exact_m(x, eps, y, cond):
+ class Field2D(torch.nn.Module):
+     def __init__(self, variant: str, width: int = 128, depth: int = 4):
+         super().__init__()
+-        self.data_pred = variant != "cfm_v"
++        self.data_pred = variant not in ("cfm_v", "cfm_v_s")
+         self.sfeat = variant.endswith("_s")
+         # Condition (y * mask, mask) as in 1D; the s-variants add asinh(beta x), beta = t/(1-t)^2.
+         self.net = MLPVelocity(2, cond_dim=3 + 1 + 2 * self.sfeat, width=width, depth=depth)
+@@ -116,7 +116,7 @@ def boundary_layer_batch(n, gen, device):
+ 
+ def loss_fn(field, b, variant):
+     m, v = field(b["xt"], b["eps"], b["y"], b["cond"])
+-    if variant == "cfm_x_s":
++    if variant in ("cfm_x_s", "cfm_x"):
+         return ((m - b["a"]) ** 2).mean()
+     if variant == "distill_x_s":
+         return ((m - exact_m(b["xt"], b["eps"], b["y"], b["cond"])) ** 2).mean()

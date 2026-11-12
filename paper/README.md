@@ -2,7 +2,9 @@
 
 `main.tex` is the full anonymous TMLR manuscript. `math_commands.tex` defines
 shared notation, `refs.bib` is the bibliography, and `figures/` contains the
-scientific figures. Older ICLR styles and workshop sources are historical.
+scientific figures. `main_iclr.tex` compiles the same source with the ICLR 2027
+style (`pdflatex main_iclr && bibtex main_iclr && pdflatex main_iclr` twice).
+Workshop sources are historical.
 
 Preserve the distinction between exact empirical-reference endpoints and
 trained samplers evaluated at finite cutoffs. Moment agreement alone does not

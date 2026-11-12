@@ -1,0 +1,4 @@
+w/w_c=0.9: midpoint 0/512, pair atoms 288, unresolved 0, steps 154, 500s
+w/w_c=1.1: midpoint 7/512, pair atoms 299, unresolved 0, steps 159, 448s
+w/w_c=2: midpoint 25/512, pair atoms 337, unresolved 0, steps 190, 487s
+w/w_c=5: midpoint 13/512, pair atoms 442, unresolved 0, steps 225, 288s

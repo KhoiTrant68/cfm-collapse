@@ -1,0 +1,79 @@
+% DRAFT (2026-11-11, written by Claude; not yet \input in main.tex, not yet checked by the author).
+% Numbers: results/n3_followup_20261111/{SWAP_SUMMARY.md,MU_SUMMARY.md}; sub500 numbers are TODO
+% (run results/n3_followup_sub500_20261111, expected 2026-11-14).
+% Theory: docs/plan/theory_extensions_2026-11-11.md (Props. P, L, T) and
+% docs/plan/theorem_sketch_late_error_2026-11-10.md (Claims 1-4). Citation keys marked % TODO-bib
+% are not yet in refs.bib (see paper/drafts/refs_new_TODO.bib).
+
+\subsection{Which image is decided early, whether it is reached is decided late}
+\label{sec:edm-clocks}
+
+We test the late-error picture on class-conditional EDM models on CIFAR-10 \citep{karras2022elucidating}:
+the public model trained on all $50{,}000$ images and a model trained here on a class-balanced
+subset (TODO: sub500 numbers). In EDM coordinates $x$ at noise level $\sigma$ the paper's
+interpolant is $Z=tx$ with $t=1/(1+\sigma)$, the data prediction is the denoiser,
+$\hat x(Z,t)=D(Z/t,\sigma)$, and the one-sided Lipschitz constant of
+Lemma~\ref{lem:contraction} % TODO label of Claim 1 once added
+is $\mu=(1+\sigma)\lambda_{\max}(\operatorname{sym}\partial_x D)$. The exact field is the class
+posterior mean over the training images. All samples use EDM's deterministic 18-step Heun sampler
+and the off-atom criterion $d_1/d_2\ge 1/3$ of App.~\ref{app:measured-transfer}.
+
+\paragraph{Swapping the field.}
+From the same latents we run four samplers: the network throughout, the exact field throughout,
+the network for $\sigma>s$ and the exact field below (\emph{net$\to$exact}), and the reverse
+(\emph{exact$\to$net}). On the public model every network sample ends off-atom and every exact
+sample on-atom. Net$\to$exact ends on-atom for every $s$, including $s=0.02$ ($t=0.98$): replacing
+the field on the last $2\%$ of the time turns $0\%$ memorization into $100\%$. The image it lands on
+is the network trajectory's nearest training image in $31\%$, $56\%$, $90\%$, $99\%$ and $100\%$ of
+samples for $s=5,2,1,0.2,0.02$ (sub1000 model: $49\%,63\%,88\%,98\%,100\%$). Exact$\to$net ends
+off-atom for $s\ge 1$ and on-atom for $s\le 0.1$, but its endpoint distance to the image does not
+shrink after the hand-over: the median $d_1$ is $2.6$, $1.4$ and $0.6$ for $s=0.1,0.05,0.02$,
+roughly proportional to $s$.
+
+\paragraph{Two clocks.}
+The swap separates two times (Prop.~\ref{prop:twoclocks}). % TODO label (Prop. T)
+The \emph{selection clock} $t_{\rm sel}$ is the time after which the network trajectory stays in the
+exact field's basin of one image. The net$\to$exact agreement curve upper-bounds its distribution
+function (the difference is the mass of trajectories that leave their final basin and return), so
+selection happens no earlier than the curve suggests: at most $31\%$ of samples have selected by
+$\sigma=5$, $56\%$ by $\sigma=2$ and $90\%$ by $\sigma=1$. Its limit of $100\%$ as $s\to0$ carries
+no information: the basins tend to Voronoi cells, so it holds for any learned flow whose endpoints
+avoid Voronoi ties. This is compatible with the medium-noise band
+where \citet{dodson2026} % TODO-bib
+locate memorization. The \emph{landing} is whether the trajectory contracts onto that image, and
+it is set by the late Jacobian. Under the local contraction condition $\mu\le\bar\mu<1$ on a tube
+around the exact path started from the hand-over point, the trajectory ends within
+$\eta/(1-\bar\mu)$ of the image (Prop.~\ref{prop:localcert}). % TODO label (Prop. L)
+Conversely, when $\lambda_{\min}(\operatorname{sym}\partial_x D)\approx1$ late, the distance to the
+image can shrink only through the network's residual $D(x^i,\sigma)-x^i$ at that image
+(Prop.~\ref{prop:twoclocks}(ii)). % TODO label (Prop. T)
+The exact field ($\mu^*=0$) is what makes the landing visible; that a network$\to$network swap at
+small $\sigma$ leaves memorization unchanged \citep{dodson2026} is consistent with this but is not
+implied by it.
+
+\paragraph{Why a trained EDM network does not land.}
+Preconditioned networks write $D=c_{\rm skip}x+c_{\rm out}F(c_{\rm in}x)$ with $c_{\rm skip}\to1$ and
+$c_{\rm out}c_{\rm in}=O(\sigma)$, so $\partial_x D\to I$ unless the raw network's Jacobian blows up
+as $\sigma\to0$. Prop.~\ref{prop:param} % TODO label (Prop. P)
+makes this precise: if $1-\lambda_{\min}(\operatorname{sym}\partial_x D)\le\bar\rho$ on
+$[\sigma_a,\sigma_b]$, distances between trajectories shrink by at most
+$(\sigma_a/\sigma_b)^{\bar\rho}$, and if $\sup_x\|\operatorname{sym}\partial F\|$ is integrable at
+$\sigma=0$ the flow map is bi-Lipschitz, so no trajectory ends exactly on a training image and no
+two trajectories merge. Integrability fails for the exact field, whose raw Jacobian is at least
+$\sigma_d/\sigma$. The condition is necessary, not sufficient, and applies to any concentration on a
+null set, not only to memorization. Measured
+along the network trajectories, the median $\mu$ is $4.9$, $2.7$, $1.7$, $2.1$ and $1.00$ at
+$t=0.34$, $0.63$, $0.88$, $0.98$ and $0.998$ on the public model, never below $1$ before $t=0.98$,
+while the exact field has $\mu^*=0$ from $t\ge0.63$; on the sub1000 model the share is
+$\rho=1-\lambda_{\max}(\operatorname{sym}\partial_x D)/c_{\rm skip}\approx0.015$ for
+$\sigma\le0.023$, so the sufficient condition for landing fails: it allows at most a $6\%$
+contraction over the remaining schedule. TODO (sub500): $\mu$ and $\rho$ for on-atom against off-atom samples, AUC, and comparison
+with the nearest-image baseline.
+
+\paragraph{Relation to prior work.}
+The fixed-$\sigma$ analogue of the $\mu=1$ threshold is the attractor criterion of
+\citet{lopezamado2026} (Prop.~B.4); % TODO-bib
+the Gr\"onwall step is that of \citet{kwon2022score} % TODO-bib
+applied pathwise; \citet{jaziri2026} % TODO-bib
+measure Jacobian spectra of noise-prediction networks along trajectories but not
+$\lambda_{\max}$ of the data prediction against $1$.

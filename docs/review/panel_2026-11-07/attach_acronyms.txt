@@ -1,0 +1,107 @@
+### Acronym check (advisory; no reply needed)
+Coverage: body (partial)
+Not in this input: English abstract, Chinese abstract.
+Not checked:
+- Body, line 1118: ICML (the initials before its parentheses do not spell it)
+- Body, line 2933: PLa (the initials before its parentheses do not spell it)
+- Body, line 3731: ZT (the initials before its parentheses do not spell it)
+- Body, line 3735: YT (the initials before its parentheses do not spell it)
+- Body, line 3794: LawU (the initials before its parentheses do not spell it)
+- Body, line 3798: LawV (the initials before its parentheses do not spell it)
+- Body, line 3799: LawYT (the initials before its parentheses do not spell it)
+- Body, line 4580: ROS2 (the initials before its parentheses do not spell it)
+- Body, line 4646: BQ (the initials before its parentheses do not spell it)
+
+| Scope | Line | Rule | Acronym | Uses |
+|---|---|---|---|---|
+| Body | 1 | Defined after first use | ICLR | 59 |
+| Body | 3 | Not defined | AND | 5 |
+| Body | 3 | Not defined | ATOMIC | 1 |
+| Body | 3 | Not defined | GUIDED | 1 |
+| Body | 3 | Not defined | OF | 3 |
+| Body | 6 | Not defined | FLOWS | 1 |
+| Body | 60 | Not defined | CIFAR | 17 |
+| Body | 60 | Not defined | MLP | 8 |
+| Body | 227 | Not defined | SETUP | 1 |
+| Body | 267 | Not defined | EXACT | 3 |
+| Body | 267 | Not defined | THE | 7 |
+| Body | 284 | Not defined | ODE | 5 |
+| Body | 364 | Not defined | FIELDS | 4 |
+| Body | 364 | Not defined | ON | 1 |
+| Body | 374 | Not defined | PN | 18 |
+| Body | 412 | Not defined | ATOMS | 3 |
+| Body | 412 | Not defined | FIELD | 1 |
+| Body | 412 | Not defined | KEEP | 1 |
+| Body | 464 | Not defined | KEEPS | 1 |
+| Body | 512 | Not defined | CAN | 3 |
+| Body | 512 | Not defined | LEAVE | 1 |
+| Body | 512 | Not defined | TWO | 2 |
+| Body | 563 | Not defined | ANY | 1 |
+| Body | 563 | Not defined | IN | 2 |
+| Body | 566 | Not defined | PL | 40 |
+| Body | 580 | Not defined | FROM | 1 |
+| Body | 580 | Not defined | TO | 2 |
+| Body | 632 | Not defined | EXP | 25 |
+| Body | 643 | Not defined | RK4 | 9 |
+| Body | 656 | Not defined | MNIST | 3 |
+| Body | 664 | Not defined | DDPM | 3 |
+| Body | 720 | Not defined | TIES | 1 |
+| Body | 871 | Not defined | ETHICS | 1 |
+| Body | 888 | Not defined | LARGE | 1 |
+| Body | 888 | Not defined | MODELS | 1 |
+| Body | 888 | Not defined | USE | 1 |
+| Body | 916 | Not defined | ETH | 1 |
+| Body | 932 | Not defined | RL | 1 |
+| Body | 966 | Not defined | USENIX | 1 |
+| Body | 969 | Defined again | ICLR | 59 |
+| Body | 996 | Not defined | NY | 1 |
+| Body | 1020 | Not defined | CVF | 2 |
+| Body | 1020 | Not defined | IEEE | 2 |
+| Body | 1027 | Defined again | ICLR | 59 |
+| Body | 1052 | Defined again | ICLR | 59 |
+| Body | 1059 | Not defined | PDE | 1 |
+| Body | 1075 | Defined again | ICLR | 59 |
+| Body | 1104 | Not defined | CADS | 1 |
+| Body | 1106 | Defined again | ICLR | 59 |
+| Body | 1258 | Not defined | FOR | 3 |
+| Body | 1258 | Not defined | PROOFS | 3 |
+| Body | 1315 | Not defined | LEMMAS | 1 |
+| Body | 1315 | Not defined | THREE | 1 |
+| Body | 1330 | Not defined | DTi | 1 |
+| Body | 1472 | Not defined | HARD | 1 |
+| Body | 1576 | Not defined | LABEL | 1 |
+| Body | 1805 | Not defined | BASIC | 1 |
+| Body | 1805 | Not defined | FACTS | 1 |
+| Body | 1830 | Not defined | DKL | 7 |
+| Body | 1934 | Not defined | STEPS | 1 |
+| Body | 2047 | Not defined | BL | 1 |
+| Body | 2115 | Not defined | KL | 2 |
+| Body | 2164 | Not defined | CovQ | 1 |
+| Body | 2302 | Not defined | RK | 1 |
+| Body | 2362 | Not defined | XR | 1 |
+| Body | 2933 | Not defined | DLM | 1 |
+| Body | 2959 | Not defined | PLx | 1 |
+| Body | 2959 | Not defined | tPLz | 1 |
+| Body | 2961 | Not defined | PLz | 9 |
+| Body | 3038 | Not defined | DA | 6 |
+| Body | 3175 | Not defined | PLS | 2 |
+| Body | 3200 | Not defined | DN | 2 |
+| Body | 3227 | Not defined | PLaj | 1 |
+| Body | 3239 | Not defined | PLM | 2 |
+| Body | 3269 | Not defined | BR0 | 5 |
+| Body | 3332 | Not defined | wIL | 1 |
+| Body | 3353 | Not defined | IL | 8 |
+| Body | 3387 | Not defined | LOSS | 2 |
+| Body | 3387 | Not defined | WHAT | 2 |
+| Body | 3585 | Defined again | CFM | 9 |
+| Body | 3625 | Not defined | LR | 2 |
+| Body | 3727 | Not defined | BT | 9 |
+| Body | 3737 | Not defined | EZT | 1 |
+| Body | 3794 | Not defined | EV | 2 |
+| Body | 3799 | Not defined | EYT | 1 |
+| Body | 3929 | Not defined | NOISE | 1 |
+| Body | 4024 | Not defined | SiLU | 1 |
+| Body | 4050 | Not defined | SGD | 3 |
+| Body | 4276 | Not defined | CV | 1 |
+| Body | 4304 | Not defined | DOP853 | 1 |
+| Body | 4409 | Not defined | CFG | 1 |

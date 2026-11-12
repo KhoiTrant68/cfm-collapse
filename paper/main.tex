@@ -9,11 +9,35 @@
 % "Anonymous authors" and the "Under review" header, so no author
 % name/affiliation/email may appear in this file. Use \usepackage[accepted]{tmlr}
 % only for the camera-ready version, [preprint] for arXiv.
-% The ICLR 2027 version of this preamble used iclr2027_conference.sty (kept in
-% paper/) with \usepackage{iclr2027_conference,times}.
+% The ICLR 2027 build is main_iclr.tex, which defines \iclrversion and inputs
+% this file, so both venues compile from one source.
 % ---------------------------------------------------------------------------
 
-\usepackage{tmlr}
+\ifdefined\iclrversion
+  \usepackage{iclr2027_conference,times}
+\else
+  \usepackage{tmlr}
+\fi
+% \moveblock{name}{...} prints a block in place for TMLR and stores it for ICLR,
+% where \placeblock{name} prints it in the appendix: one source for both venues.
+\newif\ificlr
+\ifdefined\iclrversion\iclrtrue\fi
+\makeatletter
+\newcommand{\moveblock}[2]{\@namedef{moved@#1}{#2}\ificlr\else#2\fi}
+\newcommand{\placeblock}[1]{\ificlr\@nameuse{moved@#1}\fi}
+\makeatother
+% Display breaks for the narrower ICLR column; empty (\iclrqbr: \qquad) for TMLR.
+% \iclrbr breaks at a relation, \iclrbrq breaks with an indent, \iclrqbr breaks
+% where TMLR has \qquad, and \iclrstart...\iclrend make a single display breakable;
+% \iclrallow allows a line break inside a file path.
+\ificlr
+  \newcommand{\iclrbr}{\\&}\newcommand{\iclrbrq}{\\&\qquad}\newcommand{\iclrqbr}{\\&}
+  \newcommand{\iclrstart}{\begin{aligned}&}\newcommand{\iclrend}{\end{aligned}}
+  \newcommand{\iclrallow}{\allowbreak}
+\else
+  \newcommand{\iclrbr}{}\newcommand{\iclrbrq}{}\newcommand{\iclrqbr}{\qquad}
+  \newcommand{\iclrstart}{}\newcommand{\iclrend}{}\newcommand{\iclrallow}{}
+\fi
 \usepackage{amsmath,amssymb,amsthm}
 \usepackage{thmtools,thm-restate} % main-text results restated verbatim before their proofs
 \usepackage{graphicx}
@@ -74,25 +98,29 @@ Empirical Conditional Flows}
 \raggedbottom
 
 \begin{abstract}
-We ask which interventions on the exact empirical conditional flow-matching field can move
-its endpoints off the training set. At an identifying label the exact field returns one
-training example, and Gaussian label noise only reweights the examples. At positive label
-bandwidth, two common modifications keep the endpoints on the training examples for almost
-every initial point: positive mixtures of exact fields with strictly positive priors, which
-include averaging over labels and negative guidance, and classifier-free guidance with a fixed
-nonnegative strength or a bounded nonnegative schedule of bounded variation. Every trajectory
-converges, and the exceptional initial points form a null set that can be a hyperplane.
-Composing the two modifications breaks this. Guidance applied to a label-averaged field can
-converge to a non-training point with positive probability: for two examples whose averaged
-priors have log-odds $\pm2B$, this happens exactly when the guidance strength exceeds
-$1/\sinh^2B$, and it persists under perturbation of the priors, mixture weights and guidance
-strength. For a learned field at an identifying label,
-the endpoint lies within the limiting scaled field error of its training example; for data
-prediction this is the late-time prediction error. Exact-field computations confirm the
-threshold. Trained networks, from small MLPs to a 35.75M-parameter CIFAR-10 U-Net, exhibit
-finite-time collapse consistent with the hard-conditioning theory, and on the synthetic problem
-their finite-cutoff variance tracks the label-smoothing reference; these observations do not
-establish asymptotic endpoint convergence of the learned flows.
+Label noise, coarse label resolution and classifier-free guidance modify the field a conditional
+flow-matching sampler integrates, and some of them are used to reduce the replication of training
+data. Applied to the exact empirical field at positive label bandwidth, none of them does: they
+decide which training example is returned, not whether one is. Label noise reweights the training
+examples with weights computable from the training set; positive mixtures of exact fields, which
+include averaging over labels and negative guidance, and guidance with a fixed nonnegative strength
+or a bounded schedule of bounded variation end on a training example from almost every initial
+point, and every trajectory converges. What moves a learned sampler off the training set is
+therefore its field error late in sampling: at an identifying label a learned endpoint lies within
+the limiting scaled field error of its training example, a quantity the regression loss does not
+control, and in our runs the error met along trajectories exceeds the error on the training law by
+orders of magnitude near $t=1$. At positive bandwidth we prove only a local version. The positive
+theorems stop at one composition: guidance applied to a label-averaged field reaches a blend of
+training examples with positive probability, for two examples whose averaged priors have log-odds
+$\pm2B$ exactly when the guidance strength exceeds $1/\sinh^2B$, stably under perturbation; a signed
+posterior covariance decides the general case. We present it as a boundary marker, not a practical
+mechanism: we know of no trained model that averages its field over labels, the basin sits in a
+layer of width $(1-t)^2$ at the tie, and standard velocity networks do not reproduce it, while
+networks given a coordinate that resolves this scale at the known tie do. Exact computations agree
+with the threshold, also in a consistency check on CIFAR-10 image pairs. At a finite cutoff,
+trained networks from small MLPs to a 35.75M-parameter U-Net approach the hard-conditioning
+endpoint as predicted, although at image scale some samples stay off the training set and the
+variance departs from the label-smoothing reference.
 \end{abstract}
 
 % ==========================================================================
@@ -111,44 +139,90 @@ identifying label, and on a label-weighted mixture of examples when Gaussian noi
 the labels (Section~\ref{sec:theory}, Figure~\ref{fig:mechanism}).
 
 Practical samplers modify this field. Labels are noised during training~\citep{ho2022cascaded};
-a network that resolves labels only coarsely averages the field over nearby labels; and
+a network that resolves labels only coarsely may average the field over nearby labels, a
+hypothesis we test in one form; and
 sampling adds classifier-free guidance~\citep{ho2022classifier}, often with a strength that
-varies in time~\citep{kynkaanniemi2024interval,jain2025attraction}. We ask which of these
+varies in time~\citep{kynkaanniemi2024interval} and is sometimes withheld or reversed early in
+sampling to reduce memorisation~\citep{jain2025attraction}. We ask which of these
 modifications can, by themselves, move the endpoints of the exact field off the training set,
 and what a learned field must do to inherit the answer.
 \begin{itemize}\itemsep1pt
-\item \emph{Positive modifications keep the training examples} (Section~\ref{sec:intervention-atomicity}).
-  Positive mixtures of prior-indexed exact fields (\emph{positive field mixtures}) with strictly
-  positive priors, and nonnegative guidance
-  with a fixed strength or a bounded schedule of bounded variation, end on a training example
-  for almost every initial point (Theorems~\ref{thm:posmix} and~\ref{thm:schedule}). The
-  exceptional set is null but can be a hyperplane (Proposition~\ref{prop:hyperplane}).
-\item \emph{Their composition can leave} (Section~\ref{sec:composition}). Guidance applied to a
-  label-averaged field can converge to a circumcentre of training examples with positive
-  probability; for two examples whose averaged priors have log-odds $\pm2B$, the threshold is
-  exactly $w>1/\sinh^2B$, and the effect is stable
-  under perturbation of the priors, mixture weights and guidance strength (Theorem~\ref{thm:composition}, Proposition~\ref{prop:composition-open}). For
-  hyperbolic profiles in any dimension, the eigenvalue signs of a signed posterior covariance
-  matrix distinguish open attracting basins from null basins; a complete classification also
-  needs a condition on the faces of the tied atoms (Theorem~\ref{thm:spectral}).
-  Averaging and guidance commute, so the composition, not the order, decides the support.
-\item \emph{Learned fields inherit collapse unless their scaled error persists}
-  (Section~\ref{sec:transfer}). A learned endpoint is within $\limsup_{t\uparrow1}(1-t)|\Delta|$
-  of its training example, where $\Delta$ is the field error along the trajectory
-  (Theorem~\ref{thm:transfer}); small regression loss alone does not control this quantity.
+\item \emph{Sampler-side modifications reweight the training examples}
+  (Section~\ref{sec:intervention-atomicity}). Label noise returns training examples with weights
+  $p^{(h)}(y)$ computable from the training set (Theorem~\ref{thm:endpoint}). Positive mixtures of
+  prior-indexed exact fields (\emph{positive field mixtures}) with strictly positive priors, and
+  nonnegative guidance with a fixed strength or a bounded schedule of bounded variation, end on a
+  training example for almost every initial point (Theorems~\ref{thm:posmix}
+  and~\ref{thm:schedule}). The exceptional set is null but can be a hyperplane
+  (Proposition~\ref{prop:hyperplane}).
+\item \emph{Learned fields leave only through late-time error} (Section~\ref{sec:transfer}). A
+  learned endpoint is within $\limsup_{t\uparrow1}(1-t)|\Delta|$ of its training example, where
+  $\Delta$ is the field error along the trajectory (Theorem~\ref{thm:transfer}). Small regression
+  loss does not control this quantity: on EXP-1 the error along trajectories
+  exceeds the training-law error by a factor that grows roughly like $(1-t)^{-2}$
+  (Appendix~\ref{app:measured-transfer}). A field with integrable Lipschitz constant up to $t=1$
+  has an endpoint law without atoms (Proposition~\ref{prop:regular}).
+\item \emph{One composition marks where these results stop} (Section~\ref{sec:composition}).
+  Guidance applied to a label-averaged field can converge to a circumcentre of training examples,
+  a blend of them, with positive probability; for two examples whose averaged priors have log-odds
+  $\pm2B$, the threshold is exactly $w>1/\sinh^2B$, and the effect is stable under perturbation of
+  the priors, mixture weights and guidance strength (Theorem~\ref{thm:composition},
+  Proposition~\ref{prop:composition-open}). For hyperbolic profiles in any dimension, the
+  eigenvalue signs of a signed posterior covariance matrix distinguish open attracting basins
+  from null basins; a complete classification also needs a condition on the faces of the tied
+  atoms (Theorem~\ref{thm:spectral}). Averaging and guidance commute, so the composition, not the
+  order, decides the support. We read this as a boundary marker, not as a mechanism of
+  standard models: the basin lives at the scale $(1-t)^2$ at the tie, only networks given an
+  input that resolves that scale reproduce it (Section~\ref{sec:intervention-tests}), and a label
+  bottleneck averages priors rather than fields (Proposition~\ref{prop:bottleneck}).
 \end{itemize}
-Among the interventions analysed (Table~\ref{tab:interventions}), non-training endpoints of
-positive probability thus arise only from a support change such as endpoint noise, from averaging
-hard-label fields, from composing label averaging with guidance, or, for learned fields at an
-identifying label, from an error that does not vanish at the scale $(1-t)^{-1}$ up to the end of
-sampling. For a practitioner this says where samples off the training set can come from: not from
-label noise, from label averaging at positive bandwidth or from nonnegative guidance applied
-separately to the field that training defines, but from their composition, from averaging
-hard-label fields, from a change of the target's support, or from a learned field whose endpoint
-prediction does not converge to its training example. Section~\ref{sec:experiments} tests
-the exact statements numerically and measures collapse in trained networks. Proofs are in
+No single intervention analysed here (Table~\ref{tab:interventions}) moves the endpoints of the
+field that training defines off the training examples, and the one composition that does reaches
+blends of them, through a boundary layer that standard networks do not resolve.\ificlr\else{} Non-training endpoints of positive
+probability arise only from a support change such as endpoint noise, from averaging hard-label
+fields, from composing label averaging with guidance, and, for learned fields at an identifying
+label, from an error that does not vanish at the scale $(1-t)^{-1}$ up to the end of sampling.\fi{} At
+an identifying label, a sample far from the training set therefore points to the error of the
+learned field near $t=1$, not to the sampler: Theorem~\ref{thm:transfer} locates where any
+non-memorising mechanism must act, and the inductive biases of trained denoisers\ificlr{}
+\citep{kadkhodaie2024generalization,kamb2024creativity,niedoba2024mechanistic}\else, geometry-adaptive
+bases \citep{kadkhodaie2024generalization} and locality
+\citep{kamb2024creativity,niedoba2024mechanistic},\fi{} are candidate structured forms of that error.
+At positive bandwidth we prove only a local version (Proposition~\ref{prop:localtransfer}), so the
+off-atom image samples of Section~\ref{sec:p7} are not explained by it; an off-atom endpoint whose
+scaled error against the exact field vanishes along its trajectory would contradict the
+attribution. Section~\ref{sec:experiments} tests the exact statements numerically and measures
+finite-cutoff collapse in trained networks. Proofs are in
 Appendices~\ref{app:proofs}--\ref{app:transfer}, which open with a notation table and a proof
 roadmap (Tables~\ref{tab:notation} and~\ref{tab:roadmap}).
+
+\paragraph{What this means in practice.} Four consequences follow without new assumptions.
+\emph{(i) The knobs are not privacy mitigations.} At the exact optimum, label noise, label
+averaging, negative guidance and bounded guidance schedules only reweight training examples, and
+the blends reached by the composition are convex combinations of training images, which an audit
+should count as leakage rather than as new samples. Changing the support needs a mechanism such as
+endpoint noise (Proposition~\ref{prop:tgtnoise}), whose endpoint law is a Gaussian kernel density
+estimate around the weighted training examples, so sampling from it is a smoothed bootstrap; it carries no formal privacy guarantee unless its
+randomisation is calibrated in the sense of differential privacy~\citep{dwork2014algorithmic}.
+\emph{(ii) Which record is returned is predictable.} Under label noise the returned record and
+its probability, $p_i^{(h)}(y)$, are computable from the training set and the query label
+(Theorem~\ref{thm:endpoint}), so an auditor can rank, for any label, the records an exact-optimum
+model returns; under guidance the support is the same but the weights have no closed form. For a
+trained model this is a reference, not a per-sample prediction: on retrained CIFAR-10 U-Nets the
+learned and the exact field return the same image from the same source for only $23$--$67\%$ of
+on-atom samples at $h=4,6$ (Appendix~\ref{app:measured-transfer}).
+\emph{(iii) Monitor late-time field error, not the loss.} Because the exact field is explicit for
+a fixed training set, $(1-t)|\Delta|$ can be evaluated along sampling trajectories near $t=1$;
+by Theorem~\ref{thm:transfer} this, and not the regression loss, is what bounds the distance of an
+endpoint from its training example at an identifying label. On retrained CIFAR-10 U-Nets it
+already separates the samples that end off the training set from the others with AUC at least
+$0.95$ by $t\approx0.53$, long before the endpoint, where it reduces to the distance to the nearest
+training image (Appendix~\ref{app:measured-transfer}). Evaluating it needs the exact field, a
+sum over the training set at every step, so it suits audits rather than deployment.
+\emph{(iv) The statements concern support at fixed $N$.} The floor in~\eqref{eq:w2floor} is the
+mean squared distance from the posterior to the nearest training point, which typically decreases
+like $N^{-2/d}$, so atomic support is compatible with a small distance to the posterior at large
+$N$ and says nothing on its own about how well the weights match it.
 
 \begin{table}[t]
 \centering\footnotesize
@@ -166,13 +240,14 @@ Endpoint noise $\rho>0$ & atoms convolved with $\N(0,\rho^2I_d)$ & Prop.~\ref{pr
 \bottomrule
 \end{tabular}
 \caption{Support of the exact endpoint law. ``a.s.'' means for almost every initial point; the
-exceptional set can be a hyperplane (Proposition~\ref{prop:hyperplane}).}
+exceptional set can be a hyperplane (Proposition~\ref{prop:hyperplane}).\ificlr{} Endpoint noise is the only intervention that leaves the atoms in every configuration, since its endpoint law has a density; averaging hard-label fields leaves them only in configurations such as the symmetric tie of Section~\ref{sec:posmix}.\fi}
 \label{tab:interventions}
 \end{table}
 
 \paragraph{Related work.} That the empirical minimiser memorises is well established
-\citep{pidstrigach2022manifolds,gu2023memorization,kadkhodaie2024generalization,biroli2023diffusion,kamb2024creativity,buchanan2025edge,gao2024flow,bertrand2025closed,li2026memory},
-and kernel readings of finite-support flows are not new
+\citep{pidstrigach2022manifolds,gu2023memorization,biroli2023diffusion,buchanan2025edge,gao2024flow,bertrand2025closed,li2026memory};
+trained denoisers generalise through inductive biases that depart from it
+\citep{kadkhodaie2024generalization,kamb2024creativity,niedoba2024mechanistic}, and kernel readings of finite-support flows are not new
 \citep{scarvelis2025closedform,chen2026scoresmoothing,smola2026support}.
 \citet[Theorem~6.4]{baptista2025memorization} identify the empirical conditional law on the
 subset sharing a label, and \citet[Section~3.3]{physicscfm2026} analyse cell-conditioned flows;
@@ -183,16 +258,26 @@ of~\citet{ho2022cascaded}, which \citet{sadat2024cads} anneal at inference;
 be positive averages. Guidance does not sample the guided target law in
 general~\citep{chidambaram2024guidance}, and \citet{jain2025attraction} link its timing to
 memorisation in trained text-to-image models. For convergence,
-\citet[Theorem~3.7, version~3]{liu2025pde} prove almost-everywhere recovery of compact supports
-for score flows, and \citet[Theorem~3.18 and Remark~3.19]{liu2026geometric} give an original-flow
-criterion for mixed scores that assumes no nonminimising critical limit points. On a common
-finite support we prove convergence of every trajectory and null non-atom basins without such a
-premise, and show that the conclusion fails for some signed combinations. Small regression
+\citet[Theorem~3.7, version~3]{liu2025pde} prove that almost every trajectory of a single score
+flow converges to the compact data support, and \citet[Theorem~3.18]{liu2026geometric} prove that
+a mixture or guidance of two scores with a constant weight converges to a local minimiser of a
+distance potential, under the hypothesis that the limit set of the trajectory contains no
+non-minimising critical point\ificlr{}, leaving almost every initial point open (their Remark~3.19).
+For fixed $w>0$ on a common finite support we prove without that hypothesis that every trajectory
+converges and almost every one ends on an atom, extend this to bounded schedules and positive prior
+families, and show that it fails for some signed combinations\else; whether this holds for almost every initial point is left open
+(their Remark~3.19). For guidance with a fixed $w>0$ on a common finite support, where those
+critical points include the midpoints of tied atoms, we prove without that hypothesis that every
+trajectory converges and that the initial points ending off the atoms form a null set; we extend
+this to bounded schedules and to averages over any family of positive priors, and show that it
+fails for some signed combinations of more than two fields\fi{}
+(Appendix~\ref{apx:comparison} compares the statements). Small regression
 error without stability control gives poor endpoint guarantees
 \citep[Theorem~1]{benton2024error}; \citet[Appendix~D]{beltran2026reward} construct
 small-teacher-error examples with poor samples. Our affine example and transfer bound specialise
 these considerations to the singular hard-conditioning target.
 
+\moveblock{portrait}{%
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.88\textwidth]{fig_flow_portrait.png}
@@ -206,6 +291,8 @@ Theorem~\ref{thm:endpoint}. The variance matches, but the law is atomic
 (Proposition~\ref{prop:tgtnoise}).}
 \label{fig:mechanism}
 \end{figure}
+}%
+
 
 % ==========================================================================
 \section{Setup and notation}
@@ -261,10 +348,12 @@ so the a.e.-unique minimiser is $\vstar(x,t,y)=\E[U\mid X_t=x,t,\widetilde Y=y]$
 $\inf_v L_h=\E[\Var(U\mid X_t,t,\widetilde Y)]$. \proofin{apx:pf-projection}
 \end{restatable}
 
+\moveblock{versionconvention}{%
 The minimiser is unique only almost everywhere; for $h>0$ the triple $(X_t,t,\widetilde Y)$ has a
 positive density, and at $h=0$ the label takes only the values $y^i$, so we always use the explicit
 continuous version. All the explicit fields below are
 locally Lipschitz on $\R^d\times[0,1)$, so their flows are well posed (Lemma~\ref{lem:wellposed}).
+}%
 
 \begin{restatable}[Exact conditional collapse; $h=0$]{proposition}{propcollapse}
 \label{prop:collapse}
@@ -293,10 +382,11 @@ w_i^{(h)}=\frac{\pi_0\!\big(\tfrac{x-tx^i}{1-t}\big)K_h(y-y^i)}
 \label{eq:kernel-field}
 \end{equation} \proofin{apx:pf-kernel-field}
 \end{restatable}
-With the label weights $p_i^{(h)}(y)=K_h(y-y^i)/\sum_jK_h(y-y^j)$,
+\ificlr Write $p_i^{(h)}(y)=K_h(y-y^i)/\sum_jK_h(y-y^j)$ for the label weights.\fi
+\moveblock{coupling}{With the label weights $p_i^{(h)}(y)=K_h(y-y^i)/\sum_jK_h(y-y^j)$,
 Lemma~\ref{lem:mixture-coupling} identifies $\vstar$ with the conditional velocity of the
 coupling $I\sim p^{(h)}(y)$, $X_1=x^I$; its marginals solve the flow's continuity equation and
-tend to $\law(x^I)$.
+tend to $\law(x^I)$.}
 
 \begin{restatable}[Endpoint law under label smoothing]{theorem}{thmendpoint}
 \label{thm:endpoint}
@@ -331,15 +421,19 @@ W_2^2\big(p_1^{(h)}(\cdot\mid y),\,p(\cdot\mid y)\big)\ \ge\
 and this lower bound does not depend on $h$. Both sides are finite exactly when
 $p(\cdot\mid y)$ has a finite second moment. \proofin{apx:pf-atomicity}
 \end{restatable}
-Label smoothing redistributes weight over the atoms and never generates new samples, so
-matching $\tr\Covh$ to a posterior variance matches a second moment, not the posterior.
+Label smoothing redistributes weight over the atoms and never ends off them, so
+matching $\tr\Covh$ to a posterior variance matches a second moment, not the posterior.\ificlr\else{}
+The floor in~\eqref{eq:w2floor} is a statement about the support: it is the mean squared distance
+from the posterior to the nearest training point, which for training points drawn from a law with a
+positive density decreases as $N$ grows, typically like $N^{-2/d}$, and says nothing about how well
+the weights $p_i^{(h)}$ match the posterior.\fi
 
 % ==========================================================================
 \section{Interventions on exact fields}
 \label{sec:intervention-atomicity}
 
-Learners and samplers modify the exact field: a learner that resolves labels only coarsely
-averages it over nearby labels, and a sampler adds classifier-free guidance. We ask which
+Learners and samplers modify the exact field: averaging it over nearby labels models a
+learner that resolves labels only coarsely, and a sampler adds classifier-free guidance. We ask which
 modifications keep the endpoints on the training atoms.
 
 Assume the atoms $x^1,\dots,x^N$ are distinct (atoms at one location can be merged by adding
@@ -372,6 +466,7 @@ without bound there while bounded sets stay bounded, and Liouville's formula wit
 makes these initial points null (Lemma~\ref{lem:volume}). The interventions differ only in how the
 two steps are verified, and composition is where Step~2 fails (Figure~\ref{fig:proof-template}).
 
+\moveblock{template}{%
 \begin{figure}[t]
 \centering
 \resizebox{\textwidth}{!}{\input{figures/tikz/proof_template.tex}}
@@ -384,6 +479,8 @@ fails Step~2 at the tie once $w>w_c=1/\sinh^2B$ (Theorem~\ref{thm:composition},
 Figure~\ref{fig:composition}).}
 \label{fig:proof-template}
 \end{figure}
+}%
+
 
 \subsection{Positive field mixtures keep the atoms}
 \label{sec:posmix}
@@ -402,6 +499,7 @@ flow of $v_\Pi$ is well posed on $[0,1)$, and:
 \proofin{apx:pf-posmix}
 \end{restatable}
 
+\moveblock{sketchposmix}{%
 \begin{proofsketch}
 Here $\bar m=m_\Pi$ averages the posterior means $m_p=\sum_jq_{p,j}x^j$. For Step~1, the flow is
 the gradient flow of $\tfrac12|x|^2$ minus an averaged log-partition function whose explicit time
@@ -409,6 +507,8 @@ dependence only lowers the energy, so the kinetic energy is finite. For Step~2, 
 averaged posterior covariance trace, and near a non-atom limit positivity of the priors keeps $V$
 away from zero.
 \end{proofsketch}
+}%
+
 
 The field $v_\Pi$ is a mixture of prior-indexed exact fields, not the field of a mixed prior: in
 general $\int v_p\,\Pi(dp)\neq v_{\int p\,\Pi(dp)}$, because the posterior weights $q_{p,j}$ are
@@ -433,6 +533,7 @@ identified. Averaging the two identifying hard-label fields of a two-atom set, w
 not strictly positive, instead sends every source to the midpoint. The null set in (b) cannot be
 removed, and it need not be small in dimension.
 
+\moveblock{hyperplane}{%
 \begin{restatable}[The exceptional set can be a hyperplane]{proposition}{prophyperplane}
 \label{prop:hyperplane}
 Let $N=2$, $\nu=(x^1-x^2)/2\neq0$, and $p=(\tfrac12,\tfrac12)$. The trajectory of $v_p$ from
@@ -443,6 +544,9 @@ therefore the hyperplane $\{x_0:\nu\cdot x_0=0\}$, of Hausdorff dimension $d-1$.
 \end{restatable}
 The hyperplane passes through the source mean, not through the midpoint, and splits $\pi_0$
 into the endpoint weights $\tfrac12$.
+}%
+\ificlr For two atoms with equal priors it is a hyperplane (Proposition~\ref{prop:hyperplane}).
+\fi
 
 \subsection{Guidance keeps the atoms}
 \label{sec:guidance}
@@ -465,6 +569,7 @@ initial point. Then:
 \proofin{apx:pf-cfgatom}
 \end{restatable}
 
+\moveblock{sketchcfg}{%
 \begin{proofsketch}
 For (a), Step~1 survives the negative coefficient because the relative entropy of a posterior to
 a fixed positive prior is bounded. For Step~2, near a non-atom limit at distance $r$ from its
@@ -474,6 +579,8 @@ to the limit; the third term is nonnegative for $w\ge0$, and $\mu_w$ is small in
 the volume again expands. For (b), a Gibbs inequality gives
 $|x_t-tx^i|^2\le(1-t)^2[C+2w\log N\log\tfrac1{1-t}]$.
 \end{proofsketch}
+}%
+
 At a hard label, guidance thus weakens the guaranteed rate to $(1-t)\sqrt{\log(1/(1-t))}$ but does
 not prevent collapse. For $w\in[-1,0)$ both coefficients are nonnegative:
 
@@ -485,9 +592,10 @@ Theorem~\ref{thm:posmix} hold. With Proposition~\ref{prop:cfgatom}(a), every fix
 $w\ge-1$ gives atomic endpoints almost surely when $h>0$.
 \end{corollary}
 
-Samplers often vary guidance in time: \citet{kynkaanniemi2024interval} apply it on an interval of
+\ificlr Samplers often vary guidance in time~\citep{kynkaanniemi2024interval,jain2025attraction};
+for exact fields, bounded nonnegative schedules keep the atoms.\else Samplers often vary guidance in time: \citet{kynkaanniemi2024interval} apply it on an interval of
 noise levels, and \citet{jain2025attraction} withhold or reverse it early in sampling to reduce
-memorisation. For exact fields, bounded nonnegative schedules keep the atoms.
+memorisation. For exact fields, bounded nonnegative schedules keep the atoms.\fi
 
 \begin{restatable}[Guidance schedules of bounded variation]{theorem}{thmschedule}
 \label{thm:schedule}
@@ -498,17 +606,25 @@ every trajectory converges to a point of $\mathcal C'$, and the initial points w
 not an atom form a Lebesgue-null set. In particular the endpoint is an atom almost surely under
 every absolutely continuous source. \proofin{apx:pf-schedule}
 \end{restatable}
-Proposition~\ref{prop:cfgatom}(a) is the constant case. The change of the energy with $w$ is
+\ificlr At a hard label, schedules $w(t)=O((1-t)^{-\gamma})$ with $\gamma<2$ still collapse
+(Appendix~\ref{apx:pf-cfgatom}).\else Proposition~\ref{prop:cfgatom}(a) is the constant case. The change of the energy with $w$ is
 controlled by the total variation of $w$ and by the relative entropy of a posterior to a fixed
 positive prior, at most $\log(1/\min_jp_j)$. At a hard label, schedules
 $w(t)=O((1-t)^{-\gamma})$ with $\gamma<2$ still collapse (Appendix~\ref{apx:pf-cfgatom}); this
-is sufficient, not sharp.
+is sufficient, not sharp.\fi
 
 \subsection{Composing the two interventions can leave the atoms}
 \label{sec:composition}
 
 Averaging the guided field over labels gives $(1+w)v_\varphi-wv_{\mathrm{unc}}^\star$, which is
-also guidance applied to the averaged field. Neither result above covers this composite:
+also guidance applied to the averaged field. \ificlr The average is over fields, not priors: the
+optimum of a label bottleneck averages the priors, and guidance on it ends on an atom almost
+surely (Proposition~\ref{prop:bottleneck}).\else The average is over fields, with weights that do
+not depend on the position; it models a sampler that averages several label queries, or a network
+whose output is smooth in its label input. A network that discards label information instead
+averages the priors: the optimum of a label bottleneck is a single exact field with a strictly
+positive prior, and guidance on it ends on an atom almost surely
+(Proposition~\ref{prop:bottleneck} in Appendix~\ref{apx:pf-bottleneck}).\fi Neither result above covers this composite:
 Theorem~\ref{thm:posmix} needs nonnegative coefficients, and Theorem~\ref{thm:schedule} has a
 single conditional prior. Two atoms suffice to show that it can leave the atoms.
 
@@ -527,14 +643,21 @@ $v_{\varphi,w}=(1+w)v_\varphi-wv_{\mathrm{unc}}^\star$ converges to $-1$, $0$ or
 \proofin{apx:pf-composition}
 \end{restatable}
 
-\begin{proofsketch}
-With $s=tx/(1-t)^2$, the averaged posterior means are $\tanh(s\pm B)$ and the unconditional one
-is $\tanh s$, so in the time $\tau$ the composite flow is $\dot x=F_w(s)-x$ with
+\newcommand{\compositioneq}{%
 \begin{equation}
 F_w(s)=\tfrac{1+w}2\big[\tanh(s+B)+\tanh(s-B)\big]-w\tanh s
 =\frac{2\tanh(s)\,\big(\cosh^2s-w\sinh^2B\big)}{\cosh2s+\cosh2B}.
 \label{eq:composition-mean}
-\end{equation}
+\end{equation}}
+\ificlr
+With $s=tx/(1-t)^2$, in the time $\tau$ the composite flow is $\dot x=F_w(s)-x$ with
+\compositioneq
+At the tie the averaged posterior mean has slope $\operatorname{sech}^2B$ and the unconditional one slope~$1$, so the slope $F_w'(0)=(1+w)\operatorname{sech}^2B-w$ turns negative, and the tie attracts, exactly when $w>1/\sinh^2B$; the proof is in Appendix~\ref{apx:pf-composition}.
+\else
+\begin{proofsketch}
+With $s=tx/(1-t)^2$, the averaged posterior means are $\tanh(s\pm B)$ and the unconditional one
+is $\tanh s$, so in the time $\tau$ the composite flow is $\dot x=F_w(s)-x$ with
+\compositioneq
 Near the tie each averaged component is confident in a different atom, so their average has the
 small slope $\operatorname{sech}^2B$, while the unconditional mean has slope $1$. Guidance
 subtracts $w$ times this unconditional repulsion, and for $w>1/\sinh^2B$ the composite attracts:
@@ -543,9 +666,11 @@ because averaging adds $-(1+w)$ times the variance of the component means. In (a
 $|x|<\delta(1-t)^2/t$ then traps an open interval of sources around the tie; in (b) a lower
 barrier keeps every positive source away from $0$.
 \end{proofsketch}
+\fi
 For labels far apart relative to $h$, e.g.\ $u_0=\ell\gg h$, the threshold $1/\sinh^2(\ell^2/h^2)$
-is exponentially small (Figure~\ref{fig:composition}). The effect does not rely on symmetry:
+is exponentially small (Figure~\ref{fig:composition}). The effect does not rely on symmetry\ificlr: it persists under perturbation of the priors, the mixture weights and the guidance strength, though not of the atom geometry (Proposition~\ref{prop:composition-open} in Appendix~\ref{apx:pf-composition-open}). We read the theorem as an existence result at the boundary of Theorems~\ref{thm:posmix} and~\ref{thm:schedule}, not as a mechanism expected in standard trained models (Sections~\ref{sec:transfer} and~\ref{sec:intervention-tests}).\else:\fi
 
+\moveblock{compopenprop}{%
 \begin{restatable}[The off-atom basin persists under perturbation]{proposition}{propcompositionopen}
 \label{prop:composition-open}
 On the atoms $\{-1,1\}\subset\R$, average finitely many conditional priors with log-odds
@@ -558,6 +683,9 @@ set of parameters $(\lambda_1,B_1,B_2,B_u,w)$, with $\lambda_2=1-\lambda_1$ and
 $\lambda_1\in(0,1)$, containing every configuration of Theorem~\ref{thm:composition}(a).
 \proofin{apx:pf-composition-open}
 \end{restatable}
+}%
+
+\moveblock{compopen}{%
 Proposition~\ref{prop:composition-open} concerns a generalised family of reference fields: the
 standard guidance of Section~\ref{sec:setup} has a uniform unconditional prior, $B_u=0$, and
 $B_u\neq0$ is a mathematical extension. The perturbations are of the priors, the mixture weights
@@ -571,10 +699,12 @@ combined covariance trace $\Theta$ of Step~2 fails to stay positive there
 (Lemma~\ref{lem:volume}), and averaging lowers $\Theta$ by $(1+w)$ times the
 spread of the component posterior means. Section~\ref{sec:spectral} turns this into a criterion
 in any dimension.
+}%
 
 \subsection{A spectral criterion in any dimension}
 \label{sec:spectral}
 
+\moveblock{spectraldefs}{%
 The trace $\Theta$ decides Step~2 only through its sign; in more than one dimension the relevant
 object is the matrix whose trace it is. Fix a non-atom candidate $z\in\mathcal C'$ with tied
 nearest atoms $S=\nn(z)$, so $|S|\ge2$ and $z\in\operatorname{aff}S$, and let
@@ -588,7 +718,20 @@ M(\xi)=\sum_kc_k\,\E_{\pi_k(\xi)}[a],\qquad
 \]
 The rescaled position $\xi=\beta P_L(x-tz)$ generalises $s$ of Section~\ref{sec:composition}; a
 \emph{profile} is a root of $M(\xi)=z$, \emph{hyperbolic} if $\Gamma$ is invertible there.
-
+}%
+\ificlr Beyond two atoms the same question is decided by a matrix. At a non-atom candidate $z$ with
+tied nearest atoms $S$, the rescaled position $\beta P_L(x_t-tz)$ of a trajectory converging to $z$
+tends to a \emph{profile}, a root of the restricted posterior mean of the field, and the signed
+posterior covariance $\Gamma$ at the profile plays the role of $F_w'(0)$.
+Theorem~\ref{thm:spectral} in Appendix~\ref{apx:pf-spectral} shows that $\Gamma\prec0$ gives an
+open basin, so the endpoint law has an atom at $z$, that a positive eigenvalue gives a null basin,
+and that these cases are exhaustive under a face condition; Corollary~\ref{cor:spectral-threshold}
+gives the matrix threshold, $1/\sinh^2B$ for two atoms. In $d\in\{2,8\}$, sources and saddles,
+including those the trace test misses, put no source at $z$; sinks keep a positive fraction,
+except at $d=8$ and $w\le2w_c$, where it falls below the resolution $1/2048$
+(Table~\ref{tab:spectral}).
+\fi
+\moveblock{spectralthm}{%
 \begin{restatable}[Spectral classification of off-support endpoints]{theorem}{thmspectral}
 \label{thm:spectral}
 Let $\xi_\star$ be a hyperbolic profile, and call its basin the set of initial points with
@@ -604,7 +747,9 @@ $x_t\to z$ and $\beta P_L(x_t-tz)\to\xi_\star$.
 \end{enumerate}
 \proofin{apx:pf-spectral}
 \end{restatable}
+}%
 
+\moveblock{sketchspectral}{%
 \begin{proofsketch}
 In the time $\sigma$ with $d\sigma=\beta\,d\tau$ the profile obeys
 $d\xi/d\sigma=M(\xi)-z+o(1)$, while the normal part $P_{L^\perp}(x-z)$ decays at the slow rate
@@ -614,13 +759,17 @@ positive eigenvalues of $\Gamma$, which gives (a) and (b). For (c), $M-z$ is the
 potential that grows linearly away from the profiles, whereas convergence to $z$ forces
 $\xi=o(\sigma)$; so profiles cannot escape to infinity.
 \end{proofsketch}
+}%
 
+
+\moveblock{spectralafter}{%
 Lemma~\ref{lem:volume} uses only $\Theta=\tr\Gamma$: a profile with $\tr\Gamma>0$ already has a
 null basin. Theorem~\ref{thm:spectral}(b) also covers saddles with $\tr\Gamma\le0$, and (a) gives
 the positive-measure counterpart in any dimension. In one dimension trace and eigenvalue
 coincide, and the roots $0$ and $\pm s_u$ of $F_w$ recover Theorem~\ref{thm:composition}, except
 at the nonhyperbolic threshold $w=w_c$, which its proof treats separately.
-
+}%
+\moveblock{corspectral}{%
 \begin{restatable}[Matrix threshold for guided label averaging]{corollary}{corspectral}
 \label{cor:spectral-threshold}
 Let $M_{\mathrm{av}}$ average the restricted means of finitely many conditional priors in $\Ppos$
@@ -637,7 +786,10 @@ The common equilibrium holds in symmetric configurations, such as a regular simp
 conditional prior favouring each vertex, where $w_c^{\mathrm{spec}}=(1-m^2)/m^2$ with
 $m=(e^B-1)/(e^B+N-1)$; Section~\ref{sec:intervention-tests} checks the classification
 numerically. Nonhyperbolic profiles and faces whose affine hull contains $P_Lz$ remain open.
+}%
 
+
+\moveblock{whatleaves}{%
 \subsection{What leaves the support}
 \label{sec:interventions}
 
@@ -646,6 +798,8 @@ endpoint law. Endpoint noise, $X_1=x^I+\rho\xi$, is the only one among them that
 atoms in every configuration: its endpoint law has a density (Proposition~\ref{prop:tgtnoise}).
 Averaging hard-label fields can also move every endpoint, but only in configurations such as the
 symmetric tie of Section~\ref{sec:posmix}.
+}%
+
 
 % ==========================================================================
 \section{From exact fields to learned fields}
@@ -679,17 +833,18 @@ $\limsup_{t\uparrow1}|Z_t-a|\le\limsup_{t\uparrow1}|\hat x_1(Z_t,t)-a|$.
 \proofin{apx:pf-transfer}
 \end{restatable}
 
-The argument is elementary; its use is the reading. A learned trajectory stays away from its
+\ificlr\else The argument is elementary; its use is the reading. \fi A learned trajectory stays away from its
 atom only if the scaled error $(1-t)|\Delta|$, equivalently the error of the implied endpoint
 prediction, stays away from zero up to $t=1$; errors of order $o((1-t)^{-1})$ still collapse.
 At positive bandwidth the same holds near an atom once the trajectory enters a small ball with a
-small scaled error there. The bound is a pathwise stability certificate, informative when the
+small scaled error there\ificlr{} (Proposition~\ref{prop:localtransfer}, Appendix~\ref{apx:pf-localtransfer})\fi. \moveblock{transferreading}{The bound is a pathwise stability certificate, informative when the
 scaled error is controlled independently of the endpoint, for instance by an estimate of the
 learned field. It is not a separate test of the endpoint: since
 $(1-t)\Delta(Z_t,t)=(1-t)v_\theta(Z_t,t)+Z_t-a$, if $v_\theta$ stays bounded along a trajectory
 with $Z_t\to z$, then $(1-t)\Delta(Z_t,t)\to z-a$ and the bound holds with equality, so a
-correlation between the two measured quantities would carry little additional information.
+correlation between the two measured quantities would carry little additional information.}
 
+\moveblock{localtransfer}{%
 \begin{restatable}[Local transfer at positive bandwidth]{proposition}{proplocaltransfer}
 \label{prop:localtransfer}
 Let $h>0$, fix $y$, write $v^\star=\vstar(\cdot,\cdot,y)$, and let $a=x^i$ be an atom with
@@ -701,9 +856,50 @@ $(1-t)|\Delta(x,t)|\le\rho/4$ whenever $|x-a|\le\rho$ and $t_0\le t<1$, then $|Z
 all $t\in[t_0,1)$ and $\limsup_{t\uparrow1}|Z_t-a|\le\limsup_{t\uparrow1}(1-t)|\Delta(Z_t,t)|$.
 \proofin{apx:pf-localtransfer}
 \end{restatable}
-Both statements are conditional: they neither infer the error along trajectories from the
-training loss nor assert that a trained network enters the ball. They name what a measurement
+}%
+
+\moveblock{regular}{%
+Whether a learned field can end on an atom at all, a training example or the midpoint of
+Theorem~\ref{thm:composition}, depends on how its regularity degenerates at $t=1$.
+
+\begin{restatable}[Regular learned fields]{proposition}{propregular}
+\label{prop:regular}
+Let $v_\theta$ be continuous and locally Lipschitz in $x$ on $\R^d\times[0,1)$.
+\begin{enumerate}[label=(\alph*),leftmargin=2em]
+\item If its spatial Lipschitz constant $L(t)$ and $|v_\theta(0,t)|$ are integrable on $[0,1)$,
+  the endpoint map $x_0\mapsto X_1$ is a bi-Lipschitz homeomorphism of $\R^d$; under every
+  absolutely continuous source the endpoint law is absolutely continuous and has no atom.
+\item Let $d=1$ and $v_\theta=(\hat x_1-x)/(1-t)$ on $[t_0,1)$, where $\hat x_1$ is bounded and
+  continuous and $\partial_x\hat x_1$ is continuous on $\R\times[t_0,1]$, and let
+  $g=\hat x_1(\cdot,1)$ have finitely many fixed points. Every trajectory converges to a fixed
+  point of $g$; a fixed point $z$ with $g'(z)>1$ is the limit of at most one initial point, and
+  one with $g'(z)<1$ is the limit of a nonempty open interval of initial points.
+\end{enumerate}
+\proofin{apx:pf-regular}
+\end{restatable}
+
+An MLP with Lipschitz activations that outputs a velocity from a smooth embedding of
+$t\in[0,1]$, such as the standard conditional flow matching (CFM) network of Section~\ref{sec:intervention-tests}, satisfies
+(a): its endpoint law has no atom anywhere, so the collapse it shows in
+Section~\ref{sec:exp1} is finite-cutoff collapse, an approach to the atom, not the atom itself. The same MLP predicting data satisfies (b) once its output is clipped to a bounded range,
+and so does its guided label average, with
+$g_w=(1+w)\bar g_\varphi-w\,g_{\mathrm{unc}}$ formed from the networks' predictions at $t=1$. The
+exact composite carries no threshold there: every exact mean tends to the nearest atom off the
+tie, for every label and every $w$, and $w_c=1/\sinh^2B$ is set at the scale $|x|\sim(1-t)^2$
+around the tie. Under (b) the off-atom basin is therefore decided by the slope
+$g_w'(0)=(1+w)\bar g_\varphi'(0)-w\,g_{\mathrm{unc}}'(0)$ of the networks' limits, which the exact
+field does not constrain. Reproducing the exact threshold requires a prediction whose spatial
+derivative is unbounded near the tie as $t\uparrow1$, as for an input $\operatorname{asinh}(tx/(1-t)^2)$.
+}%
+\ificlr Proposition~\ref{prop:regular} in Appendix~\ref{apx:pf-regular} says what a learned field needs to end on an atom at all. A velocity MLP with a smooth embedding of $t\in[0,1]$ has an integrable spatial Lipschitz constant, so its endpoint law has no atom; in $d=1$, a data-predicting one whose bounded prediction is $C^1$ up to $t=1$ ends at the fixed points of that prediction, where every exact mean equals the nearest atom for every label and every $w$. The threshold $w_c$, set at the scale $|x|\sim(1-t)^2$, is then invisible; reproducing it needs a prediction whose spatial derivative is unbounded near the tie, as with the input $\operatorname{asinh}(tx/(1-t)^2)$.
+\fi
+
+Theorem~\ref{thm:transfer} and Proposition~\ref{prop:localtransfer} are conditional: they neither infer the error along trajectories from the
+training loss nor assert that a trained network enters the ball. \ificlr Appendix~\ref{app:measured-transfer} measures it on EXP-1; on CIFAR-10 the off-atom samples are those with large scaled error.\else They name what a measurement
 would need, for instance to explain the off-atom CIFAR-10 samples of Section~\ref{sec:cifarddpm}.
+Appendix~\ref{app:measured-transfer} measures the trajectory error on EXP-1; for the CIFAR-10
+samples it rules out solver and cutoff error and shows that the off-atom samples are those with
+large scaled error along their trajectories; the mechanism behind that error is open.\fi
 
 % ==========================================================================
 \section{Experiments}
@@ -718,12 +914,14 @@ population standard deviations. Appendix~\ref{app:expdetails} gives all settings
 \subsection{Collapse in trained networks}
 \label{sec:exp1}
 
-\paragraph{Hard conditioning.} On EXP-1 the conditional variance tracks the posterior,
+\paragraph{Hard conditioning.} \emph{Collapse} of a trained network here means finite-cutoff
+collapse, variance falling toward zero at the cutoff, not an endpoint atom, which a velocity MLP
+lacks (Proposition~\ref{prop:regular}(a)). On EXP-1 the conditional variance tracks the posterior,
 $\tr\Sigmapost=1.018$, up to $\sim\!10^4$ iterations, then collapses: $0.396\pm0.127$ at
 $2\times10^5$ and $0.120\pm0.054$ at $10^6$ with a cosine schedule, while the velocity approaches $(\star)$ and the
-generated mean moves to $x^i$ (Figure~\ref{fig:exp1-collapse}, Table~\ref{tab:exp1}). The
+generated mean moves to $x^i$ (Figure~\ref{fig:exp1-collapse}, Table~\ref{tab:exp1}). \ificlr\else The
 distance of the generated mean to the training atom and to the posterior mean cross near $10^5$
-iterations. The unconditional baseline keeps
+iterations. \fi The unconditional baseline keeps
 $\tr\Cov=1.926\pm0.171$ against $\tr\Xhat=1.931$, as Proposition~\ref{prop:uncond} predicts. The
 memorisation ratio of \citet{yoon2023memorization} reaches $0.650\pm0.033$ conditionally and
 $0.389\pm0.032$ unconditionally. A bimodal mixture posterior (EXP-2) and MNIST inpainting
@@ -742,7 +940,7 @@ displayed conditions the completions coincide with the training image from itera
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\textwidth]{fig_exp1_collapse.pdf}
+\includegraphics[width=\ificlr0.84\else1\fi\textwidth]{fig_exp1_collapse.pdf}
 \caption{Hard-conditioning collapse on EXP-1, five seeds (mean $\pm$ one population standard
 deviation; solid: constant learning rate, dashed: cosine schedule to $10^6$ iterations).
 (a)~The generated variance stays at $\tr\Sigmapost$ up to about $10^4$ iterations and then falls
@@ -753,6 +951,7 @@ field $(\star)$ of Proposition~\ref{prop:collapse}. Values as in Table~\ref{tab:
 \label{fig:exp1-collapse}
 \end{figure}
 
+\moveblock{cifarfig}{%
 \begin{figure}[t]
 \centering
 \includegraphics[width=\textwidth]{fig_cifar_collapse.pdf}
@@ -764,6 +963,8 @@ the true image and the nearest training image. From iteration $8000$ the complet
 with the training image.}
 \label{fig:cifar-collapse}
 \end{figure}
+}%
+
 
 \label{sec:p7}
 \paragraph{Label smoothing and the kernel reference.} On EXP-1 the generated variance follows
@@ -778,6 +979,7 @@ are off-atom by the nearest-neighbour criterion; this combines learned-field, tr
 discretisation effects and does not identify a limiting support.
 Figure~\ref{fig:kernel-tracking} shows both regimes.
 
+\moveblock{kernelfig}{%
 \begin{figure}[t]
 \centering
 \includegraphics[width=\textwidth]{fig_kernel_tracking.pdf}
@@ -791,6 +993,8 @@ the exact field predicts. The slope is $0.48$ at $h=4$ and $-0.16$ at $h=6$, whe
 spans less than a decade (Table~\ref{tab:cifarddpm}).}
 \label{fig:kernel-tracking}
 \end{figure}
+}%
+
 
 \subsection{Averaging, guidance, and ties}
 \label{sec:intervention-tests}
@@ -799,28 +1003,58 @@ spans less than a decade (Table~\ref{tab:cifarddpm}).}
 atoms, and $h\in\{0.3,1\}$ give 200 paired cells across single-field, guidance ($w=3,12$),
 label-average and prior-average arms. With $128$ common sources and terminal gap $10^{-6}$, the
 largest cellwise 95th percentile of the nearest-atom distance is $6.11937\times10^{-6}$
-(Figure~\ref{fig:intervention-validation}, left, in Appendix~\ref{app:intervention-protocol}), and no sample exceeds the prespecified threshold of $1\%$ of the minimum atom separation. Doubling the
+(Figure~\ref{fig:intervention-validation}, left, in Appendix~\ref{app:intervention-protocol}), and no sample exceeds the prespecified threshold of $1\%$ of the minimum atom separation. \moveblock{stressextra}{Doubling the
 log-time RK4 resolution leaves every atom assignment unchanged. Field and prior averages differ
-in paired assignments by up to $31.25\%$, so they are distinct interventions. These are
-finite-time consistency checks, not a numerical proof. Near the symmetric tie of two atoms,
+in paired assignments by up to $31.25\%$, so they are distinct interventions.}\ificlr\else{} These are
+finite-time consistency checks, not a numerical proof. \fi\moveblock{neartie}{Near the symmetric tie of two atoms,
 sources at small offsets stay close to the midpoint until very small gaps
 (Figure~\ref{fig:intervention-validation}, middle), and four of six
 adaptive near-tie integrations fail at small bandwidths; we report these failures
-(Appendix~\ref{app:intervention-protocol}).
+(Appendix~\ref{app:intervention-protocol}).}\ificlr Near-tie failures are in Appendix~\ref{app:intervention-protocol}.\fi
 
 \paragraph{Guided label averaging.} For the configuration of Theorem~\ref{thm:composition} we
-integrate the exact composite flow with a stiff solver (Radau, relative tolerance $10^{-11}$)
+integrate the exact composite flow \ificlr with stopping rules taken from the proof, and locate
+the basin of the midpoint, an interval, by bisection.\else with a stiff solver (Radau, relative tolerance $10^{-11}$)
 and stop at the first time a sufficient condition from the proof fixes the limit: $s$ beyond the
 outer roots of $F_w$, or $s$ inside the moving barrier around a root with $F_w'<0$. Flows on the
-line preserve order, so the basin of the midpoint is an interval, located by bisection.
-Figure~\ref{fig:composition}(b) gives its $\pi_0$-probability, and Table~\ref{tab:composition}
+line preserve order, so the basin of the midpoint is an interval, located by bisection.\fi{}
+\ificlr The exact lines of Figure~\ref{fig:learned-composition}(a) give\else Figure~\ref{fig:composition}(b) gives\fi{} its $\pi_0$-probability, and Table~\ref{tab:composition}
 in Appendix~\ref{app:intervention-protocol} lists the values. Below the threshold $w_c=1/\sinh^2B$,
-sources at $\pm10^{-9}$ already reach the atoms; just above it the basin is narrow, and it widens
-with $w/w_c$. The numerical unstable roots agree with the closed form $\cosh s_u=\sqrt w\sinh B$.
+sources at $\pm10^{-9}$ already reach the atoms; just above it the computed basin probability grows
+linearly\ificlr{}, as a formal law predicts (Appendix~\ref{apx:threshold-scaling}).\else, as $\sqrt{2/\pi}\,(w/w_c-1)/\cosh B$ to within $0.01\%$ at $w=1.0003w_c$, a formal
+law derived in Appendix~\ref{apx:threshold-scaling}.\fi{} \moveblock{compperturb}{The numerical unstable roots agree with the closed form $\cosh s_u=\sqrt w\sinh B$.
 With $w=1$ and $B\approx2$, unequal mixture weights $(0.6,0.4)$, unequal $(B_1,B_2)=(2,-1.5)$, an
 unconditional log-odds $2B_u=0.6$, or a combination of all three keep basin probabilities between
-$0.71$ and $0.86$, as Proposition~\ref{prop:composition-open} predicts.
+$0.71$ and $0.86$, as Proposition~\ref{prop:composition-open} predicts.}\ificlr Perturbed
+configurations keep basin probabilities between $0.71$ and $0.86$
+(Appendix~\ref{app:intervention-protocol}).\fi{} \ificlr On eight selected and twelve random CIFAR-10 pairs, a consistency check, the exact
+composite shows the threshold of Theorem~\ref{thm:spectral}(c) (Appendix~\ref{app:cifar-composition}).\else On eight selected
+and twelve random CIFAR-10 pairs, with all $2000$
+training images in the field, Theorem~\ref{thm:spectral}(c) predicts the same threshold; in this
+consistency check the exact composite ends no source at the midpoint for $w\le0.9w_c$, and a
+positive fraction in every pair at $2w_c$, up to $0.29$ (Appendix~\ref{app:cifar-composition}).\fi
 
+\paragraph{Learned guided label averaging.} We train networks by flow matching on the two atoms
+of Theorem~\ref{thm:composition} ($\ell=h=1$) and on an equilateral triangle with one
+conditional prior favouring each vertex ($B=2$), five seeds each, and integrate the learned
+composite with an adaptive stiff solver (Appendix~\ref{app:learned-composition}). A standard \ificlr conditional flow matching (CFM)\else CFM\fi{} network, with velocity output and
+condition dropout, places at most $0.001$ of the sources at the midpoint at $B\in\{1,2\}$ and none
+on the triangle, at every guidance strength (Figure~\ref{fig:learned-composition})\ificlr.\else; at $B=1$,
+neither log-uniform sampling of $1-t$ nor a separate unconditional network changes this.\fi{} A
+network that predicts the data with the loss $|\hat m-X_1|^2$, which has the same minimiser, and
+receives the blow-up coordinate $\operatorname{asinh}(tx/(1-t)^2)$, centred at the known tie
+$z=0$ (centred elsewhere it leaves the midpoint empty, Appendix~\ref{apx:bottleneck-runs}), as an extra input follows the exact probabilities: $0.401\pm0.006$ against $0.406$ at $B=1$ and $w=2w_c$, and $0.143\pm0.004$
+against $0.133$ on the triangle at $2w_c$. \moveblock{lossrisk}{The velocity
+network has the smaller held-out excess risk for $t\ge0.999$ ($1.4\times10^{-7}$ against
+$9.4\times10^{-7}$), yet its posterior mean misses the boundary layer at the tie: at
+$1-t=10^{-5}$ its mean squared error over $|s|\le3$ is $0.67$, against $0.0024$. Small loss does not
+decide the endpoint, as Section~\ref{sec:transfer} anticipates.} Of the changes the successful network
+makes, the input matters most in these runs: a velocity network with it matches the exact probabilities in most seeds
+($0.881\pm0.003$ against $0.878$ at $B=1$, $w=5w_c$), while a data-predicting network without it
+leaves the midpoint empty at $w\ge5w_c$, consistent with Proposition~\ref{prop:regular}(b)
+(Appendix~\ref{app:learned-composition}).
+
+\moveblock{spectralexp}{%
 \paragraph{The spectral criterion beyond the line.} We integrate the exact flow of
 Theorem~\ref{thm:spectral} in four configurations whose atoms all lie on the unit sphere around
 $z=0$, so that every atom is tied and the blown-up equation has no off-tie term. Two are a
@@ -833,10 +1067,12 @@ with no source at $z$. Every sink profile in $d=2$ keeps a stable positive fract
 positive at $5\,w_c$ ($0.019$ for the simplex, $0.002$ for the box) and below the sampling
 resolution of $1/2048$ at $1.1$ and $2\,w_c$ (Table~\ref{tab:spectral}). These are finite-time
 computations that agree with the theorem; they do not prove it.
+}%
 
+\moveblock{compfig}{%
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.98\textwidth]{fig_composition.pdf}
+\includegraphics[width=\ificlr0.82\else0.98\fi\textwidth]{fig_composition.pdf}
 \caption{Guided label averaging (Theorem~\ref{thm:composition}). (a) The composite mean
 $F_w$ of \eqref{eq:composition-mean} for $B=2$; its slope at the tie $s=0$ is
 $(1+w)\operatorname{sech}^2B-w$, positive below $w_c=1/\sinh^2B$ and negative above, where the
@@ -847,14 +1083,33 @@ justified by the proof, and bisection
 midpoint.}
 \label{fig:composition}
 \end{figure}
+}%
 
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\ificlr0.72\else0.98\fi\textwidth]{fig_learned_composition.pdf}
+\caption{Learned versus exact guided label averaging: probability that the composite ends at the
+midpoint, against $w/w_c$, (a) on the two atoms of Theorem~\ref{thm:composition} and (b) on the
+triangle with $B=2$. Lines: exact field. Filled markers: networks predicting the data from a
+rescaled input; open markers: standard velocity CFM. \ificlr Mean and standard deviation over five
+seeds; values and protocol in Table~\ref{tab:learned-composition}.\else Markers give the mean and standard deviation over
+five seeds of the fraction of $2048$ shared sources within $0.05$ of the midpoint at
+$1-t=10^{-5}$ (values in Table~\ref{tab:learned-composition}).\fi}
+\label{fig:learned-composition}
+\end{figure}
+
+\moveblock{learnedpilot}{%
 \paragraph{Learned label averages.} We reuse five $h=0.1$, 200k-step EXP-1 networks and average
 their predictions at $y-r,y,y+r$, with $r$ scaled by the training-label standard deviation, at
 two training and two fresh queries per seed with 128 paired sources. Against the exact average of
 the same three fields at $T=0.999$ (Table~\ref{tab:learned-averages}), wider averaging increases
 the mean discrepancy, although not on every seed: exact atomicity does not transfer automatically
 to a network. The biased energy statistic has no null subtraction or equivalence threshold.
+}%
 
+
+\moveblock{learnedtab}{%
 \begin{table}[t]
 \centering\small
 \begin{tabular}{@{}rrrr@{}}
@@ -871,6 +1126,8 @@ the square root of the analytic posterior trace; conditions and samples are nest
 seeds, so these are descriptive values, not hypothesis tests.}
 \label{tab:learned-averages}
 \end{table}
+}%
+
 
 \FloatBarrier
 
@@ -879,39 +1136,54 @@ seeds, so these are descriptive values, not hypothesis tests.}
 \label{sec:limitations}
 
 The theorems concern exact fields of a fixed training set and do not say that a trained network
-implements them; the pilot above shows that learned label averages need not follow the exact
-ones. The positive-bandwidth results need strictly positive priors on a common support. Mixtures
+implements them; the\ificlr{} label-averaging pilot of Appendix~\ref{app:intervention-protocol}\else{} pilot above\fi{} shows that learned label averages need not follow the exact
+ones, and in the composition experiments whether a network reproduces the off-atom basin
+depends on its parametrisation, chiefly on its input, and not in every seed. The positive-bandwidth results need strictly positive priors on a common support. Mixtures
 with different supports, schedules that are unbounded or change sign, composites other than
 guided label averaging, and, in the spectral classification, nonhyperbolic profiles and faces
 whose affine hull contains the projected candidate are not covered,
 and the endpoint weights of averaged fields are not identified. The transfer statements are
-conditional on the error along learned trajectories, which we do not infer from the loss and have
-not measured. The exact-field computations are finite-time numerical evaluations, the
-learned-averaging pilot uses five seeds, the synthetic problems have $d\le10$, and the image
+conditional on the error along learned trajectories, which we do not infer from the loss\ificlr{}
+(Appendix~\ref{app:measured-transfer})\else; on
+EXP-1 it exceeds the training-law error by orders of magnitude near $t=1$
+(Appendix~\ref{app:measured-transfer})\fi. The exact-field computations are finite-time numerical evaluations, the
+learned experiments use five seeds, the learned composition $d\le2$ and the synthetic
+problems $d\le10$, and the image
 experiments use one mask and $N{=}2000$, with instance and optimisation randomness confounded
-there (on EXP-1 the two are separated in Appendix~\ref{app:exp}). The composition theorem has no
-trained-network counterpart yet. Class-conditional training, where labels are shared, retains the
-within-class variance instead of collapsing (Appendix~\ref{app:exp4}).
+there\ificlr.\else{} (on EXP-1 the two are separated in Appendix~\ref{app:exp}). Class-conditional training, where labels are shared, retains the
+within-class variance instead of collapsing (Appendix~\ref{app:exp4}).\fi
 
 % ==========================================================================
 \section{Conclusion}
 \label{sec:conclusion}
 
-The exact empirical conditional flow ends on its training examples, and at positive label
-bandwidth so do its positive modifications: positive mixtures of exact fields with strictly
-positive priors, including label averaging and guidance with $w\in[-1,0)$, and nonnegative
-guidance with a fixed strength or a bounded schedule of bounded variation. Every
-trajectory converges, and the exceptional initial points form a null set that can be a
-hyperplane. Composition is different: guidance applied to a label-averaged field can converge to
-a circumcentre of training examples with positive probability, with an explicit threshold on two
-atoms, above which the off-atom basin persists under perturbation of the priors, mixture weights
-and guidance strength. A learned endpoint stays near its training example
-unless the scaled field error persists along the trajectory, which small training loss alone does
-not rule out. Open questions are when guided averaging leaves the support beyond hyperbolic
-profiles and the face condition, how large its basins are in high dimension, how the endpoint weights of averaged fields depend on the averaging scale, and which
-mechanism produces the off-atom samples of trained samplers at image scale.
+Within the exact empirical field, the sampler-side interventions studied here do not move the
+endpoints off the training examples on their own:\ificlr{} at positive label bandwidth they reweight
+the training examples and end on them almost surely.\else{} at positive label bandwidth, label noise, label averaging, negative guidance
+and nonnegative guidance with a bounded schedule reweight the training examples and end on them
+almost surely.\fi The one composition that leaves them, guidance on a label-averaged field, reaches
+blends of training examples, and only above an explicit threshold.
 
-\label{endmain}
+\emph{Implications.} For a practitioner, label noise, label averaging and guidance decide which
+training examples the exact field returns, not whether it returns one, so at the exact optimum
+none of them protects training data; under label noise the returned records are even predictable
+from the training set. At an identifying label, what moves a trained sampler away from the
+training examples is the error of the learned field near $t=1$ (Theorem~\ref{thm:transfer}),
+which the regression loss does not control, so late-time field error is the quantity to measure.
+At positive bandwidth, as for our off-atom image samples, the theorem is only local, but the
+measured scaled error separates those samples from the on-atom ones. The composition result is a boundary marker of these statements, not a mechanism
+we expect in standard models: its basin is set at the scale $(1-t)^2$, which standard velocity
+networks did not resolve in our runs (Proposition~\ref{prop:regular}), and a label bottleneck does
+not produce the averaged field (Proposition~\ref{prop:bottleneck}).\ificlr{} Open are nonhyperbolic
+profiles, many atoms near a candidate, learned composition beyond $d\le2$, and the off-atom
+samples of trained image samplers.\else{} A network given an
+input that resolves that scale does reproduce the basin, so the distinction can be tested.
+
+\emph{Open questions.} Nonhyperbolic profiles and degenerate faces, how the endpoint
+weights of averaged fields depend on the averaging scale, how basins scale with many atoms near a
+candidate, learned composition beyond $d\le2$, and the mechanism behind the off-atom samples of
+trained image samplers.\fi\label{endmain}
+
 \subsection*{Reproducibility statement}
 All numbers are produced by code in the supplementary material (anonymised for review).
 Theory checks: \texttt{composition\_counterexample.py} (with
@@ -926,7 +1198,35 @@ Section~\ref{sec:experiments} are drawn from the saved outputs by
 it is used, and all load-bearing results are proved in
 Appendices~\ref{app:proofs}--\ref{app:noise}.
 
-\bibliographystyle{tmlr}
+% DRAFT, ICLR build only: the authors must check both statements against their own
+% process before submission.
+\ificlr
+\subsection*{Ethics statement}
+This work studies memorisation in conditional flow-matching models: when the exact empirical field
+and its common modifications return training examples. The consequence for sensitive data is
+negative: at the exact optimum, label noise, label averaging, negative guidance and bounded
+guidance schedules are not privacy mitigations, because they only reweight the training examples,
+and the blends reached by the one composition that leaves them are combinations of training
+records. Under label noise the returned record is also predictable from the training set and the
+query label, which helps auditors and, equally, anyone attempting extraction. Moving the support
+requires a change such as endpoint noise, and a formal guarantee requires randomisation calibrated
+in the sense of differential privacy, which we do not analyse. All experiments use synthetic data
+and the public CIFAR-10 and MNIST datasets; no personal or human-subject data are involved.
+
+\subsection*{Use of large language models}
+% CHECK: confirm the uses listed below and name any others.
+We used large language models as assistants for writing and running experiment and
+analysis code, for editing the manuscript, and as additional independent checkers of the
+written proofs. The authors wrote and verified all proofs; the model-based checks
+supplemented this verification and did not replace it. The authors take full
+responsibility for the content of the paper.
+\fi
+
+\ifdefined\iclrversion
+  \bibliographystyle{iclr2027_conference}
+\else
+  \bibliographystyle{tmlr}
+\fi
 \bibliography{refs}
 
 % ==========================================================================
@@ -994,6 +1294,7 @@ Thm.~\ref{thm:composition}, Prop.~\ref{prop:composition-open} & \ref{apx:pf-comp
 Thm.~\ref{thm:spectral}, Cor.~\ref{cor:spectral-threshold} & \ref{apx:pf-spectral} & Lemmas~\ref{lem:offtie}, \ref{lem:lp}: blow-up, Lyapunov--Perron graph; profile potential and face condition\\
 \addlinespace
 Thm.~\ref{thm:transfer}, Prop.~\ref{prop:localtransfer} & \ref{apx:pf-transfer-all} & variation of constants; concentration (Lemma~\ref{lem:basic}(c))\\
+Prop.~\ref{prop:regular} & \ref{apx:pf-regular} & Gr\"onwall in both time directions; crossing and trapping arguments in one dimension\\
 Thm.~\ref{thm:risktransfer}, Prop.~\ref{prop:loss-no-certificate} & \ref{app:teacher-risk} & Minkowski's inequality; an explicit affine field\\
 Prop.~\ref{prop:tgtnoise} & \ref{app:noise} & Gaussian conditioning; Lemma~\ref{lem:wellposed}\\
 \bottomrule
@@ -1037,7 +1338,7 @@ change-of-variables formula gives
 \begin{align*}
 p(x\mid I=i,t)
 &=\pi_0\bigl(T_{i,t}^{-1}(x)\bigr)\,\bigl|\det DT_{i,t}^{-1}(x)\bigr|
-=\src{i}\,\Bigl|\det\Bigl(\frac{I_d}{1-t}\Bigr)\Bigr|
+\iclrbr=\src{i}\,\Bigl|\det\Bigl(\frac{I_d}{1-t}\Bigr)\Bigr|
 =(1-t)^{-d}\src{i},
 \end{align*}
 which is positive because $\pi_0>0$. The factor $(1-t)^{-d}$ is the same for every $i$.
@@ -1149,6 +1450,7 @@ expectation because it is $\mathcal G$-measurable, and $\E[U-m\mid\mathcal G]=0$
 does not depend on $v$, so $L_h$ is minimised exactly when $v=m$ almost everywhere, with minimum
 $\E[\Var(U\mid\mathcal G)]$.
 \end{proof}
+\placeblock{versionconvention}
 
 \phantomsection\label{apx:pf-collapse}
 \propcollapse*
@@ -1221,6 +1523,7 @@ this value. Therefore
 and Proposition~\ref{prop:projection} identifies this conditional expectation with the minimiser,
 which is \eqref{eq:kernel-field}.
 \end{proof}
+\placeblock{coupling}
 
 \phantomsection\label{apx:pf-endpoint}
 \thmendpoint*
@@ -1235,7 +1538,7 @@ $\|\nabla\varphi\|_\infty(|X_0|+|X_1|)$, which is integrable, so
 \frac{d}{dt}\E\varphi(X_t)
 &=\E\langle\nabla\varphi(X_t),\,X_1-X_0\rangle
 =\E\bigl\langle\nabla\varphi(X_t),\,\E[X_1-X_0\mid X_t]\bigr\rangle
-=\E\langle\nabla\varphi(X_t),\,\vstar(X_t,t,y)\rangle ,
+\iclrbr=\E\langle\nabla\varphi(X_t),\,\vstar(X_t,t,y)\rangle ,
 \end{align*}
 where the second equality conditions on $X_t$ and the third is Lemma~\ref{lem:mixture-coupling}.
 Thus $(p_t)$ is a weak solution of the continuity equation of $\vstar(\cdot,\cdot,y)$ with
@@ -1300,6 +1603,49 @@ side by $2M^2+2\int|x|^2p(dx\mid y)<\infty$; otherwise both sides are $+\infty$.
 \section{Proofs for Section~\ref{sec:intervention-atomicity}}
 \label{app:intervention-proofs}
 
+\subsection{Relation to the closest convergence theorems}
+\label{apx:comparison}
+
+Table~\ref{tab:comparison} sets the positive results of Section~\ref{sec:intervention-atomicity}
+beside the two closest convergence theorems. \citet{liu2025pde,liu2026geometric} integrate the
+probability-flow ODE of the heat flow and we integrate the flow-matching field of the linear
+interpolant, but the two are related by an exact change of variables. With $y=x/t$ and
+$\sigma=(1-t)/t$, the law of $X_t/t$ is $\mu*\N(0,\sigma^2I_d)$ for the data law $\mu$, Tweedie's
+formula gives $\nabla\log p_\sigma(y)=(\E[X_1\mid X_t/t=y]-y)/\sigma^2$, and
+$\dot x=(\E[X_1\mid X_t=x]-x)/(1-t)$ becomes $dy/d\sigma=-\sigma\nabla\log p_\sigma(y)$, the
+probability-flow ODE of the heat flow. This holds for every weighted empirical law, hence for each
+prior-indexed field, and combinations of fields with weights summing to one become the same
+combinations of scores; a fixed strength or mixture corresponds to a constant weight in their
+setting and a schedule $w(t)$ to a $\sigma$-dependent one. Their theorems therefore apply to our
+fields after this change of variables, and the comparison is between statements about the same
+flows. The configuration that separates them is
+guidance with a fixed $w>0$ between a conditional and the unconditional prior on one finite
+support. There the distance potential of \citet{liu2026geometric} is the squared distance to the
+atoms, whose non-minimising critical points include the midpoints of tied atoms, and their
+Theorem~3.18 gives convergence to an atom only for trajectories whose limit set avoids such
+points. Proposition~\ref{prop:cfgatom} needs no such hypothesis: every trajectory converges, and
+the initial points whose limit is not an atom form a null set. We do not treat two different
+supports, which \citet{liu2026geometric} do.
+
+\begin{table}[htb]
+\centering\footnotesize\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}p{0.14\textwidth}p{0.24\textwidth}p{0.27\textwidth}p{0.29\textwidth}@{}}
+\toprule
+& \citet[Thm.~3.7]{liu2025pde} & \citet[Thm.~3.18]{liu2026geometric} & This paper\\
+\midrule
+Field & score ODE of the heat flow & mixed score $\lambda s_1+(1-\lambda)s_2$ of two heat flows & exact conditional flow-matching fields, linear interpolant\\
+Support & any compact set & two finite sets, possibly different & one finite set, strictly positive priors\\
+Combination & one score & two scores, constant $\lambda\ge0$; $\lambda>1$ is guidance & any probability measure over priors (Thm.~\ref{thm:posmix}); guidance $w\ge0$, fixed or a bounded schedule of bounded variation (Prop.~\ref{prop:cfgatom}, Thm.~\ref{thm:schedule}); signed finite combinations (Thms.~\ref{thm:composition}, \ref{thm:spectral})\\
+Hypothesis on trajectories & none & limit set contains no non-minimising critical point & none\\
+Conclusion & almost every trajectory converges to a point of the support; rate $\sqrt t$ for finite support & convergence to a local minimiser of the distance potential; almost-everywhere validity open (Rem.~3.19) & every trajectory converges; almost every initial point ends on an atom for positive combinations and guidance; some signed combinations end at a non-atom with positive probability\\
+\bottomrule
+\end{tabular}
+\caption{The closest convergence theorems and the positive results of
+Section~\ref{sec:intervention-atomicity}. The two ODEs are related by the change of variables
+$y=x/t$, $\sigma=(1-t)/t$ of the text, so the rows compare statements about the same flows.}
+\label{tab:comparison}
+\end{table}
+
 \subsection{Notation and basic facts}
 \label{apx:intervention-notation}
 
@@ -1338,8 +1684,8 @@ Let $p\in\Ppos$.
 \]
 and therefore
 \[
-D_xm_p=\sum_ja_j\,(\nabla_xq_{p,j})^\top=\beta\sum_jq_{p,j}\,a_j(a_j-m_p)^\top
-=\beta\Bigl(\sum_jq_{p,j}a_ja_j^\top-m_pm_p^\top\Bigr)=\beta\Cov_{q_p}(a).
+\iclrstart D_xm_p=\sum_ja_j\,(\nabla_xq_{p,j})^\top=\beta\sum_jq_{p,j}\,a_j(a_j-m_p)^\top
+\iclrbrq=\beta\Bigl(\sum_jq_{p,j}a_ja_j^\top-m_pm_p^\top\Bigr)=\beta\Cov_{q_p}(a).\iclrend
 \]
 Its trace is $\sum_jq_{p,j}|a_j|^2-|m_p|^2$, which is nonnegative as a variance and at most
 $\sum_jq_{p,j}|a_j|^2\le R^2$. Put $Z=\sum_jp_je^{b_j/\alpha}$, so that $H_p=\alpha\log Z$ and
@@ -1401,6 +1747,7 @@ time.
 
 All intervention proofs follow the same two steps: finite kinetic energy gives convergence, and
 volume expansion near non-atom limits makes their basins null.
+\placeblock{template}
 
 \begin{lemma}[Convergence from finite kinetic energy]
 \label{lem:conv}
@@ -1414,9 +1761,9 @@ hypothesis, the limit lies in $\mathcal C$.
 \begin{proof}
 By variation of constants,
 \[
-x(\tau)=e^{-(\tau-\tau_0)}x(\tau_0)+\int_{\tau_0}^\tau e^{-(\tau-s)}\,\bar m(x(s),s)\,ds,
-\qquad
-|x(\tau)|\le e^{-(\tau-\tau_0)}|x(\tau_0)|+\bigl(1-e^{-(\tau-\tau_0)}\bigr)\bar M,
+\iclrstart x(\tau)=e^{-(\tau-\tau_0)}x(\tau_0)+\int_{\tau_0}^\tau e^{-(\tau-s)}\,\bar m(x(s),s)\,ds,
+\iclrqbr
+|x(\tau)|\le e^{-(\tau-\tau_0)}|x(\tau_0)|+\bigl(1-e^{-(\tau-\tau_0)}\bigr)\bar M,\iclrend
 \]
 so $|x(\tau)|\le X:=\max\{|x(\tau_0)|,\bar M\}$ and $|\dot x|\le|\bar m|+|x|\le V_{\max}:=X+\bar M$.
 
@@ -1560,10 +1907,10 @@ $V\ge\kappa_{\rho/2}$. By Chebyshev's inequality the other times in $[n-1,n]$ ha
 $16\rho^{-2}\int_{n-1}^\infty|\dot x|^2\,d\tau\to0$, so the good times $G_n\subseteq[n-1,n]$ have
 measure at least $\tfrac12$ for large $n$. As $V\ge0$ and $\beta$ increases,
 \begin{align*}
-\int_{\tau_0}^n\operatorname{div}_xf\,d\tau
+\iclrstart\int_{\tau_0}^n\operatorname{div}_xf\,d\tau
 =\int_{\tau_0}^n\beta V\,d\tau-d(n-\tau_0)
 \ \ge\ \int_{G_n}\beta V\,d\tau-d(n-\tau_0)
-\ \ge\ \tfrac12\kappa_{\rho/2}\,\beta(n-1)-d(n-\tau_0),
+\iclrbrq\ \ge\ \tfrac12\kappa_{\rho/2}\,\beta(n-1)-d(n-\tau_0),\iclrend
 \end{align*}
 which tends to $+\infty$ because $\beta(n-1)=e^{2(n-1)}-e^{n-1}$ grows exponentially.
 Lemma~\ref{lem:volume} gives (b) and (c).
@@ -1574,9 +1921,9 @@ Lemma~\ref{lem:volume} gives (b) and (c).
 \begin{proof}
 (a) By Proposition~\ref{prop:kernel-field} and Fubini's theorem for the finite sum,
 \[
-v_\varphi(x,t,y)=\int\sum_iw_i^{(h)}(x,t,y-u)\,\frac{x^i-x}{1-t}\,\varphi(du)
-=\sum_i\tilde w_i(x,t,y)\,\frac{x^i-x}{1-t},\qquad
-\tilde w_i=\int w_i^{(h)}(x,t,y-u)\,\varphi(du),
+\iclrstart v_\varphi(x,t,y)=\int\sum_iw_i^{(h)}(x,t,y-u)\,\frac{x^i-x}{1-t}\,\varphi(du)
+\iclrbrq=\sum_i\tilde w_i(x,t,y)\,\frac{x^i-x}{1-t},\iclrqbr
+\tilde w_i=\int w_i^{(h)}(x,t,y-u)\,\varphi(du),\iclrend
 \]
 and $\tilde w_i\ge0$, $\sum_i\tilde w_i=1$, because the same holds for $w_i^{(h)}$. At $t=0$ every
 spatial factor equals $\pi_0(x)$ and cancels, so $w_i^{(h)}(x,0,y')=p_i^{(h)}(y')$ and
@@ -1594,7 +1941,7 @@ almost sure atomicity under absolutely continuous sources, and the form of the e
 \end{proof}
 
 \phantomsection\label{apx:pf-hyperplane}
-\prophyperplane*
+\ificlr\placeblock{hyperplane}\else\prophyperplane*\fi
 \begin{proof}
 Let $c=(x^1+x^2)/2$, so that $x^{1,2}=c\pm\nu$, and put $A_0=|\nu|^2>0$ and
 $\zeta=\nu\cdot(x-tc)$. Since
@@ -1705,10 +2052,10 @@ $|\gamma_{n,j}|\le\bar c$, and $\gamma_{n,j}\to0$ for $a_j\notin\nn(z)$ by Lemma
 With $\sigma_n=\sum_{a_j\in\nn(z)}\gamma_{n,j}\to1$, the point
 $z_n=\sum_{a_j\in\nn(z)}(\gamma_{n,j}/\sigma_n)a_j$ lies in $\operatorname{aff}\nn(z)$, and
 \[
-\bigl|\bar m(x_n,\tau_n)-z_n\bigr|
+\iclrstart\bigl|\bar m(x_n,\tau_n)-z_n\bigr|
 \le\Bigl|\sum_{a_j\notin\nn(z)}\gamma_{n,j}a_j\Bigr|
 +\bigl|1-\sigma_n^{-1}\bigr|\,\Bigl|\sum_{a_j\in\nn(z)}\gamma_{n,j}a_j\Bigr|
-\le R\sum_{a_j\notin\nn(z)}|\gamma_{n,j}|+\bigl|1-\sigma_n^{-1}\bigr|N\bar cR\to0 .
+\iclrbrq\le R\sum_{a_j\notin\nn(z)}|\gamma_{n,j}|+\bigl|1-\sigma_n^{-1}\bigr|N\bar cR\to0 .\iclrend
 \]
 Hence every limit point of $\bar m(x_n,\tau_n)$ lies in $\operatorname{aff}\nn(z)$, and
 Lemma~\ref{lem:conv} gives convergence to a point of $\mathcal C'$.
@@ -1770,9 +2117,9 @@ $r^2-\eta_n$ and to $|\mu_w|^2\ge0$, gives
 \begin{align*}
 \int_n^{n+1}\beta\Theta\,d\tau
 &\ge\int_n^{n+1}\beta\,(r^2-\eta_n)\,d\tau-\int_n^{n+1}\beta|\mu_w|^2\,d\tau
-\ge\beta(n)(r^2-\eta_n)-\beta(n+1)\int_n^{n+1}|\mu_w|^2\,d\tau\\
+\iclrbr\ge\beta(n)(r^2-\eta_n)-\beta(n+1)\int_n^{n+1}|\mu_w|^2\,d\tau\\
 &\ge\beta(n)\Bigl(r^2-\frac{r^2}4\Bigr)-\beta(n)\,C_\beta\int_n^{n+1}|\mu_w|^2\,d\tau
-\ \ge\ \tfrac12r^2\beta(n).
+\iclrbr\ \ge\ \tfrac12r^2\beta(n).
 \end{align*}
 On the bounded remainder of $[\tau_0,\infty)$, $|\Theta|\le(1+2\bar w)R^2$ and $\beta$ is bounded.
 Summing over the unit intervals and keeping only the last one, there is a constant $C_0$ with
@@ -1783,8 +2130,60 @@ Summing over the unit intervals and keeping only the last one, there is a consta
 and Lemma~\ref{lem:volume} completes the proof.
 \end{proof}
 
+\phantomsection\label{apx:pf-bottleneck}
+\paragraph{A label bottleneck averages priors, not fields.} Theorem~\ref{thm:composition} averages
+fields with position-independent weights. The next statement shows that the optimum of a network
+that sees its label only through a coarse code is of a different kind, and that guidance on it
+does not leave the atoms.
+
+\begin{proposition}[Label bottleneck]
+\label{prop:bottleneck}
+Let $h>0$, let $I$ be uniform on $\{1,\dots,N\}$, let the noised label of example $I$ be $\widetilde Y=y^I+h\omega$ with density $K_h(\cdot-y^I)>0$, and let $Q$ be a measurable map
+from labels into a countable set $\mathcal Q$ with $\Pr(Q(\widetilde Y)=c)>0$ for every
+$c\in\mathcal Q$. Put
+\[
+\bar p_{c,i}=\Pr\bigl(I=i\mid Q(\widetilde Y)=c\bigr)
+=\frac{\int_{Q^{-1}(c)}K_h(y-y^i)\,dy}{\sum_j\int_{Q^{-1}(c)}K_h(y-y^j)\,dy}.
+\]
+\begin{enumerate}[label=(\alph*),leftmargin=2em]
+\item $\bar p_c\in\Ppos$ for every $c$, and among fields $u(x,t,c)$ the flow-matching risk
+  $\E\,|u(X_t,t,Q(\widetilde Y))-(X_1-X_0)|^2$ is minimised by $u(\cdot,\cdot,c)=v_{\bar p_c}$,
+  uniquely up to Lebesgue-null sets of $(x,t)$.
+\item For every $c$ and every schedule $w$ as in Theorem~\ref{thm:schedule}, the field
+  $(1+w(t))v_{\bar p_c}-w(t)v_{\mathrm{unc}}^\star$ has unique trajectories, every trajectory
+  converges, and the initial points whose limit is not an atom form a Lebesgue-null set.
+\end{enumerate}
+\end{proposition}
+\begin{proof}
+(a) Since $\Pr(Q(\widetilde Y)=c)=N^{-1}\sum_j\int_{Q^{-1}(c)}K_h(y-y^j)\,dy>0$, the set
+$Q^{-1}(c)$ has positive Lebesgue measure, and $K_h>0$ makes every integral in the numerator of
+$\bar p_{c,i}$ positive, so $\bar p_c\in\Ppos$. The risk is a sum over
+$c\in\mathcal Q$ of $\Pr(Q(\widetilde Y)=c)$ times the conditional risk given
+$Q(\widetilde Y)=c$, and $u(\cdot,\cdot,c)$ enters only the $c$-th term, which is minimised by
+the conditional mean $\E[X_1-X_0\mid X_t=x,t,\,Q(\widetilde Y)=c]$; uniqueness up to null sets
+holds because $X_t$ has a positive density for $t<1$. Conditionally on $Q(\widetilde Y)=c$, $I$ has
+law $\bar p_c$, $X_1=x^I$, and $X_0\sim\pi_0$ is independent of $I$, since $X_0$ is independent of
+$(I,\widetilde Y)$. Lemma~\ref{lem:mixture-coupling} identifies the conditional mean with
+$v_{\bar p_c}$.
+
+(b) The proof of Theorem~\ref{thm:schedule} uses the conditional prior $p_c=p^{(h)}(y)$ only
+through $p_c\in\Ppos$. Replacing it by $\bar p_c$, which lies in $\Ppos$ by (a), gives the claim.
+\end{proof}
+
+The field $v_{\bar p_c}$ is a positive field mixture $v_\Pi$ only in the trivial sense
+$\Pi=\delta_{\bar p_c}$; in general it is not the field average $\int v_{p^{(h)}(y)}\,\nu_c(dy)$
+over the labels of the cell: writing
+$\bar p_c$ as the average of the label weights $p^{(h)}(y)$ under the law $\nu_c$ of
+$\widetilde Y$ given $Q(\widetilde Y)=c$, the field $v_{\bar p_c}$ averages the fields
+$v_{p^{(h)}(y)}$ under $\nu_c$ reweighted by
+$\sum_j p^{(h)}_j(y)\,\pi_0\bigl((x-tx^j)/(1-t)\bigr)$, a factor that depends on $(x,t)$. A bottleneck
+therefore realises neither the hypothesis of Theorem~\ref{thm:composition} nor its conclusion: at
+a single coarse query, guidance ends on an atom almost surely. The composition needs the average
+to be taken over fields, by the sampler or by a network smooth in its label input.
+
 \phantomsection\label{apx:pf-cfgatom}
 \propcfgatom*
+\placeblock{sketchcfg}
 \begin{proof}
 (a) This is Theorem~\ref{thm:schedule} with the constant schedule $w(t)\equiv w$.
 
@@ -1878,9 +2277,9 @@ using $\cosh2s+1=2\cosh^2s$ and $\cosh2B-1=2\sinh^2B$,
 \begin{align*}
 F_w(s)
 &=\frac{(1+w)\sinh2s}{\cosh2s+\cosh2B}-\frac{w\sinh2s}{\cosh2s+1}
-=\sinh2s\,\frac{(1+w)(\cosh2s+1)-w(\cosh2s+\cosh2B)}{(\cosh2s+\cosh2B)(\cosh2s+1)}\\
+\iclrbr=\sinh2s\,\frac{(1+w)(\cosh2s+1)-w(\cosh2s+\cosh2B)}{(\cosh2s+\cosh2B)(\cosh2s+1)}\\
 &=\sinh2s\,\frac{\cosh2s+1-w(\cosh2B-1)}{(\cosh2s+\cosh2B)\,2\cosh^2s}
-=\frac{\sinh2s}{\cosh^2s}\cdot\frac{\cosh^2s-w\sinh^2B}{\cosh2s+\cosh2B}\\
+\iclrbr=\frac{\sinh2s}{\cosh^2s}\cdot\frac{\cosh^2s-w\sinh^2B}{\cosh2s+\cosh2B}\\
 &=\frac{2\tanh(s)\,\bigl(\cosh^2s-w\sinh^2B\bigr)}{\cosh2s+\cosh2B}.
 \end{align*}
 Thus $F_w$ is odd, and for $s>0$ the sign of $F_w(s)$ is that of $\cosh^2s-w\sinh^2B$.
@@ -1946,8 +2345,42 @@ contradictions, so $x\ge\underline x>0$ on $[\tau_2,\infty)$, and the limit of $
 $\{-1,0,1\}$ is $1$. By oddness every $x_0<0$ converges to $-1$.
 \end{proof}
 
+\paragraph{Size of the basin just above the threshold.}\label{apx:threshold-scaling} Take the
+symmetric configuration of Theorem~\ref{thm:composition} (atoms $\pm1$, priors with log-odds
+$\pm2B$ averaged with equal weights, uniform unconditional prior) with the source $\N(0,1)$, and
+write $w=(1+\delta)w_c$. The theorem gives $P_0>0$ for $\delta>0$ and $P_0=0$ for $\delta\le0$; a
+formal computation gives the rate. Since $\cosh^2s-w\sinh^2B=\sinh^2s-\delta$,
+\[
+F_w(s)=\frac{2\tanh(s)\,(\sinh^2s-\delta)}{\cosh2s+\cosh2B}
+=\frac{s\,(s^2-\delta)}{\cosh^2B}+O(|s|^5+\delta|s|^3).
+\]
+While $\delta\beta\ll1$ the flow in $x$ is close to $\dot x=-x$, so $x\approx x_0e^{-\tau}$ and
+$s\approx x_0e^\tau$. With $\sigma=s/\sqrt\delta$ and $e^{2\theta}=\delta\beta/\cosh^2B$, the
+equation $\dot s=\beta F_w(s)+(1+\eps/t)s$ tends formally, as $\delta\downarrow0$, to
+\[
+\frac{d\sigma}{d\theta}=e^{2\theta}\sigma(\sigma^2-1)+\sigma,\qquad
+\sigma\sim Ce^\theta\ (\theta\to-\infty),\qquad C=\frac{x_0\cosh B}{\delta}.
+\]
+This is a Bernoulli equation: $z=\sigma^{-2}$ solves $dz/d\theta=2(e^{2\theta}-1)z-2e^{2\theta}$,
+and with $u=e^{2\theta}$ its solutions are $z=(Ke^u+u+1)/u$, where $C^{-2}=K+1$. For $K>0$,
+$z\to\infty$ and $\sigma\to0$; for $K<0$, $z$ vanishes at a finite $\theta$ and $\sigma$ escapes;
+$K=0$ is the separatrix, with $\sigma\to1$. The separatrix value is therefore $C^\ast=1$, the
+basin is formally $|x_0|<\delta/\cosh B$, and
+\[
+P_0=\sqrt{2/\pi}\;\frac{w/w_c-1}{\cosh B}+o\bigl(w/w_c-1\bigr),\qquad w\downarrow w_c .
+\]
+We have not bounded the neglected terms, so this is a formal asymptotic law, not a theorem. The
+exact computation of Appendix~\ref{app:intervention-protocol}, run at
+$\delta\in\{0.3,0.1,0.03,0.01,0.003,0.001,0.0003\}$ by
+\texttt{composition\_threshold\_scaling.py}, agrees with it: for $B=1,2,3$ the ratio of the
+exact $P_0$ to the prediction is $0.928$, $0.951$ and $0.955$ at $\delta=0.3$, $0.9975$,
+$0.9982$ and $0.9983$ at $\delta=0.01$, and $0.99992$, $0.99995$ and $0.99995$ at
+$\delta=3\times10^{-4}$, and the deficit decreases in proportion to $\delta$. Formally and
+numerically, then, the basin probability vanishes continuously, and linearly, at the threshold, so
+the endpoint law does not jump at $w_c$; Theorem~\ref{thm:composition} proves neither property.
+
 \phantomsection\label{apx:pf-composition-open}
-\propcompositionopen*
+\ificlr\placeblock{compopenprop}\else\propcompositionopen*\fi
 \begin{proof}
 By the computation at the beginning of the proof of Theorem~\ref{thm:composition}, the prior with
 log-odds $2B_k$ has posterior mean $\tanh(s+B_k)$, and the unconditional prior has posterior mean
@@ -1991,12 +2424,15 @@ $s^\star(\vartheta_0)=0$, and by continuity $\partial_sF_\vartheta(s^\star(\vart
 neighbourhood, which we intersect with $\{\lambda_1\in(0,1)\}$. The union of these neighbourhoods
 over all such $\vartheta_0$ is the required open set.
 \end{proof}
+\placeblock{compopen}
 
 
 \subsection{Spectral classification}
 \label{apx:pf-spectral}
 
-Throughout, $z$, $S$ and $L$ are as in Section~\ref{sec:spectral}; $P_L,P_{L^\perp}$ are the
+\ificlr\placeblock{spectraldefs}
+
+Throughout, $z$, $S$ and $L$ are as above\else Throughout, $z$, $S$ and $L$ are as in Section~\ref{sec:spectral}\fi; $P_L,P_{L^\perp}$ are the
 orthogonal projections, $m=\dim L\ge1$, $n=d-m$, and the field is
 $\sum_kc_kv_{p_k}$ with finitely many $p_k\in\Ppos$ and constants $\sum_kc_k=1$. By
 Lemma~\ref{lem:signedconv} its trajectories exist, are unique and converge, and the flow maps
@@ -2101,7 +2537,7 @@ $P_{L^\perp}z$ and $\sum_kc_k=1$,
 \bar m-M(\xi)
 &=\sum_kc_k\Bigl(\sum_{a_j\in S}q_{p_k,j}a_j+\sum_{a_j\notin S}q_{p_k,j}a_j
 -\E_{\pi_k(\xi)}[a]\Bigr)
-=\sum_kc_k\Bigl(\sum_{a_j\notin S}q_{p_k,j}a_j-\omega_k\,\E_{\pi_k(\xi)}[a]\Bigr),\\
+\iclrbr=\sum_kc_k\Bigl(\sum_{a_j\notin S}q_{p_k,j}a_j-\omega_k\,\E_{\pi_k(\xi)}[a]\Bigr),\\
 \mathcal E&=P_{L^\perp}\bigl(\bar m-M(\xi)\bigr),
 \end{align*}
 using $\sum_{a_j\in S}q_{p_k,j}a_j=(1-\omega_k)\E_{\pi_k(\xi)}[a]$ and $P_{L^\perp}M(\xi)=P_{L^\perp}z$.
@@ -2145,7 +2581,7 @@ $\Gamma_s\preceq-a$ and $\Gamma_u\succeq a$, the linear evolutions satisfy
 and, as $\frac{d}{ds}e^{-a\int_s^r\beta}=a\beta(s)e^{-a\int_s^r\beta}$ and $\int^\infty\beta=\infty$,
 \begin{align*}
 \int_T^re^{-a\int_s^r\beta}\beta(s)\,ds&=\frac{1-e^{-a\int_T^r\beta}}{a}\le a^{-1},\qquad
-\int_r^\infty e^{-a\int_r^s\beta}\beta(s)\,ds=a^{-1},\qquad
+\int_r^\infty e^{-a\int_r^s\beta}\beta(s)\,ds=a^{-1},\iclrqbr
 \int_T^re^{-(r-s)}\,ds\le1 .
 \end{align*}
 Fix $\delta$ with $\kappa=4\delta\max\{a^{-1},1\}<\tfrac12$, then $\varepsilon=\varepsilon_\delta$, and
@@ -2182,7 +2618,9 @@ $\varepsilon/2$ in place of $\varepsilon$.
 % add a precise citation (e.g. a stable-manifold theorem for nonautonomous systems).
 \end{proof}
 
-\thmspectral*
+\ificlr\placeblock{spectralthm}\else\thmspectral*\fi
+\placeblock{sketchspectral}
+\placeblock{spectralafter}
 \begin{proof}
 \emph{Parts (a) and (b).} Put $y=\xi-\xi_\star$ and write $G(\xi_\star+y)=\Gamma(\xi_\star)y+N(y)$
 with $N(0)=DN(0)=0$. Multiplying the first equation of \eqref{eq:pf:spec:blowup} by
@@ -2270,7 +2708,7 @@ endpoint basin of $z$ is the finite union of the profile basins, which is null i
 sink and contains an open set otherwise.
 \end{proof}
 
-\corspectral*
+\ificlr\placeblock{corspectral}\else\corspectral*\fi
 \begin{proof}
 The guided label average is $\sum_kc_kv_{p_k}$ with coefficients $(1+w)\lambda_k$ on the
 conditional priors and $-w$ on the uniform one, which sum to one, so Theorem~\ref{thm:spectral}
@@ -2306,7 +2744,7 @@ with $\frac1N\sum_ka_ka_k^\top=\frac1{N-1}I_L$ gives
 \begin{align*}
 C_{\mathrm{av}}&=\frac1N\sum_k\Bigl(\E_{p_k}[aa^\top]-m^2a_ka_k^\top\Bigr)
 =\frac{1}{e^B+N-1}\Bigl(\frac{e^B-1}{N-1}+\frac{N}{N-1}\Bigr)I_L-\frac{m^2}{N-1}I_L
-=\frac{1-m^2}{N-1}\,I_L,\\
+\iclrbr=\frac{1-m^2}{N-1}\,I_L,\\
 C_{\mathrm u}&=\frac1N\sum_ka_ka_k^\top=\frac1{N-1}\,I_L,\qquad D=\frac{m^2}{N-1}\,I_L .
 \end{align*}
 For $B\ne0$, $m\ne0$ and $D\succ0$, and $w_c^{\mathrm{spec}}=(1-m^2)/m^2$.
@@ -2357,9 +2795,10 @@ $|Z_t-a|\to|c|$, while $(1-t)|\Delta|\equiv|c|$. Finally, for a data-prediction 
 \]
 so $(1-t)|\Delta(Z_t,t)|=|\hat x_1(Z_t,t)-a|$, and the bound becomes the stated one.
 \end{proof}
+\placeblock{transferreading}
 
 \phantomsection\label{apx:pf-localtransfer}
-\proplocaltransfer*
+\ificlr\placeblock{localtransfer}\else\proplocaltransfer*\fi
 \paragraph{Proof overview.} Near $a$ the exact field is the hard field $(a-x)/(1-t)$ plus an
 exponentially small error. Adding this error to $\Delta$, the identity of
 Theorem~\ref{thm:transfer} first traps the trajectory in the ball and then gives the limit.
@@ -2376,8 +2815,8 @@ whose value at $t=1$ is the left side above, there is $t_1<1$ such that this dif
 $g=D(D-2\rho)/2$ for all $j\ne i$, $|x-a|\le\rho$ and $t\in[t_1,1]$. As in \eqref{eq:pf:int:conc},
 for such $(x,t)$
 \[
-|m_p(x,t)-a|=\Bigl|\sum_{j\ne i}q_{p,j}(x^j-a)\Bigr|\le\sum_{j\ne i}\frac{q_{p,j}}{q_{p,i}}|x^j-a|
-\le C_pe^{-g/(2(1-t)^2)}=:e_\star(t),\qquad C_p=\sum_{j\ne i}\frac{p_j}{p_i}|x^j-a|.
+\iclrstart|m_p(x,t)-a|=\Bigl|\sum_{j\ne i}q_{p,j}(x^j-a)\Bigr|\le\sum_{j\ne i}\frac{q_{p,j}}{q_{p,i}}|x^j-a|
+\le C_pe^{-g/(2(1-t)^2)}=:e_\star(t),\iclrqbr C_p=\sum_{j\ne i}\frac{p_j}{p_i}|x^j-a|.\iclrend
 \]
 Choose $t_\star\ge t_1$ with $e_\star\le\rho/4$ on $[t_\star,1)$; it depends only on the atoms, $p$
 and $\rho$.
@@ -2400,12 +2839,98 @@ $[t_0,1)$.
 
 Finally, Theorem~\ref{thm:transfer} applied from $t_0$ with $\tilde\Delta$ gives
 \[
-\limsup_{t\uparrow1}|Z_t-a|\le\limsup_{t\uparrow1}(1-t)|\tilde\Delta(Z_t,t)|
+\iclrstart\limsup_{t\uparrow1}|Z_t-a|\le\limsup_{t\uparrow1}(1-t)|\tilde\Delta(Z_t,t)|
 \le\limsup_{t\uparrow1}\bigl[e_\star(t)+(1-t)|\Delta(Z_t,t)|\bigr]
-=\limsup_{t\uparrow1}(1-t)|\Delta(Z_t,t)|,
+\iclrbrq=\limsup_{t\uparrow1}(1-t)|\Delta(Z_t,t)|,\iclrend
 \]
 since $e_\star(t)\to0$.
 \end{proof}
+
+\subsection{Regular learned fields}
+\label{apx:pf-regular}
+
+\ificlr\placeblock{regular}\else\propregular*\fi
+Throughout, extend $v_\theta$ to negative times by $v_\theta(x,t)=v_\theta(x,0)$ (in (b), by
+$v_\theta(x,t)=v_\theta(x,t_0)$ for $t<t_0$), so that it is continuous and locally Lipschitz on an
+open set and the existence, uniqueness, continuous-dependence and extension theorems apply. We
+use Gr\"onwall's inequality with an integrable kernel in both time directions: if $u\ge0$ is
+continuous on $[\alpha,\beta]$, $A\ge0$ and $L\ge0$ is integrable, then
+$u(s)\le A+\int_\alpha^sLu$ implies $u(s)\le Ae^{\int_\alpha^sL}$, and $u(s)\le A+\int_s^\beta Lu$
+implies $u(s)\le Ae^{\int_s^\beta L}$. The function $L$ is a supremum of continuous functions of
+$t$, hence lower semicontinuous and measurable.
+
+\begin{proof}[Proof of (a)]
+Let $\Lambda=\int_0^1L$, $\kappa=\int_0^1|v_\theta(0,t)|\,dt$, so that
+$|v_\theta(x,t)|\le|v_\theta(0,t)|+L(t)|x|$. On the maximal interval $[0,T^*)$ of a solution,
+$|X_t|\le|x_0|+\int_0^t(|v_\theta(0,r)|+L|X_r|)\,dr$, hence $|X_t|\le R:=(|x_0|+\kappa)e^\Lambda$,
+and the extension theorem gives $T^*=1$. For $r<t<1$,
+$|X_t-X_r|\le\int_r^t(|v_\theta(0,\cdot)|+LR)\to0$ as $r\uparrow1$, so $X_1$ exists. For two
+solutions, $d(t)=|X_t-Y_t|$ satisfies $d(t)\le d(0)+\int_0^tLd$ and, for $r\le t$,
+$d(r)\le d(t)+\int_r^tLd$; the two Gr\"onwall inequalities give
+$e^{-\Lambda}d(0)\le d(t)\le e^\Lambda d(0)$, and letting $t\uparrow1$,
+$e^{-\Lambda}|x_0-y_0|\le|\Phi(x_0)-\Phi(y_0)|\le e^\Lambda|x_0-y_0|$ for the endpoint map
+$\Phi$.
+
+For surjectivity fix $z$ and $t_n\uparrow1$, and let $Y^n$ be the solution with $Y^n_{t_n}=z$.
+Backward Gr\"onwall bounds $|Y^n|$ by $a=(|z|+\kappa)e^\Lambda$ on its backward interval, so
+$Y^n$ reaches time~$0$; let $x_n=Y^n_0$. Forward, $|Y^n_t|\le R'=(a+\kappa)e^\Lambda$ uniformly in
+$n$, and $\varepsilon_n=\int_{t_n}^1(|v_\theta(0,\cdot)|+LR')\to0$. For $m>n$,
+$|x_n-x_m|\le e^\Lambda|Y^n_{t_m}-Y^m_{t_m}|=e^\Lambda|Y^n_{t_m}-Y^n_{t_n}|\le e^\Lambda\varepsilon_n$,
+so $x_n\to x^\ast$, and $|\Phi(x_n)-z|=|Y^n_1-Y^n_{t_n}|\le\varepsilon_n$ gives $\Phi(x^\ast)=z$ by
+continuity. Hence $\Phi$ is a bi-Lipschitz bijection.
+
+Finally $X_1=\Phi(X_0)$. If $N$ is a Lebesgue-null Borel set, $\Phi^{-1}(N)$ is Borel and, as the
+image of $N$ under the $e^\Lambda$-Lipschitz map $\Phi^{-1}$, null; so
+$\Pr(X_1\in N)=\Pr(X_0\in\Phi^{-1}(N))=0$ for an absolutely continuous $X_0$. Points are null
+sets, so the endpoint law has no atom.
+\end{proof}
+
+\begin{proof}[Proof of (b)]
+Write $m=\hat x_1$, $M=\sup|m|$ and $h=g-\mathrm{id}$. On compact subsets of $\R\times[t_0,1)$,
+$\partial_xm$ is bounded and $1-t$ is bounded below, so $v_\theta$ is locally Lipschitz, solutions
+are unique, and two solutions ordered at $t_0$ remain strictly ordered. Since
+$\frac{d}{dt}\frac{X_t}{1-t}=\frac{m(X_t,t)}{(1-t)^2}$,
+\[
+X_t=\frac{1-t}{1-t_0}X_{t_0}+(1-t)\int_{t_0}^t\frac{m(X_r,r)}{(1-r)^2}\,dr,
+\qquad |X_t|\le|X_{t_0}|+M,
+\]
+so every solution exists on $[t_0,1)$ and is bounded.
+
+\emph{Convergence.} Let $a=\liminf X_t<b=\limsup X_t$. Since $g$ has finitely many fixed points,
+some $c\in(a,b)$ has $h(c)\ne0$, say $h(c)>0$; by continuity of $m(c,\cdot)$ at $t=1$ there is $t_1$
+with $m(c,t)>c$ on $[t_1,1]$. Take $t_1\le t_2<t_3$ with $X_{t_2}>c>X_{t_3}$ and
+$\tau=\sup\{r\in[t_2,t_3]:X_r\ge c\}$. Then $X_\tau=c$ and $X<c$ on $(\tau,t_3]$, so
+$\dot X_\tau\le0$, whereas the equation gives $\dot X_\tau=(m(c,\tau)-c)/(1-\tau)>0$. The case
+$h(c)<0$ is symmetric, so $X_t\to\ell$. If $h(\ell)=2\eta>0$, joint continuity of $m$ at $(\ell,1)$
+gives $\dot X_t\ge\eta/(1-t)$ for $t$ near $1$, so $X_t\to\infty$, a contradiction; likewise for
+$h(\ell)<0$. Hence $g(\ell)=\ell$.
+
+\emph{Repelling fixed points.} Let $g'(z)>1$ and suppose solutions $X<Y$ both converge to $z$. Then
+$D=Y-X>0$ satisfies $\dot D=D(\partial_xm(\xi_t,t)-1)/(1-t)$ with $\xi_t$ between $X_t$ and $Y_t$.
+With $\kappa=(g'(z)-1)/2$, continuity of $\partial_xm$ at $(z,1)$ gives $\partial_xm>1+\kappa$
+near $(z,1)$, so $\frac{d}{dt}\log D\ge\kappa/(1-t)$ for $t$ near $1$ and $D_t\to\infty$, a
+contradiction.
+
+\emph{Attracting fixed points.} Let $g'(z)<1$. Choose $\delta>0$ with $h(z-\delta)>0>h(z+\delta)$
+and no other fixed point in $[z-\delta,z+\delta]$, and $t_1<1$ with $m(z-\delta,t)>z-\delta$ and
+$m(z+\delta,t)<z+\delta$ on $[t_1,1]$. A solution in $[z-\delta,z+\delta]$ at $t_1$ cannot leave it:
+at a last time $\tau$ with $X_\tau=z+\delta$ before an exit one would have $\dot X_\tau\ge0$, while
+the equation gives $\dot X_\tau<0$, and symmetrically at $z-\delta$. By the convergence step it
+tends to $z$. The map $F:X_{t_0}\mapsto X_{t_1}$ is continuous, and by the formula above
+$F(x)\ge\frac{1-t_1}{1-t_0}x-M\to\infty$ as $x\to\infty$ and $F(x)\to-\infty$ as $x\to-\infty$, so
+$F$ is onto. Hence $F^{-1}((z-\delta,z+\delta))$ is a nonempty open set of initial points, all
+converging to $z$.
+\end{proof}
+
+The hypotheses are needed. The exact field toward one atom, $(a-x)/(1-t)$, has
+$L(t)=1/(1-t)$, which is not integrable, and every trajectory ends at $a$. For (b), let
+$\chi$ be smooth with $\chi=0$ on $[-1,1]$ and $\chi=1$ outside $[-2,2]$, let $g$ be bounded with
+$g(x)=2x$ on $[-1,1]$ and finitely many fixed points, and let $m(x,t)=g(x)\chi(x/(1-t))$ for
+$t<1$ and $m(\cdot,1)=g$. Then $m$ is bounded and continuous on $\R\times[t_0,1]$, but
+$\partial_xm(0,t)=0\ne g'(0)$, and every $x_0$ with $|x_0|\le1-t_0$ follows
+$X_t=x_0(1-t)/(1-t_0)\to0$, although $g'(0)=2$: an input at the scale $x/(1-t)$ defeats
+(b). The input $\operatorname{asinh}(tx/(1-t)^2)$ of Section~\ref{sec:intervention-tests} acts at
+the scale of the tie in the same way.
 
 \subsection{What training loss can certify}
 \label{app:teacher-risk}
@@ -2522,7 +3047,7 @@ losses over $t\sim\mathrm{Unif}(0,1)$, with $\E|X_0|^2=d$ and the substitution $
 L_0(v_\delta)
 &=d\int_0^1\bigl(1+\eps_tk_\delta(t)\bigr)^2\,dt
 =d\left[\int_{\delta/2}^{\delta}\Bigl(1+\frac{2A_\delta\eps}{\delta}\Bigr)^2d\eps+\frac\delta2\right]
-=d\left[\delta\int_{1/2}^{1}\bigl(1+2A_\delta u\bigr)^2du+\frac\delta2\right]\\
+\iclrbr=d\left[\delta\int_{1/2}^{1}\bigl(1+2A_\delta u\bigr)^2du+\frac\delta2\right]\\
 &=d\left[\delta\Bigl(u+2A_\delta u^2+\tfrac43A_\delta^2u^3\Bigr)\Big|_{1/2}^{1}+\frac\delta2\right]
 =d\delta\Bigl(1+\tfrac32A_\delta+\tfrac76A_\delta^2\Bigr)\longrightarrow0,
 \end{align*}
@@ -2534,6 +3059,85 @@ not bounded uniformly as $\delta\downarrow0$.
 The example identifies the missing distributional transfer in a loss-only argument; it is not
 evidence that trained networks realise this field. Theorem~\ref{thm:transfer} applies to it with
 equality: along each trajectory $(1-t)|\Delta(Z_t,t)|=|X_0|=|Z_1-a|$ on $[1-\delta/2,1)$.
+
+\subsection{Measured transfer}
+\label{app:measured-transfer}
+
+\paragraph{Risk transfer on EXP-1.} \texttt{exp\_b\_transfer\_exp1.py} evaluates, for the five
+EXP-1 seeds at $h=0$ and $h=0.1$ and their checkpoints, the error $\Delta$ of the learned field
+against the hard-label teacher $f$ of Theorem~\ref{thm:risktransfer} both on the teacher law,
+$r(t)=\E|\Delta(Y_t,t)|^2$, and along the learned trajectories from the same sources,
+$m(t)=\E|\Delta(Z_t,t)|^2$, with $1000$ sources at each of the $20$ training conditions; the
+ratio $K=m/r$ is the median over conditions, then the mean and standard deviation over seeds. At
+$h=0$ and $2\times10^5$ steps, $K=1.46\pm0.29$ at $1-t=0.5$, $127\pm40$ at $0.1$,
+$(3.1\pm2.9)\times10^3$ at $10^{-2}$, $(2.1\pm2.3)\times10^5$ at $10^{-3}$ and
+$(2.0\pm2.2)\times10^7$ at $10^{-4}$: the error the loss measures is several orders of magnitude
+smaller than the error the sampler meets near $t=1$, growing like $(1-t)^{-2}$ over the last two decades
+(local exponents $1.8$ and $2.0$). The
+resulting certificate $B_T=0.637\pm0.31$ at $1-T=10^{-3}$ equals the root-mean-square distance
+to the atom, $0.637\pm0.31$, and to the teacher path, $0.636\pm0.31$, while the same expression
+with $K\equiv1$, built from the training-law error alone, is $0.0065\pm0.0008$ and bounds neither. As remarked after
+Theorem~\ref{thm:transfer}, this agreement is the identity of the theorem, not an independent
+prediction; what the measurement adds is that $r$ and $m$ differ by the factor $K$.
+
+\paragraph{Off-atom CIFAR-10 samples.} \texttt{exp\_c\_cifar\_transfer.py} reintegrates the
+$60000$-iteration DDPM checkpoints of Section~\ref{sec:cifarddpm} (three seeds, $48$ conditions,
+$16$ shared sources) and the exact field at the same bandwidth, and counts as off-atom the samples
+whose distance to the nearest training image is at least $1/3$ of that to the second nearest. Refining
+the integrator and the cutoff lowers the off-atom fraction of the networks only slightly: from
+$0.173\pm0.029$, $0.246\pm0.040$ and $0.298\pm0.058$ at $h=4,5,6$ (Euler, $50$ steps,
+$1-T=10^{-3}$) to $0.158\pm0.031$, $0.212\pm0.036$ and $0.254\pm0.047$ (RK4, $1-T=10^{-4}$),
+while the exact field has none at either cutoff and the $h=0$ networks have none. Measured
+against all $50000$ CIFAR-10 training images instead of the $2000$ used, the fractions are
+slightly larger, so the off-atom samples are not near other dataset images. Two refinement levels
+do not establish convergence, but the fractions change little between them, so solver and cutoff
+error are unlikely to account for them. The fractions grow with $h$ while the exact field has
+none, so they come from the learned field, not from the sampler. Two accounts of how trained
+image denoisers depart from the empirical optimum predict such samples. A convolutional network
+with a limited receptive field behaves like a locally optimal denoiser that assembles each patch
+from training patches at any position, and its samples are patch mosaics rather than training
+images \citep{kamb2024creativity,niedoba2024mechanistic}. Independently, the U-Net normalises its
+features, so it need not have the integrable global Lipschitz constant of
+Proposition~\ref{prop:regular}(a), which excludes endpoint atoms but not off-atom endpoints. We
+did not test the patch-mosaic account, which would compare each off-atom completion with its
+nearest training patches, so the mechanism remains open; the measurements below narrow it.
+
+\paragraph{Scaled field error of the off-atom CIFAR-10 samples.} Since the original checkpoints
+were not kept, we retrained the networks of Section~\ref{sec:cifarddpm} with the same
+configuration at $h=4$ and $h=6$ (three seeds each) and at $h=0$ (one seed), and recorded, along
+each learned RK4 trajectory from the same $48\times16$ sources, the scaled error
+$(1-t)|\Delta(Z_t,t)|=|\hat m-m^*|$ against the exact field at the training bandwidth, and the
+same network error along the exact trajectory from the same source. The
+off-atom fractions at $1-T=10^{-4}$ reproduce the ones above: $0.168\pm0.012$ at $h=4$ and
+$0.276\pm0.008$ at $h=6$, none at $h=0$, and none for the exact field. Along the exact
+trajectories the final scaled error of the network is at most $0.006$, so where the exact field
+ends the network matches it. Along the learned trajectories the final scaled error has median
+$6.2$--$7.1$ for off-atom and $2.5$--$2.9$ for on-atom samples, with AUC $0.985$ at $h=4$ and
+$0.977$ at $h=6$, and median $1.08$ at $h=0$. These final values are bookkeeping, not evidence: at
+the cutoff $m^*$ is the nearest training image and $\hat m$ the endpoint, so the final scaled error
+equals the distance $d_1$ to the nearest training image within $0.2\%$ for every sample, and the
+off-atom criterion is a condition on $d_1$. The informative observation is that the separation
+appears well before the end: at $t\approx0.63$ the medians are already $7.2$--$8.0$ against
+$2.2$--$3.0$, and pooled over seeds the AUC is $0.97$ at $h=4$ and $0.95$ at $h=6$ by
+$t\approx0.53$, where $m^*$ is a posterior mean over many training images rather than the nearest
+one, and stays between $0.977$ and $0.990$ from $t\approx0.71$ on. From $t\approx0.86$ on both
+medians stay nearly constant, while the network's error along the exact trajectories falls to
+$0.006$. The limit in Theorem~\ref{thm:transfer} is thus reached early, and what decides an
+off-atom endpoint is error the network carries through the second half of sampling, not error that
+appears only at the end. At positive bandwidth Proposition~\ref{prop:localtransfer} is local, so
+this is a consistency check of the attribution, not a proof of it.
+
+The same network evaluated along the exact trajectory from the same source does not separate the
+groups: from $t\approx0.71$ on, the AUC of that error is $0.49$--$0.52$ at $h=4$ and
+$0.53$--$0.58$ at $h=6$. The off-atom samples are therefore not those started where the network
+is inaccurate on the exact path; their error arises along their own trajectories, in regions the
+exact field does not visit from that source. This narrows the mechanism discussed above without
+settling it. As a monitoring rule, a final scaled error above $4$ flags $94\%$ and $95\%$ of the
+off-atom samples at $h=4$ and $h=6$, and $7\%$ and $12\%$ of the on-atom ones. Finally, the
+learned and the exact field often return different training images from the same source: among
+on-atom samples they agree for all at $h=0$, but for $55$--$67\%$ at $h=4$ and $23$--$28\%$ at
+$h=6$. Theorem~\ref{thm:endpoint} fixes which images the exact field returns and with what
+weights; these runs do not test whether the learned endpoint law has the same weights.
 
 % ==========================================================================
 \section{Endpoint noise}
@@ -2620,9 +3224,12 @@ every $x_0$ to its atom. Table~\ref{tab:exp1} gives the hard-conditioning trajec
 Table~\ref{tab:p7kernel} the label-smoothing comparison. The memorisation ratio of
 \citet{yoon2023memorization} is the fraction of samples whose nearest training point is at most
 $\tfrac13$ as far as the second nearest; it starts from a common $\approx0.11$.
+\placeblock{portrait}
+\placeblock{kernelfig}
 
 \begin{table}[htb]
 \centering\small
+\ificlr\setlength{\tabcolsep}{4.5pt}\fi
 \begin{tabular}{lccccc}
 \toprule
 & \multicolumn{5}{c}{iteration}\\
@@ -2723,6 +3330,7 @@ finite-cutoff criterion. The on-atom fractions are $1.000$, $0.829$, $0.717$ and
 $h=0,4,5,6$. Table~\ref{tab:cifarddpm} reports the variance comparison, and
 Figure~\ref{fig:cifar-training-grid} shows the $h=0$ samples of the first instance through
 training.
+\placeblock{cifarfig}
 
 \begin{figure}[htb]
 \centering
@@ -2759,6 +3367,7 @@ different images of that class.}
 
 \begin{table}[htb]
 \centering\small
+\ificlr\setlength{\tabcolsep}{4.5pt}\fi
 \begin{tabular}{ccccccc}
 \toprule
 $h$ & $n_{\mathrm{eff}}$ & median $\tr\Cov/\tr\Covh$ & slope (s.e.) & $R^2$ &
@@ -2788,6 +3397,7 @@ a symmetric tie under field averaging; delayed departure at a finite cutoff does
 non-atom limit. Right: learned versus exact field averages from five checkpoints.}
 \label{fig:intervention-validation}
 \end{figure}
+\placeblock{learnedtab}
 
 \paragraph{Exact-field stress test.} Geometry seeds 201--205 generate $N=12$ atoms in dimensions
 $2$ and $8$; the near-duplicate control moves the second atom to distance $0.02$ from the first.
@@ -2795,7 +3405,7 @@ For each $h\in\{0.3,1\}$ the arms are guidance at $w=0,3,12$, a uniform average 
 label offsets $\{-2,-1,0,1,2\}h$, and the field of the average of their normalised priors. Each
 cell uses 128 common Gaussian sources and double-precision log-time RK4 with 256 or 512 steps per
 segment through the gaps $10^{-2},10^{-4},10^{-6}$. The 200 cells are nested within five geometry
-seeds.
+seeds. \placeblock{stressextra}
 
 \paragraph{Ties.} In one dimension the atoms and labels are $\{-1,1\}$, with initial sources
 $0,\pm10^{-12},\pm10^{-8},\pm10^{-4},\pm10^{-2}$ and $h\in\{0.05,0.2,1\}$. We compare the average of
@@ -2804,6 +3414,7 @@ $-x/(1-t)$ and whose endpoint is $0$. A follow-up to gap $10^{-18}$ shows depart
 atoms for positive offsets under fixed-step refinement, but DOP853 (relative tolerance $10^{-11}$,
 absolute $10^{-30}$) fails in four of six selected cases at $h=0.05,0.2$ because the required
 step falls below floating-point spacing; we retain these failures.
+\placeblock{neartie}
 
 \paragraph{Guided label averaging.} \texttt{composition\_counterexample.py} integrates $x$ with
 Radau (relative tolerance $10^{-11}$, absolute $10^{-13}$) up to $\tau=0.5$ and then
@@ -2815,6 +3426,10 @@ $F(s^\star-\delta)>0>F(s^\star+\delta)$ and $\beta\min\{F(s^\star-\delta),-F(s^\
 by Brent's method. The basin of $0$ is an interval located by bisection to relative tolerance
 $10^{-12}$, and its probability is computed under $\N(0,1)$. Table~\ref{tab:composition} lists
 the probabilities shown in Figure~\ref{fig:composition}(b).
+\placeblock{compfig}
+\placeblock{compperturb}
+
+\placeblock{spectralexp}
 
 \paragraph{Spectral criterion.} \texttt{spectral\_criterion\_check.py} draws Gaussian sources,
 integrates $dx/d\tau=M(\beta x)-x$ with RK4 up to $t=1/2$, and then the exact profile equation
@@ -2876,7 +3491,209 @@ bisection; they are not verified by interval arithmetic.}
 \label{tab:composition}
 \end{table}
 
+\paragraph{Learned guided label averaging.}
+\label{app:learned-composition}
+\texttt{learned\_composition.py} trains on $\D=\{(-1,-1),(1,1)\}$ with Gaussian label noise
+$h=1$, and \texttt{learned\_composition\_2d.py} on three atoms on the unit circle with one-hot
+labels and $h=1$. Every network is an MLP of width $128$ and depth $4$, trained for $2\times10^5$
+steps with batch $2048$, AdamW without weight decay, learning rate $3\times10^{-3}$ (the lowest
+held-out CFM loss among $\{3\times10^{-4},10^{-3},3\times10^{-3}\}$ at $5\times10^4$ steps, one
+seed), a cosine schedule, gradient clipping at~$1$ and condition dropout $0.1$, with fresh
+interpolant samples at every step. The velocity network regresses $X_1-X_0$; its log-uniform
+variant draws $1-t$ half uniformly and half log-uniformly on $[10^{-5},1]$ with importance weights,
+so that the objective is unchanged, and its separate-unconditional variant (four seeds) replaces
+dropout by a second network. The data-predicting network regresses $X_1$ with input
+$\operatorname{asinh}(tx/(1-t)^2)$ in addition to $(x,t,y)$. The distillation network has the same
+architecture but regresses the exact posterior mean at interpolant samples and at points of the
+boundary layer; it is a positive control for the solver and the architecture, not a model
+learned from data. Composites are integrated from the first $2048$ of $16384$ shared Gaussian
+sources in $\tau=-\log(1-t)$, first in $x$ and then in $s=tx/(1-t)^2$, by a per-source adaptive
+Rosenbrock method (ROS2) at relative tolerances $10^{-5}$ and $10^{-7}$. Occupancy is
+the fraction of sources within $\delta$ of the midpoint at the gap $\epsilon=1-t$, reported at
+$\epsilon=10^{-5}$, $\delta=0.05$; the radii $0.02$ and $0.1$ are in the artifacts. Over every
+network, seed and guidance strength of Table~\ref{tab:learned-composition} and
+Appendix~\ref{apx:bottleneck-runs} (\texttt{summarize\_composite\_solver\_checks.py}), the endpoint
+classes of the composite differ between the two tolerances for at most $1.32\%$ of the sources in
+the two-atom runs ($B=1,2,3$) and $0.98\%$ on the triangle, and the occupancy changes by at most
+$0.005$ and $0.009$. The exception is the off-tie network of Appendix~\ref{apx:bottleneck-runs} at
+$w\ge2w_c$, whose classes differ for up to $53\%$ of the sources (one seed, $5w_c$) while its
+occupancy stays below $0.011$ at both tolerances. Between $\epsilon=10^{-3}$ and $10^{-5}$ the
+occupancy changes by at most $0.020$ in the two-atom runs, except at $B=3$, where the velocity
+networks fail anyway (up to $0.049$), and by at most $0.055$ on the triangle, where it is still
+rising in one data-predicting seed at $5w_c$ ($0.680$ to $0.735$). A fixed-step RK4
+in~$\tau$, used first, is unstable once $\beta|F'|\,\Delta\tau>2.8$ and ejects the trajectories
+an attracting tie holds; it gave no midpoint mass even for the positive control, and we discarded
+it. The exact one-dimensional probabilities are computed as for Table~\ref{tab:composition}
+(\texttt{learned\_composition\_exact.py}) and agree with its entries; on the
+triangle the exact value is the midpoint fraction of the first $4096$ sources under the profile
+integration of Table~\ref{tab:spectral}. At $B=3$, where $w_c=0.010$, the velocity networks place
+mass at the midpoint at every $w$, including $w=0$, where the exact field places none, with seed
+standard deviations as large as the means: an error of the learned field, not a basin of the
+exact one. The label average alone, single-label guidance and guided prior averaging, whose
+exact endpoints are atoms almost surely, keep the learned two-atom midpoint occupancy at most
+$0.001$, except for the label average of the velocity networks at $B=3$. The data-predicting network starts slightly
+early ($0.014\pm0.009$ at $w=w_c$, $B=1$): its fitted tie slope changes sign at about $0.87\,w_c$
+near $t=1$. \placeblock{lossrisk}
+
+\paragraph{Which change matters.} Two ablations separate the changes, with five seeds each and
+the same training and integration. \texttt{cfm\_v\_s} keeps the velocity output and its loss and
+adds only the input $\operatorname{asinh}(tx/(1-t)^2)$; \texttt{cfm\_x} predicts the data with the
+data loss and has no extra input (rows ``rescaled input'' and ``data, plain input'' of
+Table~\ref{tab:learned-composition}). With the input, a velocity network reproduces the exact
+probabilities when it succeeds, but not in every seed: at $B=1$ all five seeds give
+$0.877$--$0.885$ at $5w_c$ and four give $0.299$--$0.406$ at $2w_c$ while one gives $0$; at $B=2$
+four seeds match at $10w_c$ and two at $5w_c$; at $B=3$ it fails as the velocity network does.
+On the triangle four of five seeds match the exact probabilities ($0.687$--$0.735$ against
+$0.673$ at $5w_c$, $0.948$--$0.971$ against $0.952$ at $10w_c$) and one fails
+($0.055$ and $0.013$).
+Without the input, the data-predicting network places less than $0.001$ of its sources at the
+midpoint at $w\ge5w_c$ for every $B$ and seed, and none at any $w$ on the triangle; at $B=1$ and $2w_c$ one seed places $0.415$ and the
+others none. Its endpoints are then fixed points of its prediction at $t=1$, which
+Proposition~\ref{prop:regular}(b) describes for a bounded prediction, although the trained network
+is not clipped. In these runs the rescaled input is necessary, and the data parametrisation makes
+it reliable across seeds.
+
+\paragraph{Tie-centring and a label bottleneck.}
+\label{apx:bottleneck-runs}
+On the triangle, further data-predicting networks, three seeds each, use the loss and training of
+the rescaled-input network (\texttt{server\_bottleneck\_2d\_cpu.sh}). \texttt{cfm\_x\_o} receives the
+rescaled input centred at $(0.3,0.2)$ instead of the tie $z=0$. Its label average places no source
+at the midpoint at any guidance strength in any seed, against $0.133$ for the exact field at $2w_c$
+and $0.952$ at $10w_c$, and at $w\le2w_c$ at least $0.96$ of its sources end within $0.05$ of an
+atom. In these runs the composition is learned only by a network told where the tie is. A
+variant with one rescaled input centred at each vertex (\texttt{cfm\_x\_a}) could not be
+evaluated: its learned composite is so stiff that the two solver tolerances disagree on the
+endpoint class of $4\%$ and $27\%$ of the sources already at $w=0$, and in one seed the tight solver
+did not finish; we stopped these runs.
+
+\texttt{cfm\_x\_sq} sees its noised label only through the cell $\arg\max_k y_k$, a bottleneck as in
+Proposition~\ref{prop:bottleneck}. The cell priors favour their vertex with $B_Q=1.2413$, so
+$w_c(B_Q)=3.926$, and its guidance strengths are in units of $w_c(B_Q)$. Averaging its field over
+labels averages the three cell fields, and the learned composite follows the exact composite of
+those fields: $0.718$, $0.817$ and $0.747$ against $0.757$ at $5w_c(B_Q)$, $0.983$ to $0.989$
+against $0.972$ at $10w_c(B_Q)$, and $0$ to $0.226$ against $0.179$ at $2w_c(B_Q)$. Single-label
+guidance places no source at the midpoint at $w\le2w_c(B_Q)$ in any seed, as
+Proposition~\ref{prop:bottleneck}(b) states for the exact field, but only $0.14$ to $0.64$ of the
+sources end within $0.05$ of an atom at $2w_c(B_Q)$. At $10w_c(B_Q)\approx39$, where guidance
+amplifies the learning error most, one seed places $0.92$ of its sources at the midpoint and the
+other two end at neither the atoms nor the midpoint (at most $0.013$ at an atom). These are errors
+of the learned field, whose exact endpoints are atoms almost surely.
+
+\paragraph{Guided label averaging on CIFAR-10.}
+\label{app:cifar-composition}
+\texttt{cifar\_composition\_exact.py} applies the composite of Theorem~\ref{thm:composition} to the
+EXP-3 problem of Section~\ref{sec:cifarddpm} ($N=2000$ images in $\R^{3072}$, labels their top
+halves), averaging the exact conditional fields at the labels $y^i,y^j$ of a pair and guiding
+against the unconditional one. The label bandwidth is set to $h=|y^i-y^j|/2$, so that $B=1$ and
+$w_c=0.724$. We use eight pairs whose midpoint $z=(x^i+x^j)/2$ is farther than
+$\sqrt{5.2}\,r$, $r=|x^i-x^j|/2$, from every other training image, and $512$ shared Gaussian
+sources. Of the $81$ mutual-nearest-neighbour pairs among the $2000$ images, all have no other
+image within $r$ of their midpoint, as Theorem~\ref{thm:spectral}(c) requires, and these eight
+are the ones with the largest margin. Their images lie at $0.54$ to $0.90$ times the median
+nearest-neighbour distance of the $2000$ images: similar but distinct images
+(Figure~\ref{fig:cifar-composition}a). So that the selection does not decide the result, we also
+ran twelve of the other $73$ pairs, drawn at random (seed $20261108$,
+\texttt{cifar\_mutual\_pairs.py}), at $w/w_c\in\{0.9,1.1,2,5\}$; every one of the $81$ pairs has
+margin at least $3.2$. In them no source ends at the midpoint at $0.9w_c$; at $1.1w_c$ ten of the
+twelve have some ($0.002$ to $0.014$) and two have none of their $512$ sources; at $2w_c$ all
+have some ($0.006$ to $0.088$, mean $0.042$), and at $5w_c$ the mean is $0.038$. At most one
+source in a pair is unresolved. These basins are smaller than in the selected pairs, in line
+with the trend in the margin below. Each trajectory of the full $2000$-atom field is integrated with an adaptive
+Bogacki--Shampine method (relative tolerance $10^{-6}$) until all three posteriors put all but
+$10^{-12}$ of their mass on the pair, where the flow along $x^i-x^j$ is exactly the
+one-dimensional flow of Theorem~\ref{thm:composition} and is finished with Radau and classified by
+the roots of $F_w$, or on one atom, which is then the endpoint; no source remained unresolved.
+For $w/w_c\in\{0,0.5,0.9\}$ no source in any pair ends at the midpoint. At $w/w_c=1.1$ every
+pair has some ($0.006$ to $0.043$, mean $0.025$), and the fraction peaks at $w/w_c=2$ ($0.027$ to
+$0.291$, mean $0.186$) before falling at $5$ (mean $0.150$) and $10$ (mean $0.042$), as guidance
+pulls more sources onto the pair's atoms; the fraction ending on the pair or its midpoint grows
+from $0.06$--$0.96$ at $w=0$ to $0.58$--$1$ at $w=10w_c$. Pairs whose midpoint is farther from
+the other images tend to have larger midpoint fractions. We reran all eight pairs at
+$w/w_c\in\{0.9,1.1,2\}$ with a hand-off at $10^{-9}$ and, separately, a relative tolerance of
+$10^{-8}$. No source ends at the midpoint at $0.9w_c$ in any pair or setting. At $1.1w_c$ every
+pair stays positive in all three settings, from $0.006$ ($3$ of $512$ sources, in two pairs, the
+same in every setting) to $0.047$, and the three settings differ by at most $0.006$ in any pair;
+at $2w_c$ they differ by at most $0.018$. Individual endpoints agree with the main run for at
+least $99\%$ of sources at $1.1w_c$ and $87\%$ at $2w_c$. We reran all eight pairs at $5w_c$ and
+$10w_c$ in the same two settings (\texttt{cifar\_composition\_random\_20261108}): there individual
+endpoints agree with the main run for only $41\%$ to $92\%$ of the sources, and the class
+(midpoint, an atom of the pair, another atom) for $66\%$ to $98\%$, so we report fractions only.
+The midpoint fraction of a pair changes by at most $0.064$ at $5w_c$ and $0.029$ at $10w_c$, and
+its mean over the pairs is $0.139$ to $0.150$ at $5w_c$ and $0.040$ to $0.042$ at $10w_c$ across
+the three settings, so its fall after $2w_c$ is not a solver effect. The midpoints are blends of two training images, not
+training images. The threshold itself is not new evidence: the midpoint of each pair is a
+candidate whose only nearest atoms are $x^i,x^j$, all priors are positive, and
+Theorem~\ref{thm:spectral}(c) with the two-atom computation of Corollary~\ref{cor:spectral-threshold}
+gives $\Pr(X_1=z)>0$ exactly when $w>w_c$. The computation is a consistency check of that
+prediction at $d=3072$ with the other $1998$ atoms present, and it measures the basin sizes,
+which the theorem does not give. Outputs are under \texttt{results/\iclrallow cifar\_composition\_exact\_20261105/};
+\texttt{make\_cifar\_composition\_figure.py} draws Figure~\ref{fig:cifar-composition}.
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=\textwidth]{fig_cifar_composition.pdf}
+\caption{Exact guided label averaging on CIFAR-10 ($N=2000$, $d=3072$, $B=1$). (a) Three of the
+eight pairs: the training images $x^i,x^j$ and the midpoint $z$ (framed), which the composite
+reaches with positive probability for $w>w_c$. (b) Fraction of $512$ shared sources ending at $z$
+for each pair (thin) and the mean over pairs (thick); it is zero for $w\le0.9w_c$ in every pair.}
+\label{fig:cifar-composition}
+\end{figure}
+
+\begin{table}[htb]
+\centering\footnotesize\setlength{\tabcolsep}{3.5pt}
+\newcommand{\lctable}{%
+\begin{tabular}{@{}llrrrrrr@{}}
+\toprule
+& & \multicolumn{6}{c}{$w/w_c$}\\
+\cmidrule(l){3-8}
+& network & $0$ & $1$ & $1.1$ & $2$ & $5$ & $10$\\
+\midrule
+$B=1$ & exact & $0.000$ & $0.000$ & $0.050$ & $0.406$ & $0.878$ & $0.991$\\
+ & velocity CFM & $0.000\pm0.000$ & $0.000\pm0.000$ & $0.000\pm0.000$ & $0.000\pm0.000$ & $0.000\pm0.000$ & $0.000\pm0.000$\\
+ & \quad log-uniform $1-t$ & $0.000\pm0.000$ & $0.000\pm0.000$ & $0.000\pm0.000$ & $0.000\pm0.000$ & $0.000\pm0.000$ & $0.000\pm0.000$\\
+ & \quad separate unconditional & $0.000\pm0.000$ & $0.000\pm0.000$ & $0.000\pm0.000$ & $0.000\pm0.000$ & $0.000\pm0.000$ & $0.000\pm0.000$\\
+ & \quad rescaled input & $0.000\pm0.000$ & $0.012\pm0.014$ & $0.023\pm0.026$ & $0.294\pm0.152$ & $0.881\pm0.003$ & $0.991\pm0.000$\\
+ & data, plain input & $0.000\pm0.000$ & $0.001\pm0.003$ & $0.003\pm0.005$ & $0.083\pm0.166$ & $0.000\pm0.000$ & $0.000\pm0.000$\\
+ & data, rescaled input & $0.000\pm0.000$ & $0.014\pm0.009$ & $0.054\pm0.004$ & $0.401\pm0.006$ & $0.878\pm0.001$ & $0.991\pm0.000$\\
+ & distillation (control) & $0.000\pm0.000$ & $0.000\pm0.000$ & $0.049\pm0.000$ & $0.407\pm0.000$ & $0.878\pm0.000$ & $0.991\pm0.000$\\
+\midrule
+$B=2$ & exact & $0.000$ & $0.000$ & $0.021$ & $0.182$ & $0.532$ & $0.809$\\
+ & velocity CFM & $0.001\pm0.001$ & $0.001\pm0.002$ & $0.001\pm0.002$ & $0.001\pm0.001$ & $0.001\pm0.001$ & $0.000\pm0.000$\\
+ & \quad log-uniform $1-t$ & $0.000\pm0.000$ & $0.000\pm0.000$ & $0.000\pm0.000$ & $0.000\pm0.000$ & $0.000\pm0.000$ & $0.000\pm0.000$\\
+ & \quad separate unconditional & $0.000\pm0.000$ & $0.004\pm0.006$ & $0.002\pm0.003$ & $0.002\pm0.003$ & $0.000\pm0.001$ & $0.000\pm0.000$\\
+ & \quad rescaled input & $0.009\pm0.018$ & $0.019\pm0.035$ & $0.021\pm0.038$ & $0.038\pm0.066$ & $0.212\pm0.259$ & $0.646\pm0.323$\\
+ & data, plain input & $0.000\pm0.001$ & $0.000\pm0.000$ & $0.000\pm0.000$ & $0.000\pm0.000$ & $0.000\pm0.000$ & $0.000\pm0.000$\\
+ & data, rescaled input & $0.000\pm0.000$ & $0.004\pm0.007$ & $0.020\pm0.015$ & $0.177\pm0.007$ & $0.530\pm0.004$ & $0.808\pm0.003$\\
+ & distillation (control) & $0.000\pm0.000$ & $0.000\pm0.000$ & $0.018\pm0.001$ & $0.179\pm0.000$ & $0.535\pm0.000$ & $0.809\pm0.000$\\
+\midrule
+$B=3$ & exact & $0.000$ & $0.000$ & $0.008$ & $0.069$ & $0.221$ & $0.396$\\
+ & velocity CFM & $0.048\pm0.083$ & $0.048\pm0.086$ & $0.048\pm0.086$ & $0.049\pm0.088$ & $0.051\pm0.094$ & $0.056\pm0.104$\\
+ & \quad log-uniform $1-t$ & $0.023\pm0.045$ & $0.023\pm0.046$ & $0.022\pm0.045$ & $0.020\pm0.040$ & $0.009\pm0.019$ & $0.001\pm0.001$\\
+ & \quad separate unconditional & $0.081\pm0.137$ & $0.085\pm0.147$ & $0.085\pm0.147$ & $0.090\pm0.154$ & $0.105\pm0.181$ & $0.126\pm0.219$\\
+ & \quad rescaled input & $0.034\pm0.067$ & $0.036\pm0.072$ & $0.037\pm0.073$ & $0.038\pm0.076$ & $0.044\pm0.087$ & $0.061\pm0.121$\\
+ & data, plain input & $0.000\pm0.000$ & $0.000\pm0.000$ & $0.000\pm0.000$ & $0.000\pm0.000$ & $0.000\pm0.000$ & $0.000\pm0.000$\\
+ & data, rescaled input & $0.000\pm0.000$ & $0.010\pm0.013$ & $0.013\pm0.016$ & $0.056\pm0.030$ & $0.167\pm0.084$ & $0.378\pm0.009$\\
+ & distillation (control) & $0.000\pm0.000$ & $0.000\pm0.000$ & $0.008\pm0.000$ & $0.066\pm0.000$ & $0.217\pm0.000$ & $0.395\pm0.000$\\
+\midrule
+triangle & exact & $0.000$ & -- & $0.002$ & $0.133$ & $0.673$ & $0.952$\\
+ & velocity CFM & $0.000\pm0.000$ & -- & $0.000\pm0.000$ & $0.000\pm0.000$ & $0.000\pm0.000$ & $0.000\pm0.000$\\
+ & \quad rescaled input & $0.000\pm0.000$ & -- & $0.015\pm0.011$ & $0.146\pm0.077$ & $0.579\pm0.262$ & $0.769\pm0.378$\\
+ & data, plain input & $0.000\pm0.000$ & -- & $0.000\pm0.000$ & $0.000\pm0.000$ & $0.000\pm0.000$ & $0.000\pm0.000$\\
+ & data, rescaled input & $0.000\pm0.000$ & -- & $0.001\pm0.002$ & $0.143\pm0.004$ & $0.692\pm0.023$ & $0.962\pm0.005$\\
+ & distillation (control) & $0.002\pm0.005$ & -- & $0.007\pm0.011$ & $0.140\pm0.004$ & $0.699\pm0.037$ & $0.961\pm0.012$\\
+\bottomrule
+\end{tabular}}
+\ificlr\resizebox{\textwidth}{!}{\lctable}\else\lctable\fi
+\caption{Midpoint occupancy of learned guided label averages, mean $\pm$ population standard
+deviation over seeds, at $\epsilon=10^{-5}$, $\delta=0.05$, from $2048$ shared sources; exact
+rows give the exact endpoint probability (Table~\ref{tab:composition}; triangle: fraction of
+$4096$ sources). The triangle grid has no $w=w_c$.}
+\label{tab:learned-composition}
+\end{table}
+
 \FloatBarrier
+\placeblock{learnedpilot}
+
 \paragraph{Learned label averages.} The five networks have problem seeds 1001--1005, $h=0.1$ and
 $2\times10^5$ training steps. For each, the first and last training labels and two fresh queries
 are evaluated at three radii $r/\operatorname{sd}(y)\in\{0,0.5,1.5\}$, giving 60 model--query cells.
@@ -2887,9 +3704,14 @@ averaged over queries within each seed and then over seeds. At fresh queries the
 nearest-atom distances are $0.0573$, $0.0916$, $0.1106$ for the network and $0.00183$,
 $0.00328$, $0.00479$ for the exact average.
 
+\begingroup\ificlr\raggedright\fi
 \paragraph{Artifacts.} Raw arrays and per-cell outputs are under
-\texttt{results/novelty\_interventions\_20261016/} and
-\texttt{results/theory\_composition\_20261019/}. An independent recomputation checked all 984
-primary metric rows and 84 refinement rows of the stress and tie tests.
+\texttt{results/\iclrallow novelty\_interventions\_20261016/} and
+\texttt{results/\iclrallow theory\_composition\_20261019/}; the learned composition is under
+\texttt{results/\iclrallow learned\_composition\_20261021/} and
+\texttt{results/\iclrallow learned\_composition\_2d\_20261021/}, with
+Figure~\ref{fig:learned-composition} and Table~\ref{tab:learned-composition} drawn by
+\texttt{make\_learned\_composition\_figure.py}. An independent recomputation checked all 984
+primary metric rows and 84 refinement rows of the stress and tie tests.\par\endgroup
 
 \end{document}

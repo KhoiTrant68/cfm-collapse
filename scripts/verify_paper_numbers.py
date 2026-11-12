@@ -685,6 +685,452 @@ for _n, _w in (("rect2", 1.0), ("cube8", 1.0)):
 check("triangle w_c", 1.160, round(_frac("tri2", "w_over_wc", 1.1)[0]["w_c_formula"], 3), 1e-9)
 check("simplex w_c", 4.802, round(_frac("simplex8", "w_over_wc", 1.1)[0]["w_c_formula"], 3), 1e-9)
 
+print("\nSection 6.2 / Table tab:learned-composition: learned guided label averaging")
+# Recomputed here from the per-seed summaries, independently of make_learned_composition_figure.py.
+_LC1, _LC2 = pathlib.Path("results/learned_composition_20261021"), pathlib.Path("results/learned_composition_2d_20261021")
+
+
+def _lc_occ(root, variant, B=None, eps=1e-5, delta=0.05):
+    per = {}
+    for p in sorted(root.glob(f"{variant}_seed*/summary.json")):
+        for a in json.loads(p.read_text(encoding="utf-8"))["arms"]:
+            if a["arm"] == "L3" and (B is None or a["B"] == B):
+                e = next(e for e in a["by_eps"] if abs(e["eps"] - eps) < 1e-12)
+                per.setdefault(a["r"], []).append(e[f"occ_{delta:g}"])
+    return {r: (float(np.mean(v)), float(np.std(v)), len(v)) for r, v in per.items()}
+
+
+_ex1 = {(r["B"], r["r"]): r["basin_probability"] for r in json.loads(
+    (_LC1 / "exact/summary.json").read_text(encoding="utf-8"))["rows"] if r["arm"] == "E4"}
+_ex2 = {r["r"]: r["midpoint_fraction"] for r in json.loads(
+    (_LC2 / "exact/exact.json").read_text(encoding="utf-8"))["rows"]}
+_xs1, _xs2 = _lc_occ(_LC1, "cfm_x_s", 1.0), _lc_occ(_LC2, "cfm_x_s")
+check("B=1 2w_c data-prediction mean", 0.401, round(_xs1[2.0][0], 3), 1e-9)
+check("B=1 2w_c data-prediction sd", 0.006, round(_xs1[2.0][1], 3), 1e-9)
+check("B=1 2w_c exact", 0.406, round(_ex1[(1.0, 2.0)], 3), 1e-9)
+check("B=1 w_c data-prediction mean", 0.014, round(_xs1[1.0][0], 3), 1e-9)
+check("B=1 w_c data-prediction sd", 0.009, round(_xs1[1.0][1], 3), 1e-9)
+check("triangle 2w_c data-prediction mean", 0.143, round(_xs2[2.0][0], 3), 1e-9)
+check("triangle 2w_c data-prediction sd", 0.004, round(_xs2[2.0][1], 3), 1e-9)
+check("triangle 2w_c exact", 0.133, round(_ex2[2.0], 3), 1e-9)
+check("velocity B in {1,2}: max seed-mean occupancy", 0.001,
+      round(max(m for B in (1.0, 2.0) for m, _, _ in _lc_occ(_LC1, "cfm_v", B).values()), 3), 1e-9)
+check("velocity triangle: max seed-mean occupancy", 0.0, max(m for m, _, _ in _lc_occ(_LC2, "cfm_v").values()), 0)
+for _v in ("cfm_v_tis", "cfm_v_sep"):
+    check(f"{_v} B=1: max seed-mean occupancy", 0.0, max(m for m, _, _ in _lc_occ(_LC1, _v, 1.0).values()), 0)
+check("separate-unconditional seeds", 4, _lc_occ(_LC1, "cfm_v_sep", 1.0)[2.0][2], 0)
+# eps = 1e-3 and 1e-5 agree to three decimals at B = 1 (appendix text).
+for _v in ("cfm_v", "cfm_v_tis", "cfm_v_sep", "cfm_x_s", "distill_x_s"):
+    _a, _b = _lc_occ(_LC1, _v, 1.0, 1e-3), _lc_occ(_LC1, _v, 1.0, 1e-5)
+    check(f"{_v} B=1: max |occ(1e-3) - occ(1e-5)| (3 dp)", 0.0,
+          max(abs(round(_a[r][0], 3) - round(_b[r][0], 3)) for r in _a), 0)
+
+# Table rows: every cell of tab:learned-composition against the recomputation.
+_tab = tex[tex.index(r"\newcommand{\lctable}"):tex.index(r"\label{tab:learned-composition}")]
+_names = {"exact": "exact", "velocity CFM": "cfm_v", r"\quad log-uniform $1-t$": "cfm_v_tis",
+          r"\quad separate unconditional": "cfm_v_sep", "data, rescaled input": "cfm_x_s",
+          "distillation (control)": "distill_x_s", r"\quad rescaled input": "cfm_v_s",
+          "data, plain input": "cfm_x"}
+_ABL = pathlib.Path("results/composition_ablation_20261105")
+_ABL2 = pathlib.Path("results/composition_ablation_2d_20261105")
+_cols, _cfg, _n = (0.0, 1.0, 1.1, 2.0, 5.0, 10.0), None, 0
+for _line in _tab.splitlines():
+    _cells = [c.strip() for c in _line.rstrip("\\").split("&")]
+    if len(_cells) != 8 or _cells[1] not in _names:
+        continue
+    _cfg = {"$B=1$": 1.0, "$B=2$": 2.0, "$B=3$": 3.0, "triangle": "tri"}.get(_cells[0], _cfg)
+    _v = _names[_cells[1]]
+    for _r, _c in zip(_cols, _cells[2:]):
+        if _c == "--":
+            continue
+        _m = [float(x) for x in _c.strip("$").split(r"\pm")]
+        if _v == "exact":
+            _want = [_ex2[_r]] if _cfg == "tri" else [_ex1[(_cfg, _r)]]
+        else:
+            _root1 = _ABL if _v in ("cfm_v_s", "cfm_x") else _LC1
+            _root2 = _ABL2 if _v in ("cfm_v_s", "cfm_x") else _LC2
+            _o = (_lc_occ(_root2, _v) if _cfg == "tri" else _lc_occ(_root1, _v, _cfg))[_r]
+            _want = [_o[0], _o[1]]
+        _good = all(abs(a - round(b, 3)) < 1e-9 for a, b in zip(_m, _want))
+        ok, fail, _n = ok + _good, fail + (not _good), _n + 1
+        if not _good:
+            print(f"  BAD table {_cfg} {_v} w/w_c={_r}: paper={_m} file={_want}")
+print(f"  table cells checked: {_n}")
+
+def _abl2_seeds(v, r):
+    out = []
+    for p in sorted(_ABL2.glob(f"{v}_seed*/summary.json")):
+        a = next(a for a in json.loads(p.read_text(encoding="utf-8"))["arms"] if a["arm"] == "L3" and a["r"] == r)
+        out.append(next(e for e in a["by_eps"] if abs(e["eps"] - 1e-5) < 1e-12)["occ_0.05"])
+    return out
+
+
+for _r, _lo, _hi, _bad in ((5.0, 0.687, 0.735, 0.055), (10.0, 0.948, 0.971, 0.013)):
+    _o = sorted(_abl2_seeds("cfm_v_s", _r))
+    check(f"triangle cfm_v_s {_r:g}w_c: failing seed", _bad, round(_o[0], 3), 1e-9)
+    check(f"triangle cfm_v_s {_r:g}w_c: min of other four", _lo, round(_o[1], 3), 1e-9)
+    check(f"triangle cfm_v_s {_r:g}w_c: max", _hi, round(_o[-1], 3), 1e-9)
+check("triangle cfm_x: no midpoint at any w", 0.0,
+      max(max(_abl2_seeds("cfm_x", r)) for r in (0.0, 0.5, 0.9, 1.1, 2.0, 5.0, 10.0)), 0)
+
+print("\nAppendix app:learned-composition: ablation cfm_v_s / cfm_x (per seed)")
+
+
+def _seeds(v, B, r, eps=1e-5):
+    out = []
+    for s in range(5):
+        d = json.loads((_ABL / f"{v}_seed{s}/summary.json").read_text(encoding="utf-8"))
+        a = next(a for a in d["arms"] if a["arm"] == "L3" and a["B"] == B and a["r"] == r)
+        out.append(next(e for e in a["by_eps"] if abs(e["eps"] - eps) < 1e-12)["occ_0.05"])
+    return out
+
+
+_vs = _lc_occ(_ABL, "cfm_v_s", 1.0)[5.0]
+check("cfm_v_s B=1 5w_c mean (main text)", 0.881, round(_vs[0], 3), 1e-9)
+check("cfm_v_s B=1 5w_c sd (main text)", 0.003, round(_vs[1], 3), 1e-9)
+check("cfm_v_s B=1 5w_c seed min", 0.877, round(min(_seeds("cfm_v_s", 1.0, 5.0)), 3), 1e-9)
+check("cfm_v_s B=1 5w_c seed max", 0.885, round(max(_seeds("cfm_v_s", 1.0, 5.0)), 3), 1e-9)
+_s2 = sorted(_seeds("cfm_v_s", 1.0, 2.0))
+check("cfm_v_s B=1 2w_c failing seed", 0.0, _s2[0], 0)
+check("cfm_v_s B=1 2w_c others min", 0.299, round(_s2[1], 3), 1e-9)
+check("cfm_v_s B=1 2w_c others max", 0.406, round(_s2[4], 3), 1e-9)
+_match = lambda B, r: sum(abs(x - _ex1[(B, r)]) < 0.05 for x in _seeds("cfm_v_s", B, r))
+check("cfm_v_s B=2 10w_c seeds matching exact", 4, _match(2.0, 10.0), 0)
+check("cfm_v_s B=2 5w_c seeds matching exact", 2, _match(2.0, 5.0), 0)
+check("cfm_x w>=5w_c: every seed < 0.001", 1.0, float(max(
+    x for B in (1.0, 2.0, 3.0) for r in (5.0, 10.0) for x in _seeds("cfm_x", B, r)) < 1e-3), 0)
+_x2 = sorted(_seeds("cfm_x", 1.0, 2.0))
+check("cfm_x B=1 2w_c one seed", 0.415, round(_x2[4], 3), 1e-9)
+check("cfm_x B=1 2w_c others none", 0.0, max(_x2[:4]), 0)
+
+# Boundary layer, held-out excess risk and solver tolerance, from the generated SUMMARY.md.
+_md = (_LC1 / "SUMMARY.md").read_text(encoding="utf-8").splitlines()
+def _md_row(prefix, section="## Boundary layer"):
+    start = next(i for i, l in enumerate(_md) if l.startswith(section))
+    return [c.strip() for c in next(l for l in _md[start:] if l.startswith(prefix)).strip("|").split("|")]
+check("E_BL velocity at 1-t=1e-5", 0.67, round(float(_md_row("| cfm_v | E_BL cond")[-1]), 2), 1e-9)
+check("E_BL data-prediction at 1-t=1e-5", 0.0024, float(_md_row("| cfm_x_s | E_BL cond")[-1]), 1e-9)
+check("held-out excess risk velocity t>=0.999 (1e-7)", 1.4, round(1e7 * float(_md_row("| cfm_v |", "## Validation")[-1]), 1), 1e-9)
+check("held-out excess risk data-prediction t>=0.999 (1e-7)", 9.4, round(1e7 * float(_md_row("| cfm_x_s |", "## Validation")[-1]), 1), 1e-9)
+check("data-prediction threshold ratio near t=1", 0.87, float(_md_row("| cfm_x_s | ŵ_c(t)/w_c")[-1]), 1e-9)
+_tol = [l for l in _md if l.startswith("Largest fraction of sources whose class")][0]
+check("tolerance class disagreement, original two-atom runs (%)", 1.07, round(100 * float(_tol.rstrip(".").split()[-1]), 2), 1e-9)
+for s in (r"$0.401\pm0.006$ against $0.406$", r"$0.143\pm0.004$", r"($0.014\pm0.009$ at $w=w_c$",
+          r"$1.4\times10^{-7}$ against", r"$9.4\times10^{-7}$", r"is $0.67$, against $0.0024$",
+          r"about $0.87\,w_c$"):
+    in_tex(s)
+
+# Solver checks of the learned composite over every learned run (App. E.3, R5 of panel 2026-11-07).
+_SC = json.loads(pathlib.Path("results/composite_solver_checks_20261108.json").read_text(encoding="utf-8"))
+_tri = lambda r: r["dir"].endswith("_2d_20261021") or r["dir"].endswith("_2d_20261105") or "bottleneck" in r["dir"]
+_one = [r for r in _SC if not _tri(r)]
+_two = [r for r in _SC if _tri(r) and r["variant"] != "cfm_x_o"]
+_xo = [r for r in _SC if r["variant"] == "cfm_x_o"][0]
+check("solver: two-atom class disagreement (%)", 1.32, round(100 * max(r["tol_max"] for r in _one), 2), 1e-9)
+check("solver: triangle class disagreement (%)", 0.98, round(100 * max(r["tol_max"] for r in _two), 2), 1e-9)
+check("solver: two-atom occupancy change between tolerances", 0.005, round(max(r["tol_occ_max"] for r in _one), 3), 1e-9)
+check("solver: triangle occupancy change between tolerances <= 0.009", 1.0, float(max(r["tol_occ_max"] for r in _two) <= 0.0095), 0)
+check("solver: off-tie class disagreement (%)", 53, round(100 * _xo["tol_max"]), 0)
+check("solver: off-tie occupancy change < 0.011", 1.0, float(_xo["tol_occ_max"] < 0.011), 0)
+check("solver: two-atom eps change B<3 <= 0.020", 0.020, round(max(r["eps_max"] for r in _one if r["B"] < 3), 3), 1e-9)
+check("solver: two-atom eps change B=3", 0.049, round(max(r["eps_max"] for r in _one if r["B"] == 3), 3), 1e-9)
+check("solver: B=3 max is a velocity network", 1.0, float(max((r for r in _one if r["B"] == 3), key=lambda r: r["eps_max"])["variant"].startswith("cfm_v")), 0)
+check("solver: triangle eps change", 0.055, round(max(r["eps_max"] for r in _SC if _tri(r)), 3), 1e-9)
+_xs0 = json.loads(pathlib.Path("results/learned_composition_2d_20261021/cfm_x_s_seed0/summary.json").read_text())
+_a5 = [a for a in _xs0["arms"] if a["arm"] == "L3" and a["r"] == 5.0][0]
+_by5 = {round(e["eps"], 12): e for e in _a5["by_eps"]}
+check("solver: triangle seed rising 1e-3", 0.680, round(_by5[1e-3]["occ_0.05"], 3), 1e-9)
+check("solver: triangle seed rising 1e-5", 0.735, round(_by5[1e-5]["occ_0.05"], 3), 1e-9)
+for s in (r"at most $1.32\%$ of the sources", r"$0.98\%$ on the triangle", r"$0.005$ and $0.009$",
+          r"up to $53\%$", r"below $0.011$", r"at most $0.020$", r"(up to $0.049$)", r"at most $0.055$",
+          r"($0.680$ to $0.735$)"):
+    in_tex(s)
+
+print("\nAppendix app:measured-transfer: EXP-B and EXP-C (from the generated SUMMARY.md files)")
+
+
+def _md_cells(path, header_prefix, row_prefix):
+    lines = pathlib.Path(path).read_text(encoding="utf-8").splitlines()
+    start = next(i for i, l in enumerate(lines) if l.startswith(header_prefix))
+    row = next(l for l in lines[start:] if l.startswith(row_prefix))
+    import re
+    return [c.strip() for c in re.split(r"(?<!\\)\|", row.strip("|"))]
+
+
+def _pm(cell):
+    a, b = cell.replace("±", " ").split()
+    return float(a), float(b)
+
+
+_b = _md_cells("results/exp_b_transfer_20261022/SUMMARY.md", "## h = 0", "| 200000 |")
+for _col, (_m, _s, _scale) in zip(range(1, 6), ((1.46, 0.29, 1), (127, 40, 1), (3.1, 2.9, 1e3),
+                                             (2.1, 2.3, 1e5), (2.0, 2.2, 1e7))):
+    _fm, _fs = _pm(_b[_col])
+    check(f"EXP-B K col {_col} mean", _m * _scale, _fm, 0.03)
+    check(f"EXP-B K col {_col} sd", _s * _scale, _fs, 0.03)
+# Local growth exponent of K over the last two decades of 1-t (the "(1-t)^{-2}" claim).
+_K = [_pm(_b[c])[0] for c in (3, 4, 5)]
+check("EXP-B K exponent 1e-2..1e-3", 1.8, round(np.log10(_K[1] / _K[0]), 1), 1e-9)
+check("EXP-B K exponent 1e-3..1e-4", 2.0, round(np.log10(_K[2] / _K[1]), 1), 1e-9)
+in_tex(r"growing like $(1-t)^{-2}$ over the last two decades")
+check("EXP-B |Z_T - Y_T|", 0.636, _pm(_b[6])[0], 1e-9)
+check("EXP-B B_T", 0.637, _pm(_b[7])[0], 1e-9)
+check("EXP-B B_T sd", 0.31, _pm(_b[7])[1], 1e-9)
+check("EXP-B B_T^loss (x1e-4)", 65, round(_pm(_b[8])[0] * 1e4), 1e-9)
+check("EXP-B B_T^loss sd (x1e-4)", 8, round(_pm(_b[8])[1] * 1e4), 1e-9)
+check("EXP-B |Z_T - a|", 0.637, _pm(_b[9])[0], 1e-9)
+for _h, (_e50, _rk4) in {"4": ((0.173, 0.029), (0.158, 0.031)), "5": ((0.246, 0.040), (0.212, 0.036)),
+                         "6": ((0.298, 0.058), (0.254, 0.047))}.items():
+    _c = _md_cells("results/exp_c_cifar_transfer_20261022/SUMMARY.md", "| h | ckpt", f"| {_h} | 60000 |")
+    _eu = _pm(_c[2].split("\\|")[0]); _rk = _pm(_c[6].split("\\|")[0])
+    _ex3, _ex4 = _pm(_c[4].split("\\|")[0]), _pm(_c[5].split("\\|")[0])
+    _all = _pm(_c[2].split("\\|")[1])
+    check(f"EXP-C h={_h} Euler 1e-3 mean", _e50[0], _eu[0], 1e-9)
+    check(f"EXP-C h={_h} Euler 1e-3 sd", _e50[1], _eu[1], 1e-9)
+    check(f"EXP-C h={_h} RK4 1e-4 mean", _rk4[0], _rk[0], 1e-9)
+    check(f"EXP-C h={_h} RK4 1e-4 sd", _rk4[1], _rk[1], 1e-9)
+    check(f"EXP-C h={_h} exact at both cutoffs", 0.0, _ex3[0] + _ex4[0], 0)
+    check(f"EXP-C h={_h}: all-50000 fraction larger", 1.0, float(_all[0] > _eu[0]), 0)
+# Per-sample scaled field error of the retrained CIFAR-10 networks (S10, App. C.4).
+import statistics as _st
+_s10 = {r["run"]: r for r in json.loads(pathlib.Path(
+    "results/s10_cifar_transfer_20261108/s10_summary_ckpt_60000.json").read_text())}
+_g = lambda h: [r for k, r in _s10.items() if f"_h{h}_" in k]
+check("S10 run count", 7, len(_s10), 0)
+for _h, _mu, _sd in ((4, 0.168, 0.012), (6, 0.276, 0.008)):
+    _f = [r["off_frac"] for r in _g(_h)]
+    check(f"S10 h={_h} off-atom mean", _mu, round(_st.mean(_f), 3), 1e-9)
+    check(f"S10 h={_h} off-atom sd", _sd, round(_st.stdev(_f), 3), 1e-9)
+check("S10 h=0 off-atom", 0.0, _g(0)[0]["off_frac"], 0)
+check("S10 exact off-atom", 0.0, max(r["exact_off_frac"] for r in _s10.values()), 0)
+check("S10 exact final error <= 0.006", 1.0, float(max(r["exact_e_final_max"] for r in _s10.values()) <= 0.006), 0)
+_pos = _g(4) + _g(6)
+_r1 = lambda v: round(v + 1e-12, 1)
+check("S10 off median min", 6.2, _r1(min(r["e_final_off_median"] for r in _pos)), 1e-9)
+check("S10 off median max", 7.1, _r1(max(r["e_final_off_median"] for r in _pos)), 1e-9)
+check("S10 on median min", 2.5, _r1(min(r["e_final_on_median"] for r in _pos)), 1e-9)
+check("S10 on median max", 2.9, _r1(max(r["e_final_on_median"] for r in _pos)), 1e-9)
+# AUC pooled over the samples of all seeds at one bandwidth (per-run values are in the JSON).
+def _auc(pos, neg):  # P(pos > neg) + P(pos = neg)/2, as in scripts/summarize_s10_cifar.py
+    return float(((pos[:, None] > neg[None]).sum() + 0.5 * (pos[:, None] == neg[None]).sum()) / (len(pos) * len(neg)))
+def _pooled_auc(h):
+    _P, _N = [], []
+    for _f in sorted(pathlib.Path("results/s10_cifar_transfer_20261108").glob(f"*_h{h}_*/per_sample_ckpt_60000.npz")):
+        _z = np.load(_f); _k = len(_z["eps_out"]) - 1; _o = _z[f"learned_ratio_{_k}"] >= 1 / 3
+        _P.append(_z["e_learned"][_o, -1]); _N.append(_z["e_learned"][~_o, -1])
+    return _auc(np.concatenate(_P), np.concatenate(_N))
+check("S10 h=4 AUC (pooled)", 0.985, round(_pooled_auc(4), 3), 1e-9)
+check("S10 h=6 AUC (pooled)", 0.977, round(_pooled_auc(6), 3), 1e-9)
+check("S10 h=0 on median", 1.08, round(_g(0)[0]["e_final_on_median"], 2), 1e-9)
+_p63 = [r["profile_median"]["0.6321"] for r in _pos]
+check("S10 t=0.63 off min", 7.2, _r1(min(p["off"] for p in _p63)), 1e-9)
+check("S10 t=0.63 off max", 8.0, _r1(max(p["off"] for p in _p63)), 1e-9)
+check("S10 t=0.63 on min", 2.2, _r1(min(p["on"] for p in _p63)), 1e-9)
+check("S10 t=0.63 on max", 3.0, _r1(max(p["on"] for p in _p63)), 1e-9)
+# Final scaled error equals d1 within 0.2% for every sample (why the final AUC is bookkeeping).
+_rd = 0.0
+for _f in sorted(pathlib.Path("results/s10_cifar_transfer_20261108").glob("*/per_sample_ckpt_60000.npz")):
+    _z = np.load(_f); _k = len(_z["eps_out"]) - 1
+    _e = _z["e_learned"][:, -1].astype(np.float64)
+    _rd = max(_rd, float(np.max(np.abs(_z[f"learned_d1_{_k}"].astype(np.float64) - _e) / _e)))
+check("S10 final error = d1 within 0.2%", 1.0, float(_rd <= 0.002), 0)
+for s in (r"$0.168\pm0.012$", r"$0.276\pm0.008$", r"at most $0.006$", r"$6.2$--$7.1$", r"$2.5$--$2.9$",
+          r"AUC $0.985$ at $h=4$ and", r"median $1.08$ at $h=0$", r"within $0.2\%$ for every sample",
+          r"$7.2$--$8.0$ against", r"AUC at least" + "\n" + r"$0.95$ by $t\approx0.53$"):
+    in_tex(s)
+# Pooled S10 analyses (scripts/summarize_s10_cifar.py): AUC over time, exact-path AUC, threshold rule.
+_q = json.loads(pathlib.Path("results/s10_cifar_transfer_20261108/s10_pooled_ckpt_60000.json").read_text())
+_tq = _q["h4"]["t"]; _j5 = min(range(len(_tq)), key=lambda i: abs(_tq[i] - 0.53))
+_late = [i for i, v in enumerate(_tq) if v >= 0.7]
+check("S10 first late grid time 0.71", 0.71, round(_tq[_late[0]], 2), 1e-9)
+check("S10 grid time 0.53", 0.53, round(_tq[_j5], 2), 1e-9)
+check("S10 h=4 AUC at t=0.53", 0.97, round(_q["h4"]["auc_learned"][_j5], 2), 1e-9)
+check("S10 h=6 AUC at t=0.53", 0.95, round(_q["h6"]["auc_learned"][_j5], 2), 1e-9)
+_lL = [_q[h]["auc_learned"][i] for h in ("h4", "h6") for i in _late]
+check("S10 late learned AUC min", 0.977, round(min(_lL), 3), 1e-9)
+check("S10 late learned AUC max", 0.990, round(max(_lL), 3), 1e-9)
+for _h, _lo, _hi in (("h4", 0.49, 0.52), ("h6", 0.53, 0.58)):
+    _x = [_q[_h]["auc_exact_path"][i] for i in _late]
+    check(f"S10 {_h} exact-path AUC min", _lo, round(min(_x), 2), 1e-9)
+    check(f"S10 {_h} exact-path AUC max", _hi, round(max(_x), 2), 1e-9)
+for _h, _tp, _fp in (("h4", 94, 7), ("h6", 95, 12)):
+    check(f"S10 {_h} threshold 4 TPR %", _tp, round(100 * _q[_h]["threshold"]["4"]["tpr"]), 1e-9)
+    check(f"S10 {_h} threshold 4 FPR %", _fp, round(100 * _q[_h]["threshold"]["4"]["fpr"]), 1e-9)
+check("S10 h=0 same image", 1.0, _g(0)[0]["same_atom_on"], 0)
+for _h, _lo, _hi in ((4, 55, 67), (6, 23, 28)):
+    _sa = [r["same_atom_on"] for r in _g(_h)]
+    check(f"S10 h={_h} same image min %", _lo, round(100 * min(_sa)), 1e-9)
+    check(f"S10 h={_h} same image max %", _hi, round(100 * max(_sa)), 1e-9)
+for s in (r"$0.97$ at $h=4$ and", r"$0.95$ at $h=6$ by" + "\n" + r"$t\approx0.53$", r"between $0.977$ and $0.990$ from $t\approx0.71$",
+          r"$0.49$--$0.52$ at $h=4$ and", r"$0.53$--$0.58$ at $h=6$",
+          r"above $4$ flags $94\%$ and $95\%$", r"$7\%$ and $12\%$ of the on-atom", r"$55$--$67\%$ at $h=4$ and $23$--$28\%$",
+          r"only $23$--$67\%$ of"):
+    in_tex(s)
+
+_c0 = _md_cells("results/exp_c_cifar_transfer_20261022/SUMMARY.md", "| h | ckpt", "| 0 | 60000 |")
+check("EXP-C h=0 networks off-atom", 0.0, _pm(_c0[2].split("\\|")[0])[0] + _pm(_c0[6].split("\\|")[0])[0], 0)
+
+print("\nAppendix app:cifar-composition: exact guided label averaging on CIFAR-10 pairs")
+_cc = json.loads(pathlib.Path("results/cifar_composition_exact_20261105/summary.json").read_text())
+_P = _cc["pairs"]
+_mid = lambda r: [p["mid"][r] for p in _P]
+check("CIFAR comp: eight pairs", 8, len(_P), 0)
+check("CIFAR comp: no unresolved source", 0.0, max(p["unresolved"] for p in _P), 0)
+check("CIFAR comp: w_c", 0.724, _P[0]["w_c"], 1e-3)
+check("CIFAR comp: min margin >= 5.2", 1.0, float(min(p["margin_sq"] for p in _P) >= 5.2), 0)
+_fc = json.loads(pathlib.Path("paper/figures/fig_cifar_composition.json").read_text(encoding="utf-8"))
+_rel = [p["dist"] / _fc["median_nn"] for p in _fc["pairs"]]
+check("CIFAR comp: pairs are mutual nearest neighbours", 1.0, float(all(p["mutual_nn"] for p in _fc["pairs"])), 0)
+check("CIFAR comp: min distance / median NN", 0.54, round(min(_rel), 2), 1e-9)
+check("CIFAR comp: max distance / median NN", 0.90, round(max(_rel), 2), 1e-9)
+check("CIFAR comp: figure pairs = summary pairs", 1.0,
+      float(sorted(map(tuple, (p["pair"] for p in _fc["pairs"]))) == sorted(tuple(p["pair"]) for p in _P)), 0)
+check("CIFAR comp: 2r equals figure distance", 0.0,
+      max(abs(2 * p["r"] - q["dist"]) for p, q in zip(_P, _fc["pairs"])), 1e-4)
+for _r in ("0.0", "0.5", "0.9"):
+    check(f"CIFAR comp: no midpoint at w/w_c={_r}", 0.0, max(_mid(_r)), 0)
+check("CIFAR comp: every pair positive at 1.1", 1.0, float(min(_mid("1.1")) > 0), 0)
+check("CIFAR comp 1.1 min", 0.006, min(_mid("1.1")), 5e-4)
+check("CIFAR comp 1.1 max", 0.043, max(_mid("1.1")), 5e-4)
+for _r, _m in (("1.1", 0.025), ("2.0", 0.186), ("5.0", 0.150), ("10.0", 0.042)):
+    check(f"CIFAR comp mean at {_r}", _m, sum(_mid(_r)) / 8, 5e-4)
+check("CIFAR comp 2 min", 0.027, min(_mid("2.0")), 5e-4)
+check("CIFAR comp 2 max (0.291, main text 0.29)", 0.291, max(_mid("2.0")), 5e-4)
+check("CIFAR comp basin w=0 min", 0.06, min(p["basin"]["0.0"] for p in _P), 5e-3)
+check("CIFAR comp basin w=0 max", 0.96, max(p["basin"]["0.0"] for p in _P), 5e-3)
+check("CIFAR comp basin w=10 min", 0.58, min(p["basin"]["10.0"] for p in _P), 5e-3)
+_S = _cc["sensitivity"]
+check("CIFAR comp sensitivity: fractions within 0.03", 1.0,
+      float(max(abs(v["midpoint"] - v["main_midpoint"]) for o in _S.values() for v in o.values()) <= 0.03), 0)
+check("CIFAR comp sensitivity: agree >= 0.91 up to 2", 1.0,
+      float(min(v["agree"] for o in _S.values() for k, v in o.items() if float(k) <= 2) >= 0.91), 0)
+check("CIFAR comp sensitivity: about half at 5", 0.5, min(o["5.0"]["agree"] for o in _S.values()), 0.05)
+
+# Random pairs and large-w sensitivity (R4, R9 of panel 2026-11-07).
+_cr = json.loads(pathlib.Path("results/cifar_composition_random_20261108/summary.json").read_text())
+_rp = _cr["random"]
+_rm = lambda r: [p["mid"][r] for p in _rp]
+check("CIFAR random: 81 mutual pairs", 81, _cr["n_mutual_pairs"], 0)
+check("CIFAR random: min margin all pairs (1 d.p.)", 3.2, round(_cr["min_margin_sq_all"], 1), 1e-9)
+check("CIFAR random: twelve pairs", 12, len(_rp), 0)
+check("CIFAR random: disjoint from main pairs", 1.0, float(not ({tuple(p["pair"]) for p in _rp} & {tuple(p["pair"]) for p in _P})), 0)
+check("CIFAR random: none at 0.9", 0.0, max(_rm("0.9")), 0)
+check("CIFAR random: ten positive at 1.1", 10, sum(x > 0 for x in _rm("1.1")), 0)
+check("CIFAR random 1.1 min positive", 0.002, round(min(x for x in _rm("1.1") if x > 0), 3), 1e-9)
+check("CIFAR random 1.1 max", 0.014, round(max(_rm("1.1")), 3), 1e-9)
+check("CIFAR random: all positive at 2", 1.0, float(min(_rm("2.0")) > 0), 0)
+check("CIFAR random 2 min", 0.006, round(min(_rm("2.0")), 3), 1e-9)
+check("CIFAR random 2 max", 0.088, round(max(_rm("2.0")), 3), 1e-9)
+check("CIFAR random 2 mean", 0.042, round(sum(_rm("2.0")) / 12, 3), 1e-9)
+check("CIFAR random 5 mean", 0.038, round(sum(_rm("5.0")) / 12, 3), 1e-9)
+check("CIFAR random: at most one unresolved source", 1.0, float(max(p["unresolved"] for p in _rp) <= 1 / 512 + 1e-12), 0)
+_SL = [v for o in _cr["sensitivity"].values() for k in ("5.0", "10.0") for v in o[k].values()]
+check("CIFAR large-w: 2 settings x 2 ratios x 8 pairs", 32, len(_SL), 0)
+check("CIFAR large-w agree min (%)", 41, round(100 * min(v["agree"] for v in _SL)), 0)
+check("CIFAR large-w agree max (%)", 92, round(100 * max(v["agree"] for v in _SL)), 0)
+check("CIFAR large-w coarse min (%)", 66, round(100 * min(v["agree_coarse"] for v in _SL)), 0)
+check("CIFAR large-w coarse max (%)", 98, round(100 * max(v["agree_coarse"] for v in _SL)), 0)
+for _k, _m in (("5.0", 0.064), ("10.0", 0.029)):
+    check(f"CIFAR large-w max change at {_k}", _m, round(max(abs(v["midpoint"] - v["main_midpoint"])
+          for o in _cr["sensitivity"].values() for v in o[_k].values()), 3), 1e-9)
+_means = lambda k: [sum(v["midpoint"] for v in o[k].values()) / 8 for o in _cr["sensitivity"].values()] + [sum(_mid(k)) / 8]
+check("CIFAR large-w mean at 5 min", 0.139, round(min(_means("5.0")), 3), 1e-9)
+check("CIFAR large-w mean at 5 max", 0.150, round(max(_means("5.0")), 3), 1e-9)
+check("CIFAR large-w mean at 10 min", 0.040, round(min(_means("10.0")), 3), 1e-9)
+check("CIFAR large-w mean at 10 max", 0.042, round(max(_means("10.0")), 3), 1e-9)
+for s in (r"only $41\%$ to $92\%$", r"$66\%$ to $98\%$", r"at most $0.064$ at $5w_c$ and $0.029$",
+          r"$0.139$ to $0.150$", r"$0.040$ to $0.042$", r"seed $20261108$", r"at least $3.2$",
+          r"($0.002$ to $0.014$)", r"($0.006$ to $0.088$, mean $0.042$)", r"the mean is $0.038$"):
+    in_tex(s)
+# All eight pairs under both settings (App. E.3).
+_SP = _cc["sensitivity_pairs"]
+_pairs_sp = {k for o in _SP.values() for k in o}
+check("CIFAR comp sensitivity: all eight pairs, both settings", 16,
+      sum(len(o) for o in _SP.values()), 0)
+_allsets = lambda key, r: [_cc_pair[r] for _cc_pair in [  # noqa: E731
+    {str(k): v for k, v in p["mid"].items()} for p in _cc["pairs"] if f"{p['pair'][0]}/{p['pair'][1]}" == key]] + \
+    [_SP[n][key][r]["midpoint"] for n in _SP]
+check("CIFAR comp sensitivity: none at 0.9 in any setting", 0.0,
+      max(max(_allsets(k, "0.9")) for k in _pairs_sp), 0)
+check("CIFAR comp sensitivity: min at 1.1 over settings (0.006)", 0.006,
+      min(min(_allsets(k, "1.1")) for k in _pairs_sp), 5e-4)
+check("CIFAR comp sensitivity: max at 1.1 over settings (0.047)", 0.047,
+      max(max(_allsets(k, "1.1")) for k in _pairs_sp), 5e-4)
+check("CIFAR comp sensitivity: spread at 1.1 (0.006)", 0.006,
+      max(max(_allsets(k, "1.1")) - min(_allsets(k, "1.1")) for k in _pairs_sp), 5e-4)
+check("CIFAR comp sensitivity: spread at 2 (0.018)", 0.018,
+      max(max(_allsets(k, "2.0")) - min(_allsets(k, "2.0")) for k in _pairs_sp), 5e-4)
+check("CIFAR comp sensitivity: agree >= 0.99 at 1.1", 1.0,
+      float(min(o[k]["1.1"]["agree"] for o in _SP.values() for k in o) >= 0.99), 0)
+check("CIFAR comp sensitivity: agree >= 0.87 at 2", 1.0,
+      float(min(o[k]["2.0"]["agree"] for o in _SP.values() for k in o) >= 0.87), 0)
+
+print("\nnear-threshold basin law (App. threshold-scaling)")
+_ts = json.loads(pathlib.Path("results/composition_threshold_scaling_20261107/summary.json").read_text())
+check("separatrix value C* = 1", 1.0, _ts["C_star"], 1e-9)
+_tsr = {(r["B"], r["delta"]): r["ratio_P"] for r in _ts["rows"]}
+for _d, _wants in ((0.3, (0.928, 0.951, 0.955)), (0.01, (0.9975, 0.9982, 0.9983)),
+                   (0.0003, (0.99992, 0.99995, 0.99995))):
+    for _B, _w in zip((1.0, 2.0, 3.0), _wants):
+        check(f"exact/predicted P0, B={_B:g}, delta={_d:g}", _w, _tsr[(_B, _d)],
+              5e-4 if _d == 0.3 else 5e-5 if _d == 0.01 else 5e-6)
+check("within 0.01% at delta = 3e-4", 1.0, float(max(1 - _tsr[(b, 0.0003)] for b in (1.0, 2.0, 3.0)) < 1e-4), 0)
+for _B in (1.0, 2.0, 3.0):        # deficit proportional to delta: (1 - ratio)/delta roughly constant
+    _k = [(1 - _tsr[(_B, d)]) / d for d in (0.01, 0.003, 0.001, 0.0003)]
+    check(f"deficit/delta stable, B={_B:g}", 1.0, float(max(_k) / min(_k) < 1.2), 0)
+
+print("\nlabel bottleneck and off-tie input on the triangle (App. bottleneck-runs)")
+_BN = pathlib.Path("results/bottleneck_2d_20261107")
+_bns = json.loads((_BN / "summary.json").read_text())
+check("B_Q (4 d.p.)", 1.2413, round(_bns["B_Q"], 4), 1e-9)
+check("w_c(B_Q) (3 d.p.)", 3.926, round(_bns["w_c_Q"], 3), 1e-9)
+
+
+def _bn_last(v, arm, r):
+    out = []
+    for s in range(3):
+        rows = json.loads((_BN / f"{v}_seed{s}" / "summary.json").read_text())["arms"]
+        out.append(next(a for a in rows if a["arm"] == arm and a["r"] == r)["by_eps"][-1])
+    return out
+
+
+check("off-tie: no midpoint in L3 at any w", 0.0,
+      max(e["occ_0.05"] for r in (0, 0.5, 0.9, 1.1, 2, 5, 10) for e in _bn_last("cfm_x_o", "L3", r)), 0)
+check("off-tie: atoms >= 0.96 at w <= 2w_c", 1.0,
+      float(min(e["atoms_0.05"] for r in (0, 0.5, 0.9, 1.1, 2) for e in _bn_last("cfm_x_o", "L3", r)) >= 0.96), 0)
+check("exact L3 at 2w_c", 0.133, _bns["exact"]["2.0"] if "2.0" in _bns["exact"] else _bns["exact"]["2"], 5e-4)
+check("exact L3 at 10w_c", 0.952, _bns["exact"]["10.0"] if "10.0" in _bns["exact"] else _bns["exact"]["10"], 5e-4)
+_exq = {float(k): v for k, v in _bns["exact_bottleneck"].items()}
+for _r, _w in ((5, 0.757), (10, 0.972), (2, 0.179)):
+    check(f"exact bottleneck composite at {_r}w_c(B_Q)", _w, _exq[_r], 5e-4)
+for _r, _w in ((5, (0.718, 0.817, 0.747)),):
+    for _s, (_c, _e) in enumerate(zip(_w, _bn_last("cfm_x_sq", "L3", _r))):
+        check(f"bottleneck L3 at 5, seed {_s}", _c, _e["occ_0.05"], 5e-4)
+_o10 = [e["occ_0.05"] for e in _bn_last("cfm_x_sq", "L3", 10)]
+check("bottleneck L3 at 10: min", 0.983, round(min(_o10), 3), 1e-9)
+check("bottleneck L3 at 10: max", 0.989, round(max(_o10), 3), 1e-9)
+_o2 = [e["occ_0.05"] for e in _bn_last("cfm_x_sq", "L3", 2)]
+check("bottleneck L3 at 2: min", 0.0, min(_o2), 0)
+check("bottleneck L3 at 2: max", 0.226, round(max(_o2), 3), 1e-9)
+check("bottleneck L2: no midpoint at w <= 2", 0.0,
+      max(e["occ_0.05"] for r in (0, 2) for e in _bn_last("cfm_x_sq", "L2", r)), 0)
+_a2 = [e["atoms_0.05"] for e in _bn_last("cfm_x_sq", "L2", 2)]
+check("bottleneck L2 at 2: min at atom (2 d.p.)", 0.14, round(min(_a2), 2), 1e-9)
+check("bottleneck L2 at 2: max at atom (2 d.p.)", 0.64, round(max(_a2), 2), 1e-9)
+_l10 = _bn_last("cfm_x_sq", "L2", 10)
+check("bottleneck L2 at 10: largest midpoint (2 d.p.)", 0.92, round(max(e["occ_0.05"] for e in _l10), 2), 1e-9)
+check("bottleneck L2 at 10: other seeds at atom <= 0.013", 1.0,
+      float(sorted(e["atoms_0.05"] for e in _l10)[1] <= 0.013 and sum(e["atoms_0.05"] <= 0.013 for e in _l10) >= 2), 0)
+_dis = []
+for _s in (1, 2):
+    for _ln in (_BN / "logs" / f"cfm_x_a_seed{_s}_train.log").read_text().splitlines():
+        if "L3 r=0:" in _ln:
+            _dis.append(float(_ln.split()[-1]))
+check("atom-centred: min disagreement at w=0 (%)", 4, round(100 * min(_dis)), 0.5)
+check("atom-centred: max disagreement at w=0 (%)", 27, round(100 * max(_dis)), 0.5)
+check("atom-centred seed 0 crashed", 1.0,
+      float("sources unfinished" in (_BN / "logs" / "cfm_x_a_seed0_train.log").read_text()), 0)
+
 print("\nsanity: the image-scale numbers and floats the main text quotes")
 for s in (r"\label{sec:cifarddpm}", r"\label{tab:cifarddpm}", r"\label{tab:exp1}",
           r"\label{tab:p7kernel}", r"$179.1$", r"$0.431$", r"$48/48$",

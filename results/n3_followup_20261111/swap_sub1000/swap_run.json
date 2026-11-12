@@ -1,0 +1,19 @@
+{
+ "network": "results/n3_edm_timing_20261110/train_sub1000_s0/00002-cifar10_sub1000_s0-cond-ddpmpp-edm-gpus1-batch128-fp32/network-snapshot-000500.pkl",
+ "n_train": 1000,
+ "indices": "data/edm_subsets/cifar10_sub1000_s0_indices.npy",
+ "n_per_class": 50,
+ "steps": 18,
+ "seed": 0,
+ "swap_sigmas": [
+  5.0,
+  2.0,
+  1.0,
+  0.5,
+  0.2,
+  0.1,
+  0.05,
+  0.02
+ ],
+ "seconds": 255.04482221603394
+}

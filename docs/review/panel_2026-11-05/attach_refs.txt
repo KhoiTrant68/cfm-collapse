@@ -1,0 +1,21 @@
+Suggested-reference check (script output, not a reviewer finding; #1001)
+Seats read: R2, R3 (complete).
+
+| Seat | # | Reference | Result |
+|---|---|---|---|
+| R2 | 1 | Liu, N. et al. (2022) "Compositional Visual Generation with Composable Diffusion Models" | Found in an index |
+| R2 | 2 | Du, Y. et al. (2023) "Reduce, Reuse, Recycle: Compositional Generation with Energy-Based Diffusion Models and MCMC" | Found in an index |
+| R2 | 3 | Wu, Y. et al. (2024) "Theoretical Insights for Diffusion Guidance: A Case Study for Gaussian Mixture Models" | Found in an index |
+| R2 | 4 | Bradley, A. et al. (2024) "Classifier-Free Guidance is a Predictor-Corrector" | Found in an index |
+| R2 | 5 | Bonnaire, T. et al. (2025) "Why Diffusion Models Don't Memorize: The Role of Implicit Dynamical Regularization in Training" | Title not matched; no DOI or arXiv ID to check |
+| R2 | 6 | Somepalli, G. et al. (2023) "Understanding and Mitigating Copying in Diffusion Models" | Found in an index |
+| R2 | 7 | Wen, Y. et al. (2024) "Detecting, Explaining, and Mitigating Memorization in Diffusion Models" | Found in an index |
+| R3 | 1 | Stone, C. J. (1977) "Consistent Nonparametric Regression" | Found in an index |
+| R3 | 2 | Rosenblatt, M. (1969) "Conditional probability density and regression estimators" | Title not matched; no DOI or arXiv ID to check |
+| R3 | 3 | Hyndman, R. J. et al. (1996) "Estimating and Visualizing Conditional Densities" | Found in an index |
+| R3 | 4 | Hall, P. et al. (2004) "Cross-Validation and the Estimation of Conditional Probability Densities" | Found in an index |
+| R3 | 5 | Graf, S. et al. (2000) "Foundations of Quantization for Probability Distributions" | Found in an index |
+| R3 | 6 | Dwork, C. et al. (2006) "Calibrating Noise to Sensitivity in Private Data Analysis" | Found in an index |
+| R3 | 7 | Shokri, R. et al. (2017) "Membership Inference Attacks Against Machine Learning Models" | Found in an index |
+
+"Found" means an index holds a record with this DOI or arXiv ID and title, or with this title. It does not show that the work supports the recommendation, or that the authors and year are right.
