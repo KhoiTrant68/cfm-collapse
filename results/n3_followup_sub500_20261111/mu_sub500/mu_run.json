@@ -1,0 +1,21 @@
+{
+ "network": "results/n3_edm_sub500_20261115/train_sub500_s0/00000-cifar10_sub500_s0-cond-ddpmpp-edm-gpus1-batch128-fp32/network-snapshot-010000.pkl",
+ "indices": "data/edm_subsets/cifar10_sub500_s0_indices.npy",
+ "n_per_class": 20,
+ "record_steps": [
+  9,
+  11,
+  13,
+  15,
+  17
+ ],
+ "iters": 20,
+ "jvp": "dvjp",
+ "seed": 0,
+ "precond": {
+  "name": "EDMPrecond",
+  "sigma_data": 0.5
+ },
+ "off_atom_frac": 0.065,
+ "seconds": 2118.8758499622345
+}

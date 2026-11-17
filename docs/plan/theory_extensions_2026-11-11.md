@@ -353,6 +353,195 @@ values at s ≳ 1 are informative, as upper bounds.
 - A sharper result would bound t_sel in terms of the posterior-collapse time of the exact field
   (Biroli et al.'s t_C). That remains proposal 5.
 
+## E. Directional contraction toward an image (added 2026-11-16, after the sub500 run)
+
+**Why.** On the memorizing sub500 model, μ = (1+σ)λ_max(sym ∂D) is ≈ 0.96 for on-atom and off-atom samples
+alike at σ ≤ 0.023 (AUC ≈ 0.5), while λ_min is ≈ 0.09 (σ = 0.023). λ_max is the worst direction; the
+distance to an image moves at the rate of the Rayleigh quotient along the direction to that image. E makes
+this exact. It also corrects a misreading: ρ = 1 − λ_max/c_skip bounds the contraction from below
+(guaranteed contraction), not from above.
+
+**Setting.** 0 < σ_min < σ_max; D continuous, C¹ in x, J = ∂_x D jointly continuous; x(σ) a C¹ solution of
+dx/dσ = (x − D(x,σ))/σ (sampling runs from σ_max down to σ_min). Fix y (a training image), e = x − y,
+b(σ) = D(y,σ) − y (residual at y), e ≠ 0 on the interval, ê = e/|e|,
+  q(σ) = ∫₀¹ êᵀ J(y + τe, σ) ê dτ,  Φ(a,s) = exp(−∫_a^s (1 − q(u))/u du).
+q is the mean Rayleigh quotient of sym J on the segment [y, x] in the direction of e. 1 − q is the
+contraction rate of |e| per unit log σ.
+
+**Proposition E.**
+- (★) n = |e| satisfies n' = (1 − q) n/σ − ê·b/σ exactly.
+- (a) Exact representation: |e(σ_min)| = Φ(σ_min,σ_max)|e(σ_max)| + ∫_{σ_min}^{σ_max} Φ(σ_min,s) ê·b/s ds.
+  A positive ê·b (the residual at y points toward x) keeps the sample away from y.
+- (b) Λ⁻ ≤ q ≤ Λ⁺, with Λ^± the inf/sup over the segment of λ_min/λ_max of sym J. Hence
+  Φ⁻|e(σ_max)| − ∫Φ⁺|b|/s ≤ |e(σ_min)| ≤ Φ⁺|e(σ_max)| + ∫Φ⁺|b|/s (Φ^± built from Λ^±; the residual in the
+  lower bound carries Φ⁺). With b = 0 this is the logarithmic-norm Grönwall bound. λ_max alone does not
+  decide the shrinkage: for D = diag(1, 1 − m)x, λ_max ≡ 1, yet starts (0,1) and (1,0) shrink by κ^{−m} and 1
+  (κ = σ_max/σ_min); for D = [[0,2],[0,0]]x from (1,0), q ≡ 0 and the true factor is κ^{−1} while λ_max = 1.
+- (c) Landing time. For σ_a ∈ (σ_min, σ_max], ρ̄ = sup_{[σ_min,σ_a]}(1 − q), β = sup|b|:
+  |e(σ_a)| ≤ (σ_a/σ_min)^{ρ̄}|e(σ_min)| + β g(ρ̄), g(ρ̄) = ((σ_a/σ_min)^{ρ̄} − 1)/ρ̄, g(0) = log(σ_a/σ_min).
+  This bounds the error at the higher noise level σ_a by the endpoint error (the reverse of the sampling
+  direction): with small directional rate ρ̄ late, a sample that ends near y was already near y at σ_a.
+  Tight for D = ax, y = 0.
+- (d) Two images y₁, y₂, r = |x − y₁|/|x − y₂|:
+  log r(σ_min) − log r(σ_max) = ∫(q₁ − q₂)/s ds + ∫[ê₁·b₁/|e₁| − ê₂·b₂/|e₂|]/s ds.
+  With small residuals, the ratio d1/d2 (the on-atom criterion) falls exactly where q₁ < q₂, i.e. where the
+  flow contracts more along the direction to y₁ than along the direction to y₂. A bound that uses λ_max at x
+  gives the same factor for both images and cannot see this (example: A = diag(1, 1 − m), y₁ = 0,
+  y₂ = (c, 0), start (0, h), h ≠ 0: r → 0 while λ_max ≡ 1).
+
+**Proof.** τ ↦ D(y+τe) is C¹, so D(x) − D(y) = Me with M = ∫₀¹ J(y+τe) dτ; then e' = (e − Me − b)/σ and
+n n' = eᵀe' = (n² − n² êᵀMê − e·b)/σ, which is (★) since êᵀMê = q. q, b are continuous (joint continuity
+on a compact set), so p = (1 − q)/σ is continuous and F(s) = Φ(σ_min,s)n(s) has F' = −Φ ê·b/s; integrate
+for (a) (the same works on any subinterval). (b): Rayleigh pointwise, average over τ; Λ^± continuous
+(Weyl + compactness); 1 − Λ⁺ ≤ 1 − q ≤ 1 − Λ⁻ gives Φ⁻ ≤ Φ ≤ Φ⁺, and Φ ê·b ≥ −Φ⁺|b|. (c): solve the
+subinterval form of (a) for n(σ_a); ∫_s^{σ_a} p ≤ ρ̄ log(σ_a/s) for either sign of ρ̄; −ê·b ≤ β;
+substitute t = log(σ_a/s). (d): (log n_k)' = (1 − q_k)/σ − ê_k·b_k/(σ n_k) from (★); subtract and integrate.
+
+**Honest reading.** By the fundamental theorem of calculus, q·|e| = ê·(D(x) − D(y)). q is the secant slope of
+D toward y, not a local Jacobian quantity, and (★) is the radial projection of the ODE, d log|e|/d log σ =
+1 − ê·(D(x) − y)/|e|. Its content is the comparison in (b): local one-sided Lipschitz constants (μ, λ_max)
+only bound the secant slope, and they can miss contraction that the secant sees. q small means D maps the
+whole segment [y, x] close to y: the sample sits in a memorization basin of y.
+
+**Measured** (`results/n3_q_20261117/Q_SUMMARY.md`, 2026-11-17; sub500 n = 1000 with 41 off-atom, public
+n = 200 all off-atom; q by 4-point quadrature of VJP Rayleigh quotients). The identity holds on the
+trajectories: actual change of log|x − y₁| = contraction + residual up to a Heun gap of −0.26 (σ 1.09 → 0.14)
+and −0.04 (σ 0.14 → 0.002) for on-atom samples.
+
+| window σ | Δlog\|x − y₁\| on | off | public |
+|---|---|---|---|
+| 80 → 5.3 | −2.71 | −2.71 | −2.71 |
+| 5.3 → 1.09 | −1.58 | −1.50 | −1.54 |
+| 1.09 → 0.14 | −2.01 | −0.91 | −1.07 |
+| 0.14 → 0.002 | −1.54 | −0.05 | −0.07 |
+
+- The on/off difference is made in the last two windows (σ ≤ 1.09): about 2.6 in log, a factor ≈ 13. Landing
+  is late, along the direction to the image. μ missed it because λ_max at x is ≈ 1 in other directions.
+- q₁ separates on from off: AUC 0.81 (σ 5.3), 0.92 (σ 1.9), 0.97 (σ 1.09), ≥ 0.99 from σ 0.59, 1.000 at
+  σ 0.14–0.023. Median q₁ on-atom ≈ 0.22 at σ 0.30–0.14 against 0.53–0.76 off-atom.
+- The one-point proxy q₁x (at x only) does not separate late (0.97 on vs 0.69 off at σ 0.14, reversed): the
+  contraction lives in the interior of the segment, not at x.
+- q₁ − q₂ (differential contraction, (d)) separates with AUC 0.84–0.91 at σ ≤ 0.14.
+- Public model: q₁ → 1 by σ ≈ 0.06; almost no late contraction toward the nearest image.
+- Caveat: q₁ uses the endpoint's nearest image, so it is not a predictor available before the end; and,
+  being ê·(D(x) − D(y))/|e|, it is related to the nearest-image distance of D (Lemma R). It explains the
+  mechanism; it is not claimed as a better detector.
+
+## R. Field error and nearest-image distance coincide late (added 2026-11-16)
+
+**Why.** On sub500, AUC(nn_hat) ≥ AUC(e_learned) at every t and both reach 1.0 from t ≈ 0.34
+(`results/n3_edm_sub500_20261115/N3_SUMMARY.md`). R shows this is expected once the exact posterior has
+concentrated, so equal AUCs are not evidence against the field-error view; they also mean the field error
+should not be sold as a better memorization detector than nearest-image distance.
+
+**Setting.** Training images x¹, …, x^N distinct, Δ = diameter, D_j = max_k |x^j − x^k|. At (y, σ):
+posterior weights w_j(y) ∝ exp(−|y − x^j|²/(2σ²)), exact denoiser m(y) = Σ w_j x^j. For a network output v:
+e(v) = |v − m(y)| (the field error e_learned) and n(v) = min_j |v − x^j| (nn_hat).
+
+**Lemma R.**
+- (a) n − (1 − w_max)D_i ≤ e ≤ n + (1 − w_{j*})D_{j*}, with i an argmax of w and j* a nearest image of v.
+  The lower bound holds for every index i. The constant is attained (N = 2).
+- (b) If |y − x^i| ≤ ρ δ_i(y), δ_i(y) = min_{k≠i}|y − x^k|, 0 ≤ ρ < 1, then
+  1 − w_i(y) ≤ (N − 1) exp(−(1 − ρ²)δ_i(y)²/(2σ²)).
+- (c) If two scores satisfy |s − s'| ≤ ε on every sample, then |AUC(s) − AUC(s')| is at most the fraction of
+  (off, on) pairs whose s'-scores are within 2ε (ties counted ½).
+- (d) Fix σ. If every sample z has an index i(z) with |y_z − x^{i(z)}| ≤ ρ δ_{i(z)}(y_z), let
+  δ = min_z δ_{i(z)}(y_z) and η = (N − 1)Δ exp(−(1 − ρ²)δ²/(2σ²)).
+  - (d1) Unconditionally, with d_i(z) = |v_z − x^{i(z)}|: |e − d_i| ≤ η on every sample, so the AUCs of e and
+    d_i differ by at most the fraction of pairs with |d_i(a) − d_i(b)| ≤ 2η.
+  - (d2) Under (H), "x^{i(z)} is a nearest image of v_z" (sufficient: |v_z − x^{i(z)}| ≤ half the gap from
+    x^{i(z)} to the other images), d_i = n and the same holds for the AUCs of e and n.
+  - (d3) Without (H) the n-version is false: d = 1, x¹ = 0, x² = 1, y_a = y_b = 0, v_a = 1, v_b = 0.3 gives
+    AUC(n) = 0, AUC(e) → 1 while the bound → 0.
+
+**Proof.** Σw_k = 1 gives m − x^j = Σ_{k≠j} w_k(x^k − x^j), so |m − x^j| ≤ (1 − w_j)D_j; two triangle
+inequalities give (a). (b): w_k = w_i exp((|y − x^i|² − |y − x^k|²)/(2σ²)) ≤ exp(−(1 − ρ²)δ_i²/(2σ²)) for
+k ≠ i; sum. (c): if |t'| > 2ε the pair's indicator is unchanged. (d1): ||v − m| − |v − x^i|| ≤ |m − x^i|,
+then (b) and δ ≤ δ_{i(z)}, then (c).
+
+**For the paper.** Report the d_i version (no (H) needed) or check (H) on the data; report the pair
+fraction within 2η. The value of the field-error view is causal (the swap), not predictive (AUC).
+
+## T1–T2. Main theory rewritten around the field error relative to the distance to the image (2026-11-17)
+
+**Why.** Bổ đề 1 / Hệ quả 2 / Mệnh đề 3 of `theorem_sketch_late_error_2026-11-10.md` use μ = λ_max(sym ∂x̂),
+which the sub500 data show does not decide landing (E above). T1–T2 state landing directly in the paper's
+own quantity, the late field error err = |x̂ − m*| along the learned path, divided by the distance to the
+selected image. No Jacobian enters. Bổ đề 1 and Hệ quả 2 stay as the global (uniform-in-x) special case.
+
+**Theorem T1 (landing criterion; paper coordinates, ε = 1 − t).** x̂ continuous, Z C¹ with
+Z' = (x̂(Z,t) − Z)/ε on [t₁,1); m* = Σ_j w_j x^j for any continuous weights w_j ≥ 0, Σ w_j = 1 (in
+particular the exact posterior). Fix an image x^i; n = |Z − x^i|, err(t) = |x̂(Z_t,t) − m*(Z_t,t)|,
+ω(t) = (1 − w_i(Z_t,t)) D_i, D_i = max_k |x^i − x^k|. All conditions are along the trajectory.
+- (a) n is locally Lipschitz; where Z ≠ x^i, n' = (⟨ê, x̂ − x^i⟩ − n)/ε (exact radial identity); a.e.
+  n' ≤ (err + ω − n)/ε, using |m* − x^i| ≤ (1 − w_i)D_i.
+- (b) Landing. If err ≤ ϱ̄ n + γ with a constant ϱ̄ < 1 and continuous γ ≥ 0, η = γ + ω, then
+  n_t ≤ (ε_t/ε_{t₁})^{1−ϱ̄} n_{t₁} + ∫_{t₁}^t (η/ε_s)(ε_t/ε_s)^{1−ϱ̄} ds, and η → 0 implies Z_t → x^i.
+- (c) Non-landing. If n_{t₁} > 0 and ⟨ê, x̂ − x^i⟩ ≥ (1 − δ)n whenever n > 0 with ∫_{t₁}^1 δ⁺/ε < ∞
+  (improper), then n_t ≥ n_{t₁}exp(−∫δ⁺/ε) > 0 for all t, and err ≥ (1 − δ)n − ω: the relative error is
+  ≥ 1 − δ − ω/n.
+- (d) The constant ϱ̄ < 1 in (b) cannot be taken equal to 1 (N = 1, x̂ = x¹ + ϱ(z − x¹): n ∝ ε^{1−ϱ}).
+
+**Theorem T2 (trapping and landing; EDM coordinates).** Gaussian posterior w_j(x,σ), exact denoiser m*, ODE
+dx/dσ = (x − D)/σ run from σ₁ down to 0. g = min_{k≠i}|x^i − x^k|, 0 < r ≤ g/4, ρ = r/(g − r) ≤ 1/3,
+Ω(σ) = (N − 1)D_i exp(−(1 − ρ²)(g − r)²/(2σ²)). If (H1) err ≤ ϱ̄ n + γ whenever n ≤ r, (H2) n(σ₁) < r,
+(H3) γ + Ω < (1 − ϱ̄) r on (0, σ₁], then
+- (i) |x − x^i| ≤ r implies 1 − w_i ≤ (N − 1)exp(−(1 − ρ²)(g − r)²/(2σ²));
+- (ii) n < r on (0, σ₁] (trapping, barrier argument at the largest σ with n ≥ r);
+- (iii) n(σ) ≤ (σ/σ₁)^{1−ϱ̄} n(σ₁) + ∫_σ^{σ₁} ((γ + Ω)/s)(σ/s)^{1−ϱ̄} ds, and γ → 0 implies x(σ) → x^i;
+- (iv) Ω < (1 − ϱ̄) r/2 for σ ≤ σ* = ((1 − ρ²)(g − r)²/(4 log(1/q)))^{1/2},
+  q = (1 − ϱ̄) r/(2(N − 1)D_i) ≤ 1/8. So (H3) holds when σ₁ ≤ σ* and γ ≤ (1 − ϱ̄) r/2.
+Reading: once the learned trajectory is within g/4 of an image at a noise level where the posterior has
+concentrated, a learned denoiser whose error stays below ϱ̄ < 1 times the distance to that image (up to γ)
+traps the sample and lands it exactly on the image.
+
+**Proofs.** T1: Lemma by convexity; (a) radial derivative + Cauchy–Schwarz, interior-minimum argument
+at zeros; (b) integrating factor ε^{−(1−ϱ̄)} on the absolutely continuous n, split-integral limit;
+(c) log n on the maximal positive interval plus continuation; (d) explicit solution. T2: (i) w_k/w_i
+bound with r² = ρ²(g − r)²; (★) n' ≥ ((1 − ϱ̄)n − γ − Ω)/σ for 0 < n ≤ r; (ii) at σ̄ = sup{n ≥ r},
+(★) and (H3) give n'(σ̄) > 0 while right difference quotients are negative; (iii) integrating factor
+σ^{−(1−ϱ̄)} on [σ, σ₁]; (iv) monotonicity of Ω. Full cleaned proofs (as verified) of E, R, T1, T2:
+`docs/plan/proofs_E_R_T1_T2_2026-11-17.md`.
+
+**What T1–T2 do and do not say (from the verifiers).**
+- Sufficient, not necessary. ϱ̄ < 1 is sharp only among constants. A rotational error (x̂ = x¹ + R(z − x¹),
+  R a 90° rotation) has err = n and still lands, and ϱ(t) = 1 − 1/log(1/ε) lands too. The quantity that
+  decides landing is the radial one in (a): d log n/d log(1/ε) = 1 − ⟨ê, x̂ − x^i⟩/n. T1(b) bounds it by
+  err; T1(c) uses it directly.
+- The radial quantity is the secant q of Prop. E plus the residual (in EDM coordinates
+  ⟨ê, D − x^i⟩/n = q + ê·b/n), so E is the measured form of T1(a) and T1 explains why q decides landing.
+- ϱ̄ = 1 makes (H3) unsatisfiable; the necessity examples (D = x^i + λ(x − x^i), λ ≥ 1; D = x^i + v) show
+  why each hypothesis is there, not cases where the theorem fails with its hypotheses met.
+- Relation to the old Bổ đề 1 / Hệ quả 2: those need a uniform bound μ̄ < 1 on sym ∂x̂ over all x; T1–T2 need
+  a bound only along the trajectory, in terms of err/n, and deliver exact landing on x^i (not just an L²
+  bound to a). Mệnh đề 3 (μ > 1 repels) becomes T1(c).
+
+**Measured** (`results/n3_rho_20261117/Q_SUMMARY.md`, 2026-11-17; same samples and seed as the q run;
+sub500 n = 1000 with 41 off-atom, public n = 200 all off-atom). ϱ = |D − m*|/|x − x¹| and the radial ratio
+rad₁ = ⟨ê, D − x¹⟩/|x − x¹| (two forward passes, no Jacobian).
+
+| σ | ϱ on | ϱ off | ϱ public | rad₁ on | rad₁ off | rad₁ public | AUC ϱ | AUC rad₁ |
+|---|---|---|---|---|---|---|---|---|
+| 5.3 | 0.008 | 0.077 | 0.027 | 0.000 | 0.009 | 0.004 | 0.974 | 0.979 |
+| 1.92 | 0.015 | 0.231 | 0.146 | 0.001 | 0.058 | 0.034 | 0.999 | 0.999 |
+| 0.59 | 0.043 | 0.613 | 0.499 | 0.009 | 0.379 | 0.282 | 1.000 | 1.000 |
+| 0.14 | 0.185 | 0.957 | 0.925 | 0.065 | 0.915 | 0.874 | 1.000 | 1.000 |
+| 0.023 | 0.725 | 0.998 | 0.997 | 0.627 | 0.997 | 0.996 | 1.000 | 1.000 |
+| 0.002 | 0.988 | 1.000 | 1.000 | 0.988 | 1.000 | 1.000 | 0.995 | 0.996 |
+
+- T1 holds on the data. On-atom samples have ϱ < 1 at every step (100% of samples); off-atom samples and the
+  public model have ϱ → 1 by σ ≈ 0.14 and rad₁ → 1, the non-landing regime of T1(c).
+- The radial identity T1(a) predicts the change of log|x − x¹| from rad₁ almost exactly: −2.01 predicted vs
+  −2.01 actual (σ 1.09 → 0.14) and −1.60 vs −1.54 (σ 0.14 → 0.002) for on-atom samples; −0.92 vs −0.91 and
+  −0.06 vs −0.05 for off-atom samples.
+- ϱ on-atom rises to ≈ 0.99 at the last step, so the constant-ϱ̄ hypothesis of T1(b) does not hold all the way
+  to σ = 0. By then the sample is already within the on-atom criterion (d1/d2 < 1/3). The data support
+  landing to that criterion, not exact landing.
+- **Correction to the q numbers of E.** rad₁ − r₁ is the exact secant; the 4-point quadrature q₁ of the earlier
+  run overestimates it at σ 0.1–1 (median |rad₁ − q₁ − r₁| on-atom 0.08–0.20 there, ≤ 0.03 elsewhere). The
+  true secant slope of on-atom samples at σ 0.3–0.14 is ≈ 0.02–0.06, not 0.22. The conclusions of E
+  (separation, late landing) stand; rad₁ is the quantity to report.
+
 ## Verification (math-olympiad workflow, 2026-11-12)
 
 Nine verifiers, three per proposition, each with fresh context and no tools. They saw only the
@@ -404,9 +593,34 @@ HOLE only for a false claim or an unproven load-bearing step.
 "Confirmed" means it passed the adversarial workflow. It is not the author's verification, which is
 still required. The open GAPs below remain.
 
+**E and R** (2026-11-16). Two solvers each, no tools. Both solvers of E found that the lower bound in
+(b) needs Φ⁺ in the residual term; both solvers of R found that (d) as first posed was false and needed
+(H), with the counterexample now in (d3). Four fresh verifiers each on the cleaned statements:
+
+| | Verdicts | Notes |
+|---|---|---|
+| E | HOLDS ×4 | (★), (a), (d) re-derived independently; examples recomputed; own tests with b ≠ 0 and q > 1. Cosmetic: (c) runs against the sampling direction; Λ^± depend on the trajectory; h ≠ 0 in the (d) example. |
+| R | HOLDS ×4 | Sharpness and (d3) recomputed; own N = 3 tests. Cosmetic: lower bound in (a) holds for any i; δ_i > 0 uses the hypothesis plus distinctness; O, A finite. |
+
+**E and R: confirmed** (4 HOLDS each, 0 holes).
+
+**T1 and T2** (2026-11-17). Two solvers each (both found the zero-set and continuation details and fixed
+them); four fresh verifiers each on the cleaned statements.
+
+| | Verdicts | Notes |
+|---|---|---|
+| T1 | HOLDS ×4 | Own tests: N = 2 crossing, slow ϱ → 1, δ < 0, rotation. Not a hole but must be stated: ϱ̄ < 1 is sharp only among constants, not necessary; conditions are along the trajectory; ∫δ⁺/ε is improper. |
+| T2 | HOLDS ×4 | (i) attained with equality for N = 2; σ* checked (1/q ≥ 8); barrier direction checked. Notes: (iv) covers only Ω, γ < (1 − ϱ̄)r/2 is a separate requirement; "r < g/2 needed" means "needed for a non-trivial (i)"; the factor 4 in σ* is not tight. |
+
+**T1 and T2: confirmed** (4 HOLDS each, 0 holes).
+
 ## To verify (author)
 
 - [ ] P (i)–(iv) as revised, in particular the extension to σ = 0 and the density bound.
 - [ ] L, and the GAP on almost-sure convergence of the exact path (needed for L and for the basins in T).
 - [ ] T (i) decomposition A − F, and (ii)(b) with the residual term.
 - [ ] Al-Jaff's parametrization order: needs the PDF.
+- [ ] E (★) and (a)–(d), in particular the sign of the residual term and Φ⁺ in the lower bound of (b).
+- [ ] R (a)–(d), and whether (H) holds on the sub500 data (else use the d_i version).
+- [ ] T1 (a)–(d) and T2 (i)–(iv); decide whether they replace Bổ đề 1 / Hệ quả 2 / Mệnh đề 3 in the main text
+  or sit next to them.
