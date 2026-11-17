@@ -91,7 +91,8 @@ def run(a):
             return f
     sig = edm_sigmas(a.steps)
     taus = (torch.arange(a.nquad, dtype=torch.float64) + 0.5) / a.nquad
-    keys = [f"{p}{k}" for k in (1, 2) for p in ("q", "qx", "r", "qe", "n")] + ["err", "rad1"]
+    keys = ([f"{p}{k}" for k in (1, 2) for p in ("q", "qx", "r", "qe", "n")] + ["err", "rad1"]
+            + ["errt", "nt1", "omega", "omegat"])   # Theorem T3: Heun predictor xt and off-image mass omega
     out = {k: [] for k in keys + ["label", "d1", "d2", "n1_end"]}
     gen = torch.Generator(device="cpu").manual_seed(a.seed)
     t0 = time.time()
@@ -100,26 +101,40 @@ def run(a):
         for b0 in range(0, a.n_per_class, a.batch):
             B = min(a.batch, a.n_per_class - b0)
             x = (torch.randn(B, X.shape[1], generator=gen, dtype=torch.float64) * sig[0]).to(device)
-            xs = []
+            xs, Ds, xts, Dts = [], [], [], []
             with torch.no_grad():
                 for i in range(a.steps):
                     xs.append(x)
                     tc, tn = sig[i], sig[i + 1]
-                    d = (x - make_f(c, tc)(x.to(dtype)).double()) / tc
+                    Dk = make_f(c, tc)(x.to(dtype)).double(); Ds.append(Dk)
+                    d = (x - Dk) / tc
                     xn = x + (tn - tc) * d
                     if i < a.steps - 1:
-                        xn = x + (tn - tc) * (0.5 * d + 0.5 * (xn - make_f(c, tn)(xn.to(dtype)).double()) / tn)
+                        Dt = make_f(c, tn)(xn.to(dtype)).double(); xts.append(xn); Dts.append(Dt)
+                        xn = x + (tn - tc) * (0.5 * d + 0.5 * (xn - Dt) / tn)
                     x = xn
             dv, di = ex.nearest(x)
             anchors = (ex.Y[di[:, 0]], ex.Y[di[:, 1]])
+            Delta = torch.cdist(anchors[0], ex.Y).amax(1)                       # max_k |x^i - x^k|
+            omega = lambda z, s: (1 - torch.softmax(ex.logits(z, s), 1).gather(1, di[:, :1])[:, 0]) * Delta  # noqa: E731
             rec = {k: torch.full((B, a.steps), float("nan"), dtype=torch.float64) for k in keys}
             for i in range(a.steps):
                 s = sig[i]; f = make_f(c, s)
-                with torch.no_grad():   # Theorem T1: field error and radial ratio toward y1 at x
-                    Dx = f(xs[i].to(dtype)).double()
+                with torch.no_grad():   # Theorems T1/T3: field error and radial ratio toward y1 at x and at xt
+                    Dx = Ds[i]
                     e1 = xs[i] - anchors[0]; n1 = e1.norm(dim=1).clamp_min(1e-30)
                     rec["err"][:, i] = (Dx - ex(xs[i], s)).norm(dim=1).cpu()
                     rec["rad1"][:, i] = ((e1 / n1[:, None]) * (Dx - anchors[0])).sum(1).div(n1).cpu()
+                    rec["omega"][:, i] = omega(xs[i], s).cpu()
+                    if a.forward_only:
+                        rec["n1"][:, i] = n1.cpu()
+                    if i < a.steps - 1:
+                        sn = sig[i + 1]
+                        rec["errt"][:, i] = (Dts[i] - ex(xts[i], sn)).norm(dim=1).cpu()
+                        rec["nt1"][:, i] = (xts[i] - anchors[0]).norm(dim=1).cpu()
+                        rec["omegat"][:, i] = omega(xts[i], sn).cpu()
+                if a.forward_only:
+                    continue
                 for k, y in zip((1, 2), anchors):
                     e = xs[i] - y; n = e.norm(dim=1); eh = e / n[:, None].clamp_min(1e-30)
                     q = sum(rayleigh(f, y + t * e, eh, dtype) for t in taus) / a.nquad
@@ -200,6 +215,35 @@ def summarize(d):
                 gap = float(np.nanmax(np.abs(rad - z["q1"][:, i] - z["r1"][:, i])))
                 L.append(f"| {s:.4g} | " + " | ".join(fmt(v) for v in (med(rho, off), med(rho, on), frac(rho, off),
                          frac(rho, on), auc(rho[off], rho[on]), med(rad, off), med(rad, on), auc(rad[off], rad[on]), gap)) + " |")
+        if "errt" in z.files and np.isfinite(z["errt"]).any():
+            L += ["", "Theorem T3 (Heun steps, gamma = 0): rho_k = max(err/n1 at x_k, errt/nt1 at the predictor xt_k); "
+                  "bound = (c_k n_k + b_k)/n_k with b_k from omega; actual = n_{k+1}/n_k; viol = steps where actual > bound "
+                  "(must be 0); cert = fraction of on-atom samples with c_k < 1:", "",
+                  "| step | sigma_k | r_k | rho_crit | rho_k off | rho_k on | rhot on | cert on | actual on | bound on | actual off | viol |",
+                  "|---|---|---|---|---|---|---|---|---|---|---|---|"]
+            sg = z["sigma"]; t3 = []
+            for i in range(len(sg) - 1):
+                r_ = sg[i + 1] / sg[i]; al = (1 - r_) * (2 * r_ - 1) / (2 * r_); be = (1 - r_) / (2 * r_); aa = abs(al)
+                rc = 1.0 if r_ >= 0.5 else (-1 + np.sqrt(1 + 8 * r_ / (1 - r_))) / 2
+                n, nt = z["n1"][:, i], z["nt1"][:, i]
+                rt = z["errt"][:, i] / nt
+                rk = np.maximum(z["err"][:, i] / n, rt)
+                ck = r_ + aa * rk + be * rk * (r_ + (1 - r_) * rk)
+                bk = (aa + be * rk * (1 - r_)) * z["omega"][:, i] + be * z["omegat"][:, i]
+                bound = ck + bk / n; act = z["n1"][:, i + 1] / n
+                viol = int((act > bound * (1 + 1e-6) + 1e-9).sum())
+                cert = float((ck[on] < 1).mean()) if on.any() else float("nan")
+                st = {"step": i, "sigma": float(sg[i]), "r": float(r_), "rho_crit": float(rc), "rho_off": med(rk, off),
+                      "rho_on": med(rk, on), "rhot_on": med(rt, on), "cert_on": cert, "act_on": med(act, on),
+                      "bound_on": med(bound, on), "act_off": med(act, off), "viol": viol}
+                t3.append(st)
+                L.append(f"| {i} | {sg[i]:.4g} | " + " | ".join(fmt(st[k]) for k in ("r", "rho_crit", "rho_off", "rho_on",
+                         "rhot_on", "cert_on", "act_on", "bound_on", "act_off")) + f" | {viol} |")
+            nK = z["n1"][:, -1]
+            lastb = (z["err"][:, -1] + z["omega"][:, -1]) / nK; lasta = z["n1_end"] / nK
+            L.append(f"| last (Euler) | {sg[-1]:.4g} | 0 | - | - | - | - | - | {fmt(med(lasta, on))} | {fmt(med(lastb, on))} "
+                     f"| {fmt(med(lasta, off))} | {int((lasta > lastb * (1 + 1e-6) + 1e-9).sum())} |")
+            r["t3"] = t3
         fin = np.log(z["n1_end"]) - np.log(z["n1"][:, -1])
         L += ["", f"last Euler step (sigma {z['sigma'][-1]:.3g} -> 0, x -> D(x)): median change of log n1 "
               f"off {fmt(med(fin, off))}, on {fmt(med(fin, on))}", ""]
@@ -216,6 +260,7 @@ def main():
     ap.add_argument("--n-per-class", type=int, default=100); ap.add_argument("--batch", type=int, default=25)
     ap.add_argument("--steps", type=int, default=18); ap.add_argument("--nquad", type=int, default=4)
     ap.add_argument("--seed", type=int, default=0); ap.add_argument("--fake-net", action="store_true")
+    ap.add_argument("--forward-only", action="store_true", help="skip the Jacobian quadrature (q); T1/T3 quantities only")
     ap.add_argument("--cpu", action="store_true"); ap.add_argument("--out"); ap.add_argument("--summarize", metavar="DIR")
     a = ap.parse_args()
     if a.summarize:

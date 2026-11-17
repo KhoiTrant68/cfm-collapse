@@ -589,7 +589,36 @@ first 12 steps (σ ≥ 0.30), so there any ϱ < 1 contracts. The last five Heun 
   criterion.
 - **Practical consequence:** a coarser schedule in the last steps (smaller r) needs a smaller ϱ to be
   guaranteed to contract, and the Heun corrector can overshoot the image there.
-- Not yet measured: ϱ at the predictor x̃_k, which the hypothesis of (b) also needs.
+- ~~Not yet measured: ϱ at the predictor x̃_k.~~ Measured below.
+
+**Measured certificate** (2026-11-17, `results/n3_t3_20261117/Q_SUMMARY.md`; sub500 n = 1000 (41 off-atom),
+public n = 500 (all off-atom); γ = 0, ω from the exact posterior; ϱ_k = max(ϱ at x_k, ϱ at x̃_k)). Medians,
+on-atom unless marked:
+
+| step | σ_k | r_k | ϱ_crit | ϱ at x_k | ϱ at x̃_k | c_k < 1 | actual n_{k+1}/n_k | bound (c_k n_k + b_k)/n_k | actual, public |
+|---|---|---|---|---|---|---|---|---|---|
+| 10 | 1.09 | 0.538 | 1 | 0.024 | 0.042 | 100% | 0.540 | 0.549 | 0.600 |
+| 11 | 0.585 | 0.506 | 1 | 0.043 | 0.085 | 100% | 0.512 | 0.530 | 0.680 |
+| 12 | 0.296 | 0.471 | 0.924 | 0.086 | 0.182 | 100% | 0.485 | 0.535 | 0.829 |
+| 13 | 0.140 | 0.430 | 0.825 | 0.185 | 0.397 | 99.7% | 0.482 | 0.640 | 0.946 |
+| 14 | 0.060 | 0.383 | 0.720 | 0.400 | 0.730 | 47% | 0.581 | 1.011 | 0.989 |
+| 15 | 0.023 | 0.328 | 0.608 | 0.725 | 0.937 | 0% | 0.807 | 1.575 | 0.998 |
+| 16 | 0.0075 | 0.266 | 0.487 | 0.929 | 0.990 | 0% | 0.953 | 2.265 | 1.000 |
+| last (Euler) | 0.002 | – | – | – | – | – | 0.988 | 0.988 | 1.000 |
+
+- **The bound is never violated.** Across 1500 trajectories × 17 Heun steps, no step has
+  n_{k+1} > c_k n_k + b_k. This is the expected sanity check: (b) is an algebraic inequality.
+- **The predictor is the binding point.** ϱ at x̃_k is larger than ϱ at x_k for every on-atom sample and
+  step. It is about equal to ϱ at x_{k+1}, because x̃_k is evaluated at σ_{k+1}. ω/n is 0 at these steps:
+  sub500 images are far apart.
+- **The certificate covers the trajectory down to σ ≈ 0.14** (steps 0–13: c_k < 1 for ≥ 99.7% of on-atom
+  samples). It covers half the samples at step 14 and none at steps 15–16. There ϱ at x̃_k exceeds ϱ_crit,
+  and the bound is > 1 while the actual factor is 0.58, 0.81 and 0.95. This is the looseness that (d)(ii)
+  predicts for r < 1/2.
+- **On-atom vs off-atom.** On-atom samples contract by a factor 0.48–0.58 per step at σ 0.06–0.3. Off-atom
+  and public samples have actual ≈ 1 from σ ≈ 0.06 (no landing).
+- **Consequence for the paper.** A rigorous per-trajectory certificate holds where the image is selected
+  (σ ≥ 0.14). The last three steps need the sharp factor c* or the radial identity, not the norm bound.
 
 ## Verification (math-olympiad workflow, 2026-11-12)
 
