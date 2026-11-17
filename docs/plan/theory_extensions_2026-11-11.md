@@ -542,6 +542,55 @@ rad₁ = ⟨ê, D − x¹⟩/|x − x¹| (two forward passes, no Jacobian).
   true secant slope of on-atom samples at σ 0.3–0.14 is ≈ 0.02–0.06, not 0.22. The conclusions of E
   (separation, late landing) stand; rad₁ is the quantity to report.
 
+## T3. Landing and trapping for the discrete Heun sampler (2026-11-17)
+
+**Why.** T1–T2 are about the continuous ODE. The experiments use the 18-step EDM Heun sampler, which ends with
+a pure Euler step to σ = 0. T3 states the contraction and trapping results for the sampler itself, with an
+arbitrary denoiser D (no continuity or Lipschitz assumption). Full statement and proof:
+`proofs_E_R_T1_T2_2026-11-17.md`, section T3.
+
+**Statement (short).** r_k = σ_{k+1}/σ_k, n_k = |x_k − x^i|, x̃_k the Euler predictor.
+- (a) Exact affine form. x̃_k = r x_k + (1−r)D_k and x_{k+1} = r x_k + α D_k + β D̃_k, with
+  α = (1−r)(2r−1)/(2r), β = (1−r)/(2r) and r + α + β = 1. The last step gives x_K = D_{K−1}.
+  **α < 0 when r < 1/2**: in that case the corrector extrapolates past D_k.
+- (b) One-step bound. If err ≤ ϱ_k·dist + γ at x_k and at x̃_k, then n_{k+1} ≤ c_k n_k + b_k with
+  c_k = r + |α|ϱ + βϱ(r + (1−r)ϱ). b_k collects γ and the off-image mass ω.
+- (c) Threshold. For r ≥ 1/2, c_k < 1 for every ϱ < 1. For r < 1/2, c_k < 1 iff
+  ϱ < ϱ_crit(r) = (−1 + √(1 + 8r/(1−r)))/2 ∈ (0, 1).
+- (d) Sharpness.
+  - On the linear field, n_{k+1} = |p| n_k with |p| ≤ c_k. p is **negative** for r < 3 − 2√2 and some ϱ:
+    the step overshoots the image.
+  - Over all D with err ≤ ϱ·dist (d ≥ 2), the sharp one-step factor is c* = max_s Φ(s). It is attained,
+    c* = c_k for r ≥ 1/2, and c* < c_k for r < 1/2. So for r < 1/2 the norm bound is not tight; the true
+    threshold ϱ* satisfies ϱ_crit < ϱ* ≤ 1, with no closed form.
+- (e) Multi-step certificate and discrete trapping.
+  - The unrolled bound n_{K−1} ≤ ∏c_k·n_0 + Σ b_j ∏c_k gives the multi-step certificate.
+  - Trapping: assume n_0 ≤ R ≤ g/4 and, at each step, (C1) ϱ_k R + γ_k + Ω(σ_k) ≤ R (this keeps x̃_k in the
+    ball) and (C2) c_k R + … ≤ R. Then n_k ≤ R for all k. If also (C3) ϱ_{K−1}R + γ + Ω(σ_{K−1}) < g/4, the
+    output is on-atom (d1/d2 < 1/3). The strict inequality in (C3) is needed.
+
+**On the EDM schedule (18 steps, ρ = 7, σ ∈ [0.002, 80]).** r_k falls from 0.72 to 0.27. r_k ≥ 1/2 for the
+first 12 steps (σ ≥ 0.30), so there any ϱ < 1 contracts. The last five Heun steps have r < 1/2:
+
+| step | σ_k → σ_{k+1} | r_k | ϱ_crit |
+|---|---|---|---|
+| 12 | 0.296 → 0.140 | 0.471 | 0.924 |
+| 13 | 0.140 → 0.060 | 0.430 | 0.825 |
+| 14 | 0.060 → 0.023 | 0.383 | 0.720 |
+| 15 | 0.023 → 0.0075 | 0.328 | 0.608 |
+| 16 | 0.0075 → 0.002 | 0.266 | 0.487 |
+
+**Reading against the data.**
+- Measured median on-atom ϱ is 0.19 at σ = 0.14, below ϱ_crit for steps 12–13. It is 0.73 at σ = 0.023,
+  above ϱ_crit = 0.61 for step 15. So the norm certificate (b)–(c) covers the trajectory down to σ ≈ 0.06,
+  and fails for the last two Heun steps at the median.
+- This does not contradict the measured contraction. By (d)(ii) the norm bound is loose exactly when r < 1/2,
+  and the radial identity (T1(a)) is what the data follow. By then the sample is already within the on-atom
+  criterion.
+- **Practical consequence:** a coarser schedule in the last steps (smaller r) needs a smaller ϱ to be
+  guaranteed to contract, and the Heun corrector can overshoot the image there.
+- Not yet measured: ϱ at the predictor x̃_k, which the hypothesis of (b) also needs.
+
 ## Verification (math-olympiad workflow, 2026-11-12)
 
 Nine verifiers, three per proposition, each with fresh context and no tools. They saw only the
@@ -614,6 +663,16 @@ them); four fresh verifiers each on the cleaned statements.
 
 **T1 and T2: confirmed** (4 HOLDS each, 0 holes).
 
+**T3** (2026-11-17). Three solvers (direct algebra, extremal case, boundary cases), all complete and in
+agreement. All three found the same error in the posed (d)(i): n_{k+1} = p·n_k fails when p < 0; corrected to
+|p|. Four fresh verifiers on the cleaned statement:
+
+| | Verdicts | Notes |
+|---|---|---|
+| T3 | HOLDS ×4 | All algebra recomputed (α, β, ϱ_crit, discriminant, example p = −0.4625). Ω used only at points shown to be in the ball. Notes, folded into the statement: (d)(ii) is a one-step sup over D and x_k with n_k > 0 (along a full trajectory, earlier values of D must be chosen so that x̃_{k−1} ≠ x_k; possible); N = 1 conventions; ρ in (d)(ii) ranges over [0,1), so ϱ* ≤ 1 is automatic; d ≥ 2 is needed; the tail lemma only needs R < g. |
+
+**T3: confirmed** (4 HOLDS, 0 holes).
+
 ## To verify (author)
 
 - [ ] P (i)–(iv) as revised, in particular the extension to σ = 0 and the density bound.
@@ -624,3 +683,4 @@ them); four fresh verifiers each on the cleaned statements.
 - [ ] R (a)–(d), and whether (H) holds on the sub500 data (else use the d_i version).
 - [ ] T1 (a)–(d) and T2 (i)–(iv); decide whether they replace Bổ đề 1 / Hệ quả 2 / Mệnh đề 3 in the main text
   or sit next to them.
+- [ ] T3 (a)–(e), in particular the sign of α for r < 1/2, ϱ_crit, and the sharp factor c* in (d)(ii).
