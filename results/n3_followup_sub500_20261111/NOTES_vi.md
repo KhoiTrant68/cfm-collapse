@@ -45,6 +45,11 @@ Field exact: μ* = 0 ở mọi σ trong bảng.
   (median 0,19 ở σ 0,14; 0,73 ở σ 0,023); off-atom và model public có ϱ → 1 từ σ ≈ 0,14. AUC ϱ = 1,000 ở σ ≤ 1,09.
   Tỉ số hướng tâm rad₁ dự đoán đúng thay đổi của log|x − x¹| (−2,01 so với −2,01; −1,60 so với −1,54).
   Lưu ý: q₁ cầu phương 4 điểm của lần đo trước bị thổi phồng ở σ 0,1–1; độ dốc cát tuyến thật của mẫu on-atom ≈ 0,02–0,06.
+- [2026-11-17, chứng chỉ Định lý T3 cho sampler Heun, results/n3_t3_20261117] Chặn c_k·n_k + b_k không bị vượt
+  ở bước nào (1500 quỹ đạo × 17 bước). ϱ tại điểm dự đoán x̃_k luôn lớn hơn tại x_k (≈ ϱ ở mức σ kế tiếp) nên
+  nó là điểm quyết định. Chứng chỉ (c_k < 1) phủ ≥ 99,7% mẫu on-atom ở bước 0–13 (σ ≥ 0,14), 47% ở bước 14,
+  0% ở bước 15–16. Ở đó chặn > 1 trong khi hệ số co thực là 0,58 / 0,81 / 0,95. Mẫu off-atom và model public
+  có hệ số ≈ 1 từ σ ≈ 0,06.
 - Rủi ro reviewer: e_learned không dự đoán memorization tốt hơn baseline ảnh gần nhất (nn_hat ≥ e_learned ở mọi t).
 
 Task n3-sub500-results có thể tắt.
