@@ -293,7 +293,13 @@ still copies; (e) one whose relative error tends to $1$ late produces new sample
 \paragraph{Related work.} That the empirical minimiser memorises is well established
 \citep{pidstrigach2022manifolds,gu2023memorization,biroli2023diffusion,buchanan2025edge,gao2024flow,bertrand2025closed,li2026memory};
 trained denoisers generalise through inductive biases that depart from it
-\citep{kadkhodaie2024generalization,kamb2024creativity,niedoba2024mechanistic}, and kernel readings of finite-support flows are not new
+\citep{kadkhodaie2024generalization,kamb2024creativity,niedoba2024mechanistic}. For trained diffusion
+models, memorisation risk has been located at medium noise levels \citep{dodson2026calm}, measured by
+the largest scale at which the denoiser's fixed-scale dynamics retain an example
+\citep{lopezamado2026modes}, and detected through basins in Jacobian spectra or score divergence
+\citep{jaziri2026spectral,verma2026early}; these describe where memorisation arises or detect it,
+while Theorem~\ref{thm:relerr} and Proposition~\ref{prop:heun} give per-trajectory conditions under
+which a sampler reaches a training example. Kernel readings of finite-support flows are not new
 \citep{scarvelis2025closedform,chen2026scoresmoothing,smola2026support}.
 \citet[Theorem~6.4]{baptista2025memorization} identify the empirical conditional law on the
 subset sharing a label, and \citet[Section~3.3]{physicscfm2026} analyse cell-conditioned flows;
@@ -890,9 +896,8 @@ $(1-t)\Delta(Z_t,t)=(1-t)v_\theta(Z_t,t)+Z_t-a$, if $v_\theta$ stays bounded alo
 with $Z_t\to z$, then $(1-t)\Delta(Z_t,t)\to z-a$ and the bound holds with equality, so a
 correlation between the two measured quantities would carry little additional information.}
 
-% DRAFT (2026-11-17): Theorem thm:relerr and Propositions prop:trap, prop:heun were drafted with
-% model assistance and passed adversarial checks (docs/plan/proofs_E_R_T1_T2_2026-11-17.md); the
-% authors must check them before submission (see the LLM statement in the ICLR build).
+% Theorem thm:relerr and Propositions prop:trap, prop:heun: drafted with model assistance, checked
+% adversarially (docs/plan/proofs_E_R_T1_T2_2026-11-17.md), verified by the authors 2026-11-19.
 Theorem~\ref{thm:transfer} bounds the endpoint distance by the limit of the scaled error and needs
 an identifying label. Whether a trajectory reaches an atom at all is decided by a weaker quantity,
 the scaled error relative to the distance to that atom, at any label and bandwidth. Write
@@ -1252,7 +1257,8 @@ the last $2\%$ of the time ($s=0.02$, $t=0.98$) thus turns no memorisation into 
 memorisation. The image reached is the network trajectory's own nearest training image in $31$,
 $56$, $90$, $99$ and $100\%$ of samples for $s=5,2,1,0.2,0.02$ on the public model, and in $92.8$,
 $98.2$ and $99.6\%$ for $s=5,2,1$ and all samples from $s\le0.2$ on, on the subset model. The
-network selects an image by $\sigma\approx1$; whether the trajectory lands on it is decided below
+network selects an image by $\sigma\approx1$, in the medium-noise band where \citet{dodson2026calm}
+locate memorisation risk; whether the trajectory lands on it is decided below
 (Figure~\ref{fig:edm-clocks}).
 
 \begin{figure}[t]
@@ -1431,9 +1437,9 @@ and the public CIFAR-10 and MNIST datasets; no personal or human-subject data ar
 
 \subsection*{Use of large language models}
 % CHECK: confirm the uses listed below and name any others.
-% CHECK (2026-11-17): Theorem thm:relerr and Propositions prop:trap, prop:heun were drafted with
-% model assistance. The sentence "The authors wrote and verified all proofs" is true only after the
-% authors have checked and taken over those proofs; otherwise reword it.
+% CHECK (2026-11-19, authors' decision): the first drafts of the proofs of thm:relerr, prop:trap and
+% prop:heun came from model-based solver runs before the authors verified them; decide whether
+% this paragraph should say so.
 We used large language models as assistants for writing and running experiment and
 analysis code, for editing the manuscript, and as additional independent checkers of the
 written proofs. The authors wrote and verified all proofs; the model-based checks
@@ -3364,8 +3370,8 @@ $h=6$. Theorem~\ref{thm:endpoint} fixes which images the exact field returns and
 weights; these runs do not test whether the learned endpoint law has the same weights.
 
 % ==========================================================================
-% DRAFT (2026-11-17): drafted with model assistance, checked adversarially
-% (docs/plan/proofs_E_R_T1_T2_2026-11-17.md); to be checked by the authors.
+% Drafted with model assistance, checked adversarially (docs/plan/proofs_E_R_T1_T2_2026-11-17.md),
+% verified by the authors 2026-11-19.
 \section{Relative field error, trapping, and the Heun sampler}
 \label{app:relerr}
 

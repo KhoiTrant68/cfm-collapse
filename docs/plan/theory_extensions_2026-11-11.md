@@ -733,6 +733,6 @@ agreement. All three found the same error in the posed (d)(i): n_{k+1} = p·n_k 
 - [ ] Al-Jaff's parametrization order: needs the PDF.
 - [ ] E (★) and (a)–(d), in particular the sign of the residual term and Φ⁺ in the lower bound of (b).
 - [ ] R (a)–(d), and whether (H) holds on the sub500 data (else use the d_i version).
-- [ ] T1 (a)–(d) and T2 (i)–(iv); decide whether they replace Bổ đề 1 / Hệ quả 2 / Mệnh đề 3 in the main text
-  or sit next to them.
-- [ ] T3 (a)–(e), in particular the sign of α for r < 1/2, ϱ_crit, and the sharp factor c* in (d)(ii).
+- [x] T1 (a)–(d) and T2 (i)–(iv) (verified by the author 2026-11-19; in the paper as Theorem thm:relerr and
+  Proposition prop:trap, next to the existing transfer results).
+- [x] T3 (a)–(e) (verified by the author 2026-11-19; Proposition prop:heun).
