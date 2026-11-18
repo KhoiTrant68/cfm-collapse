@@ -50,6 +50,24 @@ Field exact: μ* = 0 ở mọi σ trong bảng.
   nó là điểm quyết định. Chứng chỉ (c_k < 1) phủ ≥ 99,7% mẫu on-atom ở bước 0–13 (σ ≥ 0,14), 47% ở bước 14,
   0% ở bước 15–16. Ở đó chặn > 1 trong khi hệ số co thực là 0,58 / 0,81 / 0,95. Mẫu off-atom và model public
   có hệ số ≈ 1 từ σ ≈ 0,06.
+- [2026-11-17, ablation số bước Heun, results/n3_steps_20261117] Với 36 và 64 bước, mọi r_k ≥ 1/2 nên chứng chỉ
+  T3 phủ mọi bước cho 99,5% mẫu on-atom (18 bước: 0%). Tỉ lệ memorize (off-atom 4,1 / 4,0 / 3,9%) và ảnh được
+  chọn (99,3–99,4% trùng với 18 bước) không đổi. Đây là dự đoán của T3 được xác nhận trên dữ liệu.
+- [2026-11-17, neo dự báo + bootstrap, results/n3_anchor_20261117 và results/n3_robust_20261117/ROBUSTNESS.md]
+  ϱ neo vào ảnh gần nhất của D(x_k) (không dùng endpoint) cho AUC trùng với neo endpoint; ảnh neo trùng ảnh
+  endpoint 90% (σ 8,4), 97% (σ 5,3), ≥ 99,4% từ σ ≤ 3,3. e_learned thua nn_hat có ý nghĩa ở σ 3,3–19,4
+  (−0,074 [−0,099, −0,049] ở σ 8,4). radA thắng nn_hat ở σ 19,4 (+0,106 [0,056, 0,159]), ngang ở 12,9, thua nhẹ
+  ở 5,3–8,4. Kết quả không đổi với ngưỡng off-atom 0,2 / 1/3 / 0,5.
+- [2026-11-18, sub2000 s0 và sub500 s1, results/n3_edm_sub{2000,500s1}_2026111*, results/n3_rho2_20261118]
+  sub500 s1: off-atom 4,4% (lặp lại 4,1% của s0); mọi kết luận ϱ, AUC, chứng chỉ T3 giống s0.
+  sub2000: off-atom 50,1% (chế độ cân bằng). Model sub1000 cũ (100% off-atom) gần như chắc chưa train đủ.
+  Ở sub2000, câu "ϱ < 1 ở mọi bước với on-atom, ϱ → 1 với off-atom" KHÔNG còn phân biệt: 99,8% mẫu off-atom cũng
+  có ϱ < 1 ở mọi bước, và median on-atom cũng lên 0,997 ở bước cuối. Khác biệt nằm ở MỨC CO TÍCH LŨY
+  ∫(1 − ϱ) d log σ trên cửa sổ muộn σ 0,59 → 0,002: on 1,75 so với off 0,68, AUC 0,983 (baseline ảnh gần nhất 0,985).
+  ϱ tại từng σ: AUC 0,99 ở σ 0,59, giảm còn 0,93 ở σ 0,002. Chứng chỉ T3: 0 vi phạm; phủ 100% on-atom tới bước 12,
+  89% bước 13, 0% từ bước 14.
+  Hệ quả cho paper: phải viết lại các câu ở abstract và Mục 6.3 theo mức co tích lũy (đúng đại lượng của định lý),
+  không theo "ϱ < 1 tại mọi bước".
 - Rủi ro reviewer: e_learned không dự đoán memorization tốt hơn baseline ảnh gần nhất (nn_hat ≥ e_learned ở mọi t).
 
 Task n3-sub500-results có thể tắt.

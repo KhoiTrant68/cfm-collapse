@@ -50,13 +50,14 @@
 \usepackage{enumitem} % lettered sub-claims inside lemma statements
 \usepackage{standalone} % \input of the standalone TikZ figures in figures/tikz/
 \usepackage{tikz}
-\usetikzlibrary{positioning, arrows.meta, shapes.geometric, shapes.misc, fit, backgrounds}
+\usetikzlibrary{positioning, arrows.meta, shapes.geometric, shapes.misc, fit, backgrounds, calc}
 % OpenTikZ palette (Okabe-Ito, as in scripts/figstyle.py) for the TikZ figures
 \definecolor{otblue}{HTML}{0072B2}
 \definecolor{otorange}{HTML}{E69F00}
 \definecolor{otteal}{HTML}{009E73}
 \definecolor{otpurple}{HTML}{CC79A7}
 \definecolor{otgray}{HTML}{5A5A5A}
+\definecolor{otverm}{HTML}{D55E00}
 % result numbers inside the TikZ figures: a live \ref here, a fallback when standalone
 \newcommand{\resref}[2]{\ref{#1}}
 
@@ -109,7 +110,13 @@ point, and every trajectory converges. What moves a learned sampler off the trai
 therefore its field error late in sampling: at an identifying label a learned endpoint lies within
 the limiting scaled field error of its training example, a quantity the regression loss does not
 control, and in our runs the error met along trajectories exceeds the error on the training law by
-orders of magnitude near $t=1$. At positive bandwidth we prove only a local version. The positive
+orders of magnitude near $t=1$. At any label, a trajectory reaches a training example when this
+error stays a fixed fraction below its distance to that example. On class-conditional EDM models
+on CIFAR-10 the network selects the image early, the late field decides whether it is reached, the
+contraction that the relative error leaves over the late noise levels separates memorised from
+other samples on models that memorise $4$ and $50\%$ of their samples, and a bound for the Heun
+sampler predicts when more steps make the guarantee hold; as a detector of
+memorisation, the error is no better than the distance to the nearest training image. The positive
 theorems stop at one composition: guidance applied to a label-averaged field reaches a blend of
 training examples with positive probability, for two examples whose averaged priors have log-odds
 $\pm2B$ exactly when the guidance strength exceeds $1/\sinh^2B$, stably under perturbation; a signed
@@ -161,7 +168,12 @@ and what a learned field must do to inherit the answer.
   loss does not control this quantity: on EXP-1 the error along trajectories
   exceeds the training-law error by a factor that grows roughly like $(1-t)^{-2}$
   (Appendix~\ref{app:measured-transfer}). A field with integrable Lipschitz constant up to $t=1$
-  has an endpoint law without atoms (Proposition~\ref{prop:regular}).
+  has an endpoint law without atoms (Proposition~\ref{prop:regular}). At any label, landing on a
+  training example is decided by the error relative to the distance to it
+  (Theorem~\ref{thm:relerr}), with a discrete version for the Heun sampler
+  (Proposition~\ref{prop:heun}); on three EDM models the late contraction it leaves separates
+  memorised from other samples, and its prediction for the number of sampler steps holds
+  (Section~\ref{sec:edm}).
 \item \emph{One composition marks where these results stop} (Section~\ref{sec:composition}).
   Guidance applied to a label-averaged field can converge to a circumcentre of training examples,
   a blend of them, with positive probability; for two examples whose averaged priors have log-odds
@@ -196,6 +208,21 @@ finite-cutoff collapse in trained networks. Proofs are in
 Appendices~\ref{app:proofs}--\ref{app:transfer}, which open with a notation table and a proof
 roadmap (Tables~\ref{tab:notation} and~\ref{tab:roadmap}).
 
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{fig_intuition.pdf}
+\caption{When does a sampler copy a training image? Left: one sampling step moves the state $x$
+toward the network's guess $D(x)$ of the clean image. If the guess lies inside the circle through
+$x$ around a training image, the step ends closer to that image; this is the condition
+$\varrho<1$ of Theorem~\ref{thm:relerr}, with $\varrho$ the error of the guess relative to the
+distance to the image. Right: the same latent sampled by an EDM model trained on $500$ CIFAR-10
+images (top) and by the public model trained on all $50000$ (bottom), showing the state and the
+guess at six noise levels. Both guesses settle on a horse early. The first model's guess stays on a
+training image ($\varrho<1$ throughout) and the output copies it; the public model's $\varrho$
+reaches $1$, and its output is a new image, close to but distinct from the nearest training image.}
+\label{fig:intuition}
+\end{figure}
+
 \paragraph{What this means in practice.} Four consequences follow without new assumptions.
 \emph{(i) The knobs are not privacy mitigations.} At the exact optimum, label noise, label
 averaging, negative guidance and bounded guidance schedules only reweight training examples, and
@@ -214,11 +241,15 @@ on-atom samples at $h=4,6$ (Appendix~\ref{app:measured-transfer}).
 \emph{(iii) Monitor late-time field error, not the loss.} Because the exact field is explicit for
 a fixed training set, $(1-t)|\Delta|$ can be evaluated along sampling trajectories near $t=1$;
 by Theorem~\ref{thm:transfer} this, and not the regression loss, is what bounds the distance of an
-endpoint from its training example at an identifying label. On retrained CIFAR-10 U-Nets it
+endpoint from its training example at an identifying label, and its ratio to the distance decides
+landing at any label (Theorem~\ref{thm:relerr}). On retrained CIFAR-10 U-Nets it
 already separates the samples that end off the training set from the others with AUC at least
 $0.95$ by $t\approx0.53$, long before the endpoint, where it reduces to the distance to the nearest
-training image (Appendix~\ref{app:measured-transfer}). Evaluating it needs the exact field, a
-sum over the training set at every step, so it suits audits rather than deployment.
+training image (Appendix~\ref{app:measured-transfer}). It explains landing rather than detecting
+memorisation more cheaply: on EDM models the distance from the denoiser output to the nearest
+training image separates as well or better at almost every noise level (Section~\ref{sec:edm}).
+Evaluating it needs the exact field, a sum over the training set at every step, so it suits audits
+rather than deployment.
 \emph{(iv) The statements concern support at fixed $N$.} The floor in~\eqref{eq:w2floor} is the
 mean squared distance from the posterior to the nearest training point, which typically decreases
 like $N^{-2/d}$, so atomic support is compatible with a small distance to the posterior at large
@@ -243,6 +274,21 @@ Endpoint noise $\rho>0$ & atoms convolved with $\N(0,\rho^2I_d)$ & Prop.~\ref{pr
 exceptional set can be a hyperplane (Proposition~\ref{prop:hyperplane}).\ificlr{} Endpoint noise is the only intervention that leaves the atoms in every configuration, since its endpoint law has a density; averaging hard-label fields leaves them only in configurations such as the symmetric tie of Section~\ref{sec:posmix}.\fi}
 \label{tab:interventions}
 \end{table}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{fig_unrolled.pdf}
+\caption{The results of Table~\ref{tab:interventions} and Section~\ref{sec:transfer}, unrolled in
+time for one-dimensional flows: source density on top, $140$ of $1500$ trajectories coloured by the
+training point they approach, and the output at the bottom. A stem is a point mass on a training
+point (black tick) with height equal to its probability; a shaded curve is a density. (a) Label
+noise and (b) guidance only reweight the training points. (c) Guidance applied to a
+label-averaged field with $w=2w_c$, $B=1$ sends about $40\%$ of the mass to the midpoint, a blend of two
+training points (Theorem~\ref{thm:composition}). (d) A learned field with relative error $0.6$
+still copies; (e) one whose relative error tends to $1$ late produces new samples
+(Theorem~\ref{thm:relerr}).}
+\label{fig:unrolled}
+\end{figure}
 
 \paragraph{Related work.} That the empirical minimiser memorises is well established
 \citep{pidstrigach2022manifolds,gu2023memorization,biroli2023diffusion,buchanan2025edge,gao2024flow,bertrand2025closed,li2026memory};
@@ -844,6 +890,57 @@ $(1-t)\Delta(Z_t,t)=(1-t)v_\theta(Z_t,t)+Z_t-a$, if $v_\theta$ stays bounded alo
 with $Z_t\to z$, then $(1-t)\Delta(Z_t,t)\to z-a$ and the bound holds with equality, so a
 correlation between the two measured quantities would carry little additional information.}
 
+% DRAFT (2026-11-17): Theorem thm:relerr and Propositions prop:trap, prop:heun were drafted with
+% model assistance and passed adversarial checks (docs/plan/proofs_E_R_T1_T2_2026-11-17.md); the
+% authors must check them before submission (see the LLM statement in the ICLR build).
+Theorem~\ref{thm:transfer} bounds the endpoint distance by the limit of the scaled error and needs
+an identifying label. Whether a trajectory reaches an atom at all is decided by a weaker quantity,
+the scaled error relative to the distance to that atom, at any label and bandwidth. Write
+$m^\star=\sum_jw_jx^j$ for any posterior mean with continuous weights $w_j\ge0$, $\sum_jw_j=1$
+(at an identifying label or a positive bandwidth, or the class posterior of
+Section~\ref{sec:edm}), so that $(1-t)\Delta=\hat x_1-m^\star$ for a field that predicts data.
+
+\begin{restatable}[Landing under relative field error]{theorem}{thmrelerr}
+\label{thm:relerr}
+Let $\hat x_1$ be continuous on $\R^d\times[t_1,1)$ and $Z$ a $C^1$ solution of
+$\dot Z_t=(\hat x_1(Z_t,t)-Z_t)/(1-t)$ on $[t_1,1)$. Fix an atom $a=x^i$ and write
+$n_t=|Z_t-a|$, $e_t=|\hat x_1(Z_t,t)-m^\star(Z_t,t)|$ and
+$\omega_t=(1-w_i(Z_t,t))\max_k|x^k-a|$.
+\begin{enumerate}[label=(\alph*),leftmargin=2em]
+\item $n$ is locally Lipschitz; where $n_t>0$,
+  $(1-t)\dot n_t=\langle\hat e_t,\hat x_1(Z_t,t)-a\rangle-n_t$ with $\hat e_t=(Z_t-a)/n_t$, and
+  $(1-t)\dot n_t\le e_t+\omega_t-n_t$ for almost every $t$.
+\item If $e_t\le\bar\varrho\,n_t+\gamma_t$ for a constant $\bar\varrho<1$ and a continuous
+  $\gamma\ge0$, and $\gamma_t+\omega_t\to0$ as $t\uparrow1$, then $Z_t\to a$.
+\item If $n_{t_1}>0$ and $\langle\hat e_t,\hat x_1(Z_t,t)-a\rangle\ge(1-\delta_t)n_t$ whenever
+  $n_t>0$, for a continuous $\delta$ with $\int_{t_1}^1\delta_t^+/(1-t)\,dt<\infty$, then
+  $\inf_tn_t>0$: the trajectory does not reach $a$.
+\item The constant $\bar\varrho<1$ in (b) cannot be replaced by $1$.
+\end{enumerate}
+\proofin{apx:pf-relerr}
+\end{restatable}
+
+The absolute error may be large: (b) asks only that it stay a fixed fraction below the distance,
+with $\omega_t\to0$ once the posterior concentrates on $a$, which holds on a ball around $a$ at
+late times (Proposition~\ref{prop:trap}). The quantity that decides landing is the radial ratio
+$\langle\hat e_t,\hat x_1-a\rangle/n_t$ of~(a), which a relative error below one keeps below one;
+(c) is its converse. Appendix~\ref{app:relerr} adds a trapping statement in EDM coordinates and
+the corresponding bound for the deterministic Heun sampler used in practice
+(Proposition~\ref{prop:heun}), whose last steps can extrapolate past the atom.
+Figure~\ref{fig:landscape} shows the picture behind the theorem.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{fig_landscape.pdf}
+\caption{The landscape $-\log p_t$ of the exact field for three training points in $d=2$, on a
+logarithmic height scale; blue is low. (a, b) A single bowl splits into one well per training
+point. (c) As $t\to1$ each well narrows to a point, and the exact flow (green) falls to the bottom:
+the output is a copy. (d) A learned field with $\hat x_1=m^\star+\varrho_t(Z-m^\star)$ and
+$1-\varrho_t=0.6(1-t)^{1/2}$, whose integral against $dt/(1-t)$ is finite, follows the same
+landscape but stops on the wall of the well, as in Theorem~\ref{thm:relerr}(c).}
+\label{fig:landscape}
+\end{figure}
+
 \moveblock{localtransfer}{%
 \begin{restatable}[Local transfer at positive bandwidth]{proposition}{proplocaltransfer}
 \label{prop:localtransfer}
@@ -1128,6 +1225,118 @@ seeds, so these are descriptive values, not hypothesis tests.}
 \end{table}
 }%
 
+% Numbers: results/n3_edm_sub500_20261115, results/n3_followup_{,sub500_}20261111,
+% results/n3_rho_20261117, results/n3_t3_20261117, results/n3_steps_20261117,
+% results/n3_anchor_20261117, results/n3_robust_20261117 (see docs/plan/theory_extensions_2026-11-11.md).
+\subsection{Landing in EDM image models}
+\label{sec:edm}
+
+We test Theorem~\ref{thm:relerr} on class-conditional EDM denoisers on CIFAR-10
+\citep{karras2022elucidating}: the public model trained on all $50000$ images, and three models
+with the same architecture trained here for $10$\,Mimg without augmentation on class-balanced
+subsets, two of $500$ images (different subsets and seeds) and one of $2000$. In EDM coordinates $t=1/(1+\sigma)$, $Z=tx$ and
+$\hat x_1(Z,t)=D_\theta(Z/t,\sigma,c)$, and $m^\star$ is the posterior mean over the training images
+of class $c$; the class label is not identifying, so Theorem~\ref{thm:transfer} does not apply
+and Theorem~\ref{thm:relerr} does. All samples use EDM's deterministic $18$-step Heun sampler, and a
+sample is off-atom when its distance to the nearest training image of its class is at least $1/3$
+of that to the second nearest, as in Appendix~\ref{app:measured-transfer}. The $500$-image models
+memorise: $41$ of $1000$ samples ($4.1\%$) are off-atom, and $4.4\%$ for the second subset. The
+$2000$-image model is balanced, with $50.1\%$ off-atom, and the public model has only off-atom
+samples; the exact field has none. Unless stated otherwise, numbers below are for the first
+$500$-image model; the second gives the same conclusions (Appendix~\ref{app:relerr-exp}).
+
+\paragraph{The image is chosen early; whether it is reached is decided late.} Running the network
+down to $\sigma=s$ and the exact field below ends on a training image for every
+$s\in[0.02,5]$ and both models. On the public model, which never memorises, replacing the field on
+the last $2\%$ of the time ($s=0.02$, $t=0.98$) thus turns no memorisation into complete
+memorisation. The image reached is the network trajectory's own nearest training image in $31$,
+$56$, $90$, $99$ and $100\%$ of samples for $s=5,2,1,0.2,0.02$ on the public model, and in $92.8$,
+$98.2$ and $99.6\%$ for $s=5,2,1$ and all samples from $s\le0.2$ on, on the subset model. The
+network selects an image by $\sigma\approx1$; whether the trajectory lands on it is decided below
+(Figure~\ref{fig:edm-clocks}).
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{fig_edm_clocks.pdf}
+\caption{Two clocks on EDM models on CIFAR-10. (a) Selection: running the network down to
+$\sigma=s$ and the exact field below, the share of samples that reach the network trajectory's own
+nearest training image. (b) Landing: median relative error $\varrho_t$ for on- and off-atom samples
+of the $500$-image model (solid, with interquartile range), the $2000$-image model (dashed) and
+the public model. (c) On the balanced $2000$-image model: AUC of the relative error and of the
+radial ratio of Theorem~\ref{thm:relerr}(a), both anchored without endpoint information, of the
+late contraction $\int(1-\varrho_t)\,d\log(1/\sigma)$ from $\sigma=0.585$, and of the distance from
+$D_\theta$ to the nearest training image.}
+\label{fig:edm-clocks}
+\end{figure}
+
+\begin{table}[t]
+\centering\small
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+$\sigma$ & $1.92$ & $0.585$ & $0.140$ & $0.023$ & $0.002$\\
+\midrule
+$\varrho$, subset model, on-atom & $0.015$ & $0.043$ & $0.185$ & $0.725$ & $0.988$\\
+$\varrho$, subset model, off-atom & $0.231$ & $0.613$ & $0.957$ & $0.998$ & $1.000$\\
+$\varrho$, public model & $0.146$ & $0.499$ & $0.925$ & $0.997$ & $1.000$\\
+AUC of $\varrho$, subset model & $0.999$ & $1.000$ & $1.000$ & $1.000$ & $0.995$\\
+\midrule
+$\varrho$, $2000$ images, on-atom & $0.041$ & $0.103$ & $0.405$ & $0.906$ & $0.997$\\
+$\varrho$, $2000$ images, off-atom & $0.151$ & $0.384$ & $0.832$ & $0.989$ & $1.000$\\
+AUC of $\varrho$, $2000$ images & $0.946$ & $0.990$ & $0.983$ & $0.970$ & $0.929$\\
+\bottomrule
+\end{tabular}
+\caption{Median relative field error $\varrho_t=e_t/n_t$ along EDM trajectories, with $n_t$ the
+distance to the endpoint's nearest training image; AUC is the probability that an off-atom
+sample has the larger $\varrho$. Top: the first $500$-image model ($41$ off-atom samples) and the
+public model; bottom: the balanced $2000$-image model ($501$ off-atom of $1000$). Anchoring at the nearest training image of $D_\theta(x,\sigma)$
+instead, which uses no information after $\sigma$, gives the same AUC at every $\sigma$
+(Appendix~\ref{app:relerr-exp}).}
+\label{tab:edm-rho}
+\end{table}
+
+\paragraph{The late contraction decides landing.} On the $500$-image model the groups are far
+apart: on-atom samples keep $\varrho_t$ well below one until the last steps, while off-atom samples
+and every sample of the public model reach $\varrho_t\approx1$ from $\sigma\approx0.14$ on, the
+non-landing regime of Theorem~\ref{thm:relerr}(c) (Table~\ref{tab:edm-rho}). On the balanced
+$2000$-image model the contrast is one of degree: almost every sample of either group has
+$\varrho_t<1$ at every step, and the on-atom median also approaches one at the last step. What
+Theorem~\ref{thm:relerr}(b) and (c) use is the contraction that the relative error leaves,
+$\int(1-\varrho_t)\,d\log(1/\sigma)$; over the late noise levels $\sigma\in[0.002,0.585]$ it is $1.75$
+for on-atom against $0.68$ for off-atom samples (medians, AUC $0.983$, interval $[0.977,0.988]$),
+and $2.55$ against $0.29$ (AUC $1.000$) on the $500$-image model. The rise of $\varrho_t$ to about
+$0.99$ at the last step means that the data support landing to the off-atom criterion, not exact
+landing. The worst-direction
+contraction of the denoiser, $\lambda_{\max}$ of its symmetrised Jacobian, does not separate the
+groups late (AUC $0.47$--$0.52$ for $\sigma\le0.023$): what matters is the contraction toward the
+selected image, not in the worst direction (Appendix~\ref{app:relerr-exp}).
+
+As a detector, the field error is no better than the distance from $D_\theta$ to the nearest
+training image. Its absolute value $e_t$ is worse at $\sigma\in[3.3,19.4]$ (AUC difference
+$-0.074$, bootstrap $95\%$ interval $[-0.099,-0.049]$, at $\sigma=8.4$) and equal from
+$\sigma\le1.9$, where the two coincide up to the off-image posterior mass. The radial ratio is better
+only at the highest noise levels: $0.796$ against $0.689$ at $\sigma=19.4$ (difference
+$[0.056,0.159]$), and on the balanced model $0.605$ against $0.520$ at $\sigma=12.9$ (difference
+$[0.055,0.115]$), where both are weak. The late contraction ties the baseline on the balanced model
+($0.983$ against $0.985$, difference $[-0.004,0.000]$). These conclusions do not change for off-atom
+thresholds $0.2$ and $0.5$. We read Theorem~\ref{thm:relerr} as the mechanism of landing, not as a
+cheaper test for memorisation.
+
+\paragraph{A prediction for the sampler.} Each Heun step is an affine combination
+$x_{k+1}=r_kx_k+\kappa_kD_k+\theta_k\tilde D_k$ with $r_k=\sigma_{k+1}/\sigma_k$, where $D_k$ and
+$\tilde D_k$ are the denoiser outputs at the point and at its Euler predictor, and
+$\kappa_k<0$ when $r_k<1/2$. Proposition~\ref{prop:heun} turns a relative error $\varrho$ at the
+step and at its Euler predictor into a one-step contraction factor $c_k$, which is below one for
+every $\varrho<1$ when $r_k\ge1/2$ but only for $\varrho<\varrho_{\rm crit}(r_k)<1$ otherwise. In the
+$18$-step schedule $r_k$ falls below $1/2$ for the last five Heun steps, to $0.27$. Along all
+$1500$ trajectories the bound is never violated; it certifies contraction for at least $99.7\%$ of
+on-atom samples at every step down to $\sigma=0.14$ and for none at the last two Heun steps, where
+the predictor's $\varrho$ exceeds $\varrho_{\rm crit}$. The proposition predicts that more steps,
+which raise every $r_k$ above $1/2$, remove this failure without changing the outcome. With $36$ and
+$64$ steps the certificate holds at every step for $99.5\%$ of on-atom samples, while the off-atom
+fraction ($4.1$, $4.0$, $3.9\%$ for $18$, $36$, $64$ steps) and the image reached ($99.4$ and
+$99.3\%$ the same as with $18$ steps) do not change (Figure~\ref{fig:heun}, Table~\ref{tab:edm-steps}).
+On the $2000$-image model and the second $500$-image model the bound is never violated either, and
+it certifies every on-atom sample down to $\sigma=0.30$.
 
 \FloatBarrier
 
@@ -1150,7 +1359,10 @@ EXP-1 it exceeds the training-law error by orders of magnitude near $t=1$
 learned experiments use five seeds, the learned composition $d\le2$ and the synthetic
 problems $d\le10$, and the image
 experiments use one mask and $N{=}2000$, with instance and optimisation randomness confounded
-there\ificlr.\else{} (on EXP-1 the two are separated in Appendix~\ref{app:exp}). Class-conditional training, where labels are shared, retains the
+there. The EDM experiments use one dataset, three trained models (two seeds at $500$ images and one
+at $2000$) and a deterministic sampler; the relative error rises to about $0.99$ at the last step,
+so they support landing to the off-atom criterion, not exact landing, and Theorem~\ref{thm:relerr}
+needs the exact field, which only an auditor with the training set can evaluate\ificlr.\else{} (on EXP-1 the two are separated in Appendix~\ref{app:exp}). Class-conditional training, where labels are shared, retains the
 within-class variance instead of collapsing (Appendix~\ref{app:exp4}).\fi
 
 % ==========================================================================
@@ -1170,8 +1382,10 @@ none of them protects training data; under label noise the returned records are 
 from the training set. At an identifying label, what moves a trained sampler away from the
 training examples is the error of the learned field near $t=1$ (Theorem~\ref{thm:transfer}),
 which the regression loss does not control, so late-time field error is the quantity to measure.
-At positive bandwidth, as for our off-atom image samples, the theorem is only local, but the
-measured scaled error separates those samples from the on-atom ones. The composition result is a boundary marker of these statements, not a mechanism
+At any label, whether the trajectory reaches the example is decided by that error relative to
+the distance (Theorem~\ref{thm:relerr}): on EDM models the image is selected early and reached
+only when the late relative error leaves enough contraction, which also tells how many sampler
+steps the guarantee needs. The composition result is a boundary marker of these statements, not a mechanism
 we expect in standard models: its basin is set at the scale $(1-t)^2$, which standard velocity
 networks did not resolve in our runs (Proposition~\ref{prop:regular}), and a label bottleneck does
 not produce the averaged field (Proposition~\ref{prop:bottleneck}).\ificlr{} Open are nonhyperbolic
@@ -1192,7 +1406,9 @@ Theory checks: \texttt{composition\_counterexample.py} (with
 \texttt{analyze\_p7\_kernel.py}, \texttt{verify\_kernel\_theory.py},
 \texttt{verify\_target\_noise.py}. Experiments: \texttt{run\_exp1.sh}, \texttt{run\_sweeps.py},
 \texttt{train\_exp2}, \texttt{train\_exp3}, each followed by its analysis script, and
-\texttt{verify\_paper\_numbers.py} for the image-scale numbers; the result figures of
+\texttt{verify\_paper\_numbers.py} for the image-scale numbers, and for the EDM experiments
+\texttt{n3\_edm\_memorization.py}, \texttt{n3\_swap.py}, \texttt{n3\_jacobian\_mu.py},
+\texttt{n3\_directional\_q.py} and \texttt{n3\_robustness.py}; the result figures of
 Section~\ref{sec:experiments} are drawn from the saved outputs by
 \texttt{make\_results\_figures.py}. Every assumption is stated where
 it is used, and all load-bearing results are proved in
@@ -1215,6 +1431,9 @@ and the public CIFAR-10 and MNIST datasets; no personal or human-subject data ar
 
 \subsection*{Use of large language models}
 % CHECK: confirm the uses listed below and name any others.
+% CHECK (2026-11-17): Theorem thm:relerr and Propositions prop:trap, prop:heun were drafted with
+% model assistance. The sentence "The authors wrote and verified all proofs" is true only after the
+% authors have checked and taken over those proofs; otherwise reword it.
 We used large language models as assistants for writing and running experiment and
 analysis code, for editing the manuscript, and as additional independent checkers of the
 written proofs. The authors wrote and verified all proofs; the model-based checks
@@ -1241,7 +1460,9 @@ reference. Appendix~\ref{app:intervention-proofs} proves the intervention result
 Section~\ref{sec:intervention-atomicity}: it first isolates two general lemmas that every
 intervention proof uses, then treats positive mixtures, guidance and their composition.
 Appendix~\ref{app:transfer} proves the transfer results of Section~\ref{sec:transfer} and contains
-the two statements on what training loss can certify. Appendix~\ref{app:noise} treats endpoint
+the two statements on what training loss can certify. Appendix~\ref{app:relerr} proves
+Theorem~\ref{thm:relerr}, states trapping and Heun-sampler versions of it, and gives the EDM
+experiments of Section~\ref{sec:edm}. Appendix~\ref{app:noise} treats endpoint
 noise, and Appendix~\ref{app:expdetails} gives experimental details. Each main-text result is
 restated, with its original number, immediately before its proof, and the longest proofs open
 with a short overview. Table~\ref{tab:notation} collects the notation,
@@ -1271,6 +1492,8 @@ $\beta=t/\eps^2$, $\alpha=1/\beta$ & inverse temperature of the posterior over a
 $b_j$, $H_p$ & linear scores $x\cdot a_j-\tfrac t2|a_j|^2$; log-partition function of prior $p$\\
 $w$, $w_c=1/\sinh^2B$ & guidance strength; threshold of Theorem~\ref{thm:composition}\\
 $\Delta$ & error of a learned field relative to the exact field\\
+$e_t$, $n_t$, $\varrho_t=e_t/n_t$ & scaled error $|\hat x_1-m^\star|$, distance to the atom, relative error (Appendix~\ref{app:relerr})\\
+$\sigma$, $D_\theta$, $r_k$, $\kappa_k$, $\theta_k$ & EDM noise level and denoiser; Heun step ratio and weights\\
 \bottomrule
 \end{tabular}
 \caption{Notation.}
@@ -1296,6 +1519,7 @@ Thm.~\ref{thm:spectral}, Cor.~\ref{cor:spectral-threshold} & \ref{apx:pf-spectra
 Thm.~\ref{thm:transfer}, Prop.~\ref{prop:localtransfer} & \ref{apx:pf-transfer-all} & variation of constants; concentration (Lemma~\ref{lem:basic}(c))\\
 Prop.~\ref{prop:regular} & \ref{apx:pf-regular} & Gr\"onwall in both time directions; crossing and trapping arguments in one dimension\\
 Thm.~\ref{thm:risktransfer}, Prop.~\ref{prop:loss-no-certificate} & \ref{app:teacher-risk} & Minkowski's inequality; an explicit affine field\\
+Thm.~\ref{thm:relerr}, Prop.~\ref{prop:trap}, \ref{prop:heun} & \ref{app:relerr} & radial projection of the flow; Gr\"onwall; affine form of the Heun step\\
 Prop.~\ref{prop:tgtnoise} & \ref{app:noise} & Gaussian conditioning; Lemma~\ref{lem:wellposed}\\
 \bottomrule
 \end{tabular}
@@ -3138,6 +3362,317 @@ learned and the exact field often return different training images from the same
 on-atom samples they agree for all at $h=0$, but for $55$--$67\%$ at $h=4$ and $23$--$28\%$ at
 $h=6$. Theorem~\ref{thm:endpoint} fixes which images the exact field returns and with what
 weights; these runs do not test whether the learned endpoint law has the same weights.
+
+% ==========================================================================
+% DRAFT (2026-11-17): drafted with model assistance, checked adversarially
+% (docs/plan/proofs_E_R_T1_T2_2026-11-17.md); to be checked by the authors.
+\section{Relative field error, trapping, and the Heun sampler}
+\label{app:relerr}
+
+Throughout, $x^1,\dots,x^N$ are distinct atoms, $a=x^i$ is fixed,
+$g=\min_{k\ne i}|x^k-a|$ ($g=\infty$ if $N=1$) and $\delta_i=\max_k|x^k-a|$. For any weights
+$w_j\ge0$ with $\sum_jw_j=1$ the posterior mean satisfies
+\begin{equation}
+|m^\star-a|=\Big|\sum_{j\ne i}w_j(x^j-a)\Big|\le(1-w_i)\,\delta_i,
+\label{eq:offmass}
+\end{equation}
+which is the only property of $m^\star$ used below.
+
+\subsection{Proof of Theorem~\ref{thm:relerr}}
+\label{apx:pf-relerr}
+
+\thmrelerr*
+
+\begin{proof}
+Write $\eps_t=1-t$, $e=Z-a$ and $\eta=\gamma+\omega$. (a) $e$ is $C^1$, so on $[t_1,T]$ with
+$T<1$ it is Lipschitz, and so is $n=|e|$. Where $e\ne0$ the norm is smooth with gradient $\hat e$
+and $\dot e=(\hat x_1-a-e)/\eps$, which gives the identity; by Cauchy--Schwarz and
+\eqref{eq:offmass}, $\langle\hat e,\hat x_1-a\rangle\le|\hat x_1-m^\star|+|m^\star-a|\le e_t+\omega_t$.
+At a point $t>t_1$ with $n_t=0$ where $n$ is differentiable, $n$ has a minimum, so
+$\dot n_t=0\le(e_t+\omega_t)/\eps_t$. Since $n$ is differentiable almost everywhere, the inequality
+holds almost everywhere.
+
+(b) Let $\nu=1-\bar\varrho>0$. By (a), $\dot n\le(-\nu n+\eta)/\eps$ almost everywhere. The function
+$u=\eps^{-\nu}n$ is locally Lipschitz, hence absolutely continuous on $[t_1,t]$, with
+$\dot u=\nu\eps^{-\nu-1}n+\eps^{-\nu}\dot n\le\eps^{-\nu-1}\eta$ almost everywhere. Integrating,
+\[
+n_t\le\Big(\frac{\eps_t}{\eps_{t_1}}\Big)^{\nu}n_{t_1}
++\int_{t_1}^t\frac{\eta_s}{\eps_s}\Big(\frac{\eps_t}{\eps_s}\Big)^{\nu}ds .
+\]
+Given $\kappa>0$, choose $\tau<1$ with $\eta\le\kappa$ on $[\tau,1)$. The first term and the
+integral over $[t_1,\tau]$, equal to $\eps_t^\nu C_\tau$, tend to $0$, and the integral over
+$[\tau,t]$ is at most $\kappa\eps_t^\nu(\eps_t^{-\nu}-\eps_\tau^{-\nu})/\nu\le\kappa/\nu$. Hence
+$\limsup n_t\le\kappa/\nu$ for every $\kappa$.
+
+(c) Let $T=\sup\{s:n>0\text{ on }[t_1,s]\}>t_1$. On $[t_1,T)$, $n$ is $C^1$ and
+$\dot n\ge-\delta^+n/\eps$, so $n_t\ge n_{t_1}\exp(-\int_{t_1}^t\delta^+_s/\eps_s\,ds)\ge n_{t_1}e^{-I}$
+with $I=\int_{t_1}^1\delta^+/\eps<\infty$. If $T<1$, continuity gives $n_T>0$, contradicting the
+definition of $T$; so $T=1$ and the bound holds for all $t$.
+
+(d) Take $N=1$ and $\hat x_1(z,t)=a+\varrho(z-a)$. Then $e_t=\varrho n_t$ and
+$\tfrac{d}{dt}(\eps^{-(1-\varrho)}(Z-a))=0$, so $Z_t-a=(Z_{t_1}-a)(\eps_t/\eps_{t_1})^{1-\varrho}$: with
+$Z_{t_1}\ne a$, the distance tends to $0$ for $\varrho<1$, stays constant for $\varrho=1$, and diverges
+for $\varrho>1$. At $\varrho=1$ the hypothesis of (b) holds with $\bar\varrho=1$, $\gamma=0$.
+\end{proof}
+
+The threshold is sharp only among constants: a field that rotates $Z-a$ while contracting it can
+land with $e_t=n_t$, so $\bar\varrho<1$ is sufficient, not necessary.
+
+\subsection{Trapping near an atom}
+\label{apx:pf-trap}
+
+In EDM coordinates the flow is $dx/d\sigma=(x-D(x,\sigma))/\sigma$, run from $\sigma_1$ down to $0$, and
+the posterior weights over the atoms are
+$w_j(x,\sigma)\propto\exp(-|x-x^j|^2/(2\sigma^2))$. For $0<R\le g/4$ let $\rho_R=R/(g-R)\le1/3$ and
+$\Omega(\sigma)=(N-1)\,\delta_i\exp(-(1-\rho_R^2)(g-R)^2/(2\sigma^2))$.
+
+\begin{proposition}[Trapping]
+\label{prop:trap}
+Let $D$ be continuous, $x$ a $C^1$ solution on $(0,\sigma_1]$, $n(\sigma)=|x(\sigma)-a|$ and
+$e(\sigma)=|D(x(\sigma),\sigma)-m^\star(x(\sigma),\sigma)|$.
+\begin{enumerate}[label=(\roman*),leftmargin=2em]
+\item If $|x-a|\le R$, then $(1-w_i(x,\sigma))\,\delta_i\le\Omega(\sigma)$.
+\item Suppose $e\le\bar\varrho\,n+\gamma$ whenever $n\le R$, with $\bar\varrho<1$ and continuous
+  $\gamma\ge0$; $n(\sigma_1)<R$; and $\gamma+\Omega<(1-\bar\varrho)R$ on $(0,\sigma_1]$. Then
+  $n<R$ on $(0,\sigma_1]$,
+  \[
+  n(\sigma)\le\Big(\frac{\sigma}{\sigma_1}\Big)^{1-\bar\varrho}n(\sigma_1)
+  +\int_\sigma^{\sigma_1}\frac{\gamma(s)+\Omega(s)}{s}\Big(\frac{\sigma}{s}\Big)^{1-\bar\varrho}ds,
+  \]
+  and $x(\sigma)\to a$ as $\sigma\to0$ if $\gamma\to0$.
+\item $\Omega(\sigma)<(1-\bar\varrho)R/2$ for every
+  $\sigma\le\sigma_\star=\big((1-\rho_R^2)(g-R)^2/(4\log(1/q))\big)^{1/2}$, where
+  $q=(1-\bar\varrho)R/(2(N-1)\delta_i)\le1/8$.
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+(i) If $|x-a|\le R$ and $k\ne i$, then $|x-x^k|\ge g-R$ and
+$w_k\le w_k/w_i\le\exp((R^2-(g-R)^2)/(2\sigma^2))=\exp(-(1-\rho_R^2)(g-R)^2/(2\sigma^2))$; sum over
+$k\ne i$. (ii) Write $\nu=1-\bar\varrho$ and $h=\gamma+\Omega$. Where $0<n\le R$, the radial identity
+$\sigma\,dn/d\sigma=n-\langle\hat e,D-a\rangle$ with \eqref{eq:offmass} and (i) gives
+$\sigma\,dn/d\sigma\ge\nu n-h$. If $n\ge R$ somewhere, let $\bar\sigma$ be the largest such
+$\sigma$; then $\bar\sigma<\sigma_1$, $n(\bar\sigma)=R$ and $n<R$ above $\bar\sigma$, so
+$dn/d\sigma(\bar\sigma)\le0$, while the inequality gives
+$dn/d\sigma(\bar\sigma)\ge(\nu R-h(\bar\sigma))/\bar\sigma>0$. Hence $n<R$ throughout. The bound
+follows by integrating $d(n\,s^{-\nu})/ds\ge-h\,s^{-\nu-1}$ (valid almost everywhere, as in
+Theorem~\ref{thm:relerr}(a)) from $\sigma$ to $\sigma_1$, and the limit as in
+Theorem~\ref{thm:relerr}(b). (iii) $\Omega$ increases with $\sigma$; for $\sigma\le\sigma_\star$ the
+exponent is at least $2\log(1/q)$, so $\Omega<(N-1)\delta_iq$.
+\end{proof}
+
+Part~(iii) covers only $\Omega$; the requirement $\gamma<(1-\bar\varrho)R/2$ is separate.
+
+\subsection{The Heun sampler}
+\label{apx:pf-heun}
+
+EDM's deterministic sampler uses noise levels $\sigma_0>\dots>\sigma_{K-1}>\sigma_K=0$. For
+$k\le K-2$, with $D_k=D(x_k,\sigma_k)$ and $d_k=(x_k-D_k)/\sigma_k$, it takes the Euler predictor
+$\tilde x_k=x_k+(\sigma_{k+1}-\sigma_k)d_k$, evaluates $\tilde D_k=D(\tilde x_k,\sigma_{k+1})$, and sets
+$x_{k+1}=x_k+\tfrac12(\sigma_{k+1}-\sigma_k)(d_k+(\tilde x_k-\tilde D_k)/\sigma_{k+1})$; the last step
+is the Euler step to $\sigma_K=0$. Write $r_k=\sigma_{k+1}/\sigma_k$, $n_k=|x_k-a|$,
+$\tilde n_k=|\tilde x_k-a|$, $e(y,\sigma)=|D(y,\sigma)-m^\star(y,\sigma)|$ and
+$\omega(y,\sigma)=(1-w_i(y,\sigma))\delta_i$.
+
+\begin{proposition}[Heun steps]
+\label{prop:heun}
+Let $D$ be any function. Fix $k\le K-2$, write $r=r_k$, and let
+$\kappa=(1-r)(2r-1)/(2r)$ and $\theta=(1-r)/(2r)$.
+\begin{enumerate}[label=(\alph*),leftmargin=2em]
+\item $\tilde x_k=rx_k+(1-r)D_k$ and $x_{k+1}=rx_k+\kappa D_k+\theta\tilde D_k$, with
+  $r+\kappa+\theta=1$; the last step gives $x_K=D_{K-1}$.
+\item If $e(x_k,\sigma_k)\le\varrho n_k+\gamma$ and $e(\tilde x_k,\sigma_{k+1})\le\varrho\tilde n_k+\tilde\gamma$
+  with $\varrho\ge0$, then $\tilde n_k\le(r+(1-r)\varrho)n_k+(1-r)G$ and $n_{k+1}\le c\,n_k+b$, where
+  $G=\gamma+\omega(x_k,\sigma_k)$, $\tilde G=\tilde\gamma+\omega(\tilde x_k,\sigma_{k+1})$,
+  \[
+  c=r+|\kappa|\varrho+\theta\varrho\,(r+(1-r)\varrho),\qquad
+  b=(|\kappa|+\theta\varrho(1-r))\,G+\theta\tilde G .
+  \]
+  For the last step, $n_K\le\varrho n_{K-1}+\gamma+\omega(x_{K-1},\sigma_{K-1})$.
+\item $c$ is strictly increasing in $\varrho$. If $r\ge1/2$, then $c<1$ for every $\varrho<1$; if
+  $r<1/2$, then $c<1$ if and only if
+  $\varrho<\varrho_{\rm crit}(r)=\tfrac12\big(\sqrt{1+8r/(1-r)}-1\big)\in(0,1)$.
+\item Let $N=1$, $d\ge2$ and $\varrho<1$. The supremum of $n_{k+1}/n_k$ over all $D$ with
+  $e(y,\sigma)\le\varrho|y-a|$ everywhere and over $x_k\ne a$ is attained and equals
+  \[
+  c^\star=\max_{s\in[-1,1]}\Big[\sqrt{r^2+2r\kappa\varrho s+\kappa^2\varrho^2}
+  +\theta\varrho\sqrt{r^2+2r(1-r)\varrho s+(1-r)^2\varrho^2}\Big];
+  \]
+  $c^\star=c$ if $r\ge1/2$ and $c^\star<c$ if $r<1/2$ and $\varrho>0$. For the linear field
+  $D(y,\sigma)=a+\varrho(y-a)$, $x_{k+1}-a=p\,(x_k-a)$ with $p=r+\kappa\varrho+\theta\varrho(r+(1-r)\varrho)$,
+  and $p<0$ for some $\varrho\in(0,1)$ exactly when $r<3-2\sqrt2$: the step overshoots the atom.
+\item Let $0<R\le g/4$ and $\Omega$ as in Appendix~\ref{apx:pf-trap}. If $n_0\le R$ and, for every
+  $k\le K-2$, the hypotheses of (b) hold with $\varrho=\varrho_k$ and
+  $\varrho_kR+\gamma_k+\Omega(\sigma_k)\le R$ and
+  $c_kR+(|\kappa_k|+\theta_k\varrho_k(1-r_k))(\gamma_k+\Omega(\sigma_k))+\theta_k(\tilde\gamma_k+\Omega(\sigma_{k+1}))\le R$,
+  then $n_k\le R$ for all $k\le K-1$. If moreover
+  $\varrho_{K-1}R+\gamma_{K-1}+\Omega(\sigma_{K-1})<g/4$, the output is on-atom:
+  $|x_K-a|<\tfrac13\min_{k\ne i}|x_K-x^k|$.
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+(a) Use $(\sigma_{k+1}-\sigma_k)/\sigma_k=r-1$ and $(\sigma_{k+1}-\sigma_k)/\sigma_{k+1}=(r-1)/r$ and
+collect terms: the coefficient of $x_k$ is $r$, that of $D_k$ is
+$(1-r)/2-(1-r)^2/(2r)=\kappa$, and that of $\tilde D_k$ is $\theta$.
+(b) By \eqref{eq:offmass}, $|D(y,\sigma)-a|\le e(y,\sigma)+\omega(y,\sigma)$. Since the coefficients sum
+to one, $\tilde x_k-a=r(x_k-a)+(1-r)(D_k-a)$ and
+$x_{k+1}-a=r(x_k-a)+\kappa(D_k-a)+\theta(\tilde D_k-a)$; take norms and substitute the bound on
+$\tilde n_k$, whose coefficient $\theta\varrho$ is nonnegative.
+(c) $c=r+(|\kappa|+\theta r)\varrho+\theta(1-r)\varrho^2$ has derivative at least $\theta r>0$. If
+$r\ge1/2$, then $|\kappa|=\kappa$ and $c(1)=r+\kappa+\theta=1$. If $r<1/2$, then
+$|\kappa|+\theta r=(1-r)^2/(2r)=\theta(1-r)$, so $c-1=-(1-r)+\theta(1-r)(\varrho+\varrho^2)$, which is
+negative if and only if $\varrho^2+\varrho<2r/(1-r)$.
+(d) Put $a=0$, $x_k=ne$ with $|e|=1$, $D_k=nu$ and $\tilde D_k=nv$, so that $|u|\le\varrho$,
+$|v|\le\varrho|re+(1-r)u|$ and $n_{k+1}/n=|re+\kappa u+\theta v|$. The two outputs are values of $D$
+at different noise levels, so they can be chosen independently, with $D=0$ elsewhere. For fixed
+$u$ the maximum over $v$ is $F(u)=|re+\kappa u|+\theta\varrho|re+(1-r)u|$, attained with $v$
+parallel to $re+\kappa u$. $F$ is convex, so its maximum over the ball is on $|u|=\varrho$, where it
+depends only on $s=\langle u,e\rangle/\varrho$, every $s\in[-1,1]$ occurring because $d\ge2$; this gives
+$c^\star$. By the triangle inequality $c^\star\le c$, with equality in the first norm only at
+$s=\operatorname{sgn}\kappa$ and in the second only at $s=1$, so $c^\star=c$ when $\kappa\ge0$ and
+$c^\star<c$ when $\kappa<0$ and $\varrho>0$. For the linear field the step is exact with factor $p$;
+$2rp=(1-r)^2\varrho^2+(1-r)(3r-1)\varrho+2r^2$ has discriminant $(1-r)^2(r^2-6r+1)$, positive
+exactly when $r<3-2\sqrt2$, and then both roots lie in $(0,1)$.
+(e) By Proposition~\ref{prop:trap}(i), $\omega\le\Omega$ on the ball. If $n_k\le R$, the first
+condition and (b) give $\tilde n_k\le R$, so $\Omega$ also bounds $\omega(\tilde x_k,\sigma_{k+1})$, and the
+second condition gives $n_{k+1}\le R$. Induction gives $n_{K-1}\le R$, then $n_K<g/4$, and for
+$k\ne i$, $|x_K-x^k|\ge g-n_K>3n_K$.
+\end{proof}
+
+\subsection{EDM experiments}
+\label{app:relerr-exp}
+
+\paragraph{Models and sampling.} The public model is EDM's class-conditional CIFAR-10 checkpoint
+(VP, DDPM++). The subset models use the same configuration with batch size $128$, no augmentation
+and $10$\,Mimg, and are the EMA snapshots at the end of training: $50$ images per class with subset
+and training seed $0$ (the first $500$-image model) and seed $1$ (the second), and $200$ images per
+class with seed $0$ (the $2000$-image model). Samples use EDM's $18$-step schedule
+($\sigma\in[0.002,80]$, $\rho=7$, no stochasticity); each run uses $100$ latents per class for the
+subset models and $50$ or $20$ per class for the public model. The exact field is the class posterior mean over the training images of the
+class, evaluated in double precision. The scripts are \texttt{n3\_edm\_memorization.py},
+\texttt{n3\_swap.py}, \texttt{n3\_jacobian\_mu.py}, \texttt{n3\_directional\_q.py} (relative error, radial ratio,
+Heun bound, predictive anchor) and \texttt{n3\_robustness.py} (bootstrap).
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{fig_heun.pdf}
+\caption{Proposition~\ref{prop:heun} on EDM's schedule. (a) Weights of a Heun step against the step
+ratio $r$; below $r=1/2$ the weight $\kappa$ on the first denoiser output is negative and the step
+extrapolates. (b) The threshold $\varrho_{\rm crit}(r)$ (line; shaded: $c_k<1$) with the median
+relative error at the Euler predictor of on-atom samples of the $500$-image model, one point per
+step, for $18$, $36$ and $64$ steps. (c) Share of on-atom samples with $c_k<1$ at each step.}
+\label{fig:heun}
+\end{figure}
+
+\paragraph{Heun bound along the trajectories.} Figure~\ref{fig:heun} and Table~\ref{tab:edm-heun} evaluate
+Proposition~\ref{prop:heun}(b) with $\gamma=0$, $\varrho_k$ the larger of the relative errors at
+$x_k$ and at $\tilde x_k$, and $\omega$ from the exact posterior. The predictor's relative error is
+the larger one at every step and every on-atom sample; it is close to the relative error at the
+next level $\sigma_{k+1}$, where the predictor is evaluated. $\omega/n$ is zero to working
+precision at these steps, since the subset images are far apart.
+
+\begin{table}[h]
+\centering\small
+\begin{tabular}{@{}rrrrrrrrrr@{}}
+\toprule
+step & $\sigma_k$ & $r_k$ & $\varrho_{\rm crit}$ & $\varrho$ at $x_k$ & $\varrho$ at $\tilde x_k$ & $c_k<1$ & factor & bound & public\\
+\midrule
+10 & 1.09 & 0.538 & 1 & 0.024 & 0.042 & $100\%$ & 0.540 & 0.549 & 0.600\\
+11 & 0.585 & 0.506 & 1 & 0.043 & 0.085 & $100\%$ & 0.512 & 0.530 & 0.680\\
+12 & 0.296 & 0.471 & 0.924 & 0.086 & 0.182 & $100\%$ & 0.485 & 0.535 & 0.829\\
+13 & 0.140 & 0.430 & 0.825 & 0.185 & 0.397 & $99.7\%$ & 0.482 & 0.640 & 0.946\\
+14 & 0.060 & 0.383 & 0.720 & 0.400 & 0.730 & $47\%$ & 0.581 & 1.011 & 0.989\\
+15 & 0.023 & 0.328 & 0.608 & 0.725 & 0.937 & $0\%$ & 0.807 & 1.575 & 0.998\\
+16 & 0.0075 & 0.266 & 0.487 & 0.929 & 0.990 & $0\%$ & 0.953 & 2.265 & 1.000\\
+\bottomrule
+\end{tabular}
+\caption{Heun bound on the subset model, on-atom medians: factor $n_{k+1}/n_k$, bound
+$(c_kn_k+b_k)/n_k$, and the factor of the public model. No step of any of the $1500$ trajectories
+(both models) violates the bound.}
+\label{tab:edm-heun}
+\end{table}
+
+\begin{table}[h]
+\centering\small
+\begin{tabular}{@{}rrrrrr@{}}
+\toprule
+Heun steps & $\min_kr_k$ & off-atom & certified at every step & violations & same image as $18$ steps\\
+\midrule
+18 & 0.266 & $4.1\%$ & $0\%$ & 0 & --\\
+36 & 0.509 & $4.0\%$ & $99.5\%$ & 0 & $99.4\%$ / $94.8\%$\\
+64 & 0.682 & $3.9\%$ & $99.5\%$ & 0 & $99.3\%$ / $94.4\%$\\
+\bottomrule
+\end{tabular}
+\caption{Number of Heun steps, same latents. ``Certified'': on-atom samples of the subset model
+with $c_k<1$ at every step. Last column: subset / public model.}
+\label{tab:edm-steps}
+\end{table}
+
+\paragraph{Predictive anchor, baseline and thresholds.} Table~\ref{tab:edm-anchor} replaces the
+endpoint's nearest image by the nearest training image of $D_\theta(x_k,\sigma_k)$, which uses no
+information after $\sigma_k$, and compares with the distance $\hat d$ from $D_\theta$ to that image,
+the baseline of the off-image test. Intervals are $95\%$ stratified bootstrap intervals ($1000$
+resamples, paired for differences). The absolute error $e_t$ (from the separate run of
+\texttt{n3\_edm\_memorization.py}, same model) is below the baseline at the same $\sigma$, by
+$0.169$, $0.207$, $0.074$, $0.017$ and $0.004$ for the five columns, every interval excluding
+zero. With off-atom thresholds $0.2$ and $0.5$ there are $46$ and $39$ off-atom samples, and every
+AUC and the sign of every difference are unchanged.
+
+\begin{table}[h]
+\centering\small
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}lrrrrr@{}}
+\toprule
+$\sigma$ & 19.4 & 12.9 & 8.4 & 5.32 & 3.26\\
+\midrule
+anchor $=$ endpoint image (on-atom) & $0.496$ & $0.750$ & $0.901$ & $0.974$ & $0.994$\\
+AUC of $\varrho$, endpoint anchor & $0.519$ & $0.670$ & $0.884$ & $0.974$ & $0.995$\\
+AUC of $\varrho$, predictive anchor & $0.519$ & $0.670$ & $0.884$ & $0.974$ & $0.995$\\
+AUC of the radial ratio & $0.796$ & $0.894$ & $0.946$ & $0.980$ & $0.996$\\
+AUC of $\hat d$ (baseline) & $0.689$ & $0.876$ & $0.959$ & $0.991$ & $0.999$\\
+radial ratio $-$ baseline & $0.106$ & $0.017$ & $-0.013$ & $-0.010$ & $-0.003$\\
+\quad $95\%$ interval & $[0.056,0.159]$ & $[-0.009,0.043]$ & $[-0.027,0.001]$ & $[-0.017,-0.005]$ & $[-0.005,-0.001]$\\
+\bottomrule
+\end{tabular}}
+\caption{Predictive anchor and baseline, subset model ($1000$ samples, $41$ off-atom).}
+\label{tab:edm-anchor}
+\end{table}
+
+\paragraph{Second seed and balanced model.} Table~\ref{tab:edm-models} repeats the main measurements
+on all three trained models. The late contraction is
+$C=\int_{0.002}^{0.585}(1-\varrho_\sigma)\,d\log(1/\sigma)$, computed with the trapezoidal rule on the
+sampler's noise levels, and its AUC uses $-C$. The second $500$-image model reproduces the first. On
+the $2000$-image model the relative error at a single noise level separates the groups less well
+at the end ($0.929$ at $\sigma=0.002$), because on-atom samples also reach $\varrho\approx1$ there,
+while the late contraction keeps an AUC of $0.983$, equal to the baseline within the bootstrap
+interval.
+
+\begin{table}[h]
+\centering\small
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}lrrrrrrr@{}}
+\toprule
+model & off-atom & AUC $\varrho$, $\sigma=0.585$ & $0.140$ & $0.002$ & $C$ on / off & AUC of $C$ & baseline, $\sigma=0.002$\\
+\midrule
+$500$ images, seed $0$ & $41$ & $1.000$ & $1.000$ & $0.995$ & $2.55$ / $0.29$ & $1.000$ & $1.000$\\
+$500$ images, seed $1$ & $44$ & $1.000$ & $1.000$ & $1.000$ & $2.53$ / $0.32$ & $1.000$ & $1.000$\\
+$2000$ images & $501$ & $0.990$ & $0.983$ & $0.929$ & $1.75$ / $0.68$ & $0.983$ & $0.985$\\
+\bottomrule
+\end{tabular}}
+\caption{The three trained models, $1000$ samples each. $C$: late contraction (medians for on- and
+off-atom samples). Baseline: distance from $D_\theta$ to the nearest training image. The Heun bound
+of Proposition~\ref{prop:heun} is never violated on any of them, and certifies every on-atom
+sample down to $\sigma=0.30$ on all three.}
+\label{tab:edm-models}
+\end{table}
+
+\paragraph{Worst-direction contraction.} On $200$ samples of the subset model ($13$ off-atom), the
+median of $\mu=(1+\sigma)\lambda_{\max}$ of the symmetrised Jacobian of $D_\theta$ is $2.37$ off-atom
+against $0.58$ on-atom at $\sigma=1.92$ (AUC $0.86$), but $0.96$ for both groups at
+$\sigma\le0.023$ (AUC $0.52$ and $0.47$). The exact field has $\mu^\star=0$ there. Contraction in the
+worst direction thus does not distinguish the groups late, while the radial ratio toward the
+selected image, which is the quantity in Theorem~\ref{thm:relerr}(a), does.
 
 % ==========================================================================
 \section{Endpoint noise}

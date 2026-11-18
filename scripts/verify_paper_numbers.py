@@ -1131,6 +1131,163 @@ check("atom-centred: max disagreement at w=0 (%)", 27, round(100 * max(_dis)), 0
 check("atom-centred seed 0 crashed", 1.0,
       float("sources unfinished" in (_BN / "logs" / "cfm_x_a_seed0_train.log").read_text()), 0)
 
+print("\nEDM (Section sec:edm, Appendix app:relerr)")
+from scripts.n3_edm_memorization import auc as _auc  # noqa: E402
+
+_R = pathlib.Path("results")
+_n3 = np.load(_R / "n3_edm_sub500_20261115/sub500_s0/per_sample.npz")
+check("subset model: off-atom samples (of 1000)", 41, int((_n3["d1"] / _n3["d2"] >= 1 / 3).sum()), 0)
+check("subset model: samples", 1000, len(_n3["d1"]), 0)
+
+
+def _md_rows(path, header):
+    """Rows of the markdown table that follows the line starting with `header`."""
+    rows, on = {}, False
+    for ln in pathlib.Path(path).read_text(encoding="utf-8").splitlines():
+        if ln.startswith(header):
+            on = True
+            continue
+        if on and ln.startswith("| ") and not ln.startswith("| s ") and not ln.startswith("|---"):
+            c = [x.strip() for x in ln.strip("|").split("|")]
+            rows[c[0]] = c
+        elif on and rows and not ln.startswith("|"):
+            break
+    return rows
+
+
+_sp = _md_rows(_R / "n3_followup_20261111/SWAP_SUMMARY.md", "## swap_public")
+_ss = _md_rows(_R / "n3_followup_sub500_20261111/SWAP_SUMMARY.md", "## swap_sub500")
+for _s, _v in (("5", 31), ("2", 56), ("1", 90), ("0.2", 99), ("0.02", 100)):
+    check(f"swap public s={_s}: net->exact = network image (%)", _v, 100 * float(_sp[_s][3]), 0.5 / max(1, _v))
+    check(f"swap public s={_s}: net->exact off-atom", 0, float(_sp[_s][2]), 0)
+for _s, _v in (("5", 92.8), ("2", 98.2), ("1", 99.6), ("0.2", 100), ("0.02", 100)):
+    check(f"swap subset s={_s}: net->exact = network image (%)", _v, 100 * float(_ss[_s][3]), 0.05 / _v)
+    check(f"swap subset s={_s}: net->exact off-atom", 0, float(_ss[_s][2]), 0)
+
+_rs = np.load(_R / "n3_rho_20261117/sub500/q_per_sample.npz")
+_rp = np.load(_R / "n3_rho_20261117/public/q_per_sample.npz")
+_on = _rs["d1"] / _rs["d2"] < 1 / 3
+_rho = lambda z: z["err"] / z["n1"]  # noqa: E731
+_cols = {1.92: 9, 0.585: 11, 0.140: 13, 0.023: 15, 0.002: 17}
+_tab = {"on": (0.015, 0.043, 0.185, 0.725, 0.988), "off": (0.231, 0.613, 0.957, 0.998, 1.000),
+        "pub": (0.146, 0.499, 0.925, 0.997, 1.000), "auc": (0.999, 1.000, 1.000, 1.000, 0.995)}
+for _j, (_sg, _i) in enumerate(_cols.items()):
+    check(f"tab:edm-rho sigma column {_sg}", _sg, float(_rs["sigma"][_i]), 0.03)
+    check(f"rho on-atom median, sigma {_sg}", _tab["on"][_j], float(np.median(_rho(_rs)[_on, _i])), 0.0015)
+    check(f"rho off-atom median, sigma {_sg}", _tab["off"][_j], float(np.median(_rho(_rs)[~_on, _i])), 0.0015)
+    check(f"rho public median, sigma {_sg}", _tab["pub"][_j], float(np.median(_rho(_rp)[:, _i])), 0.0015)
+    check(f"rho AUC, sigma {_sg}", _tab["auc"][_j], _auc(_rho(_rs)[~_on, _i], _rho(_rs)[_on, _i]), 0.0015)
+check("every on-atom sample has rho < 1 at every step", 1.0, float((_rho(_rs)[_on] < 1).all()), 0)
+
+_mu = _md_rows(_R / "n3_followup_sub500_20261111/MU_SUMMARY.md", "| sigma |")
+check("mu off-atom median, sigma 1.92", 2.37, float(_mu["1.923"][2]), 0.002)
+check("mu on-atom median, sigma 1.92", 0.58, float(_mu["1.923"][3]), 0.005)
+check("mu AUC, sigma 1.92", 0.86, float(_mu["1.923"][7]), 0.005)
+check("mu AUC, sigma 0.023", 0.52, float(_mu["0.02293"][7]), 0.002)
+check("mu AUC, sigma 0.002", 0.47, float(_mu["0.002"][7]), 0.01)
+
+_t3 = {r["run"]: r["t3"] for r in json.loads((_R / "n3_t3_20261117/q_summary.json").read_text(encoding="utf-8"))}
+_heun = {10: (0.540, 0.549, 0.600), 11: (0.512, 0.530, 0.680), 12: (0.485, 0.535, 0.829), 13: (0.482, 0.640, 0.946),
+         14: (0.581, 1.011, 0.989), 15: (0.807, 1.575, 0.998), 16: (0.953, 2.265, 1.000)}
+_cert = {10: 1.0, 11: 1.0, 12: 1.0, 13: 0.997, 14: 0.47, 15: 0.0, 16: 0.0}
+for _k, (_a, _b, _p) in _heun.items():
+    _r = _t3["sub500"][_k]
+    check(f"tab:edm-heun step {_k} factor", _a, _r["act_on"], 0.0015)
+    check(f"tab:edm-heun step {_k} bound", _b, _r["bound_on"], 0.0015)
+    check(f"tab:edm-heun step {_k} public factor", _p, _t3["public"][_k]["act_off"], 0.0015)
+    check(f"tab:edm-heun step {_k} share c_k<1", _cert[_k], _r["cert_on"], 0.006)
+check("Heun bound violations, both models", 0, sum(r["viol"] for v in _t3.values() for r in v), 0)
+
+_st = {S: np.load(_R / f"n3_steps_20261117/s{S}/sub500/q_per_sample.npz") for S in (18, 36, 64)}
+_stp = {S: np.load(_R / f"n3_steps_20261117/s{S}/public/q_per_sample.npz") for S in (18, 36, 64)}
+
+
+def _certified(z):
+    on = z["d1"] / z["d2"] < 1 / 3; sg = z["sigma"]; r = sg[1:] / sg[:-1]
+    rk = np.maximum(z["err"][:, :-1] / z["n1"][:, :-1], z["errt"][:, :-1] / z["nt1"][:, :-1])
+    ka = np.abs((1 - r) * (2 * r - 1) / (2 * r)); th = (1 - r) / (2 * r)
+    return float(((r + ka * rk + th * rk * (r + (1 - r) * rk)) < 1)[on].all(1).mean())
+
+
+for _S, (_off, _cer, _rmin) in {18: (4.1, 0.0, 0.266), 36: (4.0, 99.5, 0.509), 64: (3.9, 99.5, 0.682)}.items():
+    _z = _st[_S]
+    check(f"steps {_S}: off-atom (%)", _off, 100 * float((_z["d1"] / _z["d2"] >= 1 / 3).mean()), 0.0125)
+    check(f"steps {_S}: certified at every step (%)", _cer, 100 * _certified(_z), 0.0011)
+    check(f"steps {_S}: min r_k", _rmin, float((_z["sigma"][1:] / _z["sigma"][:-1]).min()), 0.002)
+for _S, (_a, _b) in {36: (99.4, 94.8), 64: (99.3, 94.4)}.items():
+    check(f"steps {_S}: same image as 18, subset (%)", _a, 100 * float((_st[_S]["nn1"] == _st[18]["nn1"]).mean()), 0.0006)
+    check(f"steps {_S}: same image as 18, public (%)", _b, 100 * float((_stp[_S]["nn1"] == _stp[18]["nn1"]).mean()), 0.0006)
+
+_an = np.load(_R / "n3_anchor_20261117/sub500/q_per_sample.npz")
+_aon = _an["d1"] / _an["d2"] < 1 / 3
+_anc = {4: (0.496, 0.519, 0.796, 0.689), 5: (0.750, 0.670, 0.894, 0.876), 6: (0.901, 0.884, 0.946, 0.959),
+        7: (0.974, 0.974, 0.980, 0.991), 8: (0.994, 0.995, 0.996, 0.999)}
+for _i, (_ag, _ra, _rd, _dd) in _anc.items():
+    check(f"tab:edm-anchor sigma {_an['sigma'][_i]:.3g}: anchor agreement", _ag,
+          float((_an["anc"][_aon, _i] == _an["nn1"][_aon]).mean()), 0.0015)
+    check(f"tab:edm-anchor sigma {_an['sigma'][_i]:.3g}: AUC rho (predictive)", _ra,
+          _auc(_an["rhoA"][~_aon, _i], _an["rhoA"][_aon, _i]), 0.0015)
+    check(f"tab:edm-anchor sigma {_an['sigma'][_i]:.3g}: AUC radial ratio", _rd,
+          _auc(_an["radA"][~_aon, _i], _an["radA"][_aon, _i]), 0.0015)
+    check(f"tab:edm-anchor sigma {_an['sigma'][_i]:.3g}: AUC baseline", _dd,
+          _auc(_an["dD"][~_aon, _i], _an["dD"][_aon, _i]), 0.0015)
+_rob = (_R / "n3_robust_20261117/ROBUSTNESS.md").read_text(encoding="utf-8")
+for _s in ("0.106 [0.056, 0.159]", "0.017 [-0.009, 0.043]", "-0.013 [-0.027, 0.001]",
+           "-0.010 [-0.017, -0.005]", "-0.003 [-0.005, -0.001]", "e-nn -0.074 [-0.099, -0.049]",
+           "e-nn -0.169 [-0.246, -0.085]", "e-nn -0.207 [-0.271, -0.142]", "e-nn -0.017 [-0.025, -0.009]",
+           "e-nn -0.004 [-0.008, -0.002]", "| 0.2 | 46 |", "| 0.5 | 39 |"):
+    good = _s in _rob
+    print(f"  {'OK ' if good else 'BAD'} in ROBUSTNESS.md: {_s!r}")
+    ok, fail = ok + good, fail + (not good)
+for _s in (r"$41$ of $1000$ samples ($4.1\%$)", r"$0.796$ against $0.689$", r"$[0.056,0.159]$",
+           r"$[-0.099,-0.049]$", r"\label{sec:edm}", r"\label{tab:edm-steps}"):
+    in_tex(_s)
+
+print("\nEDM: second 500-image seed and the 2000-image model")
+for _m, _v in (("n3_edm_sub500s1_20261117/sub500_s1", 4.4), ("n3_edm_sub2000_20261117/sub2000_s0", 50.1)):
+    _z = np.load(_R / _m / "per_sample.npz")
+    check(f"{_m}: off-atom (%)", _v, 100 * float((_z["d1"] / _z["d2"] >= 1 / 3).mean()), 0.0012)
+_z2 = np.load(_R / "n3_rho2_20261118/sub2000/q_per_sample.npz"); _z1 = np.load(_R / "n3_rho2_20261118/sub500s1/q_per_sample.npz")
+_on2 = _z2["d1"] / _z2["d2"] < 1 / 3
+check("sub2000 rho run: off-atom samples", 501, int((~_on2).sum()), 0)
+_t2 = {"on": (0.041, 0.103, 0.405, 0.906, 0.997), "off": (0.151, 0.384, 0.832, 0.989, 1.000),
+       "auc": (0.946, 0.990, 0.983, 0.970, 0.929)}
+for _j, (_sg, _i) in enumerate(_cols.items()):
+    check(f"sub2000 rho on-atom median, sigma {_sg}", _t2["on"][_j], float(np.median(_rho(_z2)[_on2, _i])), 0.0015)
+    check(f"sub2000 rho off-atom median, sigma {_sg}", _t2["off"][_j], float(np.median(_rho(_z2)[~_on2, _i])), 0.0015)
+    check(f"sub2000 rho AUC, sigma {_sg}", _t2["auc"][_j], _auc(_rho(_z2)[~_on2, _i], _rho(_z2)[_on2, _i]), 0.0015)
+check("sub2000: share of off-atom with rho<1 at every step >= 0.99", 1.0, float((_rho(_z2)[~_on2] < 1).all(1).mean() >= 0.99), 0)
+_lc = json.loads((_R / "n3_rho2_20261118/late_contraction_bootstrap.json").read_text(encoding="utf-8"))
+for _m, (_c_on, _c_off, _a) in {"sub2000": (1.75, 0.68, 0.983), "sub500s0": (2.55, 0.29, 1.000), "sub500s1": (2.53, 0.32, 1.000)}.items():
+    check(f"{_m}: late contraction on-atom median", _c_on, _lc[_m]["C_on_med"], 0.003)
+    check(f"{_m}: late contraction off-atom median", _c_off, _lc[_m]["C_off_med"], 0.008)
+    check(f"{_m}: AUC of late contraction", _a, _lc[_m]["C"][0], 0.0015)
+check("sub2000: C AUC lower", 0.977, _lc["sub2000"]["C"][1], 0.0015)
+check("sub2000: C AUC upper", 0.988, _lc["sub2000"]["C"][2], 0.0015)
+check("sub2000: baseline AUC at the end", 0.985, _lc["sub2000"]["nn_end"][0], 0.0015)
+check("sub2000: C - baseline lower", -0.004, _lc["sub2000"]["C-nn_end"][1], 0)
+check("sub2000: C - baseline upper", 0.000, _lc["sub2000"]["C-nn_end"][2], 0)
+check("sub2000: radial ratio AUC, sigma 12.9", 0.605, _lc["sub2000"]["rad129"][0], 0.0015)
+check("sub2000: baseline AUC, sigma 12.9", 0.520, _lc["sub2000"]["nn129"][0], 0.0015)
+check("sub2000: radial - baseline lower, 12.9", 0.055, _lc["sub2000"]["rad129-nn129"][1], 0)
+check("sub2000: radial - baseline upper, 12.9", 0.115, _lc["sub2000"]["rad129-nn129"][2], 0)
+for _nm, _z in (("sub2000", _z2), ("sub500 s1", _z1)):
+    _on = _z["d1"] / _z["d2"] < 1 / 3; _sg = _z["sigma"]; _r = _sg[1:] / _sg[:-1]
+    _rk = np.maximum(_z["err"][:, :-1] / _z["n1"][:, :-1], _z["errt"][:, :-1] / _z["nt1"][:, :-1])
+    _ka = np.abs((1 - _r) * (2 * _r - 1) / (2 * _r)); _th = (1 - _r) / (2 * _r)
+    _ck = _r + _ka * _rk + _th * _rk * (_r + (1 - _r) * _rk)
+    _bk = (_ka + _th * _rk * (1 - _r)) * _z["omega"][:, :-1] + _th * _z["omegat"][:, :-1]
+    _act = _z["n1"][:, 1:] / _z["n1"][:, :-1]
+    check(f"{_nm}: Heun bound violations", 0, int((_act > (_ck + _bk / _z["n1"][:, :-1]) * (1 + 1e-6) + 1e-9).sum()), 0)
+    check(f"{_nm}: every on-atom certified at steps 0..12 (sigma >= 0.30)", 1.0, float((_ck[_on][:, :13] < 1).all()), 0)
+_s0 = _st[18]; _on0 = _s0["d1"] / _s0["d2"] < 1 / 3
+_r0 = _s0["sigma"][1:] / _s0["sigma"][:-1]
+_rk0 = np.maximum(_s0["err"][:, :-1] / _s0["n1"][:, :-1], _s0["errt"][:, :-1] / _s0["nt1"][:, :-1])
+_ck0 = _r0 + np.abs((1 - _r0) * (2 * _r0 - 1) / (2 * _r0)) * _rk0 + (1 - _r0) / (2 * _r0) * _rk0 * (_r0 + (1 - _r0) * _rk0)
+check("sub500 s0: every on-atom certified at steps 0..12", 1.0, float((_ck0[_on0][:, :13] < 1).all()), 0)
+for _s in (r"\label{tab:edm-models}", r"$1.75$", r"$[0.977,0.988]$", r"$[-0.004,0.000]$", r"$[0.055,0.115]$"):
+    in_tex(_s)
+
 print("\nsanity: the image-scale numbers and floats the main text quotes")
 for s in (r"\label{sec:cifarddpm}", r"\label{tab:cifarddpm}", r"\label{tab:exp1}",
           r"\label{tab:p7kernel}", r"$179.1$", r"$0.431$", r"$48/48$",

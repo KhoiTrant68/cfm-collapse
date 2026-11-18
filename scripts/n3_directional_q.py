@@ -92,8 +92,9 @@ def run(a):
     sig = edm_sigmas(a.steps)
     taus = (torch.arange(a.nquad, dtype=torch.float64) + 0.5) / a.nquad
     keys = ([f"{p}{k}" for k in (1, 2) for p in ("q", "qx", "r", "qe", "n")] + ["err", "rad1"]
-            + ["errt", "nt1", "omega", "omegat"])   # Theorem T3: Heun predictor xt and off-image mass omega
-    out = {k: [] for k in keys + ["label", "d1", "d2", "n1_end"]}
+            + ["errt", "nt1", "omega", "omegat"]    # Theorem T3: Heun predictor xt and off-image mass omega
+            + ["anc", "dD", "nA", "rhoA", "radA"])  # predictive anchor: nearest image of D(x_k), no endpoint info
+    out = {k: [] for k in keys + ["label", "d1", "d2", "n1_end", "nn1"]}
     gen = torch.Generator(device="cpu").manual_seed(a.seed)
     t0 = time.time()
     for c in classes:
@@ -126,6 +127,11 @@ def run(a):
                     rec["err"][:, i] = (Dx - ex(xs[i], s)).norm(dim=1).cpu()
                     rec["rad1"][:, i] = ((e1 / n1[:, None]) * (Dx - anchors[0])).sum(1).div(n1).cpu()
                     rec["omega"][:, i] = omega(xs[i], s).cpu()
+                    dDv, aidx = ex.nearest(Dx)                     # anchor chosen from information at sigma_i only
+                    A = ex.Y[aidx[:, 0]]; eA = xs[i] - A; nA = eA.norm(dim=1).clamp_min(1e-30)
+                    rec["anc"][:, i] = aidx[:, 0].double().cpu(); rec["dD"][:, i] = dDv[:, 0].cpu()
+                    rec["nA"][:, i] = nA.cpu(); rec["rhoA"][:, i] = (rec["err"][:, i].to(nA.device) / nA).cpu()
+                    rec["radA"][:, i] = ((eA / nA[:, None]) * (Dx - A)).sum(1).div(nA).cpu()
                     if a.forward_only:
                         rec["n1"][:, i] = n1.cpu()
                     if i < a.steps - 1:
@@ -148,13 +154,13 @@ def run(a):
             for k in keys:
                 out[k].append(rec[k])
             out["label"].append(torch.full((B,), c)); out["d1"].append(dv[:, 0].cpu()); out["d2"].append(dv[:, 1].cpu())
-            out["n1_end"].append((x - anchors[0]).norm(dim=1).cpu())
+            out["n1_end"].append((x - anchors[0]).norm(dim=1).cpu()); out["nn1"].append(di[:, 0].cpu())
         print(f"  class {c} done, {time.time() - t0:.0f}s", flush=True)
     o = pathlib.Path(a.out); o.mkdir(parents=True, exist_ok=True)
     arr = {k: torch.cat(v).numpy() for k, v in out.items()}
     arr["sigma"] = np.asarray(sig[:a.steps]); arr["t"] = 1 / (1 + arr["sigma"])
     np.savez_compressed(o / "q_per_sample.npz", **arr)
-    meta = {"network": "fake" if a.fake_net else a.network, "indices": a.indices, "n_per_class": a.n_per_class,
+    meta = {"network": "fake" if a.fake_net else a.network, "steps": a.steps, "indices": a.indices, "n_per_class": a.n_per_class,
             "nquad": a.nquad, "seed": a.seed, "off_atom_frac": float((arr["d1"] / arr["d2"] >= RATIO).mean()),
             "seconds": time.time() - t0}
     (o / "q_run.json").write_text(json.dumps(meta, indent=1), encoding="utf-8")

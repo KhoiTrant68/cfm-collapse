@@ -12,13 +12,14 @@
 #
 #   GPU=2 EDM_REPO=/abs/edm PYTHON=/abs/python bash scripts/server_n3_edm.sh
 #
-# STAGES="1" or "2" runs one stage. SUBSETS and DURATION (Mimg per subset run) set stage 2; time
+# STAGES="1" or "2" runs one stage. SUBSETS, SEED and DURATION (Mimg per subset run) set stage 2; time
 # a short run first, since the training cost on one GPU is the dominant term. A finished step is
 # skipped on a rerun.
 set -uo pipefail
 GPU=${GPU?set GPU to the index of a free GPU}
 EDM_REPO=${EDM_REPO?set EDM_REPO to a checkout of NVlabs/edm}
 PYTHON=${PYTHON:-python}
+case $PYTHON in */*) PYTHON=$(realpath "$PYTHON") ;; esac   # training runs from EDM_REPO
 CIFAR_ROOT=${CIFAR_ROOT:-data/cifar10}
 STAGES=${STAGES:-"1 2"}
 SUBSETS=${SUBSETS:-"500 1000 2000 5000"}
@@ -27,6 +28,7 @@ BATCH=${BATCH:-128}
 BATCH_GPU=${BATCH_GPU:-}   # EDM --batch-gpu: micro-batch per step, for a GPU shared with other jobs
 DUMP=${DUMP:-100}           # EDM --dump: ticks between training-state dumps (what a killed run resumes from)
 NPC=${NPC:-100}
+SEED=${SEED:-0}            # subset draw and training seed (sub<n>_s<SEED>)
 OUT=${OUT:-results/n3_edm_20261109}
 PUBLIC=${PUBLIC:-https://nvlabs-fi-cdn.nvidia.com/edm/pretrained/edm-cifar10-32x32-cond-vp.pkl}
 export CUDA_VISIBLE_DEVICES=$GPU
@@ -48,10 +50,10 @@ for st in $STAGES; do
     evaluate public_cond_vp "$PUBLIC" || exit 1
   elif [ "$st" = 2 ]; then
     for n in $SUBSETS; do
-      name=sub${n}_s0
-      zip=$ROOT/data/edm_subsets/cifar10_sub${n}_s0.zip
-      ind=$ROOT/data/edm_subsets/cifar10_sub${n}_s0_indices.npy
-      [ -f "$zip" ] || $PYTHON -m scripts.make_edm_cifar_subset --cifar-root "$CIFAR_ROOT" --n "$n" --seed 0 \
+      name=sub${n}_s${SEED}
+      zip=$ROOT/data/edm_subsets/cifar10_sub${n}_s${SEED}.zip
+      ind=$ROOT/data/edm_subsets/cifar10_sub${n}_s${SEED}_indices.npy
+      [ -f "$zip" ] || $PYTHON -m scripts.make_edm_cifar_subset --cifar-root "$CIFAR_ROOT" --n "$n" --seed "$SEED" \
         --out "$ROOT/data/edm_subsets" || exit 1
       tdir=$ROOT/$OUT/train_$name
       snap=$(ls "$tdir"/*/network-snapshot-*.pkl 2>/dev/null | sort | tail -1)
@@ -62,7 +64,7 @@ for st in $STAGES; do
         [ -n "$st_file" ] && resume=(--resume "$st_file")
         (cd "$EDM_REPO" && $PYTHON -m torch.distributed.run --standalone --nproc_per_node=1 train.py \
           --outdir "$tdir" --data "$zip" --cond 1 --arch ddpmpp --batch "$BATCH" --augment 0 \
-          --duration "$DURATION" --snap 50 --dump "$DUMP" --seed 0 ${BATCH_GPU:+--batch-gpu "$BATCH_GPU"} "${resume[@]}") \
+          --duration "$DURATION" --snap 50 --dump "$DUMP" --seed "$SEED" ${BATCH_GPU:+--batch-gpu "$BATCH_GPU"} "${resume[@]}") \
           > "$OUT/train_$name.log" 2>&1 || { echo "[$name] training failed"; exit 1; }
         touch "$tdir/DONE"
         snap=$(ls "$tdir"/*/network-snapshot-*.pkl | sort | tail -1)
