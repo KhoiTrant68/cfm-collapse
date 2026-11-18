@@ -620,6 +620,29 @@ on-atom unless marked:
 - **Consequence for the paper.** A rigorous per-trajectory certificate holds where the image is selected
   (σ ≥ 0.14). The last three steps need the sharp factor c* or the radial identity, not the norm bound.
 
+**Step-count ablation: a prediction of T3, tested** (2026-11-17, `results/n3_steps_20261117`; same
+initial noise, same sub500 and public models, 18 / 36 / 64 Heun steps).
+
+- **Prediction.** More steps raise r_k at the end of the schedule. Once every r_k ≥ 1/2, (c) gives c_k < 1
+  for any ϱ < 1, so the certificate should cover the whole trajectory. The memorization outcome should not
+  change.
+- **Result.** Each row is one step count; "certified" is the fraction of on-atom samples with c_k < 1 at
+  every step:
+
+| Heun steps | min r_k | off-atom (sub500) | certified | bound violations | same image as 18 steps (sub500 / public) |
+|---|---|---|---|---|---|
+| 18 | 0.266 | 4.1% | 0% | 0 | – |
+| 36 | 0.509 | 4.0% | 99.5% | 0 | 99.4% / 94.8% |
+| 64 | 0.682 | 3.9% | 99.5% | 0 | 99.3% / 94.4% |
+
+- At 36 and 64 steps every r_k ≥ 1/2, and the T3 certificate holds at every step for 99.5% of on-atom
+  samples, down to σ = 0.002. At 18 steps it fails at the last steps for all of them.
+- Memorization and the selected image are unchanged (99.3–99.4% the same image for sub500). So the
+  failure at 18 steps comes from the discretisation and the norm bound, not from the model: the coarse last
+  steps (r < 1/2, α < 0) are where the Heun corrector can extrapolate past the image.
+- At 64 steps, ϱ at the predictor still rises to 0.99 at the end and the per-step factor rises to 0.99. The
+  late contraction weakens but stays < 1, consistent with the continuous T1/T2 picture.
+
 ## Verification (math-olympiad workflow, 2026-11-12)
 
 Nine verifiers, three per proposition, each with fresh context and no tools. They saw only the

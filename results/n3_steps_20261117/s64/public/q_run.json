@@ -1,0 +1,10 @@
+{
+ "network": "/home/jovyan/cfm-research/edm-checkpoints/edm-cifar10-32x32-cond-vp.pkl",
+ "steps": 64,
+ "indices": null,
+ "n_per_class": 50,
+ "nquad": 4,
+ "seed": 0,
+ "off_atom_frac": 1.0,
+ "seconds": 107.515620470047
+}

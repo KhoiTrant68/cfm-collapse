@@ -1,0 +1,12 @@
+{
+ "network": "/home/jovyan/cfm-research/cfm-collapse/results/n3_edm_sub500s1_20261117/train_sub500_s1/00000-cifar10_sub500_s1-cond-ddpmpp-edm-gpus1-batch128-fp32/network-snapshot-010000.pkl",
+ "n_train": 500,
+ "indices": "/home/jovyan/cfm-research/cfm-collapse/data/edm_subsets/cifar10_sub500_s1_indices.npy",
+ "n_per_class": 100,
+ "steps": 18,
+ "seed": 0,
+ "exact_path": true,
+ "cond_diff": true,
+ "off_atom_frac": 0.044,
+ "seconds": 387.5828905105591
+}
