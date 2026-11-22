@@ -1,0 +1,126 @@
+\documentclass[border=3pt]{standalone}
+% Overview schematic of paper A (figure fig:overview), drawn as a CV architecture figure:
+% coloured blocks with a depth face (block style borrowed from PlotNeuralNet), arrows that mean
+% "sampling from pi_0 ends at", parameters under the blocks and a legend in the lower-left corner.
+% Compiles on its own; main.tex \input's it through the standalone package (preamble dropped), so
+% everything it needs beyond tikz and the libraries below is defined inside the document body.
+% Natural width is about 15.6 cm: it fits \textwidth without scaling.
+
+% --- packages (mirrored in main.tex) ---
+\usepackage{amsmath,amssymb}
+\usepackage{tikz}
+\usetikzlibrary{positioning, arrows.meta, fit, backgrounds, calc}
+
+% result numbers: printed as fallbacks here, as \ref in main.tex
+\providecommand{\resref}[2]{#2}
+
+\begin{document}
+% Okabe-Ito, same values as scripts/figstyle.py: blue = exact field, black = training example,
+% vermillion = blend (the roles of the data figures).
+\definecolor{ovblue}{HTML}{0072B2}
+\definecolor{ovsky}{HTML}{56B4E9}
+\definecolor{ovverm}{HTML}{D55E00}
+\definecolor{ovgray}{HTML}{5A5A5A}
+% depth face of a block: top and right parallelograms, as in PlotNeuralNet's Box
+\providecommand{\ovfaces}[2]{%
+  \draw[#2!65!black, line width=0.5pt, fill=#2!38, line join=round]
+    (#1.north west) -- ++(0.2,0.15) -- ($(#1.north east)+(0.2,0.15)$) -- (#1.north east) -- cycle;
+  \draw[#2!65!black, line width=0.5pt, fill=#2!55, line join=round]
+    (#1.north east) -- ++(0.2,0.15) -- ($(#1.south east)+(0.2,0.15)$) -- (#1.south east) -- cycle;}
+% a training example and a blend, as drawn in the data figures
+\providecommand{\ovatom}[1]{\fill[black] ($(#1)+(0,0.085)$) -- ++(-0.085,-0.15) -- ++(0.17,0) -- cycle;}
+\providecommand{\ovblend}[1]{\fill[ovverm, draw=white, line width=0.3pt]
+  ($(#1)+(0,0.085)$) -- ++(0.085,-0.085) -- ++(-0.085,-0.085) -- ++(-0.085,0.085) -- cycle;}
+
+\begin{tikzpicture}[
+    font=\sffamily\footnotesize,
+    >={Stealth[length=2mm]},
+    blk/.style={draw=#1!65!black, fill=#1!14, line width=0.5pt, align=center,
+      minimum height=1.25cm, inner sep=3pt},
+    slab/.style={draw=ovblue!55!black, fill=ovsky!18, line width=0.45pt, align=center,
+      text width=2.0cm, minimum height=0.62cm, inner sep=1.5pt, font=\sffamily\scriptsize},
+    term/.style={draw=#1, fill=white, line width=0.9pt, rounded corners=6pt, align=center,
+      minimum width=2.5cm, minimum height=1.25cm, inner sep=3pt},
+    param/.style={font=\sffamily\scriptsize, text=ovgray, align=center},
+    lane/.style={draw=#1, dashed, line width=0.5pt, rounded corners=4pt, inner sep=5pt},
+    lanetitle/.style={font=\sffamily\scriptsize\bfseries, text=#1, anchor=south west, inner sep=1pt},
+    flow/.style={->, draw=ovgray, line width=0.8pt},
+  ]
+
+  % ---- input and the exact field ------------------------------------------------------------
+  \node[blk=ovgray, minimum width=2.2cm, text depth=0.55cm] (data) at (0,0)
+    {finite training set};
+  \ovfaces{data}{ovgray}
+  \foreach \x/\s in {-0.65/1, -0.2/2, 0.65/N} {
+    \ovatom{$(data.center)+(\x,-0.12)$}
+    \node[font=\sffamily\tiny, text=ovgray] at ($(data.center)+(\x,-0.42)$) {$y^{\s}$};
+  }
+  \node[font=\sffamily\tiny, text=ovgray] at ($(data.center)+(0.22,-0.17)$) {$\cdots$};
+  \node[param, below=0.12cm of data] {$N$ examples $x^i$\\with labels $y^i$};
+
+  \node[blk=ovblue, minimum width=2.4cm, right=0.6cm of data] (field)
+    {exact conditional\\field $v^\star_y$};
+  \ovfaces{field}{ovblue}
+  \node[param, below=0.12cm of field] {minimiser of the\\flow-matching loss};
+  \draw[flow] (data.east) -- (field.west);
+
+  % ---- top lane: one intervention at a time ---------------------------------------------------
+  \node[slab, anchor=south west] (noise) at ($(field.east)+(1.0,0.95)$) {label noise, $h>0$};
+  \node[slab, right=0.12cm of noise] (avg1) {label averaging};
+  \node[slab, below=0.12cm of noise] (cfg) {guidance, $w\ge0$};
+  \node[slab, right=0.12cm of cfg] (sched) {bounded\\schedule $w(t)$};
+  \node[lane=ovblue, fit=(noise)(avg1)(cfg)(sched)] (top) {};
+  \node[lanetitle=ovblue!80!black] at (top.north west) {any one intervention};
+  \node[param, below=0.08cm of top]
+    {Thm.~\resref{thm:endpoint}{3.4}, Thm.~\resref{thm:posmix}{4.1},
+     Prop.~\resref{prop:cfgatom}{4.4}, Thm.~\resref{thm:schedule}{4.6}};
+
+  \node[term=black, right=0.7cm of top] (atom) {ends on a\\training example\\[0.42cm]};
+  \foreach \x in {-0.35, 0, 0.35} {\ovatom{$(atom.center)+(\x,-0.3)$}}
+  \node[param, below=0.12cm of atom] {almost surely;\\only the weights change};
+
+  % ---- bottom lane: composition, a label average followed by guidance --------------------------
+  \node[blk=ovblue, minimum width=1.85cm, anchor=north west] (avg2)
+    at ($(top.south west)+(0.0,-1.15)$) {label\\averaging};
+  \ovfaces{avg2}{ovblue}
+  \node[param, below=0.12cm of avg2] {averages the fields\\of several labels};
+  \node[blk=ovblue, minimum width=1.85cm, right=0.55cm of avg2] (guid) {guidance\\at strength $w$};
+  \ovfaces{guid}{ovblue}
+  \node[param, below=0.12cm of guid, text=ovverm!85!black, font=\sffamily\footnotesize]
+    {$w>w_c=\dfrac{1}{\sinh^2 B}$};
+  \draw[flow] (avg2.east) -- (guid.west);
+  \coordinate (guidback) at ($(guid.north east)+(0.2,0.15)$);
+  \begin{scope}[on background layer]
+    \node[lane=ovverm, fit=(avg2)(guid)(guidback)] (bot) {};
+  \end{scope}
+  \node[lanetitle=ovverm!85!black] at (bot.north west) {composition: three exact fields};
+
+  \node[term=ovverm, anchor=west] (blend) at (atom.west |- bot.east)
+    {ends on a blend of\\training examples\\[0.42cm]};
+  \ovatom{$(blend.center)+(-0.42,-0.3)$}
+  \ovblend{$(blend.center)+(0,-0.3)$}
+  \ovatom{$(blend.center)+(0.42,-0.3)$}
+  \node[param, below=0.12cm of blend] {with positive probability\\(Thm.~\resref{thm:composition}{4.8})};
+
+  % ---- arrows: "sampling from pi_0 under this field ends at" ---------------------------------
+  \coordinate (fork) at ($(field.east)+(0.5,0)$);
+  \draw[draw=ovgray, line width=0.8pt] (field.east) -- (fork);
+  \draw[flow] (fork) |- (top.west);
+  \draw[flow] (fork) |- (bot.west);
+  \draw[flow] (top.east) -- (atom.west);
+  \draw[flow, draw=ovverm] (bot.east) -- (blend.west);
+
+  % ---- legend, lower-left corner ---------------------------------------------------------------
+  \begin{scope}[shift={($(data.south west)+(0.0,-1.65)$)}, font=\sffamily\scriptsize]
+    \fill[ovblue!14, draw=ovblue!65!black, line width=0.5pt] (0,0) rectangle (0.32,0.2);
+    \node[anchor=west] at (0.4,0.1) {field built from exact fields};
+    \ovatom{0.16,-0.27}
+    \node[anchor=west] at (0.4,-0.3) {training example};
+    \ovblend{0.16,-0.67}
+    \node[anchor=west] at (0.4,-0.7) {blend, e.g.\ the midpoint $\tfrac12(x^i+x^j)$};
+    \draw[flow] (0,-1.1) -- (0.32,-1.1);
+    \node[anchor=west] at (0.4,-1.1) {sampling from $\pi_0$ ends at};
+    \node[draw=ovgray!40, rounded corners=2pt, inner sep=3pt, fit={(-0.05,0.28)(4.6,-1.25)}] {};
+  \end{scope}
+\end{tikzpicture}
+\end{document}
