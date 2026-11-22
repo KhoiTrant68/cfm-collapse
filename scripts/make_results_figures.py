@@ -161,8 +161,9 @@ def fig_cifar() -> None:
             if r == 0 and heads[k]:
                 a.set_title(heads[k], fontsize=7.5, pad=3, loc="left" if k == 1 else "center")
             if k == 0:
-                a.text(-0.12, 0.5, f"{it:,}", transform=a.transAxes, rotation=90,
-                       ha="right", va="center", fontsize=9)
+                # short labels: "60,000" rotated was taller than a tile and ran into the image
+                a.text(-0.1, 0.5, f"{it // 1000}k" if it >= 1000 else f"{it}", transform=a.transAxes,
+                       rotation=90, ha="right", va="center", fontsize=8.5)
                 if r == 0:
                     panel_tag(a, "b", dx=-0.45, dy=1.12)
     fig.savefig(FIGDIR / "fig_cifar_collapse.pdf", bbox_inches="tight", dpi=200)
@@ -205,7 +206,8 @@ def fig_kernel() -> None:
     ax.set_xticks(x, [f"{h:g}" for h in hs])
     ax.set_xlabel("label bandwidth $h$")
     ax.set_ylabel(r"$\mathrm{tr}\,\mathrm{Cov}$ (EXP-1)")
-    ax.legend(loc="upper left", fontsize=7)
+    ax.set_ylim(0.45, 1.85)                         # head room, so the legend clears every error bar
+    ax.legend(loc="upper left", fontsize=7, borderaxespad=0.2)
 
     ax = axes[1]
     ax.axhline(1.0, color=COLORS["theory"], ls="--", lw=1.3)

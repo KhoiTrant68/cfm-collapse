@@ -1,0 +1,94 @@
+\documentclass[border=4pt]{standalone}
+% Proof template of Section 4 (figure fig:proof-template).
+% Derived from the OpenTikZ flowchart template (CC0-1.0, github.com/opentikz/opentikz).
+% Compiles on its own; main.tex \input's it through the standalone package, where
+% \resref{label}{fallback} becomes \ref{label}.
+
+% --- packages (mirrored in main.tex) ---
+\usepackage{amsmath,amssymb}
+\usepackage{tikz}
+\usetikzlibrary{positioning, arrows.meta, shapes.geometric, shapes.misc}
+
+% --- palette (OpenTikZ light / Okabe-Ito; same values as scripts/figstyle.py) ---
+\definecolor{otblue}{HTML}{0072B2}
+\definecolor{otorange}{HTML}{E69F00}
+\definecolor{otteal}{HTML}{009E73}
+\definecolor{otpurple}{HTML}{CC79A7}
+\definecolor{otgray}{HTML}{5A5A5A}
+
+% result numbers: printed as fallbacks here, as \ref in main.tex
+\providecommand{\resref}[2]{#2}
+
+\begin{document}
+% ==== parameters (edit these) ============================================
+\def\colsep{0.45}   % horizontal gap between boxes (cm)
+\def\rowsep{0.75}   % vertical gap between the two rows (cm)
+\def\boxminw{2.3}   % minimum process/terminal width (cm)
+\def\boxminh{1.25}  % minimum box height (cm)
+% labels
+\def\fieldlabel{every field,\\in time $\tau$:\\$\dot x=\bar m-x$}
+\def\energylabel{\textbf{Step 1}:\\finite energy\\$\int|\dot x|^2\,d\tau<\infty$}
+\def\convlabel{converges to a\\candidate $z\in\mathcal C'$\\(Lemma~\resref{lem:conv}{B.2})}
+\def\checklabel{$z$ an\\atom?}
+\def\endlabel{endpoint is a\\training atom}
+\def\steptwolabel{\textbf{Step 2}:\\$\Theta>0$\\near $z$?}
+\def\nulllabel{basin of $z$ is\\Lebesgue-null\\(Lemma~\resref{lem:volume}{B.3})}
+\def\errorlabel{basin can be open:\\non-training endpoint\\with positive probability}
+\def\yeslabel{yes}
+\def\nolabel{no}
+\def\divlabel{$\operatorname{div}f=\beta\Theta-d$,\ $\beta\to\infty$}
+\def\stepinstances{Thm.~\resref{thm:posmix}{4.1}: log-partition energy;\
+  Thm.~\resref{thm:schedule}{4.6}: integration by parts in $w$}
+\def\failinstance{Thm.~\resref{thm:composition}{4.7}: $\Theta<0$ at the tie for $w>w_c$}
+\def\passinstance{Thms.~\resref{thm:posmix}{4.1}, \resref{thm:schedule}{4.6}}
+\def\aslabel{a.s.}
+% =========================================================================
+
+\begin{tikzpicture}[
+    node distance=\colsep cm,
+    >={Stealth[length=2.2mm]},
+    base/.style={
+      line width=0.7pt, align=center, font=\sffamily\small,
+      minimum width=\boxminw cm, minimum height=\boxminh cm, inner sep=3pt,
+    },
+    terminal/.style={base, shape=rounded rectangle, draw=otteal!70!black, fill=otteal!16,
+      inner xsep=8pt},
+    process/.style={base, rounded corners=3pt, draw=otblue!70!black, fill=otblue!12},
+    decision/.style={base, shape=diamond, aspect=1.5, inner sep=0pt,
+      draw=otorange!80!black, fill=otorange!20, minimum width=2.1cm, minimum height=1.6cm},
+    failure/.style={base, rounded corners=3pt, draw=otorange!85!black, fill=otorange!22},
+    flow/.style={draw=otgray!75, line width=0.9pt, ->},
+    elabel/.style={font=\sffamily\footnotesize, text=otgray},
+    note/.style={font=\sffamily\footnotesize, text=otgray, align=center},
+  ]
+
+  % --- row 1: Step 1 and the convergence test ---
+  \node[process]                  (field)  {\fieldlabel};
+  \node[process,  right=of field] (energy) {\energylabel};
+  \node[process,  right=of energy](conv)   {\convlabel};
+  \node[decision, right=of conv]  (check)  {\checklabel};
+  \node[terminal, right=0.7cm of check] (end) {\endlabel};
+
+  % --- row 2: Step 2 at a non-atom limit ---
+  \node[decision, below=\rowsep cm of check] (steptwo) {\steptwolabel};
+  \node[process,  right=0.7cm of steptwo]   (null)    {\nulllabel};
+  \node[failure,  left=1.2cm of steptwo]    (error)   {\errorlabel};
+
+  % --- flow ---
+  \draw[flow] (field)  -- (energy);
+  \draw[flow] (energy) -- (conv);
+  \draw[flow] (conv)   -- (check);
+  \draw[flow] (check)  -- (end)     node[midway, above, elabel] {\yeslabel};
+  \draw[flow] (check)  -- (steptwo) node[midway, right, elabel] {\nolabel};
+  \draw[flow] (steptwo)-- (null)    node[midway, above, elabel] {\yeslabel};
+  \draw[flow] (null)   -- (end)     node[midway, right, elabel] {\aslabel};
+  \draw[flow] (steptwo)-- (error)   node[midway, above, elabel] {\nolabel};
+
+  % --- where each result verifies the steps ---
+  \node[note, above=0.12cm of energy] {\stepinstances};
+  \node[note, below=0.1cm of steptwo] (divnote) {\divlabel};
+  \node[note, below=0.1cm of error]   {\failinstance};
+  \node[note, below=0.1cm of null]    {\passinstance};
+
+\end{tikzpicture}
+\end{document}

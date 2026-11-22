@@ -114,8 +114,9 @@ orders of magnitude near $t=1$. At any label, a trajectory reaches a training ex
 error stays a fixed fraction below its distance to that example. On class-conditional EDM models
 on CIFAR-10 the network selects the image early, the late field decides whether it is reached, the
 contraction that the relative error leaves over the late noise levels separates memorised from
-other samples on models that memorise $4$ and $50\%$ of their samples, and a bound for the Heun
-sampler predicts when more steps make the guarantee hold; as a detector of
+other samples on models with $4\%$ and $50\%$ of their samples off the training set, and a bound
+for the Heun sampler certifies contraction at every step once the schedule has enough steps,
+without changing which image is reached; as a detector of
 memorisation, the error is no better than the distance to the nearest training image. The positive
 theorems stop at one composition: guidance applied to a label-averaged field reaches a blend of
 training examples with positive probability, for two examples whose averaged priors have log-odds
@@ -172,8 +173,8 @@ and what a learned field must do to inherit the answer.
   training example is decided by the error relative to the distance to it
   (Theorem~\ref{thm:relerr}), with a discrete version for the Heun sampler
   (Proposition~\ref{prop:heun}); on three EDM models the late contraction it leaves separates
-  memorised from other samples, and its prediction for the number of sampler steps holds
-  (Section~\ref{sec:edm}).
+  memorised from other samples, and the discrete bound certifies every step once the schedule
+  has enough steps (Section~\ref{sec:edm}).
 \item \emph{One composition marks where these results stop} (Section~\ref{sec:composition}).
   Guidance applied to a label-averaged field can converge to a circumcentre of training examples,
   a blend of them, with positive probability; for two examples whose averaged priors have log-odds
@@ -224,13 +225,21 @@ reaches $1$, and its output is a new image, close to but distinct from the neare
 \end{figure}
 
 \paragraph{What this means in practice.} Four consequences follow without new assumptions.
-\emph{(i) The knobs are not privacy mitigations.} At the exact optimum, label noise, label
-averaging, negative guidance and bounded guidance schedules only reweight training examples, and
-the blends reached by the composition are convex combinations of training images, which an audit
-should count as leakage rather than as new samples. Changing the support needs a mechanism such as
-endpoint noise (Proposition~\ref{prop:tgtnoise}), whose endpoint law is a Gaussian kernel density
-estimate around the weighted training examples, so sampling from it is a smoothed bootstrap; it carries no formal privacy guarantee unless its
-randomisation is calibrated in the sense of differential privacy~\citep{dwork2014algorithmic}.
+\emph{(i) The knobs carry no guarantee against replication.} At the exact optimum, label noise,
+label averaging, negative guidance and bounded guidance schedules only reweight training
+examples, and the blends reached by the composition are convex combinations of training images,
+which an audit should count as leakage rather than as new samples. In trained networks the same
+knobs can still reduce copying, as randomising the conditioning does
+empirically~\citep{somepalli2023copying}, and on our CIFAR-10 U-Nets the off-atom fraction grows
+with the label bandwidth (Appendix~\ref{app:measured-transfer}); by Section~\ref{sec:transfer}
+such a reduction comes from the error of the learned field, not from the knob, and need not
+survive a closer fit to the empirical optimum. Changing the support of the exact law needs a
+mechanism such as endpoint noise (Proposition~\ref{prop:tgtnoise}), whose endpoint law is a
+Gaussian kernel density estimate around the weighted training examples, so sampling from it is a
+smoothed bootstrap. A support change does not by itself hide the source: for small noise the
+nearest training example of a sample recovers it, and the mechanism carries no formal privacy
+guarantee unless its randomisation is calibrated in the sense of differential
+privacy~\citep{dwork2014algorithmic}.
 \emph{(ii) Which record is returned is predictable.} Under label noise the returned record and
 its probability, $p_i^{(h)}(y)$, are computable from the training set and the query label
 (Theorem~\ref{thm:endpoint}), so an auditor can rank, for any label, the records an exact-optimum
@@ -238,7 +247,7 @@ model returns; under guidance the support is the same but the weights have no cl
 trained model this is a reference, not a per-sample prediction: on retrained CIFAR-10 U-Nets the
 learned and the exact field return the same image from the same source for only $23$--$67\%$ of
 on-atom samples at $h=4,6$ (Appendix~\ref{app:measured-transfer}).
-\emph{(iii) Monitor late-time field error, not the loss.} Because the exact field is explicit for
+\emph{(iii) Late-time field error, not the loss, explains landing.} Because the exact field is explicit for
 a fixed training set, $(1-t)|\Delta|$ can be evaluated along sampling trajectories near $t=1$;
 by Theorem~\ref{thm:transfer} this, and not the regression loss, is what bounds the distance of an
 endpoint from its training example at an identifying label, and its ratio to the distance decides
@@ -247,12 +256,12 @@ already separates the samples that end off the training set from the others with
 $0.95$ by $t\approx0.53$, long before the endpoint, where it reduces to the distance to the nearest
 training image (Appendix~\ref{app:measured-transfer}). It explains landing rather than detecting
 memorisation more cheaply: on EDM models the distance from the denoiser output to the nearest
-training image separates as well or better at almost every noise level (Section~\ref{sec:edm}).
-Evaluating it needs the exact field, a sum over the training set at every step, so it suits audits
+training image separates as well or better at almost every noise level (Section~\ref{sec:edm}),
+so for detection that distance suffices. Evaluating the field error needs the exact field, a sum over the training set at every step, so it suits audits
 rather than deployment.
 \emph{(iv) The statements concern support at fixed $N$.} The floor in~\eqref{eq:w2floor} is the
 mean squared distance from the posterior to the nearest training point, which typically decreases
-like $N^{-2/d}$, so atomic support is compatible with a small distance to the posterior at large
+like $N^{-2/d}$~\citep{graf2000quantization}, so atomic support is compatible with a small distance to the posterior at large
 $N$ and says nothing on its own about how well the weights match it.
 
 \begin{table}[t]
@@ -293,7 +302,12 @@ still copies; (e) one whose relative error tends to $1$ late produces new sample
 \paragraph{Related work.} That the empirical minimiser memorises is well established
 \citep{pidstrigach2022manifolds,gu2023memorization,biroli2023diffusion,buchanan2025edge,gao2024flow,bertrand2025closed,li2026memory};
 trained denoisers generalise through inductive biases that depart from it
-\citep{kadkhodaie2024generalization,kamb2024creativity,niedoba2024mechanistic}. For trained diffusion
+\citep{kadkhodaie2024generalization,kamb2024creativity,niedoba2024mechanistic}, and for the
+empirical score a speciation time, when the class is chosen, precedes a collapse time, when the
+trajectory is captured by one training point \citep{biroli2024dynamical}. Randomising the
+conditioning reduces copying in trained text-to-image models \citep{somepalli2023copying}; at the
+exact optimum, label noise only reweights the training examples (Theorem~\ref{thm:endpoint}), so
+such a reduction must come from the learned field. For trained diffusion
 models, memorisation risk has been located at medium noise levels \citep{dodson2026calm}, measured by
 the largest scale at which the denoiser's fixed-scale dynamics retain an example
 \citep{lopezamado2026modes}, and detected through basins in Jacobian spectra or score divergence
@@ -477,7 +491,8 @@ Label smoothing redistributes weight over the atoms and never ends off them, so
 matching $\tr\Covh$ to a posterior variance matches a second moment, not the posterior.\ificlr\else{}
 The floor in~\eqref{eq:w2floor} is a statement about the support: it is the mean squared distance
 from the posterior to the nearest training point, which for training points drawn from a law with a
-positive density decreases as $N$ grows, typically like $N^{-2/d}$, and says nothing about how well
+positive density decreases as $N$ grows, typically like $N^{-2/d}$ for a posterior with a positive
+density on a $d$-dimensional set~\citep{graf2000quantization}, and says nothing about how well
 the weights $p_i^{(h)}$ match the posterior.\fi
 
 % ==========================================================================
@@ -806,7 +821,7 @@ $x_t\to z$ and $\beta P_L(x_t-tz)\to\xi_\star$.
 In the time $\sigma$ with $d\sigma=\beta\,d\tau$ the profile obeys
 $d\xi/d\sigma=M(\xi)-z+o(1)$, while the normal part $P_{L^\perp}(x-z)$ decays at the slow rate
 $e^{-\tau}$. A Lyapunov--Perron argument for this fast--slow system shows that the trajectories
-converging to a hyperbolic profile form a $C^1$ graph of codimension equal to the number of
+converging to a hyperbolic profile form a Lipschitz graph of codimension equal to the number of
 positive eigenvalues of $\Gamma$, which gives (a) and (b). For (c), $M-z$ is the gradient of a
 potential that grows linearly away from the profiles, whereas convergence to $z$ forces
 $\xi=o(\sigma)$; so profiles cannot escape to infinity.
@@ -896,8 +911,6 @@ $(1-t)\Delta(Z_t,t)=(1-t)v_\theta(Z_t,t)+Z_t-a$, if $v_\theta$ stays bounded alo
 with $Z_t\to z$, then $(1-t)\Delta(Z_t,t)\to z-a$ and the bound holds with equality, so a
 correlation between the two measured quantities would carry little additional information.}
 
-% Theorem thm:relerr and Propositions prop:trap, prop:heun: drafted with model assistance, checked
-% adversarially (docs/plan/proofs_E_R_T1_T2_2026-11-17.md), verified by the authors 2026-11-19.
 Theorem~\ref{thm:transfer} bounds the endpoint distance by the limit of the scaled error and needs
 an identifying label. Whether a trajectory reaches an atom at all is decided by a weaker quantity,
 the scaled error relative to the distance to that atom, at any label and bandwidth. Write
@@ -1230,9 +1243,6 @@ seeds, so these are descriptive values, not hypothesis tests.}
 \end{table}
 }%
 
-% Numbers: results/n3_edm_sub500_20261115, results/n3_followup_{,sub500_}20261111,
-% results/n3_rho_20261117, results/n3_t3_20261117, results/n3_steps_20261117,
-% results/n3_anchor_20261117, results/n3_robust_20261117 (see docs/plan/theory_extensions_2026-11-11.md).
 \subsection{Landing in EDM image models}
 \label{sec:edm}
 
@@ -1259,7 +1269,9 @@ $56$, $90$, $99$ and $100\%$ of samples for $s=5,2,1,0.2,0.02$ on the public mod
 $98.2$ and $99.6\%$ for $s=5,2,1$ and all samples from $s\le0.2$ on, on the subset model. The
 network selects an image by $\sigma\approx1$, in the medium-noise band where \citet{dodson2026calm}
 locate memorisation risk; whether the trajectory lands on it is decided below
-(Figure~\ref{fig:edm-clocks}).
+(Figure~\ref{fig:edm-clocks}). The two times echo the speciation and collapse times that
+\citet{biroli2024dynamical} derive for the exact empirical score; here the first is measured on the
+network's trajectory and the second is where the learned and exact fields part.
 
 \begin{figure}[t]
 \centering
@@ -1302,8 +1314,13 @@ instead, which uses no information after $\sigma$, gives the same AUC at every $
 
 \paragraph{The late contraction decides landing.} On the $500$-image model the groups are far
 apart: on-atom samples keep $\varrho_t$ well below one until the last steps, while off-atom samples
-and every sample of the public model reach $\varrho_t\approx1$ from $\sigma\approx0.14$ on, the
-non-landing regime of Theorem~\ref{thm:relerr}(c) (Table~\ref{tab:edm-rho}). On the balanced
+and every sample of the public model reach $\varrho_t\approx1$ from $\sigma\approx0.14$ on, where
+the hypothesis of Theorem~\ref{thm:relerr}(b) fails (Table~\ref{tab:edm-rho}). This is consistent
+with, but does not verify, the hypothesis of~(c), which concerns the radial ratio and is an
+asymptotic condition that a finite schedule cannot check. Near the end the anchor and the off-atom
+label are both set by the endpoint, so the separation there is partly bookkeeping; the informative
+range is the earlier one, where the predictive anchor of Appendix~\ref{app:relerr-exp} gives the
+same AUC. On the balanced
 $2000$-image model the contrast is one of degree: almost every sample of either group has
 $\varrho_t<1$ at every step, and the on-atom median also approaches one at the last step. What
 Theorem~\ref{thm:relerr}(b) and (c) use is the contraction that the relative error leaves,
@@ -1327,22 +1344,26 @@ $[0.055,0.115]$), where both are weak. The late contraction ties the baseline on
 thresholds $0.2$ and $0.5$. We read Theorem~\ref{thm:relerr} as the mechanism of landing, not as a
 cheaper test for memorisation.
 
-\paragraph{A prediction for the sampler.} Each Heun step is an affine combination
+\paragraph{A certificate for the sampler.} Each Heun step is an affine combination
 $x_{k+1}=r_kx_k+\kappa_kD_k+\theta_k\tilde D_k$ with $r_k=\sigma_{k+1}/\sigma_k$, where $D_k$ and
 $\tilde D_k$ are the denoiser outputs at the point and at its Euler predictor, and
 $\kappa_k<0$ when $r_k<1/2$. Proposition~\ref{prop:heun} turns a relative error $\varrho$ at the
 step and at its Euler predictor into a one-step contraction factor $c_k$, which is below one for
 every $\varrho<1$ when $r_k\ge1/2$ but only for $\varrho<\varrho_{\rm crit}(r_k)<1$ otherwise. In the
-$18$-step schedule $r_k$ falls below $1/2$ for the last five Heun steps, to $0.27$. Along all
-$1500$ trajectories the bound is never violated; it certifies contraction for at least $99.7\%$ of
+$18$-step schedule $r_k$ falls below $1/2$ for the last five Heun steps, to $0.27$. With $\varrho$
+measured along the trajectory the bound holds by construction, so that it is never violated along
+the $1500$ trajectories checks the implementation, not the model. What the measurement adds is
+where the certificate is informative: it certifies contraction for at least $99.7\%$ of
 on-atom samples at every step down to $\sigma=0.14$ and for none at the last two Heun steps, where
-the predictor's $\varrho$ exceeds $\varrho_{\rm crit}$. The proposition predicts that more steps,
-which raise every $r_k$ above $1/2$, remove this failure without changing the outcome. With $36$ and
+the predictor's $\varrho$ exceeds $\varrho_{\rm crit}$. Since every $r_k\ge1/2$ makes $c_k<1$ for
+all $\varrho<1$, more steps make the certificate hold; the empirical question is whether the
+outcome changes with them. With $36$ and
 $64$ steps the certificate holds at every step for $99.5\%$ of on-atom samples, while the off-atom
 fraction ($4.1$, $4.0$, $3.9\%$ for $18$, $36$, $64$ steps) and the image reached ($99.4$ and
 $99.3\%$ the same as with $18$ steps) do not change (Figure~\ref{fig:heun}, Table~\ref{tab:edm-steps}).
-On the $2000$-image model and the second $500$-image model the bound is never violated either, and
-it certifies every on-atom sample down to $\sigma=0.30$.
+The failure at $18$ steps is therefore a looseness of the bound, not of the sampler. On the
+$2000$-image model and the second $500$-image model the certificate covers every on-atom sample
+down to $\sigma=0.30$.
 
 \FloatBarrier
 
@@ -1384,14 +1405,16 @@ blends of training examples, and only above an explicit threshold.
 
 \emph{Implications.} For a practitioner, label noise, label averaging and guidance decide which
 training examples the exact field returns, not whether it returns one, so at the exact optimum
-none of them protects training data; under label noise the returned records are even predictable
-from the training set. At an identifying label, what moves a trained sampler away from the
-training examples is the error of the learned field near $t=1$ (Theorem~\ref{thm:transfer}),
-which the regression loss does not control, so late-time field error is the quantity to measure.
+none of them guarantees that training data are not returned; under label noise the returned
+records are even predictable from the training set. Any reduction of copying they bring in a
+trained network comes from the error of the learned field: at an identifying label, what moves a
+trained sampler away from the training examples is that error near $t=1$
+(Theorem~\ref{thm:transfer}), which the regression loss does not control, so late-time field
+error, not the loss, is the quantity that explains landing.
 At any label, whether the trajectory reaches the example is decided by that error relative to
 the distance (Theorem~\ref{thm:relerr}): on EDM models the image is selected early and reached
-only when the late relative error leaves enough contraction, which also tells how many sampler
-steps the guarantee needs. The composition result is a boundary marker of these statements, not a mechanism
+only when the late relative error leaves enough contraction, and the discrete bound tells how
+many sampler steps its certificate needs. The composition result is a boundary marker of these statements, not a mechanism
 we expect in standard models: its basin is set at the scale $(1-t)^2$, which standard velocity
 networks did not resolve in our runs (Proposition~\ref{prop:regular}), and a label bottleneck does
 not produce the averaged field (Proposition~\ref{prop:bottleneck}).\ificlr{} Open are nonhyperbolic
@@ -1420,31 +1443,29 @@ Section~\ref{sec:experiments} are drawn from the saved outputs by
 it is used, and all load-bearing results are proved in
 Appendices~\ref{app:proofs}--\ref{app:noise}.
 
-% DRAFT, ICLR build only: the authors must check both statements against their own
-% process before submission.
 \ificlr
 \subsection*{Ethics statement}
 This work studies memorisation in conditional flow-matching models: when the exact empirical field
 and its common modifications return training examples. The consequence for sensitive data is
 negative: at the exact optimum, label noise, label averaging, negative guidance and bounded
-guidance schedules are not privacy mitigations, because they only reweight the training examples,
-and the blends reached by the one composition that leaves them are combinations of training
-records. Under label noise the returned record is also predictable from the training set and the
-query label, which helps auditors and, equally, anyone attempting extraction. Moving the support
-requires a change such as endpoint noise, and a formal guarantee requires randomisation calibrated
-in the sense of differential privacy, which we do not analyse. All experiments use synthetic data
+guidance schedules give no guarantee against replication, because they only reweight the
+training examples, and the blends reached by the one composition that leaves them are
+combinations of training records. In trained networks these knobs can reduce copying, but only
+through the error of the learned field, without a guarantee. Under label noise the returned record
+is also predictable from the query label and the training labels, which helps auditors and,
+equally, an adversary who knows the labels; conditioning on part of a record, as in inpainting,
+is the riskiest case. Moving the support requires a change such as endpoint noise, which does
+not by itself hide the source record, and a formal guarantee requires randomisation calibrated in
+the sense of differential privacy, which we do not analyse. All experiments use synthetic data
 and the public CIFAR-10 and MNIST datasets; no personal or human-subject data are involved.
 
 \subsection*{Use of large language models}
-% CHECK: confirm the uses listed below and name any others.
-% CHECK (2026-11-19, authors' decision): the first drafts of the proofs of thm:relerr, prop:trap and
-% prop:heun came from model-based solver runs before the authors verified them; decide whether
-% this paragraph should say so.
 We used large language models as assistants for writing and running experiment and
-analysis code, for editing the manuscript, and as additional independent checkers of the
-written proofs. The authors wrote and verified all proofs; the model-based checks
-supplemented this verification and did not replace it. The authors take full
-responsibility for the content of the paper.
+analysis code, for editing the manuscript, and as additional checkers of the written proofs.
+The first drafts of the proofs of Theorem~\ref{thm:relerr} and Propositions~\ref{prop:trap}
+and~\ref{prop:heun} came from model-based solver runs; the authors checked, revised and verified
+them. The authors wrote and verified all other proofs. The authors take full responsibility for
+the content of the paper.
 \fi
 
 \ifdefined\iclrversion
@@ -2796,7 +2817,7 @@ $\tau$, and $f(0,0,\tau),g(0,0,\tau)\to0$. Suppose that for every $\delta>0$ the
 $\varepsilon_\delta>0$ and $T_\delta$ with $|D_{(y,\eta)}f|+|D_{(y,\eta)}g|\le\delta$ on
 $\{|y|,|\eta|\le\varepsilon_\delta\}\times[T_\delta,\infty)$. Then there are $\varepsilon>0$ and $T$
 such that, for every $T'\ge T$, the states at time $T'$ in the $\varepsilon$-ball whose trajectories
-stay in it and converge to $(0,0)$ lie on a $C^1$ graph of codimension $n_+$ over the stable and
+stay in it and converge to $(0,0)$ lie on a Lipschitz graph of codimension $n_+$ over the stable and
 normal coordinates, and every state on this graph close enough to $(0,0)$ has such a trajectory.
 In particular, if $n_+=0$, every state close enough to $(0,0)$ does.
 \end{lemma}
@@ -2839,13 +2860,14 @@ Conversely, a solution that stays in the $\varepsilon/2$-ball and tends to zero 
 equations: variation of constants gives the stable and normal ones, and on $L^u$, writing
 $y_u(r)=e^{-\Gamma_u\int_r^{S}\beta}y_u(S)-\int_r^Se^{-\Gamma_u\int_r^s\beta}\beta P_uf\,ds$ and
 letting $S\to\infty$, boundedness forces the terminal term to vanish. The decaying set is
-therefore the graph of $y_u(T')=\Psi_{T'}(s_0,\eta_0)$. This graph is $C^1$ by the standard
-differentiability of the fixed point of a uniform contraction whose nonlinearities have uniformly
-continuous derivatives, and its codimension is $\dim L^u=n_+$. This proves the lemma with
-$\varepsilon/2$ in place of $\varepsilon$.
-% TODO (citation, not a gap in the argument): the C^1 dependence of the Lyapunov--Perron fixed
-% point on (s_0,\eta_0) is invoked from standard invariant-manifold theory without a reference;
-% add a precise citation (e.g. a stable-manifold theorem for nonautonomous systems).
+therefore the graph of $y_u(T')=\Psi_{T'}(s_0,\eta_0)$, of codimension $\dim L^u=n_+$. The
+graph is Lipschitz: the data $(s_0,\eta_0)$ enter the map only through the terms
+$e^{\Gamma_s\int_{T'}^r\beta}s_0$ and $e^{-(r-T')}\eta_0$, of sup-norm at most $|s_0|$ and
+$|\eta_0|$, so two data at distance $\Delta_0$ give fixed points at distance at most
+$\Delta_0/(1-C\kappa)$, and in particular $|\Psi_{T'}(s_0,\eta_0)-\Psi_{T'}(s_0',\eta_0')|\le
+(1-C\kappa)^{-1}|(s_0,\eta_0)-(s_0',\eta_0')|$. This proves the lemma with $\varepsilon/2$ in place
+of $\varepsilon$. (The graph is in fact $C^1$ by the standard theory of invariant manifolds, but
+only the Lipschitz property is used below.)
 \end{proof}
 
 \ificlr\placeblock{spectralthm}\else\thmspectral*\fi
@@ -2873,7 +2895,7 @@ flow from time $0$ to $T$ and the affine map $x\mapsto(\xi,\eta)$ gives a nonemp
 initial points, of positive $\pi_0$-probability. If $n_+\ge1$, every trajectory of the basin lies
 in the $\varepsilon$-ball from some integer time $T'\ge T$ on, hence on the graph of
 Lemma~\ref{lem:lp} at that time. The basin is thus contained in a countable union of preimages of
-$C^1$ graphs of positive codimension; such graphs are null, and the $C^1$ flow diffeomorphisms and
+Lipschitz graphs of positive codimension; such graphs are null by Fubini, and the $C^1$ flow diffeomorphisms and
 the affine coordinate map preserve null sets.
 
 \emph{Part (c): the face condition.} Let $b_j=P_La_j$ for $a_j\in S$. Since
@@ -3370,8 +3392,6 @@ $h=6$. Theorem~\ref{thm:endpoint} fixes which images the exact field returns and
 weights; these runs do not test whether the learned endpoint law has the same weights.
 
 % ==========================================================================
-% Drafted with model assistance, checked adversarially (docs/plan/proofs_E_R_T1_T2_2026-11-17.md),
-% verified by the authors 2026-11-19.
 \section{Relative field error, trapping, and the Heun sampler}
 \label{app:relerr}
 
