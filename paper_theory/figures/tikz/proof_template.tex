@@ -15,6 +15,7 @@
 \definecolor{otteal}{HTML}{009E73}
 \definecolor{otpurple}{HTML}{CC79A7}
 \definecolor{otgray}{HTML}{5A5A5A}
+\definecolor{otverm}{HTML}{D55E00} % blend / non-training endpoint, as in the data figures
 
 % result numbers: printed as fallbacks here, as \ref in main.tex
 \providecommand{\resref}[2]{#2}
@@ -39,7 +40,7 @@
 \def\divlabel{$\operatorname{div}f=\beta\Theta-d$,\ $\beta\to\infty$}
 \def\stepinstances{Thm.~\resref{thm:posmix}{4.1}: log-partition energy;\
   Thm.~\resref{thm:schedule}{4.6}: integration by parts in $w$}
-\def\failinstance{Thm.~\resref{thm:composition}{4.7}: $\Theta<0$ at the tie for $w>w_c$}
+\def\failinstance{Thm.~\resref{thm:composition}{4.8}: $\Theta<0$ at the tie for $w>w_c$}
 \def\passinstance{Thms.~\resref{thm:posmix}{4.1}, \resref{thm:schedule}{4.6}}
 \def\aslabel{a.s.}
 % =========================================================================
@@ -56,7 +57,7 @@
     process/.style={base, rounded corners=3pt, draw=otblue!70!black, fill=otblue!12},
     decision/.style={base, shape=diamond, aspect=1.5, inner sep=0pt,
       draw=otorange!80!black, fill=otorange!20, minimum width=2.1cm, minimum height=1.6cm},
-    failure/.style={base, rounded corners=3pt, draw=otorange!85!black, fill=otorange!22},
+    failure/.style={base, rounded corners=3pt, draw=otverm!85!black, fill=otverm!16},
     flow/.style={draw=otgray!75, line width=0.9pt, ->},
     elabel/.style={font=\sffamily\footnotesize, text=otgray},
     note/.style={font=\sffamily\footnotesize, text=otgray, align=center},
@@ -81,7 +82,7 @@
   \draw[flow] (check)  -- (end)     node[midway, above, elabel] {\yeslabel};
   \draw[flow] (check)  -- (steptwo) node[midway, right, elabel] {\nolabel};
   \draw[flow] (steptwo)-- (null)    node[midway, above, elabel] {\yeslabel};
-  \draw[flow] (null)   -- (end)     node[midway, right, elabel] {\aslabel};
+  \draw[flow] (null.north) -- (null.north |- end.south) node[midway, right, elabel] {\aslabel};
   \draw[flow] (steptwo)-- (error)   node[midway, above, elabel] {\nolabel};
 
   % --- where each result verifies the steps ---

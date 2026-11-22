@@ -64,17 +64,21 @@ def main() -> None:
 
     # (b) a source close to a tie leaves it late, or not before T, but its limit is still an atom
     ax = axes[1]
-    for h, c, mk, ms, ls in ((0.05, OI["sky"], "o", 5.0, "-"), (0.2, OI["vermillion"], "s", 2.6, "--"),
-                             (1.0, OI["green"], "^", 3.2, "-")):
+    # Every curve here is the field average of (a), so h=1 keeps its blue triangles; the two
+    # bandwidths still at the tie at the cutoff are grey, not vermillion, because their limit is
+    # an atom too (vermillion means a blend everywhere else in the paper).
+    for h, c, mk, ms, ls in ((0.05, "#9a9a9a", "o", 5.0, "-"), (0.2, GREY, "s", 2.6, "--"),
+                             (1.0, OI["blue"], "^", 3.2, "--")):
         rr = sorted((r for r in ties if r["arm"] == "average_fields" and r["h"] == h and r["x0"] == 1e-8),
                     key=lambda r: -r["eps"])
         ax.loglog([r["eps"] for r in rr], [max(r["nearest_atom_distance"], 1e-15) for r in rr],
                   color=c, marker=mk, ms=ms, lw=1.1, ls=ls, mfc="white" if h == 0.05 else c)
+    ax.set_xticks([1e-2, 1e-4, 1e-6, 1e-8])
     ax.invert_xaxis()
     ax.text(0.5, 0.86, r"$h=0.05$ (circles), $0.2$ (squares):" "\n" "still at the tie", transform=ax.transAxes, ha="center",
             va="top", fontsize=6.5, color=GREY)
     ax.text(0.05, 0.1, r"$h=1$: reaches an atom", transform=ax.transAxes, ha="left", va="center",
-            fontsize=6.5, color=OI["green"])
+            fontsize=6.5, color=OI["blue"])
     ax.set_xlabel(r"terminal gap $1-T$")
     ax.set_ylabel("nearest-atom distance")
     panel_title(ax, "b", r"Near a tie (offset $10^{-8}$)")
@@ -98,7 +102,7 @@ def main() -> None:
     ax.set_xticks(radii)
     ax.set_xlim(-0.08, 1.95)
     ax.set_xlabel("averaging radius / label s.d.")
-    ax.set_ylabel("normalised energy")
+    ax.set_ylabel("energy distance to exact (normalised)")
     panel_title(ax, "c", "Learned vs exact averages")
 
     for ax in axes:

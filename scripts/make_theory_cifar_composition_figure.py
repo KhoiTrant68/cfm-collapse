@@ -74,8 +74,9 @@ def main() -> None:
     ax.text(0.5, 0.1, r"zero for $w\leq0.9\,w_c$", transform=ax.get_xaxis_transform(),
             ha="center", va="center", fontsize=6.5, color=GREY)
     ax.set_xscale("log"); ax.set_xlim(0.25, 12)
-    ax.set_xticks([X0, 1, 10]); ax.set_xticklabels(["0", "1", "10"])
-    ax.xaxis.set_minor_locator(plt.matplotlib.ticker.FixedLocator([0.5, 0.9, 2, 3, 4, 5, 6, 7, 8, 9]))
+    # 2 and 5 are labelled because the mean peaks there; on a bare 1-10 decade they are hard to read.
+    ax.set_xticks([X0, 1, 2, 5, 10]); ax.set_xticklabels(["0", "1", "2", "5", "10"])
+    ax.xaxis.set_minor_locator(plt.matplotlib.ticker.FixedLocator([0.5, 0.9, 3, 4, 6, 7, 8, 9]))
     ax.xaxis.set_minor_formatter(plt.matplotlib.ticker.NullFormatter())
     xb = (np.log(0.39) - np.log(0.25)) / (np.log(12) - np.log(0.25))
     for dx in (-0.006, 0.006):
