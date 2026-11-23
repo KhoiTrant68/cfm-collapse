@@ -95,8 +95,9 @@ def main() -> None:
         per_seed.append(ys)
         ax.plot(radii, ys, color="#9a9a9a", lw=0.7, marker="o", ms=2.0, alpha=0.9)
     mean = np.mean(per_seed, axis=0)
-    ax.plot(radii, mean, color=COLORS["learned"], lw=1.6, marker="o", ms=3.5)
-    direct_label(ax, radii[-1], mean[-1], f"mean of\n{len(seeds)} seeds", COLORS["learned"], dx=4)
+    # Near-black, not vermillion: vermillion marks blends in this paper, and (c) shows none.
+    ax.plot(radii, mean, color="#222222", lw=1.6, marker="o", ms=3.5)
+    direct_label(ax, radii[-1], mean[-1], f"mean of\n{len(seeds)} seeds", "#222222", dx=4)
     top = int(np.argmax([y[-1] for y in per_seed]))
     direct_label(ax, radii[-1], per_seed[top][-1], "one seed", "#777777", dx=4)
     ax.set_xticks(radii)
