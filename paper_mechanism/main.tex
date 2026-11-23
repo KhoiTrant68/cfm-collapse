@@ -77,8 +77,10 @@ and sometimes new images. The exact minimiser of the training loss returns only 
 so a trained sampler that produces anything else does so through the error of its learned field.
 We ask which property of that error decides whether a sampling trajectory lands on a training
 image. Our main result is a relative condition. A trajectory reaches a training image when the
-error of its predicted clean image stays a fixed fraction below its distance to that image, and it
-stays away when the ratio of the two approaches one fast enough. The absolute error may be large,
+error of its predicted clean image stays a fixed fraction below its distance to that image. It
+stays away when the radial ratio approaches one fast enough; this ratio measures how far the
+predicted clean image still lies out along the state's own offset from the training image, in
+units of the state's distance, so a value of one means no pull toward the image. The absolute error may be large,
 and a small regression loss does not control the ratio. We also give a trapping version in the
 noise coordinates of EDM and a one-step version for the deterministic Heun sampler. We then measure
 these quantities on class-conditional EDM models of CIFAR-10 trained on $500$ to $50000$ images,
@@ -116,14 +118,17 @@ fixed.
 The answer is useful in three places. For the study of generalisation, it says which part of the
 learned field must depart from the exact one for a model to produce new images. For privacy audits
 by a party that holds the training set, it says what to measure along a trajectory to explain a
-copy. For methods that reduce copying, it says at which noise levels such a method can act.
+copy. For methods that reduce copying, it suggests at which noise levels such a method could act,
+although we do not test any such method here.
 
 Our main result is a landing condition stated for one trajectory at a time
 (Theorem~\ref{thm:relerr}). Let $n_t$ be the distance from the state to a training image $a$, and
 $e_t$ the distance from the network's predicted clean image to the exact posterior mean. If $e_t$
 stays below $\bar\varrho\,n_t$ for a constant $\bar\varrho<1$, up to terms that vanish at the end,
-the trajectory reaches $a$. If the radial ratio of the flow approaches one fast enough, it does
-not. The condition is relative: the error may be large while the state is far from the image, as
+the trajectory reaches $a$. The radial ratio compares the predicted clean image with the state,
+both seen from $a$: it is the length of the predicted image's offset from $a$ along the direction
+of the state's offset, divided by the state's distance $n_t$. A ratio below one pulls the state
+toward $a$; if it approaches one fast enough, the trajectory does not land. The condition is relative: the error may be large while the state is far from the image, as
 long as it shrinks in proportion to the distance. A small regression loss does not give this
 control, because the loss averages the error over the training law and not along the sampler's
 path (Proposition~\ref{prop:loss-no-certificate}).
@@ -137,15 +142,15 @@ sampled by two models, and Figure~\ref{fig:mechanism} shows the landing conditio
 
 \begin{figure}[t]
 \centering
-\IfFileExists{figures/tikz/overview.tex}{\input{figures/tikz/overview.tex}}{\fbox{overview schematic pending}}
+\IfFileExists{figures/tikz/overview.tex}{\resizebox{\textwidth}{!}{\input{figures/tikz/overview.tex}}}{\fbox{overview schematic pending}}
 \caption{Overview of the paper. Gaussian noise enters EDM's deterministic sampler, which calls the
 denoiser $D_\theta(x;\sigma)$ at every noise level $\sigma$ of the schedule. Three marks on the
-noise axis organise the results. First, the training image the trajectory is headed for is chosen,
-by $\sigma\approx1$ on the public model (Section~\ref{sec:swap}). Second, a copy becomes visible in
-the denoiser output: from $\sigma\approx1$ on, the distance from $D_\theta$ to the nearest training
-image tells which samples will copy (Section~\ref{sec:contraction}). Third, the state itself
-reaches the image only if the relative error $\varrho=e/n$ stays below one at the late levels
-(Theorem~\ref{thm:relerr}). Right, the two swaps at level $s$. Net$\to$exact runs the network above
+noise axis organise the results. First, the training image the trajectory is headed for is chosen:
+on the public model half of the images are chosen by the swap level $s\approx2.5$
+(Section~\ref{sec:swap}). Second, a copy appears in the denoiser output: from $\sigma\approx1$ on,
+the distance from $D_\theta$ to the nearest training image tells which samples will copy
+(Section~\ref{sec:contraction}). Third, in the late levels $\sigma\le0.59$ the state itself reaches
+the image only if the relative error $\varrho=e/n$ stays below one (Theorem~\ref{thm:relerr}). Right, the two swaps at level $s$. Net$\to$exact runs the network above
 $s$ and the exact posterior mean below it, and tells which image was chosen. Exact$\to$net runs the
 exact field above $s$ and the network below it, and tells whether the network lands from the state
 it is handed.}
@@ -184,8 +189,8 @@ sample from every swap level.}
 \begin{itemize}\itemsep1pt
 \item \emph{A landing condition for learned fields} (Section~\ref{sec:transfer}). A trajectory
   reaches a training example when its error stays a fixed fraction below its distance to that
-  example, and does not when the radial ratio approaches one fast enough
-  (Theorem~\ref{thm:relerr}). The condition holds at any label and bandwidth, including the class
+  example, and does not when the radial ratio, the pull of the predicted clean image toward the
+  example relative to the current distance, approaches one fast enough (Theorem~\ref{thm:relerr}). The condition holds at any label and bandwidth, including the class
   posterior of a class-conditional model, and the constant fraction cannot be replaced by one. A
   trapping statement in EDM coordinates and a one-step bound for the deterministic Heun sampler make
   it usable on a finite schedule (Propositions~\ref{prop:trap} and~\ref{prop:heun}).
@@ -202,7 +207,7 @@ sample from every swap level.}
   the image is informative. Once the swap is at $\sigma\le1$, that image is the one nearest to the
   network's own sample for at least $88\%$ of samples on every model. Earlier hybrid samplers ran
   the exact field first \citep{bertrand2025closed,liu2025navigation} or exchanged two trained
-  networks \citep{dodson2026calm}; the direction with the network first is new here.
+  networks \citep{dodson2026calm}; to our knowledge, the direction with the network first has not been run before.
 \item \emph{Landing is decided late} (Sections~\ref{sec:swap} and~\ref{sec:contraction}). Along the
   sampler's own trajectories, the samples a memorising model copies keep the relative error well
   below one until the last steps, and the others approach one from $\sigma\approx0.14$. The
@@ -234,9 +239,9 @@ and~\ref{app:relerr}.
 \paragraph{The exact optimum memorises; trained networks depart from it.} The empirical minimiser
 of diffusion and flow-matching losses memorises
 \citep{pidstrigach2022manifolds,gu2023memorization,biroli2023diffusion,buchanan2025edge,gao2024flow,bertrand2025closed,li2026memory}.
-For flow-matching ODEs, \citet[Theorem~5.3]{wan2025elucidating} prove, finite data included, that
+For flow-matching ODEs, \citet{wan2025elucidating} prove, finite data included, that
 almost every trajectory converges and that the endpoint law is the data law, and
-\citet[Theorem~6.4]{baptista2025memorization} identify the empirical conditional law on the
+\citet{baptista2025memorization} identify the empirical conditional law on the
 training examples that share a label. For the exact score of a finite training set,
 \citet[Theorem~3.7, version~3]{liu2025pde} prove that almost every deterministic trajectory ends on
 a training example. \citet[Theorem~2.5, version~2]{liu2026geometric} show that for a mixture or
@@ -390,7 +395,9 @@ Its analytic posterior has covariance~$\Sigmapost$, and $\Xhat$ is the covarianc
 \eqref{eq:objective} is a conditional expectation and can be written down. At hard conditioning it
 points straight at the training input of the label.
 
-\begin{proposition}[{Exact field at hard conditioning; cf.\ \citealp[Theorem~6.4]{baptista2025memorization}}]
+% FLAG: theorem number of Baptista et al. (2025) not checked verbatim (6.4 in paper A); cited
+% without a number until a human checks the arXiv v2 text.
+\begin{proposition}[{Exact field at hard conditioning; cf.\ \citealp{baptista2025memorization}}]
 \label{prop:collapse}
 Let $h=0$ and fix a training label $y^i$. Then
 (a) for $t<1$ the exact field is $v_0^\star(x,t,y^i)=(x^i-x)/(1-t)$ $(\star)$;
@@ -400,7 +407,7 @@ $x_t=(1-t)x_0+tx^i$, so $x_t\to x^i$ from every $x_0$; and
 (d) the endpoint law is $p_1^{(0)}(\cdot\mid y^i)=\delta_{x^i}$, with $\Cov[p_1^{(0)}(\cdot\mid y^i)]=0$.
 \end{proposition}
 Without the label, the exact flow instead ends on the full empirical law $\rhohat_X$
-\citep[Theorem~5.3]{wan2025elucidating}. Both flows return training inputs. The conditional one has
+(cf.\ \citealp{wan2025elucidating}). Both flows return training inputs. The conditional one has
 variance $0$ given the label, and the unconditional one has variance $\tr\Xhat$.
 
 With label noise the exact field averages the hard fields of all training examples, with weights
@@ -419,7 +426,7 @@ w_i^{(h)}=\frac{\pi_0\!\big(\tfrac{x-tx^i}{1-t}\big)K_h(y-y^i)}
 This is Bayes' rule for the index $I$ given $X_t=x$ and $\widetilde Y=y$, written in the
 posterior-mean form of the flow-matching field used by \citet{wan2025elucidating}.
 
-\begin{theorem}[{Exact endpoint law under label noise; cf.\ \citealp[Theorem~5.3]{wan2025elucidating}}]
+\begin{theorem}[{Exact endpoint law under label noise; cf.\ \citealp{wan2025elucidating}}]
 \label{thm:endpoint}
 For every $h>0$ and query $y$, with label weights $p_i^{(h)}(y)=K_h(y-y^i)/\sum_jK_h(y-y^j)$,
 \begin{equation}
@@ -428,11 +435,12 @@ p_1^{(h)}(\cdot\mid y)=\sum_{i=1}^N p_i^{(h)}(y)\,\delta_{x^i}.
 \end{equation}
 \end{theorem}
 At a fixed query $y$, the field \eqref{eq:kernel-field} is the unconditional exact field of the
-weighted empirical law on the right of \eqref{eq:endpoint}, so the statement is the endpoint
-theorem of \citet{wan2025elucidating} for that law.
-% FLAG: the checker should confirm that Wan et al. (2025, Theorem 5.3) covers this weighted
-% finite law in the form used here (endpoint law of the exact FM flow = target law). The
-% conditional reading is ours; the original attribution was to paper A (companionA).
+weighted empirical law on the right of \eqref{eq:endpoint}; compare the endpoint results of
+\citet{wan2025elucidating} for flow-matching ODEs with finite data.
+% FLAG: not checked against the PMLR v267 text. Paper A cites Wan et al. Theorem 5.3; the checker
+% could not read it verbatim, and the case of general (non-uniform) weights may be Theorem 5.4.
+% Whether it covers this weighted finite law needs a human check; until then only "cf.", no
+% theorem number. The conditional reading is ours; the original attribution was to paper A.
 
 \paragraph{The posterior mean and the error of a learned field.} In all three cases the exact field
 has the form $\vstar=(m^\star-x)/(1-t)$, where $m^\star=\sum_jw_j^{(h)}x^j$ is the posterior mean
@@ -564,8 +572,8 @@ enters the ball. They name what a measurement would need to show.
 Appendix~\ref{app:measured-transfer} measures the trajectory error on the linear-Gaussian problem
 and on retrained CIFAR-10 U-Nets, and Section~\ref{sec:edm} measures the relative error on EDM
 models. Whether a learned field can end exactly on an atom depends on how its regularity degenerates
-at $t=1$. If the spatial Lipschitz constant of a velocity network is integrable up to $t=1$, its
-flow map is bi-Lipschitz by Gr\"onwall's inequality and carries the Gaussian source to a law without
+at $t=1$. If the spatial Lipschitz constant of a velocity network and $|v_\theta(0,t)|$ are both
+integrable up to $t=1$, its flow map is bi-Lipschitz by Gr\"onwall's inequality and carries the Gaussian source to a law without
 atoms \citep{companionA}. The collapse of such a network in Section~\ref{sec:exp1} is therefore an
 approach to the atom at a finite cutoff, not the atom itself.
 % FLAG: the Gronwall sentence (bi-Lipschitz flow map, so no endpoint atoms) is a justification
@@ -598,15 +606,12 @@ a population standard deviation. Appendix~\ref{app:expdetails} gives all setting
 \begin{figure}[t]
 \centering
 \includegraphics[width=\textwidth]{fig_collapse.pdf}
-% FLAG: fig_collapse.pdf still contains panel (c), label smoothing against the kernel reference
-% (kernel tracking, moved to paper A by the split contract, sec. 2). The caption below describes
-% panels (a) and (b) only; the figure session removes panel (c).
 \caption{Collapse in trained networks at hard conditioning. (a)~EXP-1 at $h=0$, five seeds (mean
 $\pm$ one population standard deviation). The generated variance stays at $\tr\Sigmapost$ of the
 exact posterior up to about $10^4$ iterations and then falls, to $0.40$ at $2\times10^5$ with a
 constant learning rate (solid) and $0.12$ at $10^6$ with a cosine schedule (dashed), while the
 unconditional model (grey) keeps $\tr\Xhat$. (b)~The $35.75$M-parameter CIFAR-10 U-Net at $h=0$,
-first instance: the observed top half, four completions of one condition from different sources
+first instance: the observed top half, six completions of one condition from different sources
 $x_0$ and the training image at four checkpoints, with the generated trace (training-time
 estimator, $8$ conditions, $M=16$). From iteration $8000$ the completions coincide with the
 training image. Figure~\ref{fig:collapse-details} shows the other EXP-1 and CIFAR-10 diagnostics.}
@@ -1626,9 +1631,9 @@ $1-T=10^{-3}$) to $0.158\pm0.031$, $0.212\pm0.036$ and $0.254\pm0.047$ (RK4, $1-
 while the exact field has none at either cutoff and the $h=0$ networks have none. Measured
 against all $50000$ CIFAR-10 training images instead of the $2000$ used, the fractions are
 slightly larger, so the off-atom samples are not near other dataset images. Two refinement levels
-do not establish convergence, but the fractions change little between them, so solver and cutoff
-error are unlikely to account for them. The fractions grow with $h$ while the exact field has
-none, so they come from the learned field, not from the sampler. Two accounts of how trained
+do not establish convergence, so the fractions may combine learned-field, truncation and
+discretisation effects, and they do not identify a limiting support. They grow with $h$ while the
+exact field, integrated in the same way, has none. Two accounts of how trained
 image denoisers depart from the empirical optimum predict such samples. A convolutional network
 with a limited receptive field behaves like a locally optimal denoiser that assembles each patch
 from training patches at any position, and its samples are patch mosaics rather than training
@@ -1644,8 +1649,10 @@ more with the same configuration at $h=4$ and $h=6$ (three seeds each) and at $h
 each learned RK4 trajectory from the same $48\times16$ sources, the scaled error
 $(1-t)|\Delta(Z_t,t)|=|\hat m-m^*|$ against the exact field at the training bandwidth, and the
 same network error along the exact trajectory from the same source. The
-off-atom fractions at $1-T=10^{-4}$ reproduce the ones above: $0.168\pm0.010$ at $h=4$ and
-$0.276\pm0.006$ at $h=6$, none at $h=0$, and none for the exact field. Along the exact
+off-atom fractions at $1-T=10^{-4}$ are close to the ones above at $h=4$ and $h=6$, with none at
+$h=0$ and none for the exact field.
+% DECISION: the off-atom fractions of this retrain (s10) are removed from B because the contract
+% (sec. 2 and 5) assigns them to paper A; the group decides which paper owns the s10 retrain. Along the exact
 trajectories the final scaled error of the network is at most $0.006$, so where the exact field
 ends the network matches it. Along the learned trajectories the final scaled error has median
 $6.2$--$7.1$ for off-atom and $2.5$--$2.9$ for on-atom samples, with AUC $0.985$ at $h=4$ and
@@ -2011,14 +2018,11 @@ $\tr\Cov/\tr\Xhat$ is $0.997$ $[0.971,1.024]$.}
 \begin{figure}[htb]
 \centering
 \includegraphics[width=\textwidth]{fig_collapse_details.pdf}
-% FLAG: fig_collapse_details.pdf still contains panel (c), EXP-1 label smoothing against the
-% kernel reference (kernel tracking, moved to paper A). The caption skips (c); when the figure
-% session removes it, relabel (d) as (c) here.
 \caption{Further diagnostics for Figure~\ref{fig:collapse}. (a,~b)~EXP-1 at $h=0$, five seeds
 (mean $\pm$ one population standard deviation; solid: constant learning rate, dashed: cosine
 schedule to $10^6$ iterations): the generated mean leaves the posterior mean (blue) for the
 training atom $x^i$ (black), and the learned velocity approaches the collapsed field $(\star)$ of
-Proposition~\ref{prop:collapse}; values as in Table~\ref{tab:exp1}. (d)~The CIFAR-10 U-Net at
+Proposition~\ref{prop:collapse}; values as in Table~\ref{tab:exp1}. (c)~The CIFAR-10 U-Net at
 $h=0$: generated variance against iteration for the three independently redrawn instances
 (training-time estimator, $8$ conditions, $M=16$).}
 \label{fig:collapse-details}
@@ -2081,10 +2085,7 @@ and the training randomness together. The final checkpoints of the first instanc
 at $48$ conditions and $M=256$ samples per condition; only the $h=0$ trajectory quoted in the main
 text uses the training-time estimator ($8$ conditions, $M=16$), whose final value $0.431$ compares
 with $0.458$ re-measured. The networks of Appendix~\ref{app:measured-transfer} were retrained with
-the same configuration at $h=4,5,6$. A sample is on an atom when its squared distance to
-the nearest training image is at most $\tfrac19$ of that to the second nearest
-\citep{yoon2023memorization}, a relative finite-cutoff criterion. The on-atom fractions of the
-first instance are $1.000$, $0.829$, $0.717$ and $0.620$ at $h=0,4,5,6$.
+the same configuration at $h=4,5,6$.
 Figure~\ref{fig:cifar-training-grid} shows the $h=0$ samples of the first instance through
 training.
 
@@ -2103,8 +2104,8 @@ $8000$ all six reproduce the training image in both conditions.}
 training images share each label, so Assumption~\ref{as:standing}(iii) fails. At $h=0$ the
 posterior over atoms given a shared label is then the prior that is uniform on the images of
 that class. The endpoint law of the exact flow for the empirical conditional law of the class
-\citep[Theorem~6.4]{baptista2025memorization}, with this prior in place of the uniform prior on all
-atoms \citep[Theorem~5.3]{wan2025elucidating}, gives the within-class empirical law as the exact endpoint law. Its
+(cf.\ \citealp{baptista2025memorization}), with this prior in place of the uniform prior on all
+atoms (cf.\ \citealp{wan2025elucidating}), gives the within-class empirical law as the exact endpoint law. Its
 variance, the within-class scatter, is $717$ rather than $0$. Two runs of the same U-Net with the
 one-hot class as the label, at $h=0$ and $h=0.4$, keep this variance
 (Figure~\ref{fig:image-class}): the trace of the completions stays at $0.64$--$0.83$ of the
