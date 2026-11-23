@@ -102,7 +102,8 @@ on Its Training Set?}
 % current one (the number and signs of the combined exact fields decide the support); the
 % AND/class-label proposition is not added (contract 7.4, section 5).
 \begin{abstract}
-Conditional flow-matching samplers rarely integrate the field that their objective targets.
+Conditional flow-matching samplers are often run with a field other than the one their objective
+targets.
 Labels are noised during training, a network that resolves labels coarsely averages the field
 over nearby labels, and sampling adds classifier-free guidance, guidance schedules, negative
 prompts, or the summed guidance terms of compositional generation. Some of these changes are used
@@ -110,16 +111,18 @@ to reduce the replication of training data. We ask which of them can move the en
 exact empirical field, the population minimiser for a fixed training set, off the training
 examples. The answer depends on how many exact fields are combined, and with which signs. Label
 noise only reweights the training examples, with weights computable from the labels. Positive
-mixtures of exact fields with strictly positive priors, every fixed combination of two such
-fields, which includes negative prompting by substitution, and guidance with a nonnegative bounded
-schedule of bounded variation end on a training example from almost every initial point. For
+mixtures of exact fields with strictly positive priors end on a training example from almost every
+initial point. So do every fixed combination of two such fields, which includes negative prompting
+by substitution, and guidance with a nonnegative bounded schedule of bounded variation. For
 guidance, the analogous statement was known for the stochastic sampler, and for a fixed strength
 every trajectory of the flow was known to converge, possibly to a point that is not a training
 example. Three fields can blend training examples. The conjunction of compositional generation
 reaches a blend with positive probability. For two examples with prior log-odds $\pm2B$ this
 happens exactly when the guidance strength exceeds $1/\sinh^2B$, and in any dimension the
-eigenvalue signs of a signed posterior covariance decide it. At a tie of two examples, a blend
-requires subtracting a field that is less decided between them than the fields added. The blend
+eigenvalue signs of a signed posterior covariance decide it. At a tie of two examples, a point
+equally close to both and closer to them than to any other example, a blend requires subtracting a
+field that is less decided between them than the fields added: its prior log-odds between the two
+examples lie strictly between those of the added fields. The blend
 basin lies in a layer of width $(1-t)^2$ around the tie. Standard velocity networks miss it, while
 networks given a coordinate at that scale, centred at the tie, can match its exact probability.
 For an audit of replication, the results separate the sampler settings that at the exact optimum
@@ -187,7 +190,8 @@ the learned field and may disappear with a closer fit. An auditor needs to know 
 settings can return a training record at the exact optimum, and which record. The answer depends
 on how many exact fields are combined, and with which signs (Figure~\ref{fig:overview},
 Table~\ref{tab:interventions}). Combinations of two fields only reweight the training examples.
-Three fields can blend them, and at a tie of two examples only with a specific sign pattern.
+Three fields can blend them. At a tie of two examples, a point equally close to both and closer
+to them than to any other example, this needs a specific sign pattern.
 
 \paragraph{Contributions.}
 \begin{enumerate}[leftmargin=1.5em,itemsep=1pt]
@@ -223,7 +227,8 @@ Three fields can blend them, and at a tie of two examples only with a specific s
 \item \emph{A sign rule for composing conditions} (Section~\ref{sec:conjunction}). With equal
   weights this composite is the conjunction of compositional generation. At a tie of two
   examples, a blend needs a subtracted field that is less decided between them than the fields
-  added (Proposition~\ref{prop:twoatom}). The conjunction has one. A negative prompt against one
+  added, meaning that its prior log-odds between the two examples lie strictly between those of
+  the added fields (Proposition~\ref{prop:twoatom}). The conjunction has one. A negative prompt against one
   of the two examples does not, and a negative prompt milder than the positive one can.
 \item \emph{What a learned field needs to inherit the blend} (Sections~\ref{sec:regular-learned}
   and~\ref{sec:intervention-tests}). A velocity network with an integrable Lipschitz constant up
@@ -1137,9 +1142,12 @@ decades, and the slope, between $0.08$ and $0.60$ across the training sets, is n
 further retraining with the same configuration, the networks leave $0.168$ of their samples at
 $h=4$ and $0.276$ at $h=6$ off the training images at the cutoff $1-t=10^{-4}$, by a
 nearest-neighbour criterion (sample standard deviations $0.012$ and $0.008$ over three seeds),
-while the exact field at the same bandwidth leaves none. These samples come from the error of the
-learned field and the finite cutoff: at the exact optimum, label noise keeps every endpoint on a
-training image (Proposition~\ref{prop:atomicity}).
+while the exact field at the same bandwidth leaves none. These finite-cutoff fractions combine
+learned-field, truncation and discretisation effects and do not identify a limiting support. At
+the exact optimum, label noise keeps every endpoint on a training image
+(Proposition~\ref{prop:atomicity}).
+% DECISION: paper B also uses these s10 networks (results/s10_cifar_transfer_20261108) for its
+% scaled-field-error analysis; the group decides which paper owns the s10 runs and numbers.
 
 \paragraph{Exact fields.} Five geometry seeds, $d\in\{2,8\}$, $N=12$, random and near-duplicate
 atoms, and $h\in\{0.3,1\}$ give 200 paired cells across single-field, guidance ($w=3,12$),
@@ -3230,7 +3238,8 @@ logarithm of the generated trace on the logarithm of the reference trace across 
 conditions; the exact field puts it at $1$. The original run is on one draw of the $2000$ training
 images; the networks were then retrained with the same configuration on three independent draws,
 the first of which is the draw of the original run (\texttt{paperB\_uncertainty.py};
-% FLAG: the script name paperB_uncertainty.py points to the companion paper in an anonymous supplement; rename or keep (group/checker).
+% DECISION: the script name paperB_uncertainty.py reveals a companion paper in an anonymous
+% supplement; the group decides whether to rename it.
 Table~\ref{tab:cifar-kernel}). The off-atom fractions of Section~\ref{sec:intervention-tests} come
 from a further retraining with the same configuration at $h=4$ and $h=6$ (three seeds each),
 integrated with RK4 to $1-t=10^{-4}$ from $16$ shared sources at each of the $48$ conditions
@@ -3293,8 +3302,13 @@ $t$-interval over the draws.}
 \includegraphics[width=0.98\textwidth]{fig_intervention_validation.pdf}
 \caption{Intervention diagnostics. (a) Mean exact-field finite-cutoff distances for $d=2$,
 random atoms, $h=1$, averaged over five geometry seeds. (b) Sources at offset $10^{-8}$ from
-a symmetric tie under field averaging; delayed departure at a finite cutoff does not imply a
-non-atom limit. (c) Learned versus exact field averages from five checkpoints: each seed (grey)
+a symmetric tie under field averaging, nearest-atom distance against the terminal gap. At $h=1$
+(blue triangles, the field-average colour of (a)) the source reaches an atom; at $h=0.05$ and
+$0.2$ (grey circles and squares) it is still at the tie at the cutoff. Grey, not vermillion,
+because these limits are atoms too: delayed departure at a finite cutoff does not imply a
+non-atom limit. (c) Learned versus exact field averages from five checkpoints: energy distance of
+the learned to the exact average at fresh labels (normalised), against the averaging radius, for
+each seed (grey)
 and their mean.}
 \label{fig:intervention-validation}
 \end{figure}
