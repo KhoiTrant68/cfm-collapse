@@ -102,7 +102,9 @@ class Field:
         return h
 
 
-def run(field: Field, n_src: int, seed: int) -> dict:
+def run(field: Field, n_src: int, seed: int, keep_states: bool = False) -> dict:
+    """Integrate n_src N(0, I) sources; with keep_states also return the blown-up positions xi and
+    the times tau at the checkpoints U_CHECK (used by scripts/theory_basin_map.py --faces)."""
     d = field.atoms.shape[1]
     rng = np.random.default_rng(seed)
     x = rng.standard_normal((n_src, d))
@@ -145,7 +147,11 @@ def run(field: Field, n_src: int, seed: int) -> dict:
                      "frac_bounded": float((nrm < 5).mean()),
                      "frac_escaped": float((nrm > u / 20).mean()),
                      "median_norm_bounded": float(np.median(nrm[nrm < 5])) if (nrm < 5).any() else None})
-    return {"n_src": n_src, "seed": seed, "nfev": int(sol.nfev), "checkpoints": rows}
+    out = {"n_src": n_src, "seed": seed, "nfev": int(sol.nfev), "checkpoints": rows}
+    if keep_states:
+        out["states"] = [sol.y[:-1, j].reshape(n_src, d) for j in range(len(sol.t))]
+        out["taus"] = [float(sol.y[-1, j]) for j in range(len(sol.t))]
+    return out
 
 
 def classify(h: np.ndarray, L_dim: int) -> dict:

@@ -1,0 +1,163 @@
+t quantiles (0.975): {1: 12.706205, 2: 4.302653, 4: 2.776445}  z: 1.959964
+
+=== 1. EXP-1: mean | pop SD (paper) | sample SD | 95% t-interval | exact seed bootstrap ===
+cond_trcov           100  paper    1.08±0.02  mean 1.08 popSD 0.02 [ok]  sSD 0.03  t [1.04, 1.11]  boot [1.05, 1.09]
+cond_trcov         10000  paper    1.03±0.11  mean 1.03 popSD 0.11 [ok]  sSD 0.12  t [0.88, 1.18]  boot [0.94, 1.13]
+cond_trcov        100000  paper    0.58±0.18  mean 0.58 popSD 0.18 [ok]  sSD 0.20  t [0.33, 0.83]  boot [0.41, 0.75]
+cond_trcov        200000  paper  0.396±0.127  mean 0.396 popSD 0.127 [ok]  sSD 0.142  t [0.220, 0.573]  boot [0.268, 0.493]
+cond_trcov       1000000  paper  0.120±0.054  mean 0.120 popSD 0.054 [ok]  sSD 0.060  t [0.046, 0.195]  boot [0.074, 0.165]
+vel_relerr           100  paper    0.78±0.03  mean 0.78 popSD 0.03 [ok]  sSD 0.04  t [0.73, 0.83]  boot [0.75, 0.81]
+vel_relerr         10000  paper    0.75±0.07  mean 0.75 popSD 0.07 [ok]  sSD 0.08  t [0.65, 0.85]  boot [0.69, 0.81]
+vel_relerr        100000  paper    0.50±0.04  mean 0.50 popSD 0.04 [ok]  sSD 0.04  t [0.44, 0.55]  boot [0.47, 0.53]
+vel_relerr        200000  paper    0.40±0.05  mean 0.40 popSD 0.05 [ok]  sSD 0.06  t [0.33, 0.47]  boot [0.36, 0.45]
+vel_relerr       1000000  paper  0.168±0.052  mean 0.168 popSD 0.052 [ok]  sSD 0.059  t [0.095, 0.241]  boot [0.133, 0.220]
+mean_to_atom         100  paper    0.90±0.16  mean 0.90 popSD 0.16 [ok]  sSD 0.18  t [0.68, 1.12]  boot [0.75, 1.03]
+mean_to_atom       10000  paper    0.87±0.20  mean 0.87 popSD 0.20 [ok]  sSD 0.23  t [0.59, 1.16]  boot [0.67, 1.03]
+mean_to_atom      100000  paper    0.58±0.13  mean 0.58 popSD 0.13 [ok]  sSD 0.15  t [0.40, 0.76]  boot [0.47, 0.70]
+mean_to_atom      200000  paper    0.38±0.10  mean 0.38 popSD 0.10 [ok]  sSD 0.11  t [0.24, 0.52]  boot [0.29, 0.47]
+mean_to_atom     1000000  paper  0.137±0.065  mean 0.137 popSD 0.065 [ok]  sSD 0.073  t [0.047, 0.227]  boot [0.086, 0.195]
+mean_to_post         100  paper    0.15±0.06  mean 0.15 popSD 0.06 [ok]  sSD 0.07  t [0.06, 0.24]  boot [0.10, 0.21]
+mean_to_post       10000  paper    0.25±0.07  mean 0.25 popSD 0.07 [ok]  sSD 0.08  t [0.15, 0.35]  boot [0.18, 0.31]
+mean_to_post      100000  paper    0.52±0.10  mean 0.52 popSD 0.10 [ok]  sSD 0.11  t [0.38, 0.66]  boot [0.43, 0.60]
+mean_to_post      200000  paper    0.66±0.18  mean 0.66 popSD 0.18 [ok]  sSD 0.20  t [0.41, 0.90]  boot [0.50, 0.81]
+mean_to_post     1000000  paper  0.816±0.172  mean 0.816 popSD 0.172 [ok]  sSD 0.193  t [0.577, 1.055]  boot [0.671, 0.967]
+uncond_trcov         100  paper    1.85±0.55  mean 1.85 popSD 0.55 [ok]  sSD 0.61  t [1.09, 2.61]  boot [1.42, 2.36]
+uncond_trcov       10000  paper    1.93±0.16  mean 1.93 popSD 0.16 [ok]  sSD 0.17  t [1.72, 2.15]  boot [1.80, 2.06]
+uncond_trcov      100000  paper    1.91±0.17  mean 1.91 popSD 0.17 [ok]  sSD 0.19  t [1.67, 2.15]  boot [1.76, 2.07]
+uncond_trcov      200000  paper  1.926±0.171  mean 1.926 popSD 0.171 [ok]  sSD 0.191  t [1.690, 2.163]  boot [1.786, 2.076]
+trace_post        200000  paper  1.018±0.016  mean 1.018 popSD 0.016 [ok]  sSD 0.018  t [0.996, 1.040]  boot [1.006, 1.033]
+trace_data        200000  paper  1.931±0.162  mean 1.931 popSD 0.162 [ok]  sSD 0.182  t [1.706, 2.157]  boot [1.797, 2.082]
+memratio_cond     200000  paper  0.650±0.033  mean 0.650 popSD 0.033 [ok]  sSD 0.037  t [0.604, 0.696]  boot [0.621, 0.680]
+memratio_uncond   200000  paper  0.389±0.032  mean 0.389 popSD 0.032 [ok]  sSD 0.036  t [0.345, 0.433]  boot [0.358, 0.413]
+
+--- Table tab:p7kernel ---
+h=0.01  trace_kernel     paper        0.583  mean 0.583 popSD 0.254 [ok]  sSD 0.284  t [0.231, 0.936]  boot [0.363, 0.799]
+h=0.01  trace_post       paper        1.018  mean 1.018 popSD 0.016 [ok]  sSD 0.018  t [0.996, 1.040]  boot [1.006, 1.033]
+h=0.01  trace_meas       paper  0.673±0.187  mean 0.673 popSD 0.187 [ok]  sSD 0.209  t [0.414, 0.932]  boot [0.501, 0.834]
+h=0.01  ratio_to_kernel  paper  1.308±0.376  mean 1.308 popSD 0.376 [ok]  sSD 0.421  t [0.786, 1.830]  boot [1.019, 1.673]  covers 1: True
+h=0.01  ratio_to_post    paper         0.66  mean 0.661 popSD 0.181 [ok]  sSD 0.202  t [0.410, 0.911]  boot [0.493, 0.821]
+h=0.01  n_eff            paper          3.5  mean 3.472 popSD 1.192 [ok]  sSD 1.333  t [1.817, 5.126]  boot [2.426, 4.518]
+h=0.05  trace_kernel     paper        0.921  mean 0.921 popSD 0.145 [ok]  sSD 0.162  t [0.720, 1.122]  boot [0.790, 1.034]
+h=0.05  trace_post       paper        1.018  mean 1.018 popSD 0.016 [ok]  sSD 0.018  t [0.996, 1.040]  boot [1.006, 1.033]
+h=0.05  trace_meas       paper  0.926±0.169  mean 0.926 popSD 0.169 [ok]  sSD 0.189  t [0.692, 1.161]  boot [0.774, 1.067]
+h=0.05  ratio_to_kernel  paper  1.002±0.050  mean 1.002 popSD 0.050 [ok]  sSD 0.056  t [0.933, 1.072]  boot [0.965, 1.051]  covers 1: True
+h=0.05  ratio_to_post    paper         0.91  mean 0.910 popSD 0.166 [ok]  sSD 0.186  t [0.679, 1.141]  boot [0.768, 1.051]
+h=0.05  n_eff            paper         13.6  mean 13.611 popSD 5.344 [ok]  sSD 5.975  t [6.191, 21.030]  boot [8.994, 18.228]
+h=0.1   trace_kernel     paper        1.004  mean 1.004 popSD 0.144 [ok]  sSD 0.161  t [0.804, 1.203]  boot [0.879, 1.127]
+h=0.1   trace_post       paper        1.018  mean 1.018 popSD 0.016 [ok]  sSD 0.018  t [0.996, 1.040]  boot [1.006, 1.033]
+h=0.1   trace_meas       paper  1.001±0.173  mean 1.001 popSD 0.173 [ok]  sSD 0.193  t [0.761, 1.241]  boot [0.849, 1.153]
+h=0.1   ratio_to_kernel  paper  0.994±0.039  mean 0.994 popSD 0.039 [ok]  sSD 0.044  t [0.940, 1.048]  boot [0.963, 1.030]  covers 1: True
+h=0.1   ratio_to_post    paper         0.98  mean 0.984 popSD 0.172 [ok]  sSD 0.192  t [0.745, 1.222]  boot [0.832, 1.135]
+h=0.1   n_eff            paper         26.0  mean 25.981 popSD 11.118 [ok]  sSD 12.431  t [10.546, 41.416]  boot [16.669, 35.782]
+h=0.5   trace_kernel     paper        1.281  mean 1.281 popSD 0.175 [ok]  sSD 0.196  t [1.038, 1.524]  boot [1.136, 1.438]
+h=0.5   trace_post       paper        1.018  mean 1.018 popSD 0.016 [ok]  sSD 0.018  t [0.996, 1.040]  boot [1.006, 1.033]
+h=0.5   trace_meas       paper  1.294±0.166  mean 1.294 popSD 0.166 [ok]  sSD 0.185  t [1.064, 1.524]  boot [1.152, 1.435]
+h=0.5   ratio_to_kernel  paper  1.011±0.022  mean 1.011 popSD 0.022 [ok]  sSD 0.025  t [0.980, 1.042]  boot [0.990, 1.030]  covers 1: True
+h=0.5   ratio_to_post    paper         1.27  mean 1.270 popSD 0.151 [ok]  sSD 0.169  t [1.060, 1.479]  boot [1.140, 1.399]
+h=0.5   n_eff            paper        101.5  mean 101.525 popSD 38.771 [ok]  sSD 43.347  t [47.703, 155.348]  boot [69.037, 134.014]
+
+--- seed-paired contrasts (new) ---
+cond tr Cov / tr Sigma_post at 2e5 (constant lr)     mean 0.3887  sSD 0.1380  t [0.2173, 0.5600]  boot [0.2636, 0.4853]  per seed 0.405 0.537 0.430 0.411 0.161
+cond tr Cov / tr Sigma_post at 1e6 (cosine)          mean 0.1176  sSD 0.0575  t [0.0462, 0.1891]  boot [0.0732, 0.1601]  per seed 0.114 0.165 0.178 0.096 0.035
+uncond tr Cov / tr Xhat at 2e5                       mean 0.9974  sSD 0.0212  t [0.9711, 1.0237]  boot [0.9811, 1.0137]  per seed 0.995 1.022 0.971 1.014 0.985
+memorisation ratio, cond - uncond at 2e5             mean 0.2610  sSD 0.0436  t [0.2069, 0.3152]  boot [0.2272, 0.2949]  per seed 0.224 0.248 0.317 0.296 0.220
+|mean - x^i| - |mean - mu_post| at 1e5               mean 0.0625  sSD 0.1553  t [-0.1304, 0.2554]  boot [-0.0551, 0.1862]  per seed -0.112 0.254 0.001 0.196 -0.026
+|mean - x^i| - |mean - mu_post| at 2e5               mean -0.2771  sSD 0.2347  t [-0.5685, 0.0143]  boot [-0.4495, -0.1047]  per seed -0.507 0.049 -0.199 -0.505 -0.224
+|mean - x^i| - |mean - mu_post| at 1e6 (cosine)      mean -0.6791  sSD 0.2072  t [-0.9363, -0.4218]  boot [-0.8393, -0.5188]  per seed -0.867 -0.601 -0.471 -0.931 -0.525
+cond tr Cov at 1e6 (cosine) - at 2e5 (constant lr)   mean -0.2761  sSD 0.0938  t [-0.3925, -0.1597]  boot [-0.3433, -0.1929]  per seed -0.292 -0.379 -0.263 -0.320 -0.127
+
+=== 2. CIFAR-10 log-log slopes ===
+h=4 published (exp3_cifar_ddpm_h4, config seed 0, 48 conditions, 1 instance): slope 0.481 OLS se 0.037 HC3 se 0.039 R2 0.785 decades 4.57  matches paper {'slope': True, 'se': True, 'r2': True, 'decades': True}
+     OLS t-CI [0.406, 0.555]  HC3 t-CI [0.402, 0.560]  case boot pct [0.391, 0.556]  BCa [0.400, 0.566]
+     rerun s0 (exp3_cifar_heff_h4_s0, seed 0, same ref as published: True): slope 0.344 se 0.037 R2 0.654 decades 4.57
+     rerun s1 (exp3_cifar_heff_h4_s1, seed 1, same ref as published: False): slope 0.316 se 0.024 R2 0.789 decades 7.00
+     rerun s2 (exp3_cifar_heff_h4_s2, seed 2, same ref as published: False): slope 0.427 se 0.040 R2 0.710 decades 5.28
+     3 instances: mean slope 0.362 sd 0.058 t(df=2) CI [0.219, 0.505]  FE pooled 0.359 (naive se 0.019, CR1 se 0.036)  cluster boot [0.319, 0.413] two-stage boot [0.298, 0.437]  plain pooled 0.364 (R2 0.709)  published - s0 +0.137
+h=5 published (exp3_cifar_ddpm_h5, config seed 0, 48 conditions, 1 instance): slope 0.349 OLS se 0.049 HC3 se 0.142 R2 0.522 decades 2.16  matches paper {'slope': True, 'se': True, 'r2': True, 'decades': True}
+     OLS t-CI [0.250, 0.449]  HC3 t-CI [0.063, 0.636]  case boot pct [0.146, 0.514]  BCa [0.179, 0.566]
+     rerun s0 (exp3_cifar_heff_h5_s0, seed 0, same ref as published: True): slope 0.285 se 0.046 R2 0.453 decades 2.16
+     rerun s1 (exp3_cifar_heff_h5_s1, seed 1, same ref as published: False): slope 0.554 se 0.036 R2 0.840 decades 3.79
+     rerun s2 (exp3_cifar_heff_h5_s2, seed 2, same ref as published: False): slope 0.465 se 0.067 R2 0.510 decades 2.41
+     3 instances: mean slope 0.434 sd 0.137 t(df=2) CI [0.094, 0.775]  FE pooled 0.483 (naive se 0.029, CR1 se 0.061)  cluster boot [0.342, 0.541] two-stage boot [0.261, 0.601]  plain pooled 0.483 (R2 0.659)  published - s0 +0.065
+h=6 published (exp3_cifar_ddpm_h6, config seed 0, 48 conditions, 1 instance): slope -0.156 OLS se 0.058 HC3 se 0.108 R2 0.135 decades 0.74  matches paper {'slope': True, 'se': True, 'r2': True, 'decades': True}
+     OLS t-CI [-0.273, -0.039]  HC3 t-CI [-0.374, 0.062]  case boot pct [-0.256, 0.168]  BCa [-0.290, 0.079]
+     rerun s0 (exp3_cifar_heff_h6_s0, seed 0, same ref as published: True): slope 0.082 se 0.102 R2 0.014 decades 0.74
+     rerun s1 (exp3_cifar_heff_h6_s1, seed 1, same ref as published: False): slope 0.412 se 0.055 R2 0.552 decades 1.89
+     rerun s2 (exp3_cifar_heff_h6_s2, seed 2, same ref as published: False): slope 0.598 se 0.095 R2 0.463 decades 1.00
+     3 instances: mean slope 0.364 sd 0.261 t(df=2) CI [-0.285, 1.013]  FE pooled 0.434 (naive se 0.041, CR1 se 0.057)  cluster boot [0.264, 0.557] two-stage boot [0.062, 0.755]  plain pooled 0.450 (R2 0.433)  published - s0 -0.238
+
+=== 3. EDM AUCs ===
+sub500s0: n_off 41/1000  C medians on 2.553 off 0.290  sigma 0.5853->0.0020
+   anchor file re-run of the same latents: {'same_labels_and_off_flags': True, 'max_rel_diff_d1': 0.0062164537889693935, 'max_abs_diff_C': 0.0534269329459606, 'C_median_on_anchorfile': 2.5528740231312277, 'C_median_off_anchorfile': 0.28955171772394406, 'AUC_C_anchorfile': 1.0}
+   json: C_on_med 2.55 C_off_med 0.29 n_off 41
+   C              AUC 1.0000  strat [1.000, 1.000]  DeLong [1.000, 1.000]  class-cluster [1.000, 1.000]  json [1.0, 1.0, 1.0]
+   nn_end         AUC 1.0000  strat [1.000, 1.000]  DeLong [1.000, 1.000]  class-cluster [1.000, 1.000]  json [1.0, 1.0, 1.0]
+   C-nn_end       AUC 0.0000  strat [0.000, 0.000]  DeLong [0.000, 0.000]  class-cluster [0.000, 0.000]  json [0.0, 0.0, 0.0]
+   rad194         AUC 0.7959  strat [0.733, 0.855]  DeLong [0.735, 0.857]  class-cluster [0.745, 0.840]  json [0.796, 0.735, 0.854]
+   nn194          AUC 0.6895  strat [0.612, 0.763]  DeLong [0.613, 0.766]  class-cluster [0.594, 0.759]  json [0.689, 0.611, 0.763]
+   rad194-nn194   AUC 0.1065  strat [0.053, 0.161]  DeLong [0.052, 0.161]  class-cluster [0.060, 0.166]  json [0.106, 0.049, 0.164]
+   rad129         AUC 0.8936  strat [0.853, 0.932]  DeLong [0.854, 0.933]  class-cluster [0.845, 0.936]  json [0.894, 0.856, 0.93]
+   nn129          AUC 0.8763  strat [0.833, 0.915]  DeLong [0.835, 0.917]  class-cluster [0.822, 0.913]  json [0.876, 0.835, 0.914]
+   rad129-nn129   AUC 0.0173  strat [-0.009, 0.046]  DeLong [-0.010, 0.045]  class-cluster [-0.016, 0.061]  json [0.017, -0.008, 0.047]
+   rho1.92        AUC 0.9991  strat [0.997, 1.000]  DeLong [0.998, 1.000]  class-cluster [0.998, 1.000]
+   rho0.585       AUC 1.0000  strat [1.000, 1.000]  DeLong [1.000, 1.000]  class-cluster [1.000, 1.000]  json [1.0, 1.0, 1.0]
+   rho0.140       AUC 1.0000  strat [1.000, 1.000]  DeLong [1.000, 1.000]  class-cluster [1.000, 1.000]
+   rho0.023       AUC 0.9996  strat [0.999, 1.000]  DeLong [0.999, 1.000]  class-cluster [0.998, 1.000]
+   rho0.002       AUC 0.9949  strat [0.986, 1.000]  DeLong [0.987, 1.002]  class-cluster [0.984, 1.000]  json [0.995, 0.986, 1.0]
+   endpoint-image clusters (413): C [1.000, 1.000] C-nn_end [0.000, 0.000]
+   complete separation of C: margin 0.2668; one-sided 95% lower bound 0.9226 (two-point ceiling 0.9295)
+   complete separation of nn_end: margin 0.05158; one-sided 95% lower bound 0.9226 (two-point ceiling 0.9295)
+   complete separation of rho0.585: margin 0.00934; one-sided 95% lower bound 0.9226 (two-point ceiling 0.9295)
+   complete separation of rho0.140: margin 0.1046; one-sided 95% lower bound 0.9226 (two-point ceiling 0.9295)
+   rho0.023: 17 discordant + 0 tied of 39319 pairs
+   rho0.002: 202 discordant + 0 tied of 39319 pairs
+sub500s1: n_off 44/1000  C medians on 2.528 off 0.317  sigma 0.5853->0.0020
+   json: C_on_med 2.53 C_off_med 0.32 n_off 44
+   C              AUC 1.0000  strat [1.000, 1.000]  DeLong [1.000, 1.000]  class-cluster [1.000, 1.000]  json [1.0, 1.0, 1.0]
+   nn_end         AUC 1.0000  strat [1.000, 1.000]  DeLong [1.000, 1.000]  class-cluster [1.000, 1.000]  json [1.0, 1.0, 1.0]
+   C-nn_end       AUC 0.0000  strat [0.000, 0.000]  DeLong [0.000, 0.000]  class-cluster [0.000, 0.000]  json [0.0, 0.0, 0.0]
+   rad194         AUC 0.7886  strat [0.722, 0.849]  DeLong [0.724, 0.853]  class-cluster [0.697, 0.870]  json [0.789, 0.724, 0.852]
+   nn194          AUC 0.7399  strat [0.680, 0.796]  DeLong [0.683, 0.797]  class-cluster [0.669, 0.810]  json [0.74, 0.684, 0.794]
+   rad194-nn194   AUC 0.0487  strat [-0.025, 0.117]  DeLong [-0.023, 0.121]  class-cluster [0.002, 0.088]  json [0.049, -0.023, 0.12]
+   rad129         AUC 0.8936  strat [0.859, 0.925]  DeLong [0.859, 0.928]  class-cluster [0.839, 0.933]  json [0.894, 0.859, 0.925]
+   nn129          AUC 0.8973  strat [0.869, 0.924]  DeLong [0.870, 0.925]  class-cluster [0.860, 0.929]  json [0.897, 0.87, 0.923]
+   rad129-nn129   AUC -0.0038  strat [-0.036, 0.026]  DeLong [-0.035, 0.027]  class-cluster [-0.038, 0.025]  json [-0.004, -0.035, 0.025]
+   rho1.92        AUC 0.9980  strat [0.995, 1.000]  DeLong [0.996, 1.000]  class-cluster [0.996, 1.000]
+   rho0.585       AUC 1.0000  strat [1.000, 1.000]  DeLong [1.000, 1.000]  class-cluster [1.000, 1.000]  json [1.0, 1.0, 1.0]
+   rho0.140       AUC 1.0000  strat [1.000, 1.000]  DeLong [1.000, 1.000]  class-cluster [1.000, 1.000]
+   rho0.023       AUC 1.0000  strat [1.000, 1.000]  DeLong [1.000, 1.000]  class-cluster [1.000, 1.000]
+   rho0.002       AUC 0.9998  strat [0.999, 1.000]  DeLong [0.999, 1.000]  class-cluster [0.999, 1.000]  json [1.0, 0.999, 1.0]
+   endpoint-image clusters (428): C [1.000, 1.000] C-nn_end [0.000, 0.000]
+   complete separation of C: margin 0.7138; one-sided 95% lower bound 0.9273 (two-point ceiling 0.9342)
+   complete separation of nn_end: margin 7.337; one-sided 95% lower bound 0.9273 (two-point ceiling 0.9342)
+   complete separation of rho0.585: margin 0.05867; one-sided 95% lower bound 0.9273 (two-point ceiling 0.9342)
+   complete separation of rho0.140: margin 0.2977; one-sided 95% lower bound 0.9273 (two-point ceiling 0.9342)
+   complete separation of rho0.023: margin 0.02026; one-sided 95% lower bound 0.9273 (two-point ceiling 0.9342)
+   rho0.002: 8 discordant + 0 tied of 42064 pairs
+sub2000: n_off 501/1000  C medians on 1.752 off 0.684  sigma 0.5853->0.0020
+   json: C_on_med 1.75 C_off_med 0.68 n_off 501
+   C              AUC 0.9831  strat [0.977, 0.988]  DeLong [0.978, 0.989]  class-cluster [0.975, 0.991]  json [0.983, 0.977, 0.988]
+   nn_end         AUC 0.9849  strat [0.979, 0.990]  DeLong [0.980, 0.990]  class-cluster [0.978, 0.992]  json [0.985, 0.979, 0.99]
+   C-nn_end       AUC -0.0018  strat [-0.004, 0.000]  DeLong [-0.004, 0.000]  class-cluster [-0.005, 0.000]  json [-0.002, -0.004, 0.0]
+   rad194         AUC 0.5538  strat [0.518, 0.589]  DeLong [0.518, 0.589]  class-cluster [0.510, 0.593]  json [0.554, 0.518, 0.591]
+   nn194          AUC 0.4794  strat [0.444, 0.515]  DeLong [0.444, 0.515]  class-cluster [0.442, 0.518]  json [0.479, 0.442, 0.516]
+   rad194-nn194   AUC 0.0744  strat [0.042, 0.108]  DeLong [0.042, 0.107]  class-cluster [0.038, 0.110]  json [0.074, 0.044, 0.108]
+   rad129         AUC 0.6053  strat [0.570, 0.639]  DeLong [0.570, 0.640]  class-cluster [0.583, 0.632]  json [0.605, 0.569, 0.64]
+   nn129          AUC 0.5200  strat [0.484, 0.556]  DeLong [0.484, 0.556]  class-cluster [0.476, 0.566]  json [0.52, 0.483, 0.556]
+   rad129-nn129   AUC 0.0853  strat [0.056, 0.115]  DeLong [0.056, 0.115]  class-cluster [0.055, 0.116]  json [0.085, 0.055, 0.115]
+   rho1.92        AUC 0.9465  strat [0.932, 0.960]  DeLong [0.932, 0.961]  class-cluster [0.933, 0.960]
+   rho0.585       AUC 0.9905  strat [0.987, 0.994]  DeLong [0.987, 0.994]  class-cluster [0.985, 0.996]  json [0.99, 0.987, 0.994]
+   rho0.140       AUC 0.9830  strat [0.977, 0.988]  DeLong [0.977, 0.989]  class-cluster [0.975, 0.991]
+   rho0.023       AUC 0.9705  strat [0.961, 0.978]  DeLong [0.962, 0.979]  class-cluster [0.958, 0.983]
+   rho0.002       AUC 0.9289  strat [0.913, 0.943]  DeLong [0.914, 0.944]  class-cluster [0.900, 0.955]  json [0.929, 0.913, 0.942]
+   endpoint-image clusters (770): C [0.977, 0.988] C-nn_end [-0.004, 0.000]
+   C: 4228 discordant + 0 tied of 249999 pairs
+   nn_end: 3768 discordant + 0 tied of 249999 pairs
+   rho0.585: 2376 discordant + 0 tied of 249999 pairs
+   rho0.140: 4258 discordant + 0 tied of 249999 pairs
+   rho0.023: 7383 discordant + 0 tied of 249999 pairs
+   rho0.002: 17781 discordant + 0 tied of 249999 pairs
+ROBUSTNESS.md e-nn at sigma 8.4 (B=1000 in md: present=True): recomputed B=10000 [-0.07395915460718738, -0.10084183219308729, -0.04923764592181893]
+ROBUSTNESS.md radA-dD at 19.4 (present=True): recomputed [0.10646252447925941, 0.0534340903888705, 0.16078867722983797]
+
+wrote results\paperB_20261121\uncertainty/exp1_uncertainty.csv, cifar_slopes.json, edm_auc.json, tables.tex, summary.json

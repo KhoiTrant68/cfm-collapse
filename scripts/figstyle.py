@@ -34,7 +34,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 try:  # only the trajectory helpers below need torch; the drawing helpers do not
     import torch
-except ImportError:  # pragma: no cover
+except (ImportError, OSError):  # pragma: no cover  (OSError: a broken torch DLL on Windows)
     torch = None
 from matplotlib.lines import Line2D
 from matplotlib.patches import Ellipse
@@ -65,25 +65,76 @@ H_COLORS = {0.0: OI["black"], 0.01: OI["orange"], 0.05: OI["sky"],
             5.0: OI["green"], 6.0: OI["blue"]}
 
 
+# Print widths in inches. Draw every figure at the width it is printed at
+# (\includegraphics[width=\textwidth] -> FULL_W), so that the font sizes below are the
+# sizes on paper: 8 pt text next to 10 pt body text, as in NeurIPS/ICML/ICLR papers.
+FULL_W = 6.5      # TMLR \textwidth; NeurIPS is 5.5 in, which scales by 0.85
+HALF_W = 3.2
+
+# Roles for the two-paper split: the exact field versus a trained network.
+COLORS.update({"exact": OI["blue"], "learned": OI["vermillion"]})
+
+
+# TrueType copies of the URW Helvetica clone, written by scripts/make_tt_fonts.py on lab09.
+# TrueType is needed for clean Type 42 embedding (the OpenType/CFF original is flagged by poppler).
+TT_FONT_DIR = Path("/mnt/data/khoitm8/cache/fonts")
+
+
+def _register_tt_fonts() -> None:
+    from matplotlib import font_manager
+    if TT_FONT_DIR.is_dir():
+        for f in sorted(TT_FONT_DIR.glob("*.ttf")):
+            font_manager.fontManager.addfont(str(f))
+
+
 def use_paper_style() -> None:
     """Apply the shared rcParams. Call once at the top of every figure script."""
+    _register_tt_fonts()
     plt.rcParams.update({
-        "figure.dpi": 150, "savefig.dpi": 200, "font.size": 11,
-        "axes.titlesize": 11.5, "axes.labelsize": 10.5,
-        "xtick.labelsize": 9.5, "ytick.labelsize": 9.5, "legend.fontsize": 9,
+        "figure.dpi": 150, "savefig.dpi": 300,
+        "font.family": "sans-serif",
+        "font.sans-serif": ["Nimbus Sans TT", "Helvetica", "Arial", "Liberation Sans", "DejaVu Sans"],
+        # Math in the text font where it has the glyph ($\mathbf{(a)}$ panel letters, italic
+        # variables), STIX sans for the rest (Greek, arrows, operators).
+        **({"mathtext.fontset": "custom", "mathtext.rm": "Nimbus Sans TT",
+            "mathtext.it": "Nimbus Sans TT:italic", "mathtext.bf": "Nimbus Sans TT:bold",
+            "mathtext.sf": "Nimbus Sans TT", "mathtext.fallback": "stixsans"}
+           if TT_FONT_DIR.is_dir() else {"mathtext.fontset": "stixsans"}),
+        "font.size": 8, "axes.titlesize": 8.5, "axes.titleweight": "normal",
+        "axes.labelsize": 8, "xtick.labelsize": 7, "ytick.labelsize": 7,
+        "legend.fontsize": 7, "legend.frameon": False, "legend.handlelength": 1.6,
         "axes.spines.top": False, "axes.spines.right": False,
-        "axes.grid": True, "grid.color": "#cccccc", "grid.alpha": 0.4,
-        "grid.linewidth": 0.6, "axes.axisbelow": True, "legend.frameon": False,
-        "lines.linewidth": 2.0, "lines.markersize": 7,
+        "axes.linewidth": 0.6, "axes.edgecolor": "#333333", "axes.labelcolor": "#222222",
+        "xtick.color": "#333333", "ytick.color": "#333333",
+        "xtick.major.width": 0.6, "ytick.major.width": 0.6,
+        "xtick.major.size": 2.5, "ytick.major.size": 2.5,
+        "xtick.minor.size": 1.5, "ytick.minor.size": 1.5,
+        "axes.grid": True, "grid.color": "#e6e6e6", "grid.alpha": 1.0,
+        "grid.linewidth": 0.5, "axes.axisbelow": True,
+        "lines.linewidth": 1.4, "lines.markersize": 3.5,
+        "axes.titlepad": 4.0, "axes.labelpad": 2.5,
         "figure.constrained_layout.use": False,
+        "pdf.fonttype": 42, "ps.fonttype": 42,
     })
+
+
+def panel_title(ax, letter: str, text: str = "", **kw) -> None:
+    """Left-aligned panel title with a bold letter: '(a)' bold, then plain text."""
+    ax.set_title(rf"$\mathbf{{({letter})}}$  {text}".rstrip(), loc="left", **kw)
+
+
+def direct_label(ax, x, y, text: str, color: str, *, ha: str = "left", va: str = "center",
+                 dx: float = 4.0, dy: float = 0.0, **kw):
+    """Label a line at a data point in its own colour (instead of a legend)."""
+    return ax.annotate(text, (x, y), xytext=(dx, dy), textcoords="offset points",
+                       ha=ha, va=va, color=color, fontsize=kw.pop("fontsize", 7.5), **kw)
 
 
 def style(ax) -> None:
     """Thin the spines and ticks of one axis."""
-    ax.tick_params(length=3, width=0.8)
+    ax.tick_params(length=2.5, width=0.6)
     for s in ("left", "bottom"):
-        ax.spines[s].set_linewidth(0.8)
+        ax.spines[s].set_linewidth(0.6)
 
 
 def portrait_axis(ax) -> None:
@@ -96,6 +147,21 @@ def portrait_axis(ax) -> None:
         s.set_visible(True)
         s.set_alpha(0.35)
         s.set_linewidth(0.8)
+
+
+def image_frame(ax, color: str, lw: float = 1.2) -> None:
+    """A full coloured frame around an image panel.
+
+    The paper style hides the top and right spines, so an image axis that only
+    recoloured its spines would get an L-shaped frame; this shows all four.
+    """
+    ax.set_xticks([])
+    ax.set_yticks([])
+    ax.grid(False)
+    for s in ax.spines.values():
+        s.set_visible(True)
+        s.set_color(color)
+        s.set_linewidth(lw)
 
 
 def panel_tag(ax, letter: str, dx: float = -0.04, dy: float = 1.06) -> None:

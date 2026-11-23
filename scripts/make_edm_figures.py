@@ -17,8 +17,22 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 
-from scripts.figstyle import COLORS, OI, panel_tag, portrait_axis, save, style, use_paper_style
-from scripts.n3_edm_memorization import auc
+from scripts.figstyle import COLORS, OI, image_frame, panel_tag, portrait_axis, save, style, use_paper_style
+
+try:
+    from scripts.n3_edm_memorization import auc
+except (ImportError, OSError):  # that module imports torch; the figures only need this helper
+    def auc(pos, neg):
+        """P(pos > neg) + P(pos = neg)/2; a copy of scripts.n3_edm_memorization.auc."""
+        pos, neg = pos[np.isfinite(pos)], neg[np.isfinite(neg)]
+        if len(pos) == 0 or len(neg) == 0:
+            return float("nan")
+        x = np.concatenate([pos, neg]); r = np.empty(len(x)); o = x.argsort(kind="mergesort")
+        r[o] = np.arange(1, len(x) + 1)
+        for v in np.unique(x):
+            m = x == v
+            r[m] = r[m].mean()
+        return float((r[:len(pos)].sum() - len(pos) * (len(pos) + 1) / 2) / (len(pos) * len(neg)))
 
 R = Path("results")
 GROUP = {"on": OI["blue"], "off": OI["vermillion"], "public": OI["orange"]}
@@ -126,27 +140,38 @@ def fig_clocks():
                           ("2000: off-atom", (z2["err"] / z2["n1"])[~on2], GROUP["off"], "--"),
                           ("public", zp["err"] / zp["n1"], GROUP["public"], "-")):
         q = np.nanpercentile(v, [25, 50, 75], axis=0)
-        ax.semilogx(sg, q[1], color=c, lw=1.4, ls=ls, label=lab)
+        ax.semilogx(sg, q[1], color=c, lw=1.4, ls=ls)
         if ls == "-":
             ax.fill_between(sg, q[0], q[2], color=c, alpha=0.15, lw=0)
     ax.axhline(1, ls=":", color=COLORS["theory"], lw=1.0)
     ax.set_xlim(20, 0.0015); ax.set_ylim(0, 1.08)
     ax.set_xlabel(r"noise level $\sigma$"); ax.set_ylabel(r"relative error $\varrho_t$")
-    ax.legend(fontsize=6.3, loc="lower right", handlelength=1.6); style(ax); panel_tag(ax, "b")
+    # factored legend: colour = group, line style = training-set size; it fits the empty lower-right corner
+    from matplotlib.lines import Line2D
+    hs = [Line2D([], [], color=GROUP["on"], lw=1.4), Line2D([], [], color=GROUP["off"], lw=1.4),
+          Line2D([], [], color=GROUP["public"], lw=1.4), Line2D([], [], color="k", lw=1.2, ls="-"),
+          Line2D([], [], color="k", lw=1.2, ls="--")]
+    leg = ax.legend(hs[:3], ["on-atom", "off-atom", "public"], fontsize=6.3, loc="upper left",
+                    handlelength=1.4, borderaxespad=0.2, labelspacing=0.25,
+                    frameon=True, facecolor="white", edgecolor="none", framealpha=1.0)   # masks the rule at 1
+    ax.add_artist(leg)
+    ax.legend(hs[3:], ["500 images", "2000 images"], fontsize=6.3, loc="lower right",
+              handlelength=1.6, borderaxespad=0.2, labelspacing=0.25)
+    style(ax); panel_tag(ax, "b")
     ax.set_title("landing: late", fontsize=9)
 
     ax = axes[2]
-    for key, lab, c, ls in (("rhoA", r"$\varrho$ (predictive anchor)", GROUP["on"], "-"),
+    for key, lab, c, ls in (("rhoA", r"$\varrho$, predictive anchor", GROUP["on"], "-"),
                             ("radA", "radial ratio", OI["green"], "-"),
-                            ("dD", "nearest-image distance", COLORS["theory"], "--")):
+                            ("dD", "NN distance of $D_\\theta$", COLORS["theory"], "--")):
         a = [auc(z2[key][~on2, i], z2[key][on2, i]) for i in range(len(z2["sigma"]))]
         ax.semilogx(z2["sigma"], a, color=c, lw=1.5, ls=ls, label=lab)
     rho2 = z2["err"] / z2["n1"]; sg2 = z2["sigma"]; inc = (1 - 0.5 * (rho2[:, :-1] + rho2[:, 1:])) * np.log(sg2[:-1] / sg2[1:])
     cum = [auc(-inc[~on2, 11:k].sum(1), -inc[on2, 11:k].sum(1)) for k in range(12, len(sg2))]
-    ax.semilogx(sg2[12:], cum, color=OI["purple"], lw=1.8, label=r"late contraction $\int(1-\varrho)$")
+    ax.semilogx(sg2[12:], cum, color=OI["purple"], lw=1.8, label=r"late contraction")
     ax.set_xlim(60, 0.0015); ax.set_ylim(0.45, 1.02)
     ax.set_xlabel(r"noise level $\sigma$"); ax.set_ylabel("AUC (off- vs on-atom)")
-    ax.legend(fontsize=6.3, loc="lower right"); style(ax); panel_tag(ax, "c")
+    ax.legend(fontsize=6.3, loc="lower right", handlelength=1.6, borderaxespad=0.2); style(ax); panel_tag(ax, "c")
     ax.set_title("detector, 2000 images", fontsize=9)
     fig.tight_layout(w_pad=0.6)
     save(fig, "fig_edm_clocks.pdf")
@@ -168,16 +193,17 @@ def fig_heun():
     ax.plot(r, kap, color=OI["vermillion"], lw=1.6, label=r"$\kappa$ (on $D_k$)")
     ax.plot(r, th, color=OI["blue"], lw=1.6, label=r"$\theta$ (on $\tilde D_k$)")
     ax.axhline(0, color="k", lw=0.6)
-    ax.text(0.35, 0.95, "extrapolates\n" + r"($\kappa<0$)", ha="center", va="top", fontsize=7.5,
-            color=OI["vermillion"], transform=ax.get_xaxis_transform())
+    ax.text(0.35, 2.62, "extrapolates\n" + r"($\kappa<0$)", ha="center", va="top", fontsize=7.5,
+            color=OI["vermillion"], linespacing=1.0)   # head room above theta, clear of every curve
     ax.set_xlabel(r"step ratio $r=\sigma_{k+1}/\sigma_k$"); ax.set_ylabel("weight")
-    ax.set_ylim(-1.0, 2.1); ax.legend(fontsize=7, loc="upper right"); style(ax); panel_tag(ax, "a")
+    ax.set_ylim(-1.0, 2.7); ax.legend(fontsize=7, loc="upper right", borderaxespad=0.2)
+    style(ax); panel_tag(ax, "a")
 
     ax = axes[1]
     ax.fill_between(r, 0, _rhocrit(r), color=OI["green"], alpha=0.15, lw=0)
     ax.plot(r, _rhocrit(r), color=COLORS["theory"], lw=1.6)
     ax.text(0.62, 0.45, r"$c_k<1$", fontsize=8.5, color=OI["green"])
-    ax.text(0.27, 0.86, r"$c_k\geq1$", fontsize=8.5)
+    ax.text(0.205, 0.72, r"$c_k\geq1$", fontsize=8.5)
     for S, c in STEPS.items():
         z = np.load(R / f"n3_steps_20261117/s{S}/sub500/q_per_sample.npz")
         on = z["d1"] / z["d2"] < 1 / 3
@@ -217,12 +243,17 @@ def _step_cartoon(ax, inside: bool):
     ax.scatter(*x, s=30, color=COLORS["source"], zorder=5, edgecolors="k", linewidths=0.4)
     ax.text(x[0] + 0.07, x[1] + 0.05, r"$x$", fontsize=9)
     ax.scatter(*Dp, s=40, marker="D", color=COLORS["generated"], zorder=5)
-    ax.text(Dp[0] - 0.1, Dp[1], "network's\nguess", fontsize=7, ha="right", va="center",
+    ax.text(Dp[0] - 0.17, Dp[1], "network's\nguess", fontsize=7, ha="right", va="center",
             color=COLORS["generated"])
     ax.plot([x[0], Dp[0]], [x[1], Dp[1]], ls=":", color=COLORS["path"], lw=0.9)
     ax.add_patch(FancyArrowPatch(x, xn, arrowstyle="-|>", mutation_scale=9, lw=1.4,
                                  color=OI["green"] if inside else OI["vermillion"], zorder=4))
-    ax.text(xn[0] + 0.05, xn[1] - 0.12, "next", fontsize=7, ha="left")
+    if inside:                                      # right of the image, below the arrow
+        ax.text(xn[0] + 0.12, xn[1] - 0.1, "next", fontsize=7, ha="left", va="center")
+    else:                                           # above the line x -> guess, on which the next state lies
+        u = (Dp - x) / np.linalg.norm(Dp - x); nrm = np.array([-u[1], u[0]])
+        nrm = nrm if nrm[1] > 0 else -nrm
+        ax.text(*(xn + 0.24 * nrm), "next", fontsize=7, ha="center", va="center")
     ax.set_xlim(-1.75, 1.55); ax.set_ylim(-1.3, 1.65); portrait_axis(ax)
     ax.set_title(("guess inside the circle:\nstep moves closer" if inside else
                   "guess outside the circle:\nno guaranteed progress"), fontsize=8, pad=2,
@@ -274,9 +305,8 @@ def fig_intuition(sub_i: int, pub_i: int, steps=(5, 8, 10, 12, 14, 16)):
                 continue
             for j, v in enumerate((z["end"][i], z["y1"][i])):
                 ax = fig.add_subplot(right[1 + 2 * blk + row, len(steps) + j])
-                ax.imshow(_img(v.astype(np.float32))); ax.set_xticks([]); ax.set_yticks([])
-                for s_ in ax.spines.values():
-                    s_.set_color(COLORS["atom"] if j else col); s_.set_linewidth(1.2)
+                ax.imshow(_img(v.astype(np.float32)))
+                image_frame(ax, COLORS["atom"] if j else col)
     save(fig, "fig_intuition.pdf")
 
 
@@ -298,9 +328,13 @@ def _run1d(F, z0, T=12.0, n=3000):
     return 1 - np.exp(-taus), np.array(out)
 
 
-def fig_unrolled():
+def fig_unrolled(exact_only: bool = False, out: str | Path = "fig_unrolled.pdf", select=None):
     """Small multiples in the style of time-unrolled transport diagrams: source density on top, paths, and the
-    endpoint law at the bottom, where spikes are copies of training examples and smooth bumps are new samples."""
+    endpoint law at the bottom, where spikes are copies of training examples and smooth bumps are new samples.
+
+    ``exact_only`` draws panels (a)-(c) only, the exact-field interventions, for the theory paper.
+    ``select`` draws the listed panels (indices into the five below, e.g. [0, 3, 4] for the mechanism
+    paper), relabelled (a), (b), ... in that order."""
     rng = np.random.default_rng(0)
     z0 = np.sort(rng.normal(size=1500))
     at4 = np.array([-2.1, -0.7, 0.7, 2.1]); p = np.array([0.12, 0.48, 0.28, 0.12]); pu = np.full(4, 0.25)
@@ -319,18 +353,24 @@ def fig_unrolled():
         (r"learned, $\varrho\to1$", "new samples", at4,
          lambda z, t: 0.6 * np.sqrt(1 - t) * (_m1d(z, t, at4, p) - z)),
     ]
-    fig = plt.figure(figsize=(7.6, 2.9))
-    gs = fig.add_gridspec(3, 6, height_ratios=[0.22, 1, 0.34], width_ratios=[1, 1, 1, 0.12, 1, 1],
+    chosen = list(select) if select is not None else ([0, 1, 2] if exact_only else [0, 1, 2, 3, 4])
+    n_ex = sum(i < 3 for i in chosen); n_le = len(chosen) - n_ex
+    ratios = [1] * n_ex + ([0.12] if n_ex and n_le else []) + [1] * n_le
+    cols = list(range(n_ex)) + [n_ex + (1 if n_ex else 0) + j for j in range(n_le)]
+    fig = plt.figure(figsize=(1.52 * len(chosen) + (0.2 if n_ex and n_le else 0.0), 2.9))
+    gs = fig.add_gridspec(3, len(ratios), height_ratios=[0.22, 1, 0.34], width_ratios=ratios,
                           hspace=0.0, wspace=0.08)
-    cols = [0, 1, 2, 4, 5]
     acol = [OI["sky"], OI["green"], OI["orange"], OI["purple"]]
     xs = np.linspace(-3.4, 3.4, 400)
-    for k, ((ttl, sub, atoms, F), c) in enumerate(zip(panels, cols)):
+    group_axes = {"exact": [], "learned": []}
+    for k, (orig, c) in enumerate(zip(chosen, cols)):
+        ttl, sub, atoms, F = panels[orig]
         ts, P = _run1d(F, z0)
         end = P[-1]
         near = np.abs(end[:, None] - atoms[None]).argmin(1)
         blend = (len(atoms) == 2) & (np.abs(end) < 0.1)
         top = fig.add_subplot(gs[0, c]); mid = fig.add_subplot(gs[1, c], sharex=top); bot = fig.add_subplot(gs[2, c], sharex=top)
+        group_axes["exact" if orig < 3 else "learned"].append(top)
         top.fill_between(xs, 0, np.exp(-xs ** 2 / 2), color=COLORS["source"], alpha=0.45, lw=0)
         idx = np.linspace(0, len(z0) - 1, 140).astype(int)
         for i in idx:
@@ -338,7 +378,7 @@ def fig_unrolled():
             mid.plot(P[:, i], ts, color=col, lw=0.45, alpha=0.55)
         for a_ in atoms:
             mid.plot([a_, a_], [0.985, 1.0], color=COLORS["atom"], lw=1.0)
-        if k == 4:                                  # new samples: a smooth density
+        if orig == 4:                               # new samples: a smooth density
             dens = np.exp(-(xs[:, None] - end[None]) ** 2 / (2 * 0.06 ** 2)).sum(1)
             bot.fill_between(xs, 0, -0.75 * dens / dens.max(), color=COLORS["generated"], alpha=0.75, lw=0)
         else:                                       # copies: point masses, drawn as stems of height = mass
@@ -349,6 +389,8 @@ def fig_unrolled():
                     bot.plot([x_, x_], [0, -m], color=COLORS["generated"], lw=2.2, solid_capstyle="butt")
                     bot.scatter([x_], [-m], s=10, color=COLORS["generated"], zorder=4)
         bot.scatter(atoms, np.zeros_like(atoms), marker="|", s=40, color=COLORS["atom"], zorder=3)
+        if len(atoms) == 2:                         # the blend is not a training point: mark it in its own colour
+            bot.scatter([0.0], [0.0], marker="|", s=40, color=COLORS["generated"], zorder=3)
         for a in (top, mid, bot):
             a.set_xticks([]); a.set_yticks([]); a.grid(False)
             for s_ in a.spines.values():
@@ -358,17 +400,31 @@ def fig_unrolled():
         top.set_ylim(0, 1.15)
         top.set_title(f"({'abcde'[k]}) {ttl}", fontsize=8, pad=1)
         bot.text(0.5, -0.12, sub, transform=bot.transAxes, ha="center", va="top", fontsize=7.5,
-                 color=OI["vermillion"] if k in (2, 4) else COLORS["atom"])
+                 color=OI["vermillion"] if orig in (2, 4) else COLORS["atom"])
         if k == 0:
             mid.annotate("", xy=(-3.3, 0.95), xytext=(-3.3, 0.05),
                          arrowprops=dict(arrowstyle="-|>", color=COLORS["path"], lw=0.8))
             mid.text(-3.2, 0.5, r"$t$", fontsize=8, color=COLORS["path"], va="center")
             top.text(-3.4, 0.9, "noise", fontsize=6.5, color=COLORS["source"], va="top")
             bot.text(-3.4, -0.25, "output", fontsize=6.5, color=COLORS["generated"], va="top")
-    for x0_, x1_, txt in ((0.125, 0.555, "exact field of the training set"), (0.60, 0.90, "learned field")):
+    heads = []
+    for key, txt in (("exact", "exact field of the training set" if n_ex > 1 else "exact field"),
+                     ("learned", "learned field")):
+        if group_axes[key]:
+            x0_ = min(a.get_position().x0 for a in group_axes[key])
+            x1_ = max(a.get_position().x1 for a in group_axes[key])
+            heads.append((x0_ + 0.01, x1_ - 0.01, txt))
+    for x0_, x1_, txt in heads:
         fig.add_artist(plt.Line2D([x0_, x1_], [0.965, 0.965], color=COLORS["path"], lw=0.8))
         fig.text((x0_ + x1_) / 2, 0.975, txt, ha="center", va="bottom", fontsize=8.5, color=COLORS["path"])
-    save(fig, "fig_unrolled.pdf")
+    out = Path(out)
+    if out.parent == Path("."):
+        save(fig, out.name)
+    else:
+        out.parent.mkdir(parents=True, exist_ok=True)
+        fig.savefig(out, bbox_inches="tight", pad_inches=0.02)
+        plt.close(fig)
+        print(f"  wrote {out}")
 
 
 # --------------------------------------------------------------------------- 3-D landscape
@@ -392,13 +448,13 @@ def fig_landscape():
 
     shots = [(0.35, Pe, ts_e, "early: one smooth bowl"), (0.75, Pe, ts_e, "wells form at the images"),
              (0.985, Pe, ts_e, "exact field: falls in (copy)"), (0.985, Pl, ts_l, r"$\varrho\to1$: stops on the wall")]
-    fig = plt.figure(figsize=(7.6, 1.95))
+    fig = plt.figure(figsize=(7.6, 1.7))
     for k, (t, P, ts, ttl) in enumerate(shots):
         ax = fig.add_subplot(1, 4, k + 1, projection="3d", computed_zorder=False)
         cap = float(np.log1p(np.ptp(U(Z2, t))))
         H = norm(U(Z2, t), cap).reshape(Xg.shape)
         ax.plot_surface(Xg, Yg, H, cmap="coolwarm", rstride=2, cstride=2, linewidth=0.1, edgecolor=(1, 1, 1, 0.15),
-                        antialiased=True, alpha=0.95)
+                        antialiased=True, alpha=0.95, rasterized=True)   # raster surface: the vector mesh was ~3 MB
         upto = ts <= t
         path = P[upto, 0, :]
         hp = (np.log1p(U(path, t) - U(Z2, t).min()) / cap)
@@ -409,8 +465,15 @@ def fig_landscape():
         ax.set_box_aspect((1, 1, 0.62), zoom=1.25)
         ax.set_title(f"({'abcd'[k]}) " + (rf"$t={t}$" if k < 3 else rf"$t={t}$") + "\n" + ttl, fontsize=7.8, pad=-2,
                      color=OI["vermillion"] if k == 3 else "black")
-    fig.subplots_adjust(left=0, right=1, bottom=-0.16, top=0.9, wspace=-0.12)
-    save(fig, "fig_landscape.pdf")
+    fig.subplots_adjust(left=0, right=1, bottom=-0.34, top=0.88, wspace=-0.12)
+    # a 3-D axis keeps its whole box in the tight bounding box, which left an empty band under the
+    # funnels; crop to the drawn content instead
+    from matplotlib.transforms import Bbox
+    bb = fig.get_tightbbox(fig.canvas.get_renderer())
+    out = Path("paper/figures/fig_landscape.pdf")
+    fig.savefig(out, dpi=300, bbox_inches=Bbox.from_extents(bb.x0, bb.y0 + 0.2 * bb.height, bb.x1, bb.y1 + 0.02))
+    plt.close(fig)
+    print(f"  wrote {out}")
 
 
 if __name__ == "__main__":

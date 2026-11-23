@@ -1,0 +1,344 @@
+EDM 18-step grid: 80 57.59 40.79 28.37 19.35 12.91 8.401 5.315 3.257 1.923 1.088 0.5853 0.2964 0.1395 0.05995 0.02293 0.007528 0.002
+hand-over brackets (last level with the first denoiser, first level with the second, geo-mean):
+  s=5: (5.315, 3.257) eff=4.161
+  s=2: (3.257, 1.923) eff=2.503
+  s=1: (1.088, 0.5853) eff=0.7981
+  s=0.5: (0.5853, 0.2964) eff=0.4166
+  s=0.2: (0.2964, 0.1395) eff=0.2034
+  s=0.1: (0.1395, 0.05995) eff=0.09145
+  s=0.05: (0.05995, 0.02293) eff=0.03708
+  s=0.02: (0.02293, 0.007528) eff=0.01314
+
+=== public: n=500; learned off-atom 500/500; exact off-atom 0/500; learned==exact nn 69/500; learned median d1 20.039, median d1/d2 0.977
+  s     | n2e off  n2e =L [Wilson]          max d1   | e2n off [Wilson]          e2n =E [Wilson]          e2n =L | e2n med d1 [CI]        med d1/d2
+  5     |   0   30.6 [ 26.7, 34.8]  7.07e-06 | 100.0 [ 99.2,100.0]   42.2 [ 37.9, 46.6]   47.2 | 18.851 [18.509,19.346]  0.963
+  2     |   0   56.0 [ 51.6, 60.3]  7.07e-06 | 100.0 [ 99.2,100.0]   83.2 [ 79.7, 86.2]   21.6 | 16.200 [15.890,16.609]  0.834
+  1     |   0   89.6 [ 86.6, 92.0]  7.07e-06 |  95.6 [ 93.4, 97.1]  100.0 [ 99.2,100.0]   13.8 | 9.208 [9.035,9.361]  0.472
+  0.5   |   0   95.6 [ 93.4, 97.1]  7.07e-06 |  49.2 [ 44.8, 53.6]  100.0 [ 99.2,100.0]   13.8 | 6.455 [6.319,6.542]  0.331
+  0.2   |   0   98.6 [ 97.1, 99.3]  7.07e-06 |   7.0 [  5.1,  9.6]  100.0 [ 99.2,100.0]   13.8 | 4.219 [4.152,4.285]  0.219
+  0.1   |   0   99.6 [ 98.6, 99.9]  7.07e-06 |   0.2 [  0.0,  1.1]  100.0 [ 99.2,100.0]   13.8 | 2.569 [2.525,2.600]  0.132
+  0.05  |   0   99.8 [ 98.9,100.0]  7.07e-06 |   0.0 [  0.0,  0.8]  100.0 [ 99.2,100.0]   13.8 | 1.374 [1.348,1.396]  0.071
+  0.02  |   0  100.0 [ 99.2,100.0]  7.07e-06 |   0.0 [  0.0,  0.8]  100.0 [ 99.2,100.0]   13.8 | 0.606 [0.600,0.615]  0.032
+  s_sel    nominal 0.9548 (ok)   effective 0.7642 (ok)
+  s_sel50  nominal 2.483 (ok)   effective 2.822 (ok)
+  s_sel95  nominal 0.5359 (ok)   effective 0.4445 (ok)
+  s_land   nominal 0.506 (ok)   effective 0.4213 (ok)
+  s_land10 nominal 0.9197 (ok)   effective 0.7379 (ok)
+  s_land90 nominal 0.2135 (ok)   effective 0.214 (ok)
+  s_keepE  nominal 1.511 (ok)   effective 1.576 (ok)
+  bootstrap (nominal, 4000, seed 20261121): s_sel (0.7410113613679552, 1.0452390139256886), s_sel50 (2.128915565929949, 2.8651338928805403), s_land (0.46610765664107456, 0.5369643775971258), s_keepE (1.414213562373095, 1.6647368194286416), sel/land (1.468451780436045, 2.148660715075056), keepE/land (2.784634374594667, 3.2907541629899044), sel50/land (4.188215550279904, 5.754633024569537), P(=L(5)>=0.9) 0.000
+  matched thresholds: s_land90 boot (0.20343788163567, 0.22309615888914294); sel90/land90 (3.471288188334699, 4.97604566639123); P(s_sel50 > s_land50) 1.000; P(s_sel90 > s_land90) 1.000; P(s_sel90 > s_land50) 1.000
+  bootstrap (effective, 4000, seed 20261121): s_sel (0.6024847061288086, 0.8585000074317503), s_land (0.39429671480898065, 0.44538280611073405)
+  bootstrap (nominal, 2000, seed 7, Monte Carlo check): s_sel (0.744792691886529, 1.0453331744692618), s_land (0.4651078696525632, 0.537768950802157), sel50/land (4.181153599545881, 5.716648054179546)
+
+=== sub1000: n=500; learned off-atom 500/500; exact off-atom 0/500; learned==exact nn 105/500; learned median d1 19.150, median d1/d2 0.949
+  s     | n2e off  n2e =L [Wilson]          max d1   | e2n off [Wilson]          e2n =E [Wilson]          e2n =L | e2n med d1 [CI]        med d1/d2
+  5     |   0   49.2 [ 44.8, 53.6]  1.51e-06 |  97.4 [ 95.6, 98.5]   78.4 [ 74.6, 81.8]   32.2 | 14.492 [14.121,14.903]  0.769
+  2     |   0   63.2 [ 58.9, 67.3]  1.51e-06 |  88.2 [ 85.1, 90.7]   97.6 [ 95.9, 98.6]   22.2 | 10.735 [10.503,10.924]  0.485
+  1     |   0   88.0 [ 84.9, 90.6]  1.17e-06 |  23.2 [ 19.7, 27.1]  100.0 [ 99.2,100.0]   21.0 | 6.613 [6.502,6.688]  0.281
+  0.5   |   0   94.8 [ 92.5, 96.4]  1.17e-06 |   7.4 [  5.4, 10.0]  100.0 [ 99.2,100.0]   21.0 | 5.253 [5.153,5.334]  0.223
+  0.2   |   0   98.2 [ 96.6, 99.1]  1.17e-06 |   1.0 [  0.4,  2.3]  100.0 [ 99.2,100.0]   21.0 | 3.945 [3.882,4.021]  0.167
+  0.1   |   0  100.0 [ 99.2,100.0]  1.17e-06 |   0.0 [  0.0,  0.8]  100.0 [ 99.2,100.0]   21.0 | 2.631 [2.580,2.668]  0.111
+  0.05  |   0  100.0 [ 99.2,100.0]  1.17e-06 |   0.0 [  0.0,  0.8]  100.0 [ 99.2,100.0]   21.0 | 1.472 [1.449,1.489]  0.063
+  0.02  |   0  100.0 [ 99.2,100.0]  1.17e-06 |   0.0 [  0.0,  0.8]  100.0 [ 99.2,100.0]   21.0 | 0.681 [0.677,0.686]  0.030
+  s_sel    nominal 0.8156 (ok)   effective 0.6592 (ok)
+  s_sel50  nominal 4.745 (ok)   effective 4.042 (ok)
+  s_sel95  nominal 0.4738 (ok)   effective 0.3994 (ok)
+  s_land   nominal 1.331 (ok)   effective 1.279 (ok)
+  s_land10 nominal 2.393 (ok)   effective 2.764 (ok)
+  s_land90 nominal 0.5604 (ok)   effective 0.4636 (ok)
+  s_keepE  nominal 2.874 (ok)   effective 3.061 (ok)
+  bootstrap (nominal, 4000, seed 20261121): s_sel (0.6527558488549048, 1.022071456118698), s_sel50 (3.6281981813763116, inf), s_land (1.2926846475689404, 1.3690035428477194), s_keepE (2.651345741368625, 3.162277660168378), sel/land (0.4871761842698543, 0.7715011042580641), keepE/land (2.008497719340898, 2.363227293897794), sel50/land (2.737625847017206, inf), P(=L(5)>=0.9) 0.000
+  matched thresholds: s_land90 boot (0.5051995899054409, 0.6202117463259058); sel90/land90 (1.1315954495603042, 1.896794803702732); P(s_sel50 > s_land50) 1.000; P(s_sel90 > s_land90) 0.998; P(s_sel90 > s_land50) 0.000
+  bootstrap (effective, 4000, seed 20261121): s_sel (0.5349143855164369, 0.8273500501654184), s_land (1.2186980781565067, 1.3395951792236684)
+  bootstrap (nominal, 2000, seed 7, Monte Carlo check): s_sel (0.6527302775149991, 1.0209065025625024), s_land (1.2912139032039782, 1.3673814082171747), sel50/land (2.751604631634329, inf)
+
+=== sub500: n=500; learned off-atom 19/500; exact off-atom 0/500; learned==exact nn 177/500; learned median d1 1.707, median d1/d2 0.070
+  s     | n2e off  n2e =L [Wilson]          max d1   | e2n off [Wilson]          e2n =E [Wilson]          e2n =L | e2n med d1 [CI]        med d1/d2
+  5     |   0   92.8 [ 90.2, 94.8]  1.51e-06 |   0.0 [  0.0,  0.8]   95.4 [ 93.2, 96.9]   37.4 | 1.670 [1.619,1.708]  0.067
+  2     |   0   98.2 [ 96.6, 99.1]  1.51e-06 |   0.0 [  0.0,  0.8]   99.6 [ 98.6, 99.9]   35.4 | 1.634 [1.597,1.679]  0.066
+  1     |   0   99.6 [ 98.6, 99.9]  1.51e-06 |   0.0 [  0.0,  0.8]  100.0 [ 99.2,100.0]   35.4 | 1.492 [1.465,1.522]  0.060
+  0.5   |   0   99.8 [ 98.9,100.0]  1.51e-06 |   0.0 [  0.0,  0.8]  100.0 [ 99.2,100.0]   35.4 | 1.320 [1.305,1.341]  0.054
+  0.2   |   0  100.0 [ 99.2,100.0]  1.51e-06 |   0.0 [  0.0,  0.8]  100.0 [ 99.2,100.0]   35.4 | 1.126 [1.109,1.140]  0.046
+  0.1   |   0  100.0 [ 99.2,100.0]  1.51e-06 |   0.0 [  0.0,  0.8]  100.0 [ 99.2,100.0]   35.4 | 0.925 [0.911,0.937]  0.037
+  0.05  |   0  100.0 [ 99.2,100.0]  1.51e-06 |   0.0 [  0.0,  0.8]  100.0 [ 99.2,100.0]   35.4 | 0.692 [0.686,0.701]  0.028
+  0.02  |   0  100.0 [ 99.2,100.0]  1.51e-06 |   0.0 [  0.0,  0.8]  100.0 [ 99.2,100.0]   35.4 | 0.448 [0.444,0.451]  0.018
+  s_sel    nominal inf (above)   effective inf (above)
+  s_sel50  nominal inf (above)   effective inf (above)
+  s_sel95  nominal 3.442 (ok)   effective 3.382 (ok)
+  s_land   nominal inf (above)   effective inf (above)
+  s_land10 nominal inf (above)   effective inf (above)
+  s_land90 nominal inf (above)   effective inf (above)
+  s_keepE  nominal inf (above)   effective inf (above)
+  bootstrap (nominal, 4000, seed 20261121): s_sel (inf, inf), s_sel50 (inf, inf), s_land (inf, inf), s_keepE (inf, inf), sel/land (nan, nan), keepE/land (nan, nan), sel50/land (nan, nan), P(=L(5)>=0.9) 0.993
+  matched thresholds: s_land90 boot (inf, inf); sel90/land90 (nan, nan); P(s_sel50 > s_land50) 0.000; P(s_sel90 > s_land90) 0.000; P(s_sel90 > s_land50) 0.000
+  bootstrap (effective, 4000, seed 20261121): s_sel (inf, inf), s_land (inf, inf)
+  bootstrap (nominal, 2000, seed 7, Monte Carlo check): s_sel (inf, inf), s_land (inf, inf), sel50/land (nan, nan)
+
+=== sub500 conditional
+  network-alone and exact choose different images: 323/500
+  exact2net@5 on exact's image 300/323 = 92.9% (89.5, 95.2); on network's own 10/323 = 3.1% (1.7, 5.6); off-atom 0/323
+  net2exact@5 =L among learned off-atom: 10/19 = 52.6% (31.7, 72.7)
+  net2exact@5 =L among learned on-atom:  454/481 = 94.4% (92.0, 96.1)
+  exact2net off-atom among the 19 learned off-atom samples, summed over all 8 s: 0
+
+=== public exact->net median d1 scaling
+  log-log slope s=0.1 -> 0.02: 0.897
+  s=0.1: median d1 2.569; sqrt(d)*sigma_hi 7.733; sqrt(d)*sigma_lo 3.323; d1/s 25.7
+  s=0.05: median d1 1.374; sqrt(d)*sigma_hi 3.323; sqrt(d)*sigma_lo 1.271; d1/s 27.5
+  s=0.02: median d1 0.606; sqrt(d)*sigma_hi 1.271; sqrt(d)*sigma_lo 0.417; d1/s 30.3
+  sub1000 exact->net median d1 s=5: 14.492, s=0.02: 0.681
+  log-log slopes of exact->net median d1 vs s: public:5->0.5 0.47, public:1->0.1 0.55, public:0.5->0.05 0.67, public:0.2->0.02 0.84, public:0.1->0.02 0.90, sub1000:5->0.5 0.44, sub1000:1->0.1 0.40, sub1000:0.5->0.05 0.55, sub1000:0.2->0.02 0.76, sub1000:0.1->0.02 0.84, sub500:5->0.5 0.10, sub500:1->0.1 0.21, sub500:0.5->0.05 0.28, sub500:0.2->0.02 0.40, sub500:0.1->0.02 0.45
+  s=0.2: no-contraction baseline sqrt(d)*sigma_hi 16.430 (factor 3.89); Heun-aware 12.082 (factor 2.86); measured median d1 4.219
+  s=0.1: no-contraction baseline sqrt(d)*sigma_hi 7.733 (factor 3.01); Heun-aware 5.528 (factor 2.15); measured median d1 2.569
+  s=0.05: no-contraction baseline sqrt(d)*sigma_hi 3.323 (factor 2.42); Heun-aware 2.297 (factor 1.67); measured median d1 1.374
+  s=0.02: no-contraction baseline sqrt(d)*sigma_hi 1.271 (factor 2.10); Heun-aware 0.844 (factor 1.39); measured median d1 0.606
+
+=== clock ordering at matched thresholds (nominal s; selection = net->exact =L, landing = exact->net on-atom)
+  public: 50%: sel 2.48 vs land 0.506;  90%: sel 0.955 vs land 0.213;  task thresholds (sel 90% vs land 50%): 0.955 vs 0.506
+  sub1000: 50%: sel 4.74 vs land 1.33;  90%: sel 0.816 vs land 0.56;  task thresholds (sel 90% vs land 50%): 0.816 vs 1.33
+
+=== sub500 net->exact =L by learned group
+  s=5: learned off-atom 10/19; learned on-atom 454/481
+  s=2: learned off-atom 14/19; learned on-atom 477/481
+  s=1: learned off-atom 17/19; learned on-atom 481/481
+  s=0.5: learned off-atom 18/19; learned on-atom 481/481
+  s=0.2: learned off-atom 19/19; learned on-atom 481/481
+  s=0.1: learned off-atom 19/19; learned on-atom 481/481
+  s=0.05: learned off-atom 19/19; learned on-atom 481/481
+  s=0.02: learned off-atom 19/19; learned on-atom 481/481
+
+  last grid level sigma_17 = np.float64(0.002000000000000003) (> 0.002: True)
+
+=== SWAP_SUMMARY.md entries
+  276 entries (incl. header n/learned-off/exact-off/share and the s,t columns); max |diff| = 4.85e-04
+
+=== construction check (synthetic: 50 Gaussian atoms in d=3072; 'network' = Gaussian denoiser that never lands)
+  learned(gauss)         off-atom 100.0%   max d1 2.41e+01
+  exact                  off-atom   0.0%   max d1 5.84e-07
+  net2exact@5            off-atom   0.0%   max d1 5.84e-07
+  net2exact@1            off-atom   0.0%   max d1 5.84e-07
+  net2exact@0.1          off-atom   0.0%   max d1 5.84e-07
+  net2exact@0.02         off-atom   0.0%   max d1 5.84e-07
+  net2exact@0.003        off-atom   0.0%   max d1 5.84e-07
+  net2exact@0.002        off-atom 100.0%   max d1 2.41e+01
+  only_final_eval_exact  off-atom   0.0%   max d1 5.33e-07
+  denoiser calls per trajectory: 35 (only the last one used the exact field above)
+
+=== claims checked at the stated precision
+  [OK ] public n2e =L s=5 (%): claimed 30.6, recomputed 30.6
+  [OK ] public n2e =L s=2 (%): claimed 56.0, recomputed 56
+  [OK ] public n2e =L s=1 (%): claimed 89.6, recomputed 89.6
+  [OK ] public n2e =L s=0.5 (%): claimed 95.6, recomputed 95.6
+  [OK ] public n2e =L s=0.2 (%): claimed 98.6, recomputed 98.6
+  [OK ] public n2e =L s=0.1 (%): claimed 99.6, recomputed 99.6
+  [OK ] public n2e =L s=0.05 (%): claimed 99.8, recomputed 99.8
+  [OK ] public n2e =L s=0.02 (%): claimed 100.0, recomputed 100
+  [OK ] sub1000 n2e =L s=5 (%): claimed 49.2, recomputed 49.2
+  [OK ] sub1000 n2e =L s=2 (%): claimed 63.2, recomputed 63.2
+  [OK ] sub1000 n2e =L s=1 (%): claimed 88.0, recomputed 88
+  [OK ] sub1000 n2e =L s=0.5 (%): claimed 94.8, recomputed 94.8
+  [OK ] sub1000 n2e =L s=0.2 (%): claimed 98.2, recomputed 98.2
+  [OK ] sub1000 n2e =L s=0.1 (%): claimed 100, recomputed 100
+  [OK ] sub1000 n2e =L s=0.05 (%): claimed 100, recomputed 100
+  [OK ] sub1000 n2e =L s=0.02 (%): claimed 100, recomputed 100
+  [OK ] sub500 n2e =L s=5 (%): claimed 92.8, recomputed 92.8
+  [OK ] sub500 n2e =L s=2 (%): claimed 98.2, recomputed 98.2
+  [OK ] sub500 n2e =L s=1 (%): claimed 99.6, recomputed 99.6
+  [OK ] sub500 n2e =L s=0.5 (%): claimed 99.8, recomputed 99.8
+  [OK ] sub500 n2e =L s=0.2 (%): claimed 100, recomputed 100
+  [OK ] sub500 n2e =L s=0.1 (%): claimed 100, recomputed 100
+  [OK ] sub500 n2e =L s=0.05 (%): claimed 100, recomputed 100
+  [OK ] sub500 n2e =L s=0.02 (%): claimed 100, recomputed 100
+  [OK ] PAPER public n2e =L s=5 (%, integer): claimed 31, recomputed 30.6
+  [OK ] PAPER public n2e =L s=2 (%, integer): claimed 56, recomputed 56
+  [OK ] PAPER public n2e =L s=1 (%, integer): claimed 90, recomputed 89.6
+  [OK ] PAPER public n2e =L s=0.2 (%, integer): claimed 99, recomputed 98.6
+  [OK ] PAPER public n2e =L s=0.02 (%, integer): claimed 100, recomputed 100
+  [OK ] PAPER sub500 n2e =L s=5 (%): claimed 92.8, recomputed 92.8
+  [OK ] PAPER sub500 n2e =L s=2 (%): claimed 98.2, recomputed 98.2
+  [OK ] PAPER sub500 n2e =L s=1 (%): claimed 99.6, recomputed 99.6
+  [OK ] PAPER sub500 n2e =L s=0.2 (%): claimed 100, recomputed 100
+  [OK ] PAPER sub500 n2e =L s=0.1 (%): claimed 100, recomputed 100
+  [OK ] PAPER sub500 n2e =L s=0.05 (%): claimed 100, recomputed 100
+  [OK ] PAPER sub500 n2e =L s=0.02 (%): claimed 100, recomputed 100
+  [OK ] public n2e off-atom s=5 (count): claimed 0, recomputed 0
+  [OK ] public n2e off-atom s=2 (count): claimed 0, recomputed 0
+  [OK ] public n2e off-atom s=1 (count): claimed 0, recomputed 0
+  [OK ] public n2e off-atom s=0.5 (count): claimed 0, recomputed 0
+  [OK ] public n2e off-atom s=0.2 (count): claimed 0, recomputed 0
+  [OK ] public n2e off-atom s=0.1 (count): claimed 0, recomputed 0
+  [OK ] public n2e off-atom s=0.05 (count): claimed 0, recomputed 0
+  [OK ] public n2e off-atom s=0.02 (count): claimed 0, recomputed 0
+  [OK ] sub1000 n2e off-atom s=5 (count): claimed 0, recomputed 0
+  [OK ] sub1000 n2e off-atom s=2 (count): claimed 0, recomputed 0
+  [OK ] sub1000 n2e off-atom s=1 (count): claimed 0, recomputed 0
+  [OK ] sub1000 n2e off-atom s=0.5 (count): claimed 0, recomputed 0
+  [OK ] sub1000 n2e off-atom s=0.2 (count): claimed 0, recomputed 0
+  [OK ] sub1000 n2e off-atom s=0.1 (count): claimed 0, recomputed 0
+  [OK ] sub1000 n2e off-atom s=0.05 (count): claimed 0, recomputed 0
+  [OK ] sub1000 n2e off-atom s=0.02 (count): claimed 0, recomputed 0
+  [OK ] sub500 n2e off-atom s=5 (count): claimed 0, recomputed 0
+  [OK ] sub500 n2e off-atom s=2 (count): claimed 0, recomputed 0
+  [OK ] sub500 n2e off-atom s=1 (count): claimed 0, recomputed 0
+  [OK ] sub500 n2e off-atom s=0.5 (count): claimed 0, recomputed 0
+  [OK ] sub500 n2e off-atom s=0.2 (count): claimed 0, recomputed 0
+  [OK ] sub500 n2e off-atom s=0.1 (count): claimed 0, recomputed 0
+  [OK ] sub500 n2e off-atom s=0.05 (count): claimed 0, recomputed 0
+  [OK ] sub500 n2e off-atom s=0.02 (count): claimed 0, recomputed 0
+  [OK ] public n2e max d1 over s (x1e-6): claimed 7.1, recomputed 7.073
+  [OK ] sub1000 n2e max d1 over s (x1e-6): claimed 1.5, recomputed 1.508
+  [OK ] sub500 n2e max d1 over s (x1e-6): claimed 1.5, recomputed 1.508
+  [OK ] Wilson upper 0/500 (%): claimed 0.76, recomputed 0.7624
+  [OK ] public Wilson =L s=1 lo: claimed 86.6, recomputed 86.62
+  [OK ] public Wilson =L s=1 hi: claimed 92.0, recomputed 91.98
+  [OK ] sub500 Wilson =L s=5 lo: claimed 90.2, recomputed 90.19
+  [OK ] sub500 Wilson =L s=5 hi: claimed 94.8, recomputed 94.75
+  [OK ] public s_sel: claimed 0.95, recomputed 0.9548
+  [OK ] sub1000 s_sel: claimed 0.82, recomputed 0.8156
+  [OK ] sub500 s_sel > 5 (censored above): claimed above, recomputed above
+  [OK ] public s_sel50: claimed 2.48, recomputed 2.483
+  [OK ] sub1000 s_sel50: claimed 4.74, recomputed 4.745
+  [OK ] public s_sel boot lo: claimed 0.74, recomputed 0.741
+  [OK ] public s_sel boot hi: claimed 1.05, recomputed 1.045
+  [OK ] sub1000 s_sel boot lo: claimed 0.65, recomputed 0.6528
+  [OK ] sub1000 s_sel boot hi: claimed 1.02, recomputed 1.022
+  [OK ] sub500 P(=L(5)>=0.9) (%): claimed 99.3, recomputed 99.25
+  [OK ] public s_sel effective: claimed 0.76, recomputed 0.7642
+  [OK ] public s_sel effective boot lo: claimed 0.6, recomputed 0.6025
+  [OK ] public s_sel effective boot hi: claimed 0.86, recomputed 0.8585
+  [OK ] public e2n off s=5 (%): claimed 100, recomputed 100
+  [OK ] public e2n off s=2 (%): claimed 100, recomputed 100
+  [OK ] public e2n off s=1 (%): claimed 95.6, recomputed 95.6
+  [OK ] public e2n off s=0.5 (%): claimed 49.2, recomputed 49.2
+  [OK ] public e2n off s=0.2 (%): claimed 7.0, recomputed 7
+  [OK ] public e2n off s=0.1 (%): claimed 0.2, recomputed 0.2
+  [OK ] public e2n off s=0.05 (%): claimed 0, recomputed 0
+  [OK ] public e2n off s=0.02 (%): claimed 0, recomputed 0
+  [OK ] sub1000 e2n off s=5 (%): claimed 97.4, recomputed 97.4
+  [OK ] sub1000 e2n off s=2 (%): claimed 88.2, recomputed 88.2
+  [OK ] sub1000 e2n off s=1 (%): claimed 23.2, recomputed 23.2
+  [OK ] sub1000 e2n off s=0.5 (%): claimed 7.4, recomputed 7.4
+  [OK ] sub1000 e2n off s=0.2 (%): claimed 1.0, recomputed 1
+  [OK ] sub1000 e2n off s=0.1 (%): claimed 0, recomputed 0
+  [OK ] sub1000 e2n off s=0.05 (%): claimed 0, recomputed 0
+  [OK ] sub1000 e2n off s=0.02 (%): claimed 0, recomputed 0
+  [OK ] sub500 e2n off s=5 (%): claimed 0, recomputed 0
+  [OK ] sub500 e2n off s=2 (%): claimed 0, recomputed 0
+  [OK ] sub500 e2n off s=1 (%): claimed 0, recomputed 0
+  [OK ] sub500 e2n off s=0.5 (%): claimed 0, recomputed 0
+  [OK ] sub500 e2n off s=0.2 (%): claimed 0, recomputed 0
+  [OK ] sub500 e2n off s=0.1 (%): claimed 0, recomputed 0
+  [OK ] sub500 e2n off s=0.05 (%): claimed 0, recomputed 0
+  [OK ] sub500 e2n off s=0.02 (%): claimed 0, recomputed 0
+  [OK ] public s_land: claimed 0.51, recomputed 0.506
+  [OK ] public s_land boot lo: claimed 0.47, recomputed 0.4661
+  [OK ] public s_land boot hi: claimed 0.54, recomputed 0.537
+  [OK ] public s_land effective: claimed 0.42, recomputed 0.4213
+  [OK ] public s_land effective boot lo: claimed 0.39, recomputed 0.3943
+  [OK ] public s_land effective boot hi: claimed 0.45, recomputed 0.4454
+  [OK ] public e2n =E s=1 (count): claimed 500, recomputed 500
+  [OK ] public e2n off s=1 Wilson lo: claimed 93.4, recomputed 93.43
+  [OK ] public e2n off s=1 Wilson hi: claimed 97.1, recomputed 97.08
+  [OK ] public s_sel/s_land: claimed 1.89, recomputed 1.887
+  [OK ] public s_sel/s_land boot lo: claimed 1.47, recomputed 1.468
+  [OK ] public s_sel/s_land boot hi: claimed 2.15, recomputed 2.149
+  [OK ] public s_keepE: claimed 1.51, recomputed 1.511
+  [OK ] public s_keepE boot lo: claimed 1.41, recomputed 1.414
+  [OK ] public s_keepE boot hi: claimed 1.66, recomputed 1.665
+  [OK ] public s_keepE/s_land: claimed 2.99, recomputed 2.986
+  [OK ] public s_keepE/s_land boot lo: claimed 2.78, recomputed 2.785
+  [OK ] public s_keepE/s_land boot hi: claimed 3.29, recomputed 3.291
+  [OK ] public s_sel50/s_land: claimed 4.91, recomputed 4.908
+  [OK ] public s_sel50/s_land boot lo: claimed 4.19, recomputed 4.188
+  [OK ] public s_sel50/s_land boot hi: claimed 5.75, recomputed 5.755
+  [OK ] public landing 10% level: claimed 0.92, recomputed 0.9197
+  [OK ] public landing 90% level: claimed 0.21, recomputed 0.2135
+  [OK ] sub1000 s_land: claimed 1.33, recomputed 1.331
+  [OK ] sub1000 s_land/s_sel ratio (s_sel/s_land): claimed 0.61, recomputed 0.6128
+  [OK ] sub1000 e2n on-atom s=1 (%): claimed 76.8, recomputed 76.8
+  [OK ] public e2n on-atom s=1 (%): claimed 4.4, recomputed 4.4
+  [OK ] sub1000 s_land boot lo: claimed 1.29, recomputed 1.293
+  [OK ] sub1000 s_land boot hi: claimed 1.37, recomputed 1.369
+  [OK ] sub1000 sel/land boot lo: claimed 0.49, recomputed 0.4872
+  [OK ] sub1000 sel/land boot hi: claimed 0.77, recomputed 0.7715
+  [OK ] sub1000 e2n off s=1 Wilson lo: claimed 19.7, recomputed 19.71
+  [OK ] sub1000 e2n off s=1 Wilson hi: claimed 27.1, recomputed 27.1
+  [OK ] sub1000 s_keepE: claimed 2.87, recomputed 2.874
+  [OK ] sub1000 s_keepE boot lo: claimed 2.65, recomputed 2.651
+  [OK ] sub1000 s_keepE boot hi: claimed 3.16, recomputed 3.162
+  [OK ] public e2n =E s=5 (%): claimed 42.2, recomputed 42.2
+  [OK ] public e2n =E s=2 (%): claimed 83.2, recomputed 83.2
+  [OK ] public e2n =E s=1 (%): claimed 100, recomputed 100
+  [OK ] public e2n =E 100% for all s<=1: claimed 1, recomputed 1
+  [OK ] sub1000 e2n =E s=5 (%): claimed 78.4, recomputed 78.4
+  [OK ] sub1000 e2n =E s=2 (%): claimed 97.6, recomputed 97.6
+  [OK ] sub1000 e2n =E s=1 (%): claimed 100, recomputed 100
+  [OK ] sub1000 e2n =E 100% for all s<=1: claimed 1, recomputed 1
+  [OK ] sub500 e2n =E s=5 (%): claimed 95.4, recomputed 95.4
+  [OK ] sub500 e2n =E s=2 (%): claimed 99.6, recomputed 99.6
+  [OK ] sub500 e2n =E s=1 (%): claimed 100, recomputed 100
+  [OK ] sub500 e2n =E 100% for all s<=1: claimed 1, recomputed 1
+  [OK ] sub500 disagreement samples: claimed 323, recomputed 323
+  [OK ] sub500 e2n@5 =E among disagreement (%): claimed 92.9, recomputed 92.88
+  [OK ] sub500 e2n@5 =E among disagreement Wilson lo: claimed 89.5, recomputed 89.54
+  [OK ] sub500 e2n@5 =E among disagreement Wilson hi: claimed 95.2, recomputed 95.21
+  [OK ] sub500 e2n@5 =L among disagreement (%): claimed 3.1, recomputed 3.096
+  [OK ] sub500 e2n@5 =L among disagreement Wilson lo: claimed 1.7, recomputed 1.69
+  [OK ] sub500 e2n@5 =L among disagreement Wilson hi: claimed 5.6, recomputed 5.604
+  [OK ] sub500 e2n@5 off among disagreement: claimed 0, recomputed 0
+  [OK ] sub500 e2n median d1 s=5: claimed 1.67, recomputed 1.67
+  [OK ] sub500 learned median d1: claimed 1.71, recomputed 1.707
+  [OK ] sub500 e2n median d1 s=0.02: claimed 0.45, recomputed 0.4477
+  [OK ] sub500 e2n med d1 s=5 CI lo: claimed 1.62, recomputed 1.619
+  [OK ] sub500 e2n med d1 s=5 CI hi: claimed 1.71, recomputed 1.708
+  [OK ] sub500 e2n med d1 s=0.02 CI lo: claimed 0.44, recomputed 0.4438
+  [OK ] sub500 e2n med d1 s=0.02 CI hi: claimed 0.45, recomputed 0.4513
+  [OK ] sub500 learned off-atom count: claimed 19, recomputed 19
+  [OK ] sub500 e2n off among learned-off, all s: claimed 0, recomputed 0
+  [OK ] sub500 n2e@5 =L learned-off (%): claimed 52.6, recomputed 52.63
+  [OK ] sub500 n2e@5 =L learned-off Wilson lo: claimed 31.7, recomputed 31.71
+  [OK ] sub500 n2e@5 =L learned-off Wilson hi: claimed 72.7, recomputed 72.67
+  [OK ] sub500 n2e@5 =L learned-on (%): claimed 94.4, recomputed 94.39
+  [OK ] sub500 n2e@5 =L learned-on Wilson lo: claimed 92.0, recomputed 91.96
+  [OK ] sub500 n2e@5 =L learned-on Wilson hi: claimed 96.1, recomputed 96.11
+  [OK ] public e2n median d1 s=5: claimed 18.9, recomputed 18.85
+  [OK ] public e2n median d1 s=1: claimed 9.2, recomputed 9.208
+  [OK ] public e2n median d1 s=0.5: claimed 6.5, recomputed 6.455
+  [OK ] public e2n median d1 s=0.1: claimed 2.6, recomputed 2.569
+  [OK ] public e2n median d1 s=0.05: claimed 1.4, recomputed 1.374
+  [OK ] public e2n median d1 s=0.02: claimed 0.61, recomputed 0.6065
+  [OK ] public learned median d1: claimed 20.0, recomputed 20.04
+  [OK ] public e2n median d1/d2 s=5: claimed 0.963, recomputed 0.9634
+  [OK ] public learned median d1/d2: claimed 0.977, recomputed 0.9766
+  [OK ] public e2n med d1 s=1 CI lo: claimed 9.04, recomputed 9.035
+  [OK ] public e2n med d1 s=1 CI hi: claimed 9.36, recomputed 9.361
+  [OK ] public e2n med d1 s=0.02 CI lo: claimed 0.6, recomputed 0.6003
+  [OK ] public e2n med d1 s=0.02 CI hi: claimed 0.615, recomputed 0.6153
+  [OK ] public e2n d1 log-log slope 0.1->0.02: claimed 0.9, recomputed 0.8969
+  [OK ] sub1000 e2n median d1 s=5: claimed 14.5, recomputed 14.49
+  [OK ] sub1000 e2n median d1 s=0.02: claimed 0.68, recomputed 0.681
+  [OK ] sqrt(d)*sigma_last_exact s=0.1: claimed 7.7, recomputed 7.733
+  [OK ] sqrt(d)*sigma_last_exact s=0.05: claimed 3.3, recomputed 3.323
+  [OK ] sqrt(d)*sigma_last_exact s=0.02: claimed 1.27, recomputed 1.271
+  [OK ] order-stat ranks lo (n=500): claimed 228, recomputed 228
+  [OK ] order-stat ranks hi (n=500): claimed 273, recomputed 273
+  [OK ] order-stat coverage: claimed 0.956, recomputed 0.9559
+  [OK ] NOTES public n2e =L s=5 (%, integer): claimed 31, recomputed 30.6
+  [OK ] NOTES public n2e =L s=2 (%, integer): claimed 56, recomputed 56
+  [OK ] NOTES public n2e =L s=1 (%, integer): claimed 90, recomputed 89.6
+  [OK ] NOTES public n2e =L s=0.5 (%, integer): claimed 96, recomputed 95.6
+  [OK ] NOTES public n2e =L s=0.2 (%, integer): claimed 99, recomputed 98.6
+  [OK ] NOTES sub1000 n2e =L s=5 (%, integer): claimed 49, recomputed 49.2
+  [OK ] NOTES sub1000 n2e =L s=2 (%, integer): claimed 63, recomputed 63.2
+  [OK ] NOTES sub1000 n2e =L s=1 (%, integer): claimed 88, recomputed 88
+  [OK ] NOTES sub1000 n2e =L s=0.5 (%, integer): claimed 95, recomputed 94.8
+  [OK ] NOTES sub1000 n2e =L s=0.2 (%, integer): claimed 98, recomputed 98.2
+  [OK ] NOTES public e2n median d1 s=0.1: claimed 2.6, recomputed 2.569
+  [OK ] NOTES public e2n median d1 s=0.05: claimed 1.4, recomputed 1.374
+  [OK ] NOTES public e2n median d1 s=0.02: claimed 0.6, recomputed 0.6065
+  [OK ] NOTES 's>=1 almost entirely off-atom' public s=1 (%): claimed 95.6, recomputed 95.6
+  [OK ] NOTES sub500 abs-L ~27 (min over s): claimed 27, recomputed 26.95
+  [OK ] NOTES sub500 abs-L ~27 (max over s): claimed 27, recomputed 27.09
+  [OK ] NOTES sub500 learned off-atom 3.8%: claimed 3.8, recomputed 3.8
+  215/215 agree

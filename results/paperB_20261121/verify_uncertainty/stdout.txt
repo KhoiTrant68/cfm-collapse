@@ -1,0 +1,104 @@
+====================================================================================================
+(1) EXP-1: tab:exp1, sec:exp1, tab:p7kernel
+t quantiles: t(0.975,4)=2.776445  t(0.975,2)=4.302653  t(0.975,46)=2.012896  z=1.959964
+trace_post identical per seed across cond / cosine / uncond / _mr runs: True  [1.004  1.0193 1.0468 1.0146 1.0038]
+tab:exp1 + text: 28 cells; cells whose mean or population SD does NOT round to the printed value: 0
+cell                               printed     mean  sd_pop sd_samp            95% t-CI       exact boot CI
+cond_trace@100                 1.08+-0.02    1.0758  0.0237  0.0265  [1.043, 1.109]  [1.053, 1.092]
+cond_trace@10000               1.03+-0.11    1.0299  0.1082  0.1210  [0.880, 1.180]  [0.937, 1.126]
+cond_trace@100000              0.58+-0.18    0.5803  0.1831  0.2048  [0.326, 0.835]  [0.409, 0.748]
+cond_trace@200000             0.396+-0.127   0.3964  0.1274  0.1425  [0.220, 0.573]  [0.268, 0.493]
+cond_trace@1000000             0.12+-0.054   0.1203  0.0539  0.0602  [0.046, 0.195]  [0.074, 0.165]
+vel_rel_err@100                0.78+-0.03    0.7825  0.0348  0.0389  [0.734, 0.831]  [0.750, 0.811]
+vel_rel_err@10000              0.75+-0.07    0.7474  0.0725  0.0811  [0.647, 0.848]  [0.686, 0.807]
+vel_rel_err@100000              0.5+-0.04    0.4968  0.0381  0.0425  [0.444, 0.550]  [0.466, 0.530]
+vel_rel_err@200000              0.4+-0.05    0.3996  0.0503  0.0562  [0.330, 0.469]  [0.359, 0.447]
+vel_rel_err@1000000           0.168+-0.052   0.1682  0.0524  0.0586  [0.095, 0.241]  [0.133, 0.220]
+dist_atom@100                   0.9+-0.16    0.9001  0.1571  0.1757  [0.682, 1.118]  [0.755, 1.028]
+dist_atom@10000                0.87+-0.2     0.8719  0.2042  0.2283  [0.589, 1.155]  [0.673, 1.030]
+dist_atom@100000               0.58+-0.13    0.5790  0.1302  0.1455  [0.398, 0.760]  [0.470, 0.702]
+dist_atom@200000               0.38+-0.1     0.3794  0.1023  0.1144  [0.237, 0.521]  [0.295, 0.471]
+dist_atom@1000000             0.137+-0.065   0.1370  0.0651  0.0728  [0.047, 0.227]  [0.086, 0.195]
+dist_post@100                  0.15+-0.06    0.1476  0.0646  0.0722  [0.058, 0.237]  [0.096, 0.209]
+dist_post@10000                0.25+-0.07    0.2498  0.0743  0.0831  [0.147, 0.353]  [0.178, 0.305]
+dist_post@100000               0.52+-0.1     0.5165  0.1011  0.1130  [0.376, 0.657]  [0.429, 0.604]
+dist_post@200000               0.66+-0.18    0.6565  0.1767  0.1976  [0.411, 0.902]  [0.499, 0.814]
+dist_post@1000000             0.816+-0.172   0.8161  0.1724  0.1927  [0.577, 1.055]  [0.671, 0.967]
+uncond_trace@100               1.85+-0.55    1.8495  0.5455  0.6098  [1.092, 2.607]  [1.420, 2.357]
+uncond_trace@10000             1.93+-0.16    1.9321  0.1557  0.1740  [1.716, 2.148]  [1.801, 2.063]
+uncond_trace@100000            1.91+-0.17    1.9079  0.1730  0.1934  [1.668, 2.148]  [1.764, 2.066]
+uncond_trace@200000           1.926+-0.171   1.9265  0.1707  0.1909  [1.690, 2.163]  [1.786, 2.076]
+trace_post@0                  1.018+-0.016   1.0177  0.0157  0.0176  [0.996, 1.040]  [1.006, 1.033]
+trace_data@0                  1.931+-0.162   1.9312  0.1624  0.1816  [1.706, 2.157]  [1.797, 2.082]
+memratio_cond@200000           0.65+-0.033   0.6500  0.0329  0.0368  [0.604, 0.696]  [0.621, 0.680]
+memratio_uncond@200000        0.389+-0.032   0.3890  0.0318  0.0356  [0.345, 0.433]  [0.358, 0.413]
+t half-width / population SD: min 1.3882 max 1.3882 (theory t(0.975,4)/2 = 1.3882)
+  cond_trace@200000: bootstrap width / t width = 0.635 (narrower by 36%)
+  cond_trace@1000000: bootstrap width / t width = 0.607 (narrower by 39%)
+  uncond_trace@200000: bootstrap width / t width = 0.613 (narrower by 39%)
+
+Seed-paired contrasts (mean, 95% t-CI df=4, exact bootstrap CI, per seed):
+  trcov_over_trpost@2e5              +0.3887  t [+0.217, +0.560]  boot [+0.264, +0.485]  seeds [0.405, 0.537, 0.43, 0.411, 0.161]
+  trcov_over_trpost@1e6cos           +0.1176  t [+0.046, +0.189]  boot [+0.073, +0.160]  seeds [0.114, 0.165, 0.178, 0.096, 0.035]
+  cos1e6_minus_const2e5              -0.2761  t [-0.393, -0.160]  boot [-0.343, -0.193]  seeds [-0.292, -0.379, -0.263, -0.32, -0.127]
+  uncond_trcov_over_trXhat@2e5       +0.9974  t [+0.971, +1.024]  boot [+0.981, +1.014]  seeds [0.995, 1.022, 0.971, 1.014, 0.985]
+  memratio_cond_minus_uncond@2e5     +0.2610  t [+0.207, +0.315]  boot [+0.227, +0.295]  seeds [0.224, 0.248, 0.317, 0.296, 0.22]
+  dist_atom_minus_post@1e5           +0.0625  t [-0.130, +0.255]  boot [-0.055, +0.186]  seeds [-0.112, 0.254, 0.001, 0.196, -0.026]
+  dist_atom_minus_post@2e5           -0.2771  t [-0.568, +0.014]  boot [-0.450, -0.105]  seeds [-0.507, 0.049, -0.199, -0.505, -0.224]
+  dist_atom_minus_post@1e6cos        -0.6791  t [-0.936, -0.422]  boot [-0.839, -0.519]  seeds [-0.867, -0.601, -0.471, -0.931, -0.525]
+
+tab:p7kernel (results/exp1/_theory/raw/p7_kernel.csv):
+  h=0.01  ratio 1.3081 sd_pop 0.3762 sd_samp 0.4206  t [0.786, 1.830]  boot [1.019, 1.673]  per-seed [1.479, 1.099, 0.917, 1.081, 1.964]  printed-cells ok 8/8
+  h=0.05  ratio 1.0023 sd_pop 0.0498 sd_samp 0.0557  t [0.933, 1.072]  boot [0.965, 1.051]  per-seed [1.093, 0.958, 0.967, 1.019, 0.974]  printed-cells ok 8/8
+  h=0.1   ratio 0.9936 sd_pop 0.0390 sd_samp 0.0436  t [0.940, 1.048]  boot [0.963, 1.030]  per-seed [1.061, 0.948, 0.969, 1.01, 0.98]  printed-cells ok 8/8
+  h=0.5   ratio 1.0112 sd_pop 0.0224 sd_samp 0.0250  t [0.980, 1.042]  boot [0.990, 1.030]  per-seed [1.034, 0.999, 0.974, 1.031, 1.019]  printed-cells ok 8/8
+tab:p7kernel cells that do NOT round to the printed values: 0 of 32 checked (24 printed numeric cells + 8 SDs)
+
+====================================================================================================
+(2) CIFAR kernel tracking slopes
+published file results\exp3\_cifar_ddpm\reeval.json: runs = [('exp3_cifar_ddpm_h0', 0.0, 48), ('exp3_cifar_ddpm_h4', 4.0, 48), ('exp3_cifar_ddpm_h5', 5.0, 48), ('exp3_cifar_ddpm_h6', 6.0, 48)]
+  h=4 run=exp3_cifar_ddpm_h4 n=48: slope 0.4807 se 0.0371 HC3 0.0393 R2 0.7846 decades 4.566 CV 1.102  OLS t-CI [0.406, 0.555]  HC3 t-CI [0.402, 0.560]  case boot [0.390, 0.556] BCa [0.401, 0.565]  printed-ok [True, True, True, True, True]
+      B=20000 endpoint ranges over 12 seeds: pct lo [0.3876, 0.3911] hi [0.5555, 0.5579]  BCa lo [0.3986, 0.4019] hi [0.564, 0.567]
+  h=5 run=exp3_cifar_ddpm_h5 n=48: slope 0.3494 se 0.0493 HC3 0.1423 R2 0.5220 decades 2.161 CV 0.537  OLS t-CI [0.250, 0.449]  HC3 t-CI [0.063, 0.636]  case boot [0.146, 0.510] BCa [0.178, 0.559]  printed-ok [True, True, True, True, True]
+      B=20000 endpoint ranges over 12 seeds: pct lo [0.1444, 0.1487] hi [0.5099, 0.513]  BCa lo [0.1756, 0.1789] hi [0.5564, 0.5643]
+  h=6 run=exp3_cifar_ddpm_h6 n=48: slope -0.1560 se 0.0583 HC3 0.1084 R2 0.1347 decades 0.741 CV 0.208  OLS t-CI [-0.273, -0.039]  HC3 t-CI [-0.374, 0.062]  case boot [-0.257, 0.169] BCa [-0.291, 0.081]  printed-ok [True, True, True, True, True]
+      B=20000 endpoint ranges over 12 seeds: pct lo [-0.2583, -0.2552] hi [0.1563, 0.1716]  BCa lo [-0.2964, -0.2876] hi [0.0752, 0.0851]
+  t(0.975,46) = 2.012896
+  rerun h=4: slopes [0.3438, 0.3159, 0.4267] decades [4.57, 7.0, 5.28]  s0 ref == published ref: True; s1 ref == published: False
+     mean 0.3622 t(df=2) [0.219, 0.505]  FE slope 0.3587 (naive se 0.0194, CR1 se 0.0368)  exact cluster boot FE [0.319, 0.413] (10 distinct)  pooled-OLS variant [0.319, 0.416]  two-stage [0.298, 0.437]  published - s0 = +0.1369 (3.69 OLS se; 2.62 se of the difference; 2.16 HC3 se of diff)
+  rerun h=5: slopes [0.2847, 0.5536, 0.4646] decades [2.16, 3.79, 2.41]  s0 ref == published ref: True; s1 ref == published: False
+     mean 0.4343 t(df=2) [0.094, 0.775]  FE slope 0.4831 (naive se 0.0292, CR1 se 0.0614)  exact cluster boot FE [0.342, 0.541] (10 distinct)  pooled-OLS variant [0.343, 0.539]  two-stage [0.264, 0.602]  published - s0 = +0.0647 (1.31 OLS se; 0.96 se of the difference; 0.43 HC3 se of diff)
+  rerun h=6: slopes [0.082, 0.412, 0.5977] decades [0.74, 1.89, 1.0]  s0 ref == published ref: True; s1 ref == published: False
+     mean 0.3639 t(df=2) [-0.285, 1.013]  FE slope 0.4343 (naive se 0.0413, CR1 se 0.0580)  exact cluster boot FE [0.264, 0.557] (10 distinct)  pooled-OLS variant [0.281, 0.561]  two-stage [0.071, 0.749]  published - s0 = -0.2380 (-4.08 OLS se; -2.02 se of the difference; -1.16 HC3 se of diff)
+  original-protocol seed1/2 run contents (files): {'exp3_cifar_ddpm_h4_seed1': ['config.yaml', 'raw\\metrics.csv'], 'exp3_cifar_ddpm_h4_seed2': ['config.yaml', 'raw\\metrics.csv'], 'exp3_cifar_ddpm_h5_seed1': ['config.yaml', 'raw\\metrics.csv'], 'exp3_cifar_ddpm_h5_seed2': ['config.yaml', 'raw\\metrics.csv'], 'exp3_cifar_ddpm_h6_seed1': ['config.yaml', 'raw\\metrics.csv'], 'exp3_cifar_ddpm_h6_seed2': ['config.yaml', 'raw\\metrics.csv']}
+
+====================================================================================================
+(3) EDM late contraction AUC
+  sub2000: n_off=501 sigma[11]=0.5853 sigma[17]=0.0020  C medians on 1.752 / off 0.684
+     AUC(C)=0.98309  strat boot [0.9771, 0.9883]  DeLong [0.9775, 0.9887]  class-cluster [0.9747, 0.9913]  image-cluster [0.9773, 0.9882] (770 clusters)
+     baseline dD(sigma=0.002) AUC=0.98493 boot [0.9794, 0.9896]  diff -0.00184 boot [-0.00398, +0.00020] DeLong [-0.00389, +0.00021]
+     AUC rho(0.002)=0.9289  AUC rho(0.585)=0.9905  complete separation: False (max C_off 1.7547, min C_on 0.9586)
+     predictive-anchor late contraction AUC 0.98309 (max |C_A - C| 0.0554; share with anchor == endpoint image at all k>=11: 0.989)
+     rad194 [0.554, 0.518, 0.589] nn194 [0.479, 0.444, 0.515] diff [0.074, 0.042, 0.107] | rad129 [0.605, 0.57, 0.639] nn129 [0.52, 0.484, 0.555] diff [0.085, 0.055, 0.115]
+  sub500s1: n_off=44 sigma[11]=0.5853 sigma[17]=0.0020  C medians on 2.528 / off 0.317
+     AUC(C)=1.00000  strat boot [1.0000, 1.0000]  DeLong [1.0000, 1.0000]  class-cluster [1.0000, 1.0000]  image-cluster [1.0000, 1.0000] (428 clusters)
+     baseline dD(sigma=0.002) AUC=1.00000 boot [1.0000, 1.0000]  diff +0.00000 boot [+0.00000, +0.00000] DeLong [+0.00000, +0.00000]
+     AUC rho(0.002)=0.9998  AUC rho(0.585)=1.0000  complete separation: True (max C_off 0.7297, min C_on 1.4435)  95% distribution-free LCB 0.9273 (cap alpha^(1/m) 0.9342)
+     predictive-anchor late contraction AUC 1.00000 (max |C_A - C| 0.0079; share with anchor == endpoint image at all k>=11: 0.997)
+     rad194 [0.789, 0.723, 0.848] nn194 [0.74, 0.682, 0.795] diff [0.049, -0.024, 0.117] | rad129 [0.894, 0.859, 0.925] nn129 [0.897, 0.869, 0.923] diff [-0.004, -0.036, 0.027]
+  sub500s0: n_off=41 sigma[11]=0.5853 sigma[17]=0.0020  C medians on 2.553 / off 0.290
+     AUC(C)=1.00000  strat boot [1.0000, 1.0000]  DeLong [1.0000, 1.0000]  class-cluster [1.0000, 1.0000]  image-cluster [1.0000, 1.0000] (413 clusters)
+     baseline dD(sigma=0.002) AUC=1.00000 boot [1.0000, 1.0000]  diff +0.00000 boot [+0.00000, +0.00000] DeLong [+0.00000, +0.00000]
+     AUC rho(0.002)=0.9949  AUC rho(0.585)=1.0000  complete separation: True (max C_off 1.1594, min C_on 1.4262)  95% distribution-free LCB 0.9226 (cap alpha^(1/m) 0.9295)
+     baseline file results\n3_anchor_20261117\sub500\q_per_sample.npz: off flags identical True, labels identical True, max |C diff| 0.0534, max rel d1 diff 6.22e-03
+     predictive-anchor late contraction AUC 1.00000 (max |C_A - C| 0.0059; share with anchor == endpoint image at all k>=11: 0.998)
+     rad194 [0.796, 0.734, 0.855] nn194 [0.689, 0.613, 0.763] diff [0.106, 0.052, 0.161] | rad129 [0.894, 0.854, 0.93] nn129 [0.876, 0.834, 0.915] diff [0.017, -0.01, 0.045]
+  sub500s0_anchorfile: n_off=41 sigma[11]=0.5853 sigma[17]=0.0020  C medians on 2.553 / off 0.290
+     AUC(C)=1.00000  strat boot [1.0000, 1.0000]  DeLong [1.0000, 1.0000]  class-cluster [1.0000, 1.0000]  image-cluster [1.0000, 1.0000] (413 clusters)
+     baseline dD(sigma=0.002) AUC=1.00000 boot [1.0000, 1.0000]  diff +0.00000 boot [+0.00000, +0.00000] DeLong [+0.00000, +0.00000]
+     AUC rho(0.002)=0.9952  AUC rho(0.585)=1.0000  complete separation: True (max C_off 1.1526, min C_on 1.4260)  95% distribution-free LCB 0.9226 (cap alpha^(1/m) 0.9295)
+     predictive-anchor late contraction AUC 1.00000 (max |C_A - C| 0.0059; share with anchor == endpoint image at all k>=11: 0.998)
+     rad194 [0.796, 0.734, 0.855] nn194 [0.689, 0.613, 0.763] diff [0.106, 0.052, 0.161] | rad129 [0.894, 0.854, 0.93] nn129 [0.876, 0.834, 0.915] diff [0.017, -0.01, 0.045]
+  JSON sub2000: C [0.983, 0.977, 0.988] nn_end [0.985, 0.979, 0.99] C-nn_end [-0.002, -0.004, 0.0] rho_end [0.929, 0.913, 0.942] rho059 [0.99, 0.987, 0.994] medians 1.75/0.68 n_off 501
+  JSON sub500s1: C [1.0, 1.0, 1.0] nn_end [1.0, 1.0, 1.0] C-nn_end [0.0, 0.0, 0.0] rho_end [1.0, 0.999, 1.0] rho059 [1.0, 1.0, 1.0] medians 2.53/0.32 n_off 44
+  JSON sub500s0: C [1.0, 1.0, 1.0] nn_end [1.0, 1.0, 1.0] C-nn_end [0.0, 0.0, 0.0] rho_end [0.995, 0.986, 1.0] rho059 [1.0, 1.0, 1.0] medians 2.55/0.29 n_off 41
