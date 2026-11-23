@@ -1540,7 +1540,8 @@ $\kappa=(1-r)(2r-1)/(2r)$ and $\theta=(1-r)/(2r)$.
   c=r+|\kappa|\varrho+\theta\varrho\,(r+(1-r)\varrho),\qquad
   b=(|\kappa|+\theta\varrho(1-r))\,G+\theta\tilde G .
   \]
-  For the last step, $n_K\le\varrho n_{K-1}+\gamma+\omega(x_{K-1},\sigma_{K-1})$.
+  For the last step, if also $e(x_{K-1},\sigma_{K-1})\le\varrho n_{K-1}+\gamma$, then
+  $n_K\le\varrho n_{K-1}+\gamma+\omega(x_{K-1},\sigma_{K-1})$.
 \item $c$ is strictly increasing in $\varrho$. If $r\ge1/2$, then $c<1$ for every $\varrho<1$; if
   $r<1/2$, then $c<1$ if and only if
   $\varrho<\varrho_{\rm crit}(r)=\tfrac12\big(\sqrt{1+8r/(1-r)}-1\big)\in(0,1)$.
@@ -1558,7 +1559,8 @@ $\kappa=(1-r)(2r-1)/(2r)$ and $\theta=(1-r)/(2r)$.
   $\varrho_kR+\gamma_k+\Omega(\sigma_k)\le R$ and
   $c_kR+(|\kappa_k|+\theta_k\varrho_k(1-r_k))(\gamma_k+\Omega(\sigma_k))+\theta_k(\tilde\gamma_k+\Omega(\sigma_{k+1}))\le R$,
   then $n_k\le R$ for all $k\le K-1$. If moreover
-  $\varrho_{K-1}R+\gamma_{K-1}+\Omega(\sigma_{K-1})<g/4$, the output is on-atom:
+  $e(x_{K-1},\sigma_{K-1})\le\varrho_{K-1}n_{K-1}+\gamma_{K-1}$ for some $\varrho_{K-1},\gamma_{K-1}\ge0$
+  with $\varrho_{K-1}R+\gamma_{K-1}+\Omega(\sigma_{K-1})<g/4$, the output is on-atom:
   $|x_K-a|<\tfrac13\min_{k\ne i}|x_K-x^k|$.
 \end{enumerate}
 \end{proposition}
@@ -1588,7 +1590,8 @@ $2rp=(1-r)^2\varrho^2+(1-r)(3r-1)\varrho+2r^2$ has discriminant $(1-r)^2(r^2-6r+
 exactly when $r<3-2\sqrt2$, and then both roots lie in $(0,1)$.
 (e) By Proposition~\ref{prop:trap}(i), $\omega\le\Omega$ on the ball. If $n_k\le R$, the first
 condition and (b) give $\tilde n_k\le R$, so $\Omega$ also bounds $\omega(\tilde x_k,\sigma_{k+1})$, and the
-second condition gives $n_{k+1}\le R$. Induction gives $n_{K-1}\le R$, then $n_K<g/4$, and for
+second condition gives $n_{k+1}\le R$. Induction gives $n_{K-1}\le R$; the bound on $e(x_{K-1},\sigma_{K-1})$, the last-step bound of (b)
+and $\omega(x_{K-1},\sigma_{K-1})\le\Omega(\sigma_{K-1})$ then give $n_K<g/4$, and for
 $k\ne i$, $|x_K-x^k|\ge g-n_K>3n_K$.
 \end{proof}
 
