@@ -14,9 +14,7 @@ Two hybrids of the deterministic EDM sampler on CIFAR-10, 500 sources per model:
     the image is X[Y == label][nn] with X, Y read here from the same python batches.
 (b) Curves against s: "choice" = fraction of net->exact endpoints whose nearest training image is
     the network's own (=L); "landing" = fraction of exact->net endpoints on a training image
-    (1 - off-atom). Public model thick, 1000-image model thin (keyed in the panel). Landing is near-black,
-    the colour of "on a training image" in the teaser and in fig:landing, so that blue keeps meaning the exact
-    field.
+    (1 - off-atom). Public model thick, 1000-image model thin.
 
 Reads results/n3_followup_20261111/{swap_summary.json, swap_public/swap_per_sample.npz}.
 Usage: PYTHONPATH=.:scripts python scripts/make_swap_figure.py [--cifar DIR]
@@ -39,7 +37,6 @@ OUT = Path("paper_mechanism/figures/fig_swap.pdf")
 CIFAR_DEFAULT = Path("/mnt/data/khoitm8/datasets/cifar10/cifar-10-batches-py")
 GRID_S = (5.0, 2.0, 1.0, 0.5, 0.2)
 LEARNED, EXACT = COLORS["learned"], COLORS["exact"]
-ONIMG = "#222222"     # "ends on a training image" (landing), as in the teaser and fig:landing
 
 
 def load_cifar(d: Path):
@@ -117,7 +114,7 @@ def main() -> None:
         choice = [l["net2exact"]["nn_eq_learned"] for l in lv]
         land = [1 - l["exact2net"]["off"] for l in lv]
         ax.plot(s, choice, color=LEARNED, lw=lw, alpha=alpha, marker="o", ms=3 if lw > 1 else 2)
-        ax.plot(s, land, color=ONIMG, lw=lw, alpha=alpha, marker="s", ms=3 if lw > 1 else 2)
+        ax.plot(s, land, color=EXACT, lw=lw, alpha=alpha, marker="s", ms=3 if lw > 1 else 2)
         record[run] = {"s": s.tolist(), "choice": choice, "landing": land}
     sp = np.array(record["swap_public"]["s"])
     lo, hi = sp.min() / 1.25, sp.max() * 1.25
@@ -127,23 +124,18 @@ def main() -> None:
     ax.set_ylabel("fraction of samples")
     # The two windows, named in a band above the data.
     ax.axvspan(hi, 1.0, color=LEARNED, alpha=0.07, lw=0)
-    ax.axvspan(0.2, lo, color=ONIMG, alpha=0.06, lw=0)
+    ax.axvspan(0.2, lo, color=EXACT, alpha=0.07, lw=0)
     ax.text(np.sqrt(hi * 1.0), 1.13, "image chosen", color=LEARNED, fontsize=7.5,
             ha="center", va="center", fontweight="bold")
-    ax.text(np.sqrt(0.2 * lo), 1.13, "landed", color=ONIMG, fontsize=7.5,
+    ax.text(np.sqrt(0.2 * lo), 1.13, "landed", color=EXACT, fontsize=7.5,
             ha="center", va="center", fontweight="bold")
     # Direct labels, each in empty space next to its curve.
     # (choice: net->exact ends on the network's own image; landing: exact->net ends on a
     # training image; both spelled out in the caption.)
     ax.text(4.3, 0.66, "choice", color=LEARNED, fontsize=7.5, ha="left", va="center",
             fontweight="bold")
-    ax.text(0.17, 0.42, "landing", color=ONIMG, fontsize=7.5, ha="left", va="center",
+    ax.text(0.17, 0.30, "landing", color=EXACT, fontsize=7.5, ha="left", va="center",
             fontweight="bold")
-    # Which model is which: line width, keyed in the empty lower-right corner.
-    from matplotlib.lines import Line2D
-    ax.legend([Line2D([], [], color="#777777", lw=2.0), Line2D([], [], color="#777777", lw=1.0, alpha=0.55)],
-              ["public model (50000 images)", "1000 images"], loc="lower right", fontsize=6.3,
-              handlelength=1.8, borderaxespad=0.3, labelspacing=0.25)
     ax.set_title(r"$\mathbf{(b)}$  chosen early, landed late", loc="left")
     style(ax)
 

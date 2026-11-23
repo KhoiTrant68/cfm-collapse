@@ -120,7 +120,7 @@ def fig_teaser(i: int = 7, k0: int = 7):
     denoiser swaps (swap_summary.json; 500 latents per model; public model thick, 500-image model thin), drawn at
     the swap level s on the same log-sigma scale as the columns (linear interpolation of log sigma between
     neighbouring levels). Choice (vermillion): share of net->exact endpoints (network for sigma > s, exact field
-    below) whose nearest training image is that of the network's own endpoint (=L). Landing (near-black, like the frames of tiles that are the training image): share of
+    below) whose nearest training image is that of the network's own endpoint (=L). Landing (blue): share of
     exact->net endpoints (exact field for sigma > s, network below) on a training image (1 - off). Each clock is
     the level at which the public model's curve passes 1/2, interpolated in log s between swap levels, as in
     results/paperB_20261121/swap/swap_clocks.json (s_sel50 = 2.48, s_land = 0.51)."""
@@ -191,9 +191,9 @@ def fig_teaser(i: int = 7, k0: int = 7):
     s_choice, s_land = half_level(s_pub, ch_pub), half_level(s_pub, land_pub)
     # the same clocks as swap_clocks.json (s_sel50 = 2.483, s_land = 0.506), quoted in the caption
     assert abs(s_choice - 2.483) < 0.005 and abs(s_land - 0.506) < 0.005, (s_choice, s_land)
-    for v, c in ((ch_mem, LEARNED), (land_mem, COPY)):            # thin: the 500-image model
+    for v, c in ((ch_mem, LEARNED), (land_mem, EXACT)):            # thin: the 500-image model
         ax.plot(col(s_mem), v, color=c, lw=0.9, alpha=0.8, zorder=2)
-    for v, c, mk in ((ch_pub, LEARNED, "o"), (land_pub, COPY, "s")):   # thick: the public model
+    for v, c, mk in ((ch_pub, LEARNED, "o"), (land_pub, EXACT, "s")):   # thick: the public model
         ax.plot(col(s_pub), v, color=c, lw=1.6, marker=mk, ms=2.6, mec="white", mew=0.4, zorder=3)
     ax.set_ylim(0, 1.32)
     ax.set_yticks([0, 0.5, 1])
@@ -207,7 +207,7 @@ def fig_teaser(i: int = 7, k0: int = 7):
     ax.grid(False)
     # direct labels
     ax.text(col(5.0) + 0.42, 0.50, "choice", color=LEARNED, fontsize=6.8, ha="left", va="bottom")
-    ax.text(col(0.5) + 0.62, 0.42, "landing", color=COPY, fontsize=6.8, ha="left", va="center")
+    ax.text(col(0.5) + 0.62, 0.42, "landing", color=EXACT, fontsize=6.8, ha="left", va="center")
     ax.text(col(5.0) + 0.05, 0.89, "500 images", color=GREY, fontsize=6.3, ha="left", va="top")
     # the two clocks: where the public model's curves pass one half
     for jj, txt in ((float(col(s_choice)), "half chosen"), (float(col(s_land)), "half landed")):
