@@ -125,3 +125,15 @@ Tổng cộng khoảng 2 giờ 15 phút.
 - **Mục bib companionA** (`paper_mechanism/refs.bib`:579-584) vẫn ghi "Anonymous / Companion submission". Khi A đã lên arXiv, cần ghi tác giả thật, số arXiv và `note = {arXiv preprint}`, rồi sửa comment B:16-22.
 - **Số headline của B** (88%, 96%, 0.51, 2.48, 1.33, 89.6%, 95.6%) chưa được đối chiếu với `results/` trong vòng này. Cần chạy `scripts/paperB_verify_*.py`.
 - Các sửa nhỏ không có trong bảng: thống nhất "label noise" thay cho "label smoothing" ở tiêu đề A:496, và tiêu chí off-atom (A:3251-3252: off-atom khi d1 > d2/3; B:676-677: off-atom khi d1 ≥ d2/3; chỉ khác ở trường hợp bằng nhau).
+
+## 8. Cập nhật sau khi sửa (2026-11-23)
+
+Đã sửa trên nhánh `paper-split-drafts`, cần Khoi kiểm lại cách sửa:
+
+- **P1-P5** (commit 8e60c36): đã sửa đúng như mục 2. Riêng P3 có thêm giả thiết vào phát biểu `prop:heun` (b) và (e).
+- **A1-A6, A8-A10, X1:** đã sửa theo mục 3. Tên "less decided" đổi thành "intermediate" ở mọi chỗ, kèm định nghĩa chính xác như phần (a) và ví dụ B = 3, 2, 1 (đã kiểm bằng số: F'(-2) = -0.084, -0.42, -1.68 ở w = 1.2, 2, 5 lần 1/sinh^2(1)). Ký hiệu eta trong rem:generic đổi thành lambda.
+- **A7:** chưa sửa, chỉ thêm `% FLAG` vì cần một tài liệu về công thức Liouville cho trường Carathéodory; không đoán số trang/định lý.
+- **B1-B5, B7, B8:** đã sửa theo mục 3. B6: D -> `\ell` trong prop:localtransfer (vì `g` đã dùng trong chứng minh đó), m_p và q_{p,j} -> m^\star và w_j^{(h)}, h -> eta trong chứng minh prop:trap. **Chưa đổi** e (vectơ Z - a) với e_t (sai số) trong thm:relerr, vì chính phát biểu dùng \hat e_t; cần Khoi quyết cách đặt tên.
+- **X2:** chưa làm, cần nhóm quyết (lần trích companionA thứ ba).
+- **X3 và các câu trùng khác:** đã viết lại bên B (Wan/Baptista, Liu, cách ghi ±, đoạn tổ chức phụ lục, câu reproducibility). Phần còn trùng giữa hai bài giờ chỉ là preamble LaTeX, as:standing, phương trình và bảng ký hiệu.
+- **Văn phong:** abstract A mở đầu bằng chuyện mô hình copy ảnh train; abstract B định nghĩa radial ratio bằng một câu ngắn; phần mở đầu B thêm hình ảnh "chọn sân bay rồi mới hạ cánh"; B bỏ hai chỗ nói quá ("explains landing", "never copies").

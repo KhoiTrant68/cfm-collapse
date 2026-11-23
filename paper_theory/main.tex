@@ -102,17 +102,18 @@ on Its Training Set?}
 % exact fields decide the support); composition is presented as a boundary marker, as in
 % paper/main.tex. The AND/class-label proposition is not added (contract 7.4, section 5).
 \begin{abstract}
-Conditional flow-matching samplers are often run with a field other than the one their objective
-targets.
+Generative models trained on a finite dataset can return exact copies of their training images,
+which matters for copyright and privacy. Conditional flow-matching samplers are also often run with
+a field other than the one their objective targets.
 Labels are noised during training, a network that resolves labels coarsely averages the field
 over nearby labels, and sampling adds classifier-free guidance, guidance schedules, negative
 prompts, or the summed guidance terms of compositional generation. Some of these changes are used
 to reduce the replication of training data. We ask which of them can move the endpoints of the
-exact empirical field, the population minimiser for a fixed training set, off the training
-examples. The answer depends on how many exact fields are combined, and with which signs. Label
+exact empirical field off the training examples. This field minimises the training loss for a fixed
+training set, and without changes it returns only training examples. The answer depends on how many exact fields are combined, and with which signs. Label
 noise only reweights the training examples, with weights computable from the labels. Positive
 mixtures of exact fields with strictly positive priors end on a training example from almost every
-initial point. So do every fixed combination of two such fields, which includes negative prompting
+initial point. So does every fixed combination of two such fields, which includes negative prompting
 by substitution, and guidance with a nonnegative bounded schedule of bounded variation. For
 guidance, the analogous statement was known for the stochastic sampler, and for a fixed strength
 every trajectory of the flow was known to converge, possibly to a point that is not a training
@@ -120,9 +121,9 @@ example. Three fields can blend training examples. The conjunction of compositio
 reaches a blend with positive probability. For two examples with prior log-odds $\pm2B$ this
 happens exactly when the guidance strength exceeds $1/\sinh^2B$, and in any dimension the
 eigenvalue signs of a signed posterior covariance decide it. At a tie of two examples, a point
-equally close to both and closer to them than to any other example, a blend requires subtracting a
-field that is less decided between them than the fields added: its prior log-odds between the two
-examples lie strictly between those of the added fields. The blend
+equally close to both and closer to them than to any other example, a blend requires subtracting an
+intermediate field: one whose prior log-odds between the two examples lie strictly between the
+smallest and the largest among all the combined fields. The blend
 basin lies in a layer of width $(1-t)^2$ around the tie. Standard velocity networks miss it, while
 networks given a coordinate at that scale, centred at the tie, can match its exact probability.
 We therefore present the composition as a boundary marker, not a practical mechanism.
@@ -201,7 +202,7 @@ to them than to any other example, this needs a specific sign pattern.
   $p_i^{(h)}(y)$, a Nadaraya--Watson weight computable from the labels
   (Theorem~\ref{thm:endpoint}). This is not a new result: at a fixed query the label-noise field
   is the unconditional exact field of the weighted training law, so the endpoint result of
-  \citet{wan2025elucidating} applies (Section~\ref{sec:related}). We state it because we use this
+  \citet[Theorem~5.3]{wan2025elucidating} applies (Section~\ref{sec:related}). We state it because we use this
   law as the starting point of every later result, and
   its variance as a parameter-free reference for trained networks
   (Section~\ref{sec:intervention-tests}).
@@ -229,9 +230,9 @@ to them than to any other example, this needs a specific sign pattern.
   priors (Remark~\ref{rem:generic}).
 \item \emph{A sign rule for composing conditions} (Section~\ref{sec:conjunction}). With equal
   weights this composite is the conjunction of compositional generation. At a tie of two
-  examples, a blend needs a subtracted field that is less decided between them than the fields
-  added, meaning that its prior log-odds between the two examples lie strictly between those of
-  the added fields (Proposition~\ref{prop:twoatom}). The conjunction has one. A negative prompt against one
+  examples, a blend needs a subtracted intermediate field, meaning that its prior log-odds
+  between the two examples lie strictly between the smallest and the largest among all the
+  combined fields (Proposition~\ref{prop:twoatom}). The conjunction has one. A negative prompt against one
   of the two examples does not, and a negative prompt milder than the positive one can.
 \item \emph{What a learned field needs to inherit the blend} (Sections~\ref{sec:regular-learned}
   and~\ref{sec:intervention-tests}). A velocity network with an integrable Lipschitz constant up
@@ -252,8 +253,7 @@ to them than to any other example, this needs a specific sign pattern.
 (Section~\ref{sec:intervention-atomicity}). A finite kinetic energy forces convergence to a finite
 set of candidates, and a divergence that grows like $(1-t)^{-2}$ makes the initial points ending at
 a non-atom candidate null. For a single field the null set also follows from the known marginals of
-% FLAG: the theorem number of Wan et al. (previously Theorem 5.3; possibly 5.4 for general weights) must be checked against PMLR v267 / arXiv 2412.18730 before it is restored.
-the flow \citep[cf.][]{wan2025elucidating}. For a mixture of fields or a guided field the
+the flow \citep[cf.][Theorem~5.3]{wan2025elucidating}. For a mixture of fields or a guided field the
 marginals are not known, and the volume argument does not use them. Guidance has prior coefficients
 of opposite signs, for which the usual Lyapunov argument fails. For a fixed strength, a bound on the
 relative entropy of a posterior to its prior keeps the kinetic energy finite, as in
@@ -278,7 +278,7 @@ Positive field mixtures, including label averaging and guidance $w\in[-1,0)$ at 
 Guidance $w\ge0$, fixed or a bounded schedule of bounded variation & atoms, a.s.\ ($h>0$); one atom ($h=0$) & Prop.~\ref{prop:cfgatom}, Thm.~\ref{thm:schedule}\\
 Any two exact fields with positive priors, any constant coefficient, e.g.\ negative prompt by substitution & atoms, a.s. & Cor.~\ref{cor:twofields}\\
 Guidance applied to an average of conditional fields (conjunction) & can add a circumcentre with positive probability & Thm.~\ref{thm:composition}, \ref{thm:spectral}\\
-Three or more fields at a two-atom tie & a blend only if a less decided field is subtracted & Prop.~\ref{prop:twoatom}\\
+Three or more fields at a two-atom tie & a blend only if an intermediate field is subtracted & Prop.~\ref{prop:twoatom}\\
 Averaging identifying hard-label fields ($h=0$) & can move every endpoint to a circumcentre & Sec.~\ref{sec:posmix}\\
 Endpoint noise $\rho>0$ & atoms convolved with $\N(0,\rho^2I_d)$ & Prop.~\ref{prop:tgtnoise}\\
 \bottomrule
@@ -308,8 +308,8 @@ any label, the records an exact-optimum model returns. Under guidance the suppor
 the weights have no closed form. \emph{(iii) Composition is a boundary marker, not a practical mechanism.} Among the
 operations studied here with strictly positive priors, only combining three or more fields changes
 the support of the exact law without adding noise (averaging hard-label fields can, at a symmetric
-tie, Section~\ref{sec:posmix}), and at a tie of two examples only when a field less decided
-between them is subtracted. For the conjunction this happens above a threshold that is
+tie, Section~\ref{sec:posmix}), and at a tie of two examples only when an intermediate field
+(prior log-odds strictly between the extreme ones) is subtracted. For the conjunction this happens above a threshold that is
 exponentially small in the confidence $B$ with which each condition identifies its own example.
 Negative prompts against one of the two examples never produce it. \emph{(iv) The statements
 concern support at fixed $N$.} The floor in~\eqref{eq:w2floor} is the mean squared distance from
@@ -346,8 +346,7 @@ ends.
 
 \paragraph{Label noise and kernel readings.} Kernel readings of finite-support flows are not new
 \citep{scarvelis2025closedform,chen2026scoresmoothing,smola2026support}.
-% FLAG: the theorem number of Baptista et al. (previously cited as Theorem 6.4) must be checked against the published version before it is restored.
-\citet{baptista2025memorization} identify the empirical conditional law on the subset
+\citet[Definition~6.2 and Theorem~6.4]{baptista2025memorization} identify the empirical conditional law on the subset
 sharing a label, and \citet[Section~3.3]{physicscfm2026} analyse cell-conditioned flows. The
 Nadaraya--Watson endpoint law of Section~\ref{sec:theory} is therefore a reference, not a new
 identity. Gaussian noise on a conditioning signal is the conditioning augmentation
@@ -365,7 +364,7 @@ to memorisation in trained models.
 
 \paragraph{Convergence of the flow.} \citet[Theorem~3.7, version~3]{liu2025pde} prove that almost
 every trajectory of a single score flow converges to the compact data support.
-\citet{wan2025elucidating} prove for flow-matching ODEs, finite data included, that
+\citet[Theorem~5.3]{wan2025elucidating} prove for flow-matching ODEs from a Gaussian source, finite data included, that
 almost every trajectory converges and that the endpoint law is the data law.
 \citet[Theorem~2.5, version~2]{liu2026geometric} prove that for a mixture or guidance of the scores
 of two finite atomic laws with a constant weight, every trajectory converges to one of finitely
@@ -460,7 +459,7 @@ continuous version. All the explicit fields below are
 locally Lipschitz on $\R^d\times[0,1)$, so their flows are well posed (Lemma~\ref{lem:wellposed}).
 }%
 
-\begin{restatable}[Exact conditional collapse; $h=0$]{proposition}{propcollapse}
+\begin{restatable}[{Exact conditional collapse; $h=0$; cf.\ \citealp[Theorem~6.4]{baptista2025memorization}}]{proposition}{propcollapse}
 \label{prop:collapse}
 Let $h=0$. Then
 (a) $v_0^\star(x,t,y^i)=(x^i-x)/(1-t)$ for $t<1$ $(\star)$;
@@ -493,7 +492,7 @@ Lemma~\ref{lem:mixture-coupling} identifies $\vstar$ with the conditional veloci
 coupling $I\sim p^{(h)}(y)$, $X_1=x^I$; its marginals solve the flow's continuity equation and
 tend to $\law(x^I)$.}
 
-\begin{restatable}[Endpoint law under label smoothing; cf.\ \citealp{wan2025elucidating}]{theorem}{thmendpoint}
+\begin{restatable}[{Endpoint law under label smoothing; cf.\ \citealp[Theorem~5.3]{wan2025elucidating}}]{theorem}{thmendpoint}
 \label{thm:endpoint}
 For every $h>0$ and query $y$,
 \begin{equation}
@@ -734,15 +733,16 @@ Nothing in these results depends on the unconditional field being unconditional.
 
 \begin{restatable}[Any two exact fields]{corollary}{cortwofields}
 \label{cor:twofields}
-Let $p,q\in\Ppos$ and $c\in\R$. The field $c\,v_p+(1-c)\,v_q$ has unique trajectories on
+Let $p,q\in\Ppos$ and $c\in\R$. The field $c\,v_p+(1-c)\,v_q$ has unique Carath\'eodory trajectories on
 $[0,1)$, every trajectory converges to a point of $\mathcal C'$, and the initial points whose
 limit is not an atom form a Lebesgue-null set. The same holds for $(1+w(t))\,v_p-w(t)\,v_q$ with
-$w$ as in Theorem~\ref{thm:schedule}. \proofin{apx:pf-twofields}
+$w:[0,1)\to[0,\bar w]$ measurable and of bounded variation on $[t_0,1)$ for some $t_0<1$.
+\proofin{apx:pf-twofields}
 \end{restatable}
 
 Guidance is the case $q=p^{\mathrm{unc}}$. Guidance towards one condition with another as the
 base, and negative prompting implemented by substituting the negative-prompt field for the
-unconditional one, $v_{\mathrm{neg}}+s\,(v_{\mathrm{pos}}-v_{\mathrm{neg}})$, are combinations of two
+unconditional one, $v_{\mathrm{neg}}+s\,(v_{\mathrm{pos}}-v_{\mathrm{neg}})$ with a constant $s$, are combinations of two
 exact fields as well. With strictly positive priors (any $h>0$), none of them moves the endpoints
 off the training examples, except from a null set of initial points; at hard labels they can. Three
 fields can (Sections~\ref{sec:composition} and~\ref{sec:conjunction}).
@@ -955,17 +955,21 @@ of no proper face of $\operatorname{conv}S$. It holds when $|S|=2$, and whenever
 relative interior of $\operatorname{conv}S$, because the affine hull of a proper face lies in a
 supporting hyperplane of $\operatorname{conv}S$ within $\operatorname{aff}S$; this covers every
 configuration of Section~\ref{sec:intervention-tests}. Hyperbolicity is generic in the priors.
-Fix $a_0\in S$ and put $\eta_{k,a}=\log\bigl(p_k(a)/p_k(a_0)\bigr)$ for $a\in S\setminus\{a_0\}$;
-the map $G(\xi;\eta)=M(\xi)-z$ from $L\times\R^{K(|S|-1)}$ to $L$ depends on the priors only
-through $\eta$, and $\partial G/\partial\eta_{k,a}=c_k\,\pi_k(\xi)(a)\,\bigl(a-\E_{\pi_k(\xi)}[a]\bigr)$.
+Write the field as $\sum_{k=1}^Kc_kv_{p_k}$, $K$ fields with fixed coefficients.
+Fix $a_0\in S$ and put $\lambda_{k,a}=\log\bigl(p_k(a)/p_k(a_0)\bigr)$ for $a\in S\setminus\{a_0\}$;
+the map $G(\xi;\lambda)=M(\xi)-z$ from $L\times\R^{K(|S|-1)}$ to $L$ depends on the priors only
+through $\lambda$, and $\partial G/\partial\lambda_{k,a}=c_k\,\pi_k(\xi)(a)\,\bigl(a-\E_{\pi_k(\xi)}[a]\bigr)$.
 For any $k$ with $c_k\neq0$ these vectors span $L$: together with the vector for $a_0$ they sum to
 zero, and their span contains every difference of two points of $S$, and these differences span
 $L$ because $z\in\operatorname{aff}S$. So $G$ is a submersion, and the parametric transversality
-theorem \citep[Ch.~2, \S3]{guillemin1974differential} shows that for almost every $\eta$ zero is a
-regular value of $G(\cdot;\eta)$: every profile is hyperbolic. The log-ratio map from $\Ppos$ to
-$\eta$ is a submersion, so the same holds for almost every choice of the priors
-$(p_1,\dots,p_K)\in(\Ppos)^K$. Nonhyperbolic profiles, such as the threshold $w=w_c$ of
-Theorem~\ref{thm:composition}, are therefore exceptional, although what happens at them, and at
+theorem \citep[Ch.~2, \S3]{guillemin1974differential} shows that for almost every $\lambda$ zero is a
+regular value of $G(\cdot;\lambda)$: every profile is hyperbolic. Varying the block of one prior
+$p_{k_0}$ with $c_{k_0}\ne0$ already gives a submersion, and the log-ratio map from $\Ppos$ to that
+block is a submersion, so for fixed coefficients, any fixed $p_k$ ($k\ne k_0$) and almost every
+$p_{k_0}\in\Ppos$, every profile is hyperbolic; in particular $p^{\mathrm{unc}}$ may stay uniform.
+Since $\mathcal C'$ is finite, this holds at every non-atom candidate at once. Nonhyperbolic
+profiles are therefore exceptional in the priors (in Theorem~\ref{thm:composition} they occur only
+at $w=w_c$), although what happens at them, and at
 faces through $z$, remains open.
 \end{remark}
 
@@ -1008,10 +1012,11 @@ F(\zeta)=\sum_kc_k\tanh\bigl(\zeta+B(p_k)\bigr)=0,
 \]
 and $\Gamma$ has the sign of $F'(\zeta)$.
 
-\begin{restatable}[Blending two examples needs a subtracted, less decided field]{proposition}{proptwoatom}
+\begin{restatable}[Blending two examples needs a subtracted intermediate field]{proposition}{proptwoatom}
 \label{prop:twoatom}
 Consider $\sum_kc_kv_{p_k}$ with finitely many $p_k\in\Ppos$ and constant coefficients summing to
-one, at the midpoint $z$ of a tie of two atoms, with priors of equal $B(p_k)$ grouped.
+one, at the midpoint $z$ of two atoms $a,b$ with $\nn(z)=\{a,b\}$, with priors of equal $B(p_k)$
+grouped.
 \begin{enumerate}[label=(\alph*),leftmargin=2em]
 \item At a profile $\zeta_\star$, $F'(\zeta_\star)=1-\sum_kc_k\tanh^2\bigl(\zeta_\star+B(p_k)\bigr)$.
   If every prior whose $B(p_k)$ lies strictly between $\min_kB(p_k)$ and $\max_kB(p_k)$ has a
@@ -1024,8 +1029,11 @@ one, at the midpoint $z$ of a tie of two atoms, with priors of equal $B(p_k)$ gr
 \proofin{apx:pf-twoatom}
 \end{restatable}
 
-A blend of two examples thus needs a subtracted field that is less decided between them than the
-fields it is subtracted from. In the conjunction the unconditional field, $B=0$, lies between two
+A blend of two examples thus needs a subtracted intermediate field: its value of $B$ lies strictly
+between the smallest and the largest value among all the combined fields. Being intermediate is not
+the same as being less decided than every added field; with three fields at $B=3,2,1$ the
+subtracted field at $B=2$ is more decided than the added one at $B=1$, and a sink profile can still
+exist. In the conjunction the unconditional field, $B=0$, lies between two
 conditions favouring $a$ and $b$, and it is subtracted. Negative prompting with an unconditional
 base integrates
 $v_{\mathrm{unc}}+s\,(v_{\mathrm{pos}}-v_{\mathrm{unc}})-s_{\mathrm{neg}}(v_{\mathrm{neg}}-v_{\mathrm{unc}})$
@@ -1036,7 +1044,7 @@ $0<B(p_{\mathrm{neg}})<B(p_{\mathrm{pos}})$, the subtracted field is the middle 
 occur (Section~\ref{sec:intervention-tests}). A negative prompt that does not distinguish $a$ from
 $b$, $B(p_{\mathrm{neg}})=0$, is grouped with the unconditional field and changes nothing at this
 tie: a condition unrelated to the tied examples acts there as the unconditional field does,
-whatever the sign of its coefficient. Conditions (a) and (b) are necessary, not sufficient;
+whatever the sign of its coefficient. Violating the hypotheses of (a) and (b) is necessary for a blend, not sufficient;
 Figure~\ref{fig:signed} shows how much of the allowed region actually blends. The conjunction on the
 regular simplex after Corollary~\ref{cor:spectral-threshold} therefore also blends pairs of
 vertices: at the midpoint of an edge the other $N-2$ conditions have $B(p)=0$ and are grouped with
@@ -1052,8 +1060,8 @@ Section~\ref{sec:intervention-tests}\fi).
 \caption{Which recipes can blend two training points $a,b$ at a tie. (a) Each row draws the fields of
 a recipe as bars at their restricted log-odds $B(p)$, up when the field is added and down when it is
 subtracted, with height proportional to the coefficient (per row); vermillion marks the sign
-pattern Proposition~\ref{prop:twoatom} requires for a blend, a subtracted field less decided than
-two added ones. Right: the probability under $\pi_0$ that the endpoint is the midpoint, $0$ where
+pattern Proposition~\ref{prop:twoatom} requires for a blend, a subtracted intermediate field
+between two added ones. Right: the probability under $\pi_0$ that the endpoint is the midpoint, $0$ where
 the cited result proves it for every configuration (the bars then show one configuration, with
 $B=2$, guidance $w=2$, negative guidance $w=-1/2$ and the conjunction at $w=w_c$), and otherwise
 computed for the configuration drawn with the stiff
@@ -1382,8 +1390,8 @@ guidance with a nonnegative bounded schedule of bounded variation reweight the t
 and end on them almost surely, and every trajectory converges. Three fields can move the endpoints.
 Guidance applied to an average of conditional fields, the conjunction of compositional generation,
 reaches blends of training examples above an explicit threshold. A signed posterior covariance
-decides when in any dimension, and at a tie of two examples a blend needs a subtracted field that
-is less decided between them than the fields added.
+decides when in any dimension, and at a tie of two examples a blend needs a subtracted intermediate
+field, whose prior log-odds lie strictly between the extreme ones.
 
 For practice, none of these knobs guarantees at the exact optimum that training data are not
 returned, and the composition of conditions is the operation an audit should examine. The blend
@@ -1873,12 +1881,12 @@ below; finite data are excluded, and for them an exceptional set can exist
 \def\cmpcell{\raggedright\hspace{0pt}}
 \begin{tabular}{@{}p{0.11\textwidth}p{0.18\textwidth}p{0.21\textwidth}p{0.17\textwidth}p{0.25\textwidth}@{}}
 \toprule
-& \cmpcell\citet[Thm.~3.7]{liu2025pde}; \citet{wan2025elucidating} & \cmpcell\citet[Thm.~2.5]{liu2026geometric} & \cmpcell\citet[Thm.~3]{azangulov2026adaptive} & \cmpcell This paper\tabularnewline
+& \cmpcell\citet[Thm.~3.7]{liu2025pde}; \citet[Thm.~5.3]{wan2025elucidating} & \cmpcell\citet[Thm.~2.5]{liu2026geometric} & \cmpcell\citet[Thm.~3]{azangulov2026adaptive} & \cmpcell This paper\tabularnewline
 \midrule
 \cmpcell Dynamics & \cmpcell deterministic flow of one field & \cmpcell deterministic flow of the mixed score $\lambda s_1+(1-\lambda)s_2$ of two heat flows & \cmpcell reverse SDE with the guided score & \cmpcell deterministic flow of exact conditional flow-matching fields, linear interpolant\tabularnewline
-\cmpcell Support & \cmpcell compact, or of positive reach with a local mass bound; both include finite sets & \cmpcell two finite sets with positive weights, possibly different & \cmpcell any compact set; a class with $p(c)>0$ & \cmpcell one finite set, strictly positive priors\tabularnewline
+\cmpcell Support & \cmpcell compact [Thm.~3.7], or of positive reach with a local mass bound [Wan, Thm.~5.3]; both include finite sets & \cmpcell two finite sets with positive weights, possibly different & \cmpcell any compact set; a class with $p(c)>0$ & \cmpcell one finite set, strictly positive priors\tabularnewline
 \cmpcell Combination & \cmpcell one field & \cmpcell two scores, constant $\lambda\ge0$; $\lambda>1$ is guidance & \cmpcell guidance of bounded strength, uniformly above $-\tfrac12$ (Rem.~4), which may depend on time, state and class & \cmpcell any probability measure over priors (Thm.~\ref{thm:posmix}); guidance $w\ge0$, fixed or a bounded schedule of bounded variation (Prop.~\ref{prop:cfgatom}, Thm.~\ref{thm:schedule}); signed finite combinations (Thms.~\ref{thm:composition}, \ref{thm:spectral})\tabularnewline
-\cmpcell Conclusion & \cmpcell almost every trajectory converges to a point of the support, and the endpoint law is the data law; rate $\sqrt{t_{\mathrm h}}$ for finite support & \cmpcell every trajectory converges to one of finitely many nearest-support equilibria, not always a local minimiser of the distance potential (Rem.~2.7); rate $\sqrt{t_{\mathrm h}}$ when the limit has a unique nearest atom in each support & \cmpcell the endpoint lies in the support of the conditional law almost surely & \cmpcell every trajectory converges; almost every initial point ends on an atom for positive combinations and guidance; some signed combinations of three fields end at a non-atom with positive probability\tabularnewline
+\cmpcell Conclusion & \cmpcell almost every trajectory converges to a point of the support; the endpoint law is the data law [Wan, Thm.~5.3]; rate $\sqrt{t_{\mathrm h}}$ for finite support & \cmpcell every trajectory converges to one of finitely many nearest-support equilibria, not always a local minimiser of the distance potential (Rem.~2.7); rate $\sqrt{t_{\mathrm h}}$ when the limit has a unique nearest atom in each support & \cmpcell the endpoint lies in the support of the conditional law almost surely & \cmpcell every trajectory converges; almost every initial point ends on an atom for positive combinations and guidance; some signed combinations of three fields end at a non-atom with positive probability\tabularnewline
 \bottomrule
 \end{tabular}
 \caption{The closest convergence theorems for the deterministic flow, the closest support theorem
@@ -1979,7 +1987,9 @@ there are finitely many such subsets, so $\mathcal C\subseteq\mathcal C'$ are fi
 derivative, and of linear growth. For such fields, Carath\'eodory solutions (absolutely
 continuous, satisfying the equation for almost every time) exist and are unique; the flow maps
 between times below $1$ are $C^1$ diffeomorphisms, and their Jacobians $J$ satisfy Liouville's
-formula $J=\exp\int\operatorname{div}_x f$ \citep[Ch.~I]{hale1980ode}. In outline, difference
+formula $J=\exp\int\operatorname{div}_x f$ \citep[Ch.~I]{hale1980ode}.
+% FLAG: Hale Ch. I treats fields continuous in time; add a precise reference for Liouville's
+% formula under Caratheodory conditions (measurable in time) before submission. In outline, difference
 quotients of the flow satisfy the variational equation up to an error that vanishes by dominated
 convergence, Gr\"onwall's inequality gives differentiability, and Jacobi's formula gives
 Liouville's formula. When the field is continuous in time, solutions are classical. The change

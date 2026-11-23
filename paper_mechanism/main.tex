@@ -78,9 +78,9 @@ so a trained sampler that produces anything else does so through the error of it
 We ask which property of that error decides whether a sampling trajectory lands on a training
 image. Our main result is a relative condition. A trajectory reaches a training image when the
 error of its predicted clean image stays a fixed fraction below its distance to that image. It
-stays away when the radial ratio approaches one fast enough; this ratio measures how far the
-predicted clean image still lies out along the state's own offset from the training image, in
-units of the state's distance, so a value of one means no pull toward the image. The absolute error may be large,
+stays away when the radial ratio approaches one fast enough. This ratio compares the predicted
+clean image with the current state, both seen from the training image: below one, the prediction
+pulls the state toward the image; at one, there is no pull. The absolute error may be large,
 and a small regression loss does not control the ratio. We also give a trapping version in the
 noise coordinates of EDM and a one-step version for the deterministic Heun sampler. We then measure
 these quantities on class-conditional EDM models of CIFAR-10 trained on $500$ to $50000$ images,
@@ -92,7 +92,7 @@ On a model that memorises, the samples it copies keep the relative error well be
 last steps, while the samples it does not copy, and all samples of the public model, approach one
 from $\sigma\approx0.14$. Handed the exact denoiser's state, the memorising model lands every sample
 from every swap level, while the public model lands half of them only from $\sigma\approx0.5$. The
-relative error explains landing; it does not detect copies better than the distance from the
+relative error describes how landing happens and is consistent with the theorem; it does not detect copies better than the distance from the
 denoiser output to the nearest training image.
 \end{abstract}
 
@@ -133,7 +133,10 @@ long as it shrinks in proportion to the distance. A small regression loss does n
 control, because the loss averages the error over the training law and not along the sampler's
 path (Proposition~\ref{prop:loss-no-certificate}).
 
-To see the condition at work on real models, we swap the trained denoiser of EDM models for the
+Sampling thus makes two decisions, much as a flight first picks its airport and only later
+touches down: early on, the trajectory settles which training image it is heading for; late, the
+radial ratio decides whether it actually lands on it. To see the condition at work on real models,
+we swap the trained denoiser of EDM models for the
 exact one at a level $s$ of the noise schedule (Figure~\ref{fig:overview}). Running the network
 first and the exact field below $s$ shows when the training image is chosen. Running the exact
 field first and the network below $s$ shows whether a given network lands from a given state, and
@@ -164,7 +167,7 @@ it is handed.}
 \centering
 \includegraphics[width=\textwidth]{fig_teaser.pdf}
 \caption{One latent, two models (EDM on CIFAR-10). The same Gaussian latent sampled by the public
-model, trained on all $50000$ images, which never copies (top), and by a model trained on $500$
+model, trained on all $50000$ images, none of whose samples copied a training image in our runs (top), and by a model trained on $500$
 images, which copies (middle). In each pair, the first row is the network's prediction
 $D_\theta(x)$ of the clean image at the sampler's state $x$, and the second row is the exact field's
 prediction $m^\star(x)$ from the same state, the posterior mean over the training images of the
@@ -243,16 +246,16 @@ and~\ref{app:relerr}.
 \paragraph{The exact optimum memorises; trained networks depart from it.} The empirical minimiser
 of diffusion and flow-matching losses memorises
 \citep{pidstrigach2022manifolds,gu2023memorization,biroli2023diffusion,buchanan2025edge,gao2024flow,bertrand2025closed,li2026memory}.
-For flow-matching ODEs, \citet{wan2025elucidating} prove, finite data included, that
-almost every trajectory converges and that the endpoint law is the data law, and
-\citet{baptista2025memorization} identify the empirical conditional law on the
-training examples that share a label. For the exact score of a finite training set,
+\citet[Theorem~5.3]{wan2025elucidating} show that the flow-matching ODE from a Gaussian source
+reproduces its data law exactly, finite training sets included, and
+\citet[Theorem~6.4]{baptista2025memorization} show that the optimal conditional score only sees the
+training examples carrying the queried label. For the exact score of a finite training set,
 \citet[Theorem~3.7, version~3]{liu2025pde} prove that almost every deterministic trajectory ends on
-a training example. \citet[Theorem~2.5, version~2]{liu2026geometric} show that for a mixture or
-guidance of two exact scores with a constant weight every trajectory converges to one of finitely
-many equilibria of a distance potential, which need not be a training example. Companion work
-\citep{companionA} studies which sampler-side changes of an exact conditional field keep its
-endpoints on the training set; here the exact field is only the reference, and the object of study
+a training example. \citet[Theorem~2.5, version~2]{liu2026geometric} prove that when two exact scores are mixed or
+guided with a fixed weight, each trajectory converges to one of finitely many equilibria, each
+fixed by its nearest points in the supports, and such a limit need not be a training example. Companion work
+\citep{companionA} studies which changes of an exact conditional field, from label noise and label
+averaging to guidance and composition, keep its endpoints on the training set; here the exact field is only the reference, and the object of study
 is the learned field.
 Trained denoisers generalise through inductive biases that depart from the exact field
 \citep{kadkhodaie2024generalization,kamb2024creativity,niedoba2024mechanistic}.
@@ -397,9 +400,7 @@ Its analytic posterior has covariance~$\Sigmapost$, and $\Xhat$ is the covarianc
 \eqref{eq:objective} is a conditional expectation and can be written down. At hard conditioning it
 points straight at the training input of the label.
 
-% FLAG: theorem number of Baptista et al. (2025) not checked verbatim (6.4 in paper A); cited
-% without a number until a human checks the arXiv v2 text.
-\begin{proposition}[{Exact field at hard conditioning; cf.\ \citealp{baptista2025memorization}}]
+\begin{proposition}[{Exact field at hard conditioning; cf.\ \citealp[Theorem~6.4]{baptista2025memorization}}]
 \label{prop:collapse}
 Let $h=0$ and fix a training label $y^i$. Then
 (a) for $t<1$ the exact field is $v_0^\star(x,t,y^i)=(x^i-x)/(1-t)$ $(\star)$;
@@ -437,12 +438,8 @@ p_1^{(h)}(\cdot\mid y)=\sum_{i=1}^N p_i^{(h)}(y)\,\delta_{x^i}.
 \end{equation}
 \end{theorem}
 At a fixed query $y$, the field \eqref{eq:kernel-field} is the unconditional exact field of the
-weighted empirical law on the right of \eqref{eq:endpoint}; compare the endpoint results of
-\citet{wan2025elucidating} for flow-matching ODEs with finite data.
-% FLAG: not checked against the PMLR v267 text. Paper A cites Wan et al. Theorem 5.3; the checker
-% could not read it verbatim, and the case of general (non-uniform) weights may be Theorem 5.4.
-% Whether it covers this weighted finite law needs a human check; until then only "cf.", no
-% theorem number. The conditional reading is ours; the original attribution was to paper A.
+weighted empirical law on the right of \eqref{eq:endpoint}; \citet[Theorem~5.3]{wan2025elucidating} cover any finite law with positive weights, so this
+endpoint law follows from theirs.
 
 \paragraph{The posterior mean and the error of a learned field.} In all three cases the exact field
 has the form $\vstar=(m^\star-x)/(1-t)$, where $m^\star=\sum_jw_j^{(h)}x^j$ is the posterior mean
@@ -492,9 +489,10 @@ $\omega_t=(1-w_i(Z_t,t))\max_k|x^k-a|$.
 
 Part~(b) does not ask for a small error. It asks that the error stay a fixed fraction below the
 distance to the example, with $\omega_t\to0$ once the posterior concentrates on $a$, which holds on
-a ball around $a$ at late times (Proposition~\ref{prop:trap}). The quantity that decides landing is
+a ball around $a$ at late times (Proposition~\ref{prop:trap}, stated for uniform or within-class
+weights; with label-noise priors $\Omega$ carries an extra factor $\max_{k\ne i}p_k/p_i$). The quantity that decides landing is
 the radial ratio $\langle\hat e_t,\hat x_1-a\rangle/n_t$ of~(a). A relative error below one keeps
-it below one, and (c) is the converse. Part~(d) shows that the fraction must be strictly below one.
+it below one where $n_t$ is large compared with $\gamma_t+\omega_t$, and (c) gives a partial converse. Part~(d) shows that the fraction must be strictly below one.
 Appendix~\ref{app:relerr} restates the theorem in EDM's noise coordinates with an explicit trapping
 ball (Proposition~\ref{prop:trap}) and gives the corresponding one-step bound for the deterministic
 Heun sampler used in practice (Proposition~\ref{prop:heun}), whose last steps can extrapolate past
@@ -558,7 +556,7 @@ error there.
 \begin{restatable}[Local transfer at positive bandwidth]{proposition}{proplocaltransfer}
 \label{prop:localtransfer}
 Let $h>0$, fix $y$, write $v^\star=\vstar(\cdot,\cdot,y)$, and let $a=x^i$ be an atom with
-$D=\min_{j\ne i}|x^j-a|$ and $\rho\in(0,D/2)$. There is $t_\star<1$, depending only on the
+$\ell =\min_{j\ne i}|x^j-a|$ and $\rho\in(0,\ell /2)$. There is $t_\star<1$, depending only on the
 atoms, $p^{(h)}(y)$ and $\rho$, with the following property. Let $v^\star+\Delta$ be locally
 Lipschitz on $\R^d\times[0,1)$, let $t_0\in[t_\star,1)$, and let $Z$ be the maximal solution of
 $\dot Z=v^\star(Z,t)+\Delta(Z,t)$ from a point $Z_{t_0}$. If $|Z_{t_0}-a|<\rho/4$ and
@@ -1015,7 +1013,7 @@ model and leave out the $2000$-image model, on which half of the samples land, a
 only the public model. The relative error rises to about $0.99$ at the last step, so the data support landing to
 the off-atom criterion, not exact landing. Class-conditional training, where labels are shared,
 retains the within-class variance instead of collapsing (Appendix~\ref{app:exp4}). The relative
-error explains landing but does not detect memorisation better than the nearest-image distance.
+error describes how landing happens but does not detect memorisation better than the nearest-image distance.
 
 \paragraph{Planned experiments.} The following need new inference or training. Apart from the first
 run of~(i), none is reported here, and no claim of this paper depends on them.
@@ -1063,11 +1061,12 @@ training image the exact field would reach: the one nearest to the network's own
 the endpoint is that image is decided later, by the field that runs late. Along the sampler's own
 trajectories, the samples a memorising model copies keep the relative error well below one until
 the last steps, and new samples approach one. The reverse swap separates the two kinds of model:
-given the exact field's state at $\sigma=1$, the public model, which never copies, still ends off
+given the exact field's state at $\sigma=1$, the public model, none of whose samples copied a training image in our runs, still ends off
 the training set for $96\%$ of samples, while a model that memorises lands from every swap level.
 Which samples will copy can already be read at $\sigma\approx1$ from the distance between the
 denoiser output and the nearest training image (AUC $0.988$ on the $2000$-image model), so the
-relative error explains landing without being a better detector.
+relative error describes how landing happens, consistently with Theorem~\ref{thm:relerr}, without
+being a better detector.
 
 \emph{Implications.} A trained network's sample ends off the training set only if its late field
 fails to contract onto the image from the state it is handed, and the regression loss does not
@@ -1106,7 +1105,7 @@ checked, revised and verified; we wrote and verified all other proofs. We take f
 for every claim, proof and number in this paper.
 
 \subsection*{Reproducibility statement}
-All numbers are produced by code in the supplementary material (anonymised for review).
+The anonymised supplementary code regenerates every number in the paper.
 Synthetic and inpainting experiments: \texttt{run\_exp1.sh}, \texttt{run\_sweeps.py},
 \texttt{train\_exp2}, \texttt{train\_exp3}, each followed by its analysis script, and
 \texttt{verify\_paper\_numbers.py} for the image-scale
@@ -1145,9 +1144,9 @@ Theorem~\ref{thm:relerr} and states and proves the trapping and Heun-sampler ver
 Appendix~\ref{app:measured-transfer} measures the trajectory error on EXP-1 and on CIFAR-10
 U-Nets, Appendix~\ref{app:relerr-exp} gives the EDM experiments of
 Sections~\ref{sec:edm}--\ref{sec:contraction}, and Appendix~\ref{app:expdetails} gives the other
-experimental details. Each main-text result is restated, with its original number, immediately
-before its proof. Table~\ref{tab:notation} collects the notation and Table~\ref{tab:roadmap} shows
-where each result is proved and what it uses.
+experimental details. Before each proof we repeat the main-text statement under its original
+number. The symbols are listed in Table~\ref{tab:notation}, and Table~\ref{tab:roadmap} gives, for each
+result, where it is proved and which earlier results it relies on.
 
 \begin{table}[h]
 \centering\small
@@ -1229,7 +1228,7 @@ where $C_{s_0}=\int_0^{s_0}|\Delta(Z_s,s)|(1-s)^{-1}ds<\infty$ by integrability.
 $(1-t)|x_0-a|\to0$, the identity gives $\limsup_t|Z_t-a|\le L+\eta$ for every $\eta>0$.
 
 For $\Delta(x,t)=c/(1-t)$ the equation becomes $\dot Z=(a+c-Z)/(1-t)$, whose solution is
-$Z_t=(1-t)x_0+t(a+c)$ by the computation in the proof of Proposition~\ref{prop:collapse}(c), so
+$Z_t=(1-t)x_0+t(a+c)$ as in Proposition~\ref{prop:collapse}(c) with $a+c$ in place of $x^i$, so
 $|Z_t-a|\to|c|$, while $(1-t)|\Delta|\equiv|c|$. Finally, for a data-prediction field,
 \[
 \Delta(x,t)=v_\theta(x,t)-\frac{a-x}{1-t}=\frac{\hat x_1(x,t)-x}{1-t}-\frac{a-x}{1-t}
@@ -1244,28 +1243,28 @@ exponentially small error. Adding this error to $\Delta$, the identity of
 Lemma~\ref{thm:transfer} first traps the trajectory in the ball and then gives the limit.
 \begin{proof}
 Let $p=p^{(h)}(y)$, a probability vector with all entries positive. By
-Proposition~\ref{prop:kernel-field}, $v^\star=(m_p-x)/(1-t)$ with $m_p=\sum_jq_{p,j}x^j$ and
-$q_{p,j}=w_j^{(h)}\propto p_j\,\pi_0\big(\tfrac{x-tx^j}{1-t}\big)\propto p_j\exp\big(-|x-tx^j|^2/(2(1-t)^2)\big)$.
+Proposition~\ref{prop:kernel-field}, $v^\star=(m^\star-x)/(1-t)$ with $m^\star=\sum_jw_j^{(h)}x^j$ and
+$w_j^{(h)}\propto p_j\,\pi_0\big(\tfrac{x-tx^j}{1-t}\big)\propto p_j\exp\big(-|x-tx^j|^2/(2(1-t)^2)\big)$.
 
 We first compare the exact field with the hard field near $a$. For $|x-a|\le\rho$ and $j\ne i$,
-$|x-x^j|\ge|x^j-a|-|x-a|\ge D-\rho>0$, so
+$|x-x^j|\ge|x^j-a|-|x-a|\ge \ell -\rho>0$, so
 \[
-|x-x^j|^2-|x-a|^2\ge(D-\rho)^2-\rho^2=D(D-2\rho)>0 .
+|x-x^j|^2-|x-a|^2\ge(\ell -\rho)^2-\rho^2=\ell (\ell -2\rho)>0 .
 \]
 By uniform continuity of $(x,t)\mapsto|x-tx^j|^2-|x-ta|^2$ on $\overline{B_\rho(a)}\times[0,1]$,
 whose value at $t=1$ is the left side above, there is $t_1<1$ such that this difference is at least
-$g=D(D-2\rho)/2$ for all $j\ne i$, $|x-a|\le\rho$ and $t\in[t_1,1]$. Since
-$q_{p,j}/q_{p,i}=(p_j/p_i)\exp\big(-(|x-tx^j|^2-|x-ta|^2)/(2(1-t)^2)\big)\le(p_j/p_i)\,e^{-g/(2(1-t)^2)}$,
+$g=\ell (\ell -2\rho)/2$ for all $j\ne i$, $|x-a|\le\rho$ and $t\in[t_1,1]$. Since
+$w_j^{(h)}/w_i^{(h)}=(p_j/p_i)\exp\big(-(|x-tx^j|^2-|x-ta|^2)/(2(1-t)^2)\big)\le(p_j/p_i)\,e^{-g/(2(1-t)^2)}$,
 for such $(x,t)$
 \[
-|m_p(x,t)-a|=\Bigl|\sum_{j\ne i}q_{p,j}(x^j-a)\Bigr|\le\sum_{j\ne i}\frac{q_{p,j}}{q_{p,i}}|x^j-a|
+|m^\star(x,t)-a|=\Bigl|\sum_{j\ne i}w_j^{(h)}(x^j-a)\Bigr|\le\sum_{j\ne i}\frac{w_j^{(h)}}{w_i^{(h)}}|x^j-a|
 \le C_pe^{-g/(2(1-t)^2)}=:e_\star(t),\qquad C_p=\sum_{j\ne i}\frac{p_j}{p_i}|x^j-a|.
 \]
 Choose $t_\star\ge t_1$ with $e_\star\le\rho/4$ on $[t_\star,1)$; it depends only on the atoms, $p$
 and $\rho$.
 
 Write $\dot Z=(a-Z)/(1-t)+\tilde\Delta$ with
-$\tilde\Delta=(m_p(Z,t)-a)/(1-t)+\Delta(Z,t)$, and let $[t_0,T_{\max})$ be the maximal interval of
+$\tilde\Delta=(m^\star(Z,t)-a)/(1-t)+\Delta(Z,t)$, and let $[t_0,T_{\max})$ be the maximal interval of
 existence. While $Z$ stays in $\overline{B_\rho(a)}$, the two bounds give
 $(1-s)|\tilde\Delta(Z_s,s)|\le e_\star(s)+\rho/4\le\rho/2$, so \eqref{eq:pf:transfer-t0} with
 $\tilde\Delta$ in place of $\Delta$ yields
@@ -1494,20 +1493,20 @@ $e(\sigma)=|D(x(\sigma),\sigma)-m^\star(x(\sigma),\sigma)|$.
   and $x(\sigma)\to a$ as $\sigma\to0$ if $\gamma\to0$.
 \item $\Omega(\sigma)<(1-\bar\varrho)R/2$ for every
   $\sigma\le\sigma_\star=\big((1-\rho_R^2)(g-R)^2/(4\log(1/q))\big)^{1/2}$, where
-  $q=(1-\bar\varrho)R/(2(N-1)\delta_i)\le1/8$.
+  $q=(1-\bar\varrho)R/(2(N-1)\delta_i)\le1/8$, for $N\ge2$.
 \end{enumerate}
 \end{proposition}
 
 \begin{proof}
 (i) If $|x-a|\le R$ and $k\ne i$, then $|x-x^k|\ge g-R$ and
 $w_k\le w_k/w_i\le\exp((R^2-(g-R)^2)/(2\sigma^2))=\exp(-(1-\rho_R^2)(g-R)^2/(2\sigma^2))$; sum over
-$k\ne i$. (ii) Write $\nu=1-\bar\varrho$ and $h=\gamma+\Omega$. Where $0<n\le R$, the radial identity
+$k\ne i$. (ii) Write $\nu=1-\bar\varrho$ and $\eta=\gamma+\Omega$. Where $0<n\le R$, the radial identity
 $\sigma\,dn/d\sigma=n-\langle\hat e,D-a\rangle$ with \eqref{eq:offmass} and (i) gives
-$\sigma\,dn/d\sigma\ge\nu n-h$. If $n\ge R$ somewhere, let $\bar\sigma$ be the largest such
+$\sigma\,dn/d\sigma\ge\nu n-\eta$. If $n\ge R$ somewhere, let $\bar\sigma$ be the largest such
 $\sigma$; then $\bar\sigma<\sigma_1$, $n(\bar\sigma)=R$ and $n<R$ above $\bar\sigma$, so
 $dn/d\sigma(\bar\sigma)\le0$, while the inequality gives
-$dn/d\sigma(\bar\sigma)\ge(\nu R-h(\bar\sigma))/\bar\sigma>0$. Hence $n<R$ throughout. The bound
-follows by integrating $d(n\,s^{-\nu})/ds\ge-h\,s^{-\nu-1}$ (valid almost everywhere, as in
+$dn/d\sigma(\bar\sigma)\ge(\nu R-\eta(\bar\sigma))/\bar\sigma>0$. Hence $n<R$ throughout. The bound
+follows by integrating $d(n\,s^{-\nu})/ds\ge-\eta\,s^{-\nu-1}$ (valid almost everywhere, as in
 Theorem~\ref{thm:relerr}(a)) from $\sigma$ to $\sigma_1$, and the limit as in
 Theorem~\ref{thm:relerr}(b). (iii) $\Omega$ increases with $\sigma$; for $\sigma\le\sigma_\star$ the
 exponent is at least $2\log(1/q)$, so $\Omega<(N-1)\delta_iq$.
@@ -1960,9 +1959,8 @@ steps partly by bookkeeping (Section~\ref{sec:contraction}).
 \label{app:expdetails}
 
 A bracket after a five-seed EXP-1 mean (Section~\ref{sec:exp1}, Table~\ref{tab:exp1}) is a $95\%$ Student-$t$ interval for the mean, with four degrees of freedom
-and a half-width of $1.39$ population standard deviations. Every across-seed $\pm$ is a population
-standard deviation (denominator $n$); at $n=5$ the sample standard deviation is larger by
-$\sqrt{5/4}\approx1.12$.
+and a half-width of $1.39$ population standard deviations. A $\pm$ across seeds divides by $n$, not $n-1$; with five seeds,
+the sample standard deviation would be about $12\%$ larger.
 
 \subsection{Synthetic problems}
 \label{app:exp}
