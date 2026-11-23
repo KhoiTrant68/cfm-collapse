@@ -1,0 +1,122 @@
+% Overview schematic of paper B, drawn in TikZ at \textwidth (6.5 in, TMLR).
+% Input from main.tex inside a figure environment:
+%   \input{figures/tikz/overview.tex}
+% Needs only \usepackage{tikz}. It uses no TikZ library: \usetikzlibrary inside the document
+% typesets stray spaces (53 pt here) when called in horizontal mode, so arrows, coordinates and
+% the bracket are drawn with core TikZ.
+% Block style follows PlotNeuralNet (shaded pseudo-3D boxes, parameters under the blocks).
+% Colours are the paper's roles (scripts/figstyle.py, Okabe-Ito): vermillion = trained network,
+% blue = exact field, grey = sampler state.
+% Numbers shown: EDM's 18-step schedule (sigma_0 = 80, sigma_7 = 5.3, sigma_9 = 1.9,
+% sigma_11 = 0.59, sigma_17 = 0.002; results/n3_strips_20261118), the window of the late
+% contraction (sigma <= 0.585), the public model's half-way choice clock s = 2.48
+% (results/paperB_20261121/swap/swap_clocks.json), and sigma ~ 1, from which the distance of D_theta to
+% its nearest training image separates copies from new samples (fig:landing c).
+\definecolor{ovLearned}{HTML}{D55E00}%
+\definecolor{ovExact}{HTML}{0072B2}%
+\definecolor{ovState}{HTML}{8C8C8C}%
+\definecolor{ovInk}{HTML}{222222}%
+\begin{tikzpicture}[
+    font=\footnotesize, line cap=round, >=stealth,
+    flow/.style={->, line width=0.9pt, draw=ovInk!80},
+    note/.style={font=\scriptsize, text=ovInk!85, align=center, inner sep=1pt},
+]
+% ovbox{x}{y}{width}{height}{depth}{colour}: front face centred at (x, y), PlotNeuralNet-style shading
+\newcommand{\ovbox}[6]{%
+  \fill[#6!88!white, draw=#6!60!black, line width=0.4pt]
+    ({#1-#3/2},{#2-#4/2}) rectangle ({#1+#3/2},{#2+#4/2});
+  \fill[#6!45!white, draw=#6!60!black, line width=0.4pt]
+    ({#1-#3/2},{#2+#4/2}) -- ++({#5},{#5*0.6}) -- ++({#3},0) -- ++({-#5},{-#5*0.6}) -- cycle;
+  \fill[#6!70!black, draw=#6!60!black, line width=0.4pt]
+    ({#1+#3/2},{#2-#4/2}) -- ++({#5},{#5*0.6}) -- ++(0,{#4}) -- ++({-#5},{-#5*0.6}) -- cycle;
+}
+% ovstate{x}{y}: a small grey tile for the sampler state x_k
+\newcommand{\ovstate}[2]{%
+  \fill[ovState!35!white, draw=ovState, line width=0.5pt] ({#1-0.2},{#2-0.2}) rectangle ({#1+0.2},{#2+0.2});
+}
+
+% ------------------------------------------------------------------ the sampler (left)
+\node[font=\small\bfseries, anchor=west] at (-0.55,2.05) {EDM sampler: one denoiser call per noise level};
+
+% Gaussian noise: a seeded grid of grey cells
+\pgfmathsetseed{7}
+\foreach \i in {0,...,5}{\foreach \j in {0,...,5}{%
+  \pgfmathsetmacro{\g}{int(25+50*rnd)}%
+  \fill[black!\g] (-0.5+0.17*\i,-0.5+0.17*\j) rectangle ++(0.17,0.17);}}
+\draw[ovInk, line width=0.5pt] (-0.5,-0.5) rectangle (0.52,0.52);
+\node[note, anchor=south] at (0.01,0.56) {noise $x_0$};
+\node[note, anchor=north] at (0.01,-0.56) {$\mathcal{N}(0,80^2 I)$};
+
+% denoiser blocks at five of the 18 levels; a state tile x_{k+1} after each block
+\def\bw{0.55}\def\bh{1.15}\def\bd{0.28}
+\foreach \x/\k/\s in {1.4/0/80, 3.0/7/5.3, 4.6/9/1.9, 6.2/11/0.59, 8.1/17/0.002}{%
+  \ovbox{\x}{0}{\bw}{\bh}{\bd}{ovLearned}
+  \node[font=\scriptsize, text=white, rotate=90] at (\x,0) {$D_\theta(x;\sigma)$};
+  \node[note, anchor=north] at (\x+0.07,-0.64) {$k{=}\k$\\$\sigma{=}\s$};
+}
+\draw[flow] (0.56,0) -- (1.09,0);
+% gaps between blocks: block right face at x+0.555, next block front face at x'-0.275
+\foreach \x/\nx in {1.4/3.0, 3.0/4.6, 4.6/6.2, 6.2/8.1}{%
+  \pgfmathsetmacro{\m}{(\x+0.555+\nx-0.275)/2}%
+  \draw[flow] (\x+0.56,0) -- (\m-0.17,0);
+  \ovstate{\m}{0}
+  \draw[flow] (\m+0.17,0) -- (\nx-0.29,0);
+}
+\node[note, anchor=south] at (2.34,0.2) {$\cdots$};
+\node[note, anchor=south] at (3.94,0.2) {$x_k$};
+\node[note, anchor=south] at (7.29,0.2) {$\cdots$};
+\node[note, anchor=south, text width=3.8cm] at (3.94,0.8) {Heun step: $x_{k+1}$ from $x_k$ and\\$D_\theta$ at $\sigma_k$ and $\sigma_{k+1}$};
+% output
+\draw[flow] (8.66,0) -- (8.83,0);
+\fill[ovState!35!white, draw=ovInk, line width=0.6pt] (8.85,-0.4) rectangle (9.75,0.4);
+\node[note] at (9.3,0) {sample};
+\node[note, anchor=south] at (9.3,0.46) {a copy of a\\training image,\\or new};
+
+% ------------------------------------------------------------------ the noise axis with three marks
+\def\ay{-2.2}
+\draw[->, line width=0.6pt, ovInk] (0.95,\ay) -- (9.75,\ay);
+\node[note, anchor=north east] at (9.75,\ay-0.06) {noise level $\sigma\downarrow$};
+\foreach \x in {1.4, 3.0, 4.6, 6.2, 8.1}{\draw[ovInk, line width=0.5pt] (\x,\ay-0.06) -- (\x,\ay+0.06);}
+% mark 1 at s = 2.48 (log-interpolated between sigma_7 = 5.3 and sigma_9 = 1.9);
+% mark 2 at sigma = 1 (log-interpolated between sigma_9 = 1.9 and sigma_11 = 0.59)
+\def\mA{4.18}\def\mB{5.48}
+\draw[ovInk!70, densely dotted, line width=0.6pt] (\mA,\ay) -- (\mA,-1.3);
+\foreach \m/\n in {\mA/1, \mB/2}{%
+  \node[circle, fill=ovInk, text=white, inner sep=0.7pt, font=\scriptsize\bfseries] at (\m,\ay) {\n};
+}
+\node[note, anchor=north east, align=right] at (\mA+0.15,\ay-0.17) {half chosen\\($s\approx2.5$)};
+\node[note, anchor=north west, align=left] at (\mB-0.15,\ay-0.17) {a copy appears\\in $D_\theta$ ($\sigma\approx1$)};
+% mark 3: the late window sigma <= 0.59, where the state reaches the image if rho <= rho-bar < 1
+% (a square bracket in core TikZ, in place of a brace from decorations.pathreplacing)
+\draw[line width=0.6pt, ovInk] (6.2,\ay+0.12) -- (6.2,\ay+0.24) -- (8.1,\ay+0.24) -- (8.1,\ay+0.12);
+\draw[line width=0.6pt, ovInk] (7.15,\ay+0.24) -- (7.15,\ay+0.32);
+\node[note, anchor=south, align=left] (m3) at (7.35,\ay+0.34) {the state reaches the\\image if $\varrho\le\bar\varrho<1$};
+\node[circle, fill=ovInk, text=white, inner sep=0.7pt, font=\scriptsize\bfseries, anchor=east]
+  at ([xshift=-0.05cm]m3.west) {3};
+
+% ------------------------------------------------------------------ the two swaps (right)
+\def\sx{10.55}
+\node[font=\small\bfseries, anchor=west] at (\sx-0.1,2.05) {Swaps at level $s$};
+% ovswap{y}{colour above s}{colour below s}{name}{what it tells}
+\newcommand{\ovswap}[5]{%
+  \node[font=\scriptsize\bfseries, anchor=west] at (\sx-0.1,#1+0.5) {#4};
+  \foreach \i in {0,1,2}{\fill[#2!88!white, draw=#2!60!black, line width=0.4pt]
+    (\sx+0.34*\i,#1-0.27) rectangle ++(0.28,0.54);}
+  \foreach \i in {3,4,5}{\fill[#3!88!white, draw=#3!60!black, line width=0.4pt]
+    (\sx+0.12+0.34*\i,#1-0.27) rectangle ++(0.28,0.54);}
+  \draw[ovInk, densely dashed, line width=0.6pt] (\sx+1.08,#1-0.36) -- (\sx+1.08,#1+0.36);
+  \node[note, anchor=north] at (\sx+0.48,#1-0.3) {$\sigma>s$};
+  \node[note, anchor=north] at (\sx+1.68,#1-0.3) {$\sigma\le s$};
+  \draw[flow] (\sx+2.28,#1) -- (\sx+2.6,#1);
+  \node[note, anchor=west, text width=2.3cm, align=left] at (\sx+2.62,#1) {#5};
+}
+\ovswap{0.95}{ovLearned}{ovExact}{net$\to$exact}{which image was chosen above $s$ (the exact field always lands)}
+\ovswap{-0.65}{ovExact}{ovLearned}{exact$\to$net}{whether the network lands from the state it is handed}
+
+% legend, bottom-right corner
+\def\lx{10.55}\def\ly{-1.75}
+\foreach \c/\t/\i in {ovLearned/{trained denoiser $D_\theta$}/0, ovExact/{exact posterior mean $m^\star$ (exact field)}/1, ovState/{sampler state $x_k$}/2}{%
+  \fill[\c!88!white, draw=\c!60!black, line width=0.4pt] (\lx,\ly-0.34*\i-0.1) rectangle ++(0.2,0.2);
+  \node[note, anchor=west] at (\lx+0.28,\ly-0.34*\i) {\t};
+}
+\end{tikzpicture}%

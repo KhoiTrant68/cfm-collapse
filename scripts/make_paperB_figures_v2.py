@@ -19,14 +19,14 @@ Writes into paper_mechanism/figures (names as in paper_mechanism/main.tex):
   fig_mechanism.pdf    Figure 2 (fig:mechanism; replaces fig_unrolled_learned.pdf and fig_landscape.pdf): 1-D flows
                        over the exact density p_t of four training points, for the exact field and two learned
                        fields x1hat = m* + rho_t (z - m*); the rho_t profiles; the distance to the training point.
-  fig_collapse.pdf     Figure 3 (fig:collapse; replaces fig_exp1_collapse, fig_cifar_collapse, fig_kernel_tracking):
-                       EXP-1 variance through training, CIFAR-10 completions through training, and generated against
-                       reference variance under label smoothing (CIFAR-10 at h = 4 from three retrained instances;
-                       h = 6 drawn without a slope, which does not replicate across instances).
+  fig_collapse.pdf     Figure 3 (fig:collapse; replaces fig_exp1_collapse, fig_cifar_collapse): EXP-1 variance
+                       through training and CIFAR-10 completions through training. The label-smoothing panel
+                       (generated against the kernel reference Cov_h) moved to paper A with kernel tracking.
   fig_landing.pdf      Figure 5 (fig:landing; replaces fig_edm_clocks.pdf): rho along EDM trajectories by outcome
                        and model; the late contraction per sample; AUCs at sigma >= 0.585 only (below, the
                        nearest-neighbour baseline is bookkeeping: D_theta at sigma = 0.002 is the sample).
-  fig_collapse_details.pdf  Appendix (fig:collapse-details): the EXP-1 and CIFAR-10 panels moved out of the main text.
+  fig_collapse_details.pdf  Appendix (fig:collapse-details): the EXP-1 and CIFAR-10 panels moved out of the main text
+                       (without the EXP-1 ratio to Cov_h, which moved to paper A).
 The appendix figures fig_heun, fig_image_training and fig_image_class are still drawn by make_paperB_figures.py, and
 fig_swap by make_swap_figure.py.
 
@@ -38,12 +38,11 @@ Data (every number and image drawn is read from these files, or computed here as
   results/n3_rho_20261117/{sub500,public}/q_per_sample.npz, results/n3_rho2_20261118/sub2000/q_per_sample.npz
       err = |D - m*|, n1 = |x - y1|, d1, d2, dD (distance of D to its nearest training image), rhoA, radA (relative
       error and radial ratio anchored at the nearest training image of D), sigma.
-  results/exp1/exp1_{cond,ext_sched,uncond}_seed*/raw/metrics.csv, results/exp1/_theory/raw/p7_kernel.csv,
-  results/exp3/exp3_cifar_ddpm_h0*/{raw/metrics.csv,figures/grid_it*.png},
-  results/exp3/_rerun/reeval_exp3_cifar_heff_h{4,6}_s{0,1,2}/reeval.json (per-condition reference and ratio).
+  results/exp1/exp1_{cond,ext_sched,uncond}_seed*/raw/metrics.csv,
+  results/exp3/exp3_cifar_ddpm_h0*/{raw/metrics.csv,figures/grid_it*.png}.
 Computed here: rho = err / n1; the late contraction C = int_{0.002}^{0.585} (1 - rho) dlog(1/sigma) by the
 trapezoidal rule on the sampler's levels (as in the paper); AUCs with the rank formula of
-scripts/n3_edm_memorization.auc; OLS slopes of log10 generated on log10 reference variance; the toy flows of
+scripts/n3_edm_memorization.auc; the toy flows of
 Figure 2 by RK4 from the closed-form fields; whether an image tile "is" the output's nearest training image y1,
 by the off-atom criterion applied to the tile v: |v - y1| < |v - y2| / 3, with y2 the output's second-nearest
 training image.
@@ -437,7 +436,7 @@ def fig_landing():
     axc = axes_in(fig, 5.3, yb, 1.17, hh)
     kk = np.arange(0, 12)
     curves = {}
-    for key, c, ls in (("dD", GREY, (0, (4, 2))), ("rhoA", OI["sky"], "-"), ("radA", OI["green"], "-")):
+    for key, c, ls in (("dD", GREY, (0, (4, 2))), ("rhoA", OI["purple"], "-"), ("radA", OI["green"], "-")):
         a = np.array([auc(z2[key][~on_2, i], z2[key][on_2, i]) for i in kk])
         curves[key] = a
         axc.plot(sg[kk], a, color=c, lw=1.2, ls=ls)
@@ -450,7 +449,7 @@ def fig_landing():
     axc.grid(False)
     axc.text(35, 0.615, "radial\nratio", color=OI["green"], fontsize=6.2, ha="center", va="bottom",
              linespacing=0.9)
-    axc.text(2.5, 0.68, r"$\varrho$", color=OI["sky"], fontsize=7, ha="left", va="center")
+    axc.text(2.5, 0.68, r"$\varrho$", color=OI["purple"], fontsize=7, ha="left", va="center")
     axc.text(13, 0.88, "distance\n" + r"of $D_\theta$", color=GREY, fontsize=6.2, ha="center", va="center",
              linespacing=0.9)
     axc.annotate(r"$C$", (sg[11], aC), xytext=(-1, -6), textcoords="offset points", color=OI["purple"],
@@ -460,29 +459,13 @@ def fig_landing():
 
 
 # --------------------------------------------------------------------------- Figure 3 (collapse in trained nets)
-def _ols(x, y):
-    xc, yc = x - x.mean(), y - y.mean()
-    slope = float((xc * yc).sum() / (xc * xc).sum())
-    return slope, float(y.mean() - slope * x.mean())
-
-
-def _reeval(path: Path):
-    r = json.loads(path.read_text(encoding="utf-8"))
-    r = r[0] if isinstance(r, list) else r
-    ref = np.asarray(r["trace_kernel_per_condition"], float)
-    meas = np.asarray(r["ratio_per_condition"], float) * ref
-    return ref, meas
-
-
 def fig_collapse():
     """(a) EXP-1 at h = 0: generated conditional variance through training, five seeds (mean, population SD);
     constant learning rate (solid) and cosine schedule (dashed); unconditional model (grey); references
-    tr Sigma_post (exact posterior) and tr Xhat. (b) CIFAR-10 U-Net at h = 0, first instance: completions of one
-    condition at four checkpoints (cells of results/exp3/exp3_cifar_ddpm_h0/figures/grid_it*.png) with the
-    training-time trace. (c) Generated against reference variance under label smoothing: EXP-1 (each seed and h,
-    results/exp1/_theory/raw/p7_kernel.csv) and CIFAR-10 at h = 4 (three retrained instances, 48 conditions each,
-    results/exp3/_rerun/reeval_exp3_cifar_heff_h4_s*/reeval.json, with their OLS slopes on log10) and h = 6 (the
-    same instances, grey; no slope drawn)."""
+    tr Sigma_post (exact posterior) and tr Xhat. (b) CIFAR-10 U-Net at h = 0, first instance: all six completions
+    of one condition at four checkpoints (cells of results/exp3/exp3_cifar_ddpm_h0/figures/grid_it*.png) with the
+    training-time trace. The former panel (c), label smoothing against the kernel reference Cov_h, belongs to
+    paper A (kernel tracking) and is no longer drawn here."""
     from scripts.make_image_bandwidth_figure import cells
     from scripts.make_paperB_figures import EXP1, EXP3, band, read_csv, seed_mean
     W, H = FULL_W, 2.2
@@ -499,7 +482,7 @@ def fig_collapse():
     post = seed_mean(const, "train", "trace_post")[1].mean()
     data = seed_mean(uncond, "uncond", "trace_data")[1].mean()
     assert abs(tc[list(it_c).index(200000)] - 0.396) < 5e-4 and abs(ts_[list(it_s).index(1000000)] - 0.120) < 5e-4
-    ax = axes_in(fig, 0.42, yb, 1.62, hh)
+    ax = axes_in(fig, 0.42, yb, 2.15, hh)
     band(ax, it_u, tu, tu_sd, GREY, ms=2.4, lw=1.1)
     band(ax, it_c, tc, tc_sd, LEARNED, ms=2.4, lw=1.2)
     band(ax, it_s, ts_, ts_sd, LEARNED, ls=(0, (3, 1.5)), marker="s", ms=2.2, lw=1.2)
@@ -524,9 +507,9 @@ def fig_collapse():
     tr = dict(zip(met["iter"].astype(int), met["trace_cov_mean"]))
     assert abs(tr[500] - 179.1) < 0.05 and abs(tr[60000] - 0.431) < 5e-4
     iters = (500, 2000, 8000, 60000)
-    cond, comp = 0, (1, 2, 3, 4)
+    cond, comp = 0, (1, 2, 3, 4, 5, 6)              # every completion stored in the sheet
     s, g = 0.3, 0.025
-    xb0 = 2.62
+    xb0 = 3.62
     cols = [xb0] + [xb0 + s + 0.07 + j * (s + g) for j in range(len(comp))]
     cols.append(cols[-1] + s + 0.07)
     ytop_t = yb + hh - s - 0.26
@@ -546,41 +529,8 @@ def fig_collapse():
     fig.text((cols[-1] + s / 2) / W, hy / H, "training\nimage", ha="center", va="bottom", fontsize=6.0,
              linespacing=0.9)
     fig.text((xb0 - 0.05) / W, hy / H, "iteration", ha="right", va="bottom", fontsize=6.3)
-    figtitle(fig, 2.2, yb + hh + 4.0 / 72, "b", "CIFAR-10 U-Net collapses", fs=8.5)
+    figtitle(fig, 3.0, yb + hh + 4.0 / 72, "b", "CIFAR-10 U-Net collapses", fs=8.5)
 
-    # (c) parity: generated against reference variance
-    axc = axes_in(fig, 5.05, yb, 1.42, hh)
-    d = read_csv(EXP1 / "_theory" / "raw" / "p7_kernel.csv")
-    axc.scatter(d["trace_kernel"], d["trace_meas"], s=7, color=OI["green"], lw=0, alpha=0.85, zorder=4)
-    shades = ["#D55E00", "#E8955E", "#F2B48A"]
-    slopes = []
-    for j, sh in enumerate(shades):
-        ref, meas = _reeval(R / f"exp3/_rerun/reeval_exp3_cifar_heff_h4_s{j}/reeval.json")
-        ok = (ref > 0) & (meas > 0)
-        lx, ly = np.log10(ref[ok]), np.log10(meas[ok])
-        sl, ic = _ols(lx, ly)
-        slopes.append(sl)
-        axc.scatter(ref[ok], meas[ok], s=3.5, color=sh, lw=0, alpha=0.8, zorder=3)
-        xx = np.array([lx.min(), lx.max()])
-        axc.plot(10 ** xx, 10 ** (ic + sl * xx), color=sh, lw=1.0, zorder=5)
-        ref6, meas6 = _reeval(R / f"exp3/_rerun/reeval_exp3_cifar_heff_h6_s{j}/reeval.json")
-        axc.scatter(ref6, meas6, s=3.5, color=LIGHT, lw=0, alpha=0.9, zorder=2)
-    assert np.allclose(sorted(slopes), [0.3159, 0.3438, 0.4267], atol=5e-4), slopes
-    lo, hi = 3e-3, 3e3
-    axc.plot([lo, hi], [lo, hi], color=ATOM, ls="--", lw=0.8, zorder=1)
-    axc.set_xscale("log"); axc.set_yscale("log")
-    axc.set_xlim(lo, hi); axc.set_ylim(lo, hi)
-    axc.set_xticks([1e-2, 1, 1e2]); axc.set_yticks([1e-2, 1, 1e2])
-    axc.set_xlabel(r"reference $\mathrm{tr}\,\mathrm{Cov}_h$"); axc.set_ylabel(r"generated $\mathrm{tr}\,\mathrm{Cov}$")
-    axc.grid(False)
-    axc.text(1.6, 0.35, "EXP-1", color=OI["green"], fontsize=6.4, ha="left", va="top")
-    axc.text(4e-3, 2.4e3, "CIFAR-10, $h=4$:\n" + rf"slopes {min(slopes):.2f}$-${max(slopes):.2f}",
-             color=LEARNED, fontsize=6.2, ha="left", va="top", linespacing=0.95)
-    axc.text(2.4e3, 75, "$h=6$", color=GREY, fontsize=6.2, ha="right", va="top")
-    axc.text(0.012, 0.03, "exact field", color=ATOM, fontsize=6.2, ha="left", va="bottom", rotation=45,
-             rotation_mode="anchor")
-    axc.set_aspect("equal", adjustable="box")
-    title(axc, "c", "label smoothing")
     save(fig, "fig_collapse.pdf", dpi=300)
 
 
@@ -588,16 +538,16 @@ def fig_collapse_details():
     """Appendix companion of fig_collapse (the panels moved out of the main text). (a, b) EXP-1 at h = 0, five
     seeds (mean, population SD; constant learning rate solid, cosine schedule dashed): distance of the generated
     mean to the training atom x^i and to the posterior mean, and the relative velocity error to the collapsed
-    field (*). (c) EXP-1 with label smoothing: generated over reference variance per h (mean, population SD over
-    seeds) with the effective number of atoms n_eff. (d) CIFAR-10 U-Net at h = 0: training-time trace of the
-    three independently redrawn instances (results/exp3/exp3_cifar_ddpm_h0{,_seed1,_seed2}/raw/metrics.csv)."""
+    field (*). (c) CIFAR-10 U-Net at h = 0: training-time trace of the
+    three independently redrawn instances (results/exp3/exp3_cifar_ddpm_h0{,_seed1,_seed2}/raw/metrics.csv).
+    The EXP-1 ratio to the kernel reference Cov_h (former panel c) moved to paper A with kernel tracking."""
     from scripts.make_paperB_figures import EXP1, EXP3, band, read_csv, seed_mean
     const = f"{EXP1}/exp1_cond_seed[0-4]/raw/metrics.csv"
     cosine = f"{EXP1}/exp1_ext_sched_seed[0-4]/raw/metrics.csv"
     W, H = FULL_W, 1.85
     fig = plt.figure(figsize=(W, H))
-    yb, hh, w = 0.36, 1.2, 1.12
-    xs_ = [0.4, 2.0, 3.55, 5.2]
+    yb, hh, w = 0.36, 1.2, 1.45
+    xs_ = [0.4, 2.6, 4.85]
     ax = axes_in(fig, xs_[0], yb, w, hh)
     for pat, ls, mk in ((const, "-", "o"), (cosine, (0, (3, 1.5)), "s")):
         for colname, c in (("mean_err_train_point_mean", ATOM), ("mean_err_post_mean", EXACT)):
@@ -619,27 +569,9 @@ def fig_collapse_details():
     title(ax, "b", "EXP-1: field")
     for a in fig.axes:
         a.set_xlabel("training iteration"); a.grid(False)
-    # (c) ratio to the kernel reference
-    d = read_csv(EXP1 / "_theory" / "raw" / "p7_kernel.csv")
-    hs = sorted(set(d["h"]))
-    ratio = np.array([np.mean(d["ratio_to_kernel"][d["h"] == h]) for h in hs])
-    ratio_sd = np.array([np.std(d["ratio_to_kernel"][d["h"] == h]) for h in hs])
-    neff = np.array([np.mean(d["n_eff"][d["h"] == h]) for h in hs])
-    assert np.allclose(ratio, [1.308, 1.002, 0.994, 1.011], atol=5e-4), ratio
-    ax = axes_in(fig, xs_[2], yb, w, hh)
-    x = np.arange(len(hs))
-    ax.axhline(1.0, color=ATOM, ls="--", lw=0.8)
-    ax.errorbar(x, ratio, yerr=ratio_sd, marker="o", ms=3, ls="none", capsize=2, elinewidth=0.8, color=LEARNED)
-    for j, (xi, n, r_, sd) in enumerate(zip(x, neff, ratio, ratio_sd)):
-        ax.text(xi + (0.12 if j == 0 else 0), r_ + sd + 0.03, (rf"$n_{{\rm eff}}={n:.1f}$" if j == 0 else f"{n:.1f}"),
-                ha="left" if j == 0 else "center", va="bottom", fontsize=6.2, color=GREY)
-    ax.set_xticks(x, [f"{h:g}" for h in hs]); ax.set_xlim(-0.45, len(hs) - 0.55); ax.set_ylim(0.8, 1.9)
-    ax.set_xlabel("label bandwidth $h$"); ax.set_ylabel("generated / reference")
-    ax.grid(False)
-    title(ax, "c", r"EXP-1: ratio to $\mathrm{Cov}_h$")
-    # (d) CIFAR-10 trace through training, three instances
+    # (c) CIFAR-10 trace through training, three instances
     runs = ["exp3_cifar_ddpm_h0", "exp3_cifar_ddpm_h0_seed1", "exp3_cifar_ddpm_h0_seed2"]
-    ax = axes_in(fig, xs_[3], yb, w, hh)
+    ax = axes_in(fig, xs_[2], yb, w, hh)
     for r, c, mk in zip(runs, [LEARNED, "#E8955E", "#F2B48A"], ("o", "s", "^")):
         m = read_csv(EXP3 / r / "raw" / "metrics.csv")
         ax.plot(m["iter"], m["trace_cov_mean"], color=c, marker=mk, ms=2.6, lw=1.1, mec="white", mew=0.3)
@@ -647,7 +579,7 @@ def fig_collapse_details():
     ax.set_xlabel("training iteration"); ax.set_ylabel(r"generated $\mathrm{tr}\,\mathrm{Cov}$")
     ax.text(0.05, 0.08, "three instances", transform=ax.transAxes, fontsize=6.3, color=LEARNED)
     ax.grid(False)
-    title(ax, "d", "CIFAR-10, $h=0$")
+    title(ax, "c", "CIFAR-10, $h=0$")
     save(fig, "fig_collapse_details.pdf")
 
 

@@ -28,6 +28,7 @@ from __future__ import annotations
 import csv
 import glob
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -41,7 +42,7 @@ from scripts.make_edm_figures import _img, _m1d, _rhocrit, _run1d, _swap, _toy, 
 from scripts.make_image_bandwidth_figure import cells
 
 R = Path("results")
-OUT = Path("paper_mechanism/figures")
+OUT = Path(os.environ.get("FIGOUT", "paper_mechanism/figures"))   # FIGOUT=<dir> for previews
 EXP1 = R / "exp1"
 EXP3 = R / "exp3"
 
@@ -633,12 +634,12 @@ def fig_heun():
     ax.axvspan(0.2, 0.5, color=LEARNED, alpha=0.07, lw=0)
     ax.axhline(0, color="k", lw=0.5)
     for y, c, lab in ((r, GREY, r"$r$ on $x_k$"), (kap, LEARNED, r"$\kappa$ on $D_k$"),
-                      (th, EXACT, r"$\theta$ on $\tilde D_k$")):
+                      (th, ATOM, r"$\theta$ on $\tilde D_k$")):
         ax.plot(r, y, color=c, lw=1.4)
     label(ax, 0.95, 0.95, r"$r$ on $x_k$", GREY, ha="right", dx=0, dy=6, va="bottom", fs=6.8)
     label(ax, 0.62, ((1 - 0.62) * (2 * 0.62 - 1) / 1.24), r"$\kappa$ on $D_k$", LEARNED, dx=0, dy=-4,
           va="top", fs=6.8)
-    label(ax, 0.29, (1 - 0.29) / 0.58, r"$\theta$ on $\tilde D_k$", EXACT, dx=4, dy=2, fs=6.8)
+    label(ax, 0.29, (1 - 0.29) / 0.58, r"$\theta$ on $\tilde D_k$", ATOM, dx=4, dy=2, fs=6.8)
     ax.text(0.35, -0.75, "extrapolates\n" + r"($\kappa<0$)", ha="center", va="center", fontsize=6.8,
             color=LEARNED, linespacing=1.0)
     ax.set_xlim(0.2, 0.95); ax.set_ylim(-1.0, 2.1)
@@ -646,9 +647,9 @@ def fig_heun():
     title(ax, "a", "short steps extrapolate")
 
     ax = axes[1]
-    ax.fill_between(r, 0, _rhocrit(r), color=GOOD, alpha=0.12, lw=0)
+    ax.fill_between(r, 0, _rhocrit(r), color=GREY, alpha=0.10, lw=0)
     ax.plot(r, _rhocrit(r), color=ATOM, lw=1.2)
-    ax.text(0.47, 0.5, "$c_k<1$:\ncontracts", fontsize=6.8, color=GOOD, ha="center", linespacing=1.0)
+    ax.text(0.47, 0.5, "$c_k<1$:\ncontracts", fontsize=6.8, color=ATOM, ha="center", linespacing=1.0)
     ax.text(0.215, 0.62, r"$c_k\geq1$", fontsize=6.8, color=ATOM, ha="left")
     for S, c in STEPS.items():
         z = np.load(R / f"n3_steps_20261117/s{S}/sub500/q_per_sample.npz")
