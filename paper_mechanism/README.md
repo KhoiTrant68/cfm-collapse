@@ -112,8 +112,10 @@ per-sample files where possible (see `docs/review/changes_paperB_2026-11-21.md`)
   sample).
 - E7 posterior crossings (3.82 / 1.99 / 0.78; 6.39 / 3.30 / 1.22; 7.52 / 3.82 / 1.44; at sigma = 5:
   0.789 and 0.936): `results/paperB_20261121/collapse_sigma/summary.json`.
-- EXP-1 t-intervals and CIFAR slopes: `results/paperB_20261121/uncertainty/` (`stdout.txt`,
-  `tables.tex`, `cifar_slopes.json`). Transfer AUCs: `transfer/TRANSFER_SUMMARY.md`,
+- EXP-1 t-intervals and EDM AUC intervals: `results/paperB_20261121/uncertainty/` (`stdout.txt`,
+  `tables.tex`, `edm_auc.json`; `scripts/paperB_uncertainty.py`). The CIFAR slopes and the
+  tab:p7kernel intervals moved to paper A: `results/kernel_tracking_20261121/uncertainty/`
+  (`scripts/kernel_tracking_uncertainty.py`). Transfer AUCs: `transfer/TRANSFER_SUMMARY.md`,
   `auc_vs_t.csv`. Radial identity (correlation >= 0.993) and 34/41, 195/200: `radial/`. Baseline at
   sigma = 0.585 (0.990 [0.986, 0.994], paired difference [0.004, 0.010], R^2 0.991 / 0.976 /
   0.965 / 0.883): `certificate/CERTIFICATE_TABLES.md`. Incremental logistic regression (<= 0.002):

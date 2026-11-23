@@ -1,0 +1,49 @@
+t quantiles (0.975): {1: 12.706205, 2: 4.302653, 4: 2.776445}  z: 1.959964
+
+--- Table tab:p7kernel ---
+h=0.01  trace_kernel     paper        0.583  mean 0.583 popSD 0.254 [ok]  sSD 0.284  t [0.231, 0.936]  boot [0.363, 0.799]
+h=0.01  trace_post       paper        1.018  mean 1.018 popSD 0.016 [ok]  sSD 0.018  t [0.996, 1.040]  boot [1.006, 1.033]
+h=0.01  trace_meas       paper 0.673+-0.187  mean 0.673 popSD 0.187 [ok]  sSD 0.209  t [0.414, 0.932]  boot [0.501, 0.834]
+h=0.01  ratio_to_kernel  paper 1.308+-0.376  mean 1.308 popSD 0.376 [ok]  sSD 0.421  t [0.786, 1.830]  boot [1.019, 1.673]  covers 1: True
+h=0.01  ratio_to_post    paper         0.66  mean 0.661 popSD 0.181 [ok]  sSD 0.202  t [0.410, 0.911]  boot [0.493, 0.821]
+h=0.01  n_eff            paper          3.5  mean 3.472 popSD 1.192 [ok]  sSD 1.333  t [1.817, 5.126]  boot [2.426, 4.518]
+h=0.05  trace_kernel     paper        0.921  mean 0.921 popSD 0.145 [ok]  sSD 0.162  t [0.720, 1.122]  boot [0.790, 1.034]
+h=0.05  trace_post       paper        1.018  mean 1.018 popSD 0.016 [ok]  sSD 0.018  t [0.996, 1.040]  boot [1.006, 1.033]
+h=0.05  trace_meas       paper 0.926+-0.169  mean 0.926 popSD 0.169 [ok]  sSD 0.189  t [0.692, 1.161]  boot [0.774, 1.067]
+h=0.05  ratio_to_kernel  paper 1.002+-0.050  mean 1.002 popSD 0.050 [ok]  sSD 0.056  t [0.933, 1.072]  boot [0.965, 1.051]  covers 1: True
+h=0.05  ratio_to_post    paper         0.91  mean 0.910 popSD 0.166 [ok]  sSD 0.186  t [0.679, 1.141]  boot [0.768, 1.051]
+h=0.05  n_eff            paper         13.6  mean 13.611 popSD 5.344 [ok]  sSD 5.975  t [6.191, 21.030]  boot [8.994, 18.228]
+h=0.1   trace_kernel     paper        1.004  mean 1.004 popSD 0.144 [ok]  sSD 0.161  t [0.804, 1.203]  boot [0.879, 1.127]
+h=0.1   trace_post       paper        1.018  mean 1.018 popSD 0.016 [ok]  sSD 0.018  t [0.996, 1.040]  boot [1.006, 1.033]
+h=0.1   trace_meas       paper 1.001+-0.173  mean 1.001 popSD 0.173 [ok]  sSD 0.193  t [0.761, 1.241]  boot [0.849, 1.153]
+h=0.1   ratio_to_kernel  paper 0.994+-0.039  mean 0.994 popSD 0.039 [ok]  sSD 0.044  t [0.940, 1.048]  boot [0.963, 1.030]  covers 1: True
+h=0.1   ratio_to_post    paper         0.98  mean 0.984 popSD 0.172 [ok]  sSD 0.192  t [0.745, 1.222]  boot [0.832, 1.135]
+h=0.1   n_eff            paper         26.0  mean 25.981 popSD 11.118 [ok]  sSD 12.431  t [10.546, 41.416]  boot [16.669, 35.782]
+h=0.5   trace_kernel     paper        1.281  mean 1.281 popSD 0.175 [ok]  sSD 0.196  t [1.038, 1.524]  boot [1.136, 1.438]
+h=0.5   trace_post       paper        1.018  mean 1.018 popSD 0.016 [ok]  sSD 0.018  t [0.996, 1.040]  boot [1.006, 1.033]
+h=0.5   trace_meas       paper 1.294+-0.166  mean 1.294 popSD 0.166 [ok]  sSD 0.185  t [1.064, 1.524]  boot [1.152, 1.435]
+h=0.5   ratio_to_kernel  paper 1.011+-0.022  mean 1.011 popSD 0.022 [ok]  sSD 0.025  t [0.980, 1.042]  boot [0.990, 1.030]  covers 1: True
+h=0.5   ratio_to_post    paper         1.27  mean 1.270 popSD 0.151 [ok]  sSD 0.169  t [1.060, 1.479]  boot [1.140, 1.399]
+h=0.5   n_eff            paper        101.5  mean 101.525 popSD 38.771 [ok]  sSD 43.347  t [47.703, 155.348]  boot [69.037, 134.014]
+
+=== 2. CIFAR-10 log-log slopes ===
+h=4 published (exp3_cifar_ddpm_h4, config seed 0, 48 conditions, 1 instance): slope 0.481 OLS se 0.037 HC3 se 0.039 R2 0.785 decades 4.57  matches paper {'slope': True, 'se': True, 'r2': True, 'decades': True}
+     OLS t-CI [0.406, 0.555]  HC3 t-CI [0.402, 0.560]  case boot pct [0.391, 0.556]  BCa [0.400, 0.566]
+     rerun s0 (exp3_cifar_heff_h4_s0, seed 0, same ref as published: True): slope 0.344 se 0.037 R2 0.654 decades 4.57
+     rerun s1 (exp3_cifar_heff_h4_s1, seed 1, same ref as published: False): slope 0.316 se 0.024 R2 0.789 decades 7.00
+     rerun s2 (exp3_cifar_heff_h4_s2, seed 2, same ref as published: False): slope 0.427 se 0.040 R2 0.710 decades 5.28
+     3 instances: mean slope 0.362 sd 0.058 t(df=2) CI [0.219, 0.505]  FE pooled 0.359 (naive se 0.019, CR1 se 0.036)  cluster boot [0.319, 0.413] two-stage boot [0.298, 0.437]  plain pooled 0.364 (R2 0.709)  published - s0 +0.137
+h=5 published (exp3_cifar_ddpm_h5, config seed 0, 48 conditions, 1 instance): slope 0.349 OLS se 0.049 HC3 se 0.142 R2 0.522 decades 2.16  matches paper {'slope': True, 'se': True, 'r2': True, 'decades': True}
+     OLS t-CI [0.250, 0.449]  HC3 t-CI [0.063, 0.636]  case boot pct [0.146, 0.514]  BCa [0.179, 0.566]
+     rerun s0 (exp3_cifar_heff_h5_s0, seed 0, same ref as published: True): slope 0.285 se 0.046 R2 0.453 decades 2.16
+     rerun s1 (exp3_cifar_heff_h5_s1, seed 1, same ref as published: False): slope 0.554 se 0.036 R2 0.840 decades 3.79
+     rerun s2 (exp3_cifar_heff_h5_s2, seed 2, same ref as published: False): slope 0.465 se 0.067 R2 0.510 decades 2.41
+     3 instances: mean slope 0.434 sd 0.137 t(df=2) CI [0.094, 0.775]  FE pooled 0.483 (naive se 0.029, CR1 se 0.061)  cluster boot [0.342, 0.541] two-stage boot [0.261, 0.601]  plain pooled 0.483 (R2 0.659)  published - s0 +0.065
+h=6 published (exp3_cifar_ddpm_h6, config seed 0, 48 conditions, 1 instance): slope -0.156 OLS se 0.058 HC3 se 0.108 R2 0.135 decades 0.74  matches paper {'slope': True, 'se': True, 'r2': True, 'decades': True}
+     OLS t-CI [-0.273, -0.039]  HC3 t-CI [-0.374, 0.062]  case boot pct [-0.256, 0.168]  BCa [-0.290, 0.079]
+     rerun s0 (exp3_cifar_heff_h6_s0, seed 0, same ref as published: True): slope 0.082 se 0.102 R2 0.014 decades 0.74
+     rerun s1 (exp3_cifar_heff_h6_s1, seed 1, same ref as published: False): slope 0.412 se 0.055 R2 0.552 decades 1.89
+     rerun s2 (exp3_cifar_heff_h6_s2, seed 2, same ref as published: False): slope 0.598 se 0.095 R2 0.463 decades 1.00
+     3 instances: mean slope 0.364 sd 0.261 t(df=2) CI [-0.285, 1.013]  FE pooled 0.434 (naive se 0.041, CR1 se 0.057)  cluster boot [0.264, 0.557] two-stage boot [0.062, 0.755]  plain pooled 0.450 (R2 0.433)  published - s0 -0.238
+
+wrote results/kernel_tracking_20261121/uncertainty/p7kernel_uncertainty.csv, cifar_slopes.json, tables.tex, summary.json

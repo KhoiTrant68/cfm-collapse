@@ -197,6 +197,25 @@ paper reports. `scripts/kaggle_run.py` drives one session of it and prints the
 measured throughput and how many sessions are left; `docs/KAGGLE.md` has the
 recipe.
 
+## Submission packages
+
+`python submit/build.py` builds every package from `paper_theory/` (paper A) and
+`paper_mechanism/` (paper B); pass target names to build only some of them.
+
+| Target | What it is | What to upload |
+|---|---|---|
+| `A_tmlr` | paper A, anonymous | `submit/pdf/A_tmlr.pdf` on OpenReview |
+| `A_arxiv` | paper A, `[preprint]` with real authors | `submit/A_arxiv_source.zip` |
+| `B_neurips` | paper B, anonymous (TMLR style until the NeurIPS 2027 style is out) | `submit/pdf/B_neurips.pdf` |
+| `supp_A`, `supp_B` | anonymised code, the `results/` folders it reads (no checkpoints or logs) and a generated README | `submit/supp_A.zip`, `submit/supp_B.zip` |
+
+Each package has its LaTeX comments stripped (arXiv publishes the source), unused files
+removed, a clean `latexmk` build, and a scan of the sources and of the PDF text for names,
+lab paths, `TODO`/`FLAG` notes and, in A, any mention of paper B. A failed scan stops that
+target, and a supplement over 95 MB stops too (TMLR allows 100 MB). The open notes that were stripped are listed in `submit/stripped_notes.txt` with
+their lines in the paper sources. The arXiv author block lives in
+`submit/authors_A_arxiv.tex`; `A_arxiv` fails until its placeholder is replaced.
+
 ## Layout
 
 ```

@@ -14,8 +14,7 @@ networks. It reads only saved records and writes only the figure; nothing is tra
       on log10 (results/exp3/_rerun/reeval_exp3_cifar_heff_h4_s{0,1,2}/reeval.json; Table
       tab:cifar-kernel, "slope, three draws"). The exact field puts every point on y = x.
 
-Paper B draws a parity panel from the same records; this figure is drawn independently for paper A
-(contract section 2: kernel tracking belongs to A) and shares no file with it.
+The figure is drawn from these records alone and shares no file with any other figure.
 """
 from __future__ import annotations
 
