@@ -106,7 +106,7 @@ def evaluate_conditional(model, problem, X, Y, cfg, device, gen) -> list[dict]:
                 # Exact kernel-regression reference (Thm 10 / Prop 13). These
                 # depend only on (X, Y, h); ratio_to_kernel is the primary P7
                 # metric measuring how close the model gets to the *population*
-                # optimum, superseding ratio_to_post (WORK_ORDER T1/T4).
+                # optimum, superseding ratio_to_post.
                 x_bar_h, cov_h, neff = kernel_moments(y_i, X, Y, h)
                 trace_kernel = float(torch.trace(cov_h))
                 mean = samples.to(torch.float64).mean(0)

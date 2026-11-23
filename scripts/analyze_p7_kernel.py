@@ -82,7 +82,7 @@ def eval_run(run_dir: Path) -> dict:
         "trace_post": prob.posterior_trace(),
         "trace_expansion": pred_trace,        # Prop 15 closed form
         "j_fro_sq": j_fro_sq,
-        # Primary metric: ratio of mean traces (matches the WORK_ORDER section-0
+        # Primary metric: ratio of mean traces (matches the original task plan's section-0
         # table, which averages tr Cov over conditions). The per-condition ratio
         # is ill-conditioned at tiny h, where Cov_h -> 0 for isolated conditions
         # (single-atom collapse regime), so we report its *median* only.

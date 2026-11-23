@@ -1,9 +1,8 @@
 # Paper A: theory (target TMLR, then the Journal-to-Conference track)
 
 `main.tex` is the theory half of the split described in
-`docs/plan/paper_split_plan_2026-11-21.md`, assembled on 2026-11-21 from `paper/main.tex`.
-`paper/main.tex` stays the reference source and is not submitted; from now on this file is
-edited on its own.
+`docs/plan/paper_split_plan_2026-11-21.md`, assembled on 2026-11-21 from
+the pre-split `paper/main.tex` (removed on 2026-11-23; it is in the git history). This file is edited on its own.
 
 Build with TMLR style (anonymous by default):
 
@@ -26,11 +25,11 @@ The number of fields decides. Label noise, label averaging and every combination
 fields with strictly positive priors end on the training examples almost surely; three fields can
 blend them. The conjunction of
 compositional generation (Liu et al., ECCV 2022) is such a combination, and at a tie of two
-examples a blend needs a subtracted field that is less decided between them than the fields added.
+examples a blend needs a subtracted field whose log-odds lie strictly between those than the fields added.
 
 ## What is in it
 
-- Sections 2-4 of `paper/main.tex`: setup, the exact reference, positive mixtures, guidance and
+- Sections 2-4 of the pre-split paper: setup, the exact reference, positive mixtures, guidance and
   schedules, composition, the spectral criterion (in the main text), and what leaves the support.
 - **New, Corollary `cor:twofields`** (Sec. 4.2, proof in App. B): any combination
   `c v_p + (1-c) v_q` of two exact fields with priors in Ppos, for any constant `c` and for

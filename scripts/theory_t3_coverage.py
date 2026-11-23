@@ -21,7 +21,7 @@ the n_eff that h_eff implies at each held-out condition, and the exact coverage 
 finite reference law at h_eff (its exact moments over the training atoms). Both are
 compared with the measured coverage (results/exp1/_heff/audit_calibration_v2.json).
 
-Writes: results/theory/t3_coverage.json, paper/figures/fig_t3_coverage.png
+Writes: results/theory/t3_coverage.json, figures_out/fig_t3_coverage.png
 Usage:  PYTHONPATH=. uv run python scripts/theory_t3_coverage.py
 """
 from __future__ import annotations

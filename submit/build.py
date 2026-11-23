@@ -240,7 +240,7 @@ def make_zip(d, zpath):
 SUPP_SKIP = {"build_papers.sh", "kaggle_session.sh", "kaggle_heff.sh", "kaggle_split.sh",
              "make_tt_fonts.py"}
 SUPP_SUBST = [(r"/mnt/data/khoitm8", "/path/to/workdir"), (r"\bon lab09\b", "on the compute server")]
-# verify_paper_numbers.py checks numbers of the pre-split paper/main.tex (both papers), so
+# verify_paper_numbers.py checks numbers of both papers (it reads A and B joined), so
 # the folders only it reads are paper A's and stay out of B's supplement.
 RES_REF_IGNORE = {"supp_B": {"verify_paper_numbers.py", "learned_composition.py"},
                   "supp_A": set()}

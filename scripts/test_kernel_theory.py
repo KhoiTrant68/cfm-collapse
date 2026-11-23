@@ -1,10 +1,10 @@
-"""Unit + acceptance tests for src/metrics/kernel_theory.py (WORK_ORDER T1).
+"""Unit + acceptance tests for src/metrics/kernel_theory.py.
 
 Runs without retraining. Checks:
   1. kernel_weights: h->0 one-hot at nearest label (Cor 11); h->inf uniform 1/N (Cor 12).
   2. kernel_field(sigma=0, h=0) matches closed_form_velocity to 1e-6.
   3. cov_expansion returns ||J||_F^2 = 0.4031 for default d=2,k=1,sigma_obs=0.1.
-  4. Reproduces the WORK_ORDER section-0 table of tr Cov_h averaged over 20 conditions:
+  4. Reproduces the original task plan's section-0 table of tr Cov_h averaged over 20 conditions:
          h=0.01 -> 0.427,  h=0.05 -> 0.973,  h=0.1 -> 1.145,  h=0.5 -> 1.244   (<1% err).
 
     uv run python scripts/test_kernel_theory.py
@@ -106,7 +106,7 @@ def main() -> None:
     check("Prop 15: ||J||_F^2 = 0.4031 (default d=2,k=1,sigma_obs=0.1)",
           abs(j_fro_sq - 0.4031) < 1e-3, f"||J||_F^2={j_fro_sq:.4f}")
 
-    # 4. Reproduce the WORK_ORDER section-0 table on the real training set.
+    # 4. Reproduce the original task plan's section-0 table on the real training set.
     #    p7y_h*_seed0 all share seed=0 -> identical (X, Y) = sample_dataset(N=200, seed=1).
     Xr, Yr = prob.sample_dataset(200, seed=1)
     Xr, Yr = Xr.to(torch.float64), Yr.to(torch.float64)

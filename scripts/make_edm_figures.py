@@ -470,7 +470,7 @@ def fig_landscape():
     # funnels; crop to the drawn content instead
     from matplotlib.transforms import Bbox
     bb = fig.get_tightbbox(fig.canvas.get_renderer())
-    out = Path("paper/figures/fig_landscape.pdf")
+    out = Path("figures_out/fig_landscape.pdf")
     fig.savefig(out, dpi=300, bbox_inches=Bbox.from_extents(bb.x0, bb.y0 + 0.2 * bb.height, bb.x1, bb.y1 + 0.02))
     plt.close(fig)
     print(f"  wrote {out}")

@@ -36,7 +36,7 @@ PYTHON_CMD = os.environ.get("CFM_PYTHON_CMD", "uv run python").split()
 
 
 def build_specs(iters: int) -> dict[str, list[tuple[str, list[str]]]]:
-    # T8: all sweeps raised to 5 seeds for mean +/- std (WORK_ORDER.md T8).
+    # T8: all sweeps raised to 5 seeds for mean +/- std.
     seeds5 = [0, 1, 2, 3, 4]
     common = [f"train.max_iters={iters}", "model.conditional=true"]
     groups: dict[str, list[tuple[str, list[str]]]] = {}

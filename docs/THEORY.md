@@ -11,7 +11,7 @@ how the experiments may be described.
 
 ---
 
-> **Status.** `paper/main.tex` is the canonical statement of the theory. This file
+> **Status.** `paper_theory/main.tex` (paper A) is the canonical statement of the theory. This file
 > is the working development record and is now behind it: it does not contain the
 > endpoint-smoothing proposition, the classifier-free-guidance result, the
 > near-duplicate-label bounds, the proof of well-posedness, or the time-varying

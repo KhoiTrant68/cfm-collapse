@@ -34,9 +34,8 @@ tính chất riêng của `p^unc` (ví dụ đều), thì hệ quả này sai.
 - [ ] Trường hợp lịch `w(t)`: giả thiết của hệ quả (`w` đo được, giá trị trong `[0, wbar]`,
       biến phân bị chặn trên `[t0, 1)`) khớp với giả thiết của thm:schedule (dòng 717).
 
-Mình đã thử: cả bốn khai triển đúng. Một điểm rất nhỏ: hệ quả viết "for some `t0 < 1`", còn
-thm:schedule viết `t0 in (0,1)`. Nếu biến phân bị chặn trên `[t0, 1)` thì cũng bị chặn trên mọi
-đoạn con, nên không ảnh hưởng gì. Có thể sửa cho khớp chữ.
+Mình đã thử: cả bốn khai triển đúng. Hệ quả từng viết "for some `t0 < 1`", còn thm:schedule
+viết `t0 in (0,1)`; không ảnh hưởng toán, và nay hệ quả đã viết `t0 in (0,1)` cho khớp (dòng 739).
 
 **Bước 2. Câu "verbatim": chứng minh thm:schedule dùng hai prior ở đâu** (dòng 2323-2390)
 
@@ -165,9 +164,9 @@ thuộc vào hình học của các nguyên tử và đúng trong mọi cấu h�
 - [ ] `G(xi; lambda)` trơn và là submersion trên `L x R^{K(|S|-1)}`, đúng giả thiết của định lý
       hoành tham số. Kết luận: với hầu hết mọi `lambda`, 0 là giá trị chính quy của `G(.; lambda)`,
       tức `Gamma` khả nghịch ở mọi profile.
-- [ ] Trích dẫn \citep[Ch.~2, §3]{guillemin1974differential}: mình **chưa** đối chiếu với sách.
-      Cần mở Guillemin và Pollack để chắc định lý hoành nằm ở Chương 2, mục 3, và phát biểu
-      có dạng "for almost every s".
+- [x] Trích dẫn \citep[Ch.~2, §3]{guillemin1974differential}: đã đối chiếu với mục lục bản 1974.
+      Chương 2, mục 3 là "Transversality" (trang 67), nơi chứng minh định lý hoành tham số
+      (dạng "for almost every s"). Ghi chú đặt trong refs.bib.
 - [ ] Chỉ biến thiên khối `lambda_{k0}` của một prior có `c_{k0} != 0` cũng đã là submersion
       (cùng lập luận Bước 3 với một `k`).
 - [ ] Ánh xạ log-ratio từ `Ppos` lên khối đó là submersion, và tạo ảnh ngược của một tập độ đo 0
@@ -178,7 +177,7 @@ thuộc vào hình học của các nguyên tử và đúng trong mọi cấu h�
       `F'(+-s_u) > 0` (xem prop:twoatom, Bước 5), nên chỉ `0` có thể không hyperbolic, và chỉ khi
       `w = w_c`.
 
-Mình đã thử: Bước 1 đến Bước 4 đúng, trừ trích dẫn Guillemin và Pollack chưa kiểm với sách.
+Mình đã thử: Bước 1 đến Bước 4 đúng; trích dẫn Guillemin và Pollack đã kiểm với mục lục.
 
 ---
 

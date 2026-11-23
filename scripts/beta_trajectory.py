@@ -32,7 +32,7 @@ move the OLS estimate of beta.
 
 Reads:  results/exp3/exp3_cifar_ddpm_h{4,5,6}/checkpoints/*
 Writes: results/exp3/_cifar_ddpm/beta_trajectory.json,
-        paper/figures/fig_beta_trajectory.png
+        figures_out/fig_beta_trajectory.png
 """
 from __future__ import annotations
 
@@ -51,7 +51,7 @@ from scripts.reeval_exp3_cifar_ddpm import reeval
 
 RUNS = ["exp3_cifar_ddpm_h4", "exp3_cifar_ddpm_h5", "exp3_cifar_ddpm_h6"]
 OUT = Path("results/exp3/_cifar_ddpm/beta_trajectory.json")
-FIG = Path("paper/figures/fig_beta_trajectory.png")
+FIG = Path("figures_out/fig_beta_trajectory.png")
 OI = {"black": "#000000", "orange": "#E69F00", "sky": "#56B4E9",
       "blue": "#0072B2", "vermillion": "#D55E00"}
 

@@ -25,7 +25,7 @@ with RK4 on a grid graded towards t=1.
 
     uv run python -m scripts.make_mechanism_figure
 
-Writes: paper/figures/fig_mechanism.png
+Writes: figures_out/fig_mechanism.png
 """
 from __future__ import annotations
 
@@ -50,7 +50,7 @@ use_paper_style()
 # legends here sit over data and were laid out with a frame
 plt.rcParams.update({"legend.frameon": True, "legend.framealpha": 0.92})
 
-OUT = Path("paper/figures/fig_mechanism.png")
+OUT = Path("figures_out/fig_mechanism.png")
 OI = {"black": "#000000", "sky": "#56B4E9", "blue": "#0072B2",
       "vermillion": "#D55E00", "orange": "#E69F00", "green": "#009E73"}
 N_PATHS, N_STEPS, T_END = 160, 400, 1.0 - 1e-3

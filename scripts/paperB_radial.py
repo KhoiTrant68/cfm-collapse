@@ -1,6 +1,6 @@
 """Paper B, analysis "radial": relative error rho versus the radial ratio of Theorem relerr on EDM CIFAR-10 models.
 
-Theorem relerr (paper/main.tex, label thm:relerr), in EDM coordinates (proof of Prop. trap): along the
+Theorem relerr (paper_mechanism/main.tex, label thm:relerr), in EDM coordinates (proof of Prop. trap): along the
 probability-flow ODE dx/dsigma = (x - D(x, sigma))/sigma and for a training image a, n = |x - a| obeys exactly
     d log n / d log sigma = 1 - rad,          rad = <(x - a)/n, D - a> / n,                  (part (a))
 and, by Cauchy-Schwarz and eq. offmass, rad <= rho + omega/n with rho = |D - m*|/n, omega = (1 - w_a) max_k |x^k - a|.

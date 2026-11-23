@@ -20,7 +20,7 @@ Written for the supplementary material and the repository, not the PDF.
 
     uv run python -m scripts.make_collapse_animation [--fps 20] [--frames 90]
 
-Writes: paper/figures/anim_collapse.gif
+Writes: docs/figures/anim_collapse.gif
 """
 from __future__ import annotations
 
@@ -37,7 +37,7 @@ import torch
 from src.metrics.kernel_theory import kernel_field, kernel_moments
 from src.problems.linear_gaussian import LinearGaussianProblem
 
-OUT = Path("paper/figures/anim_collapse.gif")
+OUT = Path("docs/figures/anim_collapse.gif")
 OI = {"black": "#000000", "sky": "#56B4E9", "blue": "#0072B2",
       "vermillion": "#D55E00", "orange": "#E69F00"}
 

@@ -13,7 +13,7 @@ grids are the images the reported statistics were computed alongside.
 
     uv run python -m scripts.make_image_bandwidth_figure
 
-Writes paper/figures/fig_image_bandwidth.png.
+Writes figures_out/fig_image_bandwidth.png.
 """
 from __future__ import annotations
 

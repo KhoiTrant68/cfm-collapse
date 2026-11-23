@@ -255,3 +255,19 @@ tmp/
 
 # Raw generated samples of the independent-seed runs (53 MB); the JSON logs are committed.
 results/independent_seeds_20261016/raw_samples.tar
+
+# LaTeX build output of paper_theory/ and paper_mechanism/ (rebuilt by latexmk or
+# submit/build.py); moved here from the removed paper/.gitignore.
+paper_*/*.aux
+paper_*/*.log
+paper_*/*.bbl
+paper_*/*.blg
+paper_*/*.out
+paper_*/*.toc
+paper_*/*.fls
+paper_*/*.fdb_latexmk
+paper_*/*.synctex.gz
+paper_*/main.pdf
+
+# Default output of the older figure scripts (scripts/figstyle.py FIGDIR); not used by the papers.
+figures_out/

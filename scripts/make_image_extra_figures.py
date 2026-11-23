@@ -7,7 +7,7 @@ runs; none of it was in the paper. Everything here is cut out of those saved gri
 
     uv run python -m scripts.make_image_extra_figures
 
-Writes into paper/figures:
+Writes into figures_out:
     fig_image_training.png        DDPM, h = 0, seed 0: iteration 500 ... 60000
     fig_image_bandwidth_seed1.png the h sweep of fig_image_bandwidth, seed 1
     fig_image_bandwidth_seed2.png ... and seed 2 (each seed draws its own training set)

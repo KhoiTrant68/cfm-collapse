@@ -3,7 +3,7 @@
 These visualise results that are currently text/table-only in the paper: the
 optimality gap (T5), the atomicity / posterior-distance floor (T7), the Lipschitz
 representation floor (T6), and a consolidated P7 kernel-tracking summary. Output PNGs
-go straight into paper/figures/.
+go straight into figures_out/.
 
     uv run python scripts/make_paper_figures.py
 
@@ -31,7 +31,7 @@ import pandas as pd  # noqa: E402
 use_paper_style()
 
 ROOT = Path("results/exp1/_theory/raw")
-OUT = Path("paper/figures")
+OUT = Path("figures_out")
 OUT.mkdir(parents=True, exist_ok=True)
 
 

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """Check the numbers in the paper against the result files they came from.
 
-main.tex opens with the claim "All numbers reproduced from the repo". This enforces
-it for the realistic-capacity section and the two EXP-1 controls, which between them
+The numbers of papers A and B (paper_theory/main.tex, paper_mechanism/main.tex) are meant
+to be reproducible from the repo. This enforces it for the realistic-capacity section and the two EXP-1 controls, which between them
 are the parts written directly from JSON summaries rather than from a table the
 analysis scripts emit. Each assertion names the file and field it reads, so a stale
 number fails loudly instead of surviving a rewrite of the surrounding prose.
@@ -18,7 +18,10 @@ import pathlib
 import numpy as np
 import pandas as pd
 
-tex = pathlib.Path("paper/main.tex").read_text(encoding="utf-8")
+# The pre-split paper/main.tex is gone; its numbers now live in paper A or paper B, so the
+# text checks run against both sources joined.
+tex = "\n".join(pathlib.Path(p).read_text(encoding="utf-8")
+                for p in ("paper_theory/main.tex", "paper_mechanism/main.tex"))
 reev = {f"{float(r['h']):.0f}": r
         for r in json.loads(pathlib.Path("results/exp3/_cifar_ddpm/reeval.json")
                             .read_text(encoding="utf-8"))}
@@ -934,9 +937,10 @@ for _f in sorted(pathlib.Path("results/s10_cifar_transfer_20261108").glob("*/per
     _e = _z["e_learned"][:, -1].astype(np.float64)
     _rd = max(_rd, float(np.max(np.abs(_z[f"learned_d1_{_k}"].astype(np.float64) - _e) / _e)))
 check("S10 final error = d1 within 0.2%", 1.0, float(_rd <= 0.002), 0)
-for s in (r"$0.168\pm0.012$", r"$0.276\pm0.008$", r"at most $0.006$", r"$6.2$--$7.1$", r"$2.5$--$2.9$",
+for s in (r"$0.168$ of their samples at", r"$0.276$ at $h=6$ off the training images",
+          r"deviations $0.012$ and $0.008$", r"at most $0.006$", r"$6.2$--$7.1$", r"$2.5$--$2.9$",
           r"AUC $0.985$ at $h=4$ and", r"median $1.08$ at $h=0$", r"within $0.2\%$ for every sample",
-          r"$7.2$--$8.0$ against", r"AUC at least" + "\n" + r"$0.95$ by $t\approx0.53$"):
+          r"$7.2$--$8.0$ against", r"AUC $0.97$ and $0.95$ at $h=4$ and $6$ by" + "\n" + r"$t\approx0.53$"):
     in_tex(s)
 # Pooled S10 analyses (scripts/summarize_s10_cifar.py): AUC over time, exact-path AUC, threshold rule.
 _q = json.loads(pathlib.Path("results/s10_cifar_transfer_20261108/s10_pooled_ckpt_60000.json").read_text())
@@ -961,10 +965,9 @@ for _h, _lo, _hi in ((4, 55, 67), (6, 23, 28)):
     _sa = [r["same_atom_on"] for r in _g(_h)]
     check(f"S10 h={_h} same image min %", _lo, round(100 * min(_sa)), 1e-9)
     check(f"S10 h={_h} same image max %", _hi, round(100 * max(_sa)), 1e-9)
-for s in (r"$0.97$ at $h=4$ and", r"$0.95$ at $h=6$ by" + "\n" + r"$t\approx0.53$", r"between $0.977$ and $0.990$ from $t\approx0.71$",
-          r"$0.49$--$0.52$ at $h=4$ and", r"$0.53$--$0.58$ at $h=6$",
-          r"above $4$ flags $94\%$ and $95\%$", r"$7\%$ and $12\%$ of the on-atom", r"$55$--$67\%$ at $h=4$ and $23$--$28\%$",
-          r"only $23$--$67\%$ of"):
+for s in (r"the AUC is $0.970$ $[0.961,0.978]$ at $h=4$", r"$[0.942,0.959]$ at $h=6$ by $t\approx0.53$", r"between $0.977$ and $0.990$ from $t\approx0.71$",
+          r"$0.49$--$0.52$ at $h=4$, every", r"$0.53$--$0.58$ at $h=6$",
+          r"above $4$ flags $94\%$ and $95\%$", r"$7\%$ and $12\%$ of the on-atom", r"$55$--$67\%$ at $h=4$ and $23$--$28\%$"):
     in_tex(s)
 
 _c0 = _md_cells("results/exp_c_cifar_transfer_20261022/SUMMARY.md", "| h | ckpt", "| 0 | 60000 |")
@@ -978,7 +981,7 @@ check("CIFAR comp: eight pairs", 8, len(_P), 0)
 check("CIFAR comp: no unresolved source", 0.0, max(p["unresolved"] for p in _P), 0)
 check("CIFAR comp: w_c", 0.724, _P[0]["w_c"], 1e-3)
 check("CIFAR comp: min margin >= 5.2", 1.0, float(min(p["margin_sq"] for p in _P) >= 5.2), 0)
-_fc = json.loads(pathlib.Path("paper/figures/fig_cifar_composition.json").read_text(encoding="utf-8"))
+_fc = json.loads(pathlib.Path("paper_theory/figures/fig_cifar_composition.json").read_text(encoding="utf-8"))
 _rel = [p["dist"] / _fc["median_nn"] for p in _fc["pairs"]]
 check("CIFAR comp: pairs are mutual nearest neighbours", 1.0, float(all(p["mutual_nn"] for p in _fc["pairs"])), 0)
 check("CIFAR comp: min distance / median NN", 0.54, round(min(_rel), 2), 1e-9)
@@ -1239,7 +1242,7 @@ for _s in ("0.106 [0.056, 0.159]", "0.017 [-0.009, 0.043]", "-0.013 [-0.027, 0.0
     good = _s in _rob
     print(f"  {'OK ' if good else 'BAD'} in ROBUSTNESS.md: {_s!r}")
     ok, fail = ok + good, fail + (not good)
-for _s in (r"$41$ of $1000$ samples ($4.1\%$)", r"$0.796$ against $0.689$", r"$[0.056,0.159]$",
+for _s in (r"$41$ of $1000$ samples" + "\n" + r"($4.1\%$)", r"$0.796$ against $0.689$", r"$[0.056,0.159]$",
            r"$[-0.099,-0.049]$", r"\label{sec:edm}", r"\label{tab:edm-steps}"):
     in_tex(_s)
 
@@ -1285,14 +1288,13 @@ _r0 = _s0["sigma"][1:] / _s0["sigma"][:-1]
 _rk0 = np.maximum(_s0["err"][:, :-1] / _s0["n1"][:, :-1], _s0["errt"][:, :-1] / _s0["nt1"][:, :-1])
 _ck0 = _r0 + np.abs((1 - _r0) * (2 * _r0 - 1) / (2 * _r0)) * _rk0 + (1 - _r0) / (2 * _r0) * _rk0 * (_r0 + (1 - _r0) * _rk0)
 check("sub500 s0: every on-atom certified at steps 0..12", 1.0, float((_ck0[_on0][:, :13] < 1).all()), 0)
-for _s in (r"\label{tab:edm-models}", r"$1.75$", r"$[0.977,0.988]$", r"$[-0.004,0.000]$", r"$[0.055,0.115]$"):
+for _s in (r"\label{tab:edm-models}", r"$1.75$", r"$[0.977,0.988]$", r"($0.983$ against $0.985$)", r"$[0.055,0.115]$"):
     in_tex(_s)
 
 print("\nsanity: the image-scale numbers and floats the main text quotes")
-for s in (r"\label{sec:cifarddpm}", r"\label{tab:cifarddpm}", r"\label{tab:exp1}",
+for s in (r"\label{sec:cifarddpm}", r"\label{tab:cifar-kernel}", r"\label{tab:exp1}",
           r"\label{tab:p7kernel}", r"$179.1$", r"$0.431$", r"$48/48$",
-          r"$0.481\pm0.037$", r"$-0.156$", r"$38\%$",
-          r"$1.000$, $0.829$, $0.717$ and $0.620$"):
+          r"$0.481$ $(0.039)$", r"values are $0.037$, $0.049$ and $0.058$", r"$-0.156$"):
     in_tex(s)
 
 print(f"\n{ok} checks passed, {fail} failed")

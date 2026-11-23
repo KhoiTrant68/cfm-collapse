@@ -15,7 +15,7 @@ is sketched.
     uv run python -m scripts.make_flow_portraits            # all three figures
     uv run python -m scripts.make_flow_portraits --only body
 
-Writes into paper/figures:
+Writes into figures_out:
     fig_flow_portrait.png     body Figure 1: trained early / trained late /
                               population optimum at h* / endpoint smoothing
     fig_collapse_training.png appendix: the same condition as training proceeds
