@@ -132,7 +132,7 @@ Tổng cộng khoảng 2 giờ 15 phút.
 
 - **P1-P5** (commit 8e60c36): đã sửa đúng như mục 2. Riêng P3 có thêm giả thiết vào phát biểu `prop:heun` (b) và (e).
 - **A1-A6, A8-A10, X1:** đã sửa theo mục 3. Tên "less decided" đổi thành "intermediate" ở mọi chỗ, kèm định nghĩa chính xác như phần (a) và ví dụ B = 3, 2, 1 (đã kiểm bằng số: F'(-2) = -0.084, -0.42, -1.68 ở w = 1.2, 2, 5 lần 1/sinh^2(1)). Ký hiệu eta trong rem:generic đổi thành lambda.
-- **A7:** chưa sửa, chỉ thêm `% FLAG` vì cần một tài liệu về công thức Liouville cho trường Carathéodory; không đoán số trang/định lý.
+- **A7:** đã sửa. Đoạn "Solutions" (A:1986) giờ dẫn Sontag (1998): Definition 2.6.1, Theorem 54, Proposition C.3.6, Theorem 1 với Remark 2.8.1, Lemma C.4.1(f). Số trang đã đối chiếu với bản PDF của tác giả. Sửa luôn câu bị cụt ("quotients of the flow...") do một dòng comment nuốt mất chữ. Ba chứng minh do LLM soạn có checklist riêng: `proof_checklist.md`.
 - **B1-B5, B7, B8:** đã sửa theo mục 3. B6: D -> `\ell` trong prop:localtransfer (vì `g` đã dùng trong chứng minh đó), m_p và q_{p,j} -> m^\star và w_j^{(h)}, h -> eta trong chứng minh prop:trap. **Chưa đổi** e (vectơ Z - a) với e_t (sai số) trong thm:relerr, vì chính phát biểu dùng \hat e_t; cần Khoi quyết cách đặt tên.
 - **X2:** chưa làm, cần nhóm quyết (lần trích companionA thứ ba).
 - **X3 và các câu trùng khác:** đã viết lại bên B (Wan/Baptista, Liu, cách ghi ±, đoạn tổ chức phụ lục, câu reproducibility). Phần còn trùng giữa hai bài giờ chỉ là preamble LaTeX, as:standing, phương trình và bảng ký hiệu.

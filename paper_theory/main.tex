@@ -1984,17 +1984,22 @@ there are finitely many such subsets, so $\mathcal C\subseteq\mathcal C'$ are fi
 \end{proof}
 
 \emph{Solutions.} The fields below are measurable in time, $C^1$ in space with locally bounded
-derivative, and of linear growth. For such fields, Carath\'eodory solutions (absolutely
-continuous, satisfying the equation for almost every time) exist and are unique; the flow maps
-between times below $1$ are $C^1$ diffeomorphisms, and their Jacobians $J$ satisfy Liouville's
-formula $J=\exp\int\operatorname{div}_x f$ \citep[Ch.~I]{hale1980ode}.
-% FLAG: Hale Ch. I treats fields continuous in time; add a precise reference for Liouville's
-% formula under Caratheodory conditions (measurable in time) before submission. In outline, difference
-quotients of the flow satisfy the variational equation up to an error that vanishes by dominated
-convergence, Gr\"onwall's inequality gives differentiability, and Jacobi's formula gives
-Liouville's formula. When the field is continuous in time, solutions are classical. The change
-of time $t\mapsto\tau$ is smooth and increasing on $(0,1)$, so all of this holds in either
-time.
+derivative, and of linear growth. Each depends on time only through $\pi(t)=(t,c(t))$, where
+$c(t)$ collects the coefficients that multiply the exact fields: $f(x,t)=\tilde f(\pi(t),x)$
+with $\tilde f$ and $D_x\tilde f$ continuous and $\pi$ measurable and locally bounded, which is a
+right-hand side in the sense of \citet[Definition~2.6.1]{sontag1998mathematical}. Carath\'eodory
+solutions (absolutely continuous, satisfying the equation for almost every time) therefore exist
+and are unique \citep[Theorem~54]{sontag1998mathematical}; linear growth and Gr\"onwall's
+inequality keep them in a compact set, so they extend to every time below $1$
+\citep[Proposition~C.3.6]{sontag1998mathematical}. The flow map $\Phi$ between two times below $1$
+is $C^1$, and its derivative $D\Phi$ solves the variational equation
+$\tfrac{d}{dt}D\Phi=D_xf\,D\Phi$ \citep[Theorem~1 and Remark~2.8.1]{sontag1998mathematical}; the
+same holds backwards in time, so $\Phi$ is a $C^1$ diffeomorphism. As $D_xf$ is locally bounded
+along a trajectory, \citet[Lemma~C.4.1(f)]{sontag1998mathematical} gives
+$\det D\Phi=\exp\int\operatorname{tr}D_xf$, which is Liouville's formula for the Jacobian
+$J=\det D\Phi=\exp\int\operatorname{div}_xf$. When the field is continuous in time, solutions are
+classical. The change of time $t\mapsto\tau$ is smooth and increasing on $(0,1)$, so all of this
+holds in either time.
 
 \subsection{Two general steps}
 \label{apx:general-steps}
