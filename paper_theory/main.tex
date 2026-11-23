@@ -1,8 +1,8 @@
 
 \documentclass{article} % For LaTeX2e
 
-% DECISION: (contract 7.2-7.3) venue order (TMLR, then J2C) and whether A goes to arXiv
-% before B is submitted are group decisions; this draft keeps the TMLR style.
+% Group decision 2026-11-23: TMLR first (then J2C); A goes to arXiv when it is submitted,
+% before paper B, so that B can cite it as a public preprint.
 % ---------------------------------------------------------------------------
 % TMLR submission (style files from github.com/JmlrOrg/tmlr-style-file).
 % Compile:  pdflatex main && bibtex main && pdflatex main && pdflatex main
@@ -98,9 +98,9 @@ on Its Training Set?}
 \maketitle
 \raggedbottom
 
-% DECISION: (contract 7.1) the final headline of A is a group decision. This draft keeps the
-% current one (the number and signs of the combined exact fields decide the support); the
-% AND/class-label proposition is not added (contract 7.4, section 5).
+% Group decision 2026-11-23: headline as in this draft (the number and signs of the combined
+% exact fields decide the support); composition is presented as a boundary marker, as in
+% paper/main.tex. The AND/class-label proposition is not added (contract 7.4, section 5).
 \begin{abstract}
 Conditional flow-matching samplers are often run with a field other than the one their objective
 targets.
@@ -125,6 +125,7 @@ field that is less decided between them than the fields added: its prior log-odd
 examples lie strictly between those of the added fields. The blend
 basin lies in a layer of width $(1-t)^2$ around the tie. Standard velocity networks miss it, while
 networks given a coordinate at that scale, centred at the tie, can match its exact probability.
+We therefore present the composition as a boundary marker, not a practical mechanism.
 For an audit of replication, the results separate the sampler settings that at the exact optimum
 can only return training examples from the composition of conditions, which can blend them.
 \end{abstract}
@@ -198,8 +199,10 @@ to them than to any other example, this needs a specific sign pattern.
 \item \emph{The label-noise reference} (Section~\ref{sec:theory}). With Gaussian label noise of
   bandwidth $h>0$ the exact flow returns the training example $x^i$ with probability
   $p_i^{(h)}(y)$, a Nadaraya--Watson weight computable from the labels
-  (Theorem~\ref{thm:endpoint}). Closely related identities are known
-  (Section~\ref{sec:related}). We use this law as the starting point of every later result, and
+  (Theorem~\ref{thm:endpoint}). This is not a new result: at a fixed query the label-noise field
+  is the unconditional exact field of the weighted training law, so the endpoint result of
+  \citet{wan2025elucidating} applies (Section~\ref{sec:related}). We state it because we use this
+  law as the starting point of every later result, and
   its variance as a parameter-free reference for trained networks
   (Section~\ref{sec:intervention-tests}).
 \item \emph{Two fields only reweight the training examples}
@@ -302,7 +305,7 @@ in the sense of differential privacy~\citep{dwork2014algorithmic}. \emph{(ii) Wh
 returned is predictable.} Under label noise the returned record and its probability
 $p_i^{(h)}(y)$ are computable from the training labels and the query, so an auditor can rank, for
 any label, the records an exact-optimum model returns. Under guidance the support is the same but
-the weights have no closed form. \emph{(iii) Composition is the case to audit.} Among the
+the weights have no closed form. \emph{(iii) Composition is a boundary marker, not a practical mechanism.} Among the
 operations studied here with strictly positive priors, only combining three or more fields changes
 the support of the exact law without adding noise (averaging hard-label fields can, at a symmetric
 tie, Section~\ref{sec:posmix}), and at a tie of two examples only when a field less decided
@@ -490,7 +493,7 @@ Lemma~\ref{lem:mixture-coupling} identifies $\vstar$ with the conditional veloci
 coupling $I\sim p^{(h)}(y)$, $X_1=x^I$; its marginals solve the flow's continuity equation and
 tend to $\law(x^I)$.}
 
-\begin{restatable}[Endpoint law under label smoothing]{theorem}{thmendpoint}
+\begin{restatable}[Endpoint law under label smoothing; cf.\ \citealp{wan2025elucidating}]{theorem}{thmendpoint}
 \label{thm:endpoint}
 For every $h>0$ and query $y$,
 \begin{equation}
@@ -1148,8 +1151,8 @@ while the exact field at the same bandwidth leaves none. These finite-cutoff fra
 learned-field, truncation and discretisation effects and do not identify a limiting support. At
 the exact optimum, label noise keeps every endpoint on a training image
 (Proposition~\ref{prop:atomicity}).
-% DECISION: paper B also uses these s10 networks (results/s10_cifar_transfer_20261108) for its
-% scaled-field-error analysis; the group decides which paper owns the s10 runs and numbers.
+% Group decision 2026-11-23: the s10 retrain (results/s10_cifar_transfer_20261108) and its
+% numbers belong to this paper; paper B describes it only qualitatively.
 
 \paragraph{Exact fields.} Five geometry seeds, $d\in\{2,8\}$, $N=12$, random and near-duplicate
 atoms, and $h\in\{0.3,1\}$ give 200 paired cells across single-field, guidance ($w=3,12$),
@@ -1402,14 +1405,15 @@ differential privacy, which we do not analyse. All experiments use synthetic dat
 CIFAR-10 dataset; no personal or human-subject data are involved.
 
 \subsection*{Use of large language models}
-% DECISION: (contract 7.5) the wording of the LLM statement is a group decision; unchanged here.
-% DECISION: (contract 7.6) the group must check the proofs of cor:twofields, prop:twoatom and
-% rem:generic itself before submission.
-We used large language models as assistants for writing and running experiment and analysis code,
-for editing the manuscript, and as additional checkers of the written proofs. The statements and
-proofs of Corollary~\ref{cor:twofields}, Proposition~\ref{prop:twoatom} and
-Remark~\ref{rem:generic} were first drafted with a large language model. The authors take full
-responsibility for the content of the paper.
+% Draft by the assistant, 2026-11-23; the group edits it to match what was actually done.
+% TODO (group, before submission): check the proofs of cor:twofields, prop:twoatom and
+% rem:generic line by line.
+Large language models helped us write and run experiment and analysis code, rewrite the prose for
+readers outside the field, redraw figures, and cross-check printed numbers against the result
+files. They also served as additional checkers of the written proofs. The statements and proofs of
+Corollary~\ref{cor:twofields}, Proposition~\ref{prop:twoatom} and Remark~\ref{rem:generic} were
+first drafted with a large language model and then checked by the authors. The authors take full
+responsibility for every statement, proof and number in the paper.
 
 \subsection*{Reproducibility statement}
 \begingroup\raggedright
@@ -1434,7 +1438,7 @@ Figure~\ref{fig:cifar-composition} (\texttt{cifar\_composition\_exact.py},
 \texttt{make\_theory\_cifar\_composition\_figure.py}), the label-noise comparisons of
 Tables~\ref{tab:p7kernel} and~\ref{tab:cifar-kernel} and Figure~\ref{fig:kernel-tracking}
 (\texttt{analyze\_p7\_kernel.py}, \texttt{make\_theory\_kernel\_tracking\_figure.py},
-\texttt{reeval\_exp3\_cifar\_ddpm.py}, \texttt{paperB\_uncertainty.py},
+\texttt{reeval\_exp3\_cifar\_ddpm.py}, \texttt{kernel\_tracking\_uncertainty.py},
 \texttt{summarize\_s10\_cifar.py}) and the kernel and endpoint-noise checks
 (\texttt{test\_kernel\_theory.py}, \texttt{verify\_kernel\_theory.py},
 \texttt{verify\_target\_noise.py}). Every assumption is stated where it is used, and all results are
@@ -3240,9 +3244,7 @@ $M=256$ samples and compare their covariance trace with $\tr\Covh$
 logarithm of the generated trace on the logarithm of the reference trace across the $48$
 conditions; the exact field puts it at $1$. The original run is on one draw of the $2000$ training
 images; the networks were then retrained with the same configuration on three independent draws,
-the first of which is the draw of the original run (\texttt{paperB\_uncertainty.py};
-% DECISION: the script name paperB_uncertainty.py reveals a companion paper in an anonymous
-% supplement; the group decides whether to rename it.
+the first of which is the draw of the original run (\texttt{kernel\_tracking\_uncertainty.py};
 Table~\ref{tab:cifar-kernel}). The off-atom fractions of Section~\ref{sec:intervention-tests} come
 from a further retraining with the same configuration at $h=4$ and $h=6$ (three seeds each),
 integrated with RK4 to $1-t=10^{-4}$ from $16$ shared sources at each of the $48$ conditions

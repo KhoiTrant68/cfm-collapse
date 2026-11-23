@@ -18,7 +18,8 @@
 % theory paper (paper A, paper_theory/) is cited as an anonymous work (key companionA),
 % as a paper by other authors would be. Since the rewrite of 2026-11-22 B is self-contained:
 % the exact-field facts are cited from Wan et al. (2025) and Baptista et al. (2025), and
-% companionA remains only at the places marked "% DECISION:".
+% companionA is cited twice (related work and the no-atom statement); group decision
+% 2026-11-23: paper A goes to arXiv before B is submitted, so B cites it as a public preprint.
 % ---------------------------------------------------------------------------
 
 \usepackage{tmlr}
@@ -58,9 +59,8 @@
 % --- shorthands: math_commands.tex (same file as paper/ and paper_theory/) --
 \input{math_commands}
 
-% DECISION: title kept from the 2026-11-21 draft; the headline is now Theorem relerr (landing
-% condition), so the group may prefer a title that names it (contract sec. 7, item 1).
-\title{Trained Samplers Choose Early and Land Late}
+% Title chosen 2026-11-23: keeps "choose early, land late" and names the question.
+\title{Chosen Early, Landed Late: When Trained Diffusion Models Copy Their Training Images}
 
 % Authors must not appear in the submitted version; tmlr.sty ignores \author
 % unless the [accepted] or [preprint] option is given.
@@ -181,7 +181,7 @@ latents; public model thick, $500$-image model thin; a swap at $s$ is drawn at $
 (vermillion): the share of net$\to$exact endpoints (network above $s$, exact field below) whose
 nearest training image is that of the network's own endpoint. Landing (blue): the share of
 exact$\to$net endpoints (exact field above $s$, network below) that end on a training image; this
-curve separates the two models. The dotted lines mark where the public model's curves pass one half,
+curve measures the network, which samples the last steps, and separates the two models. The dotted lines mark where the public model's curves pass one half,
 interpolated in $\log s$: half of its images are chosen by $s=2.5$, and half of its samples land
 only from $s=0.51$. The $500$-image model has chosen $93\%$ of its images at $s=5$ and lands every
 sample from every swap level.}
@@ -254,8 +254,6 @@ many equilibria of a distance potential, which need not be a training example. C
 \citep{companionA} studies which sampler-side changes of an exact conditional field keep its
 endpoints on the training set; here the exact field is only the reference, and the object of study
 is the learned field.
-% DECISION: companionA kept here as the one related-work pointer to paper A. Drop it if paper A
-% is not public (arXiv) when B is submitted (contract sec. 3 and sec. 7, item 3).
 Trained denoisers generalise through inductive biases that depart from the exact field
 \citep{kadkhodaie2024generalization,kamb2024creativity,niedoba2024mechanistic}.
 \citet{bertrand2025closed} show that generalisation in flow matching does not come from the
@@ -580,9 +578,8 @@ at $t=1$. If the spatial Lipschitz constant of a velocity network and $|v_\theta
 integrable up to $t=1$, its flow map is bi-Lipschitz by Gr\"onwall's inequality and carries the Gaussian source to a law without
 atoms \citep{companionA}. The collapse of such a network in Section~\ref{sec:exp1} is therefore an
 approach to the atom at a finite cutoff, not the atom itself.
-% DECISION: companionA kept here for the no-atom statement (Proposition "regular" of paper A).
-% The Gronwall sentence makes B readable without it; the group decides whether to keep the
-% citation (contract sec. 7, item 3).
+% companionA kept for the no-atom statement (Proposition "regular" of paper A); the Gronwall
+% sentence keeps B readable without it.
 
 % ==========================================================================
 \section{Experiments}
@@ -1099,17 +1096,14 @@ sense of differential privacy~\citep{dwork2014algorithmic}. All experiments use 
 the public CIFAR-10 and MNIST datasets; no personal or human-subject data are involved.
 
 \subsection*{Use of large language models}
-% DECISION: the wording of the LLM statement is a group decision for both papers (contract sec. 7,
-% item 5). The 2026-11-22 prose rewrite of this draft was also model-assisted.
-We used large language models as assistants for writing and running experiment and
-analysis code, for editing the manuscript, and as additional checkers of the written proofs.
-The first drafts of the proofs of Theorem~\ref{thm:relerr} and Propositions~\ref{prop:trap}
-and~\ref{prop:heun} came from model-based solver runs; the authors checked, revised and verified
-them. The authors wrote and verified all other proofs. The authors take full responsibility for
-the content of the paper.
-% TODO (authors): this statement is copied from paper/main.tex. The restructuring of this draft
-% and the text of Section "Choose early, land late" were drafted with model assistance on
-% 2026-11-21; confirm the statement before submission.
+% Draft by the assistant, 2026-11-23; the group edits it to match what was actually done.
+Parts of this work were done with large language models. They wrote and ran experiment and
+analysis code under our direction, restructured and rewrote the manuscript for readers outside the
+field, redrew figures, and checked printed numbers against the result files and the written proofs
+step by step. The first drafts of the proofs of Theorem~\ref{thm:relerr} and
+Propositions~\ref{prop:trap} and~\ref{prop:heun} came from model-based solver runs, which we then
+checked, revised and verified; we wrote and verified all other proofs. We take full responsibility
+for every claim, proof and number in this paper.
 
 \subsection*{Reproducibility statement}
 All numbers are produced by code in the supplementary material (anonymised for review).
@@ -1650,8 +1644,8 @@ $(1-t)|\Delta(Z_t,t)|=|\hat m-m^*|$ against the exact field at the training band
 same network error along the exact trajectory from the same source. The
 off-atom fractions at $1-T=10^{-4}$ are close to the ones above at $h=4$ and $h=6$, with none at
 $h=0$ and none for the exact field.
-% DECISION: the off-atom fractions of this retrain (s10) are removed from B because the contract
-% (sec. 2 and 5) assigns them to paper A; the group decides which paper owns the s10 retrain. Along the exact
+% Group decision 2026-11-23: the s10 retrain and its off-atom numbers belong to paper A; B
+% describes them only qualitatively. Along the exact
 trajectories the final scaled error of the network is at most $0.006$, so where the exact field
 ends the network matches it. Along the learned trajectories the final scaled error has median
 $6.2$--$7.1$ for off-atom and $2.5$--$2.9$ for on-atom samples, with AUC $0.985$ at $h=4$ and

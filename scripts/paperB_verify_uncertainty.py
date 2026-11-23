@@ -1,6 +1,6 @@
 """Independent verifier for the paper-B analysis "uncertainty".
 
-Recomputes from the saved files only (it does not import or read scripts/paperB_uncertainty.py):
+Recomputes from the saved files only (it does not import or read scripts/kernel_tracking_uncertainty.py):
 
  (1) EXP-1 (sec:exp1, tab:exp1, tab:p7kernel): per-seed values, mean, population SD, sample SD,
      95% Student-t interval (n=5, df=4), exact seed bootstrap (all 5^5 resamples), seed-paired
