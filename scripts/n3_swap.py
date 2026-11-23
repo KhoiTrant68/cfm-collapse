@@ -1,4 +1,4 @@
-"""Proposal 2 of reports/Khoảng trống novelty sai số muộn.md: swap the denoiser partway through
+"""Proposal 2 of the late-error novelty note (removed 2026-11-23, in the git history): swap the denoiser partway through
 sampling, in both directions, to separate "which training image" from "whether on a training image".
 
 From the same Gaussian latents, EDM's deterministic Heun sampler (as in scripts/n3_edm_memorization.py)

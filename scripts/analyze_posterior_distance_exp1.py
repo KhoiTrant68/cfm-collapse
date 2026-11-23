@@ -1,4 +1,4 @@
-"""Distance from generated law to the TRUE posterior for EXP-1 (WORK_ORDER T7).
+"""Distance from generated law to the TRUE posterior for EXP-1.
 
 EXP-1 has an analytic Gaussian posterior N(mu_post(y), Sigma_post), so we can
 draw exact ground-truth samples. For hard conditioning (h=0) and each label-noise

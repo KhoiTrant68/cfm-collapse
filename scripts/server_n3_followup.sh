@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Proposals 1 and 2 of reports/Khoảng trống novelty sai số muộn.md on the N3 EDM models:
+# Proposals 1 and 2 of the late-error novelty note (in the git history) on the N3 EDM models:
 #   mu    late one-sided Lipschitz constant of the denoiser along sampling (scripts/n3_jacobian_mu.py)
 #   swap  denoiser swap in both directions (scripts/n3_swap.py)
 # for the public EDM model and a model trained on a subset (default: the sub1000 model of the timing

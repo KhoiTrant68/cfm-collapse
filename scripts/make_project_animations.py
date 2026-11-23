@@ -33,7 +33,7 @@ nothing to rebuild. The last two integrate the closed-form fields.
 
     uv run python -m scripts.make_project_animations [--only NAME]
 
-Writes: paper/figures/anim_*.gif
+Writes: docs/figures/anim_*.gif
 """
 from __future__ import annotations
 
@@ -52,7 +52,7 @@ from PIL import Image, ImageDraw, ImageFont
 from src.metrics.kernel_theory import kernel_moments, kernel_weights
 from src.problems.linear_gaussian import LinearGaussianProblem
 
-FIGS = Path("paper/figures")
+FIGS = Path("docs/figures")  # README animations
 RUNS = Path("results/exp3")
 OI = {"black": "#000000", "sky": "#56B4E9", "blue": "#0072B2",
       "vermillion": "#D55E00", "orange": "#E69F00", "green": "#009E73"}

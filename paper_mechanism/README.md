@@ -1,9 +1,8 @@
 # Paper B: mechanism (target NeurIPS 2027, main track, "General")
 
 `main.tex` is the mechanism half of the split described in
-`docs/plan/paper_split_plan_2026-11-21.md`, assembled on 2026-11-21 from `paper/main.tex`.
-`paper/main.tex` stays the reference source and is not submitted; from now on this file is
-edited on its own.
+`docs/plan/paper_split_plan_2026-11-21.md`, assembled on 2026-11-21 from
+the pre-split `paper/main.tex` (removed on 2026-11-23; it is in the git history). This file is edited on its own.
 
 Draft title: *Trained Samplers Choose Early and Land Late*.
 
@@ -72,7 +71,7 @@ every exact-field result; nothing from it is re-proved here.
   intervention predicting memorisation, N grid x seeds with augmentation, guidance on real
   models, nearest-neighbour baselines, scale-up) are listed as in progress.
 - Sec. 7 Conclusion; broader impact, LLM use and reproducibility statements adapted from
-  `paper/main.tex`.
+  the pre-split paper.
 - Appendices: A proofs of transfer, local transfer, risk transfer and the loss counterexample;
   B relative error, trapping, Heun (proofs); C measured transfer; D EDM experiments (swap protocol
   and why net-to-exact always lands, the exact posterior against the choice (E7,
@@ -82,7 +81,7 @@ every exact-field result; nothing from it is re-proved here.
   anchor, the three trained models); E experimental details (synthetic problems with t-intervals,
   CIFAR-10 with the retrained slopes).
 
-## New text (not in `paper/main.tex`)
+## New text (not in the pre-split paper)
 
 - Abstract (about 200 words), introduction, related work, Section 5.3, limitations and planned
   experiments, conclusion, the swap protocol paragraph in Appendix D.
@@ -112,8 +111,10 @@ per-sample files where possible (see `docs/review/changes_paperB_2026-11-21.md`)
   sample).
 - E7 posterior crossings (3.82 / 1.99 / 0.78; 6.39 / 3.30 / 1.22; 7.52 / 3.82 / 1.44; at sigma = 5:
   0.789 and 0.936): `results/paperB_20261121/collapse_sigma/summary.json`.
-- EXP-1 t-intervals and CIFAR slopes: `results/paperB_20261121/uncertainty/` (`stdout.txt`,
-  `tables.tex`, `cifar_slopes.json`). Transfer AUCs: `transfer/TRANSFER_SUMMARY.md`,
+- EXP-1 t-intervals and EDM AUC intervals: `results/paperB_20261121/uncertainty/` (`stdout.txt`,
+  `tables.tex`, `edm_auc.json`; `scripts/paperB_uncertainty.py`). The CIFAR slopes and the
+  tab:p7kernel intervals moved to paper A: `results/kernel_tracking_20261121/uncertainty/`
+  (`scripts/kernel_tracking_uncertainty.py`). Transfer AUCs: `transfer/TRANSFER_SUMMARY.md`,
   `auc_vs_t.csv`. Radial identity (correlation >= 0.993) and 34/41, 195/200: `radial/`. Baseline at
   sigma = 0.585 (0.990 [0.986, 0.994], paired difference [0.004, 0.010], R^2 0.991 / 0.976 /
   0.965 / 0.883): `certificate/CERTIFICATE_TABLES.md`. Incremental logistic regression (<= 0.002):
@@ -159,13 +160,13 @@ Source: `docs/review/memo_verification_2026-11-21.json` and Section 5 of
 - Bibliography: Shah et al. 2025, Li and Chen 2024, Kaiser and Kollmann 2026 added; venue fields of
   Li et al. (PMLR 306), Liu et al. (CVPR 2026 Findings), Favero et al. (TMLR 2026), Dodson et al.,
   Sesmat et al., Jain et al., Beltran et al., Biroli et al. updated; physicscfm2026 pinned to v3
-  (not cited in paper B; the "return training examples" sentence is only in `paper/main.tex`).
+  (not cited in paper B; the "return training examples" sentence was only in the pre-split paper).
 - Compiles with tectonic on lab09: 34 pages, no undefined references or citations, no overfull
   boxes.
 
 ## Not yet done
 
-- The LLM statement is the one of `paper/main.tex`; confirm it (this draft was restructured with
+- The LLM statement is the one of the pre-split paper; confirm it (this draft was restructured with
   model assistance).
 - Page count against the 9-page limit once the NeurIPS style exists (the main text, through the
   Conclusion, is about 15 TMLR pages).

@@ -26,6 +26,7 @@ appendix.
 """
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 import matplotlib
@@ -39,7 +40,11 @@ except (ImportError, OSError):  # pragma: no cover  (OSError: a broken torch DLL
 from matplotlib.lines import Line2D
 from matplotlib.patches import Ellipse
 
-FIGDIR = Path("paper/figures")
+# Default output of the older figure scripts. Paper figures live in paper_theory/figures and
+# paper_mechanism/figures, written by the scripts that name those folders; FIGOUT=<dir> redirects.
+FIGDIR = Path(os.environ.get("FIGOUT", "figures_out"))
+# Several scripts savefig straight into FIGDIR, so it must exist once figstyle is imported.
+FIGDIR.mkdir(parents=True, exist_ok=True)
 
 # Okabe-Ito, fixed order.
 OI = {
@@ -354,7 +359,7 @@ def load_exp1_model(ckpt: str | Path, *, d: int = 2, k: int = 1,
 
 
 def save(fig, name: str, *, pad: float = 0.02) -> Path:
-    """Write a figure into paper/figures and report the path."""
+    """Write a figure into FIGDIR and report the path."""
     FIGDIR.mkdir(parents=True, exist_ok=True)
     out = FIGDIR / name
     fig.savefig(out, bbox_inches="tight", pad_inches=pad)

@@ -13,7 +13,7 @@ its class (d1, d2) and the index of the nearest one (nn), for
   exact         the exact class posterior mean m* at every sigma;
   net2exact@s   the network for sigma > s and m* for sigma <= s;
   exact2net@s   m* for sigma > s and the network for sigma <= s.
-Off-atom means d1/d2 >= 1/3 (App. C.4 of paper/main.tex).
+Off-atom means d1/d2 >= 1/3 (App. C.4 of paper_mechanism/main.tex).
 
 Definitions used here:
   =L   share of net->exact endpoints whose nearest image is that of the learned endpoint (selection);
@@ -307,7 +307,7 @@ def check_summary(m: dict, r: dict) -> dict:
 
 
 def check_quotes(res: dict) -> list:
-    """Numbers quoted in paper/main.tex (sec:edm, lines 1263-1269) and in the two NOTES_vi.md files."""
+    """Numbers quoted in paper_mechanism/main.tex (sec:edm) and in the two NOTES_vi.md files."""
     def eqL(mk, s):
         return next(lv for lv in res[mk]["levels"] if lv["s"] == s)["net2exact"]["eqL"]["p"]
 
@@ -319,7 +319,7 @@ def check_quotes(res: dict) -> list:
     def add(src, claim, quoted, value, ok):
         out.append({"source": src, "claim": claim, "quoted": quoted, "recomputed": value, "agrees": bool(ok)})
 
-    tex = "paper/main.tex sec:edm l.1263-1269"
+    tex = "paper_mechanism/main.tex sec:edm"
     for s, q in ((5, 31), (2, 56), (1, 90), (0.2, 99), (0.02, 100)):
         v = 100 * eqL("public", s)
         add(tex, f"public net->exact =L at s={s:g} (%)", q, round(v, 1), round(v) == q)

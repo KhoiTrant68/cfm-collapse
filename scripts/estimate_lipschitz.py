@@ -1,6 +1,6 @@
 """Estimate Lip_x v_theta and compare the Cor-21 floor d/(3L) to L_trained.
 
-Two estimates (WORK_ORDER T6):
+Two estimates:
   * Lower bound (empirical): largest singular value of the input-Jacobian
     d v_theta / d x at points sampled on the interpolation manifold, per t-slice
     t in {0.5, 0.9, 0.99, 0.999}. Report L(t), not just max_t.

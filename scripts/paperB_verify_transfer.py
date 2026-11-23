@@ -1,4 +1,4 @@
-"""Independent verifier for the paper-B analysis "transfer" (app:measured-transfer of paper/main.tex).
+"""Independent verifier for the paper-B analysis "transfer" (app:measured-transfer of paper_mechanism/main.tex).
 
 Written without reading scripts/paperB_transfer.py. Recomputes, from the saved per-sample arrays only,
 the numbers that analysis reported, and records everything in

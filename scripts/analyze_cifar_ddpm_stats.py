@@ -25,7 +25,7 @@ a tie-corrected Spearman are a dozen lines of numpy.
 
 Reads:  results/exp3/_cifar_ddpm/reeval.json
 Writes: results/exp3/_cifar_ddpm/stats.json, .../stats_table.tex,
-        paper/figures/fig_cifar_ddpm_tracking.png
+        figures_out/fig_cifar_ddpm_tracking.png
 
 Usage:
     uv run python scripts/analyze_cifar_ddpm_stats.py
@@ -44,7 +44,7 @@ from scripts.figstyle import COLORS, panel_tag, style, use_paper_style
 
 SRC = Path("results/exp3/_cifar_ddpm/reeval.json")
 OUT = SRC.parent
-FIG = Path("paper/figures/fig_cifar_ddpm_tracking.png")
+FIG = Path("figures_out/fig_cifar_ddpm_tracking.png")
 
 # Okabe-Ito, matching scripts/make_paper_figures.py.
 OI = {"black": "#000000", "orange": "#E69F00", "sky": "#56B4E9",

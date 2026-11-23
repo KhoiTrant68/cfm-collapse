@@ -1,13 +1,13 @@
 # Atomic Endpoints of Averaged and Guided Empirical Conditional Flows
 
-Code, results and paper (`paper/main.tex`) for the exact endpoint law of conditional flow
+Code, results and papers (`paper_theory/main.tex`, paper A; `paper_mechanism/main.tex`,
+paper B) for the exact endpoint law of conditional flow
 matching (CFM) on a finite training set, and the effective-bandwidth audit of trained
 models built on it. The project began as numerical verification of a theorem about
 **posterior variance collapse** in conditional CFM. This is a *theory-verification* project, not a
 benchmark chase — see `docs/THEORY.md` for the complete, self-contained proofs
-(every proposition proved, no hanging assumptions), `WORK_ORDER.md` for the task
-plan, `PROJECT_SPEC_conditional_fm_collapse.md` for the original specification,
-and `results/RESULTS.md` for the findings.
+(every proposition proved, no hanging assumptions) and `results/RESULTS.md` for the findings.
+The original task plan and specification are in the git history (removed on 2026-11-23).
 
 **Central claim.** In conditional CFM with a deterministic linear interpolant,
 the "resample `x0` every step" mechanism that protects *unconditional* CFM from
@@ -28,7 +28,7 @@ successive training iterations. They start visibly different and end pixel-ident
 -- and identical to one specific training image, shown in the last column. Measured
 `tr Cov` falls 179.1 -> 0.431 across these frames.
 
-![training](paper/figures/anim_cifar_training.gif)
+![training](docs/figures/anim_cifar_training.gif)
 
 **The remedy, and its ceiling.** The same conditions at the end of training, swept
 over the label bandwidth. Diversity comes back as `h` grows -- which is what any
@@ -37,14 +37,14 @@ training images stays high. At `h = 5` the completions are wildly varied and 72%
 them are training photographs, several of which do not even match the visible half.
 Restored variance, un-restored posterior.
 
-![bandwidth](paper/figures/anim_cifar_bandwidth.gif)
+![bandwidth](docs/figures/anim_cifar_bandwidth.gif)
 
 **The whole family in one sweep.** On the 2-d instance, the exact endpoint law as `h`
 runs from 0 upward: a single point mass, then a kernel-weighted mixture that passes
 exactly through `tr Cov_h = tr Sigma_post`, then the uniform empirical measure. The
 two corollaries of the paper are the two ends of this animation.
 
-![bandwidth sweep](paper/figures/anim_bandwidth_2d.gif)
+![bandwidth sweep](docs/figures/anim_bandwidth_2d.gif)
 
 **Guidance cannot leave the training set.** Atoms spanning a plane in R^3, with
 trajectories started deliberately off it. Whatever the guidance weight, they are
@@ -52,14 +52,14 @@ pulled onto the plane, because the component orthogonal to it obeys `q_t = (1-t)
 exactly. When `N <= d` that plane is a null set, so no guidance weight makes the
 conditional law continuous.
 
-![guidance](paper/figures/anim_guidance_3d.gif)
+![guidance](docs/figures/anim_guidance_3d.gif)
 
 Regenerate any of them with
 `uv run python -m scripts.make_project_animations --only NAME`.
 
 ## The mechanism, in one animation
 
-![collapse](paper/figures/anim_collapse.gif)
+![collapse](docs/figures/anim_collapse.gif)
 
 Three exact population flows on the same problem, from the same source draws. Left:
 hard conditioning, where every trajectory lands on one training image and the cloud's
@@ -197,6 +197,25 @@ paper reports. `scripts/kaggle_run.py` drives one session of it and prints the
 measured throughput and how many sessions are left; `docs/KAGGLE.md` has the
 recipe.
 
+## Submission packages
+
+`python submit/build.py` builds every package from `paper_theory/` (paper A) and
+`paper_mechanism/` (paper B); pass target names to build only some of them.
+
+| Target | What it is | What to upload |
+|---|---|---|
+| `A_tmlr` | paper A, anonymous | `submit/pdf/A_tmlr.pdf` on OpenReview |
+| `A_arxiv` | paper A, `[preprint]` with real authors | `submit/A_arxiv_source.zip` |
+| `B_neurips` | paper B, anonymous (TMLR style until the NeurIPS 2027 style is out) | `submit/pdf/B_neurips.pdf` |
+| `supp_A`, `supp_B` | anonymised code, the `results/` folders it reads (no checkpoints or logs) and a generated README | `submit/supp_A.zip`, `submit/supp_B.zip` |
+
+Each package has its LaTeX comments stripped (arXiv publishes the source), unused files
+removed, a clean `latexmk` build, and a scan of the sources and of the PDF text for names,
+lab paths, `TODO`/`FLAG` notes and, in A, any mention of paper B. A failed scan stops that
+target, and a supplement over 95 MB stops too (TMLR allows 100 MB). The open notes that were stripped are listed in `submit/stripped_notes.txt` with
+their lines in the paper sources. The arXiv author block lives in
+`submit/authors_A_arxiv.tex`; `A_arxiv` fails until its placeholder is replaced.
+
 ## Layout
 
 ```
@@ -211,6 +230,10 @@ src/
 configs/                        YAML configs (CLI overridable via --set a.b=c)
 scripts/                        analysis + orchestration
 results/                        figures, raw CSVs, RESULTS.md
+paper_theory/                   paper A (TMLR, then arXiv) and its figures
+paper_mechanism/                paper B (NeurIPS) and its figures
+submit/                         build.py for the submission packages (outputs gitignored)
+docs/                           THEORY.md, KAGGLE*.md, README animations, linked plans and reviews
 ```
 
 ## Predictions under test (spec Section 2.3)

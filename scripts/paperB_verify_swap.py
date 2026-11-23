@@ -2,7 +2,7 @@
 
 Written without reading scripts/paperB_swap.py. Recomputes, directly from the per-sample files that
 scripts/n3_swap.py saved, every headline number of that analysis, and checks them (and the swap
-numbers quoted in paper/main.tex sec:edm, SWAP_SUMMARY.md and NOTES_vi.md) at the stated precision.
+numbers quoted in paper_mechanism/main.tex sec:edm, SWAP_SUMMARY.md and NOTES_vi.md) at the stated precision.
 
     PYTHONPATH=. uv run --no-sync python -m scripts.paperB_verify_swap
 

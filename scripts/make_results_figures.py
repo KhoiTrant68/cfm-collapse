@@ -2,7 +2,7 @@
 
     uv run python -m scripts.make_results_figures      (from the repo root)
 
-Writes into paper/figures:
+Writes into figures_out:
     fig_exp1_collapse.pdf    EXP-1 at h=0, five seeds (Table tab:exp1): (a) generated trace
                              against iteration, constant and cosine schedules, with the
                              unconditional baseline; (b) distance of the generated mean to

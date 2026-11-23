@@ -1,4 +1,4 @@
-"""Measure the distance to the population optimum (WORK_ORDER T5, Question B).
+"""Measure the distance to the population optimum.
 
 For each checkpoint of a run, Monte-Carlo estimate on the SAME batch:
 

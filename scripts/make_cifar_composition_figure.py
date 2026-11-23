@@ -16,7 +16,9 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 
-from figstyle import FIGDIR, OI, style, use_paper_style
+from figstyle import OI, style, use_paper_style
+
+OUTDIR = Path("paper_theory/figures")  # figure of paper A
 
 ROOT = Path("results/cifar_composition_exact_20261105")
 SHOW = ((1491, 1514), (81, 819), (158, 230))   # the three most distant pairs
@@ -60,7 +62,8 @@ def main() -> None:
     ax.set_title("(b) exact composite, $d=3072$, $N=2000$", fontsize=9)
     ax.legend(frameon=False, fontsize=8, loc="upper left")
     style(ax)
-    out = FIGDIR / "fig_cifar_composition.pdf"
+    OUTDIR.mkdir(parents=True, exist_ok=True)
+    out = OUTDIR / "fig_cifar_composition.pdf"
     fig.savefig(out); print("wrote", out)
     # Pair distances against the nearest-neighbour distances of the 2000 images (checked by
     # verify_paper_numbers.py, which cannot read the uncommitted data file).
@@ -72,7 +75,7 @@ def main() -> None:
             "pairs": [{"pair": p["pair"], "dist": float(D[p["pair"][0], p["pair"][1]]),
                        "mutual_nn": bool(D[p["pair"][0]].argmin() == p["pair"][1]
                                          and D[p["pair"][1]].argmin() == p["pair"][0])} for p in S]}
-    (FIGDIR / "fig_cifar_composition.json").write_text(json.dumps(info, indent=1), encoding="utf-8")
+    (OUTDIR / "fig_cifar_composition.json").write_text(json.dumps(info, indent=1), encoding="utf-8")
     print(json.dumps(info))
 
 

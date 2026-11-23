@@ -14,7 +14,7 @@ Central objects
 * ``cov_expansion``   -> tr Σ_post + h²‖J‖_F²               (Prop 15, closed form)
 
 All kernel computations go through log-sum-exp: for small h and k=1 the raw ratio
-of Gaussian weights between atoms overflows float easily (see WORK_ORDER §3).
+of Gaussian weights between atoms overflows float easily.
 """
 from __future__ import annotations
 
