@@ -192,8 +192,9 @@ sample from every swap level.}
 \begin{itemize}\itemsep1pt
 \item \emph{A landing condition for learned fields} (Section~\ref{sec:transfer}). A trajectory
   reaches a training example when its error stays a fixed fraction below its distance to that
-  example, and does not when the radial ratio, the pull of the predicted clean image toward the
-  example relative to the current distance, approaches one fast enough (Theorem~\ref{thm:relerr}). The condition holds at any label and bandwidth, including the class
+  example, and does not when the radial ratio approaches one fast enough (Theorem~\ref{thm:relerr}).
+  This ratio is how far the predicted clean image still lies out along the state's offset from the
+  example, in units of the state's distance; at one there is no pull toward the example. The condition holds at any label and bandwidth, including the class
   posterior of a class-conditional model, and the constant fraction cannot be replaced by one. A
   trapping statement in EDM coordinates and a one-step bound for the deterministic Heun sampler make
   it usable on a finite schedule (Propositions~\ref{prop:trap} and~\ref{prop:heun}).
@@ -579,8 +580,6 @@ at $t=1$. If the spatial Lipschitz constant of a velocity network and $|v_\theta
 integrable up to $t=1$, its flow map is bi-Lipschitz by Gr\"onwall's inequality and carries the Gaussian source to a law without
 atoms \citep{companionA}. The collapse of such a network in Section~\ref{sec:exp1} is therefore an
 approach to the atom at a finite cutoff, not the atom itself.
-% FLAG: the Gronwall sentence (bi-Lipschitz flow map, so no endpoint atoms) is a justification
-% added by the writer in place of the paper-A citation; the checker should confirm it.
 % DECISION: companionA kept here for the no-atom statement (Proposition "regular" of paper A).
 % The Gronwall sentence makes B readable without it; the group decides whether to keep the
 % citation (contract sec. 7, item 3).
@@ -676,9 +675,6 @@ the proof of Proposition~\ref{prop:trap}, and the contraction that $\varrho$ lea
 levels is $\int(1-\varrho)\,d\log(1/\sigma)$. These are not the quantities of
 Theorem~\ref{thm:relerr} in the coordinates $t=1/(1+\sigma)$ and $Z=tx$, where $n_t=|tx-a|$; we did
 not record those.
-% FLAG (F3, fixed by wording): scripts/n3_directional_q.py (around line 126) measures |x-a| in EDM
-% coordinates, the n(sigma) of prop:trap, not n_t=|Z_t-a| with Z=tx of thm:relerr. Recomputing
-% with |tx-a| needs the CIFAR images of data/edm_subsets (listed as planned in the Limitations).
 All samples use
 EDM's deterministic $18$-step Heun sampler, and a sample is off-atom when its distance to the
 nearest training image of its class is at least $1/3$ of that to the second nearest, as in
