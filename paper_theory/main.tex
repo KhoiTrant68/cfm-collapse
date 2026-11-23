@@ -140,7 +140,7 @@ can only return training examples from the composition of conditions, which can 
 \caption{Overview. A finite training set $\{(x^i,y^i)\}_{i=1}^N$ and its labels define the exact
 conditional field $\vstar$, the population minimiser of the flow-matching objective. Each
 intervention studied here replaces $\vstar$ by another field built from exact fields. Label noise
-(Theorem~\ref{thm:endpoint}), label averaging (Theorem~\ref{thm:posmix}), guidance with a fixed
+(Theorem~\ref{thm:endpoint}), label averaging at $h>0$ (Theorem~\ref{thm:posmix}), guidance with a fixed
 strength (Proposition~\ref{prop:cfgatom}) and guidance schedules (Theorem~\ref{thm:schedule}) all
 end on training images from almost every initial point; only the weights of the images change.
 Composition, guidance applied to the label-averaged field, combines three fields and can end on a
@@ -1129,7 +1129,7 @@ $\tr\Covh(y)$ of the label-weighted training examples. We compare it with the va
 from trained networks on two problems (Appendix~\ref{app:kernel-protocol}). On a linear-Gaussian
 problem in $d=2$ with $N=200$ training pairs and five seeds, the ratio of the generated variance
 to $\tr\Covh$ is $1.002\pm0.050$, $0.994\pm0.039$ and $1.011\pm0.022$ at $h=0.05$, $0.1$ and $0.5$
-(Table~\ref{tab:p7kernel}). At $h=0.01$ the reference is nearly degenerate, with an effective
+(Table~\ref{tab:p7kernel}, Figure~\ref{fig:kernel-tracking}a). At $h=0.01$ the reference is nearly degenerate, with an effective
 number of atoms $n_{\mathrm{eff}}=1/\sum_i(p_i^{(h)})^2\approx3.5$; the per-seed ratios range from
 $0.92$ to $1.96$, and the comparison does not decide. These networks match a second moment of an
 atomic law, which does not show that their samples lie on the atoms. On CIFAR-10 inpainting with a
@@ -1137,7 +1137,7 @@ $35.75$M-parameter U-Net and $N=2000$ training images, the exact field puts the 
 log--log slope of generated against reference variance at $1$. Networks retrained on three
 independently drawn training sets give $0.34$, $0.32$ and $0.43$ at $h=4$ (mean $0.36$, $95\%$
 $t$-interval $[0.22,0.51]$), so at image scale the generated variance does not follow the reference
-across conditions (Table~\ref{tab:cifar-kernel}). At $h=6$ the reference spans less than two
+across conditions (Table~\ref{tab:cifar-kernel}, Figure~\ref{fig:kernel-tracking}b). At $h=6$ the reference spans less than two
 decades, and the slope, between $0.08$ and $0.60$ across the training sets, is not determined. In a
 further retraining with the same configuration, the networks leave $0.168$ of their samples at
 $h=4$ and $0.276$ at $h=6$ off the training images at the cutoff $1-t=10^{-4}$, by a
@@ -1430,7 +1430,8 @@ learned composition and Figure~\ref{fig:learned-composition} (\texttt{learned\_c
 CIFAR-10 pairs and
 Figure~\ref{fig:cifar-composition} (\texttt{cifar\_composition\_exact.py},
 \texttt{make\_theory\_cifar\_composition\_figure.py}), the label-noise comparisons of
-Tables~\ref{tab:p7kernel} and~\ref{tab:cifar-kernel} (\texttt{analyze\_p7\_kernel.py},
+Tables~\ref{tab:p7kernel} and~\ref{tab:cifar-kernel} and Figure~\ref{fig:kernel-tracking}
+(\texttt{analyze\_p7\_kernel.py}, \texttt{make\_theory\_kernel\_tracking\_figure.py},
 \texttt{reeval\_exp3\_cifar\_ddpm.py}, \texttt{paperB\_uncertainty.py},
 \texttt{summarize\_s10\_cifar.py}) and the kernel and endpoint-noise checks
 (\texttt{test\_kernel\_theory.py}, \texttt{verify\_kernel\_theory.py},
@@ -3268,6 +3269,23 @@ is nearly degenerate and the per-seed ratio ranges from $0.92$ to $1.96$. That $
 to $\tr\Sigmapost$ near $h=0.1$ is a coincidence of this problem.}
 \label{tab:p7kernel}
 \end{table}
+
+\begin{figure}[htb]
+\centering
+\IfFileExists{figures/fig_kernel_tracking.pdf}{\includegraphics[width=\textwidth]{fig_kernel_tracking.pdf}}{\fbox{kernel-tracking figure pending}}
+\caption{Label noise in trained networks against the reference $\tr\Covh$ of
+Theorem~\ref{thm:endpoint}. (a) Linear-Gaussian problem, $d=2$, $N=200$: generated variance
+divided by $\tr\Covh$ at each bandwidth $h$, one light dot per seed and the mean $\pm$ population
+standard deviation over five seeds, with the effective number of atoms $n_{\mathrm{eff}}$ above
+each $h$. The dashed line at $1$ is the exact-field value. The networks follow it for $h\ge0.05$;
+at $h=0.01$ the reference is nearly degenerate and the seeds disagree (Table~\ref{tab:p7kernel}).
+(b) CIFAR-10 inpainting at $h=4$: generated against reference variance on log scales, one point
+per condition ($48$), for networks retrained on three independent draws of the training set, each
+with its least-squares line. The slopes are $0.34$, $0.32$ and $0.43$, against $1$ for the exact
+field (dashed). $h=5$ and $h=6$ are not drawn: there the reference spans too few decades to
+determine the slope (Table~\ref{tab:cifar-kernel}).}
+\label{fig:kernel-tracking}
+\end{figure}
 
 \begin{table}[htb]
 \centering\small
