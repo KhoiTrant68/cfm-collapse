@@ -145,12 +145,15 @@ sampled by two models, and Figure~\ref{fig:mechanism} shows the landing conditio
 \IfFileExists{figures/tikz/overview.tex}{\resizebox{\textwidth}{!}{\input{figures/tikz/overview.tex}}}{\fbox{overview schematic pending}}
 \caption{Overview of the paper. Gaussian noise enters EDM's deterministic sampler, which calls the
 denoiser $D_\theta(x;\sigma)$ at every noise level $\sigma$ of the schedule. Three marks on the
-noise axis organise the results. First, the training image the trajectory is headed for is chosen:
-on the public model half of the images are chosen by the swap level $s\approx2.5$
-(Section~\ref{sec:swap}). Second, a copy appears in the denoiser output: from $\sigma\approx1$ on,
-the distance from $D_\theta$ to the nearest training image tells which samples will copy
-(Section~\ref{sec:contraction}). Third, in the late levels $\sigma\le0.59$ the state itself reaches
-the image only if the relative error $\varrho=e/n$ stays below one (Theorem~\ref{thm:relerr}). Right, the two swaps at level $s$. Net$\to$exact runs the network above
+noise axis, drawn against the five marked levels of the $18$-step schedule ($\sigma=80$, $5.3$,
+$1.9$, $0.59$ and $0.002$), organise the results. First, the training image the trajectory is
+headed for is chosen: on the public model half of the trajectories have chosen their image by the
+swap level $s\approx2.5$ and about $90\%$ by $\sigma\approx1$ (Section~\ref{sec:swap}). Second, a
+copy appears in the denoiser output: from $\sigma\approx1$ on, the distance from $D_\theta$ to the
+nearest training image tells which samples will copy (Section~\ref{sec:contraction}). Third, over
+the late levels $\sigma\le0.59$ the state itself reaches the image if its relative error
+$\varrho=e/n$ stays below a constant $\bar\varrho<1$ (Theorem~\ref{thm:relerr}). Right, the two
+swaps at level $s$, each with one field at $\sigma>s$ and the other at $\sigma\le s$. Net$\to$exact runs the network above
 $s$ and the exact posterior mean below it, and tells which image was chosen. Exact$\to$net runs the
 exact field above $s$ and the network below it, and tells whether the network lands from the state
 it is handed.}
