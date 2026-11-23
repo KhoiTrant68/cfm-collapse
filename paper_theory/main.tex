@@ -249,7 +249,8 @@ to them than to any other example, this needs a specific sign pattern.
 (Section~\ref{sec:intervention-atomicity}). A finite kinetic energy forces convergence to a finite
 set of candidates, and a divergence that grows like $(1-t)^{-2}$ makes the initial points ending at
 a non-atom candidate null. For a single field the null set also follows from the known marginals of
-the flow \citep[Theorem~5.3]{wan2025elucidating}. For a mixture of fields or a guided field the
+% FLAG: the theorem number of Wan et al. (previously Theorem 5.3; possibly 5.4 for general weights) must be checked against PMLR v267 / arXiv 2501.15785v2 before it is restored.
+the flow \citep[cf.][]{wan2025elucidating}. For a mixture of fields or a guided field the
 marginals are not known, and the volume argument does not use them. Guidance has prior coefficients
 of opposite signs, for which the usual Lyapunov argument fails. For a fixed strength, a bound on the
 relative entropy of a posterior to its prior keeps the kinetic energy finite, as in
@@ -342,7 +343,8 @@ ends.
 
 \paragraph{Label noise and kernel readings.} Kernel readings of finite-support flows are not new
 \citep{scarvelis2025closedform,chen2026scoresmoothing,smola2026support}.
-\citet[Theorem~6.4]{baptista2025memorization} identify the empirical conditional law on the subset
+% FLAG: the theorem number of Baptista et al. (previously cited as Theorem 6.4) must be checked against the published version before it is restored.
+\citet{baptista2025memorization} identify the empirical conditional law on the subset
 sharing a label, and \citet[Section~3.3]{physicscfm2026} analyse cell-conditioned flows. The
 Nadaraya--Watson endpoint law of Section~\ref{sec:theory} is therefore a reference, not a new
 identity. Gaussian noise on a conditioning signal is the conditioning augmentation
@@ -360,7 +362,7 @@ to memorisation in trained models.
 
 \paragraph{Convergence of the flow.} \citet[Theorem~3.7, version~3]{liu2025pde} prove that almost
 every trajectory of a single score flow converges to the compact data support.
-\citet[Theorem~5.3]{wan2025elucidating} prove for flow-matching ODEs, finite data included, that
+\citet{wan2025elucidating} prove for flow-matching ODEs, finite data included, that
 almost every trajectory converges and that the endpoint law is the data law.
 \citet[Theorem~2.5, version~2]{liu2026geometric} prove that for a mixture or guidance of the scores
 of two finite atomic laws with a constant weight, every trajectory converges to one of finitely
@@ -412,7 +414,7 @@ over square-integrable vector fields. Hard conditioning is $h=0$, with $\widetil
 unconditional objective omits the label. We write $p_1^{(h)}(\cdot\mid y)$ for the endpoint law
 of the minimiser's flow from~$\pi_0$ at a fixed condition~$y$, a weak limit as $t\uparrow1$,
 and $p_1^{\mathrm{unc}}$ for the unconditional one. At $h=0$ the objective constrains the field
-only at observed labels \citep[Theorem~6.4]{baptista2025memorization}, so hard-conditioning
+only at observed labels \citep[cf.][]{baptista2025memorization}, so hard-conditioning
 statements concern training labels; at $h>0$ the reference is defined at every label.
 
 \begin{assumption}[Standing]
@@ -1860,7 +1862,7 @@ below; finite data are excluded, and for them an exceptional set can exist
 \def\cmpcell{\raggedright\hspace{0pt}}
 \begin{tabular}{@{}p{0.11\textwidth}p{0.18\textwidth}p{0.21\textwidth}p{0.17\textwidth}p{0.25\textwidth}@{}}
 \toprule
-& \cmpcell\citet[Thm.~3.7]{liu2025pde}; \citet[Thm.~5.3]{wan2025elucidating} & \cmpcell\citet[Thm.~2.5]{liu2026geometric} & \cmpcell\citet[Thm.~3]{azangulov2026adaptive} & \cmpcell This paper\tabularnewline
+& \cmpcell\citet[Thm.~3.7]{liu2025pde}; \citet{wan2025elucidating} & \cmpcell\citet[Thm.~2.5]{liu2026geometric} & \cmpcell\citet[Thm.~3]{azangulov2026adaptive} & \cmpcell This paper\tabularnewline
 \midrule
 \cmpcell Dynamics & \cmpcell deterministic flow of one field & \cmpcell deterministic flow of the mixed score $\lambda s_1+(1-\lambda)s_2$ of two heat flows & \cmpcell reverse SDE with the guided score & \cmpcell deterministic flow of exact conditional flow-matching fields, linear interpolant\tabularnewline
 \cmpcell Support & \cmpcell compact, or of positive reach with a local mass bound; both include finite sets & \cmpcell two finite sets with positive weights, possibly different & \cmpcell any compact set; a class with $p(c)>0$ & \cmpcell one finite set, strictly positive priors\tabularnewline
