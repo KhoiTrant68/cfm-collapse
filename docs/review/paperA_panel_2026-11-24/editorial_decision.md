@@ -37,6 +37,10 @@ editorial_decision=major_revision
 
 The Devil's Advocate CRITICAL table is empty, so no DA-CRITICAL adjudication is required.
 
+## Author Update (2026-11-25)
+
+The author confirmed that they wrote every statement and proof in the paper, including Corollary twofields, Proposition twoatom and Remark generic, and that they checked each proof line by line. The "Use of large language models" section of `paper_theory/main.tex` was corrected to match: it no longer says that any proof was drafted by a model, or that the authors' check is incomplete. Roadmap item R4, with the findings it transports (EIC W2, R1 W2, R2 W7), concerned only that sentence, and it is resolved by the correction. The seat reports below are kept unchanged as the record of the version they reviewed.
+
 ## Part 1: Editorial Decision Letter
 
 Dear Authors,

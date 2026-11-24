@@ -26,6 +26,15 @@ first coordinate is outside the interval, or the converse; "flagged_vs_midpoint_
 those flagged by the 1% criterion of the stress test that are not within 0.05 of the midpoint, or
 the converse; max_abs_x1/x2_at_midpoint are the largest coordinates of the endpoints within 0.05 of
 the midpoint.
+
+Revision 2026-11-25: every configuration is run twice, with the logit coding of
+novelty_interventions.py ("logits") and with the algebraically identical blow-up coding of
+``oracle_s`` ("blowup"). With the logit coding the scheme reproduces the exact basins, but only
+because the captured trajectories reach |x_1| ~ 1e-17 before the step becomes unstable, where the
+logits no longer resolve x_1 and the computed field is exactly symmetric. With the blow-up coding
+the same scheme ejects every captured trajectory. So the fixed-step stress test does not detect
+an attracting tie as such; its agreement in the logit coding is a rounding effect.
+Output: results/stress_positive_control_20261125/summary.json (the 20261121 run is kept).
 """
 from __future__ import annotations
 
@@ -36,7 +45,7 @@ from pathlib import Path
 
 import numpy as np
 
-OUT = Path("results/stress_positive_control_20261121")
+OUT = Path("results/stress_positive_control_20261125")
 GAPS = (1e-2, 1e-4, 1e-6)
 EXACT = Path("results/theory_composition_20261019/summary.json")
 
@@ -54,6 +63,17 @@ def oracle(x, s, atoms, lp, w):
     cond = (softmax(spatial[:, None, :] + lp[None]) @ atoms).mean(1)                      # (M, d)
     unc = softmax(spatial) @ atoms
     return (1 + w) * cond - w * unc - x
+
+
+def oracle_s(x, s, B, w):
+    """The same field written in the blow-up coordinate z = t x_1 / eps^2 (atoms (+-1, 0), log-odds
+    +-2B). Algebraically identical to ``oracle``, but it keeps resolving x_1 where the logits of
+    ``oracle`` lose x_1 to rounding (|x_1| below about 1e-16 eps^2/t)."""
+    eps = math.exp(-s); t = -math.expm1(-s)
+    z = t * x[:, 0] / eps ** 2
+    out = -x.copy()
+    out[:, 0] += (1 + w) / 2 * (np.tanh(z + B) + np.tanh(z - B)) - w * np.tanh(z)
+    return out
 
 
 def rk4(f, x, steps, ends):
@@ -103,12 +123,16 @@ def main() -> None:
     B = 1.0
     wc = 1 / math.sinh(B) ** 2
     lp = np.array([[-B, B], [B, -B]])        # log priors on (atom -1, atom +1): log-odds +-2B
-    for ratio in (0.9, 1.1, 2.0, 10.0):
+    for coding, ratio in [(c, r) for c in ("logits", "blowup") for r in (0.9, 1.1, 2.0, 10.0)]:
         w = ratio * wc
-        f = lambda x, s: oracle(x, s, atoms, lp, w)   # noqa: E731
+        if coding == "logits":
+            f = lambda x, s, w=w: oracle(x, s, atoms, lp, w)   # noqa: E731
+        else:
+            f = lambda x, s, w=w: oracle_s(x, s, B, w)          # noqa: E731
         basin = exact_basin(B, ratio, x0[:, 0])
         for steps in (256, 512):
-            P = rk4(f, x0, steps, ends)
+            with np.errstate(over="ignore", invalid="ignore"):
+                P = rk4(f, x0, steps, ends)
             for j, gap in enumerate(GAPS):
                 end = P[j]
                 finite = np.isfinite(end).all(1)
@@ -116,7 +140,7 @@ def main() -> None:
                 mid = np.linalg.norm(end, axis=1) < 0.05
                 flagged = near > 0.01 * sep
                 rows.append({
-                    "B": B, "w_over_wc": ratio, "steps_per_segment": steps, "gap": gap,
+                    "coding": coding, "B": B, "w_over_wc": ratio, "steps_per_segment": steps, "gap": gap,
                     "dtau": float(ends[0] / steps),
                     "fraction_finite": float(finite.mean()),
                     "fraction_at_midpoint_0.05": float(mid[finite].mean()),

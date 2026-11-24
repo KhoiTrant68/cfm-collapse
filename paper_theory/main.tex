@@ -105,12 +105,14 @@ on Its Training Set?}
 Generative models trained on a finite dataset can return exact copies of their training images,
 which matters for copyright and privacy. Conditional flow-matching samplers are also often run with
 a field other than the one their objective targets.
-Labels are noised during training, a network that resolves labels coarsely averages the field
-over nearby labels, and sampling adds classifier-free guidance, guidance schedules, negative
+Labels are noised during training, a sampler that averages several label queries averages the
+field over nearby labels, and sampling adds classifier-free guidance, guidance schedules, negative
 prompts, or the summed guidance terms of compositional generation. Some of these changes are used
 to reduce the replication of training data. We ask which of them can move the endpoints of the
 exact empirical field off the training examples. This field minimises the training loss for a fixed
-training set, and without changes it returns only training examples. The answer depends on how many exact fields are combined, and with which signs. Label
+training set, and without changes it returns only training examples. When every combined field
+has a strictly positive prior, as under label noise, the answer depends on how many exact fields
+are combined, and with which signs; at hard labels already an average of two fields blends. Label
 noise only reweights the training examples, with weights computable from the labels. Positive
 mixtures of exact fields with strictly positive priors end on a training example from almost every
 initial point. So does every fixed combination of two such fields, which includes negative prompting
@@ -120,15 +122,17 @@ every trajectory of the flow was known to converge, possibly to a point that is 
 example. Three fields can blend training examples. The conjunction of compositional generation
 reaches a blend with positive probability. For two examples with prior log-odds $\pm2B$ this
 happens exactly when the guidance strength exceeds $1/\sinh^2B$, and in any dimension the
-eigenvalue signs of a signed posterior covariance decide it. At a tie of two examples, a point
+eigenvalue signs of a signed posterior covariance decide it at hyperbolic profiles, which are
+generic in the priors. At a tie of two examples, a point
 equally close to both and closer to them than to any other example, a blend requires subtracting an
 intermediate field: one whose prior log-odds between the two examples lie strictly between the
 smallest and the largest among all the combined fields. The blend
-basin lies in a layer of width $(1-t)^2$ around the tie. Standard velocity networks miss it, while
-networks given a coordinate at that scale, centred at the tie, can match its exact probability.
-We therefore present the composition as a boundary marker, not a practical mechanism.
-For an audit of replication, the results separate the sampler settings that at the exact optimum
-can only return training examples from the composition of conditions, which can blend them.
+basin lies in a layer of width $(1-t)^2$ around the tie. In our low-dimensional runs, standard
+velocity networks miss it, while networks given a coordinate at that scale, centred at a tie
+given in advance, match its exact probability there. Whether trained compositional samplers
+reach such blends is therefore open. At the exact optimum, the results separate the sampler
+settings that can only return training examples from the composition of conditions, which can
+blend them.
 \end{abstract}
 
 % ==========================================================================
@@ -156,7 +160,7 @@ strength exceeds $w_c=1/\sinh^2B$ (Theorem~\ref{thm:composition}).}
 \includegraphics[width=\textwidth]{fig_unrolled_exact.pdf}
 \caption{Where each source ends, on a triangle of training points $a_1,a_2,a_3$
 (Section~\ref{sec:intervention-tests}, $B=2$; $v_k$ is the exact field of the condition favouring
-$a_k$). Each pixel is an initial point $x_0$, coloured by the endpoint of its exact trajectory: a
+$a_k$; here $w_c=w_c^{\mathrm{spec}}=1.160$, Corollary~\ref{cor:spectral-threshold}). Each pixel is an initial point $x_0$, coloured by the endpoint of its exact trajectory: a
 training point (blue, green, purple) or a blend (vermillion: the centre, dark; an edge midpoint,
 light). Circles: one and two standard deviations of $\pi_0$. Bars: the endpoint law under $\pi_0$
 ($32768$ sources). (a) One field ends on the training points with the label weights of
@@ -185,15 +189,19 @@ of several conditions~\citep{liu2022composable}. Randomising the conditioning re
 trained text-to-image models~\citep{somepalli2023copying}.
 
 We ask which of these modifications can, alone or combined with another, move the endpoints of
-the exact field off the training set. Two groups need the answer. A practitioner who uses label
+the exact field off the training set. Replication by deployed models has been documented
+\citep{carlini2023extracting,somepalli2023diffusion}. Two groups need the answer. A practitioner who uses label
 noise, guidance schedules or negative prompts against copying needs to know whether the knob
 changes what the model is asked to produce, or whether any reduction comes only from the error of
 the learned field and may disappear with a closer fit. An auditor needs to know which sampler
-settings can return a training record at the exact optimum, and which record. The answer depends
+settings can return a training record at the exact optimum, and which record. When every
+combined field has a strictly positive prior, as under any label noise $h>0$, the answer depends
 on how many exact fields are combined, and with which signs (Figure~\ref{fig:overview},
 Table~\ref{tab:interventions}). Combinations of two fields only reweight the training examples.
 Three fields can blend them. At a tie of two examples, a point equally close to both and closer
-to them than to any other example, this needs a specific sign pattern.
+to them than to any other example, this needs a specific sign pattern. Positivity is essential:
+at hard labels ($h=0$) a fixed average of two conditional fields already sends every source to a
+weighted average of their training examples (Section~\ref{sec:posmix}).
 
 \paragraph{Contributions.}
 \begin{enumerate}[leftmargin=1.5em,itemsep=1pt]
@@ -219,14 +227,14 @@ to them than to any other example, this needs a specific sign pattern.
   over any family of positive priors. The exceptional set is null but can be a hyperplane, already
   for one field (Proposition~\ref{prop:hyperplane}; the planar case is Example~4.4 of
   \citealp{baptista2025memorization}).
-\item \emph{Three fields can blend them} (Sections~\ref{sec:composition}
+\item \emph{Three fields can blend them} (positive priors; Sections~\ref{sec:composition}
   and~\ref{sec:spectral}). Guidance applied to an average of conditional fields converges to a
   circumcentre of training examples with positive probability. For two examples whose priors have
   log-odds $\pm2B$ the threshold is exactly $w>1/\sinh^2B$, and the effect persists under
   perturbation of the priors, the mixture weights and the guidance strength
   (Theorem~\ref{thm:composition}, Proposition~\ref{prop:composition-open}). In any dimension the
-  eigenvalue signs of a signed posterior covariance separate open basins from null ones
-  (Theorem~\ref{thm:spectral}), and the profiles are hyperbolic for almost every choice of the
+  eigenvalue signs of a signed posterior covariance separate open basins from null ones at
+  hyperbolic profiles (Theorem~\ref{thm:spectral}), and the profiles are hyperbolic for almost every choice of the
   priors (Remark~\ref{rem:generic}).
 \item \emph{A sign rule for composing conditions} (Section~\ref{sec:conjunction}). With equal
   weights this composite is the conjunction of compositional generation. At a tie of two
@@ -234,17 +242,20 @@ to them than to any other example, this needs a specific sign pattern.
   between the two examples lie strictly between the smallest and the largest among all the
   combined fields (Proposition~\ref{prop:twoatom}). The conjunction has one. A negative prompt against one
   of the two examples does not, and a negative prompt milder than the positive one can.
-\item \emph{What a learned field needs to inherit the blend} (Sections~\ref{sec:regular-learned}
+\item \emph{A diagnostic for learned fields} (Sections~\ref{sec:regular-learned}
   and~\ref{sec:intervention-tests}). A velocity network with an integrable Lipschitz constant up
-  to $t=1$ has an endpoint law without atoms, and in one dimension a bounded data prediction ends
-  on the fixed points of its limit (Proposition~\ref{prop:regular}). The blend basin is set at the
-  scale $(1-t)^2$ around the tie. Standard velocity networks trained by flow matching do not
-  reproduce it. A data-predicting network given an input that resolves this scale matches the
-  exact probability at the tie where the input is centred in all but one of twenty
-  seed-configuration pairs, and leaves the blends at other ties empty.
-\item \emph{Numerical checks} (Section~\ref{sec:intervention-tests}). Exact-field stress tests
-  with a positive control, the signed combinations, the spectral criterion in $d\in\{2,8\}$ and
-  the exact composite on CIFAR-10 pairs ($d=3072$) agree with the theorems. With label noise,
+  to $t=1$ has an endpoint law without atoms, so it can at most approach a blend, and in one
+  dimension a bounded data prediction ends on the fixed points of its limit
+  (Proposition~\ref{prop:regular}). The exact blend basin is set at the scale $(1-t)^2$ around the
+  tie. In toy runs ($d\le2$, three to five seeds), standard velocity networks trained by flow
+  matching put almost no mass near it. A data-predicting network given an input that resolves
+  this scale, centred at a tie whose location we supply, matches the exact probability there in
+  all but one of twenty seed-configuration pairs, and leaves the blends at other ties empty. This
+  shows that the basin is learnable when its location is known, not that trained samplers find it.
+\item \emph{Numerical checks} (Section~\ref{sec:intervention-tests}). Exact-field consistency
+  checks, the signed combinations, the spectral criterion in $d\in\{2,8\}$ and
+  the exact composite on CIFAR-10 pairs ($d=3072$) agree with the theorems; where an attracting
+  tie exists, they use a stiff integrator with stopping rules taken from the proofs. With label noise,
   trained networks match the variance of the reference of item~1 on a two-dimensional problem,
   while a CIFAR-10 U-Net does not follow it across conditions.
 \end{enumerate}
@@ -279,7 +290,7 @@ Guidance $w\ge0$, fixed or a bounded schedule of bounded variation & atoms, a.s.
 Any two exact fields with positive priors, any constant coefficient, e.g.\ negative prompt by substitution & atoms, a.s. & Cor.~\ref{cor:twofields}\\
 Guidance applied to an average of conditional fields (conjunction) & can add a circumcentre with positive probability & Thm.~\ref{thm:composition}, \ref{thm:spectral}\\
 Three or more fields at a two-atom tie & a blend only if an intermediate field is subtracted & Prop.~\ref{prop:twoatom}\\
-Averaging identifying hard-label fields ($h=0$) & can move every endpoint to a circumcentre & Sec.~\ref{sec:posmix}\\
+Averaging identifying hard-label fields ($h=0$), fixed weights & every endpoint at the weighted average of the atoms & Sec.~\ref{sec:posmix}\\
 Endpoint noise $\rho>0$ & atoms convolved with $\N(0,\rho^2I_d)$ & Prop.~\ref{prop:tgtnoise}\\
 \bottomrule
 \end{tabular}
@@ -289,30 +300,45 @@ Only the composition rows and endpoint noise change the support.}
 \label{tab:interventions}
 \end{table}
 
-\paragraph{What this means in practice.} \emph{(i) At the exact optimum these knobs carry no
-guarantee against replication.} Label noise, label averaging, negative guidance and bounded
-nonnegative guidance schedules of bounded variation only reweight training examples. The blends
-reached by a conjunction are circumcentres of training images, that is, affine combinations of
-them, which an audit should count as leakage rather than as new samples. In trained networks the
+\paragraph{What this means in practice.} Every statement in this paragraph concerns the exact
+optimum. Our trained networks are not at it: at image scale their samples do not follow the
+label-noise reference, and a sizeable fraction ends off the training images
+(Section~\ref{sec:intervention-tests}). The statements say what the objective asks for, not what a
+given trained model does. \emph{(i) At the exact optimum these knobs carry no guarantee against
+replication.} With label noise ($h>0$), label averaging, negative guidance and bounded nonnegative
+guidance schedules of bounded variation only reweight training examples. In trained networks the
 same knobs can still reduce copying~\citep{somepalli2023copying}. Such a reduction cannot come from
-the knob at the exact optimum, only from the error of the learned field, and it need not survive a
-closer fit. Changing the support of the exact law needs a mechanism such as endpoint noise
+the knob at the exact optimum, only from the error of the learned field. That it may shrink as the
+fit improves is a hypothesis the exact field suggests; we do not test it. Changing the support of the exact law needs a mechanism such as endpoint noise
 (Proposition~\ref{prop:tgtnoise}). Its endpoint law is a Gaussian kernel density estimate around
 the weighted training examples, so sampling from it is a smoothed bootstrap. A support change does
 not by itself hide the source: for small noise the nearest training example of a sample recovers
-it, and the mechanism carries no formal privacy guarantee unless its randomisation is calibrated
-in the sense of differential privacy~\citep{dwork2014algorithmic}. \emph{(ii) Which record is
-returned is predictable.} Under label noise the returned record and its probability
-$p_i^{(h)}(y)$ are computable from the training labels and the query, so an auditor can rank, for
-any label, the records an exact-optimum model returns. Under guidance the support is the same but
-the weights have no closed form. \emph{(iii) Composition is a boundary marker, not a practical mechanism.} Among the
-operations studied here with strictly positive priors, only combining three or more fields changes
-the support of the exact law without adding noise (averaging hard-label fields can, at a symmetric
-tie, Section~\ref{sec:posmix}), and at a tie of two examples only when an intermediate field
-(prior log-odds strictly between the extreme ones) is subtracted. For the conjunction this happens above a threshold that is
-exponentially small in the confidence $B$ with which each condition identifies its own example.
-Negative prompts against one of the two examples never produce it. \emph{(iv) The statements
-concern support at fixed $N$.} The floor in~\eqref{eq:w2floor} is the mean squared distance from
+it, and averaging $M$ samples of one query recovers it to error of order $\rho/\sqrt M$, so no
+fixed noise level protects against repeated queries. Formal guarantees for these models come from
+private training~\citep{dockhorn2023differentially}, in the sense of differential
+privacy~\citep{dwork2014algorithmic}, not from noise added to the endpoint of the exact field.
+\emph{(ii) Which record is returned is computable from the labels.} Under label noise the returned
+record and its probability $p_i^{(h)}(y)$ are computable from the training labels, the bandwidth
+$h$ and the query. An auditor with this knowledge, typically the model owner, can therefore rank,
+for any label, the records an exact-optimum model returns. Under guidance the support is the same
+but the weights have no closed form, so no such ranking follows. Neither ranking transfers to our
+trained image networks, which do not follow the reference. \emph{(iii) Composition marks the
+boundary of these results.} Among the operations studied here with strictly positive priors, only
+combining three or more fields changes the support of the exact law without adding noise, and at a
+tie of two examples only when an intermediate field (prior log-odds strictly between the extreme
+ones) is subtracted. For the conjunction this happens above a threshold that is exponentially
+small in the confidence $B$ with which each condition identifies its own example, so guidance
+strengths used in practice exceed it. Negative prompts against one of the two examples never
+produce it. At hard labels the boundary moves: a fixed average of two conditional fields already
+sends every source to a weighted average of their examples (Section~\ref{sec:posmix}). Whether
+trained compositional samplers produce such blends is open; our learned runs reproduce the blend
+basin only when the location of the tie is supplied (Section~\ref{sec:intervention-tests}).
+Whether a blend counts as leakage depends on the criterion. Single-record criteria, such as
+$(\ell_2,\delta)$-extraction~\citep{carlini2023extracting} or the nearest-neighbour ratio test we
+use in Section~\ref{sec:intervention-tests}, classify the midpoint of two training images as new.
+Yet a blend is a linear constraint on the records it combines: an adversary who holds one image of
+a two-image tie recovers the other exactly, as $2z-x^i$ for the midpoint $z$. \emph{(iv) The
+statements concern support at fixed $N$.} The floor in~\eqref{eq:w2floor} is the mean squared distance from
 the posterior to the nearest training point, which typically decreases like
 $N^{-2/d}$~\citep{graf2000quantization}, so atomic support is compatible with a small distance to
 the posterior at large $N$.
@@ -323,7 +349,7 @@ its label-noise law. Section~\ref{sec:intervention-atomicity} treats the interve
 positive mixtures to the spectral criterion and the composition of conditions.
 Section~\ref{sec:regular-learned} says what a learned field needs to reach a blend, and
 Section~\ref{sec:intervention-tests} gives the numerical evidence. All proofs are in the
-appendices.
+appendices, except the short argument of Remark~\ref{rem:generic}.
 
 % ==========================================================================
 \section{Related work}
@@ -333,7 +359,7 @@ appendices.
 established
 \citep{pidstrigach2022manifolds,gu2023memorization,biroli2023diffusion,buchanan2025edge,gao2024flow,bertrand2025closed,li2026memory}.
 Trained denoisers generalise through inductive biases or training dynamics that keep them away
-from it \citep{kadkhodaie2024generalization,kamb2024creativity,niedoba2024mechanistic,bonnaire2025why},
+from it \citep{kadkhodaie2024generalization,kamb2024creativity,niedoba2024mechanistic,bonnaire2025why,vastola2025generalization},
 and \citet{bertrand2025closed} show that for flow matching this departure is not caused by the
 stochasticity of the regression target. For the exact empirical score, \citet{biroli2024dynamical}
 separate a speciation time, when the class is chosen, from a collapse time, when the trajectory is
@@ -357,10 +383,12 @@ baseline of \citet{wen2024detecting} also shows.
 be positive averages.
 
 \paragraph{Guidance.} Guidance does not sample the guided target law in
-general~\citep{chidambaram2024guidance}. With exact denoisers it acts as a predictor-corrector
+general~\citep{chidambaram2024guidance,wu2024theoretical}. With exact denoisers it acts as a predictor-corrector
 \citep{bradley2024cfg}, it can be applied with a bad version of the model as the unconditional
 term~\citep{karras2024autoguidance}, and \citet{jain2025attraction} and \citet{kim2025how} link it
-to memorisation in trained models.
+to memorisation in trained models. \citet{chen2024memorizationfree} use a guidance term to steer
+trained samplers away from memorised images; at the exact optimum, guidance that combines two
+exact fields falls under Corollary~\ref{cor:twofields}.
 
 \paragraph{Convergence of the flow.} \citet[Theorem~3.7, version~3]{liu2025pde} prove that almost
 every trajectory of a single score flow converges to the compact data support.
@@ -389,8 +417,20 @@ fails for the conjunction of conditions (Appendix~\ref{apx:comparison} compares 
 \paragraph{Composition.} Compositional generation adds the guidance terms of several conditions
 \citep{liu2022composable}. \citet{du2023reduce} show that the summed scores are not the scores of
 the noised product of the conditional laws, so reverse diffusion with them does not sample the
-product, and replace it by annealed MCMC. We are not aware of an analysis of the endpoints of this
-composition on the exact empirical field.
+product, and replace it by annealed MCMC. \citet{bradley2025mechanisms} characterise when linear
+score composition achieves a meaningful projective composition, \citet{skreta2025superposition}
+define AND and OR operators for diffusion and flow fields, and \citet{miglior2026compflow} compose
+velocity fields for multi-condition generation. These works ask whether composition samples the
+intended law. We ask where it ends on the exact empirical field, and we are not aware of an
+analysis of that question.
+
+\paragraph{Replication, membership and privacy.} Trained diffusion models can return training
+images \citep{carlini2023extracting,somepalli2023diffusion}, and membership can be inferred from
+their losses or trajectories \citep{duan2023are,matsumoto2023membership}, also for flow
+matching \citep{sesmat2026leaks}. Formal protection comes from private training
+\citep{dockhorn2023differentially}. Our results concern the exact optimum, not a trained model:
+they say which sampler settings can return a training record there. They are not an attack or a
+defence.
 
 % ==========================================================================
 \section{Setup and notation}
@@ -639,9 +679,14 @@ $\sum_i\tilde q_i(y)\delta_{x^i}$ for some probability weights $\tilde q(y)$.
 \end{restatable}
 
 No moment condition is imposed on $\varphi$, and the endpoint weights $\tilde q$ are not
-identified. Averaging the two identifying hard-label fields of a two-atom set, whose priors are
-not strictly positive, instead sends every source to the midpoint. The null set in (b) cannot be
-removed, and it need not be small in dimension.
+identified. Strict positivity of the priors is essential. By
+Proposition~\ref{prop:collapse}(a), the hard-label field at $y^i$ is $(x^i-x)/(1-t)$, so for any
+fixed weights $\lambda_i\ge0$ summing to one the average $\sum_i\lambda_iv_{e_i}$ equals
+$(z-x)/(1-t)$ with $z=\sum_i\lambda_ix^i$. Its flow sends every source to $z$, in every geometry
+of the atoms, and $z$ is a training example only if a single $\lambda_i$ is nonzero. At hard labels,
+an average of two fields therefore already blends. Our results on guidance and on three or more
+fields assume strictly positive priors and do not cover the hard-label conjunction. The null set
+in (b) cannot be removed, and it need not be small in dimension.
 
 \moveblock{hyperplane}{%
 \begin{restatable}[The exceptional set can be a hyperplane]{proposition}{prophyperplane}
@@ -1084,8 +1129,9 @@ star: $w=2w_c$, the row of (a) with probability $0.406$.}
 Table~\ref{tab:interventions} summarises what each intervention does to the support of the exact
 endpoint law. Endpoint noise, $X_1=x^I+\rho\xi$, is the only one among them that leaves the
 atoms in every configuration: its endpoint law has a density (Proposition~\ref{prop:tgtnoise}).
-Averaging hard-label fields can also move every endpoint, but only in configurations such as the
-symmetric tie of Section~\ref{sec:posmix}.
+A fixed average of hard-label fields also moves every endpoint, in every geometry: it sends every
+source to the weighted average of the atoms (Section~\ref{sec:posmix}). This is why the positive
+statements of this section assume strictly positive priors.
 }%
 
 
@@ -1109,9 +1155,11 @@ Let $v_\theta$ be continuous and locally Lipschitz in $x$ on $\R^d\times[0,1)$.
   absolutely continuous source the endpoint law is absolutely continuous and has no atom.
 \item Let $d=1$ and $v_\theta=(\hat x_1-x)/(1-t)$ on $[t_0,1)$, where $\hat x_1$ is bounded and
   continuous and $\partial_x\hat x_1$ is continuous on $\R\times[t_0,1]$, and let
-  $g=\hat x_1(\cdot,1)$ have finitely many fixed points. Every trajectory converges to a fixed
-  point of $g$; a fixed point $z$ with $g'(z)>1$ is the limit of at most one initial point, and
-  one with $g'(z)<1$ is the limit of a nonempty open interval of initial points.
+  $g=\hat x_1(\cdot,1)$ have finitely many fixed points. Every trajectory from time $t_0$
+  converges to a fixed point of $g$; a fixed point $z$ with $g'(z)>1$ is the limit of at most one
+  state at time $t_0$, and one with $g'(z)<1$ is the limit of a nonempty open interval of such
+  states. If $|v_\theta(x,t)|\le C(1+|x|)$ on $\R\times[0,t_0]$, the same holds for initial points
+  at $t=0$.
 \end{enumerate}
 \proofin{apx:pf-regular}
 \end{restatable}
@@ -1125,8 +1173,12 @@ exact composite carries no threshold there: every exact mean tends to the neares
 tie, for every label and every $w$, and $w_c=1/\sinh^2B$ is set at the scale $|x|\sim(1-t)^2$
 around the tie. Under (b) the off-atom basin is therefore decided by the slope
 $g_w'(0)=(1+w)\bar g_\varphi'(0)-w\,g_{\mathrm{unc}}'(0)$ of the networks' limits, which the exact
-field does not constrain. Reproducing the exact threshold requires a prediction whose spatial
-derivative is unbounded near the tie as $t\uparrow1$, as for an input $\operatorname{asinh}(tx/(1-t)^2)$.
+field does not constrain. Bounded limits can still put the crossing of $g_w'(0)$ through $1$ at
+$w=w_c$: for $\bar g_\varphi=2\tanh x$ and $g_{\mathrm{unc}}=(2+1/w_c)\tanh x$, $g_w'(0)=2-w/w_c$.
+Such a match is tuned to one value of $B$, and it does not reproduce the exact flow near the tie.
+What the exact field does there is set by $tx/(1-t)^2$, so a network that follows it on the
+shrinking layer $|x|\lesssim(1-t)^2$ needs a prediction whose spatial derivative is unbounded near
+the tie as $t\uparrow1$, as for an input $\operatorname{asinh}(tx/(1-t)^2)$.
 }%
 
 % ==========================================================================
@@ -1171,27 +1223,32 @@ the exact optimum, label noise keeps every endpoint on a training image
 atoms, and $h\in\{0.3,1\}$ give 200 paired cells across single-field, guidance ($w=3,12$),
 label-average and prior-average arms. With $128$ common sources and terminal gap $10^{-6}$, the
 largest cellwise 95th percentile of the nearest-atom distance is $6.11937\times10^{-6}$
-(Figure~\ref{fig:intervention-validation}, left, in Appendix~\ref{app:intervention-protocol}), and no sample exceeds the prespecified threshold of $1\%$ of the minimum atom separation. \moveblock{stressextra}{Doubling the
+(Figure~\ref{fig:intervention-validation}(a), in Appendix~\ref{app:intervention-protocol}), and no sample exceeds the prespecified threshold of $1\%$ of the minimum atom separation. \moveblock{stressextra}{Doubling the
 log-time RK4 resolution leaves every atom assignment unchanged. Field and prior averages differ
 in paired assignments by up to $31.25\%$, so they are distinct interventions.}\ificlr\else{} These are
 finite-time consistency checks, not a numerical proof. \fi\moveblock{neartie}{Near the symmetric tie of two atoms,
 sources at small offsets stay close to the midpoint until very small gaps
-(Figure~\ref{fig:intervention-validation}, middle), and four of six
+(Figure~\ref{fig:intervention-validation}(b)), and four of six
 adaptive near-tie integrations fail at small bandwidths; we report these failures
 (Appendix~\ref{app:intervention-protocol}).}\ificlr Near-tie failures are in Appendix~\ref{app:intervention-protocol}.\fi
 
-\paragraph{A positive control for the stress test.} None of the arms above has an attracting
+\paragraph{The stress test cannot see an attracting tie.} None of the arms above has an attracting
 non-atom candidate, so a scheme biased towards the atoms would pass the test as well. We therefore
 gave the same fixed-step log-time RK4, with the same $256$ and $512$ steps per segment and the
 same terminal gaps, the guided average of two conditional fields on the atoms $(\pm1,0)$ in $d=2$,
-with $B=1$, $w/w_c\in\{0.9,1.1,2,10\}$ and $4096$ Gaussian sources. At every gap and both step
-sizes it sends to the midpoint exactly the sources that the stiff integrator below assigns to its
-basin, with no disagreement among the $4096$: fractions $0$, $0.049$, $0.410$ and $0.988$, against
-basin probabilities $0$, $0.050$, $0.406$ and $0.991$ under $\pi_0$, the differences being
-sampling error. Along the line of the atoms the captured trajectories end within $3\times10^{-17}$
-of the midpoint, while the orthogonal coordinate decays like $1-t$, and at the gaps $10^{-4}$ and
-$10^{-6}$ the $1\%$ criterion flags exactly them. The stress test therefore sees an
-attracting tie when there is one (Appendix~\ref{app:intervention-protocol}).
+with $B=1$, $w/w_c\in\{0.9,1.1,2,10\}$ and $4096$ Gaussian sources. With the field coded through
+the logits $-|x-ta|^2/2(1-t)^2$, as in the stress test, it ends at the midpoint exactly the sources
+in the basin computed by the stiff integrator below: fractions $0$, $0.049$, $0.410$ and $0.988$,
+against basin probabilities $0$, $0.050$, $0.406$ and $0.991$ under $\pi_0$. This agreement is a
+rounding effect. In the last steps of the first segment the step exceeds the stability bound of
+RK4 for the linearisation at the tie by a factor of about $27$ at $w=2w_c$. The captured trajectories have
+already reached $|x_1|\approx10^{-17}$, where the logits no longer resolve $x_1$ and the computed
+field is exactly symmetric. With the same field coded in the blow-up coordinate $s=tx_1/(1-t)^2$,
+the scheme ejects these trajectories: no source ends at the midpoint, except $0.049$ at
+$w=1.1\,w_c$ with $512$ steps and the gap $10^{-2}$ only, and the $1\%$ criterion flags nothing. So the fixed-step stress test
+does not detect attracting ties. Its arms are consistency checks of theorems that exclude them;
+where an attracting tie exists, every number we report comes from the stiff integrator with
+stopping rules taken from the proofs (Appendix~\ref{app:intervention-protocol}).
 
 \paragraph{Guided label averaging.} For the configuration of Theorem~\ref{thm:composition} we
 integrate the exact composite flow \ificlr with stopping rules taken from the proof, and locate
@@ -1213,9 +1270,11 @@ configurations keep basin probabilities between $0.71$ and $0.86$
 classifier admits the midpoint only above the threshold of Theorem~\ref{thm:spectral}(c), the exact
 composite ends a positive fraction of the sources there in every pair at $2w_c$ (Appendix~\ref{app:cifar-composition}).\else On eight selected
 and twelve random CIFAR-10 pairs, with all $2000$
-training images in the field, Theorem~\ref{thm:spectral}(c) predicts the same threshold; in this
+training images in the field, Theorem~\ref{thm:spectral}(c) predicts probability zero at the
+midpoint below $w_c$ and a positive one above it (the value $w=w_c$ itself is not covered). In this
 consistency check, whose classifier admits the midpoint only above the threshold, the exact composite ends
-a positive fraction of the sources there in every pair at $2w_c$, up to $0.29$
+a positive fraction of the sources there in every pair at $2w_c$: on average $0.186$ over the
+eight pairs selected for their margin (at most $0.29$) and $0.042$ over the twelve random ones
 (Appendix~\ref{app:cifar-composition}).\fi
 
 \paragraph{Learned guided label averaging.} We train networks by flow matching on the two atoms
@@ -1360,7 +1419,8 @@ the exact ones (Appendix~\ref{app:intervention-protocol}). Whether a network rep
 basin depends on its parametrisation, chiefly on an input centred at the tie, and not in every
 seed; on the triangle the data-predicting network with this input leaves the blends at the other
 ties, the edge midpoints, empty. \emph{Hypotheses.} The positive-bandwidth results need strictly
-positive priors on a common support. Mixtures with different supports, schedules that are
+positive priors on a common support; at hard labels an average of two fields already blends
+(Section~\ref{sec:posmix}), and the hard-label conjunction is not analysed. Mixtures with different supports, schedules that are
 unbounded or change sign, and, in the spectral classification, nonhyperbolic profiles and faces
 whose affine hull contains the projected candidate are not covered. Nonhyperbolic profiles are
 exceptional in the priors (Remark~\ref{rem:generic}), and faces through the candidate do not occur
@@ -1370,9 +1430,10 @@ conditions only; for ties of three or more atoms, and for sufficiency, the spect
 to be evaluated case by case. \emph{Scope of the composition results.} The conjunction and the
 negative prompts are analysed for exact conditional fields. Trained compositional samplers on
 images, where the conditions are text prompts rather than labels, are not tested. \emph{Numerics.}
-The exact-field computations are finite-time numerical evaluations, not interval arithmetic,
-although a positive control shows that the fixed-step scheme of the stress test detects an
-attracting tie. The learned composition experiments use three to five seeds and $d\le2$, and the
+The exact-field computations are finite-time numerical evaluations, not interval arithmetic. The
+fixed-step scheme of the stress test does not detect an attracting tie: in our positive control its
+apparent detection is a rounding effect (Section~\ref{sec:intervention-tests}), so the stress test
+only checks configurations that the theorems already exclude. The learned composition experiments use three to five seeds and $d\le2$, and the
 image-scale composition check uses the exact field on CIFAR-10 pairs, not a trained network. The
 label-noise comparison uses one small synthetic problem and one image configuration with three
 draws of the training set. At image scale the generated variance does not follow the reference,
@@ -1383,8 +1444,9 @@ not identify a limiting support.
 \section{Conclusion}
 \label{sec:conclusion}
 
-Within the exact empirical field, the number of combined fields and their signs decide whether the
-endpoints leave the training set. Label noise, label averaging, every fixed combination of two
+Within the exact empirical field, and when every combined field has a strictly positive prior,
+the number of combined fields and their signs decide whether the endpoints leave the training set;
+at hard labels an average of two fields already blends. Label noise, label averaging, every fixed combination of two
 exact fields with strictly positive priors, which includes negative prompting by substitution, and
 guidance with a nonnegative bounded schedule of bounded variation reweight the training examples
 and end on them almost surely, and every trajectory converges. Three fields can move the endpoints.
@@ -1394,11 +1456,13 @@ decides when in any dimension, and at a tie of two examples a blend needs a subt
 field, whose prior log-odds lie strictly between the extreme ones.
 
 For practice, none of these knobs guarantees at the exact optimum that training data are not
-returned, and the composition of conditions is the operation an audit should examine. The blend
-basin lives at the scale $(1-t)^2$ at the tie. Standard velocity networks did not resolve it in our
-runs, while networks given a coordinate at that scale can do so at the tie where it is centred.
-Whether trained compositional samplers produce such blends is therefore a question about their
-inductive biases that the exact field does not settle.
+returned, and among them only the composition of conditions can return blends there. These are
+statements about the exact optimum. Our trained image networks are not at it, and their off-atom
+samples are not explained by the theory. The blend basin lives at the scale $(1-t)^2$ at the tie.
+Standard velocity networks did not resolve it in our runs, while networks given a coordinate at
+that scale can do so at a tie whose location is supplied. Whether trained compositional samplers
+produce such blends is therefore a question about their inductive biases that the exact field
+does not settle; an audit of a trained sampler has to measure it.
 
 \emph{Open questions.} Nonhyperbolic profiles and degenerate faces; sufficient conditions for a
 blend beyond the conjunction, and necessary ones at ties of three or more atoms; how the endpoint
@@ -1408,31 +1472,29 @@ learned composition beyond $d\le2$, in particular for text-conditioned image sam
 
 \subsection*{Broader impact statement}
 This work studies when conditional flow-matching samplers return training examples. The
-consequence for sensitive data is negative: at the exact optimum, label noise, label averaging,
-negative guidance and bounded nonnegative guidance schedules of bounded variation give no guarantee
-against replication, because
+consequence for sensitive data is negative: at the exact optimum and with label noise, label
+averaging, negative guidance and bounded nonnegative guidance schedules of bounded variation give
+no guarantee against replication, because
 they only reweight the training examples, and the blends reached by composing conditions are
-combinations of training records. Under label noise the returned record is predictable from the
-query and the training labels, which helps auditors and, equally, an adversary who knows the
-labels. Moving the support requires a change such as endpoint noise, which does not by itself hide
-the source record, and a formal guarantee requires randomisation calibrated in the sense of
-differential privacy, which we do not analyse. All experiments use synthetic data and the public
-CIFAR-10 dataset; no personal or human-subject data are involved.
+combinations of training records. Under label noise the returned record is computable from the
+query, the bandwidth and the training labels. This helps an auditor who holds them, typically the
+model owner, and equally an adversary who does; we have not shown that it holds for trained image
+models, which do not follow the reference in our experiments. The results also have a dual use. At
+the exact optimum, stronger guidance concentrates the endpoint law on fewer records, consistent
+with reports that guidance raises memorisation in trained models~\citep{jain2025attraction,kim2025how},
+so it may amplify extraction. The composition thresholds indicate which pairs of conditions
+blend which pairs of records. Moving the support requires a change such as endpoint noise, which
+does not by itself hide the source record and is averaged away by repeated queries; formal
+guarantees come from private training~\citep{dockhorn2023differentially}, which we do not analyse.
+All experiments use synthetic data and the public CIFAR-10 dataset; no personal or human-subject
+data are involved.
 
 \subsection*{Use of large language models}
-% 2026-11-24: the authors have NOT yet checked cor:twofields, prop:twoatom and rem:generic line
-% by line (see docs/review/round3_2026-11-23/proof_checklist.md). Only model-based audits
-% (proof_audit_1.md, proof_audit_2.md) and numerical tests (numeric_tests.md) have checked them.
-% The second-to-last sentence below says so. Once Khoi has checked all three proofs, replace it with:
-%   "... were first drafted with a large language model and then checked line by line by the authors."
 Large language models helped us write and run experiment and analysis code, restructure the
 manuscript and rewrite its prose for readers outside the field, redraw figures, and cross-check
 printed numbers against the result files. They also served as additional checkers of the written
-proofs. The statements and proofs of Corollary~\ref{cor:twofields}, Proposition~\ref{prop:twoatom}
-and Remark~\ref{rem:generic} were first drafted with a large language model. They have been checked
-by independent model-based audits and by numerical tests; the authors' own line-by-line check of
-these three proofs is not yet complete. The authors take full responsibility for every statement,
-proof and number in the paper.
+proofs. All statements and proofs are the authors' own. The authors take full responsibility for
+every statement, proof and number in the paper.
 
 \subsection*{Reproducibility statement}
 \begingroup\raggedright
@@ -1505,7 +1567,7 @@ $a_j=x^j$, $A$, $R=\max_j|a_j|$ & atoms, atom set, atom radius (Appendix~\ref{ap
 $\eps=1-t$, $\tau=-\log\eps$ & time to the end; logarithmic time, in which $\dot x=\bar m-x$\\
 $\beta=t/\eps^2$, $\alpha=1/\beta$ & inverse temperature of the posterior over atoms, and its inverse\\
 $b_j$, $H_p$ & linear scores $x\cdot a_j-\tfrac t2|a_j|^2$; log-partition function of prior $p$\\
-$w$, $w_c=1/\sinh^2B$ & guidance strength; threshold of Theorem~\ref{thm:composition}\\
+$w$, $w_c$ & guidance strength; threshold of the configuration at hand: $1/\sinh^2B$ for two atoms (Theorem~\ref{thm:composition}), $w_c^{\mathrm{spec}}=(1-m^2)/m^2$ for the regular simplex and the triangle (Corollary~\ref{cor:spectral-threshold})\\
 $M$, $\Gamma$, $\xi$ & restricted posterior mean, signed posterior covariance, blown-up position (Section~\ref{sec:spectral})\\
 $\sigma$ & fast time, $d\sigma=\beta\,d\tau$ (Appendix~\ref{apx:pf-spectral})\\
 \bottomrule
@@ -3161,8 +3223,15 @@ at a last time $\tau$ with $X_\tau=z+\delta$ before an exit one would have $\dot
 the equation gives $\dot X_\tau<0$, and symmetrically at $z-\delta$. By the convergence step it
 tends to $z$. The map $F:X_{t_0}\mapsto X_{t_1}$ is continuous, and by the formula above
 $F(x)\ge\frac{1-t_1}{1-t_0}x-M\to\infty$ as $x\to\infty$ and $F(x)\to-\infty$ as $x\to-\infty$, so
-$F$ is onto. Hence $F^{-1}((z-\delta,z+\delta))$ is a nonempty open set of initial points, all
-converging to $z$.
+$F$ is onto. Hence $F^{-1}((z-\delta,z+\delta))$ is a nonempty open set of states at $t_0$, all
+converging to $z$; since $F$ preserves order, it is an interval.
+
+\emph{From $t_0$ back to $0$.} If $|v_\theta(x,t)|\le C(1+|x|)$ on $\R\times[0,t_0]$, Gr\"onwall's
+inequality in both time directions bounds every solution on $[0,t_0]$, so solutions from every
+$x_0$ reach $t_0$ and every state at $t_0$ is reached from some $x_0$. With uniqueness, the map
+$x_0\mapsto X_{t_0}$ is a continuous, strictly increasing bijection of $\R$, hence a homeomorphism.
+Preimages of single points are single points and preimages of open intervals are open intervals,
+so both conclusions hold for initial points at $t=0$.
 \end{proof}
 
 The hypotheses are needed. The exact field toward one atom, $(a-x)/(1-t)$, has
@@ -3640,8 +3709,11 @@ its mean over the pairs is $0.139$ to $0.150$ at $5w_c$ and $0.040$ to $0.042$ a
 the three settings, so its fall after $2w_c$ is not a solver effect. The midpoints are blends of two training images, not
 training images. The threshold itself is not new evidence: the midpoint of each pair is a
 candidate whose only nearest atoms are $x^i,x^j$, all priors are positive, and
-Theorem~\ref{thm:spectral}(c) with the two-atom computation of Corollary~\ref{cor:spectral-threshold}
-gives $\Pr(X_1=z)>0$ exactly when $w>w_c$. The computation is a consistency check of that
+Theorem~\ref{thm:spectral} with the two-atom computation of Corollary~\ref{cor:spectral-threshold}
+gives $\Pr(X_1=z)=0$ for $w<w_c$, where the only profile is hyperbolic with $F_w'>0$, and
+$\Pr(X_1=z)>0$ for $w>w_c$. At $w=w_c$ the profile is not hyperbolic, and the one-dimensional
+argument of Theorem~\ref{thm:composition}(b) is proved for two atoms only, so this value is not
+covered for the full field; no run uses it. The computation is a consistency check of that
 prediction at $d=3072$ with the other $1998$ atoms present, and it measures the basin sizes,
 which the theorem does not give. Outputs are under \texttt{results/\iclrallow cifar\_composition\_exact\_20261105/};
 \texttt{make\_theory\_cifar\_composition\_figure.py} draws Figure~\ref{fig:cifar-composition}.
@@ -3731,7 +3803,7 @@ $0.00328$, $0.00479$ for the exact average.
 \paragraph{Artifacts.} Raw arrays and per-cell outputs are under
 \texttt{results/\iclrallow novelty\_interventions\_20261016/} and
 \texttt{results/\iclrallow theory\_composition\_20261019/}, the positive control under
-\texttt{results/\iclrallow stress\_positive\_control\_20261121/}; the endpoint laws on the triangle of
+\texttt{results/\iclrallow stress\_positive\_control\_20261125/} (both field codings); the endpoint laws on the triangle of
 Figure~\ref{fig:unrolled} and Section~\ref{sec:intervention-tests}, the face masses of the
 configurations of Table~\ref{tab:spectral} and the learned edge counts are under
 \texttt{results/\iclrallow theory\_basin\_map\_20261121/}; the learned composition is under
