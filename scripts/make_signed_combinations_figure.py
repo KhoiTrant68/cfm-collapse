@@ -50,9 +50,9 @@ WIDTH = 0.98 * FULL_W
 BLEND = OI["vermillion"]
 GREY = "#555555"
 # Numbers of the cited results in the current build (checked against THEORY_AUX when given).
-REF = {"thm:endpoint": "3.4", "thm:posmix": "4.1", "prop:filtered": "4.2", "prop:cfgatom": "4.4",
-       "cor:negcfg": "4.5", "thm:schedule": "4.6", "cor:twofields": "4.7", "thm:composition": "4.8",
-       "prop:twoatom": "4.13"}
+REF = {"thm:endpoint": "4.4", "thm:posmix": "5.1", "prop:filtered": "5.2", "prop:cfgatom": "5.4",
+       "cor:negcfg": "5.5", "thm:schedule": "5.6", "cor:twofields": "5.7", "thm:composition": "5.8",
+       "prop:twoatom": "5.13"}
 
 
 def check_refs() -> None:

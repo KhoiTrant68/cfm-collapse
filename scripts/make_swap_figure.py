@@ -18,7 +18,8 @@ Two hybrids of the deterministic EDM sampler on CIFAR-10, 500 sources per model:
 
 Reads results/n3_followup_20261111/{swap_summary.json, swap_public/swap_per_sample.npz}.
 Usage: PYTHONPATH=.:scripts python scripts/make_swap_figure.py [--cifar DIR]
-Writes paper_mechanism/figures/fig_swap.pdf and fig_swap.json.
+Writes paper_mechanism/figures/fig_swap.pdf, fig_swap.json and fig_swap_tiles.npz. Without the CIFAR-10
+folder the image tiles of panel (a) are read back from fig_swap_tiles.npz (saved by an earlier run).
 """
 from __future__ import annotations
 
@@ -34,6 +35,7 @@ from scripts.figstyle import COLORS, FULL_W, style, use_paper_style
 
 ROOT = Path("results/n3_followup_20261111")
 OUT = Path("paper_mechanism/figures/fig_swap.pdf")
+TILES = OUT.with_name("fig_swap_tiles.npz")
 CIFAR_DEFAULT = Path("/mnt/data/khoitm8/datasets/cifar10/cifar-10-batches-py")
 GRID_S = (5.0, 2.0, 1.0, 0.5, 0.2)
 LEARNED, EXACT = COLORS["learned"], COLORS["exact"]
@@ -78,12 +80,18 @@ def main() -> None:
     use_paper_style()
     summ = {r["run"]: r for r in json.loads((ROOT / "swap_summary.json").read_text(encoding="utf-8"))}
     z = np.load(ROOT / "swap_public" / "swap_per_sample.npz")
-    X, Y = load_cifar(args.cifar)
-    by_class = {c: X[Y == c] for c in np.unique(Y)}
-    assert all(z[k].max() < len(by_class[0]) for k in ("learned:nn", "exact:nn"))
     rows = pick_sources(z)
+    by_class, tiles = None, None
+    try:
+        X, Y = load_cifar(args.cifar)
+        by_class = {c: X[Y == c] for c in np.unique(Y)}
+        assert all(z[k].max() < len(by_class[0]) for k in ("learned:nn", "exact:nn"))
+    except OSError as err:
+        # Fallback: the tiles drawn by an earlier run (same rows, same order).
+        print(f"CIFAR-10 not readable ({err}); using the saved tiles {TILES}")
+        tiles = np.load(TILES)["tiles"]
 
-    fig = plt.figure(figsize=(FULL_W, 2.45))
+    fig = plt.figure(figsize=(FULL_W, 2.65))
     ncol = len(GRID_S) + 2
     gl = fig.add_gridspec(len(rows), ncol, left=0.045, right=0.50, bottom=0.12, top=0.83,
                           wspace=0.06, hspace=0.06)
@@ -96,7 +104,7 @@ def main() -> None:
         cls = int(z["label"][i])
         for c, j in enumerate(idx):
             ax = fig.add_subplot(gl[r, c])
-            ax.imshow(by_class[cls][j], interpolation="nearest")
+            ax.imshow(by_class[cls][j] if by_class is not None else tiles[r, c], interpolation="nearest")
             frame(ax, LEARNED if j == L else (EXACT if j == E else "#bbbbbb"))
             if r == 0:
                 ax.set_title(heads[c], fontsize=7, pad=3, linespacing=1.0)
@@ -108,18 +116,22 @@ def main() -> None:
              fontsize=6.3, ha="center", color="#555555")
 
     ax = fig.add_axes([0.60, 0.17, 0.38, 0.66])
-    for run, lw, alpha, tag in (("swap_public", 2.0, 1.0, "public"), ("swap_sub1000", 1.0, 0.55, r"$N{=}1000$")):
+    for run, lw, alpha, tag in (("swap_public", 2.0, 1.0, "public model"), ("swap_sub1000", 1.1, 0.8, r"$1000$-image model")):
         lv = summ[run]["levels"]
         s = np.array([l["sigma"] for l in lv])
         choice = [l["net2exact"]["nn_eq_learned"] for l in lv]
         land = [1 - l["exact2net"]["off"] for l in lv]
-        ax.plot(s, choice, color=LEARNED, lw=lw, alpha=alpha, marker="o", ms=3 if lw > 1 else 2)
-        ax.plot(s, land, color=EXACT, lw=lw, alpha=alpha, marker="s", ms=3 if lw > 1 else 2)
+        ax.plot(s, choice, color=LEARNED, lw=lw, alpha=alpha, marker="o", ms=3 if lw > 1.5 else 2.2)
+        ax.plot(s, land, color=EXACT, lw=lw, alpha=alpha, marker="s", ms=3 if lw > 1.5 else 2.2)
+        ax.plot([], [], color="#444444", lw=lw, label=tag)     # line-width key, colour-neutral
         record[run] = {"s": s.tolist(), "choice": choice, "landing": land}
     sp = np.array(record["swap_public"]["s"])
     lo, hi = sp.min() / 1.25, sp.max() * 1.25
     ax.set_xscale("log"); ax.set_xlim(hi, lo); ax.set_ylim(-0.03, 1.22)
     ax.set_yticks([0, 0.25, 0.5, 0.75, 1.0])
+    ax.set_xticks([5, 2, 1, 0.5, 0.2, 0.1, 0.05, 0.02])
+    ax.set_xticklabels(["5", "2", "1", "0.5", "0.2", "0.1", "0.05", "0.02"], fontsize=6.5)
+    ax.minorticks_off()
     ax.set_xlabel(r"switch noise level $s$   (sampling runs left $\to$ right)")
     ax.set_ylabel("fraction of samples")
     # The two windows, named in a band above the data.
@@ -132,15 +144,21 @@ def main() -> None:
     # Direct labels, each in empty space next to its curve.
     # (choice: net->exact ends on the network's own image; landing: exact->net ends on a
     # training image; both spelled out in the caption.)
-    ax.text(4.3, 0.66, "choice", color=LEARNED, fontsize=7.5, ha="left", va="center",
+    ax.text(4.6, 0.80, "choice", color=LEARNED, fontsize=7.5, ha="left", va="center",
             fontweight="bold")
     ax.text(0.17, 0.30, "landing", color=EXACT, fontsize=7.5, ha="left", va="center",
             fontweight="bold")
+    ax.legend(loc="center right", bbox_to_anchor=(1.0, 0.62), frameon=False, fontsize=6.5, handlelength=1.8,
+              borderaxespad=0.2)
     ax.set_title(r"$\mathbf{(b)}$  chosen early, landed late", loc="left")
     style(ax)
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(OUT, bbox_inches="tight", pad_inches=0.02)
+    if by_class is not None:                                     # keep the tiles for machines without CIFAR-10
+        ims = [[by_class[int(z["label"][i])][j] for j in rec["index_in_class"]]
+               for i, rec in zip(rows, record["rows"])]
+        np.savez_compressed(TILES, tiles=np.array(ims))
     OUT.with_suffix(".json").write_text(json.dumps(record, indent=1), encoding="utf-8")
     print("wrote", OUT, "rows", rows)
 

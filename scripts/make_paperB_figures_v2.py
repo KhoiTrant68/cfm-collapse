@@ -244,10 +244,10 @@ def fig_mechanism():
     fields = _toy_fields()
     runs = {k: _run1d(F, z0) for k, _, F in fields}
 
-    W, H = FULL_W, 2.42
+    W, H = FULL_W, 2.8
     fig = plt.figure(figsize=(W, H))
     cw, gap, xl = 1.3, 0.1, 0.16                      # unrolled column width, gap, left margin (inches)
-    ytop_h, ymid_h, ybot_h = 0.24, 1.22, 0.36         # heights of the source, path and output rows
+    ytop_h, ymid_h, ybot_h = 0.24, 1.6, 0.36         # heights of the source, path and output rows
     ybot = 0.2
     ymid = ybot + ybot_h
     ytp = ymid + ymid_h
@@ -300,7 +300,7 @@ def fig_mechanism():
     # (d) relative error, (e) distance to the training point reached, against 1 - t on a log axis
     xr0 = xl + 3 * cw + 2 * gap + 0.55
     wr = W - xr0 - 0.2
-    hd = 0.86
+    hd = 0.88
     ax_d = axes_in(fig, xr0, ytp + ytop_h - hd, wr, hd)
     ax_e = axes_in(fig, xr0, ybot + 0.12, wr, ytp + ytop_h - hd - 0.42 - ybot - 0.12)
     eps = np.geomspace(1.0, 6e-6, 400)
@@ -328,7 +328,7 @@ def fig_mechanism():
     ax_d.set_ylabel(r"relative error $\varrho_t$", fontsize=7)
     ax_e.set_yscale("log"); ax_e.set_ylim(3e-6, 6)
     ax_e.set_yticks([1e-5, 1e-3, 1e-1])
-    ax_e.set_ylabel("distance to the\ntraining point", fontsize=7, linespacing=0.95)
+    ax_e.set_ylabel("distance to point", fontsize=7)
     ax_e.set_xlabel(r"time left $1-t$", fontsize=7, labelpad=1)
     for a in (ax_d, ax_e):
         a.grid(False)
@@ -345,7 +345,7 @@ def fig_mechanism():
         e_ = 1 - ts
         j = int(np.searchsorted(-e_, -1.2e-5))
         v = float(np.median(np.abs(P[j] - a_end)))
-        ax_e.annotate(f"({tag})", (e_[j], v), xytext=(2, 0), textcoords="offset points", fontsize=6.3,
+        ax_e.annotate(f"({tag})", (e_[j], v), xytext=(3, 0), textcoords="offset points", fontsize=6.5,
                       color=styles[key][0], ha="left", va="center", annotation_clip=False)
     save(fig, "fig_mechanism.pdf", dpi=300)
 
