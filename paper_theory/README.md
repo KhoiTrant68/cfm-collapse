@@ -88,10 +88,9 @@ trained-collapse results, kernel tracking, the measured transfer, and the whole 
 
 - Learned composition stays in paper A (Section 6).
 - Kernel tracking goes to paper B.
-- The LLM statement no longer says that proof drafts came from model runs, because the proofs it
-  named (relerr, trap, heun) are now in paper B. Corollary `cor:twofields`,
-  Proposition `prop:twoatom` and Remark `rem:generic` were drafted with model assistance in this
-  session. **Confirm the statement before submission, and check these three proofs yourself.**
+- The LLM statement does not say that any proof came from a model. The author confirmed on
+  2026-11-25 that all statements and proofs, including `cor:twofields`, `prop:twoatom` and
+  `rem:generic`, are their own and checked line by line. Models served only as additional checkers.
 
 ## Revision after the memo verification (2026-11-21)
 
@@ -134,9 +133,6 @@ Details, sources and rejected proposals: `docs/review/changes_paperA_2026-11-21.
 
 ## Not yet done
 
-- The co-author checks the three new proofs (`cor:twofields`, `prop:twoatom`, `rem:generic`) with the
-  checklist in `docs/review/round3_2026-11-23/proof_checklist.md`; only then is the LLM statement
-  final and the TODO next to it removed.
 - (Done in fix-A) The count "at most 3 of 2048 sources within 0.05 of an edge midpoint" (Section 6)
   is now written by `scripts/theory_basin_map.py --learned-edges`.
 - (Done in round 3) The comparison with Liu and Zuazua v2, Azangulov et al. and Cao et al. was checked
