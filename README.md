@@ -4,7 +4,7 @@
 
 **A perfect conditional flow returns its training images. A real network avoids this only through its errors, and it decides late.**
 
-**Khoi Tran** &middot; **Minh Khang Tran** &middot; Research project, 2026
+**Khoi Tran** &middot; **Khang Tran** &middot; Research project, 2026
 
 [![Python](https://img.shields.io/badge/Python-3.10--3.12-3776AB.svg)](https://www.python.org)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.2+-EE4C2C.svg)](https://pytorch.org)
@@ -169,7 +169,7 @@ The papers are in preparation. Please cite the repository:
 ```bibtex
 @misc{tran2026cfmcollapse,
   title  = {Conditional Flows Copy Their Training Set: When Do They Stop, and What Stops Them?},
-  author = {Tran, Khoi and Tran, Minh Khang},
+  author = {Tran, Khoi and Tran, Khang},
   year   = {2026},
   howpublished = {\url{https://github.com/KhoiTrant68/cfm-collapse}}
 }
