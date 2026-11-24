@@ -212,9 +212,14 @@ recipe.
 Each package has its LaTeX comments stripped (arXiv publishes the source), unused files
 removed, a clean `latexmk` build, and a scan of the sources and of the PDF text for names,
 lab paths, `TODO`/`FLAG` notes and, in A, any mention of paper B. A failed scan stops that
-target, and a supplement over 95 MB stops too (TMLR allows 100 MB). The open notes that were stripped are listed in `submit/stripped_notes.txt` with
-their lines in the paper sources. The arXiv author block lives in
-`submit/authors_A_arxiv.tex`; `A_arxiv` fails until its placeholder is replaced.
+target, and a supplement over 95 MB stops too (TMLR allows 100 MB). The open notes that were stripped
+(`TODO`, `FLAG`, group decisions, "Draft by the assistant") are listed in `submit/stripped_notes.txt`
+with their lines in the paper sources; resolve them there before submitting. The arXiv author block
+lives in `submit/authors_A_arxiv.tex`.
+
+Before a submission, also run `PYTHONPATH=. python scripts/verify_paper_numbers.py` (needs torch;
+it checks the printed numbers of A and B against `results/`). The review notes of the last round,
+including what the co-author still has to check, are in `docs/review/round3_2026-11-23/`.
 
 ## Layout
 

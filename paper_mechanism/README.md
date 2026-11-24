@@ -11,6 +11,9 @@ The NeurIPS 2027 style file is not out yet, so the draft is built on the same TM
 When the CFP is out: swap in the NeurIPS style, add the paper checklist, and cut the main text
 (through the Conclusion) to 9 pages. The comment at the top of `main.tex` says the same.
 
+The submission package is built by `python submit/build.py` from the repository root (see the root
+README). To build this paper alone:
+
 ```
 pdflatex main && bibtex main && pdflatex main && pdflatex main
 ```
@@ -164,12 +167,28 @@ Source: `docs/review/memo_verification_2026-11-21.json` and Section 5 of
 - Compiles with tectonic on lab09: 34 pages, no undefined references or citations, no overfull
   boxes.
 
+## Done on 2026-11-24 (presentation)
+
+- Main-text prose rewritten in a plain style (shorter sentences, each new term defined once, the
+  meaning of a result stated right after it); numbers, formulas, statements and the appendix are
+  unchanged, and a second read fixed eight meaning slips.
+- Layout: Tables 7-9 no longer float onto a page of their own; Tables 8-10 are no longer shrunk by
+  `\resizebox`; six captions shortened.
+- Figures redrawn: Fig. 3 (taller panels d, e), Fig. 4 (larger tiles), Fig. 5 (legend and x ticks),
+  Fig. 9 (x ticks), Fig. 10 (two blocks stacked, larger tiles), Fig. 11 (h = 0.4 in blue).
+  `figures/fig_swap_tiles.npz` holds the 21 CIFAR-10 tiles of Fig. 5, so the figure can be redrawn
+  without the dataset; `make_swap_figure.py --cifar <dir>` rewrites it.
+- The headline numbers (88%, 96%, 0.51, 2.48, 1.33, 89.6%, 95.6%) were recomputed from `results/` and
+  all `scripts/paperB_verify_*.py` pass.
+- Builds with `submit/build.py` in 37 pages.
+
 ## Not yet done
 
-- The LLM statement is the one of the pre-split paper; confirm it (this draft was restructured with
-  model assistance).
+- The co-author checks `thm:relerr`, `prop:trap` and `prop:heun` (the LLM statement says they were
+  verified; note `docs/review/round3_2026-11-23/for_khoi.md`). Open choices: the names `e` and `e_t`
+  in `thm:relerr`, and a third citation of paper A (X2).
 - Page count against the 9-page limit once the NeurIPS style exists (the main text, through the
-  Conclusion, is about 15 TMLR pages).
+  Conclusion, is about 16 TMLR pages).
 - GPU experiments still open: E1 window swaps on the 500- and 2000-image models (planned
   experiment (i)), swaps of the 2000-image model, recording the hand-over distance (the factors
   "about 2 to 3, or 1.4 to 2.2" in Sec. 5.3 are estimates that assume it), and the other round-2
