@@ -744,8 +744,8 @@ def fig_image_class():
     H = 2 * len(conds) * (s + g) + 0.6
     fig = plt.figure(figsize=(W, H))
     # (a) trace against iteration
-    hcol = {0.0: LEARNED, 0.4: OI["orange"]}
-    ax = axes_in(fig, 0.45, H - 1.95, 1.75, 1.55)
+    hcol = {0.0: LEARNED, 0.4: OI["blue"]}      # blue, not orange: orange and vermillion read alike in greyscale
+    ax = axes_in(fig, 0.45, 0.5, 1.75, H - 1.3)
     ax.axhline(pop, color=ATOM, ls="--", lw=1.0)
     ax.text(600, pop * 1.03, f"within-class scatter {pop:.0f}", fontsize=6.5, color=ATOM, va="bottom")
     for h, m in met.items():

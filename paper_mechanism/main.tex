@@ -147,20 +147,18 @@ Figure~\ref{fig:mechanism} shows the landing condition in one dimension.
 \begin{figure}[t]
 \centering
 \IfFileExists{figures/tikz/overview.tex}{\resizebox{\textwidth}{!}{\input{figures/tikz/overview.tex}}}{\fbox{overview schematic pending}}
-\caption{Overview of the paper. Gaussian noise enters EDM's deterministic sampler, which calls the
-denoiser $D_\theta(x;\sigma)$ at every noise level $\sigma$ of the schedule. Three marks on the
-noise axis, drawn against the five marked levels of the $18$-step schedule ($\sigma=80$, $5.3$,
-$1.9$, $0.59$ and $0.002$), organise the results. First, the training image the trajectory is
-headed for is chosen: on the public model half of the trajectories have chosen their image by the
-swap level $s\approx2.5$ and about $90\%$ by $\sigma\approx1$ (Section~\ref{sec:swap}). Second, a
-copy appears in the denoiser output: from $\sigma\approx1$ on, the distance from $D_\theta$ to the
-nearest training image tells which samples will copy (Section~\ref{sec:contraction}). Third, over
-the late levels $\sigma\le0.59$ the state itself reaches the image if its relative error
-$\varrho=e/n$ stays below a constant $\bar\varrho<1$ (Theorem~\ref{thm:relerr}). Right, the two
-swaps at level $s$, each with one field at $\sigma>s$ and the other at $\sigma\le s$. Net$\to$exact runs the network above
-$s$ and the exact posterior mean below it, and tells which image was chosen. Exact$\to$net runs the
-exact field above $s$ and the network below it, and tells whether the network lands from the state
-it is handed.}
+\caption{Overview of the paper. Noise enters EDM's deterministic sampler, which calls the
+denoiser $D_\theta(x;\sigma)$ at every noise level $\sigma$. Three marks on the noise axis, drawn
+against five levels of the $18$-step schedule ($\sigma=80$, $5.3$, $1.9$, $0.59$ and $0.002$),
+organise the results. First, the sampler chooses the training image it heads for: on the public
+model half of the trajectories have chosen their image by the swap level $s\approx2.5$ and about
+$90\%$ by $\sigma\approx1$ (Section~\ref{sec:swap}). Second, a copy appears in the denoiser output:
+from $\sigma\approx1$ on, the distance from $D_\theta$ to the nearest training image tells which
+samples will copy (Section~\ref{sec:contraction}). Third, over the late levels $\sigma\le0.59$ the
+state itself reaches the image if its relative error $\varrho=e/n$ stays below a constant
+$\bar\varrho<1$ (Theorem~\ref{thm:relerr}). Right: a swap at level $s$ uses one field above $s$ and
+the other below. Net$\to$exact shows which image was chosen; exact$\to$net shows whether the
+network lands from the state it is handed.}
 \label{fig:overview}
 \end{figure}
 
@@ -168,27 +166,24 @@ it is handed.}
 \centering
 \includegraphics[width=\textwidth]{fig_teaser.pdf}
 \caption{One latent, two models (EDM on CIFAR-10). The same Gaussian latent sampled by the public
-model, trained on all $50000$ images, none of whose samples copied a training image in our runs (top), and by a model trained on $500$
-images, which copies (middle). In each pair, the first row is the network's prediction
-$D_\theta(x)$ of the clean image at the sampler's state $x$, and the second row is the exact field's
-prediction $m^\star(x)$ from the same state, the posterior mean over the training images of the
-class. There is one column per noise level of the $18$-step schedule from $\sigma=5.3$ on; the last
-column is the output and its nearest training image. Frames are vermillion (network) or blue
-(exact field), and black where the tile is that training image (closer to it than a third of its
-distance to the output's second-nearest one). The exact prediction settles on the training image
-at $\sigma=1.9$ for the public model and before $\sigma=5.3$ for the other: the image is chosen.
-The public network's prediction never reaches it, and the output is a new image
-($d_1/d_2=0.94$, with $d_1\le d_2$ the distances to the two nearest training images). The
-prediction of the $500$-image model is that training image from $\sigma=5.3$ on, and the output
-copies it ($d_1/d_2=0.04$). Bottom, the two swaps at level $s$ (Section~\ref{sec:swap}; $500$
-latents; public model thick, $500$-image model thin; a swap at $s$ is drawn at $\sigma=s$). Choice
-(vermillion): the share of net$\to$exact endpoints (network above $s$, exact field below) whose
-nearest training image is that of the network's own endpoint. Landing (blue): the share of
-exact$\to$net endpoints (exact field above $s$, network below) that end on a training image; this
-curve measures the network, which samples the last steps, and separates the two models. The dotted lines mark where the public model's curves pass one half,
-interpolated in $\log s$: half of its images are chosen by $s=2.5$, and half of its samples land
-only from $s=0.51$. The $500$-image model has chosen $93\%$ of its images at $s=5$ and lands every
-sample from every swap level.}
+model, trained on all $50000$ images, none of whose samples copied a training image in our runs
+(top), and by a model trained on $500$ images, which copies (middle). In each pair, the first row
+is the network's prediction $D_\theta(x)$ of the clean image at the sampler's state $x$, and the
+second is the exact field's prediction $m^\star(x)$ from the same state. There is one column per
+noise level from $\sigma=5.3$ on; the last column is the output and its nearest training image.
+Frames are vermillion (network), blue (exact field) or black where the tile is that training image
+(closer to it than a third of its distance to the output's second-nearest one). The exact
+prediction settles on the training image at $\sigma=1.9$ for the public model and before
+$\sigma=5.3$ for the other: the image is chosen early. The public network's prediction never
+reaches it, and the output is a new image ($d_1/d_2=0.94$, with $d_1\le d_2$ the distances to the
+two nearest training images). The $500$-image model's prediction is that training image from
+$\sigma=5.3$ on, and the output copies it ($d_1/d_2=0.04$). Bottom: the two swaps at level $s$
+(Section~\ref{sec:swap}; $500$ latents; public model thick, $500$-image model thin). Choice
+(vermillion): share of net$\to$exact endpoints whose nearest training image is the network's own.
+Landing (blue): share of exact$\to$net endpoints that end on a training image. Half of the public
+model's images are chosen by $s=2.5$, and half of its samples land only from $s=0.51$ (dotted
+lines, interpolated in $\log s$). The $500$-image model has chosen $93\%$ of its images at $s=5$
+and lands every sample from every swap level.}
 \label{fig:intuition}
 \end{figure}
 
@@ -506,18 +501,17 @@ sampler used in practice, whose last steps can extrapolate past the atom
 \centering
 \includegraphics[width=\textwidth]{fig_mechanism.pdf}
 \caption{What decides landing, in one dimension. (a--c)~Flows to four training points (black
-ticks) from $1500$ sources ($64$ drawn) over the exact density $p_t$ (grey, normalised at each
-time), with the source law on top and the output at the bottom: a stem is a point mass on a
-training point, with height equal to its probability; a shaded curve is a density. (a)~The exact
-field, $\hat x_1=m^\star$, returns the training points with the label-noise weights $0.12$, $0.48$,
-$0.28$, $0.12$ (Theorem~\ref{thm:endpoint}). (b)~A learned field
-$\hat x_1=m^\star+\varrho_t(Z-m^\star)$ with relative error $\varrho_t=0.6$ still copies.
-(c)~With $1-\varrho_t=0.6(1-t)^{1/2}$, whose integral against $dt/(1-t)$ is finite, the
-trajectories head for the same training points but stop short of them: new samples. (d)~The
+ticks) from $1500$ sources ($64$ drawn) over the exact density $p_t$ (grey), with the source law on
+top and the output at the bottom: a stem is a point mass on a training point, with height equal to
+its probability; a shaded curve is a density. (a)~The exact field, $\hat x_1=m^\star$, returns the
+training points with the label-noise weights $0.12$, $0.48$, $0.28$, $0.12$
+(Theorem~\ref{thm:endpoint}). (b)~A learned field $\hat x_1=m^\star+\varrho_t(Z-m^\star)$ with
+$\varrho_t=0.6$ still copies. (c)~With $1-\varrho_t=0.6(1-t)^{1/2}$, whose integral against
+$dt/(1-t)$ is finite, the trajectories stop short of the training points: new samples. (d)~The
 relative error of the three fields; shaded, the contraction $1-\varrho_t$ left to field (c).
-(e)~Median distance (interquartile range shaded) of the trajectories to the training point they
-end nearest to: it falls like $1-t$ in (a) and like $(1-t)^{0.4}$ in (b), and tends to a positive
-limit in (c), as in Theorem~\ref{thm:relerr}(b) and~(c).}
+(e)~Median distance (interquartile range shaded) to the nearest training point at the end: it falls
+like $1-t$ in (a) and like $(1-t)^{0.4}$ in (b), and tends to a positive limit in (c), as in
+Theorem~\ref{thm:relerr}(b) and~(c).}
 \label{fig:mechanism}
 \end{figure}
 
@@ -713,21 +707,19 @@ image for $13.8\%$, $21.0\%$ and $35.4\%$ of samples on the three models.
 \centering
 \includegraphics[width=\textwidth]{fig_swap.pdf}
 \caption{The trained sampler chooses its image early and lands late (EDM on CIFAR-10).
-(a) Public model. Each row is one latent; each tile is the training image on which
+(a) Public model; each row is one latent. Each tile is the training image on which
 net$\to$exact ends (network for $\sigma>s$, exact field for $\sigma\le s$) when the switch is at
-$s$, between the exact field alone (left) and the nearest training image of the network's own
-endpoint (right). Vermillion frame: the network's image; blue: the exact field's image; grey:
-neither. In each of the first three classes, the row is the first latent whose exact and learned images differ
-and whose image changes to the network's between $s=5$ and $s=0.2$; over all $500$ latents, a
-switch at $s=1$ already ends on the network's image for $89.6\%$ (Table~\ref{tab:swap}). (b) Choice: share of net$\to$exact endpoints
-whose nearest training image is the network's ($=$L). Landing: share of exact$\to$net endpoints
-(exact field for $\sigma>s$, network for $\sigma\le s$) that end on a training image
-($1-$off). Shaded: the swap levels $s\ge1$, over which the image is chosen, and $s\le0.2$, from
-which at least $93\%$ of the public model's samples land. Thick lines: public model; thin: the
-$1000$-image model; $500$ latents each. Net$\to$exact
-ends on a training image at every $s$ on both models by construction, since the sampler's last
-step returns the exact field's output; only the image it ends on is informative. Values in
-Table~\ref{tab:swap}.}
+$s$, from the exact field alone (left) to the network alone (right). Frames: vermillion, the
+network's image; blue, the exact field's image; grey, neither. Each row is the first latent of its
+class whose two images differ and whose image changes to the network's between $s=5$ and $s=0.2$;
+over all $500$ latents, a switch at $s=1$ already ends on the network's image for $89.6\%$
+(Table~\ref{tab:swap}). (b) Choice: share of net$\to$exact endpoints whose nearest training image is
+the network's ($=$L). Landing: share of exact$\to$net endpoints (exact field for $\sigma>s$, network
+for $\sigma\le s$) that end on a training image ($1-$off). Shaded: $s\ge1$, over which the image is
+chosen, and $s\le0.2$, from which at least $93\%$ of the public model's samples land. Thick lines:
+public model; thin: $1000$-image model; $500$ latents each. Net$\to$exact ends on a training image
+at every $s$ by construction, since the last step returns the exact field's output; only the image
+it ends on is informative.}
 \label{fig:swap}
 \end{figure}
 
@@ -876,20 +868,21 @@ measured along the trajectory.
 \begin{figure}[t]
 \centering
 \includegraphics[width=\textwidth]{fig_landing.pdf}
-\caption{Relative error and late contraction along the sampler's trajectories (EDM on CIFAR-10; $1000$ samples per trained model,
-$200$ for the public model). (a)~Median relative error $\varrho=e/n$, with $n$ the distance to the
-endpoint's nearest training image as in Table~\ref{tab:edm-rho}, for samples that copy a training
-image (on-atom, black) and for new images (off-atom, vermillion): the $500$-image model (solid,
-interquartile range shaded), the $2000$-image model (dashed) and the public model (dotted; all its
-samples are off-atom). On the $500$-image model the off-atom median passes $0.9$ by $\sigma=0.14$,
-the on-atom median only by $\sigma=0.0075$. (b)~Per sample, the late contraction
-$C=\int(1-\varrho)\,d\log(1/\sigma)$ over $\sigma\in[0.002,0.585]$ (grey window in (a)), with the
-medians and the AUC of $C$ for telling off- from on-atom samples. (c)~On the balanced
-$2000$-image model, the AUC at each $\sigma\ge0.585$ of $\varrho$ and of the radial ratio of
-Proposition~\ref{prop:trap} (the EDM form of Theorem~\ref{thm:relerr}(a)), both anchored at the nearest training image of $D_\theta(x,\sigma)$ so
-that they use no information after $\sigma$, and of the distance from $D_\theta$ to that image
-(dashed). The point is the late contraction of (b), whose window starts at $\sigma=0.585$: $0.983$
-with either anchor, against $0.990$ for that distance at $\sigma=0.585$.}
+\caption{Relative error and late contraction along the sampler's trajectories (EDM on CIFAR-10;
+$1000$ samples per trained model, $200$ for the public model). (a)~Median relative error
+$\varrho=e/n$, with $n$ the distance to the endpoint's nearest training image as in
+Table~\ref{tab:edm-rho}, for samples that copy a training image (on-atom, black) and for new images
+(off-atom, vermillion): $500$-image model (solid, interquartile range shaded), $2000$-image model
+(dashed), public model (dotted; all its samples are off-atom). On the $500$-image model the
+off-atom median passes $0.9$ by $\sigma=0.14$, the on-atom median only by $\sigma=0.0075$.
+(b)~Per sample, the late contraction $C=\int(1-\varrho)\,d\log(1/\sigma)$ over
+$\sigma\in[0.002,0.585]$ (grey window in (a)), with the medians and the AUC of $C$ for telling off-
+from on-atom samples. (c)~On the balanced $2000$-image model, the AUC at each $\sigma\ge0.585$ of
+$\varrho$ and of the radial ratio of Proposition~\ref{prop:trap} (the EDM form of
+Theorem~\ref{thm:relerr}(a)), both anchored at the nearest training image of $D_\theta(x,\sigma)$ so
+that they use nothing after $\sigma$, and of the distance from $D_\theta$ to that image (dashed).
+The late contraction of (b), whose window starts at $\sigma=0.585$, gives $0.983$ with either
+anchor, against $0.990$ for that distance at $\sigma=0.585$.}
 \label{fig:landing}
 \end{figure}
 
@@ -1113,6 +1106,7 @@ checked, revised and verified; we wrote and verified all other proofs. We take f
 for every claim, proof and number in this paper.
 
 \subsection*{Reproducibility statement}
+\begingroup\sloppy % long file-name lists cannot be justified tightly
 The anonymised supplementary code regenerates every number in the paper.
 Synthetic and inpainting experiments: \texttt{run\_exp1.sh}, \texttt{run\_sweeps.py},
 \texttt{train\_exp2}, \texttt{train\_exp3}, each followed by its analysis script, and
@@ -1135,6 +1129,7 @@ Section~\ref{sec:contraction}), and the exact posterior of Figure~\ref{fig:poste
 Every assumption is stated where it is used, and all results of this paper are proved in
 Appendices~\ref{app:transfer} and~\ref{app:relerr}; the background results of
 Section~\ref{sec:theory} are proved in the works cited there.
+\endgroup
 
 \bibliographystyle{tmlr}
 \bibliography{refs}
@@ -1773,15 +1768,15 @@ $\sigma=5.1$ and for $90\%$ at $\sigma=3.4$.
 \includegraphics[width=\textwidth]{fig_posterior_choice.pdf}
 \caption{Choice and landing against the concentration of the exact posterior (EDM on CIFAR-10;
 sampling runs left to right). On the public model the network chooses its image where the exact
-posterior at noised test images concentrates and lands much later; the $1000$-image model makes its last choices later
-than its range, and the memorising $500$-image model lands from every swap level. Blue: the exact
-posterior over the training images of a class at a noised test image, share of points whose
-largest weight is at least $1/2$ (solid) or $0.9$ (dashed), and at a noised training image, share
-whose weight on that image is at least $1/2$ (dotted), for the training set of each model.
+posterior at noised test images concentrates, and lands much later. The $1000$-image model makes
+its last choices later than its range, and the memorising $500$-image model lands from every swap
+level. Blue: the exact posterior over the training images of a class, share of noised test points
+whose largest weight is at least $1/2$ (solid) or $0.9$ (dashed), and share of noised training
+images whose weight on that image is at least $1/2$ (dotted), for the training set of each model.
 Vermillion: share of net$\to$exact endpoints on the nearest training image of the network's own
-endpoint ($=$L). Black: share of exact$\to$net endpoints on a training image. Swap values at the
-eight swap levels $s$, drawn at $\sigma=s$, $500$ latents per model, Wilson $95\%$ intervals.
-(a)~Public model; (b)~$1000$ images, trained for $0.5$\,Mimg; (c)~$500$ images.}
+endpoint ($=$L). Black: share of exact$\to$net endpoints on a training image. Eight swap levels $s$,
+drawn at $\sigma=s$, $500$ latents per model, Wilson $95\%$ intervals. (a)~Public model;
+(b)~$1000$ images, $0.5$\,Mimg; (c)~$500$ images.}
 \label{fig:posterior}
 \end{figure}
 
@@ -1902,8 +1897,7 @@ zero. With off-atom thresholds $0.2$ and $0.5$ there are $46$ and $39$ off-atom 
 AUC and the sign of every difference are unchanged.
 
 \begin{table}[t]
-\centering\small
-\resizebox{\textwidth}{!}{%
+\centering\footnotesize\setlength{\tabcolsep}{5pt}
 \begin{tabular}{@{}lrrrrr@{}}
 \toprule
 $\sigma$ & 19.4 & 12.9 & 8.4 & 5.32 & 3.26\\
@@ -1916,7 +1910,7 @@ AUC of $\hat d$ (baseline) & $0.689$ & $0.876$ & $0.959$ & $0.991$ & $0.999$\\
 radial ratio $-$ baseline & $0.106$ & $0.017$ & $-0.013$ & $-0.010$ & $-0.003$\\
 \quad $95\%$ interval & $[0.056,0.159]$ & $[-0.009,0.043]$ & $[-0.027,0.001]$ & $[-0.017,-0.005]$ & $[-0.005,-0.001]$\\
 \bottomrule
-\end{tabular}}
+\end{tabular}
 \caption{Predictive anchor and baseline, subset model ($1000$ samples, $41$ off-atom).}
 \label{tab:edm-anchor}
 \end{table}
@@ -1933,8 +1927,7 @@ that level, so its AUC of $0.985$ is bookkeeping; at $\sigma=0.585$ the baseline
 (interval $[0.986,0.994]$), above the late contraction by $[0.004,0.010]$.
 
 \begin{table}[t]
-\centering\small
-\resizebox{\textwidth}{!}{%
+\centering\footnotesize
 \begin{tabular}{@{}lrrrrrrrr@{}}
 \toprule
 model & off-atom & AUC $\varrho$, $\sigma=0.585$ & $0.140$ & $0.002$ & $C$ on / off & AUC of $C$ & baseline, $\sigma=0.585$ & $0.002$\\
@@ -1943,7 +1936,7 @@ $500$ images, seed $0$ & $41$ & $1.000$ & $1.000$ & $0.995$ & $2.55$ / $0.29$ & 
 $500$ images, seed $1$ & $44$ & $1.000$ & $1.000$ & $1.000$ & $2.53$ / $0.32$ & $1.000$ & $1.000$ & $1.000$\\
 $2000$ images & $501$ & $0.990$ & $0.983$ & $0.929$ & $1.75$ / $0.68$ & $0.983$ & $0.990$ & $0.985$\\
 \bottomrule
-\end{tabular}}
+\end{tabular}
 \caption{The three trained models, $1000$ samples each. $C$: late contraction (medians for on- and
 off-atom samples). Baseline: AUC of the distance from $D_\theta$ to the nearest training image; at
 $\sigma=0.002$ it equals the endpoint distance $d_1$, so that column is bookkeeping. The Heun bound
@@ -1987,8 +1980,7 @@ runs at $h=0.1$ are used only for the measured transfer of Appendix~\ref{app:mea
 $\tfrac13$ as far as the second nearest; it starts from a common $\approx0.11$.
 
 \begin{table}[htb]
-\centering\small
-\resizebox{\textwidth}{!}{%
+\centering\footnotesize\setlength{\tabcolsep}{5pt}
 \begin{tabular}{lccccc}
 \toprule
 & \multicolumn{5}{c}{iteration}\\
@@ -2001,7 +1993,7 @@ $\|\text{mean}-x^i\|$ & $0.90$\,[$0.68$, $1.12$] & $0.87$\,[$0.59$, $1.16$] & $0
 $\|\text{mean}-\mu_{\mathrm{post}}\|$ & $0.15$\,[$0.06$, $0.24$] & $0.25$\,[$0.15$, $0.35$] & $0.52$\,[$0.38$, $0.66$] & $0.66$\,[$0.41$, $0.90$] & $0.816$\,[$0.577$, $1.055$]\\
 unconditional $\tr\Cov$ & $1.85$\,[$1.09$, $2.61$] & $1.93$\,[$1.72$, $2.15$] & $1.91$\,[$1.67$, $2.15$] & $1.926$\,[$1.690$, $2.163$] & ---\\
 \bottomrule
-\end{tabular}}
+\end{tabular}
 \caption{EXP-1 at $h=0$, five seeds: mean and $95\%$ Student-$t$ interval for the mean (four
 degrees of freedom). The $10^6$ column is a run with a cosine learning-rate schedule
 ($10^{-3}\to10^{-6}$) and no unconditional counterpart. Reference values:
