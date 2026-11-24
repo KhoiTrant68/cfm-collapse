@@ -78,22 +78,22 @@ so a trained sampler that produces anything else does so through the error of it
 We ask which property of that error decides whether a sampling trajectory lands on a training
 image. Our main result is a relative condition. A trajectory reaches a training image when the
 error of its predicted clean image stays a fixed fraction below its distance to that image. It
-stays away when the radial ratio approaches one fast enough. This ratio compares the predicted
-clean image with the current state, both seen from the training image: below one, the prediction
-pulls the state toward the image; at one, there is no pull. The absolute error may be large,
-and a small regression loss does not control the ratio. We also give a trapping version in the
-noise coordinates of EDM and a one-step version for the deterministic Heun sampler. We then measure
-these quantities on class-conditional EDM models of CIFAR-10 trained on $500$ to $50000$ images,
-and swap the trained denoiser for the exact one partway through sampling. Two decisions are made
-at different times. Which training image a trajectory is headed for is fixed by $\sigma\approx1$:
-from the network's state there, the exact denoiser ends on the image nearest to the network's own
-sample for at least $88\%$ of samples. Whether the trajectory reaches that image is decided later.
-On a model that memorises, the samples it copies keep the relative error well below one until the
-last steps, while the samples it does not copy, and all samples of the public model, approach one
-from $\sigma\approx0.14$. Handed the exact denoiser's state, the memorising model lands every sample
-from every swap level, while the public model lands half of them only from $\sigma\approx0.5$. The
-relative error describes how landing happens and is consistent with the theorem; it does not detect copies better than the distance from the
-denoiser output to the nearest training image.
+stays away from it when the radial ratio approaches one fast enough. This ratio shows whether the
+predicted clean image pulls the current state toward the training image: below one it pulls, at
+one it does not. The absolute error may be large, and a small regression loss does not control the
+ratio. We also give a trapping version in the noise coordinates of EDM and a one-step version for
+the deterministic Heun sampler. We then measure these quantities on class-conditional EDM models
+of CIFAR-10 trained on $500$ to $50000$ images, and swap the trained denoiser for the exact one
+partway through sampling. Two decisions are made at different times. Which training image a
+trajectory is headed for is fixed by $\sigma\approx1$: from the network's state there, the exact
+denoiser ends on the image nearest to the network's own sample for at least $88\%$ of samples.
+Whether the trajectory reaches that image is decided later. On a model that memorises, the samples
+it copies keep the relative error well below one until the last steps. The samples it does not
+copy, and all samples of the public model, approach one from $\sigma\approx0.14$. Handed the exact
+denoiser's state, the memorising model lands every sample from every swap level, while the public
+model lands half of them only from $\sigma\approx0.5$. The relative error describes how landing
+happens and is consistent with the theorem. It does not detect copies better than the distance
+from the denoiser output to the nearest training image.
 \end{abstract}
 
 % ==========================================================================
@@ -115,51 +115,50 @@ come from the error of the learned field. This paper asks which property of that
 whether a trajectory lands on a training image, and at what point of sampling the outcome is
 fixed.
 
-The answer is useful in three places. For the study of generalisation, it says which part of the
+The answer matters in three places. For the study of generalisation, it says which part of the
 learned field must depart from the exact one for a model to produce new images. For privacy audits
 by a party that holds the training set, it says what to measure along a trajectory to explain a
 copy. For methods that reduce copying, it suggests at which noise levels such a method could act,
 although we do not test any such method here.
 
-Our main result is a landing condition stated for one trajectory at a time
+Our main result is a landing condition for one trajectory at a time
 (Theorem~\ref{thm:relerr}). Let $n_t$ be the distance from the state to a training image $a$, and
 $e_t$ the distance from the network's predicted clean image to the exact posterior mean. If $e_t$
 stays below $\bar\varrho\,n_t$ for a constant $\bar\varrho<1$, up to terms that vanish at the end,
-the trajectory reaches $a$. The radial ratio compares the predicted clean image with the state,
-both seen from $a$: it is the length of the predicted image's offset from $a$ along the direction
-of the state's offset, divided by the state's distance $n_t$. A ratio below one pulls the state
-toward $a$; if it approaches one fast enough, the trajectory does not land. The condition is relative: the error may be large while the state is far from the image, as
-long as it shrinks in proportion to the distance. A small regression loss does not give this
-control, because the loss averages the error over the training law and not along the sampler's
-path (Proposition~\ref{prop:loss-no-certificate}).
+the trajectory reaches $a$. The condition is relative: the error may be large while the state is
+far from the image, as long as it shrinks in proportion to the distance. The radial ratio shows
+whether the prediction pulls the state toward $a$. It is the length of the predicted image's
+offset from $a$ along the direction of the state's offset, divided by the state's distance $n_t$.
+Below one, the prediction pulls the state toward $a$; at one, it does not. If the ratio approaches one fast enough, the
+trajectory does not land. A small regression loss does not give this control, because the loss
+averages the error over the training law and not along the sampler's path
+(Proposition~\ref{prop:loss-no-certificate}).
 
 Sampling thus makes two decisions, much as a flight first picks its airport and only later
-touches down: early on, the trajectory settles which training image it is heading for; late, the
-radial ratio decides whether it actually lands on it. To see the condition at work on real models,
-we swap the trained denoiser of EDM models for the
-exact one at a level $s$ of the noise schedule (Figure~\ref{fig:overview}). Running the network
-first and the exact field below $s$ shows when the training image is chosen. Running the exact
-field first and the network below $s$ shows whether a given network lands from a given state, and
-separates models that memorise from models that do not. Figure~\ref{fig:intuition} shows one latent
-sampled by two models, and Figure~\ref{fig:mechanism} shows the landing condition in one dimension.
+touches down. Early on, the trajectory settles which training image it is heading for. Late, the
+radial ratio decides whether it lands on that image. To see this on real models, we swap the
+trained denoiser of EDM models for the exact one at a level $s$ of the noise schedule
+(Figure~\ref{fig:overview}). Running the network first and the exact field below $s$ shows when the
+training image is chosen. Running the exact field first and the network below $s$ shows whether
+the network lands from the state it is handed, and separates models that memorise from models
+that do not. Figure~\ref{fig:intuition} shows one latent sampled by two models, and
+Figure~\ref{fig:mechanism} shows the landing condition in one dimension.
 
 \begin{figure}[t]
 \centering
 \IfFileExists{figures/tikz/overview.tex}{\resizebox{\textwidth}{!}{\input{figures/tikz/overview.tex}}}{\fbox{overview schematic pending}}
-\caption{Overview of the paper. Gaussian noise enters EDM's deterministic sampler, which calls the
-denoiser $D_\theta(x;\sigma)$ at every noise level $\sigma$ of the schedule. Three marks on the
-noise axis, drawn against the five marked levels of the $18$-step schedule ($\sigma=80$, $5.3$,
-$1.9$, $0.59$ and $0.002$), organise the results. First, the training image the trajectory is
-headed for is chosen: on the public model half of the trajectories have chosen their image by the
-swap level $s\approx2.5$ and about $90\%$ by $\sigma\approx1$ (Section~\ref{sec:swap}). Second, a
-copy appears in the denoiser output: from $\sigma\approx1$ on, the distance from $D_\theta$ to the
-nearest training image tells which samples will copy (Section~\ref{sec:contraction}). Third, over
-the late levels $\sigma\le0.59$ the state itself reaches the image if its relative error
-$\varrho=e/n$ stays below a constant $\bar\varrho<1$ (Theorem~\ref{thm:relerr}). Right, the two
-swaps at level $s$, each with one field at $\sigma>s$ and the other at $\sigma\le s$. Net$\to$exact runs the network above
-$s$ and the exact posterior mean below it, and tells which image was chosen. Exact$\to$net runs the
-exact field above $s$ and the network below it, and tells whether the network lands from the state
-it is handed.}
+\caption{Overview of the paper. Noise enters EDM's deterministic sampler, which calls the
+denoiser $D_\theta(x;\sigma)$ at every noise level $\sigma$. Three marks on the noise axis, drawn
+against five levels of the $18$-step schedule ($\sigma=80$, $5.3$, $1.9$, $0.59$ and $0.002$),
+organise the results. First, the sampler chooses the training image it heads for: on the public
+model half of the trajectories have chosen their image by the swap level $s\approx2.5$ and about
+$90\%$ by $\sigma\approx1$ (Section~\ref{sec:swap}). Second, a copy appears in the denoiser output:
+from $\sigma\approx1$ on, the distance from $D_\theta$ to the nearest training image tells which
+samples will copy (Section~\ref{sec:contraction}). Third, over the late levels $\sigma\le0.59$ the
+state itself reaches the image if its relative error $\varrho=e/n$ stays below a constant
+$\bar\varrho<1$ (Theorem~\ref{thm:relerr}). Right: a swap at level $s$ uses one field above $s$ and
+the other below. Net$\to$exact shows which image was chosen; exact$\to$net shows whether the
+network lands from the state it is handed.}
 \label{fig:overview}
 \end{figure}
 
@@ -167,27 +166,24 @@ it is handed.}
 \centering
 \includegraphics[width=\textwidth]{fig_teaser.pdf}
 \caption{One latent, two models (EDM on CIFAR-10). The same Gaussian latent sampled by the public
-model, trained on all $50000$ images, none of whose samples copied a training image in our runs (top), and by a model trained on $500$
-images, which copies (middle). In each pair, the first row is the network's prediction
-$D_\theta(x)$ of the clean image at the sampler's state $x$, and the second row is the exact field's
-prediction $m^\star(x)$ from the same state, the posterior mean over the training images of the
-class. There is one column per noise level of the $18$-step schedule from $\sigma=5.3$ on; the last
-column is the output and its nearest training image. Frames are vermillion (network) or blue
-(exact field), and black where the tile is that training image (closer to it than a third of its
-distance to the output's second-nearest one). The exact prediction settles on the training image
-at $\sigma=1.9$ for the public model and before $\sigma=5.3$ for the other: the image is chosen.
-The public network's prediction never reaches it, and the output is a new image
-($d_1/d_2=0.94$, with $d_1\le d_2$ the distances to the two nearest training images). The
-prediction of the $500$-image model is that training image from $\sigma=5.3$ on, and the output
-copies it ($d_1/d_2=0.04$). Bottom, the two swaps at level $s$ (Section~\ref{sec:swap}; $500$
-latents; public model thick, $500$-image model thin; a swap at $s$ is drawn at $\sigma=s$). Choice
-(vermillion): the share of net$\to$exact endpoints (network above $s$, exact field below) whose
-nearest training image is that of the network's own endpoint. Landing (blue): the share of
-exact$\to$net endpoints (exact field above $s$, network below) that end on a training image; this
-curve measures the network, which samples the last steps, and separates the two models. The dotted lines mark where the public model's curves pass one half,
-interpolated in $\log s$: half of its images are chosen by $s=2.5$, and half of its samples land
-only from $s=0.51$. The $500$-image model has chosen $93\%$ of its images at $s=5$ and lands every
-sample from every swap level.}
+model, trained on all $50000$ images, none of whose samples copied a training image in our runs
+(top), and by a model trained on $500$ images, which copies (middle). In each pair, the first row
+is the network's prediction $D_\theta(x)$ of the clean image at the sampler's state $x$, and the
+second is the exact field's prediction $m^\star(x)$ from the same state. There is one column per
+noise level from $\sigma=5.3$ on; the last column is the output and its nearest training image.
+Frames are vermillion (network), blue (exact field) or black where the tile is that training image
+(closer to it than a third of its distance to the output's second-nearest one). The exact
+prediction settles on the training image at $\sigma=1.9$ for the public model and before
+$\sigma=5.3$ for the other: the image is chosen early. The public network's prediction never
+reaches it, and the output is a new image ($d_1/d_2=0.94$, with $d_1\le d_2$ the distances to the
+two nearest training images). The $500$-image model's prediction is that training image from
+$\sigma=5.3$ on, and the output copies it ($d_1/d_2=0.04$). Bottom: the two swaps at level $s$
+(Section~\ref{sec:swap}; $500$ latents; public model thick, $500$-image model thin). Choice
+(vermillion): share of net$\to$exact endpoints whose nearest training image is the network's own.
+Landing (blue): share of exact$\to$net endpoints that end on a training image. Half of the public
+model's images are chosen by $s=2.5$, and half of its samples land only from $s=0.51$ (dotted
+lines, interpolated in $\log s$). The $500$-image model has chosen $93\%$ of its images at $s=5$
+and lands every sample from every swap level.}
 \label{fig:intuition}
 \end{figure}
 
@@ -196,11 +192,10 @@ sample from every swap level.}
 \item \emph{A landing condition for learned fields} (Section~\ref{sec:transfer}). A trajectory
   reaches a training example when its error stays a fixed fraction below its distance to that
   example, and does not when the radial ratio approaches one fast enough (Theorem~\ref{thm:relerr}).
-  This ratio is how far the predicted clean image still lies out along the state's offset from the
-  example, in units of the state's distance; at one there is no pull toward the example. The condition holds at any label and bandwidth, including the class
-  posterior of a class-conditional model, and the constant fraction cannot be replaced by one. A
-  trapping statement in EDM coordinates and a one-step bound for the deterministic Heun sampler make
-  it usable on a finite schedule (Propositions~\ref{prop:trap} and~\ref{prop:heun}).
+  The condition holds at any label and bandwidth, including the class posterior of a
+  class-conditional model, and the constant fraction cannot be replaced by one. A trapping
+  statement in EDM coordinates and a one-step bound for the deterministic Heun sampler make it
+  usable on a finite schedule (Propositions~\ref{prop:trap} and~\ref{prop:heun}).
 \item \emph{What the regression loss cannot certify} (Section~\ref{sec:transfer},
   Appendix~\ref{app:transfer}). At an identifying label, a learned endpoint lies within
   $\limsup_{t\uparrow1}(1-t)|\Delta|$ of its training example, where $\Delta$ is the field error
@@ -218,9 +213,9 @@ sample from every swap level.}
 \item \emph{Landing is decided late} (Sections~\ref{sec:swap} and~\ref{sec:contraction}). Along the
   sampler's own trajectories, the samples a memorising model copies keep the relative error well
   below one until the last steps, and the others approach one from $\sigma\approx0.14$. The
-  contraction that the relative error leaves over $\sigma\in[0.002,0.585]$ has median $1.75$ for
-  copies and $0.68$ for new samples of a $2000$-image model; we report it as a description of
-  landing, not as an independent test. The reverse swap, with the exact field first, separates
+  contraction that the relative error leaves (the total pull toward the image) over
+  $\sigma\in[0.002,0.585]$ has median $1.75$ for copies and $0.68$ for new samples of a
+  $2000$-image model; we report it as a description of landing, not as an independent test. The reverse swap, with the exact field first, separates
   memorising from non-memorising models: the $500$-image model lands every sample from every swap
   level, while the public and a $1000$-image model land half of their samples only from $s=0.51$ and
   $s=1.33$. With $36$ or $64$ steps the Heun bound holds at every step for $99.5\%$ of the copies of
@@ -231,8 +226,8 @@ sample from every swap level.}
 \end{itemize}
 We do not claim a better detector of memorisation. The distance from the denoiser output to the
 nearest training image already tells which samples copy at $\sigma\approx1$ (AUC $0.988$ on the
-$2000$-image model), at least as well as the late contraction ($0.983$). The theory is conditional:
-it names what a measurement of the learned field must show, and it needs the exact field, which only
+$2000$-image model), at least as well as the late contraction ($0.983$). The theory is conditional.
+It names what a measurement of the learned field must show, and it needs the exact field, which only
 a party holding the training set can evaluate. The inductive biases of trained denoisers, such as
 geometry-adaptive bases \citep{kadkhodaie2024generalization} and locality
 \citep{kamb2024creativity,niedoba2024mechanistic}, are candidate forms of the late error that
@@ -247,16 +242,17 @@ and~\ref{app:relerr}.
 of diffusion and flow-matching losses memorises
 \citep{pidstrigach2022manifolds,gu2023memorization,biroli2023diffusion,buchanan2025edge,gao2024flow,bertrand2025closed,li2026memory}.
 \citet[Theorem~5.3]{wan2025elucidating} show that the flow-matching ODE from a Gaussian source
-reproduces its data law exactly, finite training sets included, and
+reproduces its data law exactly, finite training sets included.
 \citet[Theorem~6.4]{baptista2025memorization} show that the optimal conditional score only sees the
 training examples carrying the queried label. For the exact score of a finite training set,
 \citet[Theorem~3.7, version~3]{liu2025pde} prove that almost every deterministic trajectory ends on
-a training example. \citet[Theorem~2.5, version~2]{liu2026geometric} prove that when two exact scores are mixed or
-guided with a fixed weight, each trajectory converges to one of finitely many equilibria, each
-fixed by its nearest points in the supports, and such a limit need not be a training example. Companion work
-\citep{companionA} studies which changes of an exact conditional field, from label noise and label
-averaging to guidance and composition, keep its endpoints on the training set; here the exact field is only the reference, and the object of study
-is the learned field.
+a training example. \citet[Theorem~2.5, version~2]{liu2026geometric} prove that when two exact scores
+are mixed or guided with a fixed weight, each trajectory converges to one of finitely many
+equilibria. Each equilibrium is fixed by its nearest points in the supports, and it need not be a
+training example. Companion work \citep{companionA} studies which changes of an exact conditional
+field, from label noise and label averaging to guidance and composition, keep its endpoints on the
+training set. Here the exact field is only the reference, and the object of study is the learned
+field.
 Trained denoisers generalise through inductive biases that depart from the exact field
 \citep{kadkhodaie2024generalization,kamb2024creativity,niedoba2024mechanistic}.
 \citet{bertrand2025closed} show that generalisation in flow matching does not come from the
@@ -277,14 +273,15 @@ collapse and not to the speciation. On the public model it is made at or near th
 where the exact posterior over the training images of the class, evaluated at noised test images,
 concentrates on one image (Appendix~\ref{app:relerr-exp}, Figure~\ref{fig:posterior}).
 \citet{biroli2024dynamical} also measure both times on DDPM U-Nets trained on $200$ or $2000$
-images, few enough that the networks reproduce them. The exact-score picture does not separate
-landing from collapse: there, a trajectory that has collapsed reaches its training point. The public
-network has its image fixed at these noise levels and still does not reach it.
-\citet{bonnaire2025why} show that memorisation emerges during training on a time scale that grows
-with the size of the training set, after a generalisation time that does not. Our trained networks
-collapse onto the hard-conditioning endpoint late in training (Section~\ref{sec:exp1}), and our
-EDM models memorise at $500$ images and not at $50000$, in line with that picture; we do not vary
-the training time systematically (Section~\ref{sec:limitations}).
+images, few enough that the networks reproduce them. In the exact-score picture, landing and
+collapse are the same event, because a trajectory that has collapsed reaches its training point.
+The public network does not follow this picture: its image is fixed at these noise levels, and it
+still does not reach it. \citet{bonnaire2025why} show that memorisation emerges during training on
+a time scale that grows with the size of the training set, after a generalisation time that does
+not. Our trained networks collapse onto the hard-conditioning endpoint late in training
+(Section~\ref{sec:exp1}), and our EDM models memorise at $500$ images and not at $50000$, in line
+with that picture. We do not vary the training time systematically
+(Section~\ref{sec:limitations}).
 
 \paragraph{Hybrid samplers.} \citet{bertrand2025closed} and \citet{liu2025navigation} run the exact
 field first and the trained network afterwards, our exact$\to$net direction. On flow-matching
@@ -295,7 +292,7 @@ to the nearest training image, and returns almost the closed-form sample from $\
 sampling into a navigation stage near the prior, where the target blends several training samples,
 and a refinement stage dominated by the nearest one. In their mixed sampling, a switch after
 $t=0.2$ of their latent-space schedule ($t=0$ at the prior) reproduces the layout of a training
-sample and an earlier one gives novel outputs; they attribute generalisation to navigation and
+sample, and an earlier one gives novel outputs. They attribute generalisation to navigation and
 memorisation to refinement. \citet{dodson2026calm} exchange two trained EDM models of CIFAR-10, one
 that copies and one that does not. Exchanging them on $\sigma\in[0.14,8.4]$ moves the share of
 copies from $92.2\%$ to $0\%$ and back, and exchanging them above or below this range has little
@@ -304,15 +301,15 @@ effect. These works record how close the output ends to a training image.
 network afterwards, to bound the privacy loss of sampling. \citet{briq2026tracing} evaluate the
 closed-form velocity at the states of a learned trajectory to attribute samples to clusters of
 training images, without a hybrid sampler. Our swaps exchange the network and the exact field in
-both directions at one level $s$ swept along the schedule, and record which training image the
-endpoint is nearest to as well as whether it is on it. On the public model the two come apart. For
-every swap at $s\le1$ ($t\ge0.5$), the endpoint's nearest training image is that of the field that
-ran first for at least $89.6\%$ of samples in either direction, close to the time at which
-\citet{bertrand2025closed} find the image determined. Yet handed the exact field's state at $s=1$,
-the network ends off the training set for $95.6\%$ of samples, and lands half of them only when the
-swap comes at $s=0.5$ ($t=0.67$), while the memorising $500$-image model lands from every swap level
-(Section~\ref{sec:swap}). Whether a sample copies is thus decided in what \citet{liu2025navigation}
-call the refinement stage, by the contraction whose condition Theorem~\ref{thm:relerr} states.
+both directions, at one level $s$ swept along the schedule. We record which training image the
+endpoint is nearest to, and whether it is on that image. On the public model the two come apart.
+For every swap at $s\le1$ ($t\ge0.5$), the endpoint's nearest training image is that of the field
+that ran first for at least $89.6\%$ of samples in either direction. This is close to the time at
+which \citet{bertrand2025closed} find the image determined. Yet handed the exact field's state at
+$s=1$, the network ends off the training set for $95.6\%$ of samples, and it lands half of them only
+when the swap comes at $s=0.5$ ($t=0.67$) (Section~\ref{sec:swap}). Whether a sample copies is thus
+decided in what \citet{liu2025navigation} call the refinement stage, by the contraction whose
+condition Theorem~\ref{thm:relerr} states.
 
 \paragraph{Late landing.} \citet{li2026kinetic} trace memorisation in flow matching to the terminal
 singularity of the empirical optimum, whose velocity grows like $1/(1-t)$, and reduce copying by
@@ -322,7 +319,7 @@ lowers the share of copies from $37.3\%$ to $30.2\%$ while FID rises from $16.7$
 boost of the velocity alone leaves it at $36.8$--$37.4\%$, and the two together give $31.2\%$ at FID
 $14.4$. Theorem~\ref{thm:relerr} states a per-trajectory condition for such landing, and the swaps
 indicate where trained networks stop contracting. \citet{favero2025bigger} find that the training
-time at which memorisation appears grows in proportion to the size of the training set, and relate
+time at which memorisation appears grows in proportion to the size of the training set. They relate
 it to the time needed to fit the empirical score at low noise, where the backward process collapses
 onto training points.
 
@@ -340,7 +337,7 @@ on noisy images reduces it on small datasets, with Pareto-optimal trade-offs bet
 copying on $300$ FFHQ images for switch levels $\sigma\in[0.4,4]$ \citep{shah2025ambient}. Under
 classifier-free guidance, the prompted prediction of the clean image can already be the training
 image at the first denoising step when the pair's training loss is low, for predictions assumed
-Bayes-optimal \citep{kim2025how}, and applying guidance only once the trajectory has left an
+Bayes-optimal \citep{kim2025how}. Applying guidance only once the trajectory has left an
 attraction basin reduces memorisation \citep{jain2025attraction}. These works locate, reduce or
 detect memorisation. Theorem~\ref{thm:relerr} and Proposition~\ref{prop:heun} instead give
 per-trajectory conditions under which a sampler reaches a training example, and the swaps separate
@@ -351,9 +348,9 @@ guarantees \citep[Theorem~1]{benton2024error}, and \citet[Appendix~D]{beltran202
 examples with small teacher error and poor samples. For interpolants on a finite training set,
 \citet[Theorems~4--5]{li2026memory} bound the distance from an Euler-discretised learned endpoint to
 the training set from above in terms of the training loss, when the law of the iterates has a
-bounded density with respect to the interpolant law. They bound its mean-square deviation from the
-selected training example from below in terms of the propagated error, under a non-cancellation
-assumption. Such a density bound implies the risk-transfer condition of
+bounded density with respect to the interpolant law. Under a non-cancellation assumption, they also
+bound its mean-square deviation from the selected training example from below in terms of the
+propagated error. Such a density bound implies the risk-transfer condition of
 Theorem~\ref{thm:risktransfer}, with $K$ equal to the bound. For the reverse SDE,
 \citet[Theorem~2]{pidstrigach2022manifolds} shows that a learned score whose difference from the
 empirical score stays bounded still returns only training examples. Lemma~\ref{thm:transfer} and
@@ -456,10 +453,10 @@ A trained network differs from the exact field by an error $\Delta$. This sectio
 property of $\Delta$ decides whether a trajectory reaches a training example. The main result,
 Theorem~\ref{thm:relerr}, is a relative condition that holds at any label and bandwidth. A
 supporting lemma then bounds how far the endpoint can end from its example at an identifying label.
-Both statements are about the error along the trajectory, not about the training loss: a field
-affine in space can have vanishing hard-conditioned loss and endpoint law $\N(a,I_d)$ through a late
-amplification (Proposition~\ref{prop:loss-no-certificate}), while an explicit risk-transfer
-condition restores a finite-time bound (Theorem~\ref{thm:risktransfer}); both are in
+Both statements are about the error along the trajectory, not about the training loss. A field
+affine in space can have vanishing hard-conditioned loss and still end with law $\N(a,I_d)$, through
+a late amplification (Proposition~\ref{prop:loss-no-certificate}). An explicit risk-transfer
+condition restores a finite-time bound (Theorem~\ref{thm:risktransfer}). Both are in
 Appendix~\ref{app:teacher-risk}.
 
 \paragraph{The landing condition.} Write $m^\star=\sum_jw_jx^j$ for any posterior mean with
@@ -487,33 +484,34 @@ $\omega_t=(1-w_i(Z_t,t))\max_k|x^k-a|$.
 \proofin{apx:pf-relerr}
 \end{restatable}
 
-Part~(b) does not ask for a small error. It asks that the error stay a fixed fraction below the
-distance to the example, with $\omega_t\to0$ once the posterior concentrates on $a$, which holds on
-a ball around $a$ at late times (Proposition~\ref{prop:trap}, stated for uniform or within-class
-weights; with label-noise priors $\Omega$ carries an extra factor $\max_{k\ne i}p_k/p_i$). The quantity that decides landing is
-the radial ratio $\langle\hat e_t,\hat x_1-a\rangle/n_t$ of~(a). A relative error below one keeps
-it below one where $n_t$ is large compared with $\gamma_t+\omega_t$, and (c) gives a partial converse. Part~(d) shows that the fraction must be strictly below one.
+Part~(b) does not ask for a small error. It asks that the error stay a fixed
+fraction below the distance to the example, with $\omega_t\to0$ once the posterior concentrates on
+$a$. This holds on a ball around $a$ at late times (Proposition~\ref{prop:trap}, stated for
+uniform or within-class weights; with label-noise priors $\Omega$ carries an extra factor
+$\max_{k\ne i}p_k/p_i$). The quantity that decides landing is the radial ratio
+$\langle\hat e_t,\hat x_1-a\rangle/n_t$ of~(a). A relative error below one keeps it below one where
+$n_t$ is large compared with $\gamma_t+\omega_t$, and (c) gives a partial converse. Part~(d) shows
+that the fraction must be strictly below one.
 Appendix~\ref{app:relerr} restates the theorem in EDM's noise coordinates with an explicit trapping
-ball (Proposition~\ref{prop:trap}) and gives the corresponding one-step bound for the deterministic
-Heun sampler used in practice (Proposition~\ref{prop:heun}), whose last steps can extrapolate past
-the atom. Figure~\ref{fig:mechanism} shows the three cases in one dimension.
+ball (Proposition~\ref{prop:trap}). It also gives the one-step bound for the deterministic Heun
+sampler used in practice, whose last steps can extrapolate past the atom
+(Proposition~\ref{prop:heun}). Figure~\ref{fig:mechanism} shows the three cases in one dimension.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\textwidth]{fig_mechanism.pdf}
 \caption{What decides landing, in one dimension. (a--c)~Flows to four training points (black
-ticks) from $1500$ sources ($64$ drawn) over the exact density $p_t$ (grey, normalised at each
-time), with the source law on top and the output at the bottom: a stem is a point mass on a
-training point, with height equal to its probability; a shaded curve is a density. (a)~The exact
-field, $\hat x_1=m^\star$, returns the training points with the label-noise weights $0.12$, $0.48$,
-$0.28$, $0.12$ (Theorem~\ref{thm:endpoint}). (b)~A learned field
-$\hat x_1=m^\star+\varrho_t(Z-m^\star)$ with relative error $\varrho_t=0.6$ still copies.
-(c)~With $1-\varrho_t=0.6(1-t)^{1/2}$, whose integral against $dt/(1-t)$ is finite, the
-trajectories head for the same training points but stop short of them: new samples. (d)~The
+ticks) from $1500$ sources ($64$ drawn) over the exact density $p_t$ (grey), with the source law on
+top and the output at the bottom: a stem is a point mass on a training point, with height equal to
+its probability; a shaded curve is a density. (a)~The exact field, $\hat x_1=m^\star$, returns the
+training points with the label-noise weights $0.12$, $0.48$, $0.28$, $0.12$
+(Theorem~\ref{thm:endpoint}). (b)~A learned field $\hat x_1=m^\star+\varrho_t(Z-m^\star)$ with
+$\varrho_t=0.6$ still copies. (c)~With $1-\varrho_t=0.6(1-t)^{1/2}$, whose integral against
+$dt/(1-t)$ is finite, the trajectories stop short of the training points: new samples. (d)~The
 relative error of the three fields; shaded, the contraction $1-\varrho_t$ left to field (c).
-(e)~Median distance (interquartile range shaded) of the trajectories to the training point they
-end nearest to: it falls like $1-t$ in (a) and like $(1-t)^{0.4}$ in (b), and tends to a positive
-limit in (c), as in Theorem~\ref{thm:relerr}(b) and~(c).}
+(e)~Median distance (interquartile range shaded) to the nearest training point at the end: it falls
+like $1-t$ in (a) and like $(1-t)^{0.4}$ in (b), and tends to a positive limit in (c), as in
+Theorem~\ref{thm:relerr}(b) and~(c).}
 \label{fig:mechanism}
 \end{figure}
 
@@ -542,16 +540,16 @@ $\limsup_{t\uparrow1}|Z_t-a|\le\limsup_{t\uparrow1}|\hat x_1(Z_t,t)-a|$.
 \proofin{apx:pf-transfer}
 \end{restatable}
 
-The argument is elementary; what it adds is the reading. A learned trajectory stays away from its
+The argument is elementary. What it adds is the reading: a learned trajectory stays away from its
 atom only if the scaled error $(1-t)|\Delta|$, equivalently the error of the implied endpoint
-prediction, stays away from zero up to $t=1$; errors of order $o((1-t)^{-1})$ still collapse. The
+prediction, stays away from zero up to $t=1$. Errors of order $o((1-t)^{-1})$ still collapse. The
 bound is informative when the scaled error is controlled independently of the endpoint, for
-instance by an estimate of the learned field. It is not a separate test of the endpoint: since
+instance by an estimate of the learned field. It is not a separate test of the endpoint. Since
 $(1-t)\Delta(Z_t,t)=(1-t)v_\theta(Z_t,t)+Z_t-a$, if $v_\theta$ stays bounded along a trajectory with
-$Z_t\to z$, then $(1-t)\Delta(Z_t,t)\to z-a$ and the bound holds with equality, so a correlation
-between the two measured quantities would carry little additional information. At positive
-bandwidth the same holds near an atom once the trajectory enters a small ball with a small scaled
-error there.
+$Z_t\to z$, then $(1-t)\Delta(Z_t,t)\to z-a$ and the bound holds with equality. A correlation
+between the two measured quantities would therefore carry little additional information. At
+positive bandwidth the same holds near an atom, once the trajectory enters a small ball with a
+small scaled error there.
 
 \begin{restatable}[Local transfer at positive bandwidth]{proposition}{proplocaltransfer}
 \label{prop:localtransfer}
@@ -573,9 +571,10 @@ Appendix~\ref{app:measured-transfer} measures the trajectory error on the linear
 and on retrained CIFAR-10 U-Nets, and Section~\ref{sec:edm} measures the relative error on EDM
 models. Whether a learned field can end exactly on an atom depends on how its regularity degenerates
 at $t=1$. If the spatial Lipschitz constant of a velocity network and $|v_\theta(0,t)|$ are both
-integrable up to $t=1$, its flow map is bi-Lipschitz by Gr\"onwall's inequality and carries the Gaussian source to a law without
-atoms \citep{companionA}. The collapse of such a network in Section~\ref{sec:exp1} is therefore an
-approach to the atom at a finite cutoff, not the atom itself.
+integrable up to $t=1$, its flow map is bi-Lipschitz by Gr\"onwall's inequality, and it carries the
+Gaussian source to a law without atoms \citep{companionA}. The collapse of such a network in
+Section~\ref{sec:exp1} is therefore an approach to the atom at a finite cutoff, not the atom
+itself.
 % companionA kept for the no-atom statement (Proposition "regular" of paper A); the Gronwall
 % sentence keeps B readable without it.
 
@@ -616,38 +615,41 @@ training image. Figure~\ref{fig:collapse-details} shows the other EXP-1 and CIFA
 \end{figure}
 
 \paragraph{Hard conditioning.} \emph{Collapse} of a trained network here means finite-cutoff
-collapse, variance falling toward zero at the cutoff, not an endpoint atom, which a velocity MLP
-lacks (Section~\ref{sec:transfer}). On EXP-1 the conditional variance tracks the posterior,
-$\tr\Sigmapost=1.018$, up to $\sim\!10^4$ iterations, then collapses: $0.396$ $[0.220,0.573]$ at
-$2\times10^5$ and $0.120$ $[0.046,0.195]$ at $10^6$ with a cosine schedule, while the velocity
-approaches $(\star)$ and the generated mean moves to $x^i$ (Figures~\ref{fig:collapse}a
-and~\ref{fig:collapse-details}, Table~\ref{tab:exp1}). On average the distances of the generated
+collapse: the variance falls toward zero at the cutoff. It is not an endpoint atom, which a
+velocity MLP lacks (Section~\ref{sec:transfer}). On EXP-1 the conditional variance tracks the
+posterior, $\tr\Sigmapost=1.018$, up to $\sim\!10^4$ iterations, then collapses: $0.396$
+$[0.220,0.573]$ at $2\times10^5$ and $0.120$ $[0.046,0.195]$ at $10^6$ with a cosine schedule. In
+the same period the velocity approaches $(\star)$ and the generated mean moves to $x^i$
+(Figures~\ref{fig:collapse}a and~\ref{fig:collapse-details}, Table~\ref{tab:exp1}). On average the distances of the generated
 mean to the training atom and to the posterior mean cross between $10^5$ and $2\times10^5$
 iterations; their paired difference is $-0.28$ $[-0.57,0.01]$ at $2\times10^5$, where one seed of
 five has not crossed, and $-0.68$ $[-0.94,-0.42]$ at $10^6$. The unconditional baseline keeps
 $\tr\Cov=1.926$ $[1.690,2.163]$ against $\tr\Xhat=1.931$ (paired ratio $0.997$ $[0.971,1.024]$), as
 the exact unconditional field predicts. The memorisation ratio of \citet{yoon2023memorization}
-reaches $0.650$ $[0.604,0.696]$ conditionally and $0.389$ $[0.345,0.433]$ unconditionally. A bimodal mixture posterior (EXP-2) and MNIST inpainting
-(EXP-3) show the same collapse. It occurs for every architecture and optimiser we tried, and
-the spread across seeds is mostly due to the problem instance (Appendix~\ref{app:exp}).
+reaches $0.650$ $[0.604,0.696]$ conditionally and $0.389$ $[0.345,0.433]$ unconditionally. A
+bimodal mixture posterior (EXP-2) and MNIST inpainting (EXP-3) show the same collapse. It occurs
+for every architecture and optimiser we tried, and the spread across seeds is mostly due to the
+problem instance (Appendix~\ref{app:exp}).
 
 \label{sec:cifarddpm}
 \paragraph{At realistic capacity.} A standard DDPM U-Net ($35.75$M parameters) trained on
 CIFAR-10 bottom-half inpainting ($N{=}2000$, $d{=}3072$, $k{=}1536$, $60000$ iterations) collapses
-at $h{=}0$: the conditional trace falls from $179.1$ at iteration $500$ to $0.431$ (training-time
+at $h{=}0$. The conditional trace falls from $179.1$ at iteration $500$ to $0.431$ (training-time
 estimator; $0.458$ re-measured at $M=256$, Appendix~\ref{app:exp4}), and the
 generated mean identifies the correct training image at $48/48$ conditions, in this run and in
-networks retrained on each of three independently redrawn instances. The three instances follow the same trajectory, and in the
-displayed conditions the completions coincide with the training image from iteration $8000$
-(Figure~\ref{fig:collapse}b; Figure~\ref{fig:cifar-training-grid} shows all checkpoints).
+networks retrained on each of three independently redrawn instances. The three instances follow the
+same trajectory, and in the displayed conditions the completions coincide with the training image
+from iteration $8000$ (Figure~\ref{fig:collapse}b; Figure~\ref{fig:cifar-training-grid} shows all
+checkpoints).
 
 \paragraph{Measured transfer.} On EXP-1 the error met along learned trajectories exceeds the
 error on the training law by a factor of $127\pm40$ at $1-t=0.1$ and $(2.0\pm2.2)\times10^7$ at
 $10^{-4}$, so the regression loss does not bound the endpoint (Appendix~\ref{app:measured-transfer}).
-On CIFAR-10 U-Nets retrained with label noise of bandwidth $h=4$ and $h=6$, refining the integrator and the cutoff barely
-changes the off-atom fraction, while the exact field has none; the off-atom samples are those with
-large scaled error along their own trajectories, with AUC $0.97$ and $0.95$ at $h=4$ and $6$ by
-$t\approx0.53$ and $0.99$ and $0.98$ by $t\approx0.63$, while the same network along the exact
+On CIFAR-10 U-Nets retrained with label noise of bandwidth $h=4$ and $h=6$, refining the integrator
+and the cutoff barely changes the off-atom fraction (the share of new images, not copies), while the exact field has none. The off-atom
+samples are those with large scaled error along their own trajectories, with
+AUC $0.97$ and $0.95$ at $h=4$ and $6$ by
+$t\approx0.53$ and $0.99$ and $0.98$ by $t\approx0.63$. The same network along the exact
 trajectory from the same source separates them weakly if at all (AUC at most $0.58$ from
 $t\approx0.63$ on).
 
@@ -663,39 +665,39 @@ class-balanced subsets, two of $500$ images (different subsets and seeds) and on
 exact field $m^\star$ is the posterior mean over the training images of the class $c$. The class
 label is not identifying, so Lemma~\ref{thm:transfer} does not apply, while the relative condition
 does. We measure it in EDM's own coordinates, that is, through Proposition~\ref{prop:trap}, the form
-that Theorem~\ref{thm:relerr} takes there. Along the EDM state $x$ we record the distance
-$n=|x-a|$ to a training image $a$, the error $e=|D_\theta-m^\star|$, and the relative error
+that Theorem~\ref{thm:relerr} takes there. Along the EDM state $x$ we record three quantities: the
+distance $n=|x-a|$ to a training image $a$, the error $e=|D_\theta-m^\star|$, and the relative error
 $\varrho=e/n$. The radial identity reads $\sigma\,dn/d\sigma=n-\langle\hat e,D_\theta-a\rangle$, as in
-the proof of Proposition~\ref{prop:trap}, and the contraction that $\varrho$ leaves over a range of
+the proof of Proposition~\ref{prop:trap}. The contraction that $\varrho$ leaves over a range of
 levels is $\int(1-\varrho)\,d\log(1/\sigma)$. These are not the quantities of
 Theorem~\ref{thm:relerr} in the coordinates $t=1/(1+\sigma)$ and $Z=tx$, where $n_t=|tx-a|$; we did
-not record those.
-All samples use
-EDM's deterministic $18$-step Heun sampler, and a sample is off-atom when its distance to the
-nearest training image of its class is at least $1/3$ of that to the second nearest, as in
-Appendix~\ref{app:measured-transfer}. The $500$-image models memorise: $41$ of $1000$ samples
+not record those. All samples use EDM's deterministic $18$-step Heun sampler. A sample is on-atom (a copy) when its
+distance to the nearest training image of its class is less than $1/3$ of that to the second
+nearest, and off-atom (a new image) otherwise, as in Appendix~\ref{app:measured-transfer}. The
+$500$-image models memorise: $41$ of $1000$ samples
 ($4.1\%$) are off-atom, and $4.4\%$ for the second subset. The $2000$-image model is balanced, with
-$50.1\%$ off-atom, and the public model has only off-atom samples; the exact field has none. The
+$50.1\%$ off-atom, and the public model has only off-atom samples. The exact field has none. The
 swap experiments also use a model trained on a class-balanced subset of $1000$ images and stopped
-after $0.5$\,Mimg, which has only off-atom samples. Unless stated otherwise, numbers below are for the first $500$-image model;
-the second gives the same conclusions (Appendix~\ref{app:relerr-exp}).
+after $0.5$\,Mimg, which has only off-atom samples. Unless stated otherwise, numbers below are for
+the first $500$-image model; the second gives the same conclusions (Appendix~\ref{app:relerr-exp}).
 
 \subsection{Choose early, land late: swapping the field mid-trajectory}
 \label{sec:swap}
 
-Because the exact field can be evaluated on these models, the choice of the image and the landing
-on it can be separated by intervention, not only by correlation. The two swap directions answer
-different questions. Net$\to$exact ends on a training image by construction, so it tells only
-which image the network's state had chosen at the swap level. Exact$\to$net tells whether a given
-network lands from the state the exact field hands it; it is uninformative on a memorising model,
-which lands from every state, and is used here to tell memorising from non-memorising models.
-From the same Gaussian latents we run the Heun sampler with two hybrid denoisers: \emph{net$\to$exact} uses $D_\theta$ at the noise levels of the schedule
-above $s$ and the exact posterior mean $m^\star$ at those $\le s$, and \emph{exact$\to$net} does the
-reverse, the direction of the hybrid samplers of \citet{bertrand2025closed} and
-\citet{liu2025navigation}. We record whether the endpoint is off-atom, and whether its nearest training image equals
-that of the learned endpoint (\emph{$=$L}, the network's own sample) or of the exact endpoint
-(\emph{$=$E}), for $s\in\{5,2,1,0.5,0.2,0.1,0.05,0.02\}$, that is $t=1/(1+s)$ from $0.17$ to $0.98$,
-on $500$ samples ($50$ per class) of three models: the public model, the $1000$-image model, both
+Because the exact field can be evaluated on these models, we can separate the choice of the image
+from the landing on it by intervention, not only by correlation. From the same Gaussian latents we
+run the Heun sampler with two hybrid denoisers. \emph{Net$\to$exact} uses $D_\theta$ at the noise
+levels of the schedule above $s$ and the exact posterior mean $m^\star$ at those $\le s$.
+\emph{Exact$\to$net} does the reverse, the direction of the hybrid samplers of
+\citet{bertrand2025closed} and \citet{liu2025navigation}. The two directions answer different
+questions. Net$\to$exact ends on a training image by construction, so it tells only which image the
+network's state had chosen at the swap level. Exact$\to$net tells whether a given network lands from
+the state the exact field hands it. It is uninformative on a memorising model, which lands from
+every state, so we use it to tell memorising from non-memorising models. For each swap we record
+whether the endpoint is off-atom, and whether its nearest training image equals that of the learned
+endpoint (\emph{$=$L}, the network's own sample) or of the exact endpoint (\emph{$=$E}). The swap
+levels are $s\in\{5,2,1,0.5,0.2,0.1,0.05,0.02\}$, that is $t=1/(1+s)$ from $0.17$ to $0.98$. We use
+$500$ samples ($50$ per class) of three models: the public model and the $1000$-image model, both
 with all samples off-atom, and the first $500$-image model, with $3.8\%$ off-atom on these latents
 (Figure~\ref{fig:swap}, Table~\ref{tab:swap}). The learned and exact endpoints share their nearest
 image for $13.8\%$, $21.0\%$ and $35.4\%$ of samples on the three models.
@@ -704,21 +706,19 @@ image for $13.8\%$, $21.0\%$ and $35.4\%$ of samples on the three models.
 \centering
 \includegraphics[width=\textwidth]{fig_swap.pdf}
 \caption{The trained sampler chooses its image early and lands late (EDM on CIFAR-10).
-(a) Public model. Each row is one latent; each tile is the training image on which
+(a) Public model; each row is one latent. Each tile is the training image on which
 net$\to$exact ends (network for $\sigma>s$, exact field for $\sigma\le s$) when the switch is at
-$s$, between the exact field alone (left) and the nearest training image of the network's own
-endpoint (right). Vermillion frame: the network's image; blue: the exact field's image; grey:
-neither. In each of the first three classes, the row is the first latent whose exact and learned images differ
-and whose image changes to the network's between $s=5$ and $s=0.2$; over all $500$ latents, a
-switch at $s=1$ already ends on the network's image for $89.6\%$ (Table~\ref{tab:swap}). (b) Choice: share of net$\to$exact endpoints
-whose nearest training image is the network's ($=$L). Landing: share of exact$\to$net endpoints
-(exact field for $\sigma>s$, network for $\sigma\le s$) that end on a training image
-($1-$off). Shaded: the swap levels $s\ge1$, over which the image is chosen, and $s\le0.2$, from
-which at least $93\%$ of the public model's samples land. Thick lines: public model; thin: the
-$1000$-image model; $500$ latents each. Net$\to$exact
-ends on a training image at every $s$ on both models by construction, since the sampler's last
-step returns the exact field's output; only the image it ends on is informative. Values in
-Table~\ref{tab:swap}.}
+$s$, from the exact field alone (left) to the network alone (right). Frames: vermillion, the
+network's image; blue, the exact field's image; grey, neither. Each row is the first latent of its
+class whose two images differ and whose image changes to the network's between $s=5$ and $s=0.2$;
+over all $500$ latents, a switch at $s=1$ already ends on the network's image for $89.6\%$
+(Table~\ref{tab:swap}). (b) Choice: share of net$\to$exact endpoints whose nearest training image is
+the network's ($=$L). Landing: share of exact$\to$net endpoints (exact field for $\sigma>s$, network
+for $\sigma\le s$) that end on a training image ($1-$off). Shaded: $s\ge1$, over which the image is
+chosen, and $s\le0.2$, from which at least $93\%$ of the public model's samples land. Thick lines:
+public model; thin: $1000$-image model; $500$ latents each. Net$\to$exact ends on a training image
+at every $s$ by construction, since the last step returns the exact field's output; only the image
+it ends on is informative.}
 \label{fig:swap}
 \end{figure}
 
@@ -754,86 +754,86 @@ and every endpoint lies within $10^{-5}$ of it.}
 
 \paragraph{The image is chosen early.} With the network running down to $s$ and the exact field
 below, every sample of every model ends on a training image, at every $s$. This holds by
-construction rather than as a finding: the sampler's last step is an Euler step from
-$\sigma=0.002$ to $0$, which returns the denoiser output at $\sigma=0.002$, and for the exact field
-that output is the nearest training image of the class to double precision, from any state that
+construction rather than as a finding. The sampler's last step is an Euler step from
+$\sigma=0.002$ to $0$, which returns the denoiser output at $\sigma=0.002$. For the exact field that
+output is the nearest training image of the class to double precision, from any state that
 is not almost exactly equidistant from two of them. The exact field used only for the last of the
 $35$ denoiser evaluations of the $18$-step sampler would already end every sample on a training
-image. What this direction measures is which image is reached: the one nearest to the network's
-own endpoint in $31$, $56$, $90$, $99$ and $100\%$ of samples for $s=5,2,1,0.2,0.02$ on the public
-model, in $49$, $63$, $88$, $98$ and $100\%$ on the $1000$-image model, and in $92.8$, $98.2$ and
+image. What this direction measures is which image is reached. The image reached is the one nearest
+to the network's own endpoint in $31$, $56$, $90$, $99$ and $100\%$ of samples for $s=5,2,1,0.2,0.02$ on the
+public model, in $49$, $63$, $88$, $98$ and $100\%$ on the $1000$-image model, and in $92.8$, $98.2$ and
 $99.6\%$ for $s=5,2,1$ and all samples from $s\le0.2$ on the $500$-image model. Interpolated in
 $\log s$ between swap levels, this share passes $50\%$ at $s=2.48$ and $90\%$ at $s=0.95$ on the
-public model ($95\%$ bootstrap intervals $[2.13,2.87]$ and $[0.74,1.05]$). On the public and the
-$1000$-image model the learned endpoint is almost equidistant from its two nearest training images
-(median $d_1/d_2$ $0.977$ and $0.949$), so $=$L does not mean that the network's sample comes
-close to a training image; it means that the network's state at the switch already lies in the
-exact field's basin of the image nearest to that sample. The basin is decided by the network's
-trajectory, not by the latent: among the $431$ public-model samples whose learned and exact images
-differ, a switch at $s=1$ ends on the network's image for $379$ ($87.9\%$) and on the exact
-field's for $11$ ($2.6\%$). The other direction gives the same time from the other side: once the exact field has run down to
-$\sigma=1$, the network no longer changes which image is nearest to the endpoint ($=$E is $1.000$
-for $s\le1$ on all three models), while from $s=5$ it re-selects for $58\%$ of samples on the
-public model, $22\%$ on the $1000$-image model and $5\%$ on the $500$-image model. The image is
-therefore selected by $\sigma\approx1$, in the medium-noise band where \citet{dodson2026calm}
-locate memorisation risk, and earlier on the memorising model, which selects $93\%$ of its images
-by $\sigma=5$. The swaps of \citet{dodson2026calm} between two trained networks exchange the range
-$\sigma\in[0.14,8.4]$ as a whole (Section~\ref{sec:related}), which contains both of the decisions
-that the swap level $s$ separates here.
+public model ($95\%$ bootstrap intervals $[2.13,2.87]$ and $[0.74,1.05]$). On the public and the $1000$-image model the learned endpoint is almost equidistant from its two
+nearest training images (median $d_1/d_2$ $0.977$ and $0.949$). So $=$L does not mean that the
+network's sample comes close to a training image. It means that the network's state at the switch
+already lies in the exact field's basin of the image nearest to that sample. The basin is decided by
+the network's trajectory, not by the latent: among the $431$ public-model samples whose learned and
+exact images differ, a switch at $s=1$ ends on the network's image for $379$ ($87.9\%$) and on the
+exact field's for $11$ ($2.6\%$). The other direction gives the same time from the other side. Once
+the exact field has run down to $\sigma=1$, the network no longer changes which image is nearest to
+the endpoint ($=$E is $1.000$ for $s\le1$ on all three models), while from $s=5$ it re-selects for
+$58\%$ of samples on the public model, $22\%$ on the $1000$-image model and $5\%$ on the $500$-image
+model. The image is therefore selected by $\sigma\approx1$, in the medium-noise band where
+\citet{dodson2026calm} locate memorisation risk, and earlier on the memorising model, which selects
+$93\%$ of its images by $\sigma=5$. The swaps of \citet{dodson2026calm} between two trained networks
+exchange the range $\sigma\in[0.14,8.4]$ as a whole (Section~\ref{sec:related}). That range contains
+both of the decisions that the swap level $s$ separates here.
 
-\paragraph{The reverse swap separates memorising from non-memorising models.} Since the exact field
-ends on a training image from whatever state it is handed, evidence on landing has to come from the
-other direction, where the network runs last. Only the memorising network lands from every swap
-level; the two networks that do not memorise land only from late levels. With the exact
+\paragraph{The reverse swap separates memorising from non-memorising models.} The exact field ends on
+a training image from whatever state it is handed, so evidence on landing has to come from this
+direction, where the network runs last. Only the memorising network lands from every
+swap level; the two networks that do not memorise land only from late levels. With the exact
 field down to $s$ and the network below, the public model ends off-atom for $100\%$ of samples at $s\ge2$, $95.6\%$ at
 $s=1$, $49.2\%$ at $s=0.5$, $7.0\%$ at $s=0.2$ and $0.2\%$ at $s=0.1$; the $1000$-image model for
 $97.4\%$ at $s=5$, $23.2\%$ at $s=1$ and none from $s\le0.1$. Interpolated in $\log s$, half of
 the samples land from $s=0.51$ ($95\%$ interval $[0.47,0.54]$) on the public model and from
 $s=1.33$ ($[1.29,1.37]$) on the $1000$-image model, later than half of the images are chosen
-($s=2.48$ and $4.74$); at $90\%$ the order is the same ($0.95$ against $0.21$, and $0.82$ against
+($s=2.48$ and $4.74$). At $90\%$ the order is the same ($0.95$ against $0.21$, and $0.82$ against
 $0.56$). For $s\le1$ the samples that end off-atom miss the image that the exact field's state had
 fixed: their nearest image is still the exact one. When the switch is late enough to end on-atom,
-this is partly because little time is left: from $s=0.1$ to $0.02$ the median endpoint distance
-to the nearest image falls roughly in proportion to $s$, $2.57$, $1.37$ and $0.61$ on the public
+this is partly because little time is left. From $s=0.1$ to $0.02$ the median endpoint distance
+to the nearest image falls roughly in proportion to $s$: $2.57$, $1.37$ and $0.61$ on the public
 model ($2.63$, $1.47$, $0.68$ on the $1000$-image model; log--log slopes $0.90$ and $0.84$,
-against $0.47$ from $s=5$ to $0.5$ on the public model), where the exact field would end at
-distance $0$. The network does contract, but weakly: if the state at the last level $\sigma$ of the
-exact field lies at the distance $\sigma\sqrt d$ from the image that an exact trajectory has there
-(the hand-over distance was not recorded), the remaining steps of these late swaps on the public
-model shorten it by a factor of about $2$ to $3$, or of about $1.4$ to $2.2$ if the exact field is
-credited with its half of the mixed Heun step at the hand-over. This is close to
+against $0.47$ from $s=5$ to $0.5$ on the public model). The exact field would end at
+distance $0$. The network does contract, but weakly. Suppose the state at the last level $\sigma$ of
+the exact field lies at the distance $\sigma\sqrt d$ from the image that an exact trajectory has
+there (the hand-over distance was not recorded). Then the remaining steps of these late swaps on
+the public model shorten it by a factor of about $2$ to $3$, or of about $1.4$ to $2.2$ if the
+exact field is credited with its half of the mixed Heun step at the hand-over. This is close to
 the boundary case of Theorem~\ref{thm:relerr}(d), a relative error near one that neither contracts
-nor expands, and matches the relative error of the public model along its own trajectories, $0.925$ at
-$\sigma=0.14$ and $0.997$ at $\sigma=0.023$ (Table~\ref{tab:edm-rho}). The memorising
-$500$-image model behaves the other way: handed the exact state at any $s$, its late field ends
-on-atom for every sample, on the exact field's image ($=$E at least $0.954$) rather than on its own
-($=$L between $0.354$ and $0.374$, the agreement without a swap). Its late field thus contracts
-toward whichever training image the state is near, not toward the image it selected; its median
-endpoint distance falls from $1.67$ at $s=5$ to $0.45$ at $s=0.02$, on-atom by the relative
+nor expands. This also matches the relative error of the public model along its own trajectories, $0.925$
+at $\sigma=0.14$ and $0.997$ at $\sigma=0.023$ (Table~\ref{tab:edm-rho}).
+
+The memorising $500$-image model behaves the other way. Handed the exact state at any $s$, its late
+field ends on-atom for every sample, on the exact field's image ($=$E at least $0.954$) rather than
+on its own ($=$L between $0.354$ and $0.374$, the agreement without a swap). Its late field thus
+contracts toward whichever training image the state is near, not toward the image it selected. Its
+median endpoint distance falls from $1.67$ at $s=5$ to $0.45$ at $s=0.02$, on-atom by the relative
 criterion but not at distance $0$. The $19$ samples that this model leaves off-atom when it runs
-alone all land under exact$\to$net at every swap level, even $s=5$: from the exact field's state
+alone all land under exact$\to$net at every swap level, even $s=5$. From the exact field's state
 the same late field lands them, so their failure to land is set by the state the network reaches
 above $\sigma=5$.
 
 \paragraph{A window of exact field.} On the public model we also used the exact field only on a
 window of levels $\sigma\in(\sigma_{\rm lo},\sigma_{\rm hi}]$, with the network above and below
 it, from the same $500$ latents (Table~\ref{tab:window}). Two predictions were written down before
-the run. The first, that with the exact field down to $\sigma_{\rm lo}$ the median endpoint
+the run. The first was that with the exact field down to $\sigma_{\rm lo}$ the median endpoint
 distance $d_1$ is proportional to $\sigma_{\rm lo}$, with $d_1/\sigma_{\rm lo}$ between $20$ and
-$35$, restated the exact$\to$net runs above, which the windows $(\sigma_{\rm lo},\infty)$ repeat on
-the same latents and reproduce sample by sample, so it is not an independent test; the ratio is in
-that range for $\sigma_{\rm lo}\le0.2$ ($30.3$, $27.5$, $25.7$ and $21.1$ at
+$35$. This restated the exact$\to$net runs above, which the windows $(\sigma_{\rm lo},\infty)$ repeat
+on the same latents and reproduce sample by sample, so it is not an independent test. The ratio is
+in that range for $\sigma_{\rm lo}\le0.2$ ($30.3$, $27.5$, $25.7$ and $21.1$ at
 $\sigma_{\rm lo}=0.02$, $0.05$, $0.1$ and $0.2$) but not at $0.5$ and $1$ ($12.9$ and $9.2$), so
-by its own criterion it fails. The second, the only new test, that for $\sigma_{\rm hi}\ge0.5$ the
-median $d_1$ depends only on $\sigma_{\rm lo}$, where the network takes over again, is refuted:
-with $\sigma_{\rm lo}=0.1$ it is $4.16$ for the window $(0.1,0.5]$ and $2.48$ for $(0.1,2]$, a
-ratio of $0.60$ ($[0.58,0.61]$), and $(0.1,0.5]$ leaves $21\%$ of the samples off-atom
-($[18,25]\%$), against $0.2\%$ when the exact field runs from the start down to $0.1$. Which image
-is reached is set by the window's upper end: the share on the network's own image equals that of
-net$\to$exact at $s=\sigma_{\rm hi}$ ($0.956$, $0.896$, $0.560$ and $0.306$ for
+by its own criterion it fails. The second, and the only new test, was that for
+$\sigma_{\rm hi}\ge0.5$ the median $d_1$ depends only on $\sigma_{\rm lo}$, where the network takes
+over again. It is refuted. With $\sigma_{\rm lo}=0.1$ the median is $4.16$ for the window $(0.1,0.5]$
+and $2.48$ for $(0.1,2]$, a ratio of $0.60$ ($[0.58,0.61]$), and $(0.1,0.5]$ leaves $21\%$ of the
+samples off-atom ($[18,25]\%$), against $0.2\%$ when the exact field runs from the start down to
+$0.1$. Which image is reached is set by the window's upper end: the share on the network's own
+image equals that of net$\to$exact at $s=\sigma_{\rm hi}$ ($0.956$, $0.896$, $0.560$ and $0.306$ for
 $\sigma_{\rm hi}=0.5$, $1$, $2$ and $5$), and the image itself agrees for at least $99.6\%$ of
 samples. A window that starts at $\sigma_{\rm hi}\le1$ ends farther from the image than the exact
-field run from the start down to the same $\sigma_{\rm lo}$; only windows that start at
+field run from the start down to the same $\sigma_{\rm lo}$. Only windows that start at
 $\sigma_{\rm hi}\ge2$ give a final distance that depends on $\sigma_{\rm lo}$ alone ($1.33$, $1.33$
 and $1.37$ for $(0.05,2]$, $(0.05,5]$ and $(0.05,\infty)$). With the same network below
 $\sigma_{\rm lo}$, landing thus depends on the state it is handed, not on the late field alone.
@@ -842,15 +842,16 @@ $\sigma_{\rm lo}$, landing thus depends on the state it is handed, not on the la
 by whichever field runs there in the swaps. Whether the endpoint is that image is decided by the
 field that runs below the switch, from the state it is handed. From the exact
 field's state at $s=2$ the memorising network lands every sample, the $1000$-image model $12\%$
-and the public model none; from $s=1$ the $1000$-image model lands $77\%$ and the public model
-$4\%$, although the $1000$-image model lands none of its own samples. These swaps are
-interventions on one latent seed, one deterministic sampler and the noise levels of the $18$-step
-schedule; the $1000$-image model is likely undertrained; and the off-atom criterion is relative,
-so ``on-atom'' at small $s$ does not mean exact landing. The swap levels over which exact$\to$net
-goes from almost no to almost all samples on-atom, $s=2$ to $0.1$ on the public model and $s=5$ to
-$0.2$ on the $1000$-image model, indicate where the network's late field stops contracting. The
-next section measures that contraction along the network's own trajectories, and
-Section~\ref{sec:limitations} lists the intervention that would turn it into a prediction.
+and the public model none. From $s=1$ the $1000$-image model lands $77\%$ and the public model
+$4\%$, although the $1000$-image model lands none of its own samples. The swap levels over which
+exact$\to$net goes from almost no to almost all samples on-atom, $s=2$ to $0.1$ on the public model
+and $s=5$ to $0.2$ on the $1000$-image model, indicate where the network's late field stops
+contracting. These swaps are interventions on one latent seed, one
+deterministic sampler and the noise levels of the $18$-step schedule. The $1000$-image model is
+likely undertrained. In addition, the off-atom criterion is relative, so ``on-atom'' at small $s$ does not
+mean exact landing. The next section measures the contraction along the network's own
+trajectories, and Section~\ref{sec:limitations} lists the intervention that would turn it into a
+prediction.
 
 \FloatBarrier
 
@@ -867,20 +868,21 @@ measured along the trajectory.
 \begin{figure}[t]
 \centering
 \includegraphics[width=\textwidth]{fig_landing.pdf}
-\caption{Relative error and late contraction along the sampler's trajectories (EDM on CIFAR-10; $1000$ samples per trained model,
-$200$ for the public model). (a)~Median relative error $\varrho=e/n$, with $n$ the distance to the
-endpoint's nearest training image as in Table~\ref{tab:edm-rho}, for samples that copy a training
-image (on-atom, black) and for new images (off-atom, vermillion): the $500$-image model (solid,
-interquartile range shaded), the $2000$-image model (dashed) and the public model (dotted; all its
-samples are off-atom). On the $500$-image model the off-atom median passes $0.9$ by $\sigma=0.14$,
-the on-atom median only by $\sigma=0.0075$. (b)~Per sample, the late contraction
-$C=\int(1-\varrho)\,d\log(1/\sigma)$ over $\sigma\in[0.002,0.585]$ (grey window in (a)), with the
-medians and the AUC of $C$ for telling off- from on-atom samples. (c)~On the balanced
-$2000$-image model, the AUC at each $\sigma\ge0.585$ of $\varrho$ and of the radial ratio of
-Proposition~\ref{prop:trap} (the EDM form of Theorem~\ref{thm:relerr}(a)), both anchored at the nearest training image of $D_\theta(x,\sigma)$ so
-that they use no information after $\sigma$, and of the distance from $D_\theta$ to that image
-(dashed). The point is the late contraction of (b), whose window starts at $\sigma=0.585$: $0.983$
-with either anchor, against $0.990$ for that distance at $\sigma=0.585$.}
+\caption{Relative error and late contraction along the sampler's trajectories (EDM on CIFAR-10;
+$1000$ samples per trained model, $200$ for the public model). (a)~Median relative error
+$\varrho=e/n$, with $n$ the distance to the endpoint's nearest training image as in
+Table~\ref{tab:edm-rho}, for samples that copy a training image (on-atom, black) and for new images
+(off-atom, vermillion): $500$-image model (solid, interquartile range shaded), $2000$-image model
+(dashed), public model (dotted; all its samples are off-atom). On the $500$-image model the
+off-atom median passes $0.9$ by $\sigma=0.14$, the on-atom median only by $\sigma=0.0075$.
+(b)~Per sample, the late contraction $C=\int(1-\varrho)\,d\log(1/\sigma)$ over
+$\sigma\in[0.002,0.585]$ (grey window in (a)), with the medians and the AUC of $C$ for telling off-
+from on-atom samples. (c)~On the balanced $2000$-image model, the AUC at each $\sigma\ge0.585$ of
+$\varrho$ and of the radial ratio of Proposition~\ref{prop:trap} (the EDM form of
+Theorem~\ref{thm:relerr}(a)), both anchored at the nearest training image of $D_\theta(x,\sigma)$ so
+that they use nothing after $\sigma$, and of the distance from $D_\theta$ to that image (dashed).
+The late contraction of (b), whose window starts at $\sigma=0.585$, gives $0.983$ with either
+anchor, against $0.990$ for that distance at $\sigma=0.585$.}
 \label{fig:landing}
 \end{figure}
 
@@ -910,34 +912,32 @@ gives the same AUC at every $\sigma$ (Appendix~\ref{app:relerr-exp}).}
 \end{table}
 
 \paragraph{Relative error and late contraction.} On the $500$-image model the groups are far
-apart: on-atom samples keep $\varrho_t$ well below one until the last steps, while off-atom samples
+apart. On-atom samples keep $\varrho_t$ well below one until the last steps, while off-atom samples
 and the samples of the public model approach $\varrho_t=1$ from $\sigma\approx0.14$ on
 (Table~\ref{tab:edm-rho}, Figure~\ref{fig:landing}a). On a finite schedule this does not make the
 hypothesis of Theorem~\ref{thm:relerr}(b) fail, since $34$ of the $41$ off-atom samples, and $195$
 of the $200$ samples of the public model, keep $\varrho_t<1$ at every level from $\sigma=0.585$ to
-$0.002$; the approach to one instead leaves little of the contraction that~(b) uses, which we
-measure below. This is consistent
-with, but does not verify, the hypothesis of~(c), which concerns the radial ratio and is an
-asymptotic condition that a finite schedule cannot check. Near the end the anchor and the off-atom
-label are both set by the endpoint, so the separation there is partly bookkeeping; the informative
-range is the earlier one, where the predictive anchor of Appendix~\ref{app:relerr-exp} gives the
-same AUC. On the balanced
-$2000$-image model the contrast is one of degree: almost every sample of either group has
-$\varrho_t<1$ at every step, and the on-atom median also approaches one at the last step. What
-Theorem~\ref{thm:relerr}(b) uses is the contraction that the relative error leaves,
-$\int(1-\varrho_t)\,d\log(1/\sigma)$; over the late noise levels $\sigma\in[0.002,0.585]$ it is $1.75$
+$0.002$. The approach to one instead leaves little of the contraction that~(b) uses, which we
+measure below. This is consistent with, but does not verify, the hypothesis of~(c), which concerns
+the radial ratio and is an asymptotic condition that a finite schedule cannot check. Near the end
+the anchor and the off-atom label are both set by the endpoint, so the separation there is partly
+bookkeeping. The informative range is earlier, where the predictive anchor of
+Appendix~\ref{app:relerr-exp} gives the same AUC. On the balanced $2000$-image model the contrast is one of degree: almost every sample of either
+group has $\varrho_t<1$ at every step, and the on-atom median also approaches one at the last step.
+What Theorem~\ref{thm:relerr}(b) uses is the contraction that the relative error leaves,
+$\int(1-\varrho_t)\,d\log(1/\sigma)$. Over the late noise levels $\sigma\in[0.002,0.585]$ it is $1.75$
 for on-atom against $0.68$ for off-atom samples (medians, AUC $0.983$, interval $[0.977,0.988]$),
 and $2.55$ against $0.29$ (AUC $1.000$) on the $500$-image model. The radial identity of
 Proposition~\ref{prop:trap}, the EDM form of Theorem~\ref{thm:relerr}(a), holds for the flow, and
-the discrete sampler follows it: over the same window, the decrease of $\log n_t$ and the integral
+the discrete sampler follows it. Over the same window, the decrease of $\log n_t$ and the integral
 of one minus the radial ratio (trapezoidal rule) have correlation at least $0.993$ across the
-samples of each model, and at least $0.97$ within the on-atom samples of the $500$-image models,
-and the decrease falls short of the integral by a median of $0.02$ to $0.04$. The rise of $\varrho_t$ to about
-$0.99$ at the last step means that the data support landing to the off-atom criterion, not exact
-landing. The worst-direction
-contraction of the denoiser, $\lambda_{\max}$ of its symmetrised Jacobian, does not separate the
-groups late (AUC $0.47$--$0.52$ for $\sigma\le0.023$): what matters is the contraction toward the
-selected image, not in the worst direction (Appendix~\ref{app:relerr-exp}).
+samples of each model, and at least $0.97$ within the on-atom samples of the $500$-image models. The
+decrease falls short of the integral by a median of $0.02$ to $0.04$. The rise of $\varrho_t$ to
+about $0.99$ at the last step means that the data support landing to the off-atom criterion, not
+exact landing. The worst-direction contraction of the denoiser, $\lambda_{\max}$ of its symmetrised
+Jacobian, does not separate the groups late (AUC $0.47$--$0.52$ for $\sigma\le0.023$). What matters
+is the contraction toward the selected image, not in the worst direction
+(Appendix~\ref{app:relerr-exp}).
 
 \paragraph{Not a better detector.} As a detector, the field error is no better than the distance
 from $D_\theta$ to the nearest training image. Its absolute value $e_t$ is worse at
@@ -945,40 +945,39 @@ $\sigma\in[3.3,19.4]$ (AUC difference $-0.074$, bootstrap $95\%$ interval $[-0.0
 $\sigma=8.4$) and equal from $\sigma\le1.9$, where the two coincide up to the off-image posterior
 mass. The radial ratio is better only at the highest noise levels: $0.796$ against $0.689$ at
 $\sigma=19.4$ (difference $[0.056,0.159]$), and on the balanced model $0.605$ against $0.520$ at
-$\sigma=12.9$ (difference $[0.055,0.115]$), where both are weak. On the balanced model the late
-contraction is no better than the baseline at $\sigma=0.002$ ($0.983$ against $0.985$), but there
-the comparison is bookkeeping: the last step of the sampler returns the denoiser output at
-$\sigma=0.002$ (Proposition~\ref{prop:heun}(a)), so the baseline there is the endpoint's distance
-$d_1$ to its nearest training image, the numerator of the off-atom criterion. At $\sigma=0.585$,
-the start of the late noise levels, the baseline uses no later information and still separates
-the groups at least as well as the late contraction over the whole range ($0.990$ against $0.983$,
-paired difference $[0.004,0.010]$); it also predicts $\log d_1$ better in a linear fit ($R^2$
-$0.991$ against $0.976$, and $0.965$ against $0.883$ among on-atom samples). At off-atom thresholds
-$0.2$ and $0.5$ the baseline at $\sigma=0.585$ is better (AUC $0.987$ against $0.974$, paired
-difference $[0.008,0.018]$) or tied ($0.990$ against $0.990$, paired difference $[-0.003,0.003]$),
-and it still predicts $\log d_1$ better among on-atom samples ($R^2$ $0.903$ against $0.716$, and
-$0.975$ against $0.934$). Which samples land is visible earlier still:
-the AUC of the baseline is $0.909$, $0.962$ and $0.988$ at $\sigma=3.26$, $1.92$ and $1.09$. In a
-cross-validated logistic regression on the balanced model, adding the relative error, with the
+$\sigma=12.9$ (difference $[0.055,0.115]$), where both are weak. On the balanced model the late contraction is no better than the baseline at $\sigma=0.002$
+($0.983$ against $0.985$), but there the comparison is bookkeeping. The last step of the sampler
+returns the denoiser output at $\sigma=0.002$ (Proposition~\ref{prop:heun}(a)), so the baseline
+there is the endpoint's distance $d_1$ to its nearest training image, the numerator of the off-atom
+criterion. At $\sigma=0.585$, the start of the late noise levels, the baseline uses no later
+information and still separates the groups at least as well as the late contraction over the whole
+range ($0.990$ against $0.983$, paired difference $[0.004,0.010]$). It also predicts $\log d_1$
+better in a linear fit ($R^2$ $0.991$ against $0.976$, and $0.965$ against $0.883$ among on-atom
+samples). At off-atom thresholds $0.2$ and $0.5$ the baseline at $\sigma=0.585$ is better (AUC
+$0.987$ against $0.974$, paired difference $[0.008,0.018]$) or tied ($0.990$ against $0.990$,
+paired difference $[-0.003,0.003]$), and it still predicts $\log d_1$ better among on-atom samples
+($R^2$ $0.903$ against $0.716$, and $0.975$ against $0.934$). Which samples land is visible earlier
+still: the AUC of the baseline is $0.909$, $0.962$ and $0.988$ at $\sigma=3.26$, $1.92$ and $1.09$.
+In a cross-validated logistic regression on the balanced model, adding the relative error, with the
 predictive anchor, to the logarithm of the baseline at the same level changes the AUC by at most
-$0.002$ from $\sigma\le1.9$, and adding the late contraction accumulated from $\sigma=0.585$ down
-to that level raises it by at most $0.002$. We read Theorem~\ref{thm:relerr} as the mechanism of landing, not as
-a test for memorisation; the exact$\to$net swaps of Section~\ref{sec:swap}, which change only the
-field below the switch, are what tie landing to the late field causally.
+$0.002$ from $\sigma\le1.9$. Adding the late contraction accumulated from $\sigma=0.585$ down to
+that level raises it by at most $0.002$. We read Theorem~\ref{thm:relerr} as the mechanism of
+landing, not as a test for memorisation. The exact$\to$net swaps of Section~\ref{sec:swap}, which
+change only the field below the switch, are what tie landing to the late field causally.
 
 \paragraph{A certificate for the sampler.} Each Heun step is an affine combination
 $x_{k+1}=r_kx_k+\kappa_kD_k+\theta_k\tilde D_k$ with $r_k=\sigma_{k+1}/\sigma_k$, where $D_k$ and
 $\tilde D_k$ are the denoiser outputs at the point and at its Euler predictor, and
 $\kappa_k<0$ when $r_k<1/2$. Proposition~\ref{prop:heun} turns a relative error $\varrho$ at the
-step and at its Euler predictor into a one-step contraction factor $c_k$, which is below one for
-every $\varrho<1$ when $r_k\ge1/2$ but only for $\varrho<\varrho_{\rm crit}(r_k)<1$ otherwise. In the
-$18$-step schedule $r_k$ falls below $1/2$ for the last five Heun steps, to $0.27$. With $\varrho$
-measured along the trajectory the bound holds by construction, so that it is never violated along
-the $1500$ trajectories checks the implementation, not the model. What the measurement adds is
-where the certificate is informative: it certifies contraction for at least $99.7\%$ of
+step and at its Euler predictor into a one-step contraction factor $c_k$. This factor is below one
+for every $\varrho<1$ when $r_k\ge1/2$, but only for $\varrho<\varrho_{\rm crit}(r_k)<1$ otherwise.
+In the $18$-step schedule $r_k$ falls below $1/2$ for the last five Heun steps, to $0.27$. With
+$\varrho$ measured along the trajectory the bound holds by construction, so it is never violated
+along the $1500$ trajectories; this checks the implementation, not the model. What the measurement
+adds is where the certificate is informative. It certifies contraction for at least $99.7\%$ of
 on-atom samples at every step down to $\sigma=0.14$ and for none at the last two Heun steps, where
 the predictor's $\varrho$ exceeds $\varrho_{\rm crit}$. Since every $r_k\ge1/2$ makes $c_k<1$ for
-all $\varrho<1$, more steps make the certificate hold; the empirical question is whether the
+all $\varrho<1$, more steps make the certificate hold. The empirical question is whether the
 outcome changes with them. With $36$ and
 $64$ steps the certificate holds at every step for $99.5\%$ of on-atom samples, while the off-atom
 fraction ($4.1$, $4.0$, $3.9\%$ for $18$, $36$, $64$ steps) and the image reached ($99.4$ and
@@ -994,11 +993,12 @@ down to $\sigma=0.30$.
 \label{sec:limitations}
 
 \paragraph{Scope of the theory.} The landing condition and the transfer lemma are conditional on
-the error along learned trajectories, which we do not infer from the loss; on EXP-1 it exceeds the training-law
-error by orders of magnitude near $t=1$ (Appendix~\ref{app:measured-transfer}). At positive
-bandwidth the transfer bound is only local (Proposition~\ref{prop:localtransfer}), so it does not
-explain the off-atom CIFAR-10 inpainting samples of Appendix~\ref{app:measured-transfer}; an off-atom endpoint whose scaled
-error against the exact field vanishes along its trajectory would contradict the attribution.
+the error along learned trajectories, which we do not infer from the loss. On EXP-1 this error
+exceeds the training-law error by orders of magnitude near $t=1$
+(Appendix~\ref{app:measured-transfer}). At positive bandwidth the transfer bound is only local
+(Proposition~\ref{prop:localtransfer}), so it does not explain the off-atom CIFAR-10 inpainting
+samples of Appendix~\ref{app:measured-transfer}. An off-atom endpoint whose scaled error against
+the exact field vanishes along its trajectory would contradict the attribution.
 Theorem~\ref{thm:relerr}(c) is an asymptotic condition that a finite schedule cannot check, and
 the relative error needs the exact field, which only an auditor with the training set can
 evaluate. On EDM models we measure the quantities of Proposition~\ref{prop:trap} in EDM
@@ -1008,12 +1008,13 @@ coordinates, $n=|x-a|$, not the distance $|tx-a|$ in the coordinates of Theorem~
 problems $d\le10$, and the inpainting experiments one mask and $N{=}2000$, with instance and
 optimisation randomness confounded there. The EDM experiments use one dataset, three fully trained
 subset models (two seeds at $500$ images and one at $2000$), one undertrained $1000$-image model,
-the public model and a deterministic sampler; the swaps use one latent seed and $500$ samples per
-model and leave out the $2000$-image model, on which half of the samples land, and the window swaps
-only the public model. The relative error rises to about $0.99$ at the last step, so the data support landing to
-the off-atom criterion, not exact landing. Class-conditional training, where labels are shared,
-retains the within-class variance instead of collapsing (Appendix~\ref{app:exp4}). The relative
-error describes how landing happens but does not detect memorisation better than the nearest-image distance.
+the public model and a deterministic sampler. The swaps use one latent seed and $500$ samples per
+model. They leave out the $2000$-image model, on which half of the samples land, and the window
+swaps cover only the public model. The relative error rises to about $0.99$ at the last step, so
+the data support landing to the off-atom criterion, not exact landing. Class-conditional training,
+where labels are shared, retains the within-class variance instead of collapsing
+(Appendix~\ref{app:exp4}). The relative error describes how landing happens but does not detect
+memorisation better than the nearest-image distance.
 
 \paragraph{Planned experiments.} The following need new inference or training. Apart from the first
 run of~(i), none is reported here, and no claim of this paper depends on them.
@@ -1060,22 +1061,23 @@ different times. By $\sigma\approx1$ the network's state fixes, for at least $88
 training image the exact field would reach: the one nearest to the network's own sample. Whether
 the endpoint is that image is decided later, by the field that runs late. Along the sampler's own
 trajectories, the samples a memorising model copies keep the relative error well below one until
-the last steps, and new samples approach one. The reverse swap separates the two kinds of model:
-given the exact field's state at $\sigma=1$, the public model, none of whose samples copied a training image in our runs, still ends off
+the last steps, and new samples approach one. The reverse swap separates the two kinds of model.
+Given the exact field's state at $\sigma=1$, the public model, none of whose samples copied a training image in our runs, still ends off
 the training set for $96\%$ of samples, while a model that memorises lands from every swap level.
 Which samples will copy can already be read at $\sigma\approx1$ from the distance between the
-denoiser output and the nearest training image (AUC $0.988$ on the $2000$-image model), so the
-relative error describes how landing happens, consistently with Theorem~\ref{thm:relerr}, without
-being a better detector.
+denoiser output and the nearest training image (AUC $0.988$ on the $2000$-image model). The
+relative error therefore describes how landing happens, consistently with
+Theorem~\ref{thm:relerr}, without being a better detector.
 
 \emph{Implications.} A trained network's sample ends off the training set only if its late field
 fails to contract onto the image from the state it is handed, and the regression loss does not
-control that failure. Methods against memorisation can therefore act at two stages: at the noise levels where the image is chosen, as excluding
-medium levels from training \citep{dodson2026calm} or training the levels above a switch in that
-range on noisy images \citep{shah2025ambient} does, or at the late ones, where landing is carried
-out, as damping the late velocity does \citep{li2026kinetic}. For an audit by a party that holds the
-training set, the distance from the denoiser output to the nearest training image is the cheaper
-detector, and the relative error is the explanation of why a given sample lands.
+control that failure. Methods against memorisation can therefore act at two stages. One is the noise
+levels where the image is chosen, as excluding medium levels from training \citep{dodson2026calm} or
+training the levels above a switch in that range on noisy images \citep{shah2025ambient} does. The
+other is the late levels, where landing is carried out, as damping the late velocity does
+\citep{li2026kinetic}. For an audit by a party that holds the training set, the distance from the
+denoiser output to the nearest training image is the cheaper detector, and the relative error is the
+explanation of why a given sample lands.
 
 \emph{Open questions.} Why trained denoisers stop contracting late, whether through locality
 \citep{kamb2024creativity,niedoba2024mechanistic}, a smoothed empirical score
@@ -1105,6 +1107,7 @@ checked, revised and verified; we wrote and verified all other proofs. We take f
 for every claim, proof and number in this paper.
 
 \subsection*{Reproducibility statement}
+\begingroup\sloppy % long file-name lists cannot be justified tightly
 The anonymised supplementary code regenerates every number in the paper.
 Synthetic and inpainting experiments: \texttt{run\_exp1.sh}, \texttt{run\_sweeps.py},
 \texttt{train\_exp2}, \texttt{train\_exp3}, each followed by its analysis script, and
@@ -1127,6 +1130,7 @@ Section~\ref{sec:contraction}), and the exact posterior of Figure~\ref{fig:poste
 Every assumption is stated where it is used, and all results of this paper are proved in
 Appendices~\ref{app:transfer} and~\ref{app:relerr}; the background results of
 Section~\ref{sec:theory} are proved in the works cited there.
+\endgroup
 
 \bibliographystyle{tmlr}
 \bibliography{refs}
@@ -1647,8 +1651,8 @@ same network error along the exact trajectory from the same source. The
 off-atom fractions at $1-T=10^{-4}$ are close to the ones above at $h=4$ and $h=6$, with none at
 $h=0$ and none for the exact field.
 % Group decision 2026-11-23: the s10 retrain and its off-atom numbers belong to paper A; B
-% describes them only qualitatively. Along the exact
-trajectories the final scaled error of the network is at most $0.006$, so where the exact field
+% describes them only qualitatively.
+Along the exact trajectories the final scaled error of the network is at most $0.006$, so where the exact field
 ends the network matches it. Along the learned trajectories the final scaled error has median
 $6.2$--$7.1$ for off-atom and $2.5$--$2.9$ for on-atom samples, with AUC $0.985$ at $h=4$ and
 $0.977$ at $h=6$, and median $1.08$ at $h=0$. These final values are bookkeeping, not evidence: at
@@ -1765,15 +1769,15 @@ $\sigma=5.1$ and for $90\%$ at $\sigma=3.4$.
 \includegraphics[width=\textwidth]{fig_posterior_choice.pdf}
 \caption{Choice and landing against the concentration of the exact posterior (EDM on CIFAR-10;
 sampling runs left to right). On the public model the network chooses its image where the exact
-posterior at noised test images concentrates and lands much later; the $1000$-image model makes its last choices later
-than its range, and the memorising $500$-image model lands from every swap level. Blue: the exact
-posterior over the training images of a class at a noised test image, share of points whose
-largest weight is at least $1/2$ (solid) or $0.9$ (dashed), and at a noised training image, share
-whose weight on that image is at least $1/2$ (dotted), for the training set of each model.
+posterior at noised test images concentrates, and lands much later. The $1000$-image model makes
+its last choices later than its range, and the memorising $500$-image model lands from every swap
+level. Blue: the exact posterior over the training images of a class, share of noised test points
+whose largest weight is at least $1/2$ (solid) or $0.9$ (dashed), and share of noised training
+images whose weight on that image is at least $1/2$ (dotted), for the training set of each model.
 Vermillion: share of net$\to$exact endpoints on the nearest training image of the network's own
-endpoint ($=$L). Black: share of exact$\to$net endpoints on a training image. Swap values at the
-eight swap levels $s$, drawn at $\sigma=s$, $500$ latents per model, Wilson $95\%$ intervals.
-(a)~Public model; (b)~$1000$ images, trained for $0.5$\,Mimg; (c)~$500$ images.}
+endpoint ($=$L). Black: share of exact$\to$net endpoints on a training image. Eight swap levels $s$,
+drawn at $\sigma=s$, $500$ latents per model, Wilson $95\%$ intervals. (a)~Public model;
+(b)~$1000$ images, $0.5$\,Mimg; (c)~$500$ images.}
 \label{fig:posterior}
 \end{figure}
 
@@ -1867,7 +1871,7 @@ $(c_kn_k+b_k)/n_k$, and the factor of the public model. No step of any of the $1
 \label{tab:edm-heun}
 \end{table}
 
-\begin{table}[h]
+\begin{table}[t]
 \centering\small
 \begin{tabular}{@{}rrrrrr@{}}
 \toprule
@@ -1893,9 +1897,8 @@ $0.169$, $0.207$, $0.074$, $0.017$ and $0.004$ for the five columns, every inter
 zero. With off-atom thresholds $0.2$ and $0.5$ there are $46$ and $39$ off-atom samples, and every
 AUC and the sign of every difference are unchanged.
 
-\begin{table}[h]
-\centering\small
-\resizebox{\textwidth}{!}{%
+\begin{table}[t]
+\centering\footnotesize\setlength{\tabcolsep}{5pt}
 \begin{tabular}{@{}lrrrrr@{}}
 \toprule
 $\sigma$ & 19.4 & 12.9 & 8.4 & 5.32 & 3.26\\
@@ -1908,7 +1911,7 @@ AUC of $\hat d$ (baseline) & $0.689$ & $0.876$ & $0.959$ & $0.991$ & $0.999$\\
 radial ratio $-$ baseline & $0.106$ & $0.017$ & $-0.013$ & $-0.010$ & $-0.003$\\
 \quad $95\%$ interval & $[0.056,0.159]$ & $[-0.009,0.043]$ & $[-0.027,0.001]$ & $[-0.017,-0.005]$ & $[-0.005,-0.001]$\\
 \bottomrule
-\end{tabular}}
+\end{tabular}
 \caption{Predictive anchor and baseline, subset model ($1000$ samples, $41$ off-atom).}
 \label{tab:edm-anchor}
 \end{table}
@@ -1924,9 +1927,8 @@ endpoint distance $d_1$ for every sample, since the last step of the sampler ret
 that level, so its AUC of $0.985$ is bookkeeping; at $\sigma=0.585$ the baseline has AUC $0.990$
 (interval $[0.986,0.994]$), above the late contraction by $[0.004,0.010]$.
 
-\begin{table}[h]
-\centering\small
-\resizebox{\textwidth}{!}{%
+\begin{table}[t]
+\centering\footnotesize
 \begin{tabular}{@{}lrrrrrrrr@{}}
 \toprule
 model & off-atom & AUC $\varrho$, $\sigma=0.585$ & $0.140$ & $0.002$ & $C$ on / off & AUC of $C$ & baseline, $\sigma=0.585$ & $0.002$\\
@@ -1935,7 +1937,7 @@ $500$ images, seed $0$ & $41$ & $1.000$ & $1.000$ & $0.995$ & $2.55$ / $0.29$ & 
 $500$ images, seed $1$ & $44$ & $1.000$ & $1.000$ & $1.000$ & $2.53$ / $0.32$ & $1.000$ & $1.000$ & $1.000$\\
 $2000$ images & $501$ & $0.990$ & $0.983$ & $0.929$ & $1.75$ / $0.68$ & $0.983$ & $0.990$ & $0.985$\\
 \bottomrule
-\end{tabular}}
+\end{tabular}
 \caption{The three trained models, $1000$ samples each. $C$: late contraction (medians for on- and
 off-atom samples). Baseline: AUC of the distance from $D_\theta$ to the nearest training image; at
 $\sigma=0.002$ it equals the endpoint distance $d_1$, so that column is bookkeeping. The Heun bound
@@ -1952,7 +1954,6 @@ worst direction thus does not distinguish the groups late, while the radial rati
 selected image, the quantity of Proposition~\ref{prop:trap} and the EDM form of Theorem~\ref{thm:relerr}(a), does, though at the last
 steps partly by bookkeeping (Section~\ref{sec:contraction}).
 
-\FloatBarrier
 
 % ==========================================================================
 \section{Experimental details}
@@ -1980,8 +1981,7 @@ runs at $h=0.1$ are used only for the measured transfer of Appendix~\ref{app:mea
 $\tfrac13$ as far as the second nearest; it starts from a common $\approx0.11$.
 
 \begin{table}[htb]
-\centering\small
-\resizebox{\textwidth}{!}{%
+\centering\footnotesize\setlength{\tabcolsep}{5pt}
 \begin{tabular}{lccccc}
 \toprule
 & \multicolumn{5}{c}{iteration}\\
@@ -1994,7 +1994,7 @@ $\|\text{mean}-x^i\|$ & $0.90$\,[$0.68$, $1.12$] & $0.87$\,[$0.59$, $1.16$] & $0
 $\|\text{mean}-\mu_{\mathrm{post}}\|$ & $0.15$\,[$0.06$, $0.24$] & $0.25$\,[$0.15$, $0.35$] & $0.52$\,[$0.38$, $0.66$] & $0.66$\,[$0.41$, $0.90$] & $0.816$\,[$0.577$, $1.055$]\\
 unconditional $\tr\Cov$ & $1.85$\,[$1.09$, $2.61$] & $1.93$\,[$1.72$, $2.15$] & $1.91$\,[$1.67$, $2.15$] & $1.926$\,[$1.690$, $2.163$] & ---\\
 \bottomrule
-\end{tabular}}
+\end{tabular}
 \caption{EXP-1 at $h=0$, five seeds: mean and $95\%$ Student-$t$ interval for the mean (four
 degrees of freedom). The $10^6$ column is a run with a cosine learning-rate schedule
 ($10^{-3}\to10^{-6}$) and no unconditional counterpart. Reference values:
@@ -2085,8 +2085,8 @@ training.
 
 \begin{figure}[htb]
 \centering
-\includegraphics[width=\textwidth]{fig_image_training.pdf}
-\caption{CIFAR-10 U-Net at $h=0$, first instance: two conditions (left and right) at iterations
+\includegraphics[width=0.78\textwidth]{fig_image_training.pdf}
+\caption{CIFAR-10 U-Net at $h=0$, first instance: two conditions (top and bottom block) at iterations
 $500$, $2000$, $8000$, $20000$, $40000$ and $60000$ (rows; under each iteration, the generated
 trace from the training-time estimator). Each row shows the observed top half, six completions
 from different sources $x_0$ and the training image. Early completions vary; from iteration

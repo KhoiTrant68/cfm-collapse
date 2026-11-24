@@ -4,7 +4,9 @@
 `docs/plan/paper_split_plan_2026-11-21.md`, assembled on 2026-11-21 from
 the pre-split `paper/main.tex` (removed on 2026-11-23; it is in the git history). This file is edited on its own.
 
-Build with TMLR style (anonymous by default):
+Submission packages (anonymous TMLR PDF, arXiv source, code supplement) are built by
+`python submit/build.py` from the repository root; see the root README. To build this paper alone with
+the TMLR style (anonymous by default):
 
 ```
 pdflatex main && bibtex main && pdflatex main && pdflatex main
@@ -25,7 +27,7 @@ The number of fields decides. Label noise, label averaging and every combination
 fields with strictly positive priors end on the training examples almost surely; three fields can
 blend them. The conjunction of
 compositional generation (Liu et al., ECCV 2022) is such a combination, and at a tie of two
-examples a blend needs a subtracted field whose log-odds lie strictly between those than the fields added.
+examples a blend needs a subtracted field whose log-odds lie strictly between those of the fields added.
 
 ## What is in it
 
@@ -117,19 +119,25 @@ Details, sources and rejected proposals: `docs/review/changes_paperA_2026-11-21.
   (the composition figure is now Figure 3, the signed-combinations figure Figure 4). Details in
   `docs/review/changes_paperA_2026-11-21.md`, section 8.
 
-## Status (2026-11-21)
+## Status (2026-11-24)
 
-- Compiles with tectonic on lab09: 53 pages, no undefined references or citations, no overfull
-  boxes.
+- `submit/build.py` builds it in 57 pages with no undefined references or citations and no overfull
+  boxes (53 pages with tectonic on lab09 on 2026-11-21, before the round-3 additions).
+- Round 3 (2026-11-23): statement fixes (two-field corollary needs strictly positive priors, "intermediate"
+  instead of "less decided", the generic remark), Sontag cited for Caratheodory flows, the
+  Guillemin and Pollack citation checked, citations of Wan, Baptista and Benton corrected. Reports and a
+  line-by-line proof checklist: `docs/review/round3_2026-11-23/`.
+- Figure 5 (`fig_signed_combinations.pdf`) is redrawn with the current theorem numbers; its script
+  checks them against `main.aux` when `THEORY_AUX` is set.
 - Figures redrawn from the data at print width (see the figure scripts named in the
   reproducibility statement).
 
 ## Not yet done
 
-- The authors check the three new proofs (`cor:twofields`, `prop:twoatom`, `rem:generic`) and the
-  LLM statement.
+- The co-author checks the three new proofs (`cor:twofields`, `prop:twoatom`, `rem:generic`) with the
+  checklist in `docs/review/round3_2026-11-23/proof_checklist.md`; only then is the LLM statement
+  final and the TODO next to it removed.
 - (Done in fix-A) The count "at most 3 of 2048 sources within 0.05 of an edge midpoint" (Section 6)
   is now written by `scripts/theory_basin_map.py --learned-edges`.
-- Check the new comparison with Liu and Zuazua v2, Azangulov et al. and Cao et al. against the
-  papers (the abstract calls the stochastic result "analogous" because Azangulov et al. state it
-  for a class with positive probability, not for a noised label).
+- (Done in round 3) The comparison with Liu and Zuazua v2, Azangulov et al. and Cao et al. was checked
+  against the papers. One item is open: Remark 3.19 of Liu and Zuazua v1 was not checked (no v1 PDF).

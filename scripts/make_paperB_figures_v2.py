@@ -244,10 +244,10 @@ def fig_mechanism():
     fields = _toy_fields()
     runs = {k: _run1d(F, z0) for k, _, F in fields}
 
-    W, H = FULL_W, 2.42
+    W, H = FULL_W, 2.8
     fig = plt.figure(figsize=(W, H))
     cw, gap, xl = 1.3, 0.1, 0.16                      # unrolled column width, gap, left margin (inches)
-    ytop_h, ymid_h, ybot_h = 0.24, 1.22, 0.36         # heights of the source, path and output rows
+    ytop_h, ymid_h, ybot_h = 0.24, 1.6, 0.36         # heights of the source, path and output rows
     ybot = 0.2
     ymid = ybot + ybot_h
     ytp = ymid + ymid_h
@@ -300,7 +300,7 @@ def fig_mechanism():
     # (d) relative error, (e) distance to the training point reached, against 1 - t on a log axis
     xr0 = xl + 3 * cw + 2 * gap + 0.55
     wr = W - xr0 - 0.2
-    hd = 0.86
+    hd = 0.88
     ax_d = axes_in(fig, xr0, ytp + ytop_h - hd, wr, hd)
     ax_e = axes_in(fig, xr0, ybot + 0.12, wr, ytp + ytop_h - hd - 0.42 - ybot - 0.12)
     eps = np.geomspace(1.0, 6e-6, 400)
@@ -328,7 +328,7 @@ def fig_mechanism():
     ax_d.set_ylabel(r"relative error $\varrho_t$", fontsize=7)
     ax_e.set_yscale("log"); ax_e.set_ylim(3e-6, 6)
     ax_e.set_yticks([1e-5, 1e-3, 1e-1])
-    ax_e.set_ylabel("distance to the\ntraining point", fontsize=7, linespacing=0.95)
+    ax_e.set_ylabel("distance to point", fontsize=7)
     ax_e.set_xlabel(r"time left $1-t$", fontsize=7, labelpad=1)
     for a in (ax_d, ax_e):
         a.grid(False)
@@ -345,7 +345,7 @@ def fig_mechanism():
         e_ = 1 - ts
         j = int(np.searchsorted(-e_, -1.2e-5))
         v = float(np.median(np.abs(P[j] - a_end)))
-        ax_e.annotate(f"({tag})", (e_[j], v), xytext=(2, 0), textcoords="offset points", fontsize=6.3,
+        ax_e.annotate(f"({tag})", (e_[j], v), xytext=(3, 0), textcoords="offset points", fontsize=6.5,
                       color=styles[key][0], ha="left", va="center", annotation_clip=False)
     save(fig, "fig_mechanism.pdf", dpi=300)
 
@@ -468,9 +468,9 @@ def fig_collapse():
     paper A (kernel tracking) and is no longer drawn here."""
     from scripts.make_image_bandwidth_figure import cells
     from scripts.make_paperB_figures import EXP1, EXP3, band, read_csv, seed_mean
-    W, H = FULL_W, 2.2
+    W, H = FULL_W, 2.5
     fig = plt.figure(figsize=(W, H))
-    yb, hh = 0.36, 1.5
+    yb, hh = 0.36, 1.8
 
     # (a)
     const = f"{EXP1}/exp1_cond_seed[0-4]/raw/metrics.csv"
@@ -482,7 +482,7 @@ def fig_collapse():
     post = seed_mean(const, "train", "trace_post")[1].mean()
     data = seed_mean(uncond, "uncond", "trace_data")[1].mean()
     assert abs(tc[list(it_c).index(200000)] - 0.396) < 5e-4 and abs(ts_[list(it_s).index(1000000)] - 0.120) < 5e-4
-    ax = axes_in(fig, 0.42, yb, 2.15, hh)
+    ax = axes_in(fig, 0.42, yb, 1.95, hh)
     band(ax, it_u, tu, tu_sd, GREY, ms=2.4, lw=1.1)
     band(ax, it_c, tc, tc_sd, LEARNED, ms=2.4, lw=1.2)
     band(ax, it_s, ts_, ts_sd, LEARNED, ls=(0, (3, 1.5)), marker="s", ms=2.2, lw=1.2)
@@ -508,8 +508,8 @@ def fig_collapse():
     assert abs(tr[500] - 179.1) < 0.05 and abs(tr[60000] - 0.431) < 5e-4
     iters = (500, 2000, 8000, 60000)
     cond, comp = 0, (1, 2, 3, 4, 5, 6)              # every completion stored in the sheet
-    s, g = 0.3, 0.025
-    xb0 = 3.62
+    s, g = 0.36, 0.025
+    xb0 = 3.22
     cols = [xb0] + [xb0 + s + 0.07 + j * (s + g) for j in range(len(comp))]
     cols.append(cols[-1] + s + 0.07)
     ytop_t = yb + hh - s - 0.26
@@ -521,15 +521,15 @@ def fig_collapse():
             fr = LIGHT if j == 0 else (ATOM if j == len(imgs) - 1 else LEARNED)
             tile(axes_in(fig, xx, y, s, s), im, fr, 0.7)
         fig.text((xb0 - 0.05) / W, (y + s / 2) / H, f"{it:,}".replace(",", r"$\,$") + "\n" +
-                 rf"tr ${tr[it]:.3g}$", ha="right", va="center", fontsize=6.0, linespacing=1.0)
+                 rf"tr ${tr[it]:.3g}$", ha="right", va="center", fontsize=6.8, linespacing=1.0)
     hy = ytop_t + s + 0.03
-    fig.text((cols[0] + s / 2) / W, hy / H, "top\nhalf", ha="center", va="bottom", fontsize=6.0, linespacing=0.9)
+    fig.text((cols[0] + s / 2) / W, hy / H, "top\nhalf", ha="center", va="bottom", fontsize=6.8, linespacing=0.9)
     fig.text((cols[1] + cols[len(comp)] + s) / 2 / W, hy / H, "completions", ha="center", va="bottom",
-             fontsize=6.3)
+             fontsize=6.8)
     fig.text((cols[-1] + s / 2) / W, hy / H, "training\nimage", ha="center", va="bottom", fontsize=6.0,
              linespacing=0.9)
-    fig.text((xb0 - 0.05) / W, hy / H, "iteration", ha="right", va="bottom", fontsize=6.3)
-    figtitle(fig, 3.0, yb + hh + 4.0 / 72, "b", "CIFAR-10 U-Net collapses", fs=8.5)
+    fig.text((xb0 - 0.05) / W, hy / H, "iteration", ha="right", va="bottom", fontsize=6.8)
+    figtitle(fig, 2.6, yb + hh + 4.0 / 72, "b", "CIFAR-10 U-Net collapses", fs=8.5)
 
     save(fig, "fig_collapse.pdf", dpi=300)
 
@@ -553,7 +553,7 @@ def fig_collapse_details():
         for colname, c in (("mean_err_train_point_mean", ATOM), ("mean_err_post_mean", EXACT)):
             it, m, sd = seed_mean(pat, "train", colname)
             band(ax, it, m, sd, c, ls=ls, marker=mk, ms=2.2, lw=1.1, alpha=0.1)
-    ax.set_xscale("log"); ax.set_ylim(0, 1.2); ax.set_xlim(60, 2.5e6)
+    ax.set_xscale("log"); ax.set_xticks([1e2, 1e3, 1e4, 1e5, 1e6]); ax.minorticks_off(); ax.set_ylim(0, 1.2); ax.set_xlim(60, 2.5e6)
     ax.text(120, 1.0, r"to the atom $x^i$", fontsize=6.3, color=ATOM, va="bottom")
     ax.text(120, 0.03, "to the posterior mean", fontsize=6.3, color=EXACT, va="bottom")
     ax.set_ylabel("distance of the\ngenerated mean", linespacing=0.95)
@@ -562,7 +562,7 @@ def fig_collapse_details():
     for pat, ls, mk in ((const, "-", "o"), (cosine, (0, (3, 1.5)), "s")):
         it, m, sd = seed_mean(pat, "train", "vel_rel_err_mean_mean")
         band(ax, it, m, sd, LEARNED, ls=ls, marker=mk, ms=2.2, lw=1.1)
-    ax.set_xscale("log"); ax.set_ylim(0, 0.9); ax.set_xlim(60, 2.5e6)
+    ax.set_xscale("log"); ax.set_xticks([1e2, 1e3, 1e4, 1e5, 1e6]); ax.minorticks_off(); ax.set_ylim(0, 0.9); ax.set_xlim(60, 2.5e6)
     ax.set_ylabel(r"velocity error to $(\star)$")
     ax.text(120, 0.5, "solid: constant lr\ndashed: cosine", fontsize=6.2, color=LEARNED, ha="left", va="top",
             linespacing=1.0)
@@ -575,7 +575,7 @@ def fig_collapse_details():
     for r, c, mk in zip(runs, [LEARNED, "#E8955E", "#F2B48A"], ("o", "s", "^")):
         m = read_csv(EXP3 / r / "raw" / "metrics.csv")
         ax.plot(m["iter"], m["trace_cov_mean"], color=c, marker=mk, ms=2.6, lw=1.1, mec="white", mew=0.3)
-    ax.set_xscale("log"); ax.set_yscale("log")
+    ax.set_xscale("log"); ax.set_xticks([1e2, 1e3, 1e4, 1e5, 1e6]); ax.minorticks_off(); ax.set_yscale("log")
     ax.set_xlabel("training iteration"); ax.set_ylabel(r"generated $\mathrm{tr}\,\mathrm{Cov}$")
     ax.text(0.05, 0.08, "three instances", transform=ax.transAxes, fontsize=6.3, color=LEARNED)
     ax.grid(False)

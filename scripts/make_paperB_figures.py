@@ -692,42 +692,41 @@ def fig_heun():
 
 # --------------------------------------------------------------------------- appendix: image grids
 def fig_image_training():
+    """Two conditions stacked (one block each) so the tiles stay readable at print size."""
     iters = (500, 2000, 8000, 20000, 40000, 60000)
     run = "exp3_cifar_ddpm_h0"
     sheets = {it: cells(EXP3 / run / "figures" / f"grid_it{it}.png") for it in iters}
     met = read_csv(EXP3 / run / "raw" / "metrics.csv")
     tr = dict(zip(met["iter"].astype(int), met["trace_cov_mean"]))
     conds, comp = (0, 2), (1, 2, 3, 4, 5, 6)
-    s, g, gb = 0.38, 0.025, 0.2
-    W = FULL_W
+    s, g, gb = 0.48, 0.025, 0.12
+    fs, fs_row = 7.5, 7.2
     nb = 1 + len(comp) + 1
-    bw = nb * s + (nb - 1) * g + 0.06 + 0.06
-    x0 = W - 2 * bw - gb
-    H = len(iters) * (s + g) + 0.42
+    x0 = 0.85                                   # room for the row labels
+    W = x0 + nb * s + (nb - 1) * g + 0.12 + 0.05
+    bh = len(iters) * (s + g) + 0.28            # height of one block, headers included
+    H = len(conds) * bh + (len(conds) - 1) * gb
     fig = plt.figure(figsize=(W, H))
     for b, cond in enumerate(conds):
-        bx = x0 + b * (bw + gb)
-        xs = [bx] + [bx + s + 0.06 + j * (s + g) for j in range(len(comp))]
+        ytop = H - b * (bh + gb) - 0.28 - s     # y of the first row of this block
+        xs = [x0] + [x0 + s + 0.06 + j * (s + g) for j in range(len(comp))]
         xs.append(xs[-1] + s + 0.06)
-        top = (len(iters) - 1) * (s + g) + 0.02
-        fig.text((xs[0] + s / 2) / W, (top + s + 0.04) / H, "observed", ha="center", va="bottom", fontsize=6.8)
-        fig.text((xs[1] + xs[len(comp)] + s) / 2 / W, (top + s + 0.04) / H, "six completions",
-                 ha="center", va="bottom", fontsize=6.8)
-        fig.text((xs[-1] + s / 2) / W, (top + s + 0.04) / H, "training\nimage", ha="center", va="bottom",
-                 fontsize=6.8, linespacing=0.9)
+        yh = ytop + s + 0.03
+        fig.text((xs[0] + s / 2) / W, yh / H, "observed", ha="center", va="bottom", fontsize=fs)
+        fig.text((xs[1] + xs[len(comp)] + s) / 2 / W, yh / H, "six completions", ha="center",
+                 va="bottom", fontsize=fs)
+        fig.text((xs[-1] + s / 2) / W, yh / H, "training image", ha="center", va="bottom", fontsize=fs)
+        fig.text((x0 - 0.08) / W, yh / H, "iteration", ha="right", va="bottom", fontsize=fs)
         for r, it in enumerate(iters):
-            y = top - r * (s + g)
+            y = ytop - r * (s + g)
             row = sheets[it][cond]
             imgs = [row[0]] + [row[c] for c in comp] + [row[7]]
             for j, (xx, im) in enumerate(zip(xs, imgs)):
                 fr = LIGHT if j == 0 else (ATOM if j == len(imgs) - 1 else LEARNED)
                 tile(axes_in(fig, xx, y, s, s), im, fr, 0.7)
-            if b == 0:
-                fig.text((bx - 0.06) / W, (y + s / 2) / H, f"{it:,}".replace(",", r"$\,$") + "\n"
-                         + rf"$\mathrm{{tr}}={tr[it]:.3g}$", ha="right", va="center", fontsize=6.5,
-                         linespacing=1.0)
-        if b == 0:
-            fig.text((bx - 0.06) / W, (top + s + 0.04) / H, "iteration", ha="right", va="bottom", fontsize=6.8)
+            fig.text((x0 - 0.08) / W, (y + s / 2) / H, f"{it:,}".replace(",", r"$\,$") + "\n"
+                     + rf"$\mathrm{{tr}}={tr[it]:.3g}$", ha="right", va="center", fontsize=fs_row,
+                     linespacing=1.0)
     save(fig, "fig_image_training.pdf", dpi=300)
 
 
@@ -745,8 +744,8 @@ def fig_image_class():
     H = 2 * len(conds) * (s + g) + 0.6
     fig = plt.figure(figsize=(W, H))
     # (a) trace against iteration
-    hcol = {0.0: LEARNED, 0.4: OI["orange"]}
-    ax = axes_in(fig, 0.45, H - 1.95, 1.75, 1.55)
+    hcol = {0.0: LEARNED, 0.4: OI["blue"]}      # blue, not orange: orange and vermillion read alike in greyscale
+    ax = axes_in(fig, 0.45, 0.5, 1.75, H - 1.3)
     ax.axhline(pop, color=ATOM, ls="--", lw=1.0)
     ax.text(600, pop * 1.03, f"within-class scatter {pop:.0f}", fontsize=6.5, color=ATOM, va="bottom")
     for h, m in met.items():
