@@ -1,0 +1,13 @@
+## Attachment: Reviewer Claim Check (advisory, #1002)
+
+The judge answered 31 of 31 findings from 5 reviewers: it marked 3 as contradicted, and 0 cannot be checked from the manuscript alone.
+
+The judge marked these findings as contradicted by the manuscript. The script checked only the words of each quote: that they occur in the manuscript, or, for words the finding quotes, that they do not. The judge gave the locations, and the script did not check them. Read each quote to decide:
+- Journal-Fit Reviewer · W6: The numbers that §7 discusses live in appendix tables
+  > “\\caption{Learned versus exact label averages across five problem seeds. Energy is normalised by the square root of the analytic posterior trace; conditions and samples are nested within seeds” (Section 7 (Numerical evidence), Table tab:learned-averages, printed in place in the TMLR build via moveblock{learnedtab})
+- Reviewer 3 · W4: The privacy and extraction literature is not engaged where the paper makes privacy claims
+  The claim quotes words that the manuscript does not contain: “extraction-relevant”
+- Reviewer 1 · W1: The stress-test positive control passes because of floating-point resolution loss, not because the fixed-step scheme resolves an attracting tie
+  > “fractions $0$, $0.049$, $0.410$ and $0.988$, against basin probabilities $0$, $0.050$, $0.406$ and $0.991$ under $\\pi\_0$” (Section 7, paragraph "A positive control for the stress test")
+
+The author decides what to do with each row. This check does not change the decision, the consensus counts, or the Revision Roadmap. The judge is the session model; as this judge, the #1002 contrast test passed Claude Opus 5.5 and Claude Fable 5.1 (gpt-6-astra and Gemini 4 Argon passed it in part one, through other transports); other models are untested.

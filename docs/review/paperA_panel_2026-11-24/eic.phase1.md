@@ -1,0 +1,32 @@
+## Contract Paraphrase
+
+D1 (methodology_rigor, mandatory, owned by the methodology seat): from an editorial standpoint, this asks whether the work is built so that a competent referee could check and rerun it. For a theory paper in generative modelling that means stated assumptions are explicit and used consistently, numerical experiments are described with enough detail (seeds, sample sizes, solver settings, uncertainty reporting) to reproduce them, and the evidential status of each result is clear. I do not score this dimension, but I will note where its outcome affects the editorial picture.
+
+D2 (domain_accuracy, mandatory, owned by the domain seat): the paper's statements about the field must match the literature as it stands. Prior theorems must be cited with their actual hypotheses and conclusions, terms such as memorisation, the exact empirical velocity field, or conditional flow matching must carry their standard meaning, and no known result may be misstated in order to make a new one look larger. This is outside my scoring remit.
+
+D3 (argumentative_coherence, mandatory, owned by the devil's advocate seat and also eligible for methodology): the central thesis must hang together. Each headline claim must be supported by the evidence offered for it, conclusions must not outrun theorem hypotheses, and the narrative must avoid circularity or equivocation between the idealised and the learned object. I do not score it, but its result bears on whether the contribution I assess under D6 is real.
+
+D4 (cross_disciplinary_relevance, high, owned by the perspective seat): the framing, definitions and implications should be accessible to readers in adjacent areas, such as practitioners of diffusion and flow models, statisticians, and privacy or memorisation researchers. Any claim that reaches into those areas must be substantiated rather than asserted. Not mine to score.
+
+D5 (writing_and_structure, normal, owned by me): this covers whether a manuscript of this length can be navigated and read. That includes how sections are organised, whether the main text carries the argument or keeps deferring it to an appendix, whether moved or relocated blocks leave dangling references, whether figures and tables are legible and informative, and whether the manuscript follows the general conventions of an ML-theory venue. No specific venue has been confirmed, so conventions are judged field-generally.
+
+D6 (venue_fit_and_contribution, mandatory, owned by me): this asks whether the work makes an original and significant contribution that a readership in ML theory of diffusion and flow models would value, and whether its scope suits that readership. No criteria binding was supplied, so I will make no claim about fit to any named venue and will judge fit only against a general ML-theory readership. The core editorial questions are three. First, what is genuinely new beyond the closest prior results named in my configuration (Wan 2025 Thm 5.3, Liu 2026 Thm 2.5, Baptista 2025, Azangulov 2026). Second, whether each headline claim is backed by a proof or only by numerics, and whether it is labelled accordingly. Third, whether individual results carry weight on their own or the contribution rests mainly on composing known results.
+
+## Scoring Plan
+
+### D5: writing_and_structure
+dimension_id: D5
+what_to_look_for: A main text that states each headline result with its assumptions and evidential status (proved vs. numerically observed) before it is used; a reading path of reasonable length through a long manuscript; appendix material that supports rather than replaces the main argument; cross-references, theorem numbering and notation that stay consistent after any reordering of blocks; figures and tables whose axes, captions and takeaway are readable without the appendix.
+what_triggers_block: The main text cannot be followed without the appendix. This means one or more headline results are stated only in the appendix or are used in the main text before being stated, or there are broken or circular cross-references (for example, to moved or deleted blocks) that leave a theorem, assumption or definition unresolvable from the text as submitted.
+what_triggers_warn: The manuscript can be followed but is costly to read. Signs include main-text length or appendix load well beyond field norms with no roadmap, notation or theorem labels drifting between sections, figures or tables that need the appendix to interpret, or proved and numerically supported claims that are not visibly distinguished in their statements.
+
+### D6: venue_fit_and_contribution
+dimension_id: D6
+what_to_look_for: An explicit delta table or equivalent placing each headline result against the closest prior theorems (Wan 2025 Thm 5.3, Liu 2026 Thm 2.5, Baptista 2025, Azangulov 2026), naming which hypothesis is weakened or which conclusion is strengthened; each claim labelled as theorem, proposition, or empirical observation; evidence that at least one individual result is significant on its own rather than only as a composition of known bounds; scope suited to a general ML-theory readership of diffusion and flow models, with no claim of fit to any named venue.
+what_triggers_block: The contribution is plausibly original but not shown to be. Signs include no precise comparison with the closest prior theorems, so the size of the gain cannot be assessed; individual results that add little alone, so significance rests on composition without arguing why the composition is non-trivial; or headline claims whose proof-versus-numerics status is ambiguous enough that the scope of the contribution is unclear. Each of these can be fixed by revision.
+what_triggers_warn: The contribution is real but under-argued or modest. Signs include a gain over prior work that is incremental (constants, mild relaxation of assumptions) and not framed as such; secondary results that are weaker or more conditional than the abstract or introduction suggests; or a scope spread across several themes so that the readership's main takeaway is diluted.
+what_triggers_fatal: The claimed main contribution turns out to be already established. Either a headline theorem is equivalent to, or is a direct special case of, a closest prior result with no new hypothesis regime or conclusion, or the central claim is presented as proved when its support is only numerical, so that once relabelled nothing original and significant remains.
+
+criteria_binding_unavailable
+
+[CONTRACT-ACKNOWLEDGED]

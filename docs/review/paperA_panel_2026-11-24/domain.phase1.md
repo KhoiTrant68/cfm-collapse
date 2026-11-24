@@ -1,0 +1,26 @@
+## Contract Paraphrase
+
+D1 (methodology_rigor) asks whether the study design, data handling, statistical reporting and reproducibility affordances reach the bar the field sets for peer review. From a domain-accuracy seat this matters because the trust a reader can place in claims about trained diffusion or flow-matching networks depends on seeds, dataset sizes, training budgets, memorisation metrics and released code being reported well enough to reproduce. Scoring this dimension belongs to the methodology reviewer, not to me.
+
+D2 (domain_accuracy) asks whether the claims agree with the current evidence in the field, whether prior work is represented correctly and completely, and whether domain terms and known results are stated without factual error. For the theory of conditional flow matching and memorisation, this covers the closed-form empirical-optimum velocity or score field and its known collapse onto training points, the memorisation-versus-generalisation literature (inductive-bias, finite-capacity, early-stopping, smoothing and approximation-error explanations), speciation and collapse analyses, classifier-free guidance theory, and compositional generation. It also covers whether conclusions about the exact empirical field are presented as statements about trained networks only when the evidence supports that. I own this dimension.
+
+D3 (argumentative_coherence) asks whether the central thesis is internally consistent, whether the evidence actually supports each claim, and whether any fallacy undermines the main argument. From a domain angle, the typical risk is a gap between what is proved for an idealised object and what the headline says about practice. The devil's advocate and methodology reviewers score it.
+
+D4 (cross_disciplinary_relevance) asks whether framing, definitions and implications are readable by people in neighbouring fields, such as optimal transport, statistical learning theory, privacy and data attribution, and whether interdisciplinary claims are backed up. The perspective reviewer scores it.
+
+D5 (writing_and_structure) asks about organisation, clarity of exposition, figure and table quality, and adherence to venue conventions. From my seat, the relevant part is whether notation for empirical versus learned fields and for conditional versus unconditional settings is kept distinct enough that domain claims cannot be misread. The editor-in-chief scores it.
+
+D6 (venue_fit_and_contribution) asks whether the manuscript suits the configured venue and makes an original, significant contribution for that readership. No criteria binding was supplied, so I make no venue-fit claim. My only input here is indirect: whether the novelty claims I check under D2 hold up against prior work. The editor-in-chief scores it.
+
+## Scoring Plan
+
+### D2: domain_accuracy
+dimension_id: D2
+what_to_look_for: Accurate, attributed statements of known results on the closed-form empirical-optimum score or velocity field and its collapse to training samples. Fair, complete coverage of the memorisation and generalisation literature for diffusion and flow matching (inductive-bias and architectural-smoothing explanations, finite-sample and capacity analyses, speciation and collapse phase analyses, guidance theory, compositional generation, closed-form or nonparametric baselines), with novelty claims placed against the closest prior results. A clear separation between claims about the exact empirical field and claims about trained networks, where any transfer to learned models is backed by learned-network experiments of adequate scale, seeds, datasets and memorisation metrics. Results that the authors themselves label as limited or boundary cases should be described as such and not used to carry the headline.
+what_triggers_block: A headline or novelty claim that a closely matching published result already establishes and that goes uncited or is misrepresented. Or a central conclusion stated for trained diffusion or flow models that rests only on exact-empirical-field analysis or on learned-network evidence too weak to carry it (a single seed, toy scale only, or no standard memorisation metric). Or a headline that rests mainly on a result the authors frame as a limited or boundary case.
+what_triggers_warn: Incomplete but non-central coverage of relevant prior work (missing guidance-theory, speciation or compositional-generation references that bear on secondary claims). Loose or non-standard use of terms such as memorisation, collapse, generalisation, conditional versus marginal field, or guidance scale, which a reader could misread but which does not overturn a main conclusion. Learned-network experiments that support the direction of a claim but are thin in scale, seeds or datasets, with the limitation stated.
+what_triggers_fatal: The central contribution is factually wrong about established domain results: for example, it misstates the known form or collapse behaviour of the empirical-optimum field, or reverses an established memorisation finding. Or the contribution is substantively identical to prior published work that goes unacknowledged, so that no original domain claim remains once that work is credited.
+
+criteria_binding_unavailable
+
+[CONTRACT-ACKNOWLEDGED]

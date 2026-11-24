@@ -1,0 +1,2 @@
+### Acronym check (advisory; no reply needed)
+Not checked: the input is not a Markdown or plain-text file.
