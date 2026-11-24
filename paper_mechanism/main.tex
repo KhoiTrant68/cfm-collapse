@@ -272,8 +272,9 @@ which training image the exact field would reach from the network's state, corre
 collapse and not to the speciation. On the public model it is made at or near the noise levels
 where the exact posterior over the training images of the class, evaluated at noised test images,
 concentrates on one image (Appendix~\ref{app:relerr-exp}, Figure~\ref{fig:posterior}).
-\citet{biroli2024dynamical} also measure both times on DDPM U-Nets trained on $200$ or $2000$
-images, few enough that the networks reproduce them. In the exact-score picture, landing and
+\citet{biroli2024dynamical} also measure both times on DDPM U-Nets: the speciation time with $2000$
+to $40000$ training images, and the collapse time with $200$ or $2000$, few enough that the networks
+reproduce them. In the exact-score picture, landing and
 collapse are the same event, because a trajectory that has collapsed reaches its training point.
 The public network does not follow this picture: its image is fixed at these noise levels, and it
 still does not reach it. \citet{bonnaire2025why} show that memorisation emerges during training on
@@ -291,8 +292,8 @@ to the nearest training image, and returns almost the closed-form sample from $\
 \citet{liu2025navigation} compute the oracle velocity for latent ImageNet models. They split
 sampling into a navigation stage near the prior, where the target blends several training samples,
 and a refinement stage dominated by the nearest one. In their mixed sampling, a switch after
-$t=0.2$ of their latent-space schedule ($t=0$ at the prior) reproduces the layout of a training
-sample, and an earlier one gives novel outputs. They attribute generalisation to navigation and
+$t=0.2$ of their latent-space schedule ($t=0$ at the prior) produces images that closely resemble
+training samples, and an earlier one gives novel outputs. They attribute generalisation to navigation and
 memorisation to refinement. \citet{dodson2026calm} exchange two trained EDM models of CIFAR-10, one
 that copies and one that does not. Exchanging them on $\sigma\in[0.14,8.4]$ moves the share of
 copies from $92.2\%$ to $0\%$ and back, and exchanging them above or below this range has little
@@ -344,11 +345,13 @@ per-trajectory conditions under which a sampler reaches a training example, and 
 the choice of the image from the landing on it.
 
 \paragraph{Error bounds.} Small regression error without stability control gives poor endpoint
-guarantees \citep[Theorem~1]{benton2024error}, and \citet[Appendix~D]{beltran2026reward} construct
-examples with small teacher error and poor samples. For interpolants on a finite training set,
+guarantees \citep[Sec.~3 and Theorem~1]{benton2024error}, and \citet[App.~D, Props.~D.1
+and~D.3]{beltran2026reward} construct velocity fields with small $L^2$ error under the interpolant
+law whose samples are poor. For interpolants on a finite training set,
 \citet[Theorems~4--5]{li2026memory} bound the distance from an Euler-discretised learned endpoint to
 the training set from above in terms of the training loss, when the law of the iterates has a
-bounded density with respect to the interpolant law. Under a non-cancellation assumption, they also
+bounded density with respect to the interpolant law. Under non-cancellation and comparability
+assumptions, they also
 bound its mean-square deviation from the selected training example from below in terms of the
 propagated error. Such a density bound implies the risk-transfer condition of
 Theorem~\ref{thm:risktransfer}, with $K$ equal to the bound. For the reverse SDE,
@@ -1097,13 +1100,19 @@ sense of differential privacy~\citep{dwork2014algorithmic}. All experiments use 
 the public CIFAR-10 and MNIST datasets; no personal or human-subject data are involved.
 
 \subsection*{Use of large language models}
-% Draft by the assistant, 2026-11-23; the group edits it to match what was actually done.
+% 2026-11-24: Khoi verified thm:relerr, prop:trap and prop:heun in the single-paper version
+% (c6a229e, LLM note of 2026-11-19). Since then, round 3 changed prop:heun: (b) and (e) now take
+% the extra last-step hypothesis e(x_{K-1},sigma_{K-1}) <= rho n_{K-1} + gamma. Until Khoi has
+% checked that revision, "verified" below does not cover prop:heun, so it is excluded from the
+% sentence. Once checked, drop the clause "except the round-3 revision ...".
 Parts of this work were done with large language models. They wrote and ran experiment and
 analysis code under our direction, restructured and rewrote the manuscript for readers outside the
 field, redrew figures, and checked printed numbers against the result files and the written proofs
 step by step. The first drafts of the proofs of Theorem~\ref{thm:relerr} and
 Propositions~\ref{prop:trap} and~\ref{prop:heun} came from model-based solver runs, which we then
-checked, revised and verified; we wrote and verified all other proofs. We take full responsibility
+checked, revised and verified, except the last-step hypothesis added to
+Proposition~\ref{prop:heun}(b) and~(e) in a later revision, which so far has been checked only by
+model-based audits; we wrote and verified all other proofs. We take full responsibility
 for every claim, proof and number in this paper.
 
 \subsection*{Reproducibility statement}

@@ -1,254 +1,178 @@
-# Atomic Endpoints of Averaged and Guided Empirical Conditional Flows
+<div align="center">
 
-Code, results and papers (`paper_theory/main.tex`, paper A; `paper_mechanism/main.tex`,
-paper B) for the exact endpoint law of conditional flow
-matching (CFM) on a finite training set, and the effective-bandwidth audit of trained
-models built on it. The project began as numerical verification of a theorem about
-**posterior variance collapse** in conditional CFM. This is a *theory-verification* project, not a
-benchmark chase — see `docs/THEORY.md` for the complete, self-contained proofs
-(every proposition proved, no hanging assumptions) and `results/RESULTS.md` for the findings.
-The original task plan and specification are in the git history (removed on 2026-11-23).
+# Conditional Flows Copy Their Training Set<br>When Do They Stop, and What Stops Them?
 
-**Central claim.** In conditional CFM with a deterministic linear interpolant,
-the "resample `x0` every step" mechanism that protects *unconditional* CFM from
-memorization is defeated, because the condition `y` acts as an identifier of the
-training sample. The minimizer collapses to
+**A perfect conditional flow returns its training images. A real network avoids this only through its errors, and it decides late.**
+
+**Khoi Tran** &middot; **Minh Khang Tran** &middot; Research project, 2026
+
+[![Python](https://img.shields.io/badge/Python-3.10--3.12-3776AB.svg)](https://www.python.org)
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.2+-EE4C2C.svg)](https://pytorch.org)
+[![License](https://img.shields.io/badge/License-Apache_2.0-555555.svg)](LICENSE)
+
+<img src="docs/figures/anim_cifar_training.gif" width="80%" alt="Six completions of one masked CIFAR-10 image during training. They start different and end identical to one training image."/>
+
+</div>
+
+**Figure 1.** Six completions of the same masked CIFAR-10 image, at growing training iterations. They start different and end identical to one training image (last column). The variance falls from 179.1 to 0.431.
+
+## Overview
+
+- **Problem.** Diffusion and flow models can reproduce a training image. This matters for private or protected images.
+- **Goal.** Say where a sampler ends on a finite training set, and what a trained network changes.
+- **Why it is hard.** The exact answer holds only for the optimal field. A small loss does not tell how large the error is along the sampler's path.
+- **Idea.** Paper A applies the usual tricks (label noise, guidance, composition) to the exact field. Paper B swaps the network and the exact field at one noise level, to see when the sampler picks its image and when it reaches it.
+- **Result.** At the optimum, one or two fields always end on a training image. Only three or more fields can blend two. In EDM models on CIFAR-10, the image is chosen early (at least **88%** of samples, by noise level 1) and reached late (the public model lands **4%** of samples from level 1, half from level 0.5).
+- **Limit.** CIFAR-10 and a few small models. The theory does not predict the network error.
+
+<div align="center">
+<img src="docs/figures/readme-paperA-endpoints.png" width="100%" alt="Where each source ends on a triangle of training points, for label noise, guidance and a conjunction of three conditions, and a CIFAR-10 blend."/>
+</div>
+
+**Figure 2.** Paper A. Each pixel is a starting point, coloured by the image its exact trajectory ends on. With one field (a) or two (b), every source ends on a training point. With three conditions combined (c), 13% end at the centre and 41% at the edge midpoints, which are blends. (d) A blend of two CIFAR-10 images.
+
+<div align="center">
+<img src="docs/figures/readme-paperB-choice-landing.png" width="100%" alt="One latent through the public EDM model and a 500-image model, and the share of samples that chose and landed at each swap level."/>
+</div>
+
+**Figure 3.** Paper B. One latent through the public model (top) and a 500-image model (middle). The exact prediction settles on a training image early in both. The public network never reaches it, so its output is new. Bottom: the share of samples that chose their image and the share that land, for each swap level.
+
+## Contributions
+
+1. **Exact field under the usual tricks** (A). One field, or any two, end on training points. A blend needs three or more fields.
+2. **A landing condition for learned fields** (B). A trajectory reaches a training image if the network error stays a fixed fraction below the distance to it.
+3. **A swap protocol** (B). It separates choosing (medium noise) from landing (low noise) on real EDM models.
+
+## Method
+
+The exact (optimal) field for label `i` is
 
 ```
-v*(x, t, y^i) = (x^i - x) / (1 - t)          (★)
+v*(x, t, y^i) = (x^i - x) / (1 - t)          (*)
 ```
 
-whose flow maps every source `x0` to the single training point `x^i`, so the
-generated posterior has **zero variance**.
+It sends every source to the training image `x^i`.
 
-## The result, in four animations
+- **Paper A.** Each trick changes this field: a mixture over labels, guidance `(1+w) v_cond - w v_uncond`, a time-varying weight, or a signed sum of three or more fields. For two images with confidence `B`, a blend appears exactly when `w > 1 / sinh^2(B)`.
+- **Paper B.** Let `n` be the distance to the nearest training image and `e` the network error. Landing depends on the ratio `e / n`. A swap at level `s` runs the network above `s` and the exact field below it (net to exact), or the reverse (exact to net). The first shows which image the network chose. The second shows whether it can land.
 
-**The collapse, on real photographs.** Six completions of the same masked image at
-successive training iterations. They start visibly different and end pixel-identical
--- and identical to one specific training image, shown in the last column. Measured
-`tr Cov` falls 179.1 -> 0.431 across these frames.
+## Results
 
-![training](docs/figures/anim_cifar_training.gif)
+| Trick | Fields | Endpoints of the exact field |
+|:---|:---:|:---|
+| Label noise | 1 | training images |
+| Label averaging, positive weights | many | training images |
+| Guidance, fixed or bounded-variation weight | 2 | training images |
+| Any mix of two fields (incl. negative prompt by substitution) | 2 | training images |
+| Conjunction of conditions | 3+, one subtracted | blends, with positive probability |
 
-**The remedy, and its ceiling.** The same conditions at the end of training, swept
-over the label bandwidth. Diversity comes back as `h` grows -- which is what any
-diversity metric would reward -- while the fraction of samples that are still
-training images stays high. At `h = 5` the completions are wildly varied and 72% of
-them are training photographs, several of which do not even match the visible half.
-Restored variance, un-restored posterior.
+**Table 1.** Paper A. "Training images" means for almost every source.
 
-![bandwidth](docs/figures/anim_cifar_bandwidth.gif)
+| Swap level s | 5 | 2 | 1 | 0.5 | 0.2 |
+|:---|:---:|:---:|:---:|:---:|:---:|
+| Public model: image chosen | 30.6% | 56.0% | 89.6% | 95.6% | 98.6% |
+| Public model: lands | 0.0% | 0.0% | 4.4% | 50.8% | 93.0% |
+| 500-image model: image chosen | 92.8% | 98.2% | 99.6% | 99.8% | 100% |
+| 500-image model: lands | 100% | 100% | 100% | 100% | 100% |
 
-**The whole family in one sweep.** On the 2-d instance, the exact endpoint law as `h`
-runs from 0 upward: a single point mass, then a kernel-weighted mixture that passes
-exactly through `tr Cov_h = tr Sigma_post`, then the uniform empirical measure. The
-two corollaries of the paper are the two ends of this animation.
+**Table 2.** Paper B, 500 latents. Sampling runs from large `s` (early) to small `s` (late).
 
-![bandwidth sweep](docs/figures/anim_bandwidth_2d.gif)
+1. **The exact field copies.** Only three or more fields can leave the training set.
+2. **Networks choose early.** At `s = 1`, 89.6% of public-model samples already end on the network's image.
+3. **Networks land late.** For the public model `e / n` is 0.93 at noise 0.14 and 0.997 at 0.023: the pull to the image is gone. For copying samples it is about 0.19.
+4. **A small loss is not enough.** On a test problem the error along the path is 127 times the loss error.
 
-**Guidance cannot leave the training set.** Atoms spanning a plane in R^3, with
-trajectories started deliberately off it. Whatever the guidance weight, they are
-pulled onto the plane, because the component orthogonal to it obeys `q_t = (1-t) q_0`
-exactly. When `N <= d` that plane is a null set, so no guidance weight makes the
-conditional law continuous.
+`scripts/verify_paper_numbers.py` rechecks the printed numbers against `results/`.
 
-![guidance](docs/figures/anim_guidance_3d.gif)
+<div align="center">
+<img src="docs/figures/anim_collapse.gif" width="80%" alt="Three exact flows from the same sources: hard conditioning, label smoothing and endpoint smoothing."/>
+</div>
 
-Regenerate any of them with
-`uv run python -m scripts.make_project_animations --only NAME`.
+**Figure 4.** Three exact flows, same sources. Left: hard conditioning, all end on one image. Middle: label smoothing with the right variance, endpoints still training images. Right: endpoint smoothing, the only one that leaves the training set. More animations are in `docs/figures/`.
 
-## The mechanism, in one animation
+## Limitations
 
-![collapse](docs/figures/anim_collapse.gif)
+- Paper A is about the exact field. A trained network can differ.
+- CIFAR-10 only, with models trained on 500 to 2000 images and the public EDM model.
+- Swaps use 500 latents per model. The 2000-image model has no swap.
+- "Off the training set" means nearer to one image than to the second-nearest by a ratio of 1/3, not an exact match.
 
-Three exact population flows on the same problem, from the same source draws. Left:
-hard conditioning, where every trajectory lands on one training image and the cloud's
-spread ends at 0.001. Middle: label smoothing at the bandwidth where `tr Cov_h` equals
-`tr Sigma_post` exactly, so the spread ends at 1.055 against a target of 1.002 -- the
-right variance, on the same finite set of atoms. Right: endpoint smoothing, the only
-one of the three whose support leaves the training set.
+## Next steps
 
-The strip underneath is what is actually collapsing: the effective number of atoms the
-flow is choosing between stays near 100 for most of the clock and falls to 1 only in
-the last few percent, which is why collapse looks abrupt.
+1. Window swaps on the 500- and 2000-image models.
+2. Record the hand-over distance in the swaps.
+3. Move paper B to the NeurIPS 2027 style and cut it to 9 pages.
 
-Regenerate with `uv run python -m scripts.make_collapse_animation`.
-
-## Setup
-
-This repo uses [`uv`](https://docs.astral.sh/uv/). Torch is pinned to the CPU
-wheels (EXP-1/EXP-2 run comfortably on CPU).
+## Quick start
 
 ```bash
-uv sync
+git clone https://github.com/KhoiTrant68/cfm-collapse.git && cd cfm-collapse
+uv sync                                       # CPU torch wheels
+uv run python -m src.train --config configs/exp1_linear_gaussian.yaml --smoke-test   # under 2 min
 ```
 
-### Windows note (MSVC runtime)
+On Windows, if `import torch` fails with `c10.dll`, run `uv pip install msvc-runtime`.
 
-The PyTorch CPU wheels need the Microsoft Visual C++ runtime DLLs. If you see
-`OSError: [WinError 126] ... c10.dll`, install the runtime DLLs into the venv
-(no admin required):
-
-```bash
-uv pip install msvc-runtime
-```
-
-(Or install the system-wide VC++ redistributable from https://aka.ms/vs/17/release/vc_redist.x64.exe.)
-PyTorch prints a "Redistributable is not installed" *warning* even after this
-works — it is a static check and can be ignored once imports succeed.
-
-## Running EXP-1 (Linear-Gaussian)
-
-Fast pipeline check (< 2 min):
-
-```bash
-uv run python -m src.train --config configs/exp1_linear_gaussian.yaml --smoke-test
-```
-
-Full conditional run (overtraining to 200k iters is the *object of study*):
+## Experiments
 
 ```bash
 uv run python -m src.train --config configs/exp1_linear_gaussian.yaml \
     --set run_name=exp1_cond_seed0 seed=0 model.conditional=true
+uv run python scripts/analyze_exp1.py --cond "results/exp1/exp1_cond_seed*" \
+    --uncond "results/exp1/exp1_uncond_seed*" --out results/exp1/_analysis
 ```
 
-Unconditional baseline (P4):
+- **EXP-1** (linear-Gaussian, CPU): `scripts/run_exp1.sh` runs all seeds. Sweeps: `scripts/run_sweeps.py`.
+- **EXP-2** (Gaussian mixture) and **EXP-3** (MNIST and CIFAR-10 inpainting): `src/train_exp2.py`, `src/train_exp3.py`, configs in `configs/`.
+- **Long runs:** `--max-hours H` and `--resume CKPT`; see `docs/KAGGLE.md`.
+- **Animations:** `uv run python -m scripts.make_project_animations --only NAME`.
+- Findings per experiment: `results/RESULTS.md`. Full proofs: `docs/THEORY.md`.
 
-```bash
-uv run python -m src.train --config configs/exp1_linear_gaussian.yaml \
-    --set run_name=exp1_uncond_seed0 seed=0 model.conditional=false
-```
+## Papers and submission
 
-Aggregate seeds and render the core P1/P2/P3/P4 figures:
-
-```bash
-uv run python scripts/analyze_exp1.py \
-    --cond "results/exp1/exp1_cond_seed*" \
-    --uncond "results/exp1/exp1_uncond_seed*" \
-    --out results/exp1/_analysis
-```
-
-The full multi-seed protocol is scripted in `scripts/run_exp1.ps1` (Windows) and
-`scripts/run_exp1.sh` (POSIX).
-
-### Adversarial-pairing ablation
-
-Does collapse need a *real* posterior, or just distinct labels? Shuffle `Y` relative
-to `X` (`data.shuffle_labels: true`) and re-run the same architecture/schedule; the
-theory (Proposition 4) predicts collapse to the *assigned* `x^i` either way, since it
-never uses the forward operator, only label distinctness:
-
-```bash
-uv run python -m src.train --config configs/exp1_adversarial_shuffle.yaml \
-    --set run_name=exp1_adv_shuffle_seed0 seed=0
-uv run python scripts/analyze_exp1_adversarial.py \
-    --real "results/exp1/exp1_cond_seed[0-4]" \
-    --shuffled "results/exp1/exp1_adv_shuffle_seed*" \
-    --out results/exp1/_analysis_adversarial
-```
-
-Full 3-seed protocol: `scripts/run_exp1_adversarial.{sh,ps1}` (~18 min/seed on CPU,
-no GPU needed). See `results/RESULTS.md` §"Adversarial pairing" for results.
-
-## Phase B — sweeps and remedies (EXP-1) + EXP-2
-
-Parameter sweeps (P5 σ_obs, P6 N, P7 y-noise vs interpolant-noise remedy, d/k)
-run in parallel with a concurrency limit:
-
-```bash
-uv run python scripts/run_sweeps.py --workers 5 --threads 5 --iters 200000
-uv run python scripts/analyze_sweeps.py --root results/exp1 --out results/exp1/_sweeps
-```
-
-EXP-2 (Gaussian-mixture posterior, selective memorization / mode coverage):
-
-```bash
-uv run python -m src.train_exp2 --config configs/exp2_gmm.yaml --smoke-test
-uv run python -m src.train_exp2 --config configs/exp2_gmm.yaml --set run_name=exp2_gmm_seed0 seed=0
-uv run python scripts/analyze_exp2.py --runs "results/exp2/exp2_gmm_seed*" --out results/exp2/_analysis
-uv run python scripts/visualize_gmm_2d.py --run results/exp2/exp2_gmm_seed0 --early 1000 --late 200000
-```
-
-## Phase C — EXP-3 (MNIST inpainting, qualitative)
-
-Needs `torchvision` (installed by `uv sync`; MNIST auto-downloads to `data/`).
-
-```bash
-uv run python -m src.train_exp3 --config configs/exp3_inpainting.yaml --smoke-test
-uv run python -m src.train_exp3 --config configs/exp3_inpainting.yaml \
-    --set run_name=exp3_mnist_seed0 seed=0 train.max_iters=15000
-uv run python scripts/analyze_exp3.py --run results/exp3/exp3_mnist_seed0
-```
-
-Per-checkpoint sample grids (same observed top, different `x0`, next to the true
-and nearest-neighbour training image) are saved under the run's `figures/`.
-
-### Long runs on a short-session host
-
-`--max-hours H` stops a run cleanly on a wall-clock budget and writes a resume
-point; `--resume CKPT` continues from one. A checkpoint carries the optimiser,
-the AMP scaler and both RNG streams, so a chained run is bit-identical to an
-uninterrupted one -- `scripts/verify_resume.py` checks exactly that, in about a
-minute on CPU.
-
-This is what `configs/exp3_cifar_ddpm_h4_long.yaml` needs: 240000 iterations at
-h=4, to see whether the across-condition slope keeps rising past the 60000 the
-paper reports. `scripts/kaggle_run.py` drives one session of it and prints the
-measured throughput and how many sessions are left; `docs/KAGGLE.md` has the
-recipe.
-
-## Submission packages
-
-`python submit/build.py` builds every package from `paper_theory/` (paper A) and
-`paper_mechanism/` (paper B); pass target names to build only some of them.
-
-| Target | What it is | What to upload |
+| Paper | Question | Folder |
 |---|---|---|
-| `A_tmlr` | paper A, anonymous | `submit/pdf/A_tmlr.pdf` on OpenReview |
-| `A_arxiv` | paper A, `[preprint]` with real authors | `submit/A_arxiv_source.zip` |
-| `B_neurips` | paper B, anonymous (TMLR style until the NeurIPS 2027 style is out) | `submit/pdf/B_neurips.pdf` |
-| `supp_A`, `supp_B` | anonymised code, the `results/` folders it reads (no checkpoints or logs) and a generated README | `submit/supp_A.zip`, `submit/supp_B.zip` |
+| A | Which tricks keep the exact flow on its training set? | `paper_theory/` (TMLR, then arXiv) |
+| B | How do trained samplers choose and land? | `paper_mechanism/` (NeurIPS 2027) |
 
-Each package has its LaTeX comments stripped (arXiv publishes the source), unused files
-removed, a clean `latexmk` build, and a scan of the sources and of the PDF text for names,
-lab paths, `TODO`/`FLAG` notes and, in A, any mention of paper B. A failed scan stops that
-target, and a supplement over 95 MB stops too (TMLR allows 100 MB). The open notes that were stripped
-(`TODO`, `FLAG`, group decisions, "Draft by the assistant") are listed in `submit/stripped_notes.txt`
-with their lines in the paper sources; resolve them there before submitting. The arXiv author block
-lives in `submit/authors_A_arxiv.tex`.
+`python submit/build.py` builds every package (pass target names to build some):
 
-Before a submission, also run `PYTHONPATH=. python scripts/verify_paper_numbers.py` (needs torch;
-it checks the printed numbers of A and B against `results/`). The review notes of the last round,
-including what the co-author still has to check, are in `docs/review/round3_2026-11-23/`.
+| Target | What it is | Upload |
+|---|---|---|
+| `A_tmlr` | paper A, anonymous | `submit/pdf/A_tmlr.pdf` |
+| `A_arxiv` | paper A, with authors | `submit/A_arxiv_source.zip` |
+| `B_neurips` | paper B, anonymous (TMLR style for now) | `submit/pdf/B_neurips.pdf` |
+| `supp_A`, `supp_B` | anonymised code and the results it reads | `submit/supp_*.zip` |
+
+Each package has comments stripped, a clean build, and a scan for names, lab paths and `TODO` notes. The scan fails the target on a leak or on a supplement over 95 MB. Open notes are listed in `submit/stripped_notes.txt`: resolve them before submitting. Before a submission, also run `PYTHONPATH=. python scripts/verify_paper_numbers.py` (needs torch). Review notes and the co-author's checklist are in `docs/review/round3_2026-11-23/`.
 
 ## Layout
 
 ```
-src/
-  problems/linear_gaussian.py   forward model + closed-form posterior
-  models/mlp_velocity.py        MLP velocity field + sinusoidal time embedding
-  flows/interpolants.py         deterministic + stochastic interpolant, eq. (★)
-  flows/cfm.py                  CFM loss (conditional & unconditional)
-  flows/ode_solver.py           Euler / RK4 sampler, t=1 singularity handling
-  metrics/                      posterior stats [P1/P3], velocity error [P2], MMD/Sinkhorn
-  train.py                      training + checkpoint evaluation driver
-configs/                        YAML configs (CLI overridable via --set a.b=c)
-scripts/                        analysis + orchestration
-results/                        figures, raw CSVs, RESULTS.md
-paper_theory/                   paper A (TMLR, then arXiv) and its figures
-paper_mechanism/                paper B (NeurIPS) and its figures
-submit/                         build.py for the submission packages (outputs gitignored)
-docs/                           THEORY.md, KAGGLE*.md, README animations, linked plans and reviews
+src/            problems, models, flows (interpolant, CFM loss, ODE solver), metrics, train.py
+configs/        YAML configs (override with --set a.b=c)
+scripts/        analysis and orchestration
+results/        figures, CSVs, RESULTS.md
+paper_theory/   paper A      paper_mechanism/   paper B
+submit/         build.py for the submission packages
+docs/           THEORY.md, KAGGLE*.md, animations, plans and reviews
 ```
 
-## Predictions under test (spec Section 2.3)
+## Related work
 
-| ID | Prediction |
-|----|------------|
-| P1 | generated variance → 0 with overtraining |
-| P2 | learned velocity → closed form (★) |
-| P3 | generated samples collapse onto the true training point `x^i` |
-| P4 | collapse is far weaker / absent for unconditional CFM |
-| P5 | collapse weakens as `y^i` get closer (larger `σ_obs`) |
-| P6 | collapse weakens as `N` grows at fixed capacity |
-| P7 | smoothing the **condition** `y` restores variance (remedy) |
+We build on Wan et al. (ICML 2025), Baptista et al. and Azangulov et al. (AISTATS 2026) for memorisation, on the hybrid samplers of Bertrand et al. and Liu et al., and on Biroli et al. for collapse times. The sampler is EDM (Karras et al., 2022). The exact differences are in the two papers.
+
+## Citation
+
+The papers are in preparation. Please cite the repository:
+
+```bibtex
+@misc{tran2026cfmcollapse,
+  title  = {Conditional Flows Copy Their Training Set: When Do They Stop, and What Stops Them?},
+  author = {Tran, Khoi and Tran, Minh Khang},
+  year   = {2026},
+  howpublished = {\url{https://github.com/KhoiTrant68/cfm-collapse}}
+}
+```
+
+Apache License 2.0 (`LICENSE`).

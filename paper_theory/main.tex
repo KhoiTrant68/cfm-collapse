@@ -176,8 +176,8 @@ regress a velocity field on a path from noise to data. Against the \emph{empiric
 training set the population minimiser is explicit, and its flow returns training examples
 \citep{gu2023memorization,biroli2023diffusion,gao2024flow,bertrand2025closed}. A trained network
 approximates this exact field, so the exact field says what the objective asks the network to do.
-Practical conditional samplers do not integrate it as it is. Labels are noised during
-training~\citep{ho2022cascaded}. A network that resolves labels only coarsely averages the field
+Practical conditional samplers do not integrate it as it is. Conditioning inputs are noised during
+training~\citep{ho2022cascaded} or at inference~\citep{sadat2024cads}. A network that resolves labels only coarsely averages the field
 over nearby labels. Sampling adds classifier-free guidance~\citep{ho2022classifier}, often with a
 strength that varies in time~\citep{kynkaanniemi2024interval} or is withheld or reversed early to
 reduce memorisation~\citep{jain2025attraction}. Compositional generation adds the guidance terms
@@ -351,8 +351,8 @@ sharing a label, and \citet[Section~3.3]{physicscfm2026} analyse cell-conditione
 Nadaraya--Watson endpoint law of Section~\ref{sec:theory} is therefore a reference, not a new
 identity. Gaussian noise on a conditioning signal is the conditioning augmentation
 of~\citet{ho2022cascaded}, which \citet{sadat2024cads} anneal at inference. Randomised
-conditioning reduces copying in trained
-models~\citep{somepalli2023copying,wen2024detecting}.
+conditioning reduces copying in trained models~\citep{somepalli2023copying}, as the random-token
+baseline of \citet{wen2024detecting} also shows.
 \citet[Theorems~2--3]{pfrommer2025conditional} derive label-smoothness interpolants that need not
 be positive averages.
 
@@ -1420,15 +1420,19 @@ differential privacy, which we do not analyse. All experiments use synthetic dat
 CIFAR-10 dataset; no personal or human-subject data are involved.
 
 \subsection*{Use of large language models}
-% Draft by the assistant, 2026-11-23; the group edits it to match what was actually done.
-% TODO (group, before submission): check the proofs of cor:twofields, prop:twoatom and
-% rem:generic line by line.
-Large language models helped us write and run experiment and analysis code, rewrite the prose for
-readers outside the field, redraw figures, and cross-check printed numbers against the result
-files. They also served as additional checkers of the written proofs. The statements and proofs of
-Corollary~\ref{cor:twofields}, Proposition~\ref{prop:twoatom} and Remark~\ref{rem:generic} were
-first drafted with a large language model and then checked by the authors. The authors take full
-responsibility for every statement, proof and number in the paper.
+% 2026-11-24: the authors have NOT yet checked cor:twofields, prop:twoatom and rem:generic line
+% by line (see docs/review/round3_2026-11-23/proof_checklist.md). Only model-based audits
+% (proof_audit_1.md, proof_audit_2.md) and numerical tests (numeric_tests.md) have checked them.
+% The second-to-last sentence below says so. Once Khoi has checked all three proofs, replace it with:
+%   "... were first drafted with a large language model and then checked line by line by the authors."
+Large language models helped us write and run experiment and analysis code, restructure the
+manuscript and rewrite its prose for readers outside the field, redraw figures, and cross-check
+printed numbers against the result files. They also served as additional checkers of the written
+proofs. The statements and proofs of Corollary~\ref{cor:twofields}, Proposition~\ref{prop:twoatom}
+and Remark~\ref{rem:generic} were first drafted with a large language model. They have been checked
+by independent model-based audits and by numerical tests; the authors' own line-by-line check of
+these three proofs is not yet complete. The authors take full responsibility for every statement,
+proof and number in the paper.
 
 \subsection*{Reproducibility statement}
 \begingroup\raggedright
@@ -1995,7 +1999,7 @@ inequality keep them in a compact set, so they extend to every time below $1$
 is $C^1$, and its derivative $D\Phi$ solves the variational equation
 $\tfrac{d}{dt}D\Phi=D_xf\,D\Phi$ \citep[Theorem~1 and Remark~2.8.1]{sontag1998mathematical}; the
 same holds backwards in time, so $\Phi$ is a $C^1$ diffeomorphism. As $D_xf$ is locally bounded
-along a trajectory, \citet[Lemma~C.4.1(f)]{sontag1998mathematical} gives
+along a trajectory, \citet[Lemma/Exercise~C.4.1(f)]{sontag1998mathematical} gives
 $\det D\Phi=\exp\int\operatorname{tr}D_xf$, which is Liouville's formula for the Jacobian
 $J=\det D\Phi=\exp\int\operatorname{div}_xf$. When the field is continuous in time, solutions are
 classical. The change of time $t\mapsto\tau$ is smooth and increasing on $(0,1)$, so all of this
