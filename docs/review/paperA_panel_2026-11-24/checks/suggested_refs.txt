@@ -1,0 +1,21 @@
+Suggested-reference check (script output, not a reviewer finding; #1001)
+Seats read: R2, R3 (complete).
+
+| Seat | # | Reference | Result |
+|---|---|---|---|
+| R2 | 1 | Bradley, A. et al. (2025) "Mechanisms of Projective Composition of Diffusion Models" arXiv:2502.04549 | Found in an index |
+| R2 | 2 | Skreta, M. et al. (2025) "The Superposition of Diffusion Models Using the Itô Density Estimator" arXiv:2412.17762 | Found in an index |
+| R2 | 3 | Wu, Y. et al. (2024) "Theoretical Insights for Diffusion Guidance: A Case Study for Gaussian Mixture Models" arXiv:2403.01639 | Found in an index |
+| R2 | 4 | Pavasovic, K. L. et al. (2025) "Understanding Classifier-Free Guidance: High-Dimensional Theory and Non-Linear Generalizations" arXiv:2502.07849 | DOI or arXiv ID not found, and no title match |
+| R2 | 5 | Chen, C. et al. (2024) "Towards Memorization-Free Diffusion Models" arXiv:2404.00922 | Found in an index |
+| R2 | 6 | Vastola, J. J. (2025) "Generalization through variance: how noise shapes inductive biases in diffusion models" arXiv:2504.12532 | Found in an index |
+| R2 | 7 | Liu, H. et al. (2025) "From Navigation to Refinement: Revealing the Two-Stage Nature of Flow-based Diffusion Models through Oracle Velocity" arXiv:2512.02826 | Found in an index |
+| R2 | 8 | Carlini, N. et al. (2023) "Extracting Training Data from Diffusion Models" arXiv:2301.13188 | Found in an index |
+| R3 | 1 | Carlini, N. et al. (2023) "Extracting Training Data from Diffusion Models" arXiv:2301.13188 | Found in an index |
+| R3 | 2 | Somepalli, G. et al. (2023) "Diffusion Art or Digital Forgery? Investigating Data Replication in Diffusion Models" arXiv:2212.03860 | Found in an index |
+| R3 | 3 | Duan, J. et al. (2023) "Are Diffusion Models Vulnerable to Membership Inference Attacks?" arXiv:2302.01316 | Found in an index |
+| R3 | 4 | Matsumoto, T. et al. (2023) "Membership Inference Attacks against Diffusion Models" arXiv:2302.03262 | Found in an index |
+| R3 | 5 | Sesmat, T. et al. (2026) "Where Flow Matching Leaks: Characterising Membership Signals Along the Interpolation Path" arXiv:2606.07271 | Found in an index |
+| R3 | 6 | Dockhorn, T. et al. (2023) "Differentially Private Diffusion Models" arXiv:2210.09929 | Found in an index |
+
+"Found" means an index holds a record with this DOI or arXiv ID and title, or with this title. It does not show that the work supports the recommendation, or that the authors and year are right.
