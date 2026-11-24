@@ -78,7 +78,7 @@ so a trained sampler that produces anything else does so through the error of it
 We ask which property of that error decides whether a sampling trajectory lands on a training
 image. Our main result is a relative condition. A trajectory reaches a training image when the
 error of its predicted clean image stays a fixed fraction below its distance to that image. It
-stays away when the radial ratio approaches one fast enough. This ratio measures how strongly the
+stays away from it when the radial ratio approaches one fast enough. This ratio shows whether the
 predicted clean image pulls the current state toward the training image: below one it pulls, at
 one it does not. The absolute error may be large, and a small regression loss does not control the
 ratio. We also give a trapping version in the noise coordinates of EDM and a one-step version for
@@ -126,10 +126,10 @@ Our main result is a landing condition for one trajectory at a time
 $e_t$ the distance from the network's predicted clean image to the exact posterior mean. If $e_t$
 stays below $\bar\varrho\,n_t$ for a constant $\bar\varrho<1$, up to terms that vanish at the end,
 the trajectory reaches $a$. The condition is relative: the error may be large while the state is
-far from the image, as long as it shrinks in proportion to the distance. The radial ratio measures
-how strongly the prediction pulls the state toward $a$. It is the length of the predicted image's
+far from the image, as long as it shrinks in proportion to the distance. The radial ratio shows
+whether the prediction pulls the state toward $a$. It is the length of the predicted image's
 offset from $a$ along the direction of the state's offset, divided by the state's distance $n_t$.
-Below one, the prediction pulls the state toward $a$. If the ratio approaches one fast enough, the
+Below one, the prediction pulls the state toward $a$; at one, it does not. If the ratio approaches one fast enough, the
 trajectory does not land. A small regression loss does not give this control, because the loss
 averages the error over the training law and not along the sampler's path
 (Proposition~\ref{prop:loss-no-certificate}).
@@ -629,8 +629,7 @@ the exact unconditional field predicts. The memorisation ratio of \citet{yoon202
 reaches $0.650$ $[0.604,0.696]$ conditionally and $0.389$ $[0.345,0.433]$ unconditionally. A
 bimodal mixture posterior (EXP-2) and MNIST inpainting (EXP-3) show the same collapse. It occurs
 for every architecture and optimiser we tried, and the spread across seeds is mostly due to the
-problem instance (Appendix~\ref{app:exp}). Trained networks therefore approach the exact
-endpoint at hard conditioning, at a finite cutoff and late in training.
+problem instance (Appendix~\ref{app:exp}).
 
 \label{sec:cifarddpm}
 \paragraph{At realistic capacity.} A standard DDPM U-Net ($35.75$M parameters) trained on
@@ -647,7 +646,7 @@ checkpoints).
 error on the training law by a factor of $127\pm40$ at $1-t=0.1$ and $(2.0\pm2.2)\times10^7$ at
 $10^{-4}$, so the regression loss does not bound the endpoint (Appendix~\ref{app:measured-transfer}).
 On CIFAR-10 U-Nets retrained with label noise of bandwidth $h=4$ and $h=6$, refining the integrator
-and the cutoff barely changes the off-atom fraction, while the exact field has none. The off-atom
+and the cutoff barely changes the off-atom fraction (the share of new images, not copies), while the exact field has none. The off-atom
 samples are those with large scaled error along their own trajectories, with
 AUC $0.97$ and $0.95$ at $h=4$ and $6$ by
 $t\approx0.53$ and $0.99$ and $0.98$ by $t\approx0.63$. The same network along the exact
@@ -760,8 +759,8 @@ $\sigma=0.002$ to $0$, which returns the denoiser output at $\sigma=0.002$. For 
 output is the nearest training image of the class to double precision, from any state that
 is not almost exactly equidistant from two of them. The exact field used only for the last of the
 $35$ denoiser evaluations of the $18$-step sampler would already end every sample on a training
-image. What this direction measures is which image is reached. It is the one nearest to the
-network's own endpoint in $31$, $56$, $90$, $99$ and $100\%$ of samples for $s=5,2,1,0.2,0.02$ on the
+image. What this direction measures is which image is reached. The image reached is the one nearest
+to the network's own endpoint in $31$, $56$, $90$, $99$ and $100\%$ of samples for $s=5,2,1,0.2,0.02$ on the
 public model, in $49$, $63$, $88$, $98$ and $100\%$ on the $1000$-image model, and in $92.8$, $98.2$ and
 $99.6\%$ for $s=5,2,1$ and all samples from $s\le0.2$ on the $500$-image model. Interpolated in
 $\log s$ between swap levels, this share passes $50\%$ at $s=2.48$ and $90\%$ at $s=0.95$ on the
@@ -781,8 +780,9 @@ $93\%$ of its images by $\sigma=5$. The swaps of \citet{dodson2026calm} between 
 exchange the range $\sigma\in[0.14,8.4]$ as a whole (Section~\ref{sec:related}). That range contains
 both of the decisions that the swap level $s$ separates here.
 
-\paragraph{The reverse swap separates memorising from non-memorising models.} Evidence on landing has to
-come from this direction, where the network runs last. Only the memorising network lands from every
+\paragraph{The reverse swap separates memorising from non-memorising models.} The exact field ends on
+a training image from whatever state it is handed, so evidence on landing has to come from this
+direction, where the network runs last. Only the memorising network lands from every
 swap level; the two networks that do not memorise land only from late levels. With the exact
 field down to $s$ and the network below, the public model ends off-atom for $100\%$ of samples at $s\ge2$, $95.6\%$ at
 $s=1$, $49.2\%$ at $s=0.5$, $7.0\%$ at $s=0.2$ and $0.2\%$ at $s=0.1$; the $1000$-image model for
@@ -802,7 +802,7 @@ there (the hand-over distance was not recorded). Then the remaining steps of the
 the public model shorten it by a factor of about $2$ to $3$, or of about $1.4$ to $2.2$ if the
 exact field is credited with its half of the mixed Heun step at the hand-over. This is close to
 the boundary case of Theorem~\ref{thm:relerr}(d), a relative error near one that neither contracts
-nor expands. It matches the relative error of the public model along its own trajectories, $0.925$
+nor expands. This also matches the relative error of the public model along its own trajectories, $0.925$
 at $\sigma=0.14$ and $0.997$ at $\sigma=0.023$ (Table~\ref{tab:edm-rho}).
 
 The memorising $500$-image model behaves the other way. Handed the exact state at any $s$, its late
@@ -921,7 +921,8 @@ $0.002$. The approach to one instead leaves little of the contraction that~(b) u
 measure below. This is consistent with, but does not verify, the hypothesis of~(c), which concerns
 the radial ratio and is an asymptotic condition that a finite schedule cannot check. Near the end
 the anchor and the off-atom label are both set by the endpoint, so the separation there is partly
-bookkeeping; the predictive anchor of Appendix~\ref{app:relerr-exp} gives the same AUC earlier. On the balanced $2000$-image model the contrast is one of degree: almost every sample of either
+bookkeeping. The informative range is earlier, where the predictive anchor of
+Appendix~\ref{app:relerr-exp} gives the same AUC. On the balanced $2000$-image model the contrast is one of degree: almost every sample of either
 group has $\varrho_t<1$ at every step, and the on-atom median also approaches one at the last step.
 What Theorem~\ref{thm:relerr}(b) uses is the contraction that the relative error leaves,
 $\int(1-\varrho_t)\,d\log(1/\sigma)$. Over the late noise levels $\sigma\in[0.002,0.585]$ it is $1.75$
@@ -1650,8 +1651,8 @@ same network error along the exact trajectory from the same source. The
 off-atom fractions at $1-T=10^{-4}$ are close to the ones above at $h=4$ and $h=6$, with none at
 $h=0$ and none for the exact field.
 % Group decision 2026-11-23: the s10 retrain and its off-atom numbers belong to paper A; B
-% describes them only qualitatively. Along the exact
-trajectories the final scaled error of the network is at most $0.006$, so where the exact field
+% describes them only qualitatively.
+Along the exact trajectories the final scaled error of the network is at most $0.006$, so where the exact field
 ends the network matches it. Along the learned trajectories the final scaled error has median
 $6.2$--$7.1$ for off-atom and $2.5$--$2.9$ for on-atom samples, with AUC $0.985$ at $h=4$ and
 $0.977$ at $h=6$, and median $1.08$ at $h=0$. These final values are bookkeeping, not evidence: at

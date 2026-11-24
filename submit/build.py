@@ -487,7 +487,7 @@ def open_notes():
         for tex in [d / "main.tex", d / "math_commands.tex"] + sorted(d.glob("figures/**/*.tex")):
             for n, line in enumerate(tex.read_text(encoding="utf-8").splitlines(), 1):
                 k = _comment_start(line)
-                if k >= 0 and re.search(r"TODO|FLAG|DECISION|[Gg]roup decision", line[k:]):
+                if k >= 0 and re.search(r"TODO|FLAG|DECISION|[Gg]roup decision|Draft by|the assistant", line[k:]):
                     notes.append(f"{tex.relative_to(ROOT).as_posix()}:{n}: {line[k:].strip()}")
     return notes
 
