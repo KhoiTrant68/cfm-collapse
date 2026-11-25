@@ -2606,7 +2606,7 @@ to be taken over conditional fields with weights independent of the current posi
 field is $(a_i-x)/\eps$, and the unconditional field is $(m-x)/\eps$ with $m=\sum_jq_ja_j$ and
 $q_j\propto\exp(-|x-ta_j|^2/2\eps^2)$. The guided field is therefore
 $\bigl((1+w)a_i-wm-x\bigr)/\eps$; it is smooth with linear growth on $[0,T]$ for $T<1$, so solutions
-exist and are unique. Write $D_j=|x-ta_j|^2$, $\zeta=x-ta_i$ and $Y=|\zeta|^2$. We show, for
+exist and are unique. Write $D_j=|x-ta_j|^2$, $u=x-ta_i$ and $Y=|u|^2$. We show, for
 $0<t_0<t<1$,
 \begin{equation}
 |x_t-ta_i|^2\le\eps^2\left[\frac{|x_{t_0}-t_0a_i|^2}{(1-t_0)^2}
@@ -2623,22 +2623,22 @@ $\log Z\ge-D_i/2\eps^2$, and hence
 \[
 \sum_jq_jD_j=2\eps^2\bigl(\mathrm H(q)-\log Z\bigr)\le2\eps^2\log N+D_i .
 \]
-Since $x-ta_j=\zeta+t(a_i-a_j)$,
+Since $x-ta_j=u+t(a_i-a_j)$,
 \[
-D_j-D_i=2t\,\zeta\cdot(a_i-a_j)+t^2|a_i-a_j|^2,\qquad
-\sum_jq_j(D_j-D_i)=2t\,\zeta\cdot(a_i-m)+t^2\sum_jq_j|a_i-a_j|^2,
+D_j-D_i=2t\,u\cdot(a_i-a_j)+t^2|a_i-a_j|^2,\qquad
+\sum_jq_j(D_j-D_i)=2t\,u\cdot(a_i-m)+t^2\sum_jq_j|a_i-a_j|^2,
 \]
 and the previous display yields
 \[
-2t\,\zeta\cdot(a_i-m)\le\sum_jq_j(D_j-D_i)\le2\eps^2\log N .
+2t\,u\cdot(a_i-m)\le\sum_jq_j(D_j-D_i)\le2\eps^2\log N .
 \]
 From the form of the guided field and $\eps=1-t$,
 \[
-\dot\zeta=\frac{(1+w)a_i-wm-x}{\eps}-a_i=\frac{ta_i-x+w(a_i-m)}{\eps}=\frac{-\zeta+w(a_i-m)}{\eps},
+\dot u=\frac{(1+w)a_i-wm-x}{\eps}-a_i=\frac{ta_i-x+w(a_i-m)}{\eps}=\frac{-u+w(a_i-m)}{\eps},
 \]
 so by the Gibbs bound and $w\ge0$
 \begin{align*}
-\dot Y=2\zeta\cdot\dot\zeta&=-\frac{2Y}{\eps}+\frac{2w\,\zeta\cdot(a_i-m)}{\eps}
+\dot Y=2u\cdot\dot u&=-\frac{2Y}{\eps}+\frac{2w\,u\cdot(a_i-m)}{\eps}
 \le-\frac{2Y}{\eps}+\frac{2w\eps\log N}{t},\\
 \frac{d}{dt}\Bigl(\frac{Y}{\eps^2}\Bigr)&=\frac{\dot Y}{\eps^2}+\frac{2Y}{\eps^3}
 \le\frac{2w\log N}{t\eps}=\frac{2w\log N}{t(1-t)} .
