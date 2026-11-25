@@ -1,5 +1,7 @@
 # Exact guided label averaging on CIFAR-10 pairs (B = 1, 512 sources)
 
+> **Historical solver output.** The original scalar continuation misclassified some two-image midpoint trajectories as atoms. The corrected labels, numerical audit, and sensitivity results are in the [CIFAR replay report](../cifar_composition_replay/README.md). The tables below document the archived run.
+
 Midpoint fraction by w/w_c; `margin` = min over other atoms of |x^k - z|^2 / r^2.
 
 | pair | margin | 0 | 0.5 | 0.9 | 1.1 | 2 | 5 | 10 |

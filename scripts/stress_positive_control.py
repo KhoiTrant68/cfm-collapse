@@ -1,6 +1,7 @@
 """Positive control for the exact-field stress test (Section sec:intervention-tests).
 
     uv run --no-sync python -m scripts.stress_positive_control
+    python -m scripts.stress_positive_control --translation 0.25 0
 
 The stress test of ``scripts/novelty_interventions.py`` integrates exact fields with a fixed-step
 RK4 in the log time s = -log(1-t), 256 (coarse) and 512 (fine) steps per segment, segments ending at
@@ -35,9 +36,17 @@ logits no longer resolve x_1 and the computed field is exactly symmetric. With t
 the same scheme ejects every captured trajectory. So the fixed-step stress test does not detect
 an attracting tie as such; its agreement in the logit coding is a rounding effect.
 Output: results/stress_positive_control_20261125/summary.json (the 20261121 run is kept).
+
+The translation option repeats the 2x and 10x controls on the first 256
+sources, with the atoms both centered and translated. A common shift c sends
+the exact trajectory x(t) to x(t)+t*c for the same source, so both runs use
+the same source-basin mask and measure endpoint distances to their own atoms
+and limiting midpoint. It uses the logit coding only (``oracle_s`` assumes atoms
+centred at the origin) and writes results/stress_positive_control_20261121/translated.json.
 """
 from __future__ import annotations
 
+import argparse
 import json
 import math
 import time
@@ -46,6 +55,7 @@ from pathlib import Path
 import numpy as np
 
 OUT = Path("results/stress_positive_control_20261125")
+OUT_TRANSLATED = Path("results/stress_positive_control_20261121")
 GAPS = (1e-2, 1e-4, 1e-6)
 EXACT = Path("results/theory_composition_20261019/summary.json")
 
@@ -111,19 +121,15 @@ def exact_basin(B: float, ratio: float, x1: np.ndarray) -> np.ndarray:
     return (x1 > lo) & (x1 < hi)
 
 
-def main() -> None:
-    t0 = time.time()
-    OUT.mkdir(parents=True, exist_ok=True)
-    atoms = np.array([[-1.0, 0.0], [1.0, 0.0]])
+def control_rows(x0, center, ratios, codings=("logits", "blowup")):
+    atoms = np.array([[-1.0, 0.0], [1.0, 0.0]]) + center
     sep = 2.0
-    rng = np.random.default_rng(20261121)
-    x0 = rng.normal(size=(4096, 2))
     ends = np.log(1 / np.array(GAPS))
     rows = []
     B = 1.0
     wc = 1 / math.sinh(B) ** 2
     lp = np.array([[-B, B], [B, -B]])        # log priors on (atom -1, atom +1): log-odds +-2B
-    for coding, ratio in [(c, r) for c in ("logits", "blowup") for r in (0.9, 1.1, 2.0, 10.0)]:
+    for coding, ratio in [(c, r) for c in codings for r in ratios]:
         w = ratio * wc
         if coding == "logits":
             f = lambda x, s, w=w: oracle(x, s, atoms, lp, w)   # noqa: E731
@@ -137,7 +143,8 @@ def main() -> None:
                 end = P[j]
                 finite = np.isfinite(end).all(1)
                 near = np.linalg.norm(end[:, None, :] - atoms[None], axis=-1).min(1)
-                mid = np.linalg.norm(end, axis=1) < 0.05
+                offset = end - center
+                mid = np.linalg.norm(offset, axis=1) < 0.05
                 flagged = near > 0.01 * sep
                 rows.append({
                     "coding": coding, "B": B, "w_over_wc": ratio, "steps_per_segment": steps, "gap": gap,
@@ -150,15 +157,40 @@ def main() -> None:
                     "exact_basin_count": int(basin.sum()),
                     "disagree": int((mid != basin).sum()),
                     "flagged_vs_midpoint_disagree": int((flagged != mid).sum()),
-                    "max_abs_x1_at_midpoint": float(np.abs(end[mid, 0]).max()) if mid.any() else None,
-                    "max_abs_x2_at_midpoint": float(np.abs(end[mid, 1]).max()) if mid.any() else None,
+                    "max_abs_x1_at_midpoint": float(np.abs(offset[mid, 0]).max()) if mid.any() else None,
+                    "max_abs_x2_at_midpoint": float(np.abs(offset[mid, 1]).max()) if mid.any() else None,
                 })
                 print(rows[-1], flush=True)
+    return rows
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--translation", type=float, nargs=2, metavar=("DX", "DY"),
+                        help="compare centered and translated controls on 256 matched sources")
+    translation = parser.parse_args().translation
+    t0 = time.time()
+    (OUT if translation is None else OUT_TRANSLATED).mkdir(parents=True, exist_ok=True)
+    seed = 20261121
+    rng = np.random.default_rng(seed)
+    x0 = rng.normal(size=(4096 if translation is None else 256, 2))
+    origin = np.zeros(2)
+    if translation is None:
+        rows = control_rows(x0, origin, (0.9, 1.1, 2.0, 10.0))
+        output = OUT / "summary.json"
+    else:
+        rows = []
+        for center in (origin, np.array(translation)):
+            for row in control_rows(x0, center, (2.0, 10.0), codings=("logits",)):
+                rows.append({"center": center.tolist(), **row})
+        output = OUT_TRANSLATED / "translated.json"
     res = {"script": "scripts/stress_positive_control.py", "M": len(x0), "gaps": GAPS,
            "seconds": time.time() - t0, "rows": rows,
            "note": "fixed-step log-time RK4 as in novelty_interventions.py; numerical check, not a proof"}
-    (OUT / "summary.json").write_text(json.dumps(res, indent=2), encoding="utf-8")
-    print(f"wrote {OUT / 'summary.json'}")
+    if translation is not None:
+        res.update(seed=seed, translation=translation)
+    output.write_text(json.dumps(res, indent=2), encoding="utf-8")
+    print(f"wrote {output}")
 
 
 if __name__ == "__main__":

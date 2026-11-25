@@ -159,7 +159,7 @@ def main() -> None:
                                           (8, r"$x^j$", "#999999"))):
         ax = inch(xd, y0 + side - (i + 1) * ts - i * 0.10, ts, ts)
         ax.imshow(np.asarray(Image.open(TILES / f"tile-{tile:03d}.png").convert("RGB")),
-                  interpolation="lanczos")
+                  interpolation="nearest")
         ax.set_xticks([]); ax.set_yticks([]); ax.grid(False)
         for s in ax.spines.values():
             s.set_visible(True); s.set_color(col); s.set_linewidth(1.3 if i == 1 else 0.6)
@@ -178,9 +178,9 @@ def main() -> None:
         fig.add_artist(plt.Line2D([xa / W, xb / W], [y, y], color=color, lw=0.8))
         fig.text((xa + xb) / 2 / W, y + 0.012, text, ha="center", va="bottom", fontsize=7.5,
                  color=color)
-    header(x0 + 0.02, x0 + 2 * side + gap - 0.02, "one or two fields: almost every source ends on a training point",
+    header(x0 + 0.02, x0 + 2 * side + gap - 0.02, "Source locations, coloured by endpoint: training points",
            COLORS["atom"])
-    header(x0 + 2 * (side + gap) + 0.02, W - 0.03, "three or more fields: blends of training points", BLEND)
+    header(x0 + 2 * (side + gap) + 0.02, W - 0.03, "Composition can also reach blends", BLEND)
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(OUT, pad_inches=0.0)

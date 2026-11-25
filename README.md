@@ -2,7 +2,7 @@
 
 # Conditional Flows Copy Their Training Set<br>When Do They Stop, and What Stops Them?
 
-**A perfect conditional flow returns its training images. A real network avoids this only through its errors, and it decides late.**
+**An exact conditional flow returns its training images almost surely. A real network avoids this only through its errors, and it decides late.**
 
 **Khoi Tran** &middot; **Khang Tran** &middot; Research project, 2026
 
@@ -22,14 +22,14 @@
 - **Goal.** Say where a sampler ends on a finite training set, and what a trained network changes.
 - **Why it is hard.** The exact answer holds only for the optimal field. A small loss does not tell how large the error is along the sampler's path.
 - **Idea.** Paper A applies the usual tricks (label noise, guidance, composition) to the exact field. Paper B swaps the network and the exact field at one noise level, to see when the sampler picks its image and when it reaches it.
-- **Result.** At the optimum, one or two fields always end on a training image. Only three or more fields can blend two. In EDM models on CIFAR-10, the image is chosen early (at least **88%** of samples, by noise level 1) and reached late (the public model lands **4%** of samples from level 1, half from level 0.5).
+- **Result.** With strictly positive priors on the same finite training set, any fixed affine combination of two exact fields ends on a training image for almost every source. A three-field conjunction can give a blend positive probability. In EDM models on CIFAR-10, the image is chosen early (at least **88%** of samples, by noise level 1) and reached late (the public model lands **4%** of samples from level 1, half from level 0.5).
 - **Limit.** CIFAR-10 and a few small models. The theory does not predict the network error.
 
 <div align="center">
 <img src="docs/figures/readme-paperA-endpoints.png" width="100%" alt="Where each source ends on a triangle of training points, for label noise, guidance and a conjunction of three conditions, and a CIFAR-10 blend."/>
 </div>
 
-**Figure 2.** Paper A. Each pixel is a starting point, coloured by the image its exact trajectory ends on. With one field (a) or two (b), every source ends on a training point. With three conditions combined (c), 13% end at the centre and 41% at the edge midpoints, which are blends. (d) A blend of two CIFAR-10 images.
+**Figure 2.** Paper A. Each pixel is a starting point, coloured by its endpoint. With one field (a) or two (b), almost every source ends on a training point. With three fields combined (c), 13% end at the centre and 41% at the edge midpoints. Panel (d) shows a blend of two CIFAR-10 images.
 
 <div align="center">
 <img src="docs/figures/readme-paperB-choice-landing.png" width="100%" alt="One latent through the public EDM model and a 500-image model, and the share of samples that chose and landed at each swap level."/>
@@ -39,13 +39,13 @@
 
 ## Contributions
 
-1. **Exact field under the usual tricks** (A). One field, or any two, end on training points. A blend needs three or more fields.
+1. **Endpoints of exact field combinations** (A). On a common finite support with positive priors, positive field mixtures preserve atomic endpoints almost surely. A signed three-field conjunction can create an attracting midpoint.
 2. **A landing condition for learned fields** (B). A trajectory reaches a training image if the network error stays a fixed fraction below the distance to it.
 3. **A swap protocol** (B). It separates choosing (medium noise) from landing (low noise) on real EDM models.
 
 ## Method
 
-The exact (optimal) field for label `i` is
+The exact field for a hard label identifying one training image is
 
 ```
 v*(x, t, y^i) = (x^i - x) / (1 - t)          (*)
@@ -53,7 +53,7 @@ v*(x, t, y^i) = (x^i - x) / (1 - t)          (*)
 
 It sends every source to the training image `x^i`.
 
-- **Paper A.** Each trick changes this field: a mixture over labels, guidance `(1+w) v_cond - w v_uncond`, a time-varying weight, or a signed sum of three or more fields. For two images with confidence `B`, a blend appears exactly when `w > 1 / sinh^2(B)`.
+- **Paper A.** We study mixtures over labels, guidance `(1+w) v_cond - w v_uncond`, schedules and signed sums. In the symmetric two-atom conjunction with confidence `B`, the midpoint attracts positive mass exactly when `w > 1 / sinh^2(B)`.
 - **Paper B.** Let `n` be the distance to the nearest training image and `e` the network error. Landing depends on the ratio `e / n`. A swap at level `s` runs the network above `s` and the exact field below it (net to exact), or the reverse (exact to net). The first shows which image the network chose. The second shows whether it can land.
 
 ## Results
@@ -62,11 +62,11 @@ It sends every source to the training image `x^i`.
 |:---|:---:|:---|
 | Label noise | 1 | training images |
 | Label averaging, positive weights | many | training images |
-| Guidance, fixed or bounded-variation weight | 2 | training images |
+| Guidance, fixed or bounded nonnegative weight of bounded variation near the endpoint | 2 | training images |
 | Any mix of two fields (incl. negative prompt by substitution) | 2 | training images |
 | Conjunction of conditions | 3+, one subtracted | blends, with positive probability |
 
-**Table 1.** Paper A. "Training images" means for almost every source.
+**Table 1.** The fields use strictly positive priors on the same finite training set. Atomicity holds for every absolutely continuous source law. The conclusion concerns returning some training image. The choice of intervention can change an individual image's probability.
 
 | Swap level s | 5 | 2 | 1 | 0.5 | 0.2 |
 |:---|:---:|:---:|:---:|:---:|:---:|
@@ -77,12 +77,13 @@ It sends every source to the training image `x^i`.
 
 **Table 2.** Paper B, 500 latents. Sampling runs from large `s` (early) to small `s` (late).
 
-1. **The exact field copies.** Only three or more fields can leave the training set.
+1. **A blended endpoint.** For exact fields with positive priors on a common finite support, a blend of positive probability needs at least three fields in an affine combination.
 2. **Networks choose early.** At `s = 1`, 89.6% of public-model samples already end on the network's image.
 3. **Networks land late.** For the public model `e / n` is 0.93 at noise 0.14 and 0.997 at 0.023: the pull to the image is gone. For copying samples it is about 0.19.
 4. **A small loss is not enough.** On a test problem the error along the path is 127 times the loss error.
 
 `scripts/verify_paper_numbers.py` rechecks the printed numbers against `results/`.
+The [Paper A reproduction instructions](paper_theory/README.md#replay-the-cifar-10-midpoint-figure) rebuild the CIFAR-10 panel from archived per-source handoffs on a CPU.
 
 <div align="center">
 <img src="docs/figures/anim_collapse.gif" width="80%" alt="Three exact flows from the same sources: hard conditioning, label smoothing and endpoint smoothing."/>
