@@ -1659,8 +1659,8 @@ which is positive because $\pi_0>0$. The factor $(1-t)^{-d}$ is the same for eve
 
 \begin{lemma}[Well-posedness]
 \label{lem:wellposed}
-Let $w_1,\dots,w_N:\R^d\times[0,1)\to[0,1]$ be $C^\infty$ with $\sum_iw_i\equiv1$, let
-$v(x,t)=\sum_iw_i(x,t)(x^i-x)/(1-t)$ and $M=\max_i|x^i|$. Then (a) $v$ is $C^\infty$; (b) for
+Let $q_1,\dots,q_N:\R^d\times[0,1)\to[0,1]$ be $C^\infty$ with $\sum_iq_i\equiv1$, let
+$v(x,t)=\sum_iq_i(x,t)(x^i-x)/(1-t)$ and $M=\max_i|x^i|$. Then (a) $v$ is $C^\infty$; (b) for
 every $x_0$ the equation $\dot x_t=v(x_t,t)$ has a unique solution on $[0,1)$, with
 $|x_t|+M\le(|x_0|+M)/(1-t)$; and (c) for every probability measure $\mu_0$, the curve
 $\mu_t=(\Phi_t)_\#\mu_0$ pushed forward by the flow $\Phi_t$ is the unique narrowly continuous
@@ -1674,7 +1674,7 @@ $\R^d\times[0,1)$, so $v$ is $C^\infty$.
 \citep[Ch.~II]{hartman2002ode}; it remains to exclude blow-up before $t=1$. Since the weights are
 nonnegative and sum to one,
 \[
-|v(x,t)|\le\sum_iw_i(x,t)\,\frac{|x^i|+|x|}{1-t}\le\frac{M+|x|}{1-t}.
+|v(x,t)|\le\sum_iq_i(x,t)\,\frac{|x^i|+|x|}{1-t}\le\frac{M+|x|}{1-t}.
 \]
 Hence $g(t)=|x_t|+M$ satisfies
 \[
@@ -3357,7 +3357,7 @@ r:=X_t-tx^i=(1-t)X_0+t\rho\,\xi\sim\N(0,s_t^2I_d),\qquad p(x\mid I=i,t)=\varphi_
 \]
 Since $\widetilde Y$ is conditionally independent of $(X_0,\xi)$ given $I$, Bayes' rule as in the
 proof of Proposition~\ref{prop:kernel-field} gives
-$w_i:=\Pr(I=i\mid X_t=x,t,\widetilde Y=y)\propto\varphi_{s_t}(x-tx^i)\KK{i}$. The vector
+$q_i:=\Pr(I=i\mid X_t=x,t,\widetilde Y=y)\propto\varphi_{s_t}(x-tx^i)\KK{i}$. The vector
 $(X_0,\xi,r)$ is jointly Gaussian with $\Cov(X_0,r)=(1-t)I_d$ and $\Cov(\xi,r)=t\rho\,I_d$, so
 \[
 \E[X_0\mid r]=\frac{1-t}{s_t^2}\,r,\qquad \E[\xi\mid r]=\frac{t\rho}{s_t^2}\,r .
@@ -3365,8 +3365,8 @@ $(X_0,\xi,r)$ is jointly Gaussian with $\Cov(X_0,r)=(1-t)I_d$ and $\Cov(\xi,r)=t
 With $U=x^i+\rho\xi-X_0$ on $\{I=i\}$ and $r=x-tx^i$ on $\{X_t=x\}$, conditioning on $I$ and
 Proposition~\ref{prop:projection} give
 \begin{equation}
-\vstar(x,t,y)=\sum_iw_i\,\E[U\mid I=i,X_t=x,t]
-=\sum_iw_i\Big[x^i+\frac{t\rho^2-(1-t)}{s_t^2}\,(x-tx^i)\Big].
+\vstar(x,t,y)=\sum_iq_i\,\E[U\mid I=i,X_t=x,t]
+=\sum_iq_i\Big[x^i+\frac{t\rho^2-(1-t)}{s_t^2}\,(x-tx^i)\Big].
 \label{eq:tgtfield}
 \end{equation}
 The minimum of $s_t^2=(1-t)^2+t^2\rho^2$ over $t\in[0,1]$ is attained at $t=1/(1+\rho^2)$, so
