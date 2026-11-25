@@ -1979,7 +1979,7 @@ the sample standard deviation would be about $12\%$ larger.
 $1\times2$ matrix $A$ and $\eta\sim\N(0,0.1^2)$, and $N=200$ training pairs are drawn; the
 posterior is Gaussian and analytic. The velocity network is a 4-layer, width-128 MLP with SiLU
 activations and a 64-dimensional time embedding, trained with Adam (learning rate $10^{-3}$,
-batch $256$) for $2\times10^5$ iterations without early stopping; label smoothing adds
+batch $256$) for $2\times10^5$ iterations without early stopping; label noise adds
 $h\omega$ to the label at every step. Samples are generated with $100$ RK4 steps to
 $t=1-10^{-3}$, $M=1000$ per condition, at $20$ training and $8$ held-out conditions. The seed fixes
 both the problem instance and the training randomness. Before measurement, the analytic posterior
