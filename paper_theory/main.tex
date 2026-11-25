@@ -670,9 +670,9 @@ $U\sim\varphi$.
 \begin{restatable}[Label resolution reweights the atoms and never moves them]{proposition}{propfiltered}
 \label{prop:filtered}
 Let $h>0$, $\varphi$ a probability measure on $\R^k$ and
-$v_\varphi(x,t,y)=\int\vstar(x,t,y-u)\,\varphi(du)$. (a) $v_\varphi=\sum_i\tilde
-w_i(x,t,y)(x^i-x)/(1-t)$ with $\tilde w_i\ge0$, $\sum_i\tilde w_i=1$, and $\tilde
-w_i(x,0,y)=q_i(y):=\int p_i^{(h)}(y-u)\,\varphi(du)$. (b) Every trajectory converges to a
+$v_\varphi(x,t,y)=\int\vstar(x,t,y-u)\,\varphi(du)$. (a) $v_\varphi=\sum_i
+q^\varphi_i(x,t,y)(x^i-x)/(1-t)$ with $q^\varphi_i\ge0$, $\sum_iq^\varphi_i=1$, and
+$q^\varphi_i(x,0,y)=q_i(y):=\int p_i^{(h)}(y-u)\,\varphi(du)$. (b) Every trajectory converges to a
 point $z\in\operatorname{conv}\nn(z)$. For any absolutely continuous source, including
 $\pi_0$, the limit is a training atom almost surely. Thus the endpoint law is
 $\sum_i\tilde q_i(y)\delta_{x^i}$ for some probability weights $\tilde q(y)$.
@@ -2323,12 +2323,12 @@ Lemma~\ref{lem:volume} gives (b) and (c).
 (a) By Proposition~\ref{prop:kernel-field} and Fubini's theorem for the finite sum,
 \[
 \iclrstart v_\varphi(x,t,y)=\int\sum_iq^{(h)}_i(x,t,y-u)\,\frac{x^i-x}{1-t}\,\varphi(du)
-\iclrbrq=\sum_i\tilde w_i(x,t,y)\,\frac{x^i-x}{1-t},\iclrqbr
-\tilde w_i=\int q^{(h)}_i(x,t,y-u)\,\varphi(du),\iclrend
+\iclrbrq=\sum_iq^\varphi_i(x,t,y)\,\frac{x^i-x}{1-t},\iclrqbr
+q^\varphi_i=\int q^{(h)}_i(x,t,y-u)\,\varphi(du),\iclrend
 \]
-and $\tilde w_i\ge0$, $\sum_i\tilde w_i=1$, because the same holds for $q^{(h)}_i$. At $t=0$ every
+and $q^\varphi_i\ge0$, $\sum_iq^\varphi_i=1$, because the same holds for $q^{(h)}_i$. At $t=0$ every
 spatial factor equals $\pi_0(x)$ and cancels, so $q^{(h)}_i(x,0,y')=p_i^{(h)}(y')$ and
-$\tilde w_i(x,0,y)=\int p_i^{(h)}(y-u)\,\varphi(du)=q_i(y)$.
+$q^\varphi_i(x,0,y)=\int p_i^{(h)}(y-u)\,\varphi(du)=q_i(y)$.
 
 (b) Merge atoms at a common location by adding their weights; this changes neither the field nor
 the positivity of the priors. By Lemma~\ref{lem:mixture-coupling},
