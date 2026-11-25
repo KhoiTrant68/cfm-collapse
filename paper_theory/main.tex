@@ -533,7 +533,7 @@ Lemma~\ref{lem:mixture-coupling} identifies $\vstar$ with the conditional veloci
 coupling $I\sim p^{(h)}(y)$, $X_1=a_I$; its marginals solve the flow's continuity equation and
 tend to $\law(a_I)$.}
 
-\begin{restatable}[{Endpoint law under label smoothing; cf.\ \citealp[Theorem~5.3]{wan2025elucidating}}]{theorem}{thmendpoint}
+\begin{restatable}[{Endpoint law under label noise; cf.\ \citealp[Theorem~5.3]{wan2025elucidating}}]{theorem}{thmendpoint}
 \label{thm:endpoint}
 For every $h>0$ and query $y$,
 \begin{equation}
@@ -553,7 +553,7 @@ $\Covh(y)=\sum_ip_i^{(h)}(y)(a_i-\bar x_h(y))(a_i-\bar x_h(y))^\top$ of \eqref{e
 computable from the training set and are the reference for generated moments. Matching them
 does not recover a posterior.
 
-\begin{restatable}[Label smoothing never leaves the training set]{proposition}{propatomicity}
+\begin{restatable}[Label noise never leaves the training set]{proposition}{propatomicity}
 \label{prop:atomicity}
 For every $h>0$, and for $h=0$ at $y=y^i$, $\operatorname{supp}(p_1^{(h)}(\cdot\mid y))
 \subseteq\{a_1,\dots,a_N\}$. Consequently, if the true posterior $p(\cdot\mid y)$ puts no
@@ -566,7 +566,7 @@ W_2^2\big(p_1^{(h)}(\cdot\mid y),\,p(\cdot\mid y)\big)\ \ge\
 and this lower bound does not depend on $h$. Both sides are finite exactly when
 $p(\cdot\mid y)$ has a finite second moment. \proofin{apx:pf-atomicity}
 \end{restatable}
-Label smoothing redistributes weight over the atoms and never ends off them, so
+Label noise redistributes weight over the atoms and never ends off them, so
 matching $\tr\Covh$ to a posterior variance matches a second moment, not the posterior.\ificlr\else{}
 The floor in~\eqref{eq:w2floor} is a statement about the support: it is the mean squared distance
 from the posterior to the nearest training point, which for training points drawn from a law with a
@@ -1811,7 +1811,7 @@ Proposition~\ref{prop:projection} gives the positive minimal loss
 $\E[\Var(U\mid X_t,t)]$.
 \end{proof}
 
-\subsection{Label smoothing}
+\subsection{Label noise}
 \label{apx:pf-kernel}
 
 \phantomsection\label{apx:pf-kernel-field}
