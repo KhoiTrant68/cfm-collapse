@@ -159,7 +159,7 @@ fields and one unconditional field (Appendix~\ref{app:cifar-composition}).}
 Flow matching and stochastic-interpolant models
 \citep{lipman2023flow,albergo2023building,liu2023rectified,albergo2023stochastic}
 regress a velocity field on a path from noise to data. For the empirical law of a fixed training
-set, the population minimiser is explicit and its flow returns training examples almost surely
+set, the exact field is explicit and its flow returns training examples almost surely
 \citep{gu2023memorization,biroli2023diffusion,gao2024flow,bertrand2025closed}. This exact field
 specifies what a trained network approximates. Several interventions change it. Training can
 add noise to the labels~\citep{ho2022cascaded}, and samplers can noise them at
@@ -177,7 +177,7 @@ the exact field off the training set. Replication by deployed models has been do
 noise, guidance schedules or negative prompts against copying needs to know whether the knob
 changes what the model is asked to produce, or whether any reduction comes only from the error of
 the learned field and may disappear with a closer fit. An auditor needs to know which sampler
-settings can return a training record at the exact optimum, and which record. An intervention can
+settings can return a training record under the exact field, and which record. An intervention can
 reduce the probability of returning a particular training record even if the sampler still returns
 some training record with probability one. When every combined field has a strictly positive prior
 on the same finite support, as under any label noise $h>0$, the answer depends on how many exact
@@ -294,16 +294,16 @@ Under hard conditioning at an identifying label the stated endpoint holds for ev
 \end{table}
 
 \paragraph{What this means in practice.} Every statement in this paragraph concerns the exact
-optimum. Our trained networks are not at it: at image scale their samples do not follow the
+field. Our trained networks do not reach it: at image scale their samples do not follow the
 label-noise reference, and a sizeable fraction ends off the training images
 (Section~\ref{sec:intervention-tests}). The statements say what the objective asks for, not what a
-given trained model does. \emph{(i) At the exact optimum these knobs carry no guarantee against
+given trained model does. \emph{(i) Under the exact field these knobs carry no guarantee against
 replication.} With label noise ($h>0$), label averaging, negative guidance and bounded nonnegative
 guidance schedules of bounded variation only reweight training examples: with a Gaussian source
 they return some training example with probability one, although the probability of returning a
 particular record can decrease. Which event an audit counts therefore matters. In trained networks the
 same knobs can still reduce copying~\citep{somepalli2023copying}. Such a reduction cannot come from
-the knob at the exact optimum, only from the error of the learned field. That it may shrink as the
+the knob under the exact field, only from the error of the learned field. That it may shrink as the
 fit improves is a hypothesis the exact field suggests; we do not test it. Changing the support of the exact law needs a mechanism such as endpoint noise
 (Proposition~\ref{prop:tgtnoise}). Its endpoint law is a Gaussian kernel density estimate around
 the weighted training examples, so sampling from it is a smoothed bootstrap. A support change does
@@ -317,7 +317,7 @@ record and its probability $p_i^{(h)}(y)$ are computable from the training label
 $h$ and the query. If several records share the same image, its return probability is the sum of
 their weights, and observing the image identifies only the shared location. An auditor with this
 knowledge, typically the model owner, can therefore rank,
-for any label, the records an exact-optimum model returns. Under guidance the support is the same
+for any label, the records the exact field returns. Under guidance the support is the same
 but the weights have no closed form, so no such ranking follows. Neither ranking transfers to our
 trained image networks, which do not follow the reference. \emph{(iii) Composition marks the
 boundary of these results.} Among the operations studied here with strictly positive priors, only
@@ -385,7 +385,7 @@ general~\citep{chidambaram2024guidance,wu2024theoretical}. With exact denoisers 
 \citep{bradley2024cfg}, it can be applied with a bad version of the model as the unconditional
 term~\citep{karras2024autoguidance}, and \citet{jain2025attraction} and \citet{kim2025how} link it
 to memorisation in trained models. \citet{chen2024memorizationfree} use a guidance term to steer
-trained samplers away from memorised images; at the exact optimum, guidance that combines two
+trained samplers away from memorised images; for the exact field, guidance that combines two
 exact fields falls under Corollary~\ref{cor:twofields}.
 
 \paragraph{Convergence of the flow.} \citet[Theorem~3.7, version~3]{liu2025pde} prove that almost
@@ -429,7 +429,7 @@ analysis of that question.
 images \citep{carlini2023extracting,somepalli2023diffusion}, and membership can be inferred from
 their losses or trajectories \citep{duan2023are,matsumoto2023membership}, also for flow
 matching \citep{sesmat2026leaks}. Formal protection comes from private training
-\citep{dockhorn2023differentially}. Our results concern the exact optimum, not a trained model:
+\citep{dockhorn2023differentially}. Our results concern the exact field, not a trained model:
 they say which sampler settings can return a training record there. They are not an attack or a
 defence.
 
@@ -480,8 +480,8 @@ conditioning it sends every source to one training example; under label noise it
 training examples with weights computable from the labels (Theorem~\ref{thm:endpoint}). These two
 facts are the reference against which Section~\ref{sec:intervention-atomicity} measures every
 intervention, and the variance of the label-noise law is the reference against which
-Section~\ref{sec:intervention-tests} measures trained networks. Everything concerns the population
-minimiser of \eqref{eq:objective} under Assumption~\ref{as:standing}; proofs are in
+Section~\ref{sec:intervention-tests} measures trained networks. Everything concerns the exact
+field, the minimiser of \eqref{eq:objective} under Assumption~\ref{as:standing}; proofs are in
 Appendix~\ref{app:proofs}. The first statement is the standard $L^2$ decomposition behind
 flow-matching objectives \citep{lipman2023flow,albergo2023building,liu2023rectified}.
 
@@ -517,7 +517,7 @@ variance, $0$ against $\tr\Xhat$.
 Blurring the label, $\widetilde Y=y^i+h\omega$, turns the minimiser into the velocity of a
 Nadaraya--Watson regression over the atoms~\citep{nadaraya1964estimating,watson1964smooth}.
 
-\begin{restatable}[Kernel-weighted population minimiser]{proposition}{propkernelfield}
+\begin{restatable}[Kernel-weighted exact field]{proposition}{propkernelfield}
 \label{prop:kernel-field}
 For $h>0$, $t<1$,
 \begin{equation}
@@ -1479,9 +1479,9 @@ basin, and a positive eigenvalue gives a null profile basin. When all profiles a
 the proper-face condition holds, these alternatives determine whether the candidate has positive
 Gaussian endpoint mass.
 
-For practice, none of these knobs guarantees at the exact optimum that training data are not
+For practice, none of these knobs guarantees under the exact field that training data are not
 returned, and among them only the composition of conditions can return blends there. These are
-statements about the exact optimum. Our trained image networks are not at it, and their off-atom
+statements about the exact field. Our trained image networks do not reach it, and their off-atom
 samples are not explained by the theory. The exact two-atom mean varies across a layer of width
 $O(\eps^2)$ at the tie. Standard velocity networks did not resolve it in our runs, while networks
 given a coordinate at that scale can do so at a tie whose location is supplied. Whether trained
@@ -1496,15 +1496,15 @@ learned composition beyond $d\le2$, in particular for text-conditioned image sam
 
 \subsection*{Broader impact statement}
 This work studies when conditional flow-matching samplers return training examples. The
-consequence for sensitive data is negative: at the exact optimum and with label noise, label
+consequence for sensitive data is negative: under the exact field and with label noise, label
 averaging, negative guidance and bounded nonnegative guidance schedules of bounded variation give
 no guarantee against replication, because
 they only reweight the training examples, and the blends reached by composing conditions are
 combinations of training records. Under label noise the returned record is computable from the
 query, the bandwidth and the training labels. This helps an auditor who holds them, typically the
 model owner, and equally an adversary who does; we have not shown that it holds for trained image
-models, which do not follow the reference in our experiments. The results also have a dual use. At
-the exact optimum, stronger guidance concentrates the endpoint law on fewer records, consistent
+models, which do not follow the reference in our experiments. The results also have a dual use. Under
+the exact field, stronger guidance concentrates the endpoint law on fewer records, consistent
 with reports that guidance raises memorisation in trained models~\citep{jain2025attraction,kim2025how},
 so it may amplify extraction. The composition thresholds indicate which pairs of conditions
 blend which pairs of records. Moving the support requires a change such as endpoint noise, which
