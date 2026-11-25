@@ -557,11 +557,11 @@ small scaled error there.
 \begin{restatable}[Local transfer at positive bandwidth]{proposition}{proplocaltransfer}
 \label{prop:localtransfer}
 Let $h>0$, fix $y$, write $v^\star=\vstar(\cdot,\cdot,y)$, and let $a=x^i$ be an atom with
-$\ell =\min_{j\ne i}|x^j-a|$ and $\rho\in(0,\ell /2)$. There is $t_\star<1$, depending only on the
-atoms, $p^{(h)}(y)$ and $\rho$, with the following property. Let $v^\star+\Delta$ be locally
+$\ell =\min_{j\ne i}|x^j-a|$ and $r\in(0,\ell /2)$. There is $t_\star<1$, depending only on the
+atoms, $p^{(h)}(y)$ and $r$, with the following property. Let $v^\star+\Delta$ be locally
 Lipschitz on $\R^d\times[0,1)$, let $t_0\in[t_\star,1)$, and let $Z$ be the maximal solution of
-$\dot Z=v^\star(Z,t)+\Delta(Z,t)$ from a point $Z_{t_0}$. If $|Z_{t_0}-a|<\rho/4$ and
-$(1-t)|\Delta(x,t)|\le\rho/4$ whenever $|x-a|\le\rho$ and $t_0\le t<1$, then $|Z_t-a|<\rho$ for
+$\dot Z=v^\star(Z,t)+\Delta(Z,t)$ from a point $Z_{t_0}$. If $|Z_{t_0}-a|<r/4$ and
+$(1-t)|\Delta(x,t)|\le r/4$ whenever $|x-a|\le r$ and $t_0\le t<1$, then $|Z_t-a|<r$ for
 all $t\in[t_0,1)$ and $\limsup_{t\uparrow1}|Z_t-a|\le\limsup_{t\uparrow1}(1-t)|\Delta(Z_t,t)|$.
 \proofin{apx:pf-localtransfer}
 \end{restatable}
@@ -1259,37 +1259,37 @@ Let $p=p^{(h)}(y)$, a probability vector with all entries positive. By
 Proposition~\ref{prop:kernel-field}, $v^\star=(m^\star-x)/(1-t)$ with $m^\star=\sum_jw_j^{(h)}x^j$ and
 $w_j^{(h)}\propto p_j\,\pi_0\big(\tfrac{x-tx^j}{1-t}\big)\propto p_j\exp\big(-|x-tx^j|^2/(2(1-t)^2)\big)$.
 
-We first compare the exact field with the hard field near $a$. For $|x-a|\le\rho$ and $j\ne i$,
-$|x-x^j|\ge|x^j-a|-|x-a|\ge \ell -\rho>0$, so
+We first compare the exact field with the hard field near $a$. For $|x-a|\le r$ and $j\ne i$,
+$|x-x^j|\ge|x^j-a|-|x-a|\ge \ell -r>0$, so
 \[
-|x-x^j|^2-|x-a|^2\ge(\ell -\rho)^2-\rho^2=\ell (\ell -2\rho)>0 .
+|x-x^j|^2-|x-a|^2\ge(\ell -r)^2-r^2=\ell (\ell -2r)>0 .
 \]
-By uniform continuity of $(x,t)\mapsto|x-tx^j|^2-|x-ta|^2$ on $\overline{B_\rho(a)}\times[0,1]$,
+By uniform continuity of $(x,t)\mapsto|x-tx^j|^2-|x-ta|^2$ on $\overline{B_r(a)}\times[0,1]$,
 whose value at $t=1$ is the left side above, there is $t_1<1$ such that this difference is at least
-$g=\ell (\ell -2\rho)/2$ for all $j\ne i$, $|x-a|\le\rho$ and $t\in[t_1,1]$. Since
+$g=\ell (\ell -2r)/2$ for all $j\ne i$, $|x-a|\le r$ and $t\in[t_1,1]$. Since
 $w_j^{(h)}/w_i^{(h)}=(p_j/p_i)\exp\big(-(|x-tx^j|^2-|x-ta|^2)/(2(1-t)^2)\big)\le(p_j/p_i)\,e^{-g/(2(1-t)^2)}$,
 for such $(x,t)$
 \[
 |m^\star(x,t)-a|=\Bigl|\sum_{j\ne i}w_j^{(h)}(x^j-a)\Bigr|\le\sum_{j\ne i}\frac{w_j^{(h)}}{w_i^{(h)}}|x^j-a|
 \le C_pe^{-g/(2(1-t)^2)}=:e_\star(t),\qquad C_p=\sum_{j\ne i}\frac{p_j}{p_i}|x^j-a|.
 \]
-Choose $t_\star\ge t_1$ with $e_\star\le\rho/4$ on $[t_\star,1)$; it depends only on the atoms, $p$
-and $\rho$.
+Choose $t_\star\ge t_1$ with $e_\star\le r/4$ on $[t_\star,1)$; it depends only on the atoms, $p$
+and $r$.
 
 Write $\dot Z=(a-Z)/(1-t)+\tilde\Delta$ with
 $\tilde\Delta=(m^\star(Z,t)-a)/(1-t)+\Delta(Z,t)$, and let $[t_0,T_{\max})$ be the maximal interval of
-existence. While $Z$ stays in $\overline{B_\rho(a)}$, the two bounds give
-$(1-s)|\tilde\Delta(Z_s,s)|\le e_\star(s)+\rho/4\le\rho/2$, so \eqref{eq:pf:transfer-t0} with
+existence. While $Z$ stays in $\overline{B_r(a)}$, the two bounds give
+$(1-s)|\tilde\Delta(Z_s,s)|\le e_\star(s)+r/4\le r/2$, so \eqref{eq:pf:transfer-t0} with
 $\tilde\Delta$ in place of $\Delta$ yields
 \begin{align*}
 |Z_t-a|
 &\le\frac{1-t}{1-t_0}\,|Z_{t_0}-a|+(1-t)\int_{t_0}^t\frac{(1-s)|\tilde\Delta(Z_s,s)|}{(1-s)^2}\,ds\\
-&<\frac\rho4+\frac\rho2\,(1-t)\Bigl(\frac1{1-t}-\frac1{1-t_0}\Bigr)\ \le\ \frac{3\rho}4 .
+&<\frac r4+\frac r2\,(1-t)\Bigl(\frac1{1-t}-\frac1{1-t_0}\Bigr)\ \le\ \frac{3r}4 .
 \end{align*}
-At a first exit time from $\overline{B_\rho(a)}$ we would have $|Z-a|=\rho$, contradicting this
+At a first exit time from $\overline{B_r(a)}$ we would have $|Z-a|=r$, contradicting this
 bound up to that time; so $Z$ stays in the ball. If $T_{\max}<1$, the solution would remain in the
-compact subset $\overline{B_\rho(a)}\times[t_0,T_{\max}]$ of $\R^d\times[0,1)$, which a maximal
-solution of a locally Lipschitz equation cannot do; so $T_{\max}=1$ and $|Z_t-a|<\rho$ on
+compact subset $\overline{B_r(a)}\times[t_0,T_{\max}]$ of $\R^d\times[0,1)$, which a maximal
+solution of a locally Lipschitz equation cannot do; so $T_{\max}=1$ and $|Z_t-a|<r$ on
 $[t_0,1)$.
 
 Finally, Lemma~\ref{thm:transfer} applied from $t_0$ with $\tilde\Delta$ gives
