@@ -21,11 +21,32 @@ ssh lab09 'cd /mnt/data/khoitm8/cfm-collapse && bash scripts/build_papers.sh pap
 Figures are drawn on lab09 with `PYTHONPATH=.:scripts python scripts/<script>.py`; the style is
 `scripts/figstyle.py` (fonts from `scripts/make_tt_fonts.py`).
 
+## Replay the CIFAR-10 midpoint figure
+
+From the repository root or an extracted copy of `submit/supp_A.zip`, run these CPU
+commands with NumPy, SciPy, Matplotlib and Pillow installed.
+
+```bash
+python -m scripts.replay_cifar_composition
+python scripts/audit_cifar_handoffs.py --compare-replays results/cifar_composition_replay --sources-csv audit_sources.csv > audit.json
+python scripts/make_theory_cifar_composition_figure.py
+```
+
+The first command recomputes endpoint labels for eight selected pairs, twelve random
+pairs and four sensitivity settings from the archived 2,000-image handoffs. It retains
+decisions made before handoff. The second compares each label, including which atom
+was reached, against independent backward integrations bracketing the basin boundary.
+The dated input directories retain the original classification. Corrected per-source
+labels, counts and summary tables are in `results/cifar_composition_replay/`.
+The figure script reads the corrected selected-pair fractions and the native RGB training
+images for all eight pairs. It outputs `paper_theory/figures/fig_cifar_composition.pdf` and
+`paper_theory/figures/fig_cifar_curve.json`.
+
 ## Story
 
-The number of fields decides. Label noise, label averaging and every combination of two exact
-fields with strictly positive priors end on the training examples almost surely; three fields can
-blend them. The conjunction of
+With strictly positive priors on a shared finite support, label noise, label averaging and every
+fixed affine combination of two exact fields end on training examples almost surely for any
+absolutely continuous source. Three fields can give a blend positive probability. The conjunction of
 compositional generation (Liu et al., ECCV 2022) is such a combination, and at a tie of two
 examples a blend needs a subtracted field whose log-odds lie strictly between those of the fields added.
 
@@ -48,14 +69,15 @@ examples a blend needs a subtracted field whose log-odds lie strictly between th
   (+, -, +). The conjunction threshold is recovered.
 - Section 5: Proposition `prop:regular`, which says what a learned field needs to reach a blend.
 - Section 6: the exact-field checks, plus two new runs.
-  - **Positive control** for the stress test: 0 of 4096 sources disagree with the exact basin, at
-    every gap and step count.
+  - **Positive control** for the stress test. The centred example agrees with the exact basin
+    on the original grid. Translating the centre to (0.25, 0) preserves the analytic basin and
+    exposes missed midpoint endpoints with the same fixed-step RK4 scheme.
   - **Signed combinations**: a random test (3841 combinations, 0 violations), a phase diagram
     (`fig_signed_combinations.pdf`), and exact basins. The equal conjunction gives 0.406, the
     unequal one 0.742, a negative prompt against the other example 0 (both forms), and a milder
     negative prompt 0.316.
-- The composition numerics, the CIFAR-10 pairs, learned composition, and the label-averaging pilot
-  are unchanged.
+- The CIFAR-10 comparison reports corrected two-image continuations from the archived
+  handoffs. The label-averaging pilot compares trained networks on one synthetic problem.
 - Appendices: all proofs for the above, endpoint noise, and the numerical protocols.
 
 ## New scripts and results (all read only from `results/`; nothing retrains)
@@ -102,9 +124,11 @@ Details, sources and rejected proposals: `docs/review/changes_paperA_2026-11-21.
   equilibrium that need not be an atom. The abstract, the contributions, the Technique paragraph,
   the related work, the hard-label rate remark and `apx:comparison` with `tab:comparison` now say so, and
   credit Wan et al. (ICML 2025, Thm. 5.3), Azangulov et al. (AISTATS 2026, Thm. 3) and Cao et al.
-  (arXiv 2605.07220). What remains new: the null exceptional set for the deterministic flow
-  (mixtures over any family of positive priors, guidance and two-field combinations, schedules of
-  bounded variation), convergence for more than two fields, and everything with three fields.
+  (arXiv 2605.07220). The updated appendix derives almost-everywhere atomicity at fixed
+  nonnegative guidance by combining Liu and Zuazua with Jiang and Ma's cutoff density
+  formula (arXiv 2607.19725v2, Theorem 4.2). The direct trajectory argument also handles
+  arbitrary probability mixtures and bounded nonnegative schedules of bounded variation
+  near the endpoint. The signed three-field analysis identifies attracting ties.
 - **Edge midpoints of the triangle.** They are two-atom ties that attract for w > 1.368 w_c. The
   exact conjunction ends 0.131 / 0.409 / 0.460 of the mass at the centre / edge midpoints / atoms
   at 2 w_c (32768 sources). The centre fractions reported before are unchanged; the claims that
@@ -121,8 +145,8 @@ Details, sources and rejected proposals: `docs/review/changes_paperA_2026-11-21.
 
 ## Status (2026-11-24)
 
-- `submit/build.py` builds it in 57 pages with no undefined references or citations and no overfull
-  boxes (53 pages with tectonic on lab09 on 2026-11-21, before the round-3 additions).
+- Run `python submit/build.py A_tmlr supp_A` from the repository root to rebuild the anonymous
+  PDF and its code and data supplement.
 - Round 3 (2026-11-23): statement fixes (two-field corollary needs strictly positive priors, "intermediate"
   instead of "less decided", the generic remark), Sontag cited for Caratheodory flows, the
   Guillemin and Pollack citation checked, citations of Wan, Baptista and Benton corrected. Reports and a
@@ -139,5 +163,4 @@ Details, sources and rejected proposals: `docs/review/changes_paperA_2026-11-21.
   final and the TODO next to it removed.
 - (Done in fix-A) The count "at most 3 of 2048 sources within 0.05 of an edge midpoint" (Section 6)
   is now written by `scripts/theory_basin_map.py --learned-edges`.
-- (Done in round 3) The comparison with Liu and Zuazua v2, Azangulov et al. and Cao et al. was checked
-  against the papers. One item is open: Remark 3.19 of Liu and Zuazua v1 was not checked (no v1 PDF).
+- The fixed-guidance comparison in the current manuscript uses Liu and Zuazua v2, Theorem 2.5.

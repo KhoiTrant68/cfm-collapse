@@ -11,7 +11,9 @@ Exits non-zero if any check fails, so it can be run before a submission build.
 
     uv run python scripts/verify_paper_numbers.py
 """
+import csv
 import glob
+import gzip
 import json
 import pathlib
 
@@ -976,9 +978,7 @@ check("EXP-C h=0 networks off-atom", 0.0, _pm(_c0[2].split("\\|")[0])[0] + _pm(_
 print("\nAppendix app:cifar-composition: exact guided label averaging on CIFAR-10 pairs")
 _cc = json.loads(pathlib.Path("results/cifar_composition_exact_20261105/summary.json").read_text())
 _P = _cc["pairs"]
-_mid = lambda r: [p["mid"][r] for p in _P]
 check("CIFAR comp: eight pairs", 8, len(_P), 0)
-check("CIFAR comp: no unresolved source", 0.0, max(p["unresolved"] for p in _P), 0)
 check("CIFAR comp: w_c", 0.724, _P[0]["w_c"], 1e-3)
 check("CIFAR comp: min margin >= 5.2", 1.0, float(min(p["margin_sq"] for p in _P) >= 5.2), 0)
 _fc = json.loads(pathlib.Path("paper_theory/figures/fig_cifar_composition.json").read_text(encoding="utf-8"))
@@ -988,85 +988,84 @@ check("CIFAR comp: min distance / median NN", 0.54, round(min(_rel), 2), 1e-9)
 check("CIFAR comp: max distance / median NN", 0.90, round(max(_rel), 2), 1e-9)
 check("CIFAR comp: figure pairs = summary pairs", 1.0,
       float(sorted(map(tuple, (p["pair"] for p in _fc["pairs"]))) == sorted(tuple(p["pair"]) for p in _P)), 0)
+_distances = {tuple(q["pair"]): q["dist"] for q in _fc["pairs"]}
 check("CIFAR comp: 2r equals figure distance", 0.0,
-      max(abs(2 * p["r"] - q["dist"]) for p, q in zip(_P, _fc["pairs"])), 1e-4)
-for _r in ("0.0", "0.5", "0.9"):
-    check(f"CIFAR comp: no midpoint at w/w_c={_r}", 0.0, max(_mid(_r)), 0)
-check("CIFAR comp: every pair positive at 1.1", 1.0, float(min(_mid("1.1")) > 0), 0)
-check("CIFAR comp 1.1 min", 0.006, min(_mid("1.1")), 5e-4)
-check("CIFAR comp 1.1 max", 0.043, max(_mid("1.1")), 5e-4)
-for _r, _m in (("1.1", 0.025), ("2.0", 0.186), ("5.0", 0.150), ("10.0", 0.042)):
-    check(f"CIFAR comp mean at {_r}", _m, sum(_mid(_r)) / 8, 5e-4)
-check("CIFAR comp 2 min", 0.027, min(_mid("2.0")), 5e-4)
-check("CIFAR comp 2 max (0.291, main text 0.29)", 0.291, max(_mid("2.0")), 5e-4)
-check("CIFAR comp basin w=0 min", 0.06, min(p["basin"]["0.0"] for p in _P), 5e-3)
-check("CIFAR comp basin w=0 max", 0.96, max(p["basin"]["0.0"] for p in _P), 5e-3)
-check("CIFAR comp basin w=10 min", 0.58, min(p["basin"]["10.0"] for p in _P), 5e-3)
-_S = _cc["sensitivity"]
-check("CIFAR comp sensitivity: fractions within 0.03", 1.0,
-      float(max(abs(v["midpoint"] - v["main_midpoint"]) for o in _S.values() for v in o.values()) <= 0.03), 0)
-check("CIFAR comp sensitivity: agree >= 0.91 up to 2", 1.0,
-      float(min(v["agree"] for o in _S.values() for k, v in o.items() if float(k) <= 2) >= 0.91), 0)
-check("CIFAR comp sensitivity: about half at 5", 0.5, min(o["5.0"]["agree"] for o in _S.values()), 0.05)
-
-# Random pairs and large-w sensitivity (R4, R9 of panel 2026-11-07).
+      max(abs(2 * p["r"] - _distances[tuple(p["pair"])])
+          for p in _P), 1e-4)
 _cr = json.loads(pathlib.Path("results/cifar_composition_random_20261108/summary.json").read_text())
-_rp = _cr["random"]
-_rm = lambda r: [p["mid"][r] for p in _rp]
 check("CIFAR random: 81 mutual pairs", 81, _cr["n_mutual_pairs"], 0)
-check("CIFAR random: min margin all pairs (1 d.p.)", 3.2, round(_cr["min_margin_sq_all"], 1), 1e-9)
-check("CIFAR random: twelve pairs", 12, len(_rp), 0)
-check("CIFAR random: disjoint from main pairs", 1.0, float(not ({tuple(p["pair"]) for p in _rp} & {tuple(p["pair"]) for p in _P})), 0)
-check("CIFAR random: none at 0.9", 0.0, max(_rm("0.9")), 0)
-check("CIFAR random: ten positive at 1.1", 10, sum(x > 0 for x in _rm("1.1")), 0)
-check("CIFAR random 1.1 min positive", 0.002, round(min(x for x in _rm("1.1") if x > 0), 3), 1e-9)
-check("CIFAR random 1.1 max", 0.014, round(max(_rm("1.1")), 3), 1e-9)
-check("CIFAR random: all positive at 2", 1.0, float(min(_rm("2.0")) > 0), 0)
-check("CIFAR random 2 min", 0.006, round(min(_rm("2.0")), 3), 1e-9)
-check("CIFAR random 2 max", 0.088, round(max(_rm("2.0")), 3), 1e-9)
-check("CIFAR random 2 mean", 0.042, round(sum(_rm("2.0")) / 12, 3), 1e-9)
-check("CIFAR random 5 mean", 0.038, round(sum(_rm("5.0")) / 12, 3), 1e-9)
-check("CIFAR random: at most one unresolved source", 1.0, float(max(p["unresolved"] for p in _rp) <= 1 / 512 + 1e-12), 0)
-_SL = [v for o in _cr["sensitivity"].values() for k in ("5.0", "10.0") for v in o[k].values()]
-check("CIFAR large-w: 2 settings x 2 ratios x 8 pairs", 32, len(_SL), 0)
-check("CIFAR large-w agree min (%)", 41, round(100 * min(v["agree"] for v in _SL)), 0)
-check("CIFAR large-w agree max (%)", 92, round(100 * max(v["agree"] for v in _SL)), 0)
-check("CIFAR large-w coarse min (%)", 66, round(100 * min(v["agree_coarse"] for v in _SL)), 0)
-check("CIFAR large-w coarse max (%)", 98, round(100 * max(v["agree_coarse"] for v in _SL)), 0)
-for _k, _m in (("5.0", 0.064), ("10.0", 0.029)):
-    check(f"CIFAR large-w max change at {_k}", _m, round(max(abs(v["midpoint"] - v["main_midpoint"])
-          for o in _cr["sensitivity"].values() for v in o[_k].values()), 3), 1e-9)
-_means = lambda k: [sum(v["midpoint"] for v in o[k].values()) / 8 for o in _cr["sensitivity"].values()] + [sum(_mid(k)) / 8]
-check("CIFAR large-w mean at 5 min", 0.139, round(min(_means("5.0")), 3), 1e-9)
-check("CIFAR large-w mean at 5 max", 0.150, round(max(_means("5.0")), 3), 1e-9)
-check("CIFAR large-w mean at 10 min", 0.040, round(min(_means("10.0")), 3), 1e-9)
-check("CIFAR large-w mean at 10 max", 0.042, round(max(_means("10.0")), 3), 1e-9)
-for s in (r"only $41\%$ to $92\%$", r"$66\%$ to $98\%$", r"at most $0.064$ at $5w_c$ and $0.029$",
-          r"$0.139$ to $0.150$", r"$0.040$ to $0.042$", r"seed $20261108$", r"at least $3.2$",
-          r"($0.002$ to $0.014$)", r"($0.006$ to $0.088$, mean $0.042$)", r"the mean is $0.038$"):
-    in_tex(s)
-# All eight pairs under both settings (App. E.3).
-_SP = _cc["sensitivity_pairs"]
-_pairs_sp = {k for o in _SP.values() for k in o}
-check("CIFAR comp sensitivity: all eight pairs, both settings", 16,
-      sum(len(o) for o in _SP.values()), 0)
-_allsets = lambda key, r: [_cc_pair[r] for _cc_pair in [  # noqa: E731
-    {str(k): v for k, v in p["mid"].items()} for p in _cc["pairs"] if f"{p['pair'][0]}/{p['pair'][1]}" == key]] + \
-    [_SP[n][key][r]["midpoint"] for n in _SP]
-check("CIFAR comp sensitivity: none at 0.9 in any setting", 0.0,
-      max(max(_allsets(k, "0.9")) for k in _pairs_sp), 0)
-check("CIFAR comp sensitivity: min at 1.1 over settings (0.006)", 0.006,
-      min(min(_allsets(k, "1.1")) for k in _pairs_sp), 5e-4)
-check("CIFAR comp sensitivity: max at 1.1 over settings (0.047)", 0.047,
-      max(max(_allsets(k, "1.1")) for k in _pairs_sp), 5e-4)
-check("CIFAR comp sensitivity: spread at 1.1 (0.006)", 0.006,
-      max(max(_allsets(k, "1.1")) - min(_allsets(k, "1.1")) for k in _pairs_sp), 5e-4)
-check("CIFAR comp sensitivity: spread at 2 (0.018)", 0.018,
-      max(max(_allsets(k, "2.0")) - min(_allsets(k, "2.0")) for k in _pairs_sp), 5e-4)
-check("CIFAR comp sensitivity: agree >= 0.99 at 1.1", 1.0,
-      float(min(o[k]["1.1"]["agree"] for o in _SP.values() for k in o) >= 0.99), 0)
-check("CIFAR comp sensitivity: agree >= 0.87 at 2", 1.0,
-      float(min(o[k]["2.0"]["agree"] for o in _SP.values() for k in o) >= 0.87), 0)
+check("CIFAR random: minimum margin", 3.2, round(_cr["min_margin_sq_all"], 1), 0)
+_root = pathlib.Path("results/cifar_composition_replay")
+_summary = json.loads((_root / "summary.json").read_text())
+_datasets = {name: json.loads((_root / f"{name}.json").read_text()) for name in _summary}
+_curve = json.loads(pathlib.Path("paper_theory/figures/fig_cifar_curve.json").read_text())
+check("CIFAR figure data = selected summary", 1, int(_curve == _summary["selected"]), 0)
+_expected_counts = {"selected": {"0.0": 0, "0.5": 0, "0.9": 0, "1.1": 109,
+                                 "2.0": 917, "5.0": 2075, "10.0": 2608},
+                    "random": {"0.9": 0, "1.1": 41, "2.0": 309, "5.0": 874}}
+for _group, _expected in _expected_counts.items():
+    _pairs = _datasets[_group]
+    check(f"CIFAR {_group}: pair count", 8 if _group == "selected" else 12, len(_pairs), 0)
+    for _ratio, _count in _expected.items():
+        _labels = [label for rows in _pairs.values() for label in rows[_ratio]["classes"]]
+        check(f"CIFAR {_group} at {_ratio}: midpoint count", _count, _labels.count("mid"), 0)
+        check(f"CIFAR {_group} at {_ratio}: unresolved", int((_group, _ratio) == ("random", "5.0")),
+              _labels.count("unresolved"), 0)
+check("CIFAR disjoint selected/random samples", 0,
+      len(_datasets["selected"].keys() & _datasets["random"].keys()), 0)
+check("CIFAR overlap of figure and registered pairs", 8,
+      len(_curve.keys() & {"/".join(map(str, p["pair"])) for p in _P}), 0)
+for _group, _pairs in _datasets.items():
+    _derived = {pair: {ratio: row["classes"].count("mid") / len(row["classes"])
+                       for ratio, row in rows.items()} for pair, rows in _pairs.items()}
+    check(f"CIFAR {_group}: all fractions from signed labels", 1, int(_derived == _summary[_group]), 0)
+    check(f"CIFAR {_group}: all denominators and counts", 1,
+          int(all(len(row["classes"]) == row["count"] == 512
+                  and row["mid"] == row["classes"].count("mid")
+                  and row["unresolved"] == row["classes"].count("unresolved")
+                  for rows in _pairs.values() for row in rows.values())), 0)
+    if _group in ("handoff", "rtol", "handoff_large", "rtol_large"):
+        check(f"CIFAR {_group}: all signed labels vs baseline", 1,
+              int(all(row["classes"] == _datasets["selected"][pair][ratio]["classes"]
+                      for pair, rows in _pairs.items() for ratio, row in rows.items())), 0)
+        check(f"CIFAR {_group}: every selected pair", 1, int(_pairs.keys() == _curve.keys()), 0)
+with gzip.open(_root / "audit/cifar_signed_sources.csv.gz", "rt") as _f:
+    _audit_n = _pair_n = _wrong = 0
+    for _entry in csv.DictReader(_f):
+        _labels = _datasets[_entry["group"]][_entry["pair"]][_entry["ratio"]]["classes"]
+        _label = _labels[int(_entry["source_index"])]
+        _wrong += not (_label == _entry["backward_bracket"] == _entry["replay"])
+        _audit_n += 1
+        _pair_n += _entry["stage"] == "pair"
+check("CIFAR all audited source decisions", 95232, _audit_n, 0)
+check("CIFAR audited pair handoffs", 59390, _pair_n, 0)
+check("CIFAR forward vs independent audit mismatches", 0, _wrong, 0)
+_fresh_counts = {0.0: 0, 1e-4: 0}
+_fresh_wrong = 0
+for _file in sorted(_root.glob("fresh*/*.json")):
+    _run = json.loads(_file.read_text())
+    _pair_key = "/".join(map(str, _run["pair"]))
+    _group = "selected" if _pair_key in _datasets["selected"] else "random"
+    for _row in _run["rows"]:
+        _expected = _datasets[_group][_pair_key][str(float(_row["ratio"]))]["classes"]
+        _fresh_wrong += [_expected[i] for i in _run["source_indices"]] != _row["classes"]
+        _fresh_counts[_run["tau0"]] += len(_row["classes"])
+check("CIFAR strict full-field checks at archive start", 12, _fresh_counts[1e-4], 0)
+check("CIFAR strict full-field checks from tau=0", 3, _fresh_counts[0.0], 0)
+check("CIFAR strict full-field vs replay mismatches", 0, _fresh_wrong, 0)
+_control = json.loads(pathlib.Path("results/stress_positive_control_20261121/translated.json").read_text())
+check("RK4 translation: all 24 comparisons", 24, len(_control["rows"]), 0)
+for _center, _want in [([0.0, 0.0], {2: 108, 10: 252}), ([0.25, 0.0], {2: 0, 10: 0})]:
+    for _ratio, _midpoints in _want.items():
+        _cases = [row for row in _control["rows"] if row["center"] == _center and row["w_over_wc"] == _ratio]
+        check(f"RK4 centered at {_center} at {_ratio}: all step/cutoff settings", 6, len(_cases), 0)
+        check(f"RK4 centered at {_center} at {_ratio}: detections", 1,
+              int(all(row["midpoint_count"] == _midpoints and row["exact_basin_count"] == {2: 108, 10: 252}[_ratio]
+                      for row in _cases)), 0)
+for _claim in (r"$109$, $917$, $2075$ and $2608$", r"$41$ of $6144$",
+               r"$309$ at $2w_c$ and $874$ at $5w_c$", r"one additional source remains unresolved",
+               r"$0.224$ at $2w_c$ to $0.637$ at $10w_c$"):
+    in_tex(_claim)
 
 print("\nnear-threshold basin law (App. threshold-scaling)")
 _ts = json.loads(pathlib.Path("results/composition_threshold_scaling_20261107/summary.json").read_text())

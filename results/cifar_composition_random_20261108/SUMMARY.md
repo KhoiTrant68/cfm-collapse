@@ -1,5 +1,7 @@
 # Exact guided label averaging on 12 random CIFAR-10 pairs (B = 1, 512 sources)
 
+> **Historical solver output.** The original scalar continuation misclassified some two-image midpoint trajectories as atoms. The corrected labels, numerical audit, and sensitivity results are in the [CIFAR replay report](../cifar_composition_replay/README.md). The tables below document the archived run.
+
 81 mutual-nearest-neighbour pairs; smallest margin over all of them 3.208 (> 1 is what Theorem spectral(c) needs). Seed 20261108.
 
 | pair | margin | 0.9 | 1.1 | 2.0 | 5.0 |

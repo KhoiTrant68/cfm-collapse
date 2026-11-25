@@ -307,7 +307,11 @@ def build_supp(name, notes):
     pool.update({p.stem: p for p in (ROOT / "src").glob("*.py")})
     files = set()
     missing = []
-    for s in named_scripts(tex):
+    script_names = set(named_scripts(tex))
+    if name == "supp_A":
+        script_names.update({"audit_cifar_handoffs.py", "test_cifar_pair_profile.py",
+                             "make_cifar_composition_figure.py"})
+    for s in sorted(script_names):
         cand = [ROOT / "scripts" / s, ROOT / "src" / s]
         hit = next((c for c in cand if c.exists()), None)
         if hit is None:
@@ -337,6 +341,11 @@ def build_supp(name, notes):
         out.write_text(text, encoding="utf-8")
     subst = SUPP_SUBST
     res_files = copy_results(name, dst, subst)
+    if name == "supp_A":
+        figures = Path("paper_theory/figures")
+        (dst / figures).mkdir(parents=True, exist_ok=True)
+        for file in ["fig_cifar_composition.json", "fig_cifar_curve.json", "fig_cifar_composition.pdf"]:
+            shutil.copy2(ROOT / figures / file, dst / figures / file)
     write_supp_readme(name, dst, tex, res_files)
     leaks = scan_dir(dst, True, name == "supp_A")
     # Code may carry TODO/FLAG notes legitimately; only identity and cross-paper hits count.
@@ -446,7 +455,7 @@ new folder, so they never overwrite the saved results, and the image-scale ones 
 and download CIFAR-10 or MNIST on first use. Paths shown as `/path/to/workdir` stand for a
 local working directory; set them on the command line or edit the default.
 
-## Scripts named in the paper
+{cifar}## Scripts named in the paper
 
 | Script | Purpose |
 |---|---|
@@ -474,8 +483,35 @@ def write_supp_readme(name, dst, tex, res_files):
         omitted = ("\nLeft out to keep the archive under 100 MB (the summaries computed from them "
                    "are included; rerun the script to rebuild them):\n\n" + "\n".join(
                        f"- `results/{pat}`: {why} (`{how}`)" for pat, why, how in RES_OMIT[name]) + "\n")
+    cifar = "" if name != "supp_A" else """## Reproduce the CIFAR-10 midpoint figure on a CPU
+
+From the root of an extracted copy, run the following commands with NumPy, SciPy,
+Matplotlib and Pillow installed. The saved handoffs and the native RGB images for all eight pairs are included.
+
+```bash
+python -m scripts.replay_cifar_composition
+python scripts/audit_cifar_handoffs.py --compare-replays results/cifar_composition_replay --sources-csv audit_sources.csv > audit.json
+python scripts/make_theory_cifar_composition_figure.py
+```
+
+The first command rebuilds the source labels and summary for the eight selected pairs,
+twelve random pairs and four tolerance checks. It starts from the archived handoffs
+of the 2,000-image calculation and preserves the decisions made before handoff.
+The older summary files in the two dated input directories describe the original
+classification. The corrected results are in `results/cifar_composition_replay/`.
+The second command independently brackets the basin boundary and compares each signed
+endpoint with the replay. A mismatch makes the command exit with an error. The
+saved comparison and its compressed source rows are in the `audit/` subdirectory of the
+corrected results.
+The final command redraws both panels of `paper_theory/figures/fig_cifar_composition.pdf`
+and writes the pair curves to `fig_cifar_curve.json` beside it.
+Run `python -m unittest scripts.test_cifar_pair_profile` for the regression on source 23
+of pair 1104/1984 and additional solver checks. The [numerical report](results/cifar_composition_replay/README.md)
+gives the commands for the fresh 2,000-image spot checks and translated positive control.
+
+"""
     (dst / "README.md").write_text(
-        SUPP_README.format(title=title, rows="\n".join(rows), results=results, omitted=omitted),
+        SUPP_README.format(title=title, rows="\n".join(rows), results=results, omitted=omitted, cifar=cifar),
         encoding="utf-8")
 
 

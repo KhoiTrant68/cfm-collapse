@@ -10,7 +10,7 @@ label noise h, and apply guidance:
 
 with tau = -log(1-t) and posterior weights q_k ~ p_k(y) exp((t<x,x^k> - t^2|x^k|^2/2)/(1-t)^2).
 Once every one of the three posteriors puts all but `--handoff` of its mass on {i, j}, the flow
-along e = (x^i - x^j)/(2r) is exactly the two-atom flow of Theorem thm:composition: with
+along e = (x^i - x^j)/(2r) is approximated by the two-atom flow of Theorem thm:composition: with
 q = <x - t z, e> and s = beta r q (beta = t/(1-t)^2),
 
     dq/dtau = r F_w(s) - q,    F_w(s) = (1+w)/2 [tanh(s+B) + tanh(s-B)] - w tanh s,
@@ -18,7 +18,7 @@ q = <x - t z, e> and s = beta r q (beta = t/(1-t)^2),
 with B = |y^i - y^j|^2 / (4 h^2); the label bandwidth h is set from the target B. This script
 integrates the full field per source with an adaptive embedded Runge-Kutta method (Bogacki-
 Shampine 3(2)) until the posterior concentrates on the pair (hand-off to the exact one-dimensional
-equation, integrated with Radau and classified by the roots of F_w) or on a single atom (an atom
+equation, classified by barriers in the scaled profile coordinate) or on a single atom (an atom
 endpoint, which guidance keeps). Sources that do neither by `--tau-max` are reported as unresolved.
 
     python -m scripts.cifar_composition_exact --data cifar2000_seed0.npz --pair 292 1938 --B 1 \
@@ -34,38 +34,7 @@ import time
 
 import numpy as np
 import torch
-from scipy.integrate import solve_ivp
-
-
-def F(s, w, B):
-    return (1 + w) / 2 * (np.tanh(s + B) + np.tanh(s - B)) - w * np.tanh(s)
-
-
-def classify_1d(q0: float, tau0: float, r: float, w: float, B: float, tau_end: float = 40.0):
-    """Exact two-atom flow from (q0, tau0): 'mid' if it ends at the tie, else '+' / '-'."""
-    wc = 1 / math.sinh(B) ** 2
-    s_u = math.acosh(math.sqrt(w) * math.sinh(B)) if w > wc else 0.0
-
-    def rhs(tau, y):
-        u = math.exp(-tau)                     # 1 - t, kept exact
-        beta = (1 - u) / u ** 2
-        s = beta * r * y[0]
-        return [r * F(s, w, B) - y[0]]
-
-    def jac(tau, y):
-        u = math.exp(-tau)                     # 1 - t, kept exact
-        beta = (1 - u) / u ** 2
-        s = beta * r * y[0]
-        with np.errstate(over="ignore"):
-            dF = (1 + w) / 2 * (1 / np.cosh(s + B) ** 2 + 1 / np.cosh(s - B) ** 2) - w / np.cosh(s) ** 2
-        return [[r * dF * beta * r - 1]]
-
-    sol = solve_ivp(rhs, (tau0, tau_end), [q0], method="Radau", jac=jac, rtol=1e-10, atol=1e-14)
-    u = math.exp(-sol.t[-1])
-    s_end = (1 - u) / u ** 2 * r * sol.y[0, -1]
-    if w > wc and abs(s_end) < s_u:
-        return "mid", float(s_end)
-    return ("+" if s_end > 0 else "-"), float(s_end)
+from scripts.cifar_pair_profile import classify_profile
 
 
 class Field:
@@ -107,9 +76,13 @@ def run(args):
     field = Field(X, Y, i, j, h, dev)
     g = torch.Generator().manual_seed(args.source_seed)
     x0 = torch.randn(args.sources, X.shape[1], generator=g, dtype=torch.float64)
+    if args.source_indices:
+        x0 = x0[args.source_indices]
     out = {"pair": [i, j], "r": r, "margin_sq": margin, "dy2": dy2, "B": args.B, "h": h, "w_c": wc,
-           "sources": args.sources, "source_seed": args.source_seed, "handoff": args.handoff,
-           "rtol": args.rtol, "tau_max": args.tau_max, "device": str(dev), "rows": []}
+           "sources": len(x0), "source_pool": args.sources, "source_indices": args.source_indices,
+           "source_seed": args.source_seed, "handoff": args.handoff,
+           "rtol": args.rtol, "atol": args.atol, "tau0": args.tau0,
+           "tau_max": args.tau_max, "max_steps": args.max_steps, "device": str(dev), "rows": []}
     ez, ee = z.to(dev), e.to(dev)
     for ratio in args.ratios:
         w = ratio * wc
@@ -150,9 +123,9 @@ def run(args):
                 elif pair_mass[n] > 1 - args.handoff:
                     t = 1 - math.exp(-float(tau[s]))
                     qv = float(((x[s] - t * ez) * ee).sum())
-                    lab, s_end = classify_1d(qv, float(tau[s]), r, w, args.B)
-                    result[s] = "mid" if lab == "mid" else f"atom:{i if lab == '+' else j}"
-                    detail[s] = {"tau_handoff": float(tau[s]), "q": qv, "s_end": s_end}
+                    lab, reason = classify_profile(qv, float(tau[s]), r, w, args.B)
+                    result[s] = f"atom:{i if lab == '+' else j}" if lab in ("+", "-") else lab
+                    detail[s] = {"tau_handoff": float(tau[s]), "q": qv, "reason": reason}
                     active[s] = False
                 elif float(tau[s]) > args.tau_max:
                     active[s] = False
@@ -176,6 +149,7 @@ def main():
     ap.add_argument("--B", type=float, default=1.0)
     ap.add_argument("--ratios", type=float, nargs="+", default=[0.5, 2.0, 5.0, 10.0])
     ap.add_argument("--sources", type=int, default=256)
+    ap.add_argument("--source-indices", type=int, nargs="+", help="zero-based subset of the common latent pool")
     ap.add_argument("--source-seed", type=int, default=20261105)
     ap.add_argument("--tau0", type=float, default=1e-4)
     ap.add_argument("--tau-max", type=float, default=30.0)
@@ -184,7 +158,10 @@ def main():
     ap.add_argument("--atol", type=float, default=1e-9)
     ap.add_argument("--max-steps", type=int, default=200000)
     ap.add_argument("--out", default="results/cifar_composition_exact_20261105")
-    run(ap.parse_args())
+    args = ap.parse_args()
+    if args.source_indices and any(i < 0 or i >= args.sources for i in args.source_indices):
+        ap.error("source indices must be in the requested latent pool")
+    run(args)
 
 
 if __name__ == "__main__":

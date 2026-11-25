@@ -1,0 +1,122 @@
+[
+  {
+    "run": "fresh_boundary_1443_1695",
+    "pair": "1443/1695",
+    "ratio": 1.1,
+    "source_index": 110,
+    "tau0": 0.0001,
+    "class": "mid"
+  },
+  {
+    "run": "fresh_boundary_1491_1514",
+    "pair": "1491/1514",
+    "ratio": 2.0,
+    "source_index": 124,
+    "tau0": 0.0001,
+    "class": "mid"
+  },
+  {
+    "run": "fresh_boundary_292_1938",
+    "pair": "292/1938",
+    "ratio": 1.1,
+    "source_index": 323,
+    "tau0": 0.0001,
+    "class": "atom:292"
+  },
+  {
+    "run": "fresh_check",
+    "pair": "1104/1984",
+    "ratio": 2.0,
+    "source_index": 23,
+    "tau0": 0.0001,
+    "class": "mid"
+  },
+  {
+    "run": "fresh_check",
+    "pair": "1104/1984",
+    "ratio": 2.0,
+    "source_index": 4,
+    "tau0": 0.0001,
+    "class": "atom:1104"
+  },
+  {
+    "run": "fresh_check",
+    "pair": "1104/1984",
+    "ratio": 2.0,
+    "source_index": 154,
+    "tau0": 0.0001,
+    "class": "atom:1447"
+  },
+  {
+    "run": "fresh_check",
+    "pair": "1104/1984",
+    "ratio": 5.0,
+    "source_index": 23,
+    "tau0": 0.0001,
+    "class": "mid"
+  },
+  {
+    "run": "fresh_check",
+    "pair": "1104/1984",
+    "ratio": 5.0,
+    "source_index": 4,
+    "tau0": 0.0001,
+    "class": "mid"
+  },
+  {
+    "run": "fresh_check",
+    "pair": "1104/1984",
+    "ratio": 5.0,
+    "source_index": 154,
+    "tau0": 0.0001,
+    "class": "mid"
+  },
+  {
+    "run": "fresh_check",
+    "pair": "1104/1984",
+    "ratio": 10.0,
+    "source_index": 23,
+    "tau0": 0.0001,
+    "class": "mid"
+  },
+  {
+    "run": "fresh_check",
+    "pair": "1104/1984",
+    "ratio": 10.0,
+    "source_index": 4,
+    "tau0": 0.0001,
+    "class": "mid"
+  },
+  {
+    "run": "fresh_check",
+    "pair": "1104/1984",
+    "ratio": 10.0,
+    "source_index": 154,
+    "tau0": 0.0001,
+    "class": "mid"
+  },
+  {
+    "run": "fresh_zero_1443_1695",
+    "pair": "1443/1695",
+    "ratio": 1.1,
+    "source_index": 110,
+    "tau0": 0.0,
+    "class": "mid"
+  },
+  {
+    "run": "fresh_zero_1491_1514",
+    "pair": "1491/1514",
+    "ratio": 2.0,
+    "source_index": 124,
+    "tau0": 0.0,
+    "class": "mid"
+  },
+  {
+    "run": "fresh_zero_292_1938",
+    "pair": "292/1938",
+    "ratio": 1.1,
+    "source_index": 323,
+    "tau0": 0.0,
+    "class": "atom:292"
+  }
+]

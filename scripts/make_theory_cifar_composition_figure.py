@@ -1,18 +1,9 @@
-"""Figure fig:cifar-composition of paper_theory: exact guided label averaging on CIFAR-10 pairs.
+"""Draw the CIFAR-10 pair endpoints and observed midpoint fractions for the eight selected pairs.
 
-    PYTHONPATH=.:scripts python scripts/make_theory_cifar_composition_figure.py
-
-(a) Three of the eight pairs: training images x^i, x^j and their midpoint z, the non-training
-    endpoint of the composite (Theorem thm:composition at d = 3072).
-(b) Fraction of the 512 shared sources ending at z against w/w_c, for every pair (thin) and the mean
-    over the eight pairs (thick), from results/cifar_composition_exact_20261105/summary.json.
-
-The image tiles of (a) are not recomputed: the CIFAR-10 instance cifar2000_seed0.npz that
-scripts/make_cifar_composition_figure.py reads is not committed. They are the nine images embedded in
-the earlier version of this figure (drawn by that script from the data file for the pairs
-(1491, 1514), (81, 819), (158, 230)), extracted losslessly with `pdfimages -png` into
-results/cifar_composition_exact_20261105/figure_tiles/tile-000..008.png, row by row
-(x^i, z, x^j).
+Run python scripts/make_theory_cifar_composition_figure.py from the repository or
+supplement root. The small image archive contains the native 32-by-32 RGB training
+images for all eight measured pairs. Use scripts/make_cifar_composition_figure.py
+with the full CIFAR instance to regenerate it.
 """
 from __future__ import annotations
 
@@ -21,75 +12,74 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
-from PIL import Image
 
 from figstyle import COLORS, FULL_W, panel_title, style, use_paper_style
 
-ROOT = Path("results/cifar_composition_exact_20261105")
-TILES = ROOT / "figure_tiles"
+RESULTS = Path("results/cifar_composition_replay")
+IMAGES = RESULTS / "selected_images.npz"
 OUT = Path("paper_theory/figures/fig_cifar_composition.pdf")
-X0 = 0.3                       # w = 0 drawn here, left of an axis break
-GREY = "#555555"
 
 
 def main() -> None:
     use_paper_style()
-    S = json.loads((ROOT / "summary.json").read_text(encoding="utf-8"))["pairs"]
-    fig = plt.figure(figsize=(FULL_W, 2.3))
-    gs = fig.add_gridspec(3, 5, width_ratios=(0.84, 0.84, 0.84, 0.5, 6.4), wspace=0.06, hspace=0.06,
-                          left=0.01, right=0.985, bottom=0.17, top=0.88)
-    for row in range(3):
-        for col, title in enumerate((r"$x^i$", r"midpoint $z$", r"$x^j$")):
-            ax = fig.add_subplot(gs[row, col])
-            ax.imshow(np.asarray(Image.open(TILES / f"tile-{3 * row + col:03d}.png").convert("RGB")),
-                      interpolation="nearest")
-            ax.set_xticks([]); ax.set_yticks([]); ax.grid(False)
-            for s in ax.spines.values():
-                s.set_visible(True)
-                s.set_edgecolor(COLORS["generated"] if col == 1 else "#bbbbbb")
-                s.set_linewidth(1.4 if col == 1 else 0.6)
-            if row == 0:
-                ax.set_title(title, fontsize=7.5, pad=3,
-                             color=COLORS["generated"] if col == 1 else "#222222")
-            if row == 0 and col == 0:
-                ax.text(-0.08, 1.32, r"$\mathbf{(a)}$  Pairs and midpoints", transform=ax.transAxes,
-                        ha="left", va="bottom", fontsize=8.5)
+    curves = json.loads((RESULTS / "summary.json").read_text())["selected"]
+    pairs = sorted(curves, key=lambda pair: curves[pair]["10.0"])
+    fig = plt.figure(figsize=(FULL_W, 4.5))
+    fig.text(0.015, 0.973, r"$\mathbf{(a)}$  Training pairs and their pixelwise midpoints",
+             fontsize=9, va="top")
+    grid = fig.add_gridspec(3, len(pairs), left=0.155, right=0.985, top=0.905, bottom=0.515,
+                            hspace=0.055, wspace=0.055)
+    with np.load(IMAGES) as archive:
+        for col, pair in enumerate(pairs):
+            first, second = [archive[i].astype(float) / 255 for i in pair.split("/")]
+            midpoint = (first + second) / 2
+            for row, im in enumerate((first, midpoint, second)):
+                ax = fig.add_subplot(grid[row, col])
+                ax.imshow(im, interpolation="nearest")
+                ax.set_xticks([])
+                ax.set_yticks([])
+                for spine in ax.spines.values():
+                    spine.set_visible(row == 1)
+                    spine.set_color(COLORS["generated"])
+                    spine.set_linewidth(0.9)
+                if col == 0:
+                    label = (r"Image $x^i$", r"Midpoint $z$", r"Image $x^j$")[row]
+                    ax.text(-0.18, 0.5, label, transform=ax.transAxes, ha="right", va="center")
+                if row == 2:
+                    ax.text(0.5, -0.16, f"{curves[pair]['10.0']:.1%}", transform=ax.transAxes,
+                            ha="center", va="top", fontsize=8)
+                    if col == 0:
+                        ax.text(-0.18, -0.16, r"At $10w_c$", transform=ax.transAxes,
+                                ha="right", va="top", fontsize=8)
 
-    ax = fig.add_subplot(gs[:, 4])
-    ratios = sorted(float(k) for k in S[0]["mid"])
-    xs = [X0 if r == 0 else r for r in ratios]
-    ax.axvspan(0.25, 1.0, color="#f2f2f2", lw=0, zorder=0)
-    for p in S:
-        ax.plot(xs, [p["mid"][f"{r:.1f}"] for r in ratios], color="#a8a8a8", lw=0.7, zorder=1)
-    mean = [float(np.mean([p["mid"][f"{r:.1f}"] for p in S])) for r in ratios]
-    ax.plot(xs, mean, color=COLORS["generated"], lw=1.8, marker="o", ms=3.5, zorder=3)
-    print("mean midpoint fraction:", dict(zip(ratios, np.round(mean, 4))))
-    from matplotlib.lines import Line2D
-    ax.legend(handles=[Line2D([], [], color="#a8a8a8", lw=0.7, label="single pair"),
-                       Line2D([], [], color=COLORS["generated"], lw=1.8, marker="o", ms=3.5,
-                              label=f"mean of {len(S)} pairs")],
-              loc="upper left", fontsize=6.5, borderaxespad=0.4)
-    ax.axvline(1.0, color=COLORS["theory"], ls="--", lw=0.9)
-    ax.text(1.05, 0.97, r"$w=w_c$", transform=ax.get_xaxis_transform(), fontsize=7, va="top")
-    ax.text(0.5, 0.1, r"zero for $w\leq0.9\,w_c$", transform=ax.get_xaxis_transform(),
-            ha="center", va="center", fontsize=6.5, color=GREY)
-    ax.set_xscale("log"); ax.set_xlim(0.25, 12)
-    # 2 and 5 are labelled because the mean peaks there; on a bare 1-10 decade they are hard to read.
-    ax.set_xticks([X0, 1, 2, 5, 10]); ax.set_xticklabels(["0", "1", "2", "5", "10"])
-    ax.xaxis.set_minor_locator(plt.matplotlib.ticker.FixedLocator([0.5, 0.9, 3, 4, 6, 7, 8, 9]))
-    ax.xaxis.set_minor_formatter(plt.matplotlib.ticker.NullFormatter())
-    xb = (np.log(0.39) - np.log(0.25)) / (np.log(12) - np.log(0.25))
-    for dx in (-0.006, 0.006):
-        ax.plot([xb + dx - 0.005, xb + dx + 0.005], [-0.025, 0.025], transform=ax.transAxes,
-                color="#333333", clip_on=False, lw=0.6)
-    ax.set_ylim(-0.01, 0.31)
-    ax.set_xlabel(r"guidance relative to threshold, $w/w_c$")
-    ax.set_ylabel(r"fraction of sources ending at $z$")
-    panel_title(ax, "b", r"Exact composite, $d=3072$, $N=2000$, $B=1$")
+    ax = fig.add_axes([0.112, 0.105, 0.855, 0.30])
+    ratios = sorted(curves[pairs[0]], key=float)
+    xs = np.arange(len(ratios))
+    values = np.array([[curves[pair][r] for r in ratios] for pair in pairs])
+    # Separate measured strengths on each side. No interpolation across the unsampled threshold.
+    split = next(i for i, r in enumerate(ratios) if float(r) > 1)
+    for segment in (slice(None, split), slice(split, None)):
+        for j, row in enumerate(values):
+            ax.plot(xs[segment], row[segment], color="#888888", lw=0.85, marker=".", ms=3.4,
+                    label="Individual pair" if segment.start is None and j == 0 else None)
+        ax.plot(xs[segment], values.mean(axis=0)[segment], color=COLORS["generated"], lw=1.8,
+                marker="o", ms=4, zorder=3, label="Mean of eight pairs" if segment.start is None else None)
+    ax.axvline(split - 0.5, color="#444444", ls="--", lw=0.8)
+    ax.text(split - 0.43, 0.94, r"$w=w_c$", ha="left", va="top", fontsize=8)
+    ax.set_xticks(xs, [f"{float(r):g}" for r in ratios])
+    ax.set_xlim(-0.16, len(xs) - 0.84)
+    ax.set_ylim(-0.045, 1.035)
+    ax.set_yticks([0, 0.25, 0.5, 0.75, 1], ["0", "0.25", "0.5", "0.75", "1"])
+    ax.grid(axis="x", visible=False)
+    ax.set_xlabel(r"Sampled guidance strength, $w/w_c$")
+    ax.set_ylabel("Midpoint fraction")
+    ax.legend(loc="upper left", fontsize=8)
+    panel_title(ax, "b", "Fraction of 512 shared sources reaching the midpoint", fontsize=9)
     style(ax)
     OUT.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(OUT, bbox_inches="tight", pad_inches=0.02)
+    fig.savefig(OUT, bbox_inches="tight", pad_inches=0.025)
     plt.close(fig)
+    (OUT.parent / "fig_cifar_curve.json").write_text(json.dumps(curves, indent=2) + "\n")
     print(f"wrote {OUT}")
 
 
