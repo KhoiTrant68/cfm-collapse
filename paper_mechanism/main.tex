@@ -238,7 +238,7 @@ and~\ref{app:relerr}.
 \section{Related work}
 \label{sec:related}
 
-\paragraph{The exact optimum memorises; trained networks depart from it.} The empirical minimiser
+\paragraph{The exact field memorises; trained networks depart from it.} The empirical minimiser
 of diffusion and flow-matching losses memorises
 \citep{pidstrigach2022manifolds,gu2023memorization,biroli2023diffusion,buchanan2025edge,gao2024flow,bertrand2025closed,li2026memory}.
 \citet[Theorem~5.3]{wan2025elucidating} show that the flow-matching ODE from a Gaussian source
@@ -263,7 +263,7 @@ show that whether the endpoint is a copy is still open after that (Section~\ref{
 
 \paragraph{Two times.} For the exact empirical score, \citet{biroli2024dynamical} derive a
 speciation time, when the trajectory commits to a class, and a later collapse time, when it falls
-into the attractor of one training point, which it then reaches. \citet{raya2023ssb} describe the
+into the attractor of one training image, which it then reaches. \citet{raya2023ssb} describe the
 first transition as a spontaneous symmetry breaking and observe on trained models that two
 individual samples split significantly later than it. \citet{li2024critical} bound, under a perfect score
 and for mixtures of strongly log-concave densities, the windows of noise levels in which features
@@ -275,7 +275,7 @@ concentrates on one image (Appendix~\ref{app:relerr-exp}, Figure~\ref{fig:poster
 \citet{biroli2024dynamical} also measure both times on DDPM U-Nets: the speciation time with $2000$
 to $40000$ training images, and the collapse time with $200$ or $2000$, few enough that the networks
 reproduce them. In the exact-score picture, landing and
-collapse are the same event, because a trajectory that has collapsed reaches its training point.
+collapse are the same event, because a trajectory that has collapsed reaches its training image.
 The public network does not follow this picture: its image is fixed at these noise levels, and it
 still does not reach it. \citet{bonnaire2025why} show that memorisation emerges during training on
 a time scale that grows with the size of the training set, after a generalisation time that does
@@ -367,7 +367,7 @@ relative one.
 % Restated in B's own words (split contract, sec. 3). The mathematical content of the three
 % background statements is unchanged; none of them is a contribution of this paper.
 
-This section fixes notation and collects three known facts about the exact minimiser. They are the
+This section fixes notation and collects three known facts about the exact field. They are the
 reference against which the learned fields of the later sections are measured. Euclidean norms are
 written $|\cdot|$, and for a random vector $\Var$ denotes $\tr\Cov$.
 
@@ -1768,7 +1768,7 @@ posterior at a noised \emph{training} image puts weight at least $1/2$ on that i
 the points, against $79\%$ of noised test images with a largest weight of at least $1/2$, as
 expected of a sampler whose states stay near noised training images. This concentration is an
 operational counterpart of the collapse of \citet{biroli2024dynamical}, who define the collapse
-time through an excess entropy evaluated at noised training points; on the public model the
+time through an excess entropy evaluated at noised training images; on the public model the
 network's choice falls at or near the concentration at noised test images, and later than that at
 noised training images, where the weight on the image is at least $1/2$ for half of the points at
 $\sigma=5.1$ and for $90\%$ at $\sigma=3.4$.
