@@ -13,7 +13,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 
-from figstyle import COLORS, FULL_W, panel_title, style, use_paper_style
+from figstyle import COLORS, FULL_W, lead_text, panel_title, style, use_paper_style
 
 RESULTS = Path("results/cifar_composition_replay")
 IMAGES = RESULTS / "selected_images.npz"
@@ -25,8 +25,8 @@ def main() -> None:
     curves = json.loads((RESULTS / "summary.json").read_text())["selected"]
     pairs = sorted(curves, key=lambda pair: curves[pair]["10.0"])
     fig = plt.figure(figsize=(FULL_W, 4.5))
-    fig.text(0.015, 0.973, r"$\mathbf{(a)}$  Training pairs and their pixelwise midpoints",
-             fontsize=9, va="top")
+    lead_text(fig, 0.015, 0.973, "a", "Training pairs and their pixelwise midpoints",
+              fontsize=9, va="top")
     grid = fig.add_gridspec(3, len(pairs), left=0.155, right=0.985, top=0.905, bottom=0.515,
                             hspace=0.055, wspace=0.055)
     with np.load(IMAGES) as archive:

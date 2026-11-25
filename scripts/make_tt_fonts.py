@@ -5,7 +5,11 @@ the CFF-based Nimbus Sans OTF it writes a mismatched font that poppler flags. Th
 copies, renamed to the family "Nimbus Sans TT", into the directory given (default
 /mnt/data/khoitm8/cache/fonts), which scripts/figstyle.py registers if it exists.
 
-Usage: python scripts/make_tt_fonts.py [out_dir]
+Where the URW fonts are not installed (Windows with MiKTeX), ``--heros`` converts TeX Gyre Heros
+instead, the same Helvetica-clone outlines shipped with every TeX distribution, under the family
+"TeX Gyre Heros TT"; point figstyle at the result with FIGFONTS=<out_dir>.
+
+Usage: python scripts/make_tt_fonts.py [out_dir] [--heros]
 """
 import sys
 from pathlib import Path
@@ -17,9 +21,19 @@ from fontTools.ttLib import TTFont, newTable
 SRC = Path("/usr/share/fonts/opentype/urw-base35")
 STYLES = ("Regular", "Bold", "Italic", "BoldItalic")
 FAMILY = "Nimbus Sans TT"
+HEROS = {"Regular": "regular", "Bold": "bold", "Italic": "italic", "BoldItalic": "bolditalic"}
 
 
-def otf_to_ttf(src: Path, dst: Path, style: str) -> None:
+def heros_path(style: str) -> Path:
+    import subprocess
+    name = f"texgyreheros-{HEROS[style]}.otf"
+    out = subprocess.run(["kpsewhich", name], capture_output=True, text=True).stdout.strip()
+    if not out:
+        raise FileNotFoundError(name)
+    return Path(out)
+
+
+def otf_to_ttf(src: Path, dst: Path, style: str, family: str = FAMILY) -> None:
     font = TTFont(src)
     gs = font.getGlyphSet()
     glyf = newTable("glyf"); glyf.glyphOrder = font.getGlyphOrder(); glyf.glyphs = {}
@@ -46,20 +60,27 @@ def otf_to_ttf(src: Path, dst: Path, style: str) -> None:
     sub = "Regular" if style == "Regular" else {"Bold": "Bold", "Italic": "Italic", "BoldItalic": "Bold Italic"}[style]
     for rec in font["name"].names:
         if rec.nameID in (1, 16):
-            rec.string = FAMILY
+            rec.string = family
         elif rec.nameID == 4:
-            rec.string = f"{FAMILY} {sub}"
+            rec.string = f"{family} {sub}"
         elif rec.nameID == 6:
-            rec.string = f"NimbusSansTT-{style}"
+            rec.string = f"{family.replace(' ', '')}-{style}"
     font.save(dst)
 
 
 def main() -> None:
-    out = Path(sys.argv[1] if len(sys.argv) > 1 else "/mnt/data/khoitm8/cache/fonts")
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    heros = "--heros" in sys.argv[1:]
+    out = Path(args[0] if args else "/mnt/data/khoitm8/cache/fonts")
     out.mkdir(parents=True, exist_ok=True)
     for st in STYLES:
-        otf_to_ttf(SRC / f"NimbusSans-{st}.otf", out / f"NimbusSansTT-{st}.ttf", st)
-        print("wrote", out / f"NimbusSansTT-{st}.ttf")
+        if heros:
+            dst = out / f"TeXGyreHerosTT-{st}.ttf"
+            otf_to_ttf(heros_path(st), dst, st, family="TeX Gyre Heros TT")
+        else:
+            dst = out / f"NimbusSansTT-{st}.ttf"
+            otf_to_ttf(SRC / f"NimbusSans-{st}.otf", dst, st)
+        print("wrote", dst)
 
 
 if __name__ == "__main__":

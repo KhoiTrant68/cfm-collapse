@@ -31,7 +31,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 
-from scripts.figstyle import COLORS, FULL_W, style, use_paper_style
+from scripts.figstyle import COLORS, FULL_W, lead_text, panel_title, style, use_paper_style
 
 ROOT = Path("results/n3_followup_20261111")
 OUT = Path("paper_mechanism/figures/fig_swap.pdf")
@@ -108,9 +108,9 @@ def main() -> None:
             frame(ax, LEARNED if j == L else (EXACT if j == E else "#bbbbbb"))
             if r == 0:
                 ax.set_title(heads[c], fontsize=7, pad=3, linespacing=1.0)
-    fig.text(0.045, 0.955, r"$\mathbf{(a)}$  image reached when the exact field takes over at $s$",
-             fontsize=8.5, ha="left", va="center")
-    fig.text(0.272, 0.07, r"switch later ($s\downarrow$) $\longrightarrow$", fontsize=7,
+    lead_text(fig, 0.045, 0.955, "a", r"image reached when the exact field takes over at $s$",
+              fontsize=8.5, va="center")
+    fig.text(0.272, 0.07, r"switch later ($s\downarrow$) $\rightarrow$", fontsize=7,
              ha="center", color="#444444")
     fig.text(0.272, 0.0, "frame: vermillion = the network's own image, blue = the exact field's image",
              fontsize=6.3, ha="center", color="#555555")
@@ -150,7 +150,7 @@ def main() -> None:
             fontweight="bold")
     ax.legend(loc="center right", bbox_to_anchor=(1.0, 0.62), frameon=False, fontsize=6.5, handlelength=1.8,
               borderaxespad=0.2)
-    ax.set_title(r"$\mathbf{(b)}$  chosen early, landed late", loc="left")
+    panel_title(ax, "b", "chosen early, landed late")
     style(ax)
 
     OUT.parent.mkdir(parents=True, exist_ok=True)

@@ -40,7 +40,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.colors import LinearSegmentedColormap
 
-from scripts.figstyle import COLORS, FULL_W, OI, panel_title, style, use_paper_style
+from scripts.figstyle import COLORS, FULL_W, OI, lead_text, panel_title, style, use_paper_style
 
 ROOT = Path("results/theory_signed_combinations_20261121")
 PROB = Path("results/theory_signed_probability_20261121")
@@ -166,12 +166,12 @@ def main() -> None:
             axp.text(r["p"] + 0.04, yy, f"{r['p']:.3f}", ha="left", va="center", fontsize=6.6,
                      color=BLEND)
     yh = -1.15
-    axn.text(0.0, yh, r"$\mathbf{(a)}$  Recipes at a tie of $a$ and $b$", ha="left", va="bottom",
-             fontsize=8.5, clip_on=False)
+    lead_text(axn, 0.0, yh, "a", r"Recipes at a tie of $a$ and $b$", fontsize=8.5, clip_on=False)
     axg.text(0.0, yh, "fields at the tie", ha="center", va="bottom", fontsize=7, clip_on=False)
-    axg.text(-2.5, ny - 0.15, r"$\leftarrow b$", ha="left", va="top", fontsize=6.3, color=GREY)
-    axg.text(2.5, ny - 0.15, r"$a\rightarrow$", ha="right", va="top", fontsize=6.3, color=GREY)
-    axg.text(0.0, ny - 0.15, "favours", ha="center", va="top", fontsize=6.3, color=GREY)
+    # "favours" above, the two directions below it: on one line they overlap at 7 pt
+    axg.text(0.0, ny - 0.15, "favours", ha="center", va="top", fontsize=7, color=GREY)
+    axg.text(-2.5, ny + 0.6, r"$\leftarrow b$", ha="left", va="top", fontsize=7, color=GREY)
+    axg.text(2.5, ny + 0.6, r"$a\rightarrow$", ha="right", va="top", fontsize=7, color=GREY)
     axp.text(0.0, yh, r"$\Pr(\mathrm{endpoint}=\mathrm{midpoint})$", ha="left", va="bottom",
              fontsize=7, clip_on=False)
 
@@ -215,8 +215,7 @@ def main() -> None:
     axb.grid(False)
     style(axb)
     y_title = top + 0.55 * (top - bot) / (ny + 0.2)                  # baseline of the (a) title
-    fig.text((xb - 0.36) / W, y_title / H, rf"$\mathbf{{(b)}}$  Three fields, $B={Bm:g}$",
-             ha="left", va="bottom", fontsize=8.5)
+    lead_text(fig, (xb - 0.36) / W, y_title / H, "b", rf"Three fields, $B={Bm:g}$", fontsize=8.5)
     cax = ax_of(xb + side + 0.08, 0.40, 0.07, side)
     cb = fig.colorbar(mesh, cax=cax, ticks=[0, 0.5, 1])
     cb.ax.tick_params(labelsize=6.5, length=2, width=0.5)
