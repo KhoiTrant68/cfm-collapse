@@ -472,13 +472,13 @@ predicts data.
 Let $\hat x_1$ be continuous on $\R^d\times[t_1,1)$ and $Z$ a $C^1$ solution of
 $\dot Z_t=(\hat x_1(Z_t,t)-Z_t)/(1-t)$ on $[t_1,1)$. Fix an atom $a=x^i$ and write
 $n_t=|Z_t-a|$, $e_t=|\hat x_1(Z_t,t)-m^\star(Z_t,t)|$ and
-$\omega_t=(1-w_i(Z_t,t))\max_k|x^k-a|$.
+$\zeta_t=(1-w_i(Z_t,t))\max_k|x^k-a|$.
 \begin{enumerate}[label=(\alph*),leftmargin=2em]
 \item $n$ is locally Lipschitz; where $n_t>0$,
   $(1-t)\dot n_t=\langle\hat e_t,\hat x_1(Z_t,t)-a\rangle-n_t$ with $\hat e_t=(Z_t-a)/n_t$, and
-  $(1-t)\dot n_t\le e_t+\omega_t-n_t$ for almost every $t$.
+  $(1-t)\dot n_t\le e_t+\zeta_t-n_t$ for almost every $t$.
 \item If $e_t\le\bar\varrho\,n_t+\gamma_t$ for a constant $\bar\varrho<1$ and a continuous
-  $\gamma\ge0$, and $\gamma_t+\omega_t\to0$ as $t\uparrow1$, then $Z_t\to a$.
+  $\gamma\ge0$, and $\gamma_t+\zeta_t\to0$ as $t\uparrow1$, then $Z_t\to a$.
 \item If $n_{t_1}>0$ and $\langle\hat e_t,\hat x_1(Z_t,t)-a\rangle\ge(1-\delta_t)n_t$ whenever
   $n_t>0$, for a continuous $\delta$ with $\int_{t_1}^1\delta_t^+/(1-t)\,dt<\infty$, then
   $\inf_tn_t>0$: the trajectory does not reach $a$.
@@ -488,12 +488,12 @@ $\omega_t=(1-w_i(Z_t,t))\max_k|x^k-a|$.
 \end{restatable}
 
 Part~(b) does not ask for a small error. It asks that the error stay a fixed
-fraction below the distance to the example, with $\omega_t\to0$ once the posterior concentrates on
+fraction below the distance to the example, with $\zeta_t\to0$ once the posterior concentrates on
 $a$. This holds on a ball around $a$ at late times (Proposition~\ref{prop:trap}, stated for
 uniform or within-class weights; with label-noise priors $\Omega$ carries an extra factor
 $\max_{k\ne i}p_k/p_i$). The quantity that decides landing is the radial ratio
 $\langle\hat e_t,\hat x_1-a\rangle/n_t$ of~(a). A relative error below one keeps it below one where
-$n_t$ is large compared with $\gamma_t+\omega_t$, and (c) gives a partial converse. Part~(d) shows
+$n_t$ is large compared with $\gamma_t+\zeta_t$, and (c) gives a partial converse. Part~(d) shows
 that the fraction must be strictly below one.
 Appendix~\ref{app:relerr} restates the theorem in EDM's noise coordinates with an explicit trapping
 ball (Proposition~\ref{prop:trap}). It also gives the one-step bound for the deterministic Heun
@@ -1179,7 +1179,7 @@ $\eps=1-t$ & time to the end\\
 $\Delta$ & error of a learned field relative to the exact field\\
 $\hat x_1$, $D_\theta$ & data prediction of a learned field; EDM denoiser\\
 $e_t$, $n_t$, $\varrho_t=e_t/n_t$ & scaled error $|\hat x_1-m^\star|$, distance to the atom, relative error\\
-$\omega_t$, $\Omega$ & off-atom posterior mass times the atom spread; its bound near an atom (Appendix~\ref{app:relerr})\\
+$\zeta_t$, $\Omega$ & off-atom posterior mass times the atom spread; its bound near an atom (Appendix~\ref{app:relerr})\\
 $\sigma$, $r_k$, $\kappa_k$, $\theta_k$ & EDM noise level; Heun step ratio and weights\\
 $s$, $=$L, $=$E & swap level; agreement of the nearest training image with the learned, resp.\ exact, endpoint\\
 \bottomrule
@@ -1448,12 +1448,12 @@ which is the only property of $m^\star$ used below.
 \thmrelerr*
 
 \begin{proof}
-Write $\eps_t=1-t$, $e=Z-a$ and $\eta=\gamma+\omega$. (a) $e$ is $C^1$, so on $[t_1,T]$ with
+Write $\eps_t=1-t$, $e=Z-a$ and $\eta=\gamma+\zeta$. (a) $e$ is $C^1$, so on $[t_1,T]$ with
 $T<1$ it is Lipschitz, and so is $n=|e|$. Where $e\ne0$ the norm is smooth with gradient $\hat e$
 and $\dot e=(\hat x_1-a-e)/\eps$, which gives the identity; by Cauchy--Schwarz and
-\eqref{eq:offmass}, $\langle\hat e,\hat x_1-a\rangle\le|\hat x_1-m^\star|+|m^\star-a|\le e_t+\omega_t$.
+\eqref{eq:offmass}, $\langle\hat e,\hat x_1-a\rangle\le|\hat x_1-m^\star|+|m^\star-a|\le e_t+\zeta_t$.
 At a point $t>t_1$ with $n_t=0$ where $n$ is differentiable, $n$ has a minimum, so
-$\dot n_t=0\le(e_t+\omega_t)/\eps_t$. Since $n$ is differentiable almost everywhere, the inequality
+$\dot n_t=0\le(e_t+\zeta_t)/\eps_t$. Since $n$ is differentiable almost everywhere, the inequality
 holds almost everywhere.
 
 (b) Let $\nu=1-\bar\varrho>0$. By (a), $\dot n\le(-\nu n+\eta)/\eps$ almost everywhere. The function
@@ -1536,7 +1536,7 @@ $\tilde x_k=x_k+(\sigma_{k+1}-\sigma_k)d_k$, evaluates $\tilde D_k=D(\tilde x_k,
 $x_{k+1}=x_k+\tfrac12(\sigma_{k+1}-\sigma_k)(d_k+(\tilde x_k-\tilde D_k)/\sigma_{k+1})$; the last step
 is the Euler step to $\sigma_K=0$. Write $r_k=\sigma_{k+1}/\sigma_k$, $n_k=|x_k-a|$,
 $\tilde n_k=|\tilde x_k-a|$, $e(y,\sigma)=|D(y,\sigma)-m^\star(y,\sigma)|$ and
-$\omega(y,\sigma)=(1-w_i(y,\sigma))\delta_i$.
+$\zeta(y,\sigma)=(1-w_i(y,\sigma))\delta_i$.
 
 \begin{proposition}[Heun steps]
 \label{prop:heun}
@@ -1547,13 +1547,13 @@ $\kappa=(1-r)(2r-1)/(2r)$ and $\theta=(1-r)/(2r)$.
   $r+\kappa+\theta=1$; the last step gives $x_K=D_{K-1}$.
 \item If $e(x_k,\sigma_k)\le\varrho n_k+\gamma$ and $e(\tilde x_k,\sigma_{k+1})\le\varrho\tilde n_k+\tilde\gamma$
   with $\varrho\ge0$, then $\tilde n_k\le(r+(1-r)\varrho)n_k+(1-r)G$ and $n_{k+1}\le c\,n_k+b$, where
-  $G=\gamma+\omega(x_k,\sigma_k)$, $\tilde G=\tilde\gamma+\omega(\tilde x_k,\sigma_{k+1})$,
+  $G=\gamma+\zeta(x_k,\sigma_k)$, $\tilde G=\tilde\gamma+\zeta(\tilde x_k,\sigma_{k+1})$,
   \[
   c=r+|\kappa|\varrho+\theta\varrho\,(r+(1-r)\varrho),\qquad
   b=(|\kappa|+\theta\varrho(1-r))\,G+\theta\tilde G .
   \]
   For the last step, if also $e(x_{K-1},\sigma_{K-1})\le\varrho n_{K-1}+\gamma$, then
-  $n_K\le\varrho n_{K-1}+\gamma+\omega(x_{K-1},\sigma_{K-1})$.
+  $n_K\le\varrho n_{K-1}+\gamma+\zeta(x_{K-1},\sigma_{K-1})$.
 \item $c$ is strictly increasing in $\varrho$. If $r\ge1/2$, then $c<1$ for every $\varrho<1$; if
   $r<1/2$, then $c<1$ if and only if
   $\varrho<\varrho_{\rm crit}(r)=\tfrac12\big(\sqrt{1+8r/(1-r)}-1\big)\in(0,1)$.
@@ -1581,7 +1581,7 @@ $\kappa=(1-r)(2r-1)/(2r)$ and $\theta=(1-r)/(2r)$.
 (a) Use $(\sigma_{k+1}-\sigma_k)/\sigma_k=r-1$ and $(\sigma_{k+1}-\sigma_k)/\sigma_{k+1}=(r-1)/r$ and
 collect terms: the coefficient of $x_k$ is $r$, that of $D_k$ is
 $(1-r)/2-(1-r)^2/(2r)=\kappa$, and that of $\tilde D_k$ is $\theta$.
-(b) By \eqref{eq:offmass}, $|D(y,\sigma)-a|\le e(y,\sigma)+\omega(y,\sigma)$. Since the coefficients sum
+(b) By \eqref{eq:offmass}, $|D(y,\sigma)-a|\le e(y,\sigma)+\zeta(y,\sigma)$. Since the coefficients sum
 to one, $\tilde x_k-a=r(x_k-a)+(1-r)(D_k-a)$ and
 $x_{k+1}-a=r(x_k-a)+\kappa(D_k-a)+\theta(\tilde D_k-a)$; take norms and substitute the bound on
 $\tilde n_k$, whose coefficient $\theta\varrho$ is nonnegative.
@@ -1600,10 +1600,10 @@ $s=\operatorname{sgn}\kappa$ and in the second only at $s=1$, so $c^\star=c$ whe
 $c^\star<c$ when $\kappa<0$ and $\varrho>0$. For the linear field the step is exact with factor $p$;
 $2rp=(1-r)^2\varrho^2+(1-r)(3r-1)\varrho+2r^2$ has discriminant $(1-r)^2(r^2-6r+1)$, positive
 exactly when $r<3-2\sqrt2$, and then both roots lie in $(0,1)$.
-(e) By Proposition~\ref{prop:trap}(i), $\omega\le\Omega$ on the ball. If $n_k\le R$, the first
-condition and (b) give $\tilde n_k\le R$, so $\Omega$ also bounds $\omega(\tilde x_k,\sigma_{k+1})$, and the
+(e) By Proposition~\ref{prop:trap}(i), $\zeta\le\Omega$ on the ball. If $n_k\le R$, the first
+condition and (b) give $\tilde n_k\le R$, so $\Omega$ also bounds $\zeta(\tilde x_k,\sigma_{k+1})$, and the
 second condition gives $n_{k+1}\le R$. Induction gives $n_{K-1}\le R$; the bound on $e(x_{K-1},\sigma_{K-1})$, the last-step bound of (b)
-and $\omega(x_{K-1},\sigma_{K-1})\le\Omega(\sigma_{K-1})$ then give $n_K<g/4$, and for
+and $\zeta(x_{K-1},\sigma_{K-1})\le\Omega(\sigma_{K-1})$ then give $n_K<g/4$, and for
 $k\ne i$, $|x_K-x^k|\ge g-n_K>3n_K$.
 \end{proof}
 
@@ -1854,9 +1854,9 @@ steps it falls to $47\%$ at $\sigma_k=0.060$ and to $0\%$ at the last two steps.
 
 \paragraph{Heun bound along the trajectories.} Figure~\ref{fig:heun} and Table~\ref{tab:edm-heun} evaluate
 Proposition~\ref{prop:heun}(b) with $\gamma=0$, $\varrho_k$ the larger of the relative errors at
-$x_k$ and at $\tilde x_k$, and $\omega$ from the exact posterior. The predictor's relative error is
+$x_k$ and at $\tilde x_k$, and $\zeta$ from the exact posterior. The predictor's relative error is
 the larger one at every step and every on-atom sample; it is close to the relative error at the
-next level $\sigma_{k+1}$, where the predictor is evaluated. $\omega/n$ is zero to working
+next level $\sigma_{k+1}$, where the predictor is evaluated. $\zeta/n$ is zero to working
 precision at these steps, since the subset images are far apart.
 
 \begin{table}[h]
