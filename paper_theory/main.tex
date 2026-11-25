@@ -1147,7 +1147,7 @@ star: $w=2w_c$, the row of (a) with probability $0.406$.}
 \label{sec:interventions}
 
 Table~\ref{tab:interventions} summarises what each intervention does to the support of the exact
-endpoint law. Endpoint noise, $X_1=x^I+\rho\xi$, is the only one among them that leaves the
+endpoint law. Endpoint noise, $X_1=x^I+\rho\upsilon$, is the only one among them that leaves the
 atoms in every configuration: its endpoint law has a density (Proposition~\ref{prop:tgtnoise}).
 A fixed average of hard-label fields also moves every endpoint, in every geometry: it sends every
 source to the weighted average of the atoms (Section~\ref{sec:posmix}). This is why the positive
@@ -3333,7 +3333,7 @@ small noise the nearest atom recovers the source location with high probability.
 
 \begin{proposition}[Endpoint smoothing]
 \label{prop:tgtnoise}
-Fix $\rho\ge0$ and replace the endpoint by $X_1=x^I+\rho\,\xi$ with $\xi\sim\N(0,I_d)$ independent
+Fix $\rho\ge0$ and replace the endpoint by $X_1=x^I+\rho\,\upsilon$ with $\upsilon\sim\N(0,I_d)$ independent
 of $(I,X_0,\omega)$ and redrawn every step, keeping label bandwidth $h>0$. Write
 $s_t^2=(1-t)^2+t^2\rho^2$ and $\varphi_s$ for the $\N(0,s^2I_d)$ density. Then $\vstar$ is a
 weighted average of per-atom fields with spatial weights $\varphi_{s_t}(x-tx^i)$ in place of
@@ -3351,18 +3351,18 @@ and $\vstar$ extends continuously to $t=1$.
 \begin{proof}
 \label{apx:pf-tgtnoise}
 For $\rho=0$ this is Theorem~\ref{thm:endpoint}, with $\N(x^i,0)$ read as $\delta_{x^i}$; let
-$\rho>0$. Given $I=i$, $X_t=(1-t)X_0+t(x^i+\rho\xi)$, so
+$\rho>0$. Given $I=i$, $X_t=(1-t)X_0+t(x^i+\rho\upsilon)$, so
 \[
-r:=X_t-tx^i=(1-t)X_0+t\rho\,\xi\sim\N(0,s_t^2I_d),\qquad p(x\mid I=i,t)=\varphi_{s_t}(x-tx^i).
+r:=X_t-tx^i=(1-t)X_0+t\rho\,\upsilon\sim\N(0,s_t^2I_d),\qquad p(x\mid I=i,t)=\varphi_{s_t}(x-tx^i).
 \]
-Since $\widetilde Y$ is conditionally independent of $(X_0,\xi)$ given $I$, Bayes' rule as in the
+Since $\widetilde Y$ is conditionally independent of $(X_0,\upsilon)$ given $I$, Bayes' rule as in the
 proof of Proposition~\ref{prop:kernel-field} gives
 $q_i:=\Pr(I=i\mid X_t=x,t,\widetilde Y=y)\propto\varphi_{s_t}(x-tx^i)\KK{i}$. The vector
-$(X_0,\xi,r)$ is jointly Gaussian with $\Cov(X_0,r)=(1-t)I_d$ and $\Cov(\xi,r)=t\rho\,I_d$, so
+$(X_0,\upsilon,r)$ is jointly Gaussian with $\Cov(X_0,r)=(1-t)I_d$ and $\Cov(\upsilon,r)=t\rho\,I_d$, so
 \[
-\E[X_0\mid r]=\frac{1-t}{s_t^2}\,r,\qquad \E[\xi\mid r]=\frac{t\rho}{s_t^2}\,r .
+\E[X_0\mid r]=\frac{1-t}{s_t^2}\,r,\qquad \E[\upsilon\mid r]=\frac{t\rho}{s_t^2}\,r .
 \]
-With $U=x^i+\rho\xi-X_0$ on $\{I=i\}$ and $r=x-tx^i$ on $\{X_t=x\}$, conditioning on $I$ and
+With $U=x^i+\rho\upsilon-X_0$ on $\{I=i\}$ and $r=x-tx^i$ on $\{X_t=x\}$, conditioning on $I$ and
 Proposition~\ref{prop:projection} give
 \begin{equation}
 \vstar(x,t,y)=\sum_iq_i\,\E[U\mid I=i,X_t=x,t]
@@ -3374,13 +3374,13 @@ $s_t^2\ge\rho^2/(1+\rho^2)>0$. Hence the weights and the coefficient in \eqref{e
 smooth on $\R^d\times[0,1]$, the field has linear growth, and its flow is global; the uniqueness
 argument of Lemma~\ref{lem:wellposed}(c), which uses only local Lipschitz continuity and the absence
 of blow-up, applies up to $t=1$. For the coupling with $I\sim p^{(h)}(y)$, $X_0\sim\pi_0$ and
-$\xi\sim\N(0,I_d)$ independent and $X_1=x^I+\rho\xi$, the same computation, with prior weights
+$\upsilon\sim\N(0,I_d)$ independent and $X_1=x^I+\rho\upsilon$, the same computation, with prior weights
 $p^{(h)}_i(y)\propto\KK{i}$, shows that the conditional velocity is $\vstar$. As in the proof of
-Theorem~\ref{thm:endpoint}, the endpoint law is therefore $\law(x^I+\rho\xi)=\sum_ip_i^{(h)}(y)\,
+Theorem~\ref{thm:endpoint}, the endpoint law is therefore $\law(x^I+\rho\upsilon)=\sum_ip_i^{(h)}(y)\,
 \N(x^i,\rho^2I_d)$, an absolutely continuous Gaussian mixture. Its mean is
 $\sum_ip_i^{(h)}(y)x^i=\bar x_h(y)$, and by the law of total covariance
 \[
-\Cov(x^I+\rho\xi)=\E\bigl[\Cov(x^I+\rho\xi\mid I)\bigr]+\Cov\bigl(\E[x^I+\rho\xi\mid I]\bigr)
+\Cov(x^I+\rho\upsilon)=\E\bigl[\Cov(x^I+\rho\upsilon\mid I)\bigr]+\Cov\bigl(\E[x^I+\rho\upsilon\mid I]\bigr)
 =\rho^2I_d+\Cov(x^I)=\rho^2I_d+\Covh(y),
 \]
 which is \eqref{eq:tgtendpoint}.
