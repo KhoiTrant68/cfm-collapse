@@ -1487,8 +1487,8 @@ land with $e_t=n_t$, so $\bar\varrho<1$ is sufficient, not necessary.
 
 In EDM coordinates the flow is $dx/d\sigma=(x-D(x,\sigma))/\sigma$, run from $\sigma_1$ down to $0$, and
 the posterior weights over the atoms are
-$w_j(x,\sigma)\propto\exp(-|x-x^j|^2/(2\sigma^2))$. For $0<R\le g/4$ let $\rho_R=R/(g-R)\le1/3$ and
-$\bar\zeta(\sigma)=(N-1)\,\delta_i\exp(-(1-\rho_R^2)(g-R)^2/(2\sigma^2))$.
+$w_j(x,\sigma)\propto\exp(-|x-x^j|^2/(2\sigma^2))$. For $0<R\le g/4$ let $c_R=R/(g-R)\le1/3$ and
+$\bar\zeta(\sigma)=(N-1)\,\delta_i\exp(-(1-c_R^2)(g-R)^2/(2\sigma^2))$.
 
 \begin{proposition}[Trapping]
 \label{prop:trap}
@@ -1505,14 +1505,14 @@ $e(\sigma)=|D(x(\sigma),\sigma)-m^\star(x(\sigma),\sigma)|$.
   \]
   and $x(\sigma)\to a$ as $\sigma\to0$ if $\gamma\to0$.
 \item $\bar\zeta(\sigma)<(1-\bar\varrho)R/2$ for every
-  $\sigma\le\sigma_\star=\big((1-\rho_R^2)(g-R)^2/(4\log(1/q))\big)^{1/2}$, where
+  $\sigma\le\sigma_\star=\big((1-c_R^2)(g-R)^2/(4\log(1/q))\big)^{1/2}$, where
   $q=(1-\bar\varrho)R/(2(N-1)\delta_i)\le1/8$, for $N\ge2$.
 \end{enumerate}
 \end{proposition}
 
 \begin{proof}
 (i) If $|x-a|\le R$ and $k\ne i$, then $|x-x^k|\ge g-R$ and
-$w_k\le w_k/w_i\le\exp((R^2-(g-R)^2)/(2\sigma^2))=\exp(-(1-\rho_R^2)(g-R)^2/(2\sigma^2))$; sum over
+$w_k\le w_k/w_i\le\exp((R^2-(g-R)^2)/(2\sigma^2))=\exp(-(1-c_R^2)(g-R)^2/(2\sigma^2))$; sum over
 $k\ne i$. (ii) Write $\nu=1-\bar\varrho$ and $\eta=\gamma+\bar\zeta$. Where $0<n\le R$, the radial identity
 $\sigma\,dn/d\sigma=n-\langle\hat e,D-a\rangle$ with \eqref{eq:offmass} and (i) gives
 $\sigma\,dn/d\sigma\ge\nu n-\eta$. If $n\ge R$ somewhere, let $\bar\sigma$ be the largest such
