@@ -256,14 +256,14 @@ weighted average of their training examples (Section~\ref{sec:posmix}).
 \paragraph{Technique.} All atomicity results follow one two-step template
 (Section~\ref{sec:intervention-atomicity}). A finite kinetic energy forces convergence to a finite
 set of candidates, and a divergence that grows like $(1-t)^{-2}$ makes the initial points ending at
-a non-atom candidate null. For a single field the null set also follows from the known marginals of
+an off-support candidate null. For a single field the null set also follows from the known marginals of
 the flow \citep[cf.][Theorem~5.3]{wan2025elucidating}. For a mixture of fields or a guided field the
 marginals are not known, and the volume argument does not use them. Guidance has prior coefficients
 of opposite signs, for which the usual Lyapunov argument fails. For a fixed strength, a bound on the
 relative entropy of a posterior to its prior keeps the kinetic energy finite, as in
 \citet[Lemma~5.5]{liu2026geometric}. Integrating the log-partition function by parts against the
 guidance schedule (Lemma~\ref{lem:signedconv}) extends this to schedules of bounded variation and
-to any finite number of fields. For a composite, the divergence at a non-atom candidate can change sign. We resolve the
+to any finite number of fields. For a composite, the divergence at an off-support candidate can change sign. We resolve the
 flow at scale $(1-t)^2$ and use a Lyapunov--Perron graph to obtain the spectral criterion. At a two-atom tie the criterion reduces to the sign of $1-\sum_kc_km_k^2$ for the
 restricted posterior means $m_k$, a signed second moment of a signed measure with unit mass and
 zero mean. A quadratic that vanishes at the extreme means bounds it whenever no inner prior is
@@ -612,7 +612,7 @@ atoms. \emph{Step~1 (convergence):} if the kinetic energy $\int|\dot x|^2\,d\tau
 trajectory converges to a point of $\mathcal C$ or $\mathcal C'$ (Lemma~\ref{lem:conv}).
 \emph{Step~2 (null basins):} the divergence of the field is $\beta\Theta-d$, with
 $\beta=t/\eps^2\to\infty$ and $\Theta$ the same combination of posterior covariance traces. If
-$\Theta$ stays above a positive constant along every trajectory with a non-atom limit, the flow expands volume
+$\Theta$ stays above a positive constant along every trajectory with an off-support limit, the flow expands volume
 without bound there while bounded sets stay bounded, and Liouville's formula with Fatou's lemma
 makes these initial points null (Lemma~\ref{lem:volume}). The interventions differ only in how the
 two steps are verified, and composition is where Step~2 fails (Figure~\ref{fig:proof-template}).
@@ -655,7 +655,7 @@ flow of $v_\Pi$ is well posed on $[0,1)$, and:
 Here $\bar m=m_\Pi$ averages the posterior means $m_p=\sum_jq_{p,j}a_j$. For Step~1, the flow is
 the gradient flow of $\tfrac12|x|^2$ minus an averaged log-partition function whose explicit time
 dependence only lowers the energy, so the kinetic energy is finite. For Step~2, $\Theta$ is an
-averaged posterior covariance trace, and near a non-atom limit positivity of the priors keeps $\Theta$
+averaged posterior covariance trace, and near an off-support limit positivity of the priors keeps $\Theta$
 away from zero.
 \end{proofsketch}
 }%
@@ -731,7 +731,7 @@ initial point. Then:
 \moveblock{sketchcfg}{%
 \begin{proofsketch}
 For (a), Step~1 survives the negative coefficient because the relative entropy of a posterior to
-a fixed positive prior is bounded. For Step~2, near a non-atom limit at distance $r$ from its
+a fixed positive prior is bounded. For Step~2, near an off-support limit at distance $r$ from its
 nearest atoms the guided covariance trace is $\Theta=r^2-|m_w|^2+w(1+w)|m_c-m_u|^2+o(1)$,
 where $m_c,m_u,m_w$ are the conditional, unconditional and guided posterior means relative
 to the limit; the third term is nonnegative for $w\ge0$, and $m_w$ is small in mean square, so
@@ -808,7 +808,7 @@ positive prior, and guidance on it ends on an atom almost surely
 Theorem~\ref{thm:posmix} needs nonnegative coefficients, and Theorem~\ref{thm:schedule} has a
 single conditional prior. Two atoms suffice to show that it can leave the atoms.
 
-\begin{restatable}[Guided label averaging can create a non-atom endpoint]{theorem}{thmcomposition}
+\begin{restatable}[Guided label averaging can create a blend]{theorem}{thmcomposition}
 \label{thm:composition}
 Let $d=k=1$ and $\D=\{(-1,-\ell),(1,\ell)\}$ with $\ell>0$. Fix $h>0$, the query $y=0$, the
 averaging measure $\varphi=\tfrac12(\delta_{u_0}+\delta_{-u_0})$ with $u_0>0$, and put
@@ -851,7 +851,7 @@ For labels far apart relative to $h$, e.g.\ $u_0=\ell\gg h$, the threshold $1/\s
 is exponentially small (Figure~\ref{fig:composition}). The effect does not rely on symmetry\ificlr: it persists under perturbation of the priors, the mixture weights and the guidance strength, though not of the atom geometry (Proposition~\ref{prop:composition-open} in Appendix~\ref{apx:pf-composition-open}). We read the theorem as an existence result at the boundary of Theorems~\ref{thm:posmix} and~\ref{thm:schedule}, and Section~\ref{sec:conjunction} identifies it with the conjunction of compositional generation.\else:\fi
 
 \moveblock{compopenprop}{%
-\begin{restatable}[The off-atom basin persists under perturbation]{proposition}{propcompositionopen}
+\begin{restatable}[The blend basin persists under perturbation]{proposition}{propcompositionopen}
 \label{prop:composition-open}
 On the atoms $\{-1,1\}\subset\R$, average finitely many conditional priors with log-odds
 $2B_k$ (atom $1$ against atom $-1$) with weights $\lambda_k>0$ summing to one, let the
@@ -874,7 +874,7 @@ are not covered. The limit $0$ is the circumcentre of the atoms and already belo
 $\mathcal C'$: composition
 changes the volume behaviour of the flow at a candidate, not the set of candidates. The
 one-dimensional statement isolates a mechanism that does not depend on dimension: in any
-dimension a non-atom candidate can attract a set of sources of positive measure only if the
+dimension an off-support candidate can attract a set of sources of positive measure only if the
 combined covariance trace $\Theta$ of Step~2 fails to stay positive there
 (Lemma~\ref{lem:volume}), and averaging lowers $\Theta$ by $(1+w)$ times the
 spread of the component posterior means. Section~\ref{sec:spectral} turns this into a criterion
@@ -911,7 +911,7 @@ On the line, the sign of $F'_w$ at a simple root distinguishes attraction from r
 In higher dimensions a negative trace can hide an expanding direction. For example, the
 rectangle in Table~\ref{tab:spectral} has a saddle with negative trace. To decide whether
 a hyperbolic profile attracts an open set, we examine each eigenvalue along the span of the
-tied atoms. Fix a non-atom candidate $z\in\mathcal C'$ with tied
+tied atoms. Fix an off-support candidate $z\in\mathcal C'$ with tied
 nearest atoms $S=\nn(z)$, so $|S|\ge2$ and $z\in\operatorname{aff}S$, and let
 $L=\operatorname{span}\{a-z:a\in S\}$. Consider a field $\sum_kc_kv_{p_k}$ with finitely many
 $p_k\in\Ppos$ and constant coefficients summing to one; this covers guidance, label averaging
@@ -924,7 +924,7 @@ M(\xi)=\sum_kc_k\,\E_{\pi_k(\xi)}[a],\qquad
 The rescaled position $\xi=\beta P_L(x-tz)$ generalises $\zeta$ of Section~\ref{sec:composition}; a
 \emph{profile} is a root of $M(\xi)=z$, \emph{hyperbolic} if $\Gamma$ is invertible there.
 }%
-\ificlr Beyond two atoms the local classification uses a matrix. If the hyperbolicity and face hypotheses of Theorem~\ref{thm:spectral}(c) hold at a non-atom candidate $z$ with
+\ificlr Beyond two atoms the local classification uses a matrix. If the hyperbolicity and face hypotheses of Theorem~\ref{thm:spectral}(c) hold at an off-support candidate $z$ with
 tied nearest atoms $S$, the rescaled position $\beta P_L(x_t-tz)$ of a trajectory converging to $z$
 tends to a \emph{profile}, a root of the restricted posterior mean of the field, and the signed
 posterior covariance $\Gamma$ at the profile plays the role of $F_w'(0)$.
@@ -1018,7 +1018,7 @@ regular value of $G(\cdot;\lambda)$: every profile is hyperbolic. Varying the bl
 $p_{k_0}$ with $c_{k_0}\ne0$ already gives a submersion, and the log-ratio map from $\Ppos$ to that
 block is a submersion, so for fixed coefficients, any fixed $p_k$ ($k\ne k_0$) and almost every
 $p_{k_0}\in\Ppos$, every profile is hyperbolic; in particular $p^{\mathrm{unc}}$ may stay uniform.
-Since $\mathcal C'$ is finite, this holds at every non-atom candidate at once. A prescribed
+Since $\mathcal C'$ is finite, this holds at every off-support candidate at once. A prescribed
 family of symmetric or otherwise linked priors can be contained in an exceptional parameter set. Nonhyperbolic
 profiles are therefore exceptional in the priors (in Theorem~\ref{thm:composition} they occur only
 at $w=w_c$), although what happens at them, and at
@@ -1255,7 +1255,7 @@ adaptive near-tie integrations fail at small bandwidths; we report these failure
 (Appendix~\ref{app:intervention-protocol}).}\ificlr Near-tie failures are in Appendix~\ref{app:intervention-protocol}.\fi
 
 \paragraph{The stress test cannot see an attracting tie.} None of the arms above has an attracting
-non-atom candidate, so a scheme biased towards the atoms would pass the test as well. We therefore
+off-support candidate, so a scheme biased towards the atoms would pass the test as well. We therefore
 gave the same fixed-step log-time RK4, with the same $256$ and $512$ steps per segment and the
 same terminal gaps, the guided average of two conditional fields on the atoms $(\pm1,0)$ in $d=2$,
 with $B=1$, $w/w_c\in\{0.9,1.1,2,10\}$ and $4096$ Gaussian sources. With the field coded through
@@ -1460,7 +1460,7 @@ only checks configurations that the theorems already exclude. The learned compos
 image-scale composition check uses the exact field on CIFAR-10 pairs, not a trained network. The
 label-noise comparison uses one small synthetic problem and one image configuration with three
 draws of the training set. At image scale the generated variance does not follow the reference,
-and we do not identify why; the off-atom CIFAR-10 samples are measured at a finite cutoff and do
+and we do not identify why; the off-support CIFAR-10 samples are measured at a finite cutoff and do
 not identify a limiting support.
 
 % ==========================================================================
@@ -1481,7 +1481,7 @@ Gaussian endpoint mass.
 
 For practice, none of these knobs guarantees under the exact field that training data are not
 returned, and among them only the composition of conditions can return blends there. These are
-statements about the exact field. Our trained image networks do not reach it, and their off-atom
+statements about the exact field. Our trained image networks do not reach it, and their off-support
 samples are not explained by the theory. The exact two-atom mean varies across a layer of width
 $O(\eps^2)$ at the tie. Standard velocity networks did not resolve it in our runs, while networks
 given a coordinate at that scale can do so at a tie whose location is supplied. Whether trained
@@ -1610,7 +1610,7 @@ Result & Proof & Main ingredients\\
 Prop.~\ref{prop:projection}, \ref{prop:collapse} & \ref{apx:pf-hard} & $L^2$ decomposition; Lemma~\ref{lem:cov}\\
 Prop.~\ref{prop:kernel-field}, Thm.~\ref{thm:endpoint}, Cor.~\ref{cor:zerobw}, Prop.~\ref{prop:atomicity} & \ref{apx:pf-kernel} & Lemmas~\ref{lem:cov}--\ref{lem:mixture-coupling}: Bayes' rule, uniqueness for the continuity equation\\
 \addlinespace
-Lemmas~\ref{lem:conv}, \ref{lem:volume} & \ref{apx:general-steps} & the shared template: finite kinetic energy $\Rightarrow$ convergence; volume expansion $\Rightarrow$ null non-atom basins\\
+Lemmas~\ref{lem:conv}, \ref{lem:volume} & \ref{apx:general-steps} & the shared template: finite kinetic energy $\Rightarrow$ convergence; volume expansion $\Rightarrow$ null off-support basins\\
 Thm.~\ref{thm:posmix} & \ref{apx:pf-posmix} & Lemmas~\ref{lem:basic}--\ref{lem:volume}; averaged log-partition energy\\
 Prop.~\ref{prop:filtered}, \ref{prop:hyperplane}; Cor.~\ref{cor:negcfg} & \ref{apx:pf-posmix}, Sec.~\ref{sec:guidance} & special cases of Thm.~\ref{thm:posmix}; a scalar reduction for the hyperplane\\
 Thm.~\ref{thm:schedule}, Prop.~\ref{prop:cfgatom} & \ref{apx:pf-guidance} & Lemma~\ref{lem:signedconv} (integration by parts against $w$), Lemma~\ref{lem:volume}; a Gibbs inequality at $h=0$\\
@@ -2026,7 +2026,7 @@ Source & Dynamics and assumptions & Conclusion\tabularnewline
 \cmpcell Characteristic formulas give the cutoff density for fixed or absolutely continuous guidance strength.\tabularnewline
 \cmpcell Deduction above from the two preceding results &
 \cmpcell Two strictly positive priors on one finite support, fixed $w\ge0$ &
-\cmpcell Every path has a limit and the off-atom initial set has Lebesgue measure zero.\tabularnewline
+\cmpcell Every path has a limit and the off-support initial set has Lebesgue measure zero.\tabularnewline
 \cmpcell\citet[Thm.~3]{azangulov2026adaptive} &
 \cmpcell Reverse SDE, compact support, class of positive probability &
 \cmpcell The endpoint belongs to the conditional support almost surely for bounded guidance uniformly above $-\tfrac12$, allowing state and time dependence.\tabularnewline
@@ -2147,7 +2147,7 @@ holds in either time.
 \label{apx:general-steps}
 
 All intervention proofs follow the same two steps: finite kinetic energy gives convergence, and
-volume expansion near non-atom limits makes their basins null.
+volume expansion near off-support limits makes their basins null.
 \placeblock{template}
 
 \begin{lemma}[Convergence from finite kinetic energy]
@@ -2189,7 +2189,7 @@ is connected, $\Omega$ is a single point, which is the limit of $x(\tau)$. The s
 $\mathcal C$ in place of $\mathcal C'$ proves the last claim.
 \end{proof}
 
-\begin{lemma}[Volume expansion makes non-atom basins null]
+\begin{lemma}[Volume expansion makes off-support basins null]
 \label{lem:volume}
 Let $f=\bar m-x$ be a field on $\R^d\times[\tau_0,\infty)$ as in the paragraph on solutions,
 with $|\bar m|\le\bar M$, along which every trajectory converges. Suppose that along every
@@ -2209,8 +2209,8 @@ Liouville's formula,
 \[
 J_n(\xi)=\exp\Bigl(\int_{\tau_0}^n\operatorname{div}_xf\bigl(\Phi_s(\xi),s\bigr)\,ds\Bigr),
 \]
-so \eqref{eq:pf:divinfinity} gives $J_n(\xi)\to\infty$ at every $\xi$ whose trajectory has a
-non-atom limit. Fix a ball $K_0=B_L$ and let $E\subseteq K_0$ be the set of such $\xi$. It is Borel,
+so \eqref{eq:pf:divinfinity} gives $J_n(\xi)\to\infty$ at every $\xi$ whose trajectory has an
+off-support limit. Fix a ball $K_0=B_L$ and let $E\subseteq K_0$ be the set of such $\xi$. It is Borel,
 because the limit map is the pointwise limit of the continuous maps $\Phi_n$ and $A$ is closed. As
 in the proof of Lemma~\ref{lem:conv}, $|\Phi_n(\xi)|\le\max\{|\xi|,\bar M\}$, so all $\Phi_n(K_0)$
 lie in the ball $B$ of radius $\max\{L,\bar M\}$. The change-of-variables formula for the injective
@@ -2239,7 +2239,7 @@ Appendix~\ref{apx:general-steps}. After establishing well-posedness, we construc
 $W=\tfrac12|x|^2-F+\tfrac12\eps R^2$ from the averaged log-partition function $F$; its explicit
 time dependence only lowers $W$, so the kinetic energy is finite, and the concentration hypothesis
 of Lemma~\ref{lem:conv} yields convergence. We then show $\operatorname{div}_xf=\beta V-d$, where
-the averaged covariance trace $V$ stays away from zero near a non-atom limit because every prior is
+the averaged covariance trace $V$ stays away from zero near an off-support limit because every prior is
 strictly positive, and Lemma~\ref{lem:volume} concludes.
 \begin{proof}
 Let $m_\Pi=\int m_p\,\Pi(dp)$, so that $v_\Pi=(m_\Pi-x)/\eps$ and $|m_\Pi|\le R$.
@@ -3419,10 +3419,10 @@ logarithm of the generated trace on the logarithm of the reference trace across 
 conditions; the exact field puts it at $1$. The original run is on one draw of the $2000$ training
 images; the networks were then retrained with the same configuration on three independent draws,
 the first of which is the draw of the original run (\texttt{kernel\_tracking\_uncertainty.py};
-Table~\ref{tab:cifar-kernel}). The off-atom fractions of Section~\ref{sec:intervention-tests} come
+Table~\ref{tab:cifar-kernel}). The off-support fractions of Section~\ref{sec:intervention-tests} come
 from a further retraining with the same configuration at $h=4$ and $h=6$ (three seeds each),
 integrated with RK4 to $\eps=10^{-4}$ from $16$ shared sources at each of the $48$ conditions
-(\texttt{summarize\_s10\_cifar.py}). A sample is off-atom unless its nearest training image is at
+(\texttt{summarize\_s10\_cifar.py}). A sample is off-support unless its nearest training image is at
 most $\tfrac13$ as far as the second nearest, the criterion of \citet{yoon2023memorization}. Unlike
 the rest of this appendix, these fractions are reported with sample standard deviations over the
 three seeds; the population values are $0.010$ and $0.006$.
@@ -3502,8 +3502,8 @@ random atoms, $h=1$, averaged over five geometry seeds. (b) Sources at offset $1
 a symmetric tie under field averaging, nearest-atom distance against the terminal gap. At $h=1$
 (blue triangles, the field-average colour of (a)) the source reaches an atom; at $h=0.05$ and
 $0.2$ (grey circles and squares) it is still at the tie at the cutoff. Grey, not vermillion,
-because these limits are atoms too: delayed departure at a finite cutoff does not imply a
-non-atom limit. (c) Learned versus exact field averages from five checkpoints: energy distance of
+because these limits are atoms too: delayed departure at a finite cutoff does not imply an
+off-support limit. (c) Learned versus exact field averages from five checkpoints: energy distance of
 the learned to the exact average at fresh labels (normalised), against the averaging radius, for
 each seed (grey)
 and their mean.}
