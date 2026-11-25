@@ -2740,22 +2740,22 @@ $\sinh^2\zeta/(\cosh2\zeta+\cosh2B)=u/(1+2u+\cosh2B)$ with $u=\sinh^2\zeta$ incr
 $2\tanh(1)\sinh^2(1)>1$ (as $\tanh1>\tfrac12$ and $\sinh1>1$), which give $F_w(\zeta)\ge\kappa$.
 
 Let $x_0>0$ and work in the time $\tau\ge\tau_0>0$. As $F_w\ge0$ on $[0,\infty)$, $\dot x\ge-x$ and
-$x(\tau)\ge x(\tau_0)e^{-(\tau-\tau_0)}$. Put $\theta(\tau)=(\kappa\beta(\tau)^3)^{-1/2}$, which
+$x(\tau)\ge x(\tau_0)e^{-(\tau-\tau_0)}$. Put $b_0(\tau)=(\kappa\beta(\tau)^3)^{-1/2}$, which
 decreases; since $\beta(\tau)\ge e^{2\tau}/2$ for $\tau\ge\log2$, we have
-$\theta(\tau)e^\tau\le(8/\kappa)^{1/2}e^{-2\tau}\to0$. If $\theta(\tau)<x\le\kappa/2$, then
+$b_0(\tau)e^\tau\le(8/\kappa)^{1/2}e^{-2\tau}\to0$. If $b_0(\tau)<x\le\kappa/2$, then
 $\dot x>0$: when $\beta x\le1$,
 \[
 \dot x=F_w(\beta x)-x\ge\kappa\beta^3x^3-x=x\bigl(\kappa\beta^3x^2-1\bigr)>0,
 \]
 and when $\beta x>1$, $\dot x\ge\kappa-x\ge\kappa/2$. Choose $\tau_2\ge\tau_0$ with
-$x(\tau_2)>\theta(\tau_2)$ and $\theta(\tau_2)<\kappa/2$, and put
-$\underline x=\min\{x(\tau_2),\kappa/2\}$, so that $\underline x>\theta(\tau)$ for $\tau\ge\tau_2$.
+$x(\tau_2)>b_0(\tau_2)$ and $b_0(\tau_2)<\kappa/2$, and put
+$\underline x=\min\{x(\tau_2),\kappa/2\}$, so that $\underline x>b_0(\tau)$ for $\tau\ge\tau_2$.
 Suppose $x(\tau_3)<\underline x$ for some $\tau_3>\tau_2$, and let
 $\tau'=\sup\{\tau\in[\tau_2,\tau_3]:x(\tau)\ge\underline x\}$. Then
-$x(\tau')=\underline x>\theta(\tau')$ and $x<\underline x\le\kappa/2$ on $(\tau',\tau_3]$. If
-$x>\theta$ on all of $(\tau',\tau_3]$, then $x$ increases there and $x(\tau_3)>\underline x$;
-otherwise the first time $\tau''>\tau'$ with $x=\theta$ satisfies
-$x(\tau'')\ge\underline x>\theta(\tau'')$ because $x$ increases on $(\tau',\tau'')$. Both are
+$x(\tau')=\underline x>b_0(\tau')$ and $x<\underline x\le\kappa/2$ on $(\tau',\tau_3]$. If
+$x>b_0$ on all of $(\tau',\tau_3]$, then $x$ increases there and $x(\tau_3)>\underline x$;
+otherwise the first time $\tau''>\tau'$ with $x=b_0$ satisfies
+$x(\tau'')\ge\underline x>b_0(\tau'')$ because $x$ increases on $(\tau',\tau'')$. Both are
 contradictions, so $x\ge\underline x>0$ on $[\tau_2,\infty)$, and the limit of $x$ in
 $\{-1,0,1\}$ is $1$. By oddness every $x_0<0$ converges to $-1$.
 \end{proof}
