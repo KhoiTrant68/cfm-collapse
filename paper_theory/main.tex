@@ -147,7 +147,7 @@ point $x_0$ coloured by where its trajectory ends. Blue, green and purple identi
 training points. Dark orange marks the centre and light orange an edge midpoint. The circles
 have radii one and two in standard Gaussian coordinates. The bars give endpoint fractions
 over $32768$ Gaussian sources. (a) A single conditional field favours $a_1$ ($B=2$).
-(b) Guidance at $2w_c$ ($w_c=w_c^{\mathrm{spec}}=1.160$, Corollary~\ref{cor:spectral-threshold})
+(b) Guidance at $2w_c$ ($w_c=1.160$, Corollary~\ref{cor:spectral-threshold})
 sends almost all sources to $a_1$. (c) Averaging three conditional
 fields and guiding against a fourth, unconditional field at the same strength sends $13\%$
 to the centre and $41\%$ to edge midpoints (Section~\ref{sec:intervention-tests}).
@@ -982,13 +982,13 @@ and $M_{\mathrm u}$ be that of the unconditional prior, and suppose $M_{\mathrm{
 M_{\mathrm u}(\xi_\star)=z$ for some $\xi_\star\in L$. Let $C_{\mathrm{av}}$, $C_{\mathrm u}$ be their
 derivatives on $L$ at $\xi_\star$, and assume $D=C_{\mathrm u}-C_{\mathrm{av}}\succ0$ on $L$. For
 \[
-w>w_c^{\mathrm{spec}}=\lambda_{\max}\big(D^{-1/2}C_{\mathrm{av}}D^{-1/2}\big),
+w>w_c=\lambda_{\max}\big(D^{-1/2}C_{\mathrm{av}}D^{-1/2}\big),
 \]
 the guided label average puts positive probability on $z$. For the two atoms of
-Theorem~\ref{thm:composition}, $w_c^{\mathrm{spec}}=1/\sinh^2B$. \proofin{apx:pf-spectral}
+Theorem~\ref{thm:composition}, $w_c=1/\sinh^2B$. \proofin{apx:pf-spectral}
 \end{restatable}
 The common equilibrium holds in symmetric configurations, such as a regular simplex with one
-conditional prior favouring each vertex, where $w_c^{\mathrm{spec}}=(1-m^2)/m^2$ with
+conditional prior favouring each vertex, where $w_c=(1-m^2)/m^2$ with
 $m=(e^B-1)/(e^B+N-1)$; Section~\ref{sec:intervention-tests} checks the classification
 numerically. Nonhyperbolic profiles and faces whose affine hull contains $P_Lz$ are not covered.
 Remark~\ref{rem:generic} shows that nonhyperbolic profiles are exceptional in the priors, and that
@@ -1043,7 +1043,7 @@ over the conditions being combined. For a single condition, fixed $w\ge0$ and bo
 nonnegative schedules of bounded variation near the endpoint give a training example almost surely
 from an absolutely continuous source (Proposition~\ref{prop:cfgatom},
 Theorem~\ref{thm:schedule}). A conjunction gives its circumcentre positive mass above
-$w_c^{\mathrm{spec}}$ if the circumcentre is a candidate, the averaged conditional and unconditional
+$w_c$ if the circumcentre is a candidate, the averaged conditional and unconditional
 restricted means equal it at the same tilt and $C_{\mathrm u}-C_{\mathrm{av}}\succ0$ on the tie span
 (Corollary~\ref{cor:spectral-threshold}). Opposing preferences alone can leave the midpoint
 repelling for every $w\ge0$. For example, take two atoms, conditional odds $3$ and $4/5$ with
@@ -1592,7 +1592,7 @@ $a_j=x^j$, $A$, $R=\max_j|a_j|$ & atoms, atom set, atom radius (Appendix~\ref{ap
 $\eps=1-t$, $\tau=-\log\eps$ & time to the end; logarithmic time, in which $\dot x=\bar m-x$\\
 $\beta=t/\eps^2$, $\alpha=1/\beta$ & inverse temperature of the posterior over atoms, and its inverse\\
 $b_j$, $H_p$ & linear scores $x\cdot a_j-\tfrac t2|a_j|^2$; log-partition function of prior $p$\\
-$w$, $w_c$ & guidance strength; threshold of the configuration at hand: $1/\sinh^2B$ for two atoms (Theorem~\ref{thm:composition}), $w_c^{\mathrm{spec}}=(1-m^2)/m^2$ for the regular simplex and the triangle (Corollary~\ref{cor:spectral-threshold})\\
+$w$, $w_c$ & guidance strength; threshold of the configuration at hand: $1/\sinh^2B$ for two atoms (Theorem~\ref{thm:composition}), $w_c=(1-m^2)/m^2$ for the regular simplex and the triangle (Corollary~\ref{cor:spectral-threshold})\\
 $M$, $\Gamma$, $\xi$ & restricted posterior mean, signed posterior covariance, blown-up position (Section~\ref{sec:spectral})\\
 $\tilde\tau$ & fast time, $d\tilde\tau=\beta\,d\tau$ (Appendix~\ref{apx:pf-spectral})\\
 \bottomrule
@@ -3136,7 +3136,7 @@ $\xi_\star$ is a profile, and
 \]
 Congruence by $D^{-1/2}$ preserves definiteness, and
 $D^{-1/2}\Gamma_w(\xi_\star)D^{-1/2}=D^{-1/2}C_{\mathrm{av}}D^{-1/2}-wI_L$, so $\Gamma_w(\xi_\star)\prec0$
-on $L$ exactly when $w>w_c^{\mathrm{spec}}$. In that case $\xi_\star$ is hyperbolic, and part (a)
+on $L$ exactly when $w>w_c$. In that case $\xi_\star$ is hyperbolic, and part (a)
 gives positive probability.
 
 For the two atoms of Theorem~\ref{thm:composition}, $S=\{-1,1\}$, $z=0$, $L=\R$ and $\xi=\zeta$. The
@@ -3146,7 +3146,7 @@ one, so $M_{\mathrm{av}}(0)=M_{\mathrm u}(0)=0$ and
 C_{\mathrm{av}}=\tfrac12\bigl(\operatorname{sech}^2B+\operatorname{sech}^2(-B)\bigr)=\operatorname{sech}^2B,
 \qquad C_{\mathrm u}=1,\qquad D=1-\operatorname{sech}^2B=\tanh^2B,
 \]
-whence $w_c^{\mathrm{spec}}=\operatorname{sech}^2B/\tanh^2B=1/\sinh^2B$.
+whence $w_c=\operatorname{sech}^2B/\tanh^2B=1/\sinh^2B$.
 
 For a regular simplex of $N$ unit atoms around $z=0$, $L$ is their span, $\sum_ja_j=0$ and
 $\sum_ja_ja_j^\top=\frac{N}{N-1}I_L$. Take the priors $p_{k,j}\propto e^{B\ind\{j=k\}}$, averaged
@@ -3163,7 +3163,7 @@ C_{\mathrm{av}}&=\frac1N\sum_k\Bigl(\E_{p_k}[aa^\top]-m^2a_ka_k^\top\Bigr)
 \iclrbr=\frac{1-m^2}{N-1}\,I_L,\\
 C_{\mathrm u}&=\frac1N\sum_ka_ka_k^\top=\frac1{N-1}\,I_L,\qquad D=\frac{m^2}{N-1}\,I_L .
 \end{align*}
-For $B\ne0$, $m\ne0$ and $D\succ0$, and $w_c^{\mathrm{spec}}=(1-m^2)/m^2$.
+For $B\ne0$, $m\ne0$ and $D\succ0$, and $w_c=(1-m^2)/m^2$.
 \end{proof}
 
 \subsection{Two-atom ties}
