@@ -420,8 +420,8 @@ that combine how well each example explains the state and the label.
 \label{prop:kernel-field}
 For $h>0$, $t<1$,
 \begin{equation}
-\vstar(x,t,y)=\sum_i w_i^{(h)}(x,t,y)\,\frac{x^i-x}{1-t},\quad
-w_i^{(h)}=\frac{\pi_0\!\big(\tfrac{x-tx^i}{1-t}\big)K_h(y-y^i)}
+\vstar(x,t,y)=\sum_i q_i^{(h)}(x,t,y)\,\frac{x^i-x}{1-t},\quad
+q_i^{(h)}=\frac{\pi_0\!\big(\tfrac{x-tx^i}{1-t}\big)K_h(y-y^i)}
 {\sum_j\pi_0\!\big(\tfrac{x-tx^j}{1-t}\big)K_h(y-y^j)}.
 \label{eq:kernel-field}
 \end{equation}
@@ -442,7 +442,7 @@ weighted empirical law on the right of \eqref{eq:endpoint}; \citet[Theorem~5.3]{
 endpoint law follows from theirs.
 
 \paragraph{The posterior mean and the error of a learned field.} In all three cases the exact field
-has the form $\vstar=(m^\star-x)/(1-t)$, where $m^\star=\sum_jw_j^{(h)}x^j$ is the posterior mean
+has the form $\vstar=(m^\star-x)/(1-t)$, where $m^\star=\sum_jq_j^{(h)}x^j$ is the posterior mean
 over the training inputs. A learned field that predicts data, $v_\theta=(\hat x_1-x)/(1-t)$,
 therefore differs from the exact one by $\Delta$ with $(1-t)\Delta=\hat x_1-m^\star$. The exact
 field always returns training inputs. A learned field can end elsewhere only through $\Delta$, and
@@ -462,8 +462,8 @@ a late amplification (Proposition~\ref{prop:loss-no-certificate}). An explicit r
 condition restores a finite-time bound (Theorem~\ref{thm:risktransfer}). Both are in
 Appendix~\ref{app:teacher-risk}.
 
-\paragraph{The landing condition.} Write $m^\star=\sum_jw_jx^j$ for any posterior mean with
-continuous weights $w_j\ge0$, $\sum_jw_j=1$ (at an identifying label or a positive bandwidth, or the
+\paragraph{The landing condition.} Write $m^\star=\sum_jq_jx^j$ for any posterior mean with
+continuous weights $q_j\ge0$, $\sum_jq_j=1$ (at an identifying label or a positive bandwidth, or the
 class posterior of Section~\ref{sec:edm}), so that $(1-t)\Delta=\hat x_1-m^\star$ for a field that
 predicts data.
 
@@ -472,7 +472,7 @@ predicts data.
 Let $\hat x_1$ be continuous on $\R^d\times[t_1,1)$ and $Z$ a $C^1$ solution of
 $\dot Z_t=(\hat x_1(Z_t,t)-Z_t)/(1-t)$ on $[t_1,1)$. Fix an atom $a=x^i$ and write
 $n_t=|Z_t-a|$, $e_t=|\hat x_1(Z_t,t)-m^\star(Z_t,t)|$ and
-$\zeta_t=(1-w_i(Z_t,t))\max_k|x^k-a|$.
+$\zeta_t=(1-q_i(Z_t,t))\max_k|x^k-a|$.
 \begin{enumerate}[label=(\alph*),leftmargin=2em]
 \item $n$ is locally Lipschitz; where $n_t>0$,
   $(1-t)\dot n_t=\langle\hat e_t,\hat x_1(Z_t,t)-a\rangle-n_t$ with $\hat e_t=(Z_t-a)/n_t$, and
@@ -1174,7 +1174,7 @@ $X_t=(1-t)X_0+tX_1$, $U=X_1-X_0$ & linear interpolant and regression target\\
 $h$, $K_h$, $\widetilde Y=Y+h\omega$ & label bandwidth, Gaussian label kernel, noised label\\
 $\vstar$ & exact conditional minimiser of \eqref{eq:objective}\\
 $p^{(h)}(y)$, $p_1^{(h)}(\cdot\mid y)$ & label weights $p_i^{(h)}(y)\propto K_h(y-y^i)$; endpoint law at query $y$\\
-$m^\star$, $w_j$ & posterior mean over the atoms and its weights\\
+$m^\star$, $q_j$ & posterior mean over the atoms and its weights\\
 $\eps=1-t$ & time to the end\\
 $\Delta$ & error of a learned field relative to the exact field\\
 $\hat x_1$, $D_\theta$ & data prediction of a learned field; EDM denoiser\\
@@ -1256,8 +1256,8 @@ exponentially small error. Adding this error to $\Delta$, the identity of
 Lemma~\ref{thm:transfer} first traps the trajectory in the ball and then gives the limit.
 \begin{proof}
 Let $p=p^{(h)}(y)$, a probability vector with all entries positive. By
-Proposition~\ref{prop:kernel-field}, $v^\star=(m^\star-x)/(1-t)$ with $m^\star=\sum_jw_j^{(h)}x^j$ and
-$w_j^{(h)}\propto p_j\,\pi_0\big(\tfrac{x-tx^j}{1-t}\big)\propto p_j\exp\big(-|x-tx^j|^2/(2(1-t)^2)\big)$.
+Proposition~\ref{prop:kernel-field}, $v^\star=(m^\star-x)/(1-t)$ with $m^\star=\sum_jq_j^{(h)}x^j$ and
+$q_j^{(h)}\propto p_j\,\pi_0\big(\tfrac{x-tx^j}{1-t}\big)\propto p_j\exp\big(-|x-tx^j|^2/(2(1-t)^2)\big)$.
 
 We first compare the exact field with the hard field near $a$. For $|x-a|\le r$ and $j\ne i$,
 $|x-x^j|\ge|x^j-a|-|x-a|\ge \ell -r>0$, so
@@ -1267,10 +1267,10 @@ $|x-x^j|\ge|x^j-a|-|x-a|\ge \ell -r>0$, so
 By uniform continuity of $(x,t)\mapsto|x-tx^j|^2-|x-ta|^2$ on $\overline{B_r(a)}\times[0,1]$,
 whose value at $t=1$ is the left side above, there is $t_1<1$ such that this difference is at least
 $g=\ell (\ell -2r)/2$ for all $j\ne i$, $|x-a|\le r$ and $t\in[t_1,1]$. Since
-$w_j^{(h)}/w_i^{(h)}=(p_j/p_i)\exp\big(-(|x-tx^j|^2-|x-ta|^2)/(2(1-t)^2)\big)\le(p_j/p_i)\,e^{-g/(2(1-t)^2)}$,
+$q_j^{(h)}/q_i^{(h)}=(p_j/p_i)\exp\big(-(|x-tx^j|^2-|x-ta|^2)/(2(1-t)^2)\big)\le(p_j/p_i)\,e^{-g/(2(1-t)^2)}$,
 for such $(x,t)$
 \[
-|m^\star(x,t)-a|=\Bigl|\sum_{j\ne i}w_j^{(h)}(x^j-a)\Bigr|\le\sum_{j\ne i}\frac{w_j^{(h)}}{w_i^{(h)}}|x^j-a|
+|m^\star(x,t)-a|=\Bigl|\sum_{j\ne i}q_j^{(h)}(x^j-a)\Bigr|\le\sum_{j\ne i}\frac{q_j^{(h)}}{q_i^{(h)}}|x^j-a|
 \le C_pe^{-g/(2(1-t)^2)}=:e_\star(t),\qquad C_p=\sum_{j\ne i}\frac{p_j}{p_i}|x^j-a|.
 \]
 Choose $t_\star\ge t_1$ with $e_\star\le r/4$ on $[t_\star,1)$; it depends only on the atoms, $p$
@@ -1435,9 +1435,9 @@ equality: along each trajectory $(1-t)|\Delta(Z_t,t)|=|X_0|=|Z_1-a|$ on $[1-\del
 
 Throughout, $x^1,\dots,x^N$ are distinct atoms, $a=x^i$ is fixed,
 $g=\min_{k\ne i}|x^k-a|$ ($g=\infty$ if $N=1$) and $\delta_i=\max_k|x^k-a|$. For any weights
-$w_j\ge0$ with $\sum_jw_j=1$ the posterior mean satisfies
+$q_j\ge0$ with $\sum_jq_j=1$ the posterior mean satisfies
 \begin{equation}
-|m^\star-a|=\Big|\sum_{j\ne i}w_j(x^j-a)\Big|\le(1-w_i)\,\delta_i,
+|m^\star-a|=\Big|\sum_{j\ne i}q_j(x^j-a)\Big|\le(1-q_i)\,\delta_i,
 \label{eq:offmass}
 \end{equation}
 which is the only property of $m^\star$ used below.
@@ -1487,7 +1487,7 @@ land with $e_t=n_t$, so $\bar\varrho<1$ is sufficient, not necessary.
 
 In EDM coordinates the flow is $dx/d\sigma=(x-D(x,\sigma))/\sigma$, run from $\sigma_1$ down to $0$, and
 the posterior weights over the atoms are
-$w_j(x,\sigma)\propto\exp(-|x-x^j|^2/(2\sigma^2))$. For $0<R\le g/4$ let $c_R=R/(g-R)\le1/3$ and
+$q_j(x,\sigma)\propto\exp(-|x-x^j|^2/(2\sigma^2))$. For $0<R\le g/4$ let $c_R=R/(g-R)\le1/3$ and
 $\bar\zeta(\sigma)=(N-1)\,\delta_i\exp(-(1-c_R^2)(g-R)^2/(2\sigma^2))$.
 
 \begin{proposition}[Trapping]
@@ -1495,7 +1495,7 @@ $\bar\zeta(\sigma)=(N-1)\,\delta_i\exp(-(1-c_R^2)(g-R)^2/(2\sigma^2))$.
 Let $D$ be continuous, $x$ a $C^1$ solution on $(0,\sigma_1]$, $n(\sigma)=|x(\sigma)-a|$ and
 $e(\sigma)=|D(x(\sigma),\sigma)-m^\star(x(\sigma),\sigma)|$.
 \begin{enumerate}[label=(\roman*),leftmargin=2em]
-\item If $|x-a|\le R$, then $(1-w_i(x,\sigma))\,\delta_i\le\bar\zeta(\sigma)$.
+\item If $|x-a|\le R$, then $(1-q_i(x,\sigma))\,\delta_i\le\bar\zeta(\sigma)$.
 \item Suppose $e\le\bar\varrho\,n+\gamma$ whenever $n\le R$, with $\bar\varrho<1$ and continuous
   $\gamma\ge0$; $n(\sigma_1)<R$; and $\gamma+\bar\zeta<(1-\bar\varrho)R$ on $(0,\sigma_1]$. Then
   $n<R$ on $(0,\sigma_1]$,
@@ -1512,7 +1512,7 @@ $e(\sigma)=|D(x(\sigma),\sigma)-m^\star(x(\sigma),\sigma)|$.
 
 \begin{proof}
 (i) If $|x-a|\le R$ and $k\ne i$, then $|x-x^k|\ge g-R$ and
-$w_k\le w_k/w_i\le\exp((R^2-(g-R)^2)/(2\sigma^2))=\exp(-(1-c_R^2)(g-R)^2/(2\sigma^2))$; sum over
+$q_k\le q_k/q_i\le\exp((R^2-(g-R)^2)/(2\sigma^2))=\exp(-(1-c_R^2)(g-R)^2/(2\sigma^2))$; sum over
 $k\ne i$. (ii) Write $\nu=1-\bar\varrho$ and $\eta=\gamma+\bar\zeta$. Where $0<n\le R$, the radial identity
 $\sigma\,dn/d\sigma=n-\langle\hat e,D-a\rangle$ with \eqref{eq:offmass} and (i) gives
 $\sigma\,dn/d\sigma\ge\nu n-\eta$. If $n\ge R$ somewhere, let $\bar\sigma$ be the largest such
@@ -1536,7 +1536,7 @@ $\tilde x_k=x_k+(\sigma_{k+1}-\sigma_k)d_k$, evaluates $\tilde D_k=D(\tilde x_k,
 $x_{k+1}=x_k+\tfrac12(\sigma_{k+1}-\sigma_k)(d_k+(\tilde x_k-\tilde D_k)/\sigma_{k+1})$; the last step
 is the Euler step to $\sigma_K=0$. Write $r_k=\sigma_{k+1}/\sigma_k$, $n_k=|x_k-a|$,
 $\tilde n_k=|\tilde x_k-a|$, $e(y,\sigma)=|D(y,\sigma)-m^\star(y,\sigma)|$ and
-$\zeta(y,\sigma)=(1-w_i(y,\sigma))\delta_i$.
+$\zeta(y,\sigma)=(1-q_i(y,\sigma))\delta_i$.
 
 \begin{proposition}[Heun steps]
 \label{prop:heun}
@@ -1741,7 +1741,7 @@ between swap levels, with $95\%$ intervals from a bootstrap over samples ($4000$
 \texttt{paperB\_swap.py}).
 
 \paragraph{Choice and the exact posterior.} The exact field is the posterior mean of the training
-images $x^j$ of class $c$ under the weights $w_j(x,\sigma)\propto\exp(-|x-x^j|^2/(2\sigma^2))$.
+images $x^j$ of class $c$ under the weights $q_j(x,\sigma)\propto\exp(-|x-x^j|^2/(2\sigma^2))$.
 \texttt{paperB\_collapse\_sigma.py} evaluates these weights on the training set of each model,
 regenerated from its seed, at $81$ noise levels log-spaced from $80$ to $0.002$: at
 $x=x_{\mathrm{test}}+\sigma\varepsilon$, for each of the $1000$ CIFAR-10 test images
