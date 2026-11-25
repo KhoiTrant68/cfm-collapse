@@ -825,18 +825,18 @@ $v_{\varphi,w}=(1+w)v_\varphi-wv_{\mathrm{unc}}^\star$ converges to $-1$, $0$ or
 
 \newcommand{\compositioneq}{%
 \begin{equation}
-F_w(s)=\tfrac{1+w}2\big[\tanh(s+B)+\tanh(s-B)\big]-w\tanh s
-=\frac{2\tanh(s)\,\big(\cosh^2s-w\sinh^2B\big)}{\cosh2s+\cosh2B}.
+F_w(\zeta)=\tfrac{1+w}2\big[\tanh(\zeta+B)+\tanh(\zeta-B)\big]-w\tanh \zeta
+=\frac{2\tanh(\zeta)\,\big(\cosh^2\zeta-w\sinh^2B\big)}{\cosh2\zeta+\cosh2B}.
 \label{eq:composition-mean}
 \end{equation}}
 \ificlr
-With $s=tx/(1-t)^2$, in the time $\tau$ the composite flow is $\dot x=F_w(s)-x$ with
+With $\zeta=tx/(1-t)^2$, in the time $\tau$ the composite flow is $\dot x=F_w(\zeta)-x$ with
 \compositioneq
 At the tie the averaged posterior mean has slope $\operatorname{sech}^2B$ and the unconditional one slope~$1$, so the slope $F_w'(0)=(1+w)\operatorname{sech}^2B-w$ turns negative, and the tie attracts, exactly when $w>1/\sinh^2B$; the proof is in Appendix~\ref{apx:pf-composition}.
 \else
 \begin{proofsketch}
-With $s=tx/(1-t)^2$, the averaged posterior means are $\tanh(s\pm B)$ and the unconditional one
-is $\tanh s$, so in the time $\tau$ the composite flow is $\dot x=F_w(s)-x$ with
+With $\zeta=tx/(1-t)^2$, the averaged posterior means are $\tanh(\zeta\pm B)$ and the unconditional one
+is $\tanh \zeta$, so in the time $\tau$ the composite flow is $\dot x=F_w(\zeta)-x$ with
 \compositioneq
 Near the tie each averaged component is confident in a different atom, so their average has the
 small slope $\operatorname{sech}^2B$, while the unconditional mean has slope $1$. Guidance
@@ -855,9 +855,9 @@ is exponentially small (Figure~\ref{fig:composition}). The effect does not rely 
 \label{prop:composition-open}
 On the atoms $\{-1,1\}\subset\R$, average finitely many conditional priors with log-odds
 $2B_k$ (atom $1$ against atom $-1$) with weights $\lambda_k>0$ summing to one, let the
-unconditional prior have log-odds $2B_u$, and fix $w$. The composite field is $(F(s)-x)/(1-t)$
-with $s=tx/(1-t)^2$ and $F(s)=(1+w)\sum_k\lambda_k\tanh(s+B_k)-w\tanh(s+B_u)$. If
-$F(s^\star)=0$ and $F'(s^\star)<0$ for some $s^\star$, the initial points converging to $0$
+unconditional prior have log-odds $2B_u$, and fix $w$. The composite field is $(F(\zeta)-x)/(1-t)$
+with $\zeta=tx/(1-t)^2$ and $F(\zeta)=(1+w)\sum_k\lambda_k\tanh(\zeta+B_k)-w\tanh(\zeta+B_u)$. If
+$F(\zeta_\star)=0$ and $F'(\zeta_\star)<0$ for some $\zeta_\star$, the initial points converging to $0$
 contain a nonempty open interval. With two conditional priors, this hypothesis holds on an open
 set of parameters $(\lambda_1,B_1,B_2,B_u,w)$, with $\lambda_2=1-\lambda_1$ and
 $\lambda_1\in(0,1)$, containing every configuration of Theorem~\ref{thm:composition}(a).
@@ -887,10 +887,10 @@ in any dimension.
 \includegraphics[width=\ificlr0.82\else0.98\fi\textwidth]{fig_composition.pdf}
 \caption{Guided label averaging on two training points (Theorem~\ref{thm:composition}). (a) The
 profiles, zeros of $F_w$ in \eqref{eq:composition-mean}, against $w/w_c$, $w_c=1/\sinh^2B$. The tie
-$s=0$ repels below $w_c$ and attracts above it, as $F_w'(0)=\operatorname{sech}^2B\,(1-w/w_c)$. Above
-$w_c$ the repelling profiles $\pm s_u$, $\cosh s_u=\sqrt{w/w_c}$ (dashed), bound the basin of zero
+$\zeta=0$ repels below $w_c$ and attracts above it, as $F_w'(0)=\operatorname{sech}^2B\,(1-w/w_c)$. Above
+$w_c$ the repelling profiles $\pm \zeta_u$, $\cosh \zeta_u=\sqrt{w/w_c}$ (dashed), bound the basin of zero
 for the limiting profile equation (shaded). Arrows give the sign of $F_w$. The finite-time
-separating trajectories also depend on time. In the coordinate $s$ the
+separating trajectories also depend on time. In the coordinate $\zeta$ the
 profiles depend on $B$ only through $w/w_c$; circles are the zeros computed numerically for
 $B=1,2,3$. (b) Probability $P_0$ under $\pi_0$ that the trajectory ends at the midpoint, divided by
 the prefactor of the near-threshold law of Appendix~\ref{apx:threshold-scaling}, against $w/w_c-1$,
@@ -921,7 +921,7 @@ prior $p_k$ restricted to $S$ and tilted by $e^{\langle\xi,a\rangle}$, and put
 M(\xi)=\sum_kc_k\,\E_{\pi_k(\xi)}[a],\qquad
 \Gamma(\xi)=D_LM(\xi)=\sum_kc_k\Cov_{\pi_k(\xi)}(P_La).
 \]
-The rescaled position $\xi=\beta P_L(x-tz)$ generalises $s$ of Section~\ref{sec:composition}; a
+The rescaled position $\xi=\beta P_L(x-tz)$ generalises $\zeta$ of Section~\ref{sec:composition}; a
 \emph{profile} is a root of $M(\xi)=z$, \emph{hyperbolic} if $\Gamma$ is invertible there.
 }%
 \ificlr Beyond two atoms the local classification uses a matrix. If the hyperbolicity and face hypotheses of Theorem~\ref{thm:spectral}(c) hold at a non-atom candidate $z$ with
@@ -971,7 +971,7 @@ $\xi=o(\sigma)$; so profiles cannot escape to infinity.
 Lemma~\ref{lem:volume} uses only $\Theta=\tr\Gamma$: a profile with $\tr\Gamma>0$ already has a
 null basin. Theorem~\ref{thm:spectral}(b) also covers saddles with $\tr\Gamma\le0$, and (a) gives
 the positive-measure counterpart in any dimension. In one dimension trace and eigenvalue
-coincide, and the roots $0$ and $\pm s_u$ of $F_w$ recover Theorem~\ref{thm:composition}, except
+coincide, and the roots $0$ and $\pm \zeta_u$ of $F_w$ recover Theorem~\ref{thm:composition}, except
 at the nonhyperbolic threshold $w=w_c$, which its proof treats separately.
 }%
 \moveblock{corspectral}{%
@@ -1265,7 +1265,7 @@ against basin probabilities $0$, $0.050$, $0.406$ and $0.991$ under $\pi_0$. Thi
 rounding effect. In the last steps of the first segment the step exceeds the stability bound of
 RK4 for the linearisation at the tie by a factor of about $27$ at $w=2w_c$. The captured trajectories have
 already reached $|x_1|\approx10^{-17}$, where the logits no longer resolve $x_1$ and the computed
-field is exactly symmetric. With the same field coded in the blow-up coordinate $s=tx_1/(1-t)^2$,
+field is exactly symmetric. With the same field coded in the blow-up coordinate $\zeta=tx_1/(1-t)^2$,
 the scheme ejects these trajectories: no source ends at the midpoint, except $0.049$ at
 $w=1.1\,w_c$ with $512$ steps and the gap $10^{-2}$ only, and the $1\%$ criterion flags nothing.
 Detection also depends on the coordinates. Translating both atoms by $c=(0.25,0)$ translates each
@@ -1280,15 +1280,15 @@ classified in profile coordinates (Appendix~\ref{app:intervention-protocol}).
 \paragraph{Guided label averaging.} For the configuration of Theorem~\ref{thm:composition} we
 integrate the exact composite flow \ificlr with stopping rules taken from the proof, and locate
 the basin of the midpoint, an interval, by bisection.\else with a stiff solver (Radau, relative tolerance $10^{-11}$)
-and stop at the first time a sufficient condition from the proof fixes the limit: $s$ beyond the
-outer roots of $F_w$, or $s$ inside the moving barrier around a root with $F_w'<0$. Flows on the
+and stop at the first time a sufficient condition from the proof fixes the limit: $\zeta$ beyond the
+outer roots of $F_w$, or $\zeta$ inside the moving barrier around a root with $F_w'<0$. Flows on the
 line preserve order, so the basin of the midpoint is an interval, located by bisection.\fi{}
 \ificlr The horizontal coordinates in Figure~\ref{fig:learned-composition} give\else Figure~\ref{fig:composition}(b) gives\fi{} its $\pi_0$-probability, and Table~\ref{tab:composition}
 in Appendix~\ref{app:intervention-protocol} lists the values. Below the threshold $w_c=1/\sinh^2B$
 only the source $0$ reaches the midpoint (Theorem~\ref{thm:composition}(b); the stopping rule then
 labels every other source an atom at its first check); just above it the computed basin probability grows
 linearly\ificlr{}, as a formal law predicts (Appendix~\ref{apx:threshold-scaling}).\else, as $\sqrt{2/\pi}\,(w/w_c-1)/\cosh B$ to within $0.01\%$ at $w=1.0003w_c$, a formal
-law derived in Appendix~\ref{apx:threshold-scaling}.\fi{} \moveblock{compperturb}{The numerical unstable roots agree with the closed form $\cosh s_u=\sqrt w\sinh B$.
+law derived in Appendix~\ref{apx:threshold-scaling}.\fi{} \moveblock{compperturb}{The numerical unstable roots agree with the closed form $\cosh \zeta_u=\sqrt w\sinh B$.
 With $w=1$ and $B\approx2$, unequal mixture weights $(0.6,0.4)$, unequal $(B_1,B_2)=(2,-1.5)$, an
 unconditional log-odds $2B_u=0.6$, or a combination of all three keep basin probabilities between
 $0.71$ and $0.86$, as Proposition~\ref{prop:composition-open} predicts.}\ificlr Perturbed
@@ -1326,7 +1326,7 @@ $10\,w_c$ farther than $0.1$ from every atom and from the centre, and the data-p
 $0.16\pm0.16$ at $2w_c$. \moveblock{lossrisk}{The velocity
 network has the smaller held-out excess risk for $t\ge0.999$ ($1.4\times10^{-7}$ against
 $9.4\times10^{-7}$), yet its posterior mean misses the boundary layer at the tie: at
-$1-t=10^{-5}$ its mean squared error over $|s|\le3$ is $0.67$, against $0.0024$. Small loss does not
+$1-t=10^{-5}$ its mean squared error over $|\zeta|\le3$ is $0.67$, against $0.0024$. Small loss does not
 decide the endpoint without control of the field's regularity
 \citep[Section~3, discussion of Assumption~3]{benton2024error}.} Of the changes the successful network
 makes, the input matters most in these runs: a velocity network with it matches the exact probabilities in most seeds
@@ -2669,7 +2669,7 @@ only.
 function $F_w$ of \eqref{eq:composition-mean}. Lemma~\ref{lem:signedconv} gives convergence to
 $\{-1,0,1\}$, and flows on the line preserve order. For (a), a barrier $|x|<\delta(1-t)^2/t$ that
 moves inward faster than the boundary traps an open interval of sources. For (b),
-$F_w\ge\kappa\min\{s^3,1\}$ on $s\ge0$, and a lower barrier keeps every positive source away
+$F_w\ge\kappa\min\{\zeta^3,1\}$ on $\zeta\ge0$, and a lower barrier keeps every positive source away
 from~$0$.
 \begin{proof}
 We first compute the field. With the Gaussian kernel $K_h$ of Section~\ref{sec:setup}, at a query
@@ -2681,23 +2681,23 @@ so the averaged queries $y'=u_0$ and $y'=-u_0$ give priors $p_+,p_-\in\Ppos$ wit
 $-2B$ for the atom $1$, while the unconditional prior is uniform. For a prior with log-odds $2b$,
 the posterior log-odds of the atom $1$ at $(x,t)$ is
 \[
-2b+\frac{|x+t|^2-|x-t|^2}{2\eps^2}=2b+\frac{2tx}{\eps^2}=2(s+b),\qquad s=\frac{tx}{\eps^2},
+2b+\frac{|x+t|^2-|x-t|^2}{2\eps^2}=2b+\frac{2tx}{\eps^2}=2(\zeta+b),\qquad \zeta=\frac{tx}{\eps^2},
 \]
-so the posterior mean is $\tanh(s+b)$. Hence $v_{\varphi,w}=(F_w(s)-x)/\eps$ with $F_w$ as in
+so the posterior mean is $\tanh(\zeta+b)$. Hence $v_{\varphi,w}=(F_w(\zeta)-x)/\eps$ with $F_w$ as in
 \eqref{eq:composition-mean}. For its closed form, $\tanh\theta+\tanh\vartheta=
 \sinh(\theta+\vartheta)/(\cosh\theta\cosh\vartheta)$ and
-$2\cosh(s+B)\cosh(s-B)=\cosh2s+\cosh2B$ give
-$\tanh(s+B)+\tanh(s-B)=2\sinh2s/(\cosh2s+\cosh2B)$, while $\tanh s=\sinh2s/(\cosh2s+1)$. Therefore,
-using $\cosh2s+1=2\cosh^2s$ and $\cosh2B-1=2\sinh^2B$,
+$2\cosh(\zeta+B)\cosh(\zeta-B)=\cosh2\zeta+\cosh2B$ give
+$\tanh(\zeta+B)+\tanh(\zeta-B)=2\sinh2\zeta/(\cosh2\zeta+\cosh2B)$, while $\tanh \zeta=\sinh2\zeta/(\cosh2\zeta+1)$. Therefore,
+using $\cosh2\zeta+1=2\cosh^2\zeta$ and $\cosh2B-1=2\sinh^2B$,
 \begin{align*}
-F_w(s)
-&=\frac{(1+w)\sinh2s}{\cosh2s+\cosh2B}-\frac{w\sinh2s}{\cosh2s+1}
-\iclrbr=\sinh2s\,\frac{(1+w)(\cosh2s+1)-w(\cosh2s+\cosh2B)}{(\cosh2s+\cosh2B)(\cosh2s+1)}\\
-&=\sinh2s\,\frac{\cosh2s+1-w(\cosh2B-1)}{(\cosh2s+\cosh2B)\,2\cosh^2s}
-\iclrbr=\frac{\sinh2s}{\cosh^2s}\cdot\frac{\cosh^2s-w\sinh^2B}{\cosh2s+\cosh2B}\\
-&=\frac{2\tanh(s)\,\bigl(\cosh^2s-w\sinh^2B\bigr)}{\cosh2s+\cosh2B}.
+F_w(\zeta)
+&=\frac{(1+w)\sinh2\zeta}{\cosh2\zeta+\cosh2B}-\frac{w\sinh2\zeta}{\cosh2\zeta+1}
+\iclrbr=\sinh2\zeta\,\frac{(1+w)(\cosh2\zeta+1)-w(\cosh2\zeta+\cosh2B)}{(\cosh2\zeta+\cosh2B)(\cosh2\zeta+1)}\\
+&=\sinh2\zeta\,\frac{\cosh2\zeta+1-w(\cosh2B-1)}{(\cosh2\zeta+\cosh2B)\,2\cosh^2\zeta}
+\iclrbr=\frac{\sinh2\zeta}{\cosh^2\zeta}\cdot\frac{\cosh^2\zeta-w\sinh^2B}{\cosh2\zeta+\cosh2B}\\
+&=\frac{2\tanh(\zeta)\,\bigl(\cosh^2\zeta-w\sinh^2B\bigr)}{\cosh2\zeta+\cosh2B}.
 \end{align*}
-Thus $F_w$ is odd, and for $s>0$ the sign of $F_w(s)$ is that of $\cosh^2s-w\sinh^2B$.
+Thus $F_w$ is odd, and for $\zeta>0$ the sign of $F_w(\zeta)$ is that of $\cosh^2\zeta-w\sinh^2B$.
 
 The field is $v_c$ of Lemma~\ref{lem:signedconv} with priors $p_+,p_-,p^{\mathrm{unc}}$ and constant
 coefficients $(\tfrac{1+w}2,\tfrac{1+w}2,-w)$, so every trajectory converges to a point of
@@ -2706,9 +2706,9 @@ cross, and the time-$t$ flow maps are increasing homeomorphisms of $\R$. Since $
 $x\equiv0$ is a trajectory, trajectories from $x_0>0$ stay positive, and by oddness of $F_w$ those
 from $-x_0$ are reflections of those from $x_0$. In the time $\tau$, $\dot x=F_w(\beta x)-x$.
 
-For (a), let $w\sinh^2B>1$ and let $s_u>0$ satisfy $\cosh s_u=\sqrt w\sinh B$, so that $F_w<0$ on
-$(0,s_u)$. Fix $\delta\in(0,s_u)$, put $\gamma=-F_w(\delta)>0$ and $b(t)=\delta\eps^2/t$, so that
-$s=\delta$ at $x=b(t)$. In the original time, $b'(t)=-\delta(2\eps/t+\eps^2/t^2)$ and
+For (a), let $w\sinh^2B>1$ and let $\zeta_u>0$ satisfy $\cosh \zeta_u=\sqrt w\sinh B$, so that $F_w<0$ on
+$(0,\zeta_u)$. Fix $\delta\in(0,\zeta_u)$, put $\gamma=-F_w(\delta)>0$ and $b(t)=\delta\eps^2/t$, so that
+$\zeta=\delta$ at $x=b(t)$. In the original time, $b'(t)=-\delta(2\eps/t+\eps^2/t^2)$ and
 $v_{\varphi,w}(b(t),t)=(F_w(\delta)-b(t))/\eps$, so
 \begin{align*}
 v_{\varphi,w}(b(t),t)-b'(t)
@@ -2729,15 +2729,15 @@ converges, so pointwise and dominated convergence, as at the end of the proof of
 Lemma~\ref{lem:volume}, give the endpoint law $P_{-1}\delta_{-1}+P_0\delta_0+P_1\delta_1$ with
 $P_0\ge\pi_0(U)>0$.
 
-For (b), let $w\sinh^2B\le1$. Then $\cosh^2s-w\sinh^2B\ge\cosh^2s-1=\sinh^2s$, so for $s\ge0$
+For (b), let $w\sinh^2B\le1$. Then $\cosh^2\zeta-w\sinh^2B\ge\cosh^2\zeta-1=\sinh^2\zeta$, so for $\zeta\ge0$
 \[
-F_w(s)\ \ge\ \frac{2\tanh(s)\sinh^2(s)}{\cosh2s+\cosh2B}\ \ge\ \kappa\min\{s^3,1\},
+F_w(\zeta)\ \ge\ \frac{2\tanh(\zeta)\sinh^2(\zeta)}{\cosh2\zeta+\cosh2B}\ \ge\ \kappa\min\{\zeta^3,1\},
 \qquad\kappa=\frac1{\cosh2+\cosh2B}.
 \]
-On $[0,1]$ this uses $\tanh s\ge s\tanh1\ge s/2$, $\sinh s\ge s$ and $\cosh2s\le\cosh2$, which give
-$F_w(s)\ge2(s/2)s^2\kappa=\kappa s^3$. On $[1,\infty)$ it uses $\tanh s\ge\tanh1$, that
-$\sinh^2s/(\cosh2s+\cosh2B)=u/(1+2u+\cosh2B)$ with $u=\sinh^2s$ increases in $s$, and
-$2\tanh(1)\sinh^2(1)>1$ (as $\tanh1>\tfrac12$ and $\sinh1>1$), which give $F_w(s)\ge\kappa$.
+On $[0,1]$ this uses $\tanh \zeta\ge \zeta\tanh1\ge \zeta/2$, $\sinh \zeta\ge \zeta$ and $\cosh2\zeta\le\cosh2$, which give
+$F_w(\zeta)\ge2(\zeta/2)\zeta^2\kappa=\kappa \zeta^3$. On $[1,\infty)$ it uses $\tanh \zeta\ge\tanh1$, that
+$\sinh^2\zeta/(\cosh2\zeta+\cosh2B)=u/(1+2u+\cosh2B)$ with $u=\sinh^2\zeta$ increases in $\zeta$, and
+$2\tanh(1)\sinh^2(1)>1$ (as $\tanh1>\tfrac12$ and $\sinh1>1$), which give $F_w(\zeta)\ge\kappa$.
 
 Let $x_0>0$ and work in the time $\tau\ge\tau_0>0$. As $F_w\ge0$ on $[0,\infty)$, $\dot x\ge-x$ and
 $x(\tau)\ge x(\tau_0)e^{-(\tau-\tau_0)}$. Put $\theta(\tau)=(\kappa\beta(\tau)^3)^{-1/2}$, which
@@ -2764,14 +2764,14 @@ $\{-1,0,1\}$ is $1$. By oddness every $x_0<0$ converges to $-1$.
 symmetric configuration of Theorem~\ref{thm:composition} (atoms $\pm1$, priors with log-odds
 $\pm2B$ averaged with equal weights, uniform unconditional prior) with the source $\N(0,1)$, and
 write $w=(1+\delta)w_c$. The theorem gives $P_0>0$ for $\delta>0$ and $P_0=0$ for $\delta\le0$; a
-formal computation gives the rate. Since $\cosh^2s-w\sinh^2B=\sinh^2s-\delta$,
+formal computation gives the rate. Since $\cosh^2\zeta-w\sinh^2B=\sinh^2\zeta-\delta$,
 \[
-F_w(s)=\frac{2\tanh(s)\,(\sinh^2s-\delta)}{\cosh2s+\cosh2B}
-=\frac{s\,(s^2-\delta)}{\cosh^2B}+O(|s|^5+\delta|s|^3).
+F_w(\zeta)=\frac{2\tanh(\zeta)\,(\sinh^2\zeta-\delta)}{\cosh2\zeta+\cosh2B}
+=\frac{\zeta\,(\zeta^2-\delta)}{\cosh^2B}+O(|\zeta|^5+\delta|\zeta|^3).
 \]
 While $\delta\beta\ll1$ the flow in $x$ is close to $\dot x=-x$, so $x\approx x_0e^{-\tau}$ and
-$s\approx x_0e^\tau$. With $\sigma=s/\sqrt\delta$ and $e^{2\theta}=\delta\beta/\cosh^2B$, the
-equation $\dot s=\beta F_w(s)+(1+\eps/t)s$ tends formally, as $\delta\downarrow0$, to
+$\zeta\approx x_0e^\tau$. With $\sigma=\zeta/\sqrt\delta$ and $e^{2\theta}=\delta\beta/\cosh^2B$, the
+equation $\dot \zeta=\beta F_w(\zeta)+(1+\eps/t)\zeta$ tends formally, as $\delta\downarrow0$, to
 \[
 \frac{d\sigma}{d\theta}=e^{2\theta}\sigma(\sigma^2-1)+\sigma,\qquad
 \sigma\sim Ce^\theta\ (\theta\to-\infty),\qquad C=\frac{x_0\cosh B}{\delta}.
@@ -2798,12 +2798,12 @@ the endpoint law does not jump at $w_c$; Theorem~\ref{thm:composition} proves ne
 \ificlr\placeblock{compopenprop}\else\propcompositionopen*\fi
 \begin{proof}
 By the computation at the beginning of the proof of Theorem~\ref{thm:composition}, the prior with
-log-odds $2B_k$ has posterior mean $\tanh(s+B_k)$, and the unconditional prior has posterior mean
-$\tanh(s+B_u)$. The coefficients $(1+w)\lambda_k$ and $-w$ sum to one because
-$\sum_k\lambda_k=1$, so the composite field is $(F(s)-x)/\eps$ with $F$ as stated.
+log-odds $2B_k$ has posterior mean $\tanh(\zeta+B_k)$, and the unconditional prior has posterior mean
+$\tanh(\zeta+B_u)$. The coefficients $(1+w)\lambda_k$ and $-w$ sum to one because
+$\sum_k\lambda_k=1$, so the composite field is $(F(\zeta)-x)/\eps$ with $F$ as stated.
 
-As $F'(s^\star)<0$ and $F(s^\star)=0$, there is $\delta>0$ with $F(c_+)<0<F(c_-)$ for
-$c_\pm=s^\star\pm\delta$. Let $b_\pm(t)=c_\pm\eps^2/t$, so that $b_-<b_+$ and $s=c_\pm$ at
+As $F'(\zeta_\star)<0$ and $F(\zeta_\star)=0$, there is $\delta>0$ with $F(c_+)<0<F(c_-)$ for
+$c_\pm=\zeta_\star\pm\delta$. Let $b_\pm(t)=c_\pm\eps^2/t$, so that $b_-<b_+$ and $\zeta=c_\pm$ at
 $x=b_\pm(t)$. Since $b_\pm'(t)=-c_\pm(2\eps/t+\eps^2/t^2)$ and
 $v(b_\pm(t),t)=(F(c_\pm)-b_\pm(t))/\eps$, the computation in the proof of
 Theorem~\ref{thm:composition}(a) gives
@@ -2820,22 +2820,22 @@ keeps every trajectory with $x(t_1)\in(b_-(t_1),b_+(t_1))$ between the barriers,
 \[
 |x(t)|\le\max\{|c_+|,|c_-|\}\,\frac{\eps^2}{t}\longrightarrow0 .
 \]
-Since $F'$ is bounded and $t_1<1$, the field has $|\partial_xv|=|F'(s)\,t/\eps^2-1|/\eps$ bounded on
+Since $F'$ is bounded and $t_1<1$, the field has $|\partial_xv|=|F'(\zeta)\,t/\eps^2-1|/\eps$ bounded on
 $\R\times[0,t_1]$, so the flow from $0$ to $t_1$ is an increasing homeomorphism of $\R$, and the
 preimage of $(b_-(t_1),b_+(t_1))$ is a nonempty open interval of initial points converging to~$0$.
 
 For the parameter statement, fix two components and parameters
 $\vartheta=(\lambda_1,B_1,B_2,B_u,w)$ with $\lambda_2=1-\lambda_1$; the map
-$(\vartheta,s)\mapsto F_\vartheta(s)$ is smooth. At a configuration of
+$(\vartheta,\zeta)\mapsto F_\vartheta(\zeta)$ is smooth. At a configuration of
 Theorem~\ref{thm:composition}(a), $\vartheta_0=(\tfrac12,B,-B,0,w)$ with $w\sinh^2B>1$, we have
 $F_{\vartheta_0}=F_w$, so $F_{\vartheta_0}(0)=0$ and
 \[
-\partial_sF_{\vartheta_0}(0)=(1+w)\operatorname{sech}^2B-w
+\partial_\zeta F_{\vartheta_0}(0)=(1+w)\operatorname{sech}^2B-w
 =\operatorname{sech}^2B-w\tanh^2B
 =\operatorname{sech}^2B\,\bigl(1-w\sinh^2B\bigr)<0 .
 \]
-The implicit function theorem gives a continuous root $s^\star(\vartheta)$ near $\vartheta_0$ with
-$s^\star(\vartheta_0)=0$, and by continuity $\partial_sF_\vartheta(s^\star(\vartheta))<0$ on a smaller
+The implicit function theorem gives a continuous root $\zeta_\star(\vartheta)$ near $\vartheta_0$ with
+$\zeta_\star(\vartheta_0)=0$, and by continuity $\partial_\zeta F_\vartheta(\zeta_\star(\vartheta))<0$ on a smaller
 neighbourhood, which we intersect with $\{\lambda_1\in(0,1)\}$. The union of these neighbourhoods
 over all such $\vartheta_0$ is the required open set.
 \end{proof}
@@ -3139,7 +3139,7 @@ $D^{-1/2}\Gamma_w(\xi_\star)D^{-1/2}=D^{-1/2}C_{\mathrm{av}}D^{-1/2}-wI_L$, so $
 on $L$ exactly when $w>w_c^{\mathrm{spec}}$. In that case $\xi_\star$ is hyperbolic, and part (a)
 gives positive probability.
 
-For the two atoms of Theorem~\ref{thm:composition}, $S=\{-1,1\}$, $z=0$, $L=\R$ and $\xi=s$. The
+For the two atoms of Theorem~\ref{thm:composition}, $S=\{-1,1\}$, $z=0$, $L=\R$ and $\xi=\zeta$. The
 restricted means are $\tanh(\xi\pm B)$ for the two conditional priors and $\tanh\xi$ for the uniform
 one, so $M_{\mathrm{av}}(0)=M_{\mathrm u}(0)=0$ and
 \[
@@ -3220,7 +3220,7 @@ V=c_1m_1^2-|c_2|\,m_2^2-|c_3|\,m_3^2=|c_2|\,m_2(m_1-m_2)+|c_3|\,m_3(m_1-m_3)<0 ,
 and $F'(\zeta_\star)=1-V>1$.
 
 (c) Here $F=F_w$ of \eqref{eq:composition-mean}. Its zeros are $0$ and, for $w>1/\sinh^2B$, the
-two points $\pm s_u$ with $\cosh s_u=\sqrt w\sinh B$, where $F_w$ crosses upwards. Since
+two points $\pm \zeta_u$ with $\cosh \zeta_u=\sqrt w\sinh B$, where $F_w$ crosses upwards. Since
 $F_w'(0)=(1+w)\operatorname{sech}^2B-w$, the profile $0$ has $F_w'<0$ exactly when
 $w>1/\sinh^2B$, and for $w\le1/\sinh^2B$ it is the only profile.
 \end{proof}
@@ -3544,11 +3544,11 @@ step falls below floating-point spacing; we retain these failures.
 
 \paragraph{Guided label averaging.} \texttt{composition\_counterexample.py} integrates $x$ with
 Radau (relative tolerance $10^{-11}$, absolute $10^{-13}$) up to $\tau=0.5$ and then
-$\dot s=\beta F(s)+(1+\eps/t)s$. Every $0.25$ units of $\tau$ it checks two stopping rules, each
-forward invariant: $s$ beyond $\max(0,\text{largest root of }F)$ (limit $1$) or below
-$\min(0,\text{smallest root})$ (limit $-1$); or $|s-s^\star|\le\delta$ around a root with
-$F(s^\star-\delta)>0>F(s^\star+\delta)$ and $\beta\min\{F(s^\star-\delta),-F(s^\star+\delta)\}>
-(1+\eps/t)(|s^\star|+\delta)$ (limit $0$). Roots are bracketed on a grid over $[-60,60]$ and refined
+$\dot \zeta=\beta F(\zeta)+(1+\eps/t)\zeta$. Every $0.25$ units of $\tau$ it checks two stopping rules, each
+forward invariant: $\zeta$ beyond $\max(0,\text{largest root of }F)$ (limit $1$) or below
+$\min(0,\text{smallest root})$ (limit $-1$); or $|\zeta-\zeta_\star|\le\delta$ around a root with
+$F(\zeta_\star-\delta)>0>F(\zeta_\star+\delta)$ and $\beta\min\{F(\zeta_\star-\delta),-F(\zeta_\star+\delta)\}>
+(1+\eps/t)(|\zeta_\star|+\delta)$ (limit $0$). Roots are bracketed on a grid over $[-60,60]$ and refined
 by Brent's method. The basin of $0$ is an interval located by bisection to relative tolerance
 $10^{-12}$, and its probability is computed under $\N(0,1)$. Table~\ref{tab:composition} lists
 the probabilities shown in Figure~\ref{fig:composition}(b).
@@ -3658,7 +3658,7 @@ architecture but regresses the exact posterior mean at interpolant samples and a
 boundary layer; it is a positive control for the solver and the architecture at the tie where its
 input is centred (on the triangle it also leaves the edge midpoints empty), not a model learned from
 data. Composites are integrated from the first $2048$ of $16384$ shared Gaussian
-sources in $\tau=-\log(1-t)$, first in $x$ and then in $s=tx/(1-t)^2$, by a per-source adaptive
+sources in $\tau=-\log(1-t)$, first in $x$ and then in $\zeta=tx/(1-t)^2$, by a per-source adaptive
 Rosenbrock method (ROS2) at relative tolerances $10^{-5}$ and $10^{-7}$. Occupancy is
 the fraction of sources within $\delta$ of the midpoint at the gap $\epsilon=1-t$, reported at
 $\epsilon=10^{-5}$, $\delta=0.05$; the radii $0.02$ and $0.1$ are in the artifacts. Over every
@@ -3763,11 +3763,11 @@ method with relative tolerance $10^{-6}$. Once all three posterior distributions
 pair mass above $1-10^{-12}$, we approximate the remaining field by the two-atom field.
 If all three concentrate on the same single atom first, we retain that atom assignment.
 Write $q$ for displacement from the moving midpoint $tz$ along the unit pair axis and
-$\lambda=rt/(1-t)$. Then $s=\lambda q/(1-t)$ obeys
-$ds/d\lambda=s/\lambda+\lambda F_w(s)$. By symmetry we can follow $|s|$.
+$\lambda=rt/(1-t)$. Then $\zeta=\lambda q/(1-t)$ obeys
+$d\zeta/d\lambda=\zeta/\lambda+\lambda F_w(\zeta)$. By symmetry we can follow $|\zeta|$.
 Above threshold, crossing the outer positive root gives escape. At a fixed wall $a>0$
 inside that root, $a+\lambda^2 F_w(a)<0$ keeps the trajectory inside $[-a,a]$
-at later times; bounded $s$ implies convergence to the midpoint.
+at later times; bounded $\zeta$ implies convergence to the midpoint.
 When neither test decides at handoff we integrate to a barrier event and compare two
 relative tolerances, $10^{-8}$ and $10^{-10}$. A failed or conflicting integration
 leaves the source unresolved. Below threshold the reduced model assigns every nonzero
