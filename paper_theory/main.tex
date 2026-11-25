@@ -732,9 +732,9 @@ initial point. Then:
 \begin{proofsketch}
 For (a), Step~1 survives the negative coefficient because the relative entropy of a posterior to
 a fixed positive prior is bounded. For Step~2, near a non-atom limit at distance $r$ from its
-nearest atoms the guided covariance trace is $\Theta=r^2-|\mu_w|^2+w(1+w)|\mu_c-\mu_u|^2+o(1)$,
-where $\mu_c,\mu_u,\mu_w$ are the conditional, unconditional and guided posterior means relative
-to the limit; the third term is nonnegative for $w\ge0$, and $\mu_w$ is small in mean square, so
+nearest atoms the guided covariance trace is $\Theta=r^2-|m_w|^2+w(1+w)|m_c-m_u|^2+o(1)$,
+where $m_c,m_u,m_w$ are the conditional, unconditional and guided posterior means relative
+to the limit; the third term is nonnegative for $w\ge0$, and $m_w$ is small in mean square, so
 the volume again expands. For (b), a Gibbs inequality gives
 $|x_t-tx^i|^2\le(1-t)^2[C+2w\log N\log\tfrac1{1-t}]$.
 \end{proofsketch}
@@ -2469,7 +2469,7 @@ Theorem~\ref{thm:posmix} is no longer monotone. Lemma~\ref{lem:signedconv} repla
 log-partition function of each prior is integrated by parts against the coefficients, which costs
 their total variation, and the time dependence costs at most $\log(1/\min_jp_j)$. For the volume
 hypothesis, an exact identity writes the guided covariance trace as
-$r^2-|\mu_w|^2+w(1+w)|\mu_c-\mu_u|^2$ plus vanishing terms; the middle term is small in mean
+$r^2-|m_w|^2+w(1+w)|m_c-m_u|^2$ plus vanishing terms; the middle term is small in mean
 square along a converging trajectory, and the last is nonnegative for $w\ge0$.
 \begin{proof}
 Let $p_c=p^{(h)}(y)$ and $p_u=p^{\mathrm{unc}}$, both in $\Ppos$. The field is $v_c$ of
@@ -2479,7 +2479,7 @@ converge to points of $\mathcal C'$, and it remains to verify \eqref{eq:pf:divin
 Lemma~\ref{lem:volume}.
 
 Consider a trajectory with limit $z\notin A$, let $S=\nn(z)$ and $r=\dist(z,A)>0$, and write
-$\mu_c=m_{p_c}-z$, $\mu_u=m_{p_u}-z$ and $\mu_w=(1+w)\mu_c-w\mu_u$, so that $\mu_w=\dot x+x-z$
+$m_c=m_{p_c}-z$, $m_u=m_{p_u}-z$ and $m_w=(1+w)m_c-wm_u$, so that $m_w=\dot x+x-z$
 along the trajectory. Every atom of $S$ is at distance $r$ from $z$, so for each prior $p$
 \begin{align*}
 \tr\Cov_{q_p}(a)
@@ -2493,33 +2493,33 @@ verifies, for vectors $u,v$,
 \[
 (1+w)|u|^2-w|v|^2=|(1+w)u-wv|^2-w(1+w)|u-v|^2 .
 \]
-With $u=\mu_c$ and $v=\mu_u$, the combined trace
+With $u=m_c$ and $v=m_u$, the combined trace
 $\Theta=(1+w)\tr\Cov_{q_{p_c}}(a)-w\tr\Cov_{q_{p_u}}(a)$ is therefore
 \begin{align*}
 \Theta
-&=r^2-\bigl((1+w)|\mu_c|^2-w|\mu_u|^2\bigr)+(1+w)e_{p_c}-we_{p_u}\\
-&=r^2-|\mu_w|^2+w(1+w)|\mu_c-\mu_u|^2+(1+w)e_{p_c}-we_{p_u}
-\ \ge\ r^2-|\mu_w|^2-\bar we_{p_u},
+&=r^2-\bigl((1+w)|m_c|^2-w|m_u|^2\bigr)+(1+w)e_{p_c}-we_{p_u}\\
+&=r^2-|m_w|^2+w(1+w)|m_c-m_u|^2+(1+w)e_{p_c}-we_{p_u}
+\ \ge\ r^2-|m_w|^2-\bar we_{p_u},
 \end{align*}
 using $0\le w\le\bar w$ and $e_{p_c}\ge0$. By Lemma~\ref{lem:basic}(a), the field
 $f=(1+w)m_{p_c}-wm_{p_u}-x$ has $\operatorname{div}_xf=\beta\Theta-d$.
 
 Convergence and finite energy give
 \[
-\int_n^{n+1}|\mu_w|^2\,d\tau\le2\int_n^{n+1}\bigl(|x-z|^2+|\dot x|^2\bigr)\,d\tau\longrightarrow0 .
+\int_n^{n+1}|m_w|^2\,d\tau\le2\int_n^{n+1}\bigl(|x-z|^2+|\dot x|^2\bigr)\,d\tau\longrightarrow0 .
 \]
 Let $\eta_n=\bar w\sup_{[n,n+1]}e_{p_u}\to0$. Since $\beta(\tau)=e^\tau(e^\tau-1)$, for $n\ge1$
 \[
 \frac{\beta(n+1)}{\beta(n)}=e\,\frac{e^{n+1}-1}{e^n-1}\le\frac{e^2}{1-e^{-n}}\le\frac{e^2}{1-e^{-1}}=:C_\beta .
 \]
 For integers $n\ge\max\{1,\tau_0\}$ so large that $\eta_n\le r^2/4$ and
-$C_\beta\int_n^{n+1}|\mu_w|^2\le r^2/4$, monotonicity of $\beta$, applied to the positive factor
-$r^2-\eta_n$ and to $|\mu_w|^2\ge0$, gives
+$C_\beta\int_n^{n+1}|m_w|^2\le r^2/4$, monotonicity of $\beta$, applied to the positive factor
+$r^2-\eta_n$ and to $|m_w|^2\ge0$, gives
 \begin{align*}
 \int_n^{n+1}\beta\Theta\,d\tau
-&\ge\int_n^{n+1}\beta\,(r^2-\eta_n)\,d\tau-\int_n^{n+1}\beta|\mu_w|^2\,d\tau
-\iclrbr\ge\beta(n)(r^2-\eta_n)-\beta(n+1)\int_n^{n+1}|\mu_w|^2\,d\tau\\
-&\ge\beta(n)\Bigl(r^2-\frac{r^2}4\Bigr)-\beta(n)\,C_\beta\int_n^{n+1}|\mu_w|^2\,d\tau
+&\ge\int_n^{n+1}\beta\,(r^2-\eta_n)\,d\tau-\int_n^{n+1}\beta|m_w|^2\,d\tau
+\iclrbr\ge\beta(n)(r^2-\eta_n)-\beta(n+1)\int_n^{n+1}|m_w|^2\,d\tau\\
+&\ge\beta(n)\Bigl(r^2-\frac{r^2}4\Bigr)-\beta(n)\,C_\beta\int_n^{n+1}|m_w|^2\,d\tau
 \iclrbr\ \ge\ \tfrac12r^2\beta(n).
 \end{align*}
 On the bounded remainder of $[\tau_0,\infty)$, $|\Theta|\le(1+2\bar w)R^2$ and $\beta$ is bounded.
