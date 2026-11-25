@@ -545,8 +545,8 @@ p_1^{(h)}(\cdot\mid y)=\sum_{i=1}^N p_i^{(h)}(y)\,\delta_{x^i}.
 \begin{restatable}[Bandwidth limits at fixed $N$]{corollary}{corzerobw}
 \label{cor:zerobw}
 As $h\to\infty$, $p_i^{(h)}(y)\to1/N$ and $p_1^{(h)}(\cdot\mid y)\Rightarrow p_1^{\mathrm{unc}}$. If
-$y$ has a unique nearest label $y^{i^\star}$, then as $h\to0$, $p_i^{(h)}(y)\to\ind\{i=i^\star\}$
-and $p_1^{(h)}(\cdot\mid y)\Rightarrow\delta_{x^{i^\star}}$. \proofin{apx:pf-zerobw}
+$y$ has a unique nearest label $y^{i_\star}$, then as $h\to0$, $p_i^{(h)}(y)\to\ind\{i=i_\star\}$
+and $p_1^{(h)}(\cdot\mid y)\Rightarrow\delta_{x^{i_\star}}$. \proofin{apx:pf-zerobw}
 \end{restatable}
 The mean $\bar x_h(y)=\sum_ip_i^{(h)}(y)x^i$ and covariance
 $\Covh(y)=\sum_ip_i^{(h)}(y)(x^i-\bar x_h(y))(x^i-\bar x_h(y))^\top$ of \eqref{eq:endpoint} are
@@ -1878,15 +1878,15 @@ Theorem~\ref{thm:endpoint}, $p_1^{(h)}(\cdot\mid y)=\sum_ip_i^{(h)}(y)\delta_{x^
 and converging weights, so for bounded continuous $\varphi$,
 $\int\varphi\,dp_1^{(h)}(\cdot\mid y)=\sum_ip_i^{(h)}(y)\varphi(x^i)\to N^{-1}\sum_i\varphi(x^i)$,
 that is $p_1^{(h)}(\cdot\mid y)\Rightarrow\rhohat_X=p_1^{\mathrm{unc}}$ by
-Proposition~\ref{prop:uncond}. For $h\to0$, let $i\ne i^\star$ and
-$g_i=|y-y^i|^2-|y-y^{i^\star}|^2>0$, which is positive because $y^{i^\star}$ is the unique nearest
+Proposition~\ref{prop:uncond}. For $h\to0$, let $i\ne i_\star$ and
+$g_i=|y-y^i|^2-|y-y^{i_\star}|^2>0$, which is positive because $y^{i_\star}$ is the unique nearest
 label. Then
 \[
-p_i^{(h)}(y)\le\frac{p_i^{(h)}(y)}{p_{i^\star}^{(h)}(y)}
-=\frac{K_h(y-y^i)}{K_h(y-y^{i^\star})}=\exp\Bigl(-\frac{g_i}{2h^2}\Bigr)\longrightarrow0,
+p_i^{(h)}(y)\le\frac{p_i^{(h)}(y)}{p_{i_\star}^{(h)}(y)}
+=\frac{K_h(y-y^i)}{K_h(y-y^{i_\star})}=\exp\Bigl(-\frac{g_i}{2h^2}\Bigr)\longrightarrow0,
 \]
-and $p_{i^\star}^{(h)}(y)=1-\sum_{i\ne i^\star}p_i^{(h)}(y)\to1$. As before,
-Theorem~\ref{thm:endpoint} gives $p_1^{(h)}(\cdot\mid y)\Rightarrow\delta_{x^{i^\star}}$.
+and $p_{i_\star}^{(h)}(y)=1-\sum_{i\ne i_\star}p_i^{(h)}(y)\to1$. As before,
+Theorem~\ref{thm:endpoint} gives $p_1^{(h)}(\cdot\mid y)\Rightarrow\delta_{x^{i_\star}}$.
 \end{proof}
 
 \phantomsection\label{apx:pf-atomicity}
