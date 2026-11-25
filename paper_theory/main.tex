@@ -2177,13 +2177,13 @@ $z\in\mathcal C'$, a contradiction.
 
 Next, the $\omega$-limit set $\Omega$ of the trajectory is nonempty, compact and connected, as
 the intersection of the nested compact connected sets $\overline{\{x(\tau):\tau\ge T\}}$. Suppose
-that $z\in\Omega\setminus\mathcal C'$, and take $\rho>0$ such that $K=\overline{B_\rho(z)}$ is
+that $z\in\Omega\setminus\mathcal C'$, and take $r>0$ such that $K=\overline{B_r(z)}$ is
 disjoint from the finite set $\mathcal C'$. If $x$ eventually stays in $K$, then $|\dot x|\ge\eta_K$
 for almost every late time, and $\int|\dot x|^2\,d\tau=\infty$. Otherwise, since $z\in\Omega$, the
-trajectory enters $B_{\rho/2}(z)$ and then leaves $K$ at arbitrarily late times. Each such passage
-covers a distance at least $\rho/2$ at speed at most $V_{\max}$, so it spends a time at least
-$\rho/(2V_{\max})$ in $K$, and after $\tau_K$ it costs kinetic energy at least
-$\eta_K^2\rho/(2V_{\max})$; infinitely many disjoint passages again give infinite energy. Both cases
+trajectory enters $B_{r/2}(z)$ and then leaves $K$ at arbitrarily late times. Each such passage
+covers a distance at least $r/2$ at speed at most $V_{\max}$, so it spends a time at least
+$r/(2V_{\max})$ in $K$, and after $\tau_K$ it costs kinetic energy at least
+$\eta_K^2r/(2V_{\max})$; infinitely many disjoint passages again give infinite energy. Both cases
 contradict the hypothesis, so $\Omega\subseteq\mathcal C'$. As $\mathcal C'$ is finite and $\Omega$
 is connected, $\Omega$ is a single point, which is the limit of $x(\tau)$. The same argument with
 $\mathcal C$ in place of $\mathcal C'$ proves the last claim.
@@ -2301,17 +2301,17 @@ and Lemma~\ref{lem:basic}(a) gives, for $f=m_\Pi-x$,
 \[
 \operatorname{div}_xf=\tr D_xm_\Pi-d=\beta\int\tr\Cov_{q_p}(a)\,\Pi(dp)-d=\beta\,V(r(x,t))-d .
 \]
-Consider a trajectory with limit $z\notin A$ and put $\rho=\dist(z,A)>0$; eventually
-$|x-z|\le\rho/4$. Call a time good if $|\dot x|\le\rho/4$. At a good late time
-$|m_\Pi-z|\le|\dot x|+|x-z|\le\rho/2$, since $m_\Pi=x+\dot x$, so $\dist(m_\Pi,A)\ge\rho/2$ and
-$V\ge\kappa_{\rho/2}$. By Chebyshev's inequality the other times in $[n-1,n]$ have measure at most
-$16\rho^{-2}\int_{n-1}^\infty|\dot x|^2\,d\tau\to0$, so the good times $G_n\subseteq[n-1,n]$ have
+Consider a trajectory with limit $z\notin A$ and put $r_0=\dist(z,A)>0$; eventually
+$|x-z|\le r_0/4$. Call a time good if $|\dot x|\le r_0/4$. At a good late time
+$|m_\Pi-z|\le|\dot x|+|x-z|\le r_0/2$, since $m_\Pi=x+\dot x$, so $\dist(m_\Pi,A)\ge r_0/2$ and
+$V\ge\kappa_{r_0/2}$. By Chebyshev's inequality the other times in $[n-1,n]$ have measure at most
+$16r_0^{-2}\int_{n-1}^\infty|\dot x|^2\,d\tau\to0$, so the good times $G_n\subseteq[n-1,n]$ have
 measure at least $\tfrac12$ for large $n$. As $V\ge0$ and $\beta$ increases,
 \begin{align*}
 \iclrstart\int_{\tau_0}^n\operatorname{div}_xf\,d\tau
 =\int_{\tau_0}^n\beta V\,d\tau-d(n-\tau_0)
 \ \ge\ \int_{G_n}\beta V\,d\tau-d(n-\tau_0)
-\iclrbrq\ \ge\ \tfrac12\kappa_{\rho/2}\,\beta(n-1)-d(n-\tau_0),\iclrend
+\iclrbrq\ \ge\ \tfrac12\kappa_{r_0/2}\,\beta(n-1)-d(n-\tau_0),\iclrend
 \end{align*}
 which tends to $+\infty$ because $\beta(n-1)=e^{2(n-1)}-e^{n-1}$ grows exponentially.
 Lemma~\ref{lem:volume} gives (b) and (c).
@@ -2899,7 +2899,7 @@ prior $p$,
 \]
 and for $a_i,a_{i'}\in S$ the logit difference is $\log(p_i/p_{i'})+\langle\xi,a_i-a_{i'}\rangle$, so the
 posterior conditioned on $S$ is exactly $\pi(\xi)$. Consequently: (i) for every compact
-$K\subset L$ there are $\rho,c>0$ and $\tau_0$ such that for $\xi\in K$, $|\eta|\le\rho$ and
+$K\subset L$ there are $r,c>0$ and $\tau_0$ such that for $\xi\in K$, $|\eta|\le r$ and
 $\tau\ge\tau_0$ the posterior mass off $S$ is $O(e^{-c\beta})$, its first and second derivatives
 in $(\xi,\eta)$ are $O(\beta^2e^{-c\beta})$, and therefore $\mathcal R,\mathcal E\to0$ in $C^1$ with
 derivatives uniformly Lipschitz; (ii) along any trajectory with $x_t\to z$ the off-$S$ mass is
@@ -2931,9 +2931,9 @@ $x_t\to z$, $(\eps^2/t^2)\xi=o(\eps^2\beta)=o(1)$; so (i) and (ii) hold without 
 below. Assume from now on that $S\subsetneq A$.
 
 For (i), let $D_A=\max_{j,i}|a_j-a_i|$, $\delta_{\min}=\min_{a_j\notin S}\delta_j$ and
-$\Lambda=\max_{j,i}|\log(p_j/p_i)|$ over the finitely many priors. Choose $\rho$ with
-$\rho D_A\le\delta_{\min}/8$, and then $\tau_0$ so large that $t\ge\tfrac12$ and
-$\eps|P_{L^\perp}z|D_A\le\delta_{\min}/16$ for $\tau\ge\tau_0$. For $\xi\in K$, $|\eta|\le\rho$ and
+$\Lambda=\max_{j,i}|\log(p_j/p_i)|$ over the finitely many priors. Choose $r$ with
+$r D_A\le\delta_{\min}/8$, and then $\tau_0$ so large that $t\ge\tfrac12$ and
+$\eps|P_{L^\perp}z|D_A\le\delta_{\min}/16$ for $\tau\ge\tau_0$. For $\xi\in K$, $|\eta|\le r$ and
 $\tau\ge\tau_0$, the display gives, for $a_j\notin S$ and $a_i\in S$,
 \[
 \log\frac{q_{p,j}}{q_{p,i}}
@@ -2959,7 +2959,7 @@ using $\sum_{a_j\in S}q_{p_k,j}a_j=(1-\bar q_k)\E_{\pi_k(\xi)}[a]$ and $P_{L^\pe
 Both $P_L(\bar m-M(\xi))$ and $\mathcal E$ thus consist only of off-$S$ contributions and are
 $O(e^{-c\beta})$ with first and second derivatives $O(\beta^2e^{-c\beta})$, while the remaining term
 $(\eps^2/t^2)\xi$ of $\mathcal R$ has derivative $(\eps^2/t^2)I\to0$. Hence $\mathcal R,\mathcal E\to0$
-in $C^1$ on $K\times\{|\eta|\le\rho\}$, with derivatives uniformly Lipschitz.
+in $C^1$ on $K\times\{|\eta|\le r\}$, with derivatives uniformly Lipschitz.
 
 For (ii), along a trajectory with $x_t\to z$ we have $\eta\to0$, $\xi/\beta=P_L(x-tz)\to0$ and
 $\beta\eps/\beta=\eps\to0$, so the last two terms of the display are $o(\beta)$ and the log-ratio is
