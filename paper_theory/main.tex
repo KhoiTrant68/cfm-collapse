@@ -444,7 +444,7 @@ variance $\tr\Cov$.
 \paragraph{Sampling law.} Fix a training set~$\D=\{(x^i,y^i)\}_{i=1}^N$ with $x^i\in\R^d$ and
 $y^i\in\R^k$, call $a_i:=x^i$ the \emph{atoms}, and write $\rhohat_X=N^{-1}\sum_i\delta_{a_i}$. Draw $I\sim\mathrm{Unif}\{1,\dots,N\}$,
 $X_0\sim\pi_0=\N(0,I_d)$ and $t\sim\mathrm{Unif}(0,1)$ independently, and put $X_1=a_I$, $Y=y^I$,
-$X_t=(1-t)X_0+tX_1$ and $U=X_1-X_0$.
+$X_t=(1-t)X_0+tX_1$ and $U=X_1-X_0$. We write $\eps:=1-t$ for the remaining time.
 
 \paragraph{Conditioning and objective.} At bandwidth~$h>0$, draw $\omega\sim\N(0,I_k)$
 independently and set $\widetilde Y=Y+h\omega$, with label kernel
@@ -503,10 +503,10 @@ locally Lipschitz on $\R^d\times[0,1)$, so their flows are well posed (Lemma~\re
 \begin{restatable}[{Exact conditional collapse; $h=0$; cf.\ \citealp[Theorem~6.4]{baptista2025memorization}}]{proposition}{propcollapse}
 \label{prop:collapse}
 Let $h=0$. Then
-(a) $v_0^\star(x,t,y^i)=(a_i-x)/(1-t)$ for $t<1$ $(\star)$;
+(a) $v_0^\star(x,t,y^i)=(a_i-x)/\eps$ for $t<1$ $(\star)$;
 (b) $\inf_v L_0(v)=0$;
-(c) the ODE $\dot x_t=(a_i-x_t)/(1-t)$ has the explicit solution
-$x_t=(1-t)x_0+ta_i$, so $x_t\to a_i$ for every $x_0$; and
+(c) the ODE $\dot x_t=(a_i-x_t)/\eps$ has the explicit solution
+$x_t=\eps x_0+ta_i$, so $x_t\to a_i$ for every $x_0$; and
 (d) $p_1^{(0)}(\cdot\mid y^i)=\delta_{a_i}$, hence
 $\Cov[p_1^{(0)}(\cdot\mid y^i)]=0$. \proofin{apx:pf-collapse}
 \end{restatable}
@@ -521,9 +521,9 @@ Nadaraya--Watson regression over the atoms~\citep{nadaraya1964estimating,watson1
 \label{prop:kernel-field}
 For $h>0$, $t<1$,
 \begin{equation}
-\vstar(x,t,y)=\sum_i q^{(h)}_i(x,t,y)\,\frac{a_i-x}{1-t},\quad
-q^{(h)}_i=\frac{\pi_0\!\big(\tfrac{x-ta_i}{1-t}\big)K_h(y-y^i)}
-{\sum_j\pi_0\!\big(\tfrac{x-ta_j}{1-t}\big)K_h(y-y^j)}.
+\vstar(x,t,y)=\sum_i q^{(h)}_i(x,t,y)\,\frac{a_i-x}{\eps},\quad
+q^{(h)}_i=\frac{\pi_0\!\big(\tfrac{x-ta_i}{\eps}\big)K_h(y-y^i)}
+{\sum_j\pi_0\!\big(\tfrac{x-ta_j}{\eps}\big)K_h(y-y^j)}.
 \label{eq:kernel-field}
 \end{equation} \proofin{apx:pf-kernel-field}
 \end{restatable}
@@ -592,9 +592,9 @@ their weights), and let $\Ppos$ be the set of probability vectors on $\{1,\dots,
 entries positive. For a probability vector $p$, let $v_p$ be the conditional velocity of the
 coupling $I\sim p$, $X_1=a_I$ of Lemma~\ref{lem:mixture-coupling}:
 \begin{equation}
-v_p(x,t)=\sum_j q_{p,j}(x,t)\,\frac{a_j-x}{1-t},\qquad
-q_{p,j}(x,t)=\frac{p_j\,\pi_0\big(\tfrac{x-ta_j}{1-t}\big)}
-{\sum_\ell p_\ell\,\pi_0\big(\tfrac{x-ta_\ell}{1-t}\big)}.
+v_p(x,t)=\sum_j q_{p,j}(x,t)\,\frac{a_j-x}{\eps},\qquad
+q_{p,j}(x,t)=\frac{p_j\,\pi_0\big(\tfrac{x-ta_j}{\eps}\big)}
+{\sum_\ell p_\ell\,\pi_0\big(\tfrac{x-ta_\ell}{\eps}\big)}.
 \label{eq:prior-field}
 \end{equation}
 Then $\vstar(\cdot,\cdot,y)=v_{p^{(h)}(y)}$ with weights $q^{(h)}_i=q_{p^{(h)}(y),i}$, the unconditional field is
@@ -606,12 +606,12 @@ $\mathcal C=\{z:z\in\operatorname{conv}\nn(z)\}\subseteq\mathcal C'=\{z:z\in\ope
 are finite. They consist of the atoms and of circumcentres of equidistant nearest atoms.
 
 \paragraph{Proof strategy.} All results of this section follow one two-step template, stated once
-in Appendix~\ref{apx:general-steps}. In the time $\tau=-\log(1-t)$ each field we consider reads
+in Appendix~\ref{apx:general-steps}. In the time $\tau=-\log\eps$ each field we consider reads
 $\dot x=\bar m-x$, where $\bar m$ is a combination, possibly signed, of posterior means over the
 atoms. \emph{Step~1 (convergence):} if the kinetic energy $\int|\dot x|^2\,d\tau$ is finite, the
 trajectory converges to a point of $\mathcal C$ or $\mathcal C'$ (Lemma~\ref{lem:conv}).
 \emph{Step~2 (null basins):} the divergence of the field is $\beta\Theta-d$, with
-$\beta=t/(1-t)^2\to\infty$ and $\Theta$ the same combination of posterior covariance traces. If
+$\beta=t/\eps^2\to\infty$ and $\Theta$ the same combination of posterior covariance traces. If
 $\Theta$ stays above a positive constant along every trajectory with a non-atom limit, the flow expands volume
 without bound there while bounded sets stay bounded, and Liouville's formula with Fatou's lemma
 makes these initial points null (Lemma~\ref{lem:volume}). The interventions differ only in how the
@@ -671,7 +671,7 @@ $U\sim\varphi$.
 \label{prop:filtered}
 Let $h>0$, $\varphi$ a probability measure on $\R^k$ and
 $v_\varphi(x,t,y)=\int\vstar(x,t,y-u)\,\varphi(du)$. (a) $v_\varphi=\sum_i
-q^\varphi_i(x,t,y)(a_i-x)/(1-t)$ with $q^\varphi_i\ge0$, $\sum_iq^\varphi_i=1$, and
+q^\varphi_i(x,t,y)(a_i-x)/\eps$ with $q^\varphi_i\ge0$, $\sum_iq^\varphi_i=1$, and
 $q^\varphi_i(x,0,y)=q_i(y):=\int p_i^{(h)}(y-u)\,\varphi(du)$. (b) Every trajectory converges to a
 point $z\in\operatorname{conv}\nn(z)$. For any absolutely continuous source, including
 $\pi_0$, the limit is a training atom almost surely. Thus the endpoint law is
@@ -681,9 +681,9 @@ $\sum_i\tilde q_i(y)\delta_{a_i}$ for some probability weights $\tilde q(y)$.
 
 No moment condition is imposed on $\varphi$, and the endpoint weights $\tilde q$ are not
 identified. Strict positivity of the priors is essential. By
-Proposition~\ref{prop:collapse}(a), the hard-label field at $y^i$ is $(a_i-x)/(1-t)$, so for any
+Proposition~\ref{prop:collapse}(a), the hard-label field at $y^i$ is $(a_i-x)/\eps$, so for any
 fixed weights $\lambda_i\ge0$ summing to one the average $\sum_i\lambda_iv_{e_i}$ equals
-$(z-x)/(1-t)$ with $z=\sum_i\lambda_ia_i$. Its flow sends every source to $z$, in every geometry
+$(z-x)/\eps$ with $z=\sum_i\lambda_ia_i$. Its flow sends every source to $z$, in every geometry
 of the atoms, and $z$ is a training example only if a single $\lambda_i$ is nonzero. At hard labels,
 an average of two fields therefore already blends. Our results on guidance and on three or more
 fields assume strictly positive priors and do not cover the hard-label conjunction. The null set
@@ -736,13 +736,13 @@ nearest atoms the guided covariance trace is $\Theta=r^2-|m_w|^2+w(1+w)|m_c-m_u|
 where $m_c,m_u,m_w$ are the conditional, unconditional and guided posterior means relative
 to the limit; the third term is nonnegative for $w\ge0$, and $m_w$ is small in mean square, so
 the volume again expands. For (b), a Gibbs inequality gives
-$|x_t-ta_i|^2\le(1-t)^2[C+2w\log N\log\tfrac1{1-t}]$.
+$|x_t-ta_i|^2\le\eps^2[C+2w\log N\log\tfrac1{\eps}]$.
 \end{proofsketch}
 }%
 
-At a hard label, guidance thus does not prevent collapse, and our bound exceeds the rate $1-t$ of
-the unguided field only by a factor of order $\sqrt{\log(1/(1-t))}$; for a fixed $w>0$,
-\citet[Theorem~2.5(ii) and Corollary~3.7]{liu2026geometric} give the rate $O(1-t)$ after the change
+At a hard label, guidance thus does not prevent collapse, and our bound exceeds the rate $\eps$ of
+the unguided field only by a factor of order $\sqrt{\log(1/\eps)}$; for a fixed $w>0$,
+\citet[Theorem~2.5(ii) and Corollary~3.7]{liu2026geometric} give the rate $O\eps$ after the change
 of variables of Appendix~\ref{apx:comparison}, with a constant that depends on the initial point.
 For $w\in[-1,0)$ both coefficients are nonnegative:
 
@@ -768,11 +768,11 @@ every trajectory converges to a point of $\mathcal C'$, and the initial points w
 not an atom form a Lebesgue-null set. In particular the endpoint is an atom almost surely under
 every absolutely continuous source. \proofin{apx:pf-schedule}
 \end{restatable}
-\ificlr At a hard label, schedules $w(t)=O((1-t)^{-\gamma})$ with $\gamma<2$ still collapse
+\ificlr At a hard label, schedules $w(t)=O(\eps^{-\gamma})$ with $\gamma<2$ still collapse
 (Appendix~\ref{apx:pf-cfgatom}).\else Proposition~\ref{prop:cfgatom}(a) is the constant case. The change of the energy with $w$ is
 controlled by the total variation of $w$ and by the relative entropy of a posterior to a fixed
 positive prior, at most $\log(1/\min_jp_j)$. At a hard label, schedules
-$w(t)=O((1-t)^{-\gamma})$ with $\gamma<2$ still collapse (Appendix~\ref{apx:pf-cfgatom}); this
+$w(t)=O(\eps^{-\gamma})$ with $\gamma<2$ still collapse (Appendix~\ref{apx:pf-cfgatom}); this
 is sufficient, not sharp.\fi
 
 Nothing in these results depends on the unconditional field being unconditional.
@@ -830,12 +830,12 @@ F_w(\zeta)=\tfrac{1+w}2\big[\tanh(\zeta+B)+\tanh(\zeta-B)\big]-w\tanh \zeta
 \label{eq:composition-mean}
 \end{equation}}
 \ificlr
-With $\zeta=tx/(1-t)^2$, in the time $\tau$ the composite flow is $\dot x=F_w(\zeta)-x$ with
+With $\zeta=tx/\eps^2$, in the time $\tau$ the composite flow is $\dot x=F_w(\zeta)-x$ with
 \compositioneq
 At the tie the averaged posterior mean has slope $\operatorname{sech}^2B$ and the unconditional one slope~$1$, so the slope $F_w'(0)=(1+w)\operatorname{sech}^2B-w$ turns negative, and the tie attracts, exactly when $w>1/\sinh^2B$; the proof is in Appendix~\ref{apx:pf-composition}.
 \else
 \begin{proofsketch}
-With $\zeta=tx/(1-t)^2$, the averaged posterior means are $\tanh(\zeta\pm B)$ and the unconditional one
+With $\zeta=tx/\eps^2$, the averaged posterior means are $\tanh(\zeta\pm B)$ and the unconditional one
 is $\tanh \zeta$, so in the time $\tau$ the composite flow is $\dot x=F_w(\zeta)-x$ with
 \compositioneq
 Near the tie each averaged component is confident in a different atom, so their average has the
@@ -843,7 +843,7 @@ small slope $\operatorname{sech}^2B$, while the unconditional mean has slope $1$
 subtracts $w$ times this unconditional repulsion, and for $w>1/\sinh^2B$ the composite attracts:
 the guided covariance trace at the tie, $F_w'(0)=(1+w)\operatorname{sech}^2B-w$, turns negative,
 because averaging adds $-(1+w)$ times the variance of the component means. In (a) a barrier
-$|x|<\varkappa(1-t)^2/t$ then traps an open interval of sources around the tie; in (b) a lower
+$|x|<\varkappa\eps^2/t$ then traps an open interval of sources around the tie; in (b) a lower
 barrier keeps every positive source away from $0$.
 \end{proofsketch}
 \fi
@@ -855,8 +855,8 @@ is exponentially small (Figure~\ref{fig:composition}). The effect does not rely 
 \label{prop:composition-open}
 On the atoms $\{-1,1\}\subset\R$, average finitely many conditional priors with log-odds
 $2B_k$ (atom $1$ against atom $-1$) with weights $\lambda_k>0$ summing to one, let the
-unconditional prior have log-odds $2B_u$, and fix $w$. The composite field is $(F(\zeta)-x)/(1-t)$
-with $\zeta=tx/(1-t)^2$ and $F(\zeta)=(1+w)\sum_k\lambda_k\tanh(\zeta+B_k)-w\tanh(\zeta+B_u)$. If
+unconditional prior have log-odds $2B_u$, and fix $w$. The composite field is $(F(\zeta)-x)/\eps$
+with $\zeta=tx/\eps^2$ and $F(\zeta)=(1+w)\sum_k\lambda_k\tanh(\zeta+B_k)-w\tanh(\zeta+B_u)$. If
 $F(\zeta_\star)=0$ and $F'(\zeta_\star)<0$ for some $\zeta_\star$, the initial points converging to $0$
 contain a nonempty open interval. With two conditional priors, this hypothesis holds on an open
 set of parameters $(\lambda_1,B_1,B_2,B_u,w)$, with $\lambda_2=1-\lambda_1$ and
@@ -1173,7 +1173,7 @@ Let $v_\theta$ be continuous and locally Lipschitz in $x$ on $\R^d\times[0,1)$.
 \item If its spatial Lipschitz constant $L(t)$ and $|v_\theta(0,t)|$ are integrable on $[0,1)$,
   the endpoint map $x_0\mapsto X_1$ is a bi-Lipschitz homeomorphism of $\R^d$; under every
   absolutely continuous source the endpoint law is absolutely continuous and has no atom.
-\item Let $d=1$ and $v_\theta=(\hat x_1-x)/(1-t)$ on $[t_0,1)$, where $\hat x_1$ is bounded and
+\item Let $d=1$ and $v_\theta=(\hat x_1-x)/\eps$ on $[t_0,1)$, where $\hat x_1$ is bounded and
   continuous and $\partial_x\hat x_1$ is continuous on $\R\times[t_0,1]$, and let
   $g=\hat x_1(\cdot,1)$ have finitely many fixed points. Every trajectory from time $t_0$
   converges to a fixed point of $g$; a fixed point $z$ with $g'(z)>1$ is the limit of at most one
@@ -1197,9 +1197,9 @@ $H(x)=\tanh x+2\tanh^3x$ and take $\bar g_\varphi=H+a\tanh$ and
 $g_{\mathrm{unc}}=H+(a+b)\tanh$, where $a,b>0$ and $a/b=w_c$.
 Then $g_w'(0)=1+a-bw$. For these time-independent predictors, the midpoint attracts above $w_c$
 and repels below it. At equality $g_w(x)-x=(5/3)x^3+O(x^5)$, so it also repels.
-The exact two-atom mean varies by a fixed amount across an interval of width $O((1-t)^2)$
+The exact two-atom mean varies by a fixed amount across an interval of width $O(\eps^2)$
 near the tie. Matching this variation forces the spatial Lipschitz constant to grow at least as
-$(1-t)^{-2}$ by the mean value bound. The input $\operatorname{asinh}(tx/(1-t)^2)$ resolves
+$\eps^{-2}$ by the mean value bound. The input $\operatorname{asinh}(tx/\eps^2)$ resolves
 this spatial scale.
 }%
 
@@ -1232,7 +1232,7 @@ $t$-interval $[0.22,0.51]$), so at image scale the generated variance does not f
 across conditions (Table~\ref{tab:cifar-kernel}, Figure~\ref{fig:kernel-tracking}b). At $h=6$ the reference spans less than two
 decades, and the slope, between $0.08$ and $0.60$ across the training sets, is not determined. In a
 further retraining with the same configuration, the networks leave $0.168$ of their samples at
-$h=4$ and $0.276$ at $h=6$ off the training images at the cutoff $1-t=10^{-4}$, by a
+$h=4$ and $0.276$ at $h=6$ off the training images at the cutoff $\eps=10^{-4}$, by a
 nearest-neighbour criterion (sample standard deviations $0.012$ and $0.008$ over three seeds).
 These finite-cutoff fractions combine learned-field, truncation and discretisation effects
 and do not identify a limiting support. At either bandwidth, a Gaussian source transported
@@ -1259,13 +1259,13 @@ non-atom candidate, so a scheme biased towards the atoms would pass the test as 
 gave the same fixed-step log-time RK4, with the same $256$ and $512$ steps per segment and the
 same terminal gaps, the guided average of two conditional fields on the atoms $(\pm1,0)$ in $d=2$,
 with $B=1$, $w/w_c\in\{0.9,1.1,2,10\}$ and $4096$ Gaussian sources. With the field coded through
-the logits $-|x-ta|^2/2(1-t)^2$, as in the stress test, it ends at the midpoint exactly the sources
+the logits $-|x-ta|^2/2\eps^2$, as in the stress test, it ends at the midpoint exactly the sources
 in the basin computed by the stiff integrator below: fractions $0$, $0.049$, $0.410$ and $0.988$,
 against basin probabilities $0$, $0.050$, $0.406$ and $0.991$ under $\pi_0$. This agreement is a
 rounding effect. In the last steps of the first segment the step exceeds the stability bound of
 RK4 for the linearisation at the tie by a factor of about $27$ at $w=2w_c$. The captured trajectories have
 already reached $|x_1|\approx10^{-17}$, where the logits no longer resolve $x_1$ and the computed
-field is exactly symmetric. With the same field coded in the blow-up coordinate $\zeta=tx_1/(1-t)^2$,
+field is exactly symmetric. With the same field coded in the blow-up coordinate $\zeta=tx_1/\eps^2$,
 the scheme ejects these trajectories: no source ends at the midpoint, except $0.049$ at
 $w=1.1\,w_c$ with $512$ steps and the gap $10^{-2}$ only, and the $1\%$ criterion flags nothing.
 Detection also depends on the coordinates. Translating both atoms by $c=(0.25,0)$ translates each
@@ -1313,20 +1313,20 @@ condition dropout, places at most $0.001$ of the sources at the midpoint at $B\i
 at the centre of the triangle, at every guidance strength (Figure~\ref{fig:learned-composition})\ificlr.\else; at $B=1$,
 neither log-uniform sampling of $1-t$ nor a separate unconditional network changes this.\fi{} A
 network that predicts the data with the loss $|\hat m-X_1|^2$, which has the same minimiser, and
-receives the blow-up coordinate $\operatorname{asinh}(tx/(1-t)^2)$, centred at the known tie
+receives the blow-up coordinate $\operatorname{asinh}(tx/\eps^2)$, centred at the known tie
 $z=0$ (centred elsewhere it leaves the midpoint empty, Appendix~\ref{apx:bottleneck-runs}), as an extra input follows the exact probabilities: $0.401\pm0.006$ against $0.406$ at $B=1$ and $w=2w_c$, and $0.143\pm0.004$
 against $0.133$ at the centre of the triangle at $2w_c$. It follows the exact flow only at the tie
 its input is centred on: the exact composite ends a further $0.426$ of the first $4096$ shared
 sources at the edge midpoints of the triangle at $2w_c$ and $0.306$ at $5w_c$, whereas the standard
 network, this network and the distillation control of Appendix~\ref{app:learned-composition} place
-at most $3$ of their $2048$ sources within $0.05$ of an edge midpoint at $1-t=10^{-5}$, in any seed
+at most $3$ of their $2048$ sources within $0.05$ of an edge midpoint at $\eps=10^{-5}$, in any seed
 and at any guidance strength. Nor do their other endpoints all lie at training points: at
-$1-t=10^{-5}$ the standard network leaves $0.16$, $0.70$ and $0.79$ of its sources at $2$, $5$ and
+$\eps=10^{-5}$ the standard network leaves $0.16$, $0.70$ and $0.79$ of its sources at $2$, $5$ and
 $10\,w_c$ farther than $0.1$ from every atom and from the centre, and the data-predicting network
 $0.16\pm0.16$ at $2w_c$. \moveblock{lossrisk}{The velocity
 network has the smaller held-out excess risk for $t\ge0.999$ ($1.4\times10^{-7}$ against
 $9.4\times10^{-7}$), yet its posterior mean misses the boundary layer at the tie: at
-$1-t=10^{-5}$ its mean squared error over $|\zeta|\le3$ is $0.67$, against $0.0024$. Small loss does not
+$\eps=10^{-5}$ its mean squared error over $|\zeta|\le3$ is $0.67$, against $0.0024$. Small loss does not
 decide the endpoint without control of the field's regularity
 \citep[Section~3, discussion of Assumption~3]{benton2024error}.} Of the changes the successful network
 makes, the input matters most in these runs: a velocity network with it matches the exact probabilities in most seeds
@@ -1339,12 +1339,12 @@ leaves the midpoint empty at $w\ge5w_c$, consistent with Proposition~\ref{prop:r
 \includegraphics[width=\ificlr0.72\else0.98\fi\textwidth]{fig_learned_composition.pdf}
 \caption{How closely do learned fields reproduce the exact midpoint probability?
 Each marker compares the exact probability (horizontal axis) with the fraction of $2048$ shared
-sources within $0.05$ of the target at $1-t=10^{-5}$ (vertical axis). The target is the
+sources within $0.05$ of the target at $\eps=10^{-5}$ (vertical axis). The target is the
 midpoint for two atoms ($B=1,2$) and the centre for the triangle ($B=2$). Markers and error
 bars give the mean and standard deviation over five seeds at each guidance strength;
 dots show individual seeds. The diagonal marks agreement and the grey numbers give mean
 absolute deviations. Panels (a,b) use the original inputs; (c,d) add
-$\operatorname{asinh}(tx/(1-t)^2)$. The velocity model (c) follows the diagonal in most
+$\operatorname{asinh}(tx/\eps^2)$. The velocity model (c) follows the diagonal in most
 seeds and the data predictor (d) in all seeds shown. At $B=3$, outside the figure, one
 seed of (d) misses the midpoint at $2w_c$ and $5w_c$ (Table~\ref{tab:learned-composition}).
 The triangle comparison counts only its centre; Section~\ref{sec:intervention-tests}
@@ -1483,7 +1483,7 @@ For practice, none of these knobs guarantees at the exact optimum that training 
 returned, and among them only the composition of conditions can return blends there. These are
 statements about the exact optimum. Our trained image networks are not at it, and their off-atom
 samples are not explained by the theory. The exact two-atom mean varies across a layer of width
-$O((1-t)^2)$ at the tie. Standard velocity networks did not resolve it in our runs, while networks
+$O(\eps^2)$ at the tie. Standard velocity networks did not resolve it in our runs, while networks
 given a coordinate at that scale can do so at a tie whose location is supplied. Whether trained
 compositional samplers produce such blends is therefore a question about their inductive biases
 that the exact field does not settle; an audit of a trained sampler has to measure it.
@@ -1580,7 +1580,7 @@ Symbol & Meaning\\
 $\D=\{(x^i,y^i)\}_{i=1}^N$, $d$, $k$ & training set, data dimension, label dimension\\
 $\rhohat_X=N^{-1}\sum_i\delta_{a_i}$ & empirical law of the training inputs (the atoms)\\
 $\pi_0=\N(0,I_d)$ & source law\\
-$X_t=(1-t)X_0+tX_1$, $U=X_1-X_0$ & linear interpolant and regression target\\
+$X_t=\eps X_0+tX_1$, $U=X_1-X_0$ & linear interpolant and regression target\\
 $h$, $K_h$, $\widetilde Y=Y+h\omega$ & label bandwidth, Gaussian label kernel, noised label\\
 $\vstar$, $v_{\mathrm{unc}}^\star$ & exact conditional and unconditional minimisers of \eqref{eq:objective}\\
 $p^{(h)}(y)$, $p_1^{(h)}(\cdot\mid y)$ & label weights $p_i^{(h)}(y)\propto K_h(y-y^i)$; endpoint law at query $y$\\
@@ -1632,49 +1632,49 @@ and~\ref{lem:volume}; they differ in how the energy and the divergence are contr
 \section{Proofs for Section~\ref{sec:theory}}
 \label{app:proofs}
 
-Throughout, $\src{i}$ abbreviates $\pi_0\big(\frac{x-ta_i}{1-t}\big)$ and $t<1$.
+Throughout, $\src{i}$ abbreviates $\pi_0\big(\frac{x-ta_i}{\eps}\big)$ and $t<1$.
 
 \subsection{Three lemmas}
 \label{apx:lemmas}
 
 \begin{lemma}[Change of variables]
 \label{lem:cov}
-Given $I=i$, the map $X_0\mapsto X_t=(1-t)X_0+ta_i$ is an affine bijection of $\R^d$, and
-$X_t$ has the density $p(x\mid I=i,t)=(1-t)^{-d}\src{i}>0$. The factor $(1-t)^{-d}$ does not
+Given $I=i$, the map $X_0\mapsto X_t=\eps X_0+ta_i$ is an affine bijection of $\R^d$, and
+$X_t$ has the density $p(x\mid I=i,t)=\eps^{-d}\src{i}>0$. The factor $\eps^{-d}$ does not
 depend on $i$, so it cancels in every posterior over $I$.
 \end{lemma}
 \begin{proof}
-Conditionally on $I=i$ we have $X_t=T_{i,t}(X_0)$ with $T_{i,t}(x_0)=(1-t)x_0+ta_i$. This map is
-an affine bijection of $\R^d$ with inverse $T_{i,t}^{-1}(x)=(x-ta_i)/(1-t)$ and constant Jacobian
-$DT_{i,t}^{-1}=(1-t)^{-1}I_d$. Since $X_0$ is independent of $I$ and has the density $\pi_0$, the
+Conditionally on $I=i$ we have $X_t=T_{i,t}(X_0)$ with $T_{i,t}(x_0)=\eps x_0+ta_i$. This map is
+an affine bijection of $\R^d$ with inverse $T_{i,t}^{-1}(x)=(x-ta_i)/\eps$ and constant Jacobian
+$DT_{i,t}^{-1}=\eps^{-1}I_d$. Since $X_0$ is independent of $I$ and has the density $\pi_0$, the
 change-of-variables formula gives
 \begin{align*}
 p(x\mid I=i,t)
 &=\pi_0\bigl(T_{i,t}^{-1}(x)\bigr)\,\bigl|\det DT_{i,t}^{-1}(x)\bigr|
-\iclrbr=\src{i}\,\Bigl|\det\Bigl(\frac{I_d}{1-t}\Bigr)\Bigr|
-=(1-t)^{-d}\src{i},
+\iclrbr=\src{i}\,\Bigl|\det\Bigl(\frac{I_d}{\eps}\Bigr)\Bigr|
+=\eps^{-d}\src{i},
 \end{align*}
-which is positive because $\pi_0>0$. The factor $(1-t)^{-d}$ is the same for every $i$.
+which is positive because $\pi_0>0$. The factor $\eps^{-d}$ is the same for every $i$.
 \end{proof}
 
 \begin{lemma}[Well-posedness]
 \label{lem:wellposed}
 Let $q_1,\dots,q_N:\R^d\times[0,1)\to[0,1]$ be $C^\infty$ with $\sum_iq_i\equiv1$, let
-$v(x,t)=\sum_iq_i(x,t)(a_i-x)/(1-t)$ and $M=\max_i|a_i|$. Then (a) $v$ is $C^\infty$; (b) for
+$v(x,t)=\sum_iq_i(x,t)(a_i-x)/\eps$ and $M=\max_i|a_i|$. Then (a) $v$ is $C^\infty$; (b) for
 every $x_0$ the equation $\dot x_t=v(x_t,t)$ has a unique solution on $[0,1)$, with
-$|x_t|+M\le(|x_0|+M)/(1-t)$; and (c) for every probability measure $\mu_0$, the curve
+$|x_t|+M\le(|x_0|+M)/\eps$; and (c) for every probability measure $\mu_0$, the curve
 $\mu_t=(\Phi_t)_\#\mu_0$ pushed forward by the flow $\Phi_t$ is the unique narrowly continuous
 solution of $\partial_t\mu_t+\nabla\!\cdot(v\mu_t)=0$ on $[0,1)$ with initial datum $\mu_0$.
 \end{lemma}
 \begin{proof}
-(a) The weights are $C^\infty$ by assumption and $(x,t)\mapsto(a_i-x)/(1-t)$ is $C^\infty$ on
+(a) The weights are $C^\infty$ by assumption and $(x,t)\mapsto(a_i-x)/\eps$ is $C^\infty$ on
 $\R^d\times[0,1)$, so $v$ is $C^\infty$.
 
 (b) By (a), $v$ is locally Lipschitz, so local solutions exist and are unique
 \citep[Ch.~II]{hartman2002ode}; it remains to exclude blow-up before $t=1$. Since the weights are
 nonnegative and sum to one,
 \[
-|v(x,t)|\le\sum_iq_i(x,t)\,\frac{|a_i|+|x|}{1-t}\le\frac{M+|x|}{1-t}.
+|v(x,t)|\le\sum_iq_i(x,t)\,\frac{|a_i|+|x|}{\eps}\le\frac{M+|x|}{\eps}.
 \]
 Hence $g(t)=|x_t|+M$ satisfies
 \[
@@ -1682,9 +1682,9 @@ g(t)\le|x_0|+M+\int_0^t|v(x_s,s)|\,ds\le g(0)+\int_0^t\frac{g(s)}{1-s}\,ds,
 \]
 and Gr\"onwall's inequality yields
 \[
-g(t)\le g(0)\exp\Bigl(\int_0^t\frac{ds}{1-s}\Bigr)=\frac{g(0)}{1-t}.
+g(t)\le g(0)\exp\Bigl(\int_0^t\frac{ds}{1-s}\Bigr)=\frac{g(0)}{\eps}.
 \]
-Thus $|x_t|+M\le(|x_0|+M)/(1-t)$, and the solution exists on all of $[0,1)$.
+Thus $|x_t|+M\le(|x_0|+M)/\eps$, and the solution exists on all of $[0,1)$.
 
 (c) Let $\Phi_{s,r}$ denote the flow from time $s$ to time $r$, and $\Phi_t=\Phi_{0,t}$. For
 $\varphi\in C_c^\infty$ and $t<1$, the integrand below vanishes unless $\Phi_t(x)\in\supp\varphi$,
@@ -1717,25 +1717,25 @@ arbitrary, $\mu_T=(\Phi_T)_\#\mu_0$.
 \begin{lemma}[Equivalent mixture coupling]
 \label{lem:mixture-coupling}
 Fix a probability vector $p$ and let $I\sim p$, $X_0\sim\pi_0$ independent, $X_1=a_I$ and
-$X_t=(1-t)X_0+tX_1$. Then $\Pr(I=i\mid X_t=x,t)\propto p_i\,\src{i}$, and
-$\E[X_1-X_0\mid X_t=x,t]=\sum_i\Pr(I=i\mid X_t=x,t)\,\frac{a_i-x}{1-t}$. For
+$X_t=\eps X_0+tX_1$. Then $\Pr(I=i\mid X_t=x,t)\propto p_i\,\src{i}$, and
+$\E[X_1-X_0\mid X_t=x,t]=\sum_i\Pr(I=i\mid X_t=x,t)\,\frac{a_i-x}{\eps}$. For
 $p=p^{(h)}(y)$ this is $\vstar(x,t,y)$ of \eqref{eq:kernel-field}.
 \end{lemma}
 \begin{proof}
-By Bayes' rule and Lemma~\ref{lem:cov}, in which the factor $(1-t)^{-d}$ cancels,
+By Bayes' rule and Lemma~\ref{lem:cov}, in which the factor $\eps^{-d}$ cancels,
 \[
 \Pr(I=i\mid X_t=x,t)=\frac{p_i\,p(x\mid I=i,t)}{\sum_jp_j\,p(x\mid I=j,t)}
 =\frac{p_i\,\src{i}}{\sum_jp_j\,\src{j}} .
 \]
-On the event $\{I=i,\ X_t=x\}$ we have $X_0=(x-ta_i)/(1-t)$ and $X_1=a_i$, so
+On the event $\{I=i,\ X_t=x\}$ we have $X_0=(x-ta_i)/\eps$ and $X_1=a_i$, so
 \[
-X_1-X_0=a_i-\frac{x-ta_i}{1-t}=\frac{(1-t)a_i-x+ta_i}{1-t}=\frac{a_i-x}{1-t}.
+X_1-X_0=a_i-\frac{x-ta_i}{\eps}=\frac{\eps a_i-x+ta_i}{\eps}=\frac{a_i-x}{\eps}.
 \]
 Conditioning on $I$ therefore gives
 \begin{align*}
 \E[X_1-X_0\mid X_t=x,t]
 &=\sum_i\Pr(I=i\mid X_t=x,t)\,\E[X_1-X_0\mid I=i,X_t=x,t]\\
-&=\sum_i\Pr(I=i\mid X_t=x,t)\,\frac{a_i-x}{1-t}.
+&=\sum_i\Pr(I=i\mid X_t=x,t)\,\frac{a_i-x}{\eps}.
 \end{align*}
 For $p=p^{(h)}(y)$ the normalisation $\sum_jK_h(y-y^j)$ of the label weights cancels in the
 posterior, which becomes $\src{i}\KK{i}/\sum_j\src{j}\KK{j}=q^{(h)}_i(x,t,y)$; the last display is
@@ -1769,27 +1769,27 @@ $\E[\Var(U\mid\mathcal G)]$.
 \propcollapse*
 \begin{proof}
 By Assumption~\ref{as:standing}(iii) the event $\{Y=y^i\}$ equals $\{I=i\}$, and given $X_t=x$ on
-this event, Lemma~\ref{lem:cov} gives $X_0=(x-ta_i)/(1-t)$. Hence
+this event, Lemma~\ref{lem:cov} gives $X_0=(x-ta_i)/\eps$. Hence
 \[
-U=a_i-X_0=a_i-\frac{x-ta_i}{1-t}=\frac{a_i-x}{1-t}
+U=a_i-X_0=a_i-\frac{x-ta_i}{\eps}=\frac{a_i-x}{\eps}
 \]
 is a function of the conditioning variables $(X_t,t,Y)$, so
-$v_0^\star(x,t,y^i)=\E[U\mid X_t=x,t,Y=y^i]=(a_i-x)/(1-t)$, which is (a). Then
+$v_0^\star(x,t,y^i)=\E[U\mid X_t=x,t,Y=y^i]=(a_i-x)/\eps$, which is (a). Then
 $U=v_0^\star(X_t,t,Y)$ almost surely, so $L_0(v_0^\star)=0$; as $L_0\ge0$, this is (b). For (c), the
 field is Lipschitz in $x$ on $[0,T]$ for each $T<1$, so the solution is unique, and along it
 \[
-\frac{d}{dt}\,\frac{x_t-a_i}{1-t}=\frac{\dot x_t}{1-t}+\frac{x_t-a_i}{(1-t)^2}
-=\frac{a_i-x_t}{(1-t)^2}+\frac{x_t-a_i}{(1-t)^2}=0 .
+\frac{d}{dt}\,\frac{x_t-a_i}{\eps}=\frac{\dot x_t}{\eps}+\frac{x_t-a_i}{\eps^2}
+=\frac{a_i-x_t}{\eps^2}+\frac{x_t-a_i}{\eps^2}=0 .
 \]
-Hence $(x_t-a_i)/(1-t)=x_0-a_i$, that is $x_t=(1-t)x_0+ta_i$, and $|x_t-a_i|=(1-t)|x_0-a_i|\to0$ for
+Hence $(x_t-a_i)/\eps=x_0-a_i$, that is $x_t=\eps x_0+ta_i$, and $|x_t-a_i|=\eps|x_0-a_i|\to0$ for
 every $x_0$. For (d), the time-$t$ marginal of the flow from $\pi_0$ is the law of
-$(1-t)X_0+ta_i$, which converges weakly to $\delta_{a_i}$ as $t\uparrow1$; its covariance is
+$\eps X_0+ta_i$, which converges weakly to $\delta_{a_i}$ as $t\uparrow1$; its covariance is
 $0$.
 \end{proof}
 
 \begin{proposition}[Unconditional endpoint]
 \label{prop:uncond}
-The unconditional minimiser is $v_{\mathrm{unc}}^\star(x,t)=\sum_iq_i(x,t)(a_i-x)/(1-t)$ with
+The unconditional minimiser is $v_{\mathrm{unc}}^\star(x,t)=\sum_iq_i(x,t)(a_i-x)/\eps$ with
 $q_i\propto\src{i}$, and $p_1^{\mathrm{unc}}=\rhohat_X$. Its loss is positive whenever two atoms
 differ.
 \end{proposition}
@@ -1801,7 +1801,7 @@ $\E[U\mid X_t=x,t]$ is given by Lemma~\ref{lem:mixture-coupling} with $p$ unifor
 the weights $q_i\propto\src{i}$; the endpoint law follows as in the proof of
 Theorem~\ref{thm:endpoint} with $p^{(h)}(y)$ replaced by the uniform vector, so
 $p_1^{\mathrm{unc}}=N^{-1}\sum_i\delta_{a_i}=\rhohat_X$. Given $X_t=x$, $U$ takes the value
-$u_i=(a_i-x)/(1-t)$ with probability $q_i>0$, so with $\bar u=\sum_jq_ju_j$
+$u_i=(a_i-x)/\eps$ with probability $q_i>0$, so with $\bar u=\sum_jq_ju_j$
 \[
 \Var(U\mid X_t=x,t)=\sum_iq_i\,|u_i-\bar u|^2 ,
 \]
@@ -1817,21 +1817,21 @@ $\E[\Var(U\mid X_t,t)]$.
 \phantomsection\label{apx:pf-kernel-field}
 \propkernelfield*
 \begin{proof}
-Given $I=i$, the variables $X_t=(1-t)X_0+ta_i$ and $\widetilde Y=y^i+h\omega$ are independent, with
+Given $I=i$, the variables $X_t=\eps X_0+ta_i$ and $\widetilde Y=y^i+h\omega$ are independent, with
 the density of Lemma~\ref{lem:cov} and the density $K_h(\cdot-y^i)$ of $\N(y^i,h^2I_k)$
 respectively. Since $\Pr(I=i)=1/N$, Bayes' rule gives
 \[
 \Pr(I=i\mid X_t=x,t,\widetilde Y=y)
-=\frac{N^{-1}(1-t)^{-d}\src{i}\,\KK{i}}{\sum_jN^{-1}(1-t)^{-d}\src{j}\,\KK{j}}
+=\frac{N^{-1}\eps^{-d}\src{i}\,\KK{i}}{\sum_jN^{-1}\eps^{-d}\src{j}\,\KK{j}}
 =q^{(h)}_i(x,t,y).
 \]
-On $\{I=i,\ X_t=x\}$ we have $U=(a_i-x)/(1-t)$, as in the proof of
+On $\{I=i,\ X_t=x\}$ we have $U=(a_i-x)/\eps$, as in the proof of
 Lemma~\ref{lem:mixture-coupling}, and conditioning additionally on $\widetilde Y$ does not change
 this value. Therefore
 \[
 \E[U\mid X_t=x,t,\widetilde Y=y]
-=\sum_i\Pr(I=i\mid X_t=x,t,\widetilde Y=y)\,\frac{a_i-x}{1-t}
-=\sum_iq^{(h)}_i(x,t,y)\,\frac{a_i-x}{1-t},
+=\sum_i\Pr(I=i\mid X_t=x,t,\widetilde Y=y)\,\frac{a_i-x}{\eps}
+=\sum_iq^{(h)}_i(x,t,y)\,\frac{a_i-x}{\eps},
 \]
 and Proposition~\ref{prop:projection} identifies this conditional expectation with the minimiser,
 which is \eqref{eq:kernel-field}.
@@ -1857,7 +1857,7 @@ where the second equality conditions on $X_t$ and the third is Lemma~\ref{lem:mi
 Thus $(p_t)$ is a weak solution of the continuity equation of $\vstar(\cdot,\cdot,y)$ with
 $p_0=\pi_0$, and it is narrowly continuous because $t\mapsto X_t$ is continuous. By
 Lemma~\ref{lem:wellposed}(c), $p_t=(\Phi_t)_\#\pi_0$ for every $t<1$. Finally,
-$X_t=(1-t)X_0+ta_I\to a_I$ almost surely as $t\uparrow1$, so for bounded continuous $\varphi$
+$X_t=\eps X_0+ta_I\to a_I$ almost surely as $t\uparrow1$, so for bounded continuous $\varphi$
 dominated convergence gives
 \[
 \int\varphi\,d(\Phi_t)_\#\pi_0=\E\varphi(X_t)\longrightarrow\E\varphi(a_I)
@@ -1924,9 +1924,9 @@ beside the closest convergence theorems for the deterministic flow and the close
 for the stochastic sampler. \citet{liu2025pde,liu2026geometric} integrate the
 probability-flow ODE of the heat flow and we integrate the flow-matching field of the linear
 interpolant, but the two are related by an exact change of variables. With $y=x/t$ and
-$\varsigma=(1-t)/t$, the law of $X_t/t$ is $\mu*\N(0,\varsigma^2I_d)$ for the data law $\mu$,
+$\varsigma=\eps/t$, the law of $X_t/t$ is $\mu*\N(0,\varsigma^2I_d)$ for the data law $\mu$,
 Tweedie's formula gives $\nabla\log p_\varsigma(y)=(\E[X_1\mid X_t/t=y]-y)/\varsigma^2$, and
-$\dot x=(\E[X_1\mid X_t=x]-x)/(1-t)$ becomes $dy/d\varsigma=-\varsigma\nabla\log p_\varsigma(y)$,
+$\dot x=(\E[X_1\mid X_t=x]-x)/\eps$ becomes $dy/d\varsigma=-\varsigma\nabla\log p_\varsigma(y)$,
 the probability-flow ODE of the heat flow. This holds for every weighted empirical law, hence for each
 prior-indexed field, and combinations of fields with weights summing to one become the same
 combinations of scores. Heat time $\varsigma^2/2$ decreases to zero as $t$ increases to one,
@@ -2035,8 +2035,8 @@ Source & Dynamics and assumptions & Conclusion\tabularnewline
 \cmpcell Arbitrary probability mixtures and nonnegative guidance of bounded variation near the endpoint give atomic limits almost everywhere. A signed combination of three fields can attract positive mass to a tie.\tabularnewline
 \bottomrule
 \end{tabular}
-\caption{Prior results and endpoint claims on finite data. Heat time $\varsigma^2/2=(1-t)^2/(2t^2)$ gives
-$\varsigma=O(1-t)$ in flow-matching time.}
+\caption{Prior results and endpoint claims on finite data. Heat time $\varsigma^2/2=\eps^2/(2t^2)$ gives
+$\varsigma=O\eps$ in flow-matching time.}
 \label{tab:comparison}
 \end{table}
 
@@ -2275,7 +2275,7 @@ Lemma~\ref{lem:basic}(a), and the inequality uses $\dot\alpha<0$, $D_{\rm KL}\ge
 $|a_j|\le R$. Because $H_p\le\max_jb_j$ for every $p$, also $F\le\max_jb_j$, and
 \begin{align*}
 W&\ge\min_j\Bigl\{\tfrac12|x|^2-x\cdot a_j+\tfrac t2|a_j|^2+\tfrac\eps2R^2\Bigr\}\\
-&=\min_j\Bigl\{\tfrac12|x-a_j|^2-\tfrac{1-t}2|a_j|^2+\tfrac\eps2R^2\Bigr\}
+&=\min_j\Bigl\{\tfrac12|x-a_j|^2-\tfrac{\eps}2|a_j|^2+\tfrac\eps2R^2\Bigr\}
 =\min_j\Bigl\{\tfrac12|x-a_j|^2+\tfrac\eps2\bigl(R^2-|a_j|^2\bigr)\Bigr\}\ \ge\ 0 .
 \end{align*}
 Integrating $\dot W\le-|\dot x|^2$ over $[\tau_0,T]$ and letting $T\to\infty$ yields
@@ -2322,8 +2322,8 @@ Lemma~\ref{lem:volume} gives (b) and (c).
 \begin{proof}
 (a) By Proposition~\ref{prop:kernel-field} and Fubini's theorem for the finite sum,
 \[
-\iclrstart v_\varphi(x,t,y)=\int\sum_iq^{(h)}_i(x,t,y-u)\,\frac{a_i-x}{1-t}\,\varphi(du)
-\iclrbrq=\sum_iq^\varphi_i(x,t,y)\,\frac{a_i-x}{1-t},\iclrqbr
+\iclrstart v_\varphi(x,t,y)=\int\sum_iq^{(h)}_i(x,t,y-u)\,\frac{a_i-x}{\eps}\,\varphi(du)
+\iclrbrq=\sum_iq^\varphi_i(x,t,y)\,\frac{a_i-x}{\eps},\iclrqbr
 q^\varphi_i=\int q^{(h)}_i(x,t,y-u)\,\varphi(du),\iclrend
 \]
 and $q^\varphi_i\ge0$, $\sum_iq^\varphi_i=1$, because the same holds for $q^{(h)}_i$. At $t=0$ every
@@ -2363,7 +2363,7 @@ with $\zeta(0)=\nu\cdot x_0$. The right side is odd in $\zeta$ and Lipschitz in 
 $A_0\beta(\tau)+1$, so solutions are unique forward and backward in time.
 
 If $\nu\cdot x_0=0$, uniqueness gives $\zeta\equiv0$, hence $m_p\equiv c$ and, by the computation in
-the proof of Proposition~\ref{prop:collapse}(c), $x_t=(1-t)x_0+tc\to c$.
+the proof of Proposition~\ref{prop:collapse}(c), $x_t=\eps x_0+tc\to c$.
 
 Let now $\nu\cdot x_0>0$; the other sign follows by oddness. By uniqueness $\zeta$ never reaches the
 solution $\zeta\equiv0$, so $\zeta>0$ throughout. Take $\tau_1$ with $A_0\beta(\tau)>2$ for
@@ -2591,7 +2591,7 @@ over the labels of the cell: writing
 $\bar p_c$ as the average of the label weights $p^{(h)}(y)$ under the law $\nu_c$ of
 $\widetilde Y$ given $Q(\widetilde Y)=c$, the field $v_{\bar p_c}$ averages the fields
 $v_{p^{(h)}(y)}$ under $\nu_c$ reweighted by
-$\sum_j p^{(h)}_j(y)\,\pi_0\bigl((x-ta_j)/(1-t)\bigr)$, a factor that depends on $(x,t)$. A bottleneck
+$\sum_j p^{(h)}_j(y)\,\pi_0\bigl((x-ta_j)/\eps\bigr)$, a factor that depends on $(x,t)$. A bottleneck
 therefore realises neither the hypothesis of Theorem~\ref{thm:composition} nor its conclusion: at
 a single coarse query, guidance ends on an atom almost surely. The composition needs the average
 to be taken over conditional fields with weights independent of the current position.
@@ -2610,7 +2610,7 @@ exist and are unique. Write $D_j=|x-ta_j|^2$, $u=x-ta_i$ and $Y=|u|^2$. We show,
 $0<t_0<t<1$,
 \begin{equation}
 |x_t-ta_i|^2\le\eps^2\left[\frac{|x_{t_0}-t_0a_i|^2}{(1-t_0)^2}
-+2w\log N\log\frac{t(1-t_0)}{t_0(1-t)}\right],
++2w\log N\log\frac{t(1-t_0)}{t_0\eps}\right],
 \label{eq:guided-hard-rate}
 \end{equation}
 whose right side tends to zero, since $\eps^2\log(1/\eps)\to0$; as
@@ -2641,9 +2641,9 @@ so by the Gibbs bound and $w\ge0$
 \dot Y=2u\cdot\dot u&=-\frac{2Y}{\eps}+\frac{2w\,u\cdot(a_i-m)}{\eps}
 \le-\frac{2Y}{\eps}+\frac{2w\eps\log N}{t},\\
 \frac{d}{dt}\Bigl(\frac{Y}{\eps^2}\Bigr)&=\frac{\dot Y}{\eps^2}+\frac{2Y}{\eps^3}
-\le\frac{2w\log N}{t\eps}=\frac{2w\log N}{t(1-t)} .
+\le\frac{2w\log N}{t\eps}=\frac{2w\log N}{t\eps} .
 \end{align*}
-Integrating from $t_0$ to $t$ with $\int_{t_0}^t\frac{ds}{s(1-s)}=\log\frac{t(1-t_0)}{t_0(1-t)}$ and
+Integrating from $t_0$ to $t$ with $\int_{t_0}^t\frac{ds}{s(1-s)}=\log\frac{t(1-t_0)}{t_0\eps}$ and
 multiplying by $\eps^2$ gives \eqref{eq:guided-hard-rate}.
 
 \emph{Time-dependent guidance at a hard label.} For a measurable, locally bounded
@@ -2655,9 +2655,9 @@ $w:[0,1)\to[0,\infty)$ the same computation holds for almost every $t$ and gives
 If $w(s)\le W_0(1-s)^{-\gamma}$ on $[t_0,1)$ with $0<\gamma<2$, then
 \[
 \int_{t_0}^t\frac{w(s)\,ds}{s(1-s)}\le\frac{W_0}{t_0}\int_{t_0}^t(1-s)^{-1-\gamma}\,ds
-\le\frac{W_0}{t_0\gamma}(1-t)^{-\gamma},
+\le\frac{W_0}{t_0\gamma}\eps^{-\gamma},
 \]
-so $|x_t-ta_i|^2=O((1-t)^{2-\gamma})\to0$ for every initial point. This condition is sufficient
+so $|x_t-ta_i|^2=O(\eps^{2-\gamma})\to0$ for every initial point. This condition is sufficient
 only.
 \end{proof}
 
@@ -2667,7 +2667,7 @@ only.
 \thmcomposition*
 \paragraph{Proof overview.} On the line the composite field reduces to the scalar
 function $F_w$ of \eqref{eq:composition-mean}. Lemma~\ref{lem:signedconv} gives convergence to
-$\{-1,0,1\}$, and flows on the line preserve order. For (a), a barrier $|x|<\varkappa(1-t)^2/t$ that
+$\{-1,0,1\}$, and flows on the line preserve order. For (a), a barrier $|x|<\varkappa\eps^2/t$ that
 moves inward faster than the boundary traps an open interval of sources. For (b),
 $F_w\ge\kappa\min\{\zeta^3,1\}$ on $\zeta\ge0$, and a lower barrier keeps every positive source away
 from~$0$.
@@ -3270,11 +3270,11 @@ sets, so the endpoint law has no atom.
 
 \begin{proof}[Proof of (b)]
 Write $m=\hat x_1$, $M=\sup|m|$ and $h=g-\mathrm{id}$. On compact subsets of $\R\times[t_0,1)$,
-$\partial_xm$ is bounded and $1-t$ is bounded below, so $v_\theta$ is locally Lipschitz, solutions
+$\partial_xm$ is bounded and $\eps$ is bounded below, so $v_\theta$ is locally Lipschitz, solutions
 are unique, and two solutions ordered at $t_0$ remain strictly ordered. Since
-$\frac{d}{dt}\frac{X_t}{1-t}=\frac{m(X_t,t)}{(1-t)^2}$,
+$\frac{d}{dt}\frac{X_t}{\eps}=\frac{m(X_t,t)}{\eps^2}$,
 \[
-X_t=\frac{1-t}{1-t_0}X_{t_0}+(1-t)\int_{t_0}^t\frac{m(X_r,r)}{(1-r)^2}\,dr,
+X_t=\frac{\eps}{1-t_0}X_{t_0}+\eps\int_{t_0}^t\frac{m(X_r,r)}{(1-r)^2}\,dr,
 \qquad |X_t|\le|X_{t_0}|+M,
 \]
 so every solution exists on $[t_0,1)$ and is bounded.
@@ -3285,13 +3285,13 @@ with $m(c,t)>c$ on $[t_1,1]$. Take $t_1\le t_2<t_3$ with $X_{t_2}>c>X_{t_3}$ and
 $\tau=\sup\{r\in[t_2,t_3]:X_r\ge c\}$. Then $X_\tau=c$ and $X<c$ on $(\tau,t_3]$, so
 $\dot X_\tau\le0$, whereas the equation gives $\dot X_\tau=(m(c,\tau)-c)/(1-\tau)>0$. The case
 $h(c)<0$ is symmetric, so $X_t\to\ell$. If $h(\ell)=2\eta>0$, joint continuity of $m$ at $(\ell,1)$
-gives $\dot X_t\ge\eta/(1-t)$ for $t$ near $1$, so $X_t\to\infty$, a contradiction; likewise for
+gives $\dot X_t\ge\eta/\eps$ for $t$ near $1$, so $X_t\to\infty$, a contradiction; likewise for
 $h(\ell)<0$. Hence $g(\ell)=\ell$.
 
 \emph{Repelling fixed points.} Let $g'(z)>1$ and suppose solutions $X<Y$ both converge to $z$. Then
-$D=Y-X>0$ satisfies $\dot D=D(\partial_xm(\xi_t,t)-1)/(1-t)$ with $\xi_t$ between $X_t$ and $Y_t$.
+$D=Y-X>0$ satisfies $\dot D=D(\partial_xm(\xi_t,t)-1)/\eps$ with $\xi_t$ between $X_t$ and $Y_t$.
 With $\kappa=(g'(z)-1)/2$, continuity of $\partial_xm$ at $(z,1)$ gives $\partial_xm>1+\kappa$
-near $(z,1)$, so $\frac{d}{dt}\log D\ge\kappa/(1-t)$ for $t$ near $1$ and $D_t\to\infty$, a
+near $(z,1)$, so $\frac{d}{dt}\log D\ge\kappa/\eps$ for $t$ near $1$ and $D_t\to\infty$, a
 contradiction.
 
 \emph{Attracting fixed points.} Let $g'(z)<1$. Choose $\delta>0$ with $h(z-\delta)>0>h(z+\delta)$
@@ -3312,14 +3312,14 @@ Preimages of single points are single points and preimages of open intervals are
 so both conclusions hold for initial points at $t=0$.
 \end{proof}
 
-The hypotheses are needed. The exact field toward one atom, $(a-x)/(1-t)$, has
-$L(t)=1/(1-t)$, which is not integrable, and every trajectory ends at $a$. For (b), let
+The hypotheses are needed. The exact field toward one atom, $(a-x)/\eps$, has
+$L(t)=1/\eps$, which is not integrable, and every trajectory ends at $a$. For (b), let
 $\chi$ be smooth with $\chi=0$ on $[-1,1]$ and $\chi=1$ outside $[-2,2]$, let $g$ be bounded with
-$g(x)=2x$ on $[-1,1]$ and finitely many fixed points, and let $m(x,t)=g(x)\chi(x/(1-t))$ for
+$g(x)=2x$ on $[-1,1]$ and finitely many fixed points, and let $m(x,t)=g(x)\chi(x/\eps)$ for
 $t<1$ and $m(\cdot,1)=g$. Then $m$ is bounded and continuous on $\R\times[t_0,1]$, but
 $\partial_xm(0,t)=0\ne g'(0)$, and every $x_0$ with $|x_0|\le1-t_0$ follows
-$X_t=x_0(1-t)/(1-t_0)\to0$, although $g'(0)=2$: an input at the scale $x/(1-t)$ defeats
-(b). The input $\operatorname{asinh}(tx/(1-t)^2)$ of Section~\ref{sec:intervention-tests} acts at
+$X_t=x_0\eps/(1-t_0)\to0$, although $g'(0)=2$: an input at the scale $x/\eps$ defeats
+(b). The input $\operatorname{asinh}(tx/\eps^2)$ of Section~\ref{sec:intervention-tests} acts at
 the scale of the tie in the same way.
 
 % ==========================================================================
@@ -3335,7 +3335,7 @@ small noise the nearest atom recovers the source location with high probability.
 \label{prop:tgtnoise}
 Fix $\rho\ge0$ and replace the endpoint by $X_1=a_I+\rho\,\upsilon$ with $\upsilon\sim\N(0,I_d)$ independent
 of $(I,X_0,\omega)$ and redrawn every step, keeping label bandwidth $h>0$. Write
-$s_t^2=(1-t)^2+t^2\rho^2$ and $\varphi_s$ for the $\N(0,s^2I_d)$ density. Then $\vstar$ is a
+$s_t^2=\eps^2+t^2\rho^2$ and $\varphi_s$ for the $\N(0,s^2I_d)$ density. Then $\vstar$ is a
 weighted average of per-atom fields with spatial weights $\varphi_{s_t}(x-ta_i)$ in place of
 $\src{i}$, given in \eqref{eq:tgtfield}, and the endpoint law is
 \begin{equation}
@@ -3351,25 +3351,25 @@ and $\vstar$ extends continuously to $t=1$.
 \begin{proof}
 \label{apx:pf-tgtnoise}
 For $\rho=0$ this is Theorem~\ref{thm:endpoint}, with $\N(a_i,0)$ read as $\delta_{a_i}$; let
-$\rho>0$. Given $I=i$, $X_t=(1-t)X_0+t(a_i+\rho\upsilon)$, so
+$\rho>0$. Given $I=i$, $X_t=\eps X_0+t(a_i+\rho\upsilon)$, so
 \[
-r:=X_t-ta_i=(1-t)X_0+t\rho\,\upsilon\sim\N(0,s_t^2I_d),\qquad p(x\mid I=i,t)=\varphi_{s_t}(x-ta_i).
+r:=X_t-ta_i=\eps X_0+t\rho\,\upsilon\sim\N(0,s_t^2I_d),\qquad p(x\mid I=i,t)=\varphi_{s_t}(x-ta_i).
 \]
 Since $\widetilde Y$ is conditionally independent of $(X_0,\upsilon)$ given $I$, Bayes' rule as in the
 proof of Proposition~\ref{prop:kernel-field} gives
 $q_i:=\Pr(I=i\mid X_t=x,t,\widetilde Y=y)\propto\varphi_{s_t}(x-ta_i)\KK{i}$. The vector
-$(X_0,\upsilon,r)$ is jointly Gaussian with $\Cov(X_0,r)=(1-t)I_d$ and $\Cov(\upsilon,r)=t\rho\,I_d$, so
+$(X_0,\upsilon,r)$ is jointly Gaussian with $\Cov(X_0,r)=\eps I_d$ and $\Cov(\upsilon,r)=t\rho\,I_d$, so
 \[
-\E[X_0\mid r]=\frac{1-t}{s_t^2}\,r,\qquad \E[\upsilon\mid r]=\frac{t\rho}{s_t^2}\,r .
+\E[X_0\mid r]=\frac{\eps}{s_t^2}\,r,\qquad \E[\upsilon\mid r]=\frac{t\rho}{s_t^2}\,r .
 \]
 With $U=a_i+\rho\upsilon-X_0$ on $\{I=i\}$ and $r=x-ta_i$ on $\{X_t=x\}$, conditioning on $I$ and
 Proposition~\ref{prop:projection} give
 \begin{equation}
 \vstar(x,t,y)=\sum_iq_i\,\E[U\mid I=i,X_t=x,t]
-=\sum_iq_i\Big[a_i+\frac{t\rho^2-(1-t)}{s_t^2}\,(x-ta_i)\Big].
+=\sum_iq_i\Big[a_i+\frac{t\rho^2-\eps}{s_t^2}\,(x-ta_i)\Big].
 \label{eq:tgtfield}
 \end{equation}
-The minimum of $s_t^2=(1-t)^2+t^2\rho^2$ over $t\in[0,1]$ is attained at $t=1/(1+\rho^2)$, so
+The minimum of $s_t^2=\eps^2+t^2\rho^2$ over $t\in[0,1]$ is attained at $t=1/(1+\rho^2)$, so
 $s_t^2\ge\rho^2/(1+\rho^2)>0$. Hence the weights and the coefficient in \eqref{eq:tgtfield} are
 smooth on $\R^d\times[0,1]$, the field has linear growth, and its flow is global; the uniqueness
 argument of Lemma~\ref{lem:wellposed}(c), which uses only local Lipschitz continuity and the absence
@@ -3421,7 +3421,7 @@ images; the networks were then retrained with the same configuration on three in
 the first of which is the draw of the original run (\texttt{kernel\_tracking\_uncertainty.py};
 Table~\ref{tab:cifar-kernel}). The off-atom fractions of Section~\ref{sec:intervention-tests} come
 from a further retraining with the same configuration at $h=4$ and $h=6$ (three seeds each),
-integrated with RK4 to $1-t=10^{-4}$ from $16$ shared sources at each of the $48$ conditions
+integrated with RK4 to $\eps=10^{-4}$ from $16$ shared sources at each of the $48$ conditions
 (\texttt{summarize\_s10\_cifar.py}). A sample is off-atom unless its nearest training image is at
 most $\tfrac13$ as far as the second nearest, the criterion of \citet{yoon2023memorization}. Unlike
 the rest of this appendix, these fractions are reported with sample standard deviations over the
@@ -3536,7 +3536,7 @@ $3.71\times10^{-6}$ across it, at the gaps $10^{-2}$, $10^{-4}$ and $10^{-6}$.
 \paragraph{Ties.} In one dimension the atoms and labels are $\{-1,1\}$, with initial sources
 $0,\pm10^{-12},\pm10^{-8},\pm10^{-4},\pm10^{-2}$ and $h\in\{0.05,0.2,1\}$. We compare the average of
 the two exact label fields, the uniform-prior field, and the hard-label average, whose field is
-$-x/(1-t)$ and whose endpoint is $0$. A follow-up to gap $10^{-18}$ shows departure toward the
+$-x/\eps$ and whose endpoint is $0$. A follow-up to gap $10^{-18}$ shows departure toward the
 atoms for positive offsets under fixed-step refinement, but DOP853 (relative tolerance $10^{-11}$,
 absolute $10^{-30}$) fails in four of six selected cases at $h=0.05,0.2$ because the required
 step falls below floating-point spacing; we retain these failures.
@@ -3653,15 +3653,15 @@ interpolant samples at every step. The velocity network regresses $X_1-X_0$; its
 variant draws $1-t$ half uniformly and half log-uniformly on $[10^{-5},1]$ with importance weights,
 so that the objective is unchanged, and its separate-unconditional variant (four seeds) replaces
 dropout by a second network. The data-predicting network regresses $X_1$ with input
-$\operatorname{asinh}(tx/(1-t)^2)$ in addition to $(x,t,y)$. The distillation network has the same
+$\operatorname{asinh}(tx/\eps^2)$ in addition to $(x,t,y)$. The distillation network has the same
 architecture but regresses the exact posterior mean at interpolant samples and at points of the
 boundary layer; it is a positive control for the solver and the architecture at the tie where its
 input is centred (on the triangle it also leaves the edge midpoints empty), not a model learned from
 data. Composites are integrated from the first $2048$ of $16384$ shared Gaussian
-sources in $\tau=-\log(1-t)$, first in $x$ and then in $\zeta=tx/(1-t)^2$, by a per-source adaptive
+sources in $\tau=-\log\eps$, first in $x$ and then in $\zeta=tx/\eps^2$, by a per-source adaptive
 Rosenbrock method (ROS2) at relative tolerances $10^{-5}$ and $10^{-7}$. Occupancy is
-the fraction of sources within $\delta$ of the midpoint at the gap $\epsilon=1-t$, reported at
-$\epsilon=10^{-5}$, $\delta=0.05$; the radii $0.02$ and $0.1$ are in the artifacts. Over every
+the fraction of sources within $\delta$ of the midpoint at the gap $\eps$, reported at
+$\eps=10^{-5}$, $\delta=0.05$; the radii $0.02$ and $0.1$ are in the artifacts. Over every
 network, seed and guidance strength of Table~\ref{tab:learned-composition} and
 Appendix~\ref{apx:bottleneck-runs} (\texttt{summarize\_composite\_solver\_checks.py}), the endpoint
 classes of the composite differ between the two tolerances for at most $1.32\%$ of the sources in
@@ -3694,7 +3694,7 @@ near $t=1$. \placeblock{lossrisk}
 
 \paragraph{Which change matters.} Two ablations separate the changes, with five seeds each and
 the same training and integration. \texttt{cfm\_v\_s} keeps the velocity output and its loss and
-adds only the input $\operatorname{asinh}(tx/(1-t)^2)$; \texttt{cfm\_x} predicts the data with the
+adds only the input $\operatorname{asinh}(tx/\eps^2)$; \texttt{cfm\_x} predicts the data with the
 data loss and has no extra input (rows ``rescaled input'' and ``data, plain input'' of
 Table~\ref{tab:learned-composition}). With the input, a velocity network reproduces the exact
 probabilities when it succeeds, but not in every seed: at $B=1$ all five seeds give
@@ -3763,7 +3763,7 @@ method with relative tolerance $10^{-6}$. Once all three posterior distributions
 pair mass above $1-10^{-12}$, we approximate the remaining field by the two-atom field.
 If all three concentrate on the same single atom first, we retain that atom assignment.
 Write $q$ for displacement from the moving midpoint $tz$ along the unit pair axis and
-$\lambda=rt/(1-t)$. Then $\zeta=\lambda q/(1-t)$ obeys
+$\lambda=rt/\eps$. Then $\zeta=\lambda q/\eps$ obeys
 $d\zeta/d\lambda=\zeta/\lambda+\lambda F_w(\zeta)$. By symmetry we can follow $|\zeta|$.
 Above threshold, crossing the outer positive root gives escape. At a fixed wall $a>0$
 inside that root, $a+\lambda^2 F_w(a)<0$ keeps the trajectory inside $[-a,a]$
