@@ -956,13 +956,13 @@ $x_t\to z$ and $\beta P_L(x_t-tz)\to\xi_\star$.
 
 \moveblock{sketchspectral}{%
 \begin{proofsketch}
-In the time $\sigma$ with $d\sigma=\beta\,d\tau$ the profile obeys
-$d\xi/d\sigma=M(\xi)-z+o(1)$, while the normal part $P_{L^\perp}(x-z)$ decays at the slow rate
+In the time $\tilde\tau$ with $d\tilde\tau=\beta\,d\tau$ the profile obeys
+$d\xi/d\tilde\tau=M(\xi)-z+o(1)$, while the normal part $P_{L^\perp}(x-z)$ decays at the slow rate
 $e^{-\tau}$. A Lyapunov--Perron argument for this fast--slow system shows that the trajectories
 converging to a hyperbolic profile form a Lipschitz graph of codimension equal to the number of
 positive eigenvalues of $\Gamma$, which gives (a) and (b). For (c), $M-z$ is the gradient of a
 potential that grows linearly away from the profiles, whereas convergence to $z$ forces
-$\xi=o(\sigma)$; so profiles cannot escape to infinity.
+$\xi=o(\tilde\tau)$; so profiles cannot escape to infinity.
 \end{proofsketch}
 }%
 
@@ -1594,7 +1594,7 @@ $\beta=t/\eps^2$, $\alpha=1/\beta$ & inverse temperature of the posterior over a
 $b_j$, $H_p$ & linear scores $x\cdot a_j-\tfrac t2|a_j|^2$; log-partition function of prior $p$\\
 $w$, $w_c$ & guidance strength; threshold of the configuration at hand: $1/\sinh^2B$ for two atoms (Theorem~\ref{thm:composition}), $w_c^{\mathrm{spec}}=(1-m^2)/m^2$ for the regular simplex and the triangle (Corollary~\ref{cor:spectral-threshold})\\
 $M$, $\Gamma$, $\xi$ & restricted posterior mean, signed posterior covariance, blown-up position (Section~\ref{sec:spectral})\\
-$\sigma$ & fast time, $d\sigma=\beta\,d\tau$ (Appendix~\ref{apx:pf-spectral})\\
+$\tilde\tau$ & fast time, $d\tilde\tau=\beta\,d\tau$ (Appendix~\ref{apx:pf-spectral})\\
 \bottomrule
 \end{tabular}
 \caption{Notation.}
@@ -2864,7 +2864,7 @@ so that $P_Lx=tP_Lz+\beta^{-1}\xi$ and $P_{L^\perp}x=P_{L^\perp}z+\eta$, that is
 \[
 x=tz+\beta^{-1}\xi+\eps P_{L^\perp}z+\eta,\qquad x-z=\beta^{-1}\xi-\eps P_Lz+\eta,
 \]
-and introduce the fast time $\sigma$ with $d\sigma/d\tau=\beta$. Since $\beta=te^{2\tau}$ and
+and introduce the fast time $\tilde\tau$ with $d\tilde\tau/d\tau=\beta$. Since $\beta=te^{2\tau}$ and
 $t=1-e^{-\tau}$, we have $d\beta/d\tau=2e^{2\tau}-e^\tau=\beta(1+t)/t$. With $dx/d\tau=\bar m-x$,
 $dt/d\tau=\eps$ and $P_L(x+\eps z)=P_Lz+\beta^{-1}\xi$,
 \begin{align*}
@@ -2876,18 +2876,18 @@ $dt/d\tau=\eps$ and $P_L(x+\eps z)=P_Lz+\beta^{-1}\xi$,
 \end{align*}
 and dividing by $\beta$, with $1/(t\beta)=\eps^2/t^2$,
 \[
-\frac{d\xi}{d\sigma}=\frac{\eps^2}{t^2}\,\xi+P_L(\bar m-z),\qquad
+\frac{d\xi}{d\tilde\tau}=\frac{\eps^2}{t^2}\,\xi+P_L(\bar m-z),\qquad
 \frac{d\eta}{d\tau}=P_{L^\perp}(\bar m-x)=P_{L^\perp}(\bar m-z)-\eta .
 \]
 Since $M(\xi)-z\in L$, we have $P_L(\bar m-z)=G(\xi)+P_L(\bar m-M(\xi))$ with $G=M-z$, and therefore
 \begin{equation}
-\frac{d\xi}{d\sigma}=G(\xi)+\mathcal R,\qquad
+\frac{d\xi}{d\tilde\tau}=G(\xi)+\mathcal R,\qquad
 \frac{d\eta}{d\tau}=-\eta+\mathcal E,\qquad
 \mathcal R=\frac{\eps^2}{t^2}\xi+P_L(\bar m-M(\xi)),\quad \mathcal E=P_{L^\perp}(\bar m-z),
 \label{eq:pf:spec:blowup}
 \end{equation}
 where $\bar m=\sum_kc_km_{p_k}$ is evaluated at $x$. Since $\beta=e^{2\tau}-e^\tau$,
-$\sigma=\tfrac12e^{2\tau}-e^\tau+O(1)$, so $\sigma\sim\beta/2$.
+$\tilde\tau=\tfrac12e^{2\tau}-e^\tau+O(1)$, so $\tilde\tau\sim\beta/2$.
 
 \begin{lemma}[Off-tie atoms are exponentially small]
 \label{lem:offtie}
@@ -3040,7 +3040,7 @@ only the Lipschitz property is used below.)
 \begin{proof}
 \emph{Parts (a) and (b).} Put $y=\xi-\xi_\star$ and write $G(\xi_\star+y)=\Gamma(\xi_\star)y+N(y)$
 with $N(0)=DN(0)=0$. Multiplying the first equation of \eqref{eq:pf:spec:blowup} by
-$d\sigma/d\tau=\beta$ gives, in the time $\tau$,
+$d\tilde\tau/d\tau=\beta$ gives, in the time $\tau$,
 \[
 \frac{dy}{d\tau}=\beta\bigl\{\Gamma(\xi_\star)y+N(y)+\mathcal R(\xi_\star+y,\eta,\tau)\bigr\},\qquad
 \frac{d\eta}{d\tau}=-\eta+\mathcal E(\xi_\star+y,\eta,\tau),
@@ -3093,31 +3093,31 @@ points is finite, so there are finitely many profiles.
 The gradient of a log-sum-exp is the tilted mean, so $\nabla_L\Psi=\sum_kc_k\E_{\pi_k(\xi)}[P_La]
 -P_Lz=G$; moreover $G$ is bounded, and $|\Psi(\xi)|\le C(1+|\xi|)$ because each log-sum-exp lies
 between $\min_j\langle\xi,a_j\rangle+\log\min_jp_{k,j}$ and $\max_j\langle\xi,a_j\rangle$. Take a
-trajectory with $x_t\to z$. By Lemma~\ref{lem:offtie}(ii), $\mathcal R\to0$, so $d\xi/d\sigma$ is
-bounded by some $K$ after some $\sigma_1$, and $\xi/\sigma\to0$ because $\xi=o(\beta)$ and
-$\sigma\sim\beta/2$. By \eqref{eq:pf:spec:escape} there is $R_0$ with $|G|\ge\delta_0$ outside
-$B_{R_0}$; enlarging $\sigma_1$, $|\mathcal R|\le\delta_0/2$ for $\sigma\ge\sigma_1$, and then
+trajectory with $x_t\to z$. By Lemma~\ref{lem:offtie}(ii), $\mathcal R\to0$, so $d\xi/d\tilde\tau$ is
+bounded by some $K$ after some $\tilde\tau_1$, and $\xi/\tilde\tau\to0$ because $\xi=o(\beta)$ and
+$\tilde\tau\sim\beta/2$. By \eqref{eq:pf:spec:escape} there is $R_0$ with $|G|\ge\delta_0$ outside
+$B_{R_0}$; enlarging $\tilde\tau_1$, $|\mathcal R|\le\delta_0/2$ for $\tilde\tau\ge\tilde\tau_1$, and then
 \[
-\frac{d}{d\sigma}\Psi(\xi)=\langle G,\,G+\mathcal R\rangle\ \ge\ |G|^2-|G||\mathcal R|
+\frac{d}{d\tilde\tau}\Psi(\xi)=\langle G,\,G+\mathcal R\rangle\ \ge\ |G|^2-|G||\mathcal R|
 \ \ge\ \tfrac12|G|^2\ \ge\ c_0:=\tfrac12\delta_0^2
 \quad\text{whenever }|\xi|\ge R_0 .
 \]
-Let $\overline B$ be the closed ball of radius $\max\{R_0,|\xi(\sigma_1)|\}$. An excursion outside
-$B_{R_0}$ after $\sigma_1$ that begins on $\partial B_{R_0}$, or at $\xi(\sigma_1)$, and returns to
+Let $\overline B$ be the closed ball of radius $\max\{R_0,|\xi(\tilde\tau_1)|\}$. An excursion outside
+$B_{R_0}$ after $\tilde\tau_1$ that begins on $\partial B_{R_0}$, or at $\xi(\tilde\tau_1)$, and returns to
 $\partial B_{R_0}$ increases $\Psi$ at rate at least $c_0$, so it lasts at most
 $(\max_{\overline B}\Psi-\min_{\overline B}\Psi)/c_0$ and, at speed at most $K$, reaches at most a
 bounded distance. If $\xi$ were unbounded it would therefore stay outside $B_{R_0}$ from some time
-on, and then $\Psi(\xi(\sigma))\ge c_0\sigma-O(1)$, contradicting
-$|\Psi(\xi)|\le C(1+|\xi|)=o(\sigma)$. So $\xi$ is bounded. Then $\mathcal R=O(\eps^2)+O(e^{-c\beta})
+on, and then $\Psi(\xi(\tilde\tau))\ge c_0\tilde\tau-O(1)$, contradicting
+$|\Psi(\xi)|\le C(1+|\xi|)=o(\tilde\tau)$. So $\xi$ is bounded. Then $\mathcal R=O(\eps^2)+O(e^{-c\beta})
 =O(\beta^{-1})+O(e^{-c\beta})$, and
 \[
-\int^\infty|\mathcal R|^2\,d\sigma=\int^\infty|\mathcal R|^2\beta\,d\tau
+\int^\infty|\mathcal R|^2\,d\tilde\tau=\int^\infty|\mathcal R|^2\beta\,d\tau
 \le C\int^\infty\bigl(\beta^{-1}+\beta e^{-2c\beta}\bigr)\,d\tau<\infty .
 \]
-From $\frac{d}{d\sigma}\Psi\ge|G|^2-|G||\mathcal R|\ge\frac12|G|^2-\frac12|\mathcal R|^2$ and the
-boundedness of $\Psi(\xi)$, integration gives $\int^\infty|G(\xi)|^2\,d\sigma<\infty$. As $G$ is
-Lipschitz on the bounded region visited and $d\xi/d\sigma$ is bounded, $\sigma\mapsto|G(\xi(\sigma))|^2$
-is uniformly continuous, hence $G(\xi(\sigma))\to0$. The $\omega$-limit set of $\xi$ is nonempty,
+From $\frac{d}{d\tilde\tau}\Psi\ge|G|^2-|G||\mathcal R|\ge\frac12|G|^2-\frac12|\mathcal R|^2$ and the
+boundedness of $\Psi(\xi)$, integration gives $\int^\infty|G(\xi)|^2\,d\tilde\tau<\infty$. As $G$ is
+Lipschitz on the bounded region visited and $d\xi/d\tilde\tau$ is bounded, $\tilde\tau\mapsto|G(\xi(\tilde\tau))|^2$
+is uniformly continuous, hence $G(\xi(\tilde\tau))\to0$. The $\omega$-limit set of $\xi$ is nonempty,
 compact, connected and, by continuity of $G$, contained in the finite set of profiles; hence it
 is one profile $\xi_\star$, and the trajectory lies in its basin. Combined with (a) and (b), the
 endpoint basin of $z$ is the finite union of the profile basins, which is null if no profile is a
@@ -3559,17 +3559,17 @@ the probabilities shown in Figure~\ref{fig:composition}(b).
 
 \paragraph{Spectral criterion.} \texttt{spectral\_criterion\_check.py} draws Gaussian sources,
 integrates $dx/d\tau=M(\beta x)-x$ with RK4 up to $t=1/2$, and then the exact profile equation
-$d\xi/d\sigma=M(\xi)+\xi/(t\beta)$, $d\tau/d\sigma=1/\beta$ with an adaptive Runge--Kutta method
-(relative tolerance $10^{-8}$) to $\sigma=10^4$. It records the fraction of sources with $|\xi|<5$
-at $\sigma=10,10^2,10^3,10^4$; the fractions are unchanged from $\sigma=10^2$ on except for one box
+$d\xi/d\tilde\tau=M(\xi)+\xi/(t\beta)$, $d\tau/d\tilde\tau=1/\beta$ with an adaptive Runge--Kutta method
+(relative tolerance $10^{-8}$) to $\tilde\tau=10^4$. It records the fraction of sources with $|\xi|<5$
+at $\tilde\tau=10,10^2,10^3,10^4$; the fractions are unchanged from $\tilde\tau=10^2$ on except for one box
 source near its basin boundary. Table~\ref{tab:spectral} gives the results.
 \texttt{theory\_basin\_map.py} integrates the triangle in the same two stages, with relative
 tolerance $10^{-9}$, from $32768$ sources (seed $20261121$), and classifies the endpoint of every
-source among all candidates at $\sigma=10^4$: the centre when $|\xi|<5$, an edge midpoint when the
+source among all candidates at $\tilde\tau=10^4$: the centre when $|\xi|<5$, an edge midpoint when the
 trajectory lies within $0.2$ of it and its edge profile $\langle\xi,(a_i-a_j)/2\rangle$ is bounded
 by $5$, and an atom when the trajectory lies within $0.2$ of it and every posterior puts weight
 above $1-10^{-6}$ on it. At $1.1$, $2$, $5$ and $10\,w_c$ every source is classified, at $2$, $5$
-and $10\,w_c$ no class changes after $\sigma=10^3$, and the centre fractions agree with
+and $10\,w_c$ no class changes after $\tilde\tau=10^3$, and the centre fractions agree with
 Table~\ref{tab:spectral} within sampling error. On the first $4096$ sources of
 Table~\ref{tab:learned-composition} its centre classes coincide with those of
 \texttt{learned\_composition\_2d.py}, whose classifier assigned each source ending at an edge
@@ -3579,7 +3579,7 @@ endpoint of Table~\ref{tab:spectral} by the face of atoms whose centroid it reac
 weight under the uniform prior is within a factor $e^{50}$ of the largest, accepted when the
 centroid has exactly these atoms as nearest atoms, the trajectory lies within $0.2$ of it and the
 profile $\beta P_L(x-tz)$ on the span $L$ of the face is bounded by $5$. Every source is
-classified, no class changes after $\sigma=10^3$ at $2$ and $5\,w_c$ or for the rectangle and the
+classified, no class changes after $\tilde\tau=10^3$ at $2$ and $5\,w_c$ or for the rectangle and the
 box, and the centre fractions equal those of Table~\ref{tab:spectral} for the rectangle and the box
 and agree within sampling error for the triangle and the simplex, whose atoms come from a singular
 value decomposition that linear-algebra libraries may return rotated.
@@ -3588,7 +3588,7 @@ value decomposition that linear-algebra libraries may return rotated.
 \centering\small
 \begin{tabular}{@{}lrrlcrrrr@{}}
 \toprule
-configuration & $d$ & $N$ & $w$ & profile $\xi=0$ & $\tr\Gamma$ & sources & $\sigma=10^2$ & $\sigma=10^4$\\
+configuration & $d$ & $N$ & $w$ & profile $\xi=0$ & $\tr\Gamma$ & sources & $\tilde\tau=10^2$ & $\tilde\tau=10^4$\\
 \midrule
 triangle & 2 & 3 & $0.5\,w_c$ & source & $0.268$ & 2048 & $0.0000$ & $0.0000$\\
 triangle & 2 & 3 & $0.9\,w_c$ & source & $0.054$ & 2048 & $0.0000$ & $0.0000$\\
@@ -3607,7 +3607,7 @@ box & 8 & 256 & $5$ & sink & $-3.717$ & 512 & $0.0039$ & $0.0020$\\
 \bottomrule
 \end{tabular}
 \caption{Numerical check of Theorem~\ref{thm:spectral}: fraction of Gaussian sources whose
-profile $\xi$ stays in $\{|\xi|<5\}$ at fast time $\sigma$, an estimate of $\Pr(X_1=z)$ for $z=0$.
+profile $\xi$ stays in $\{|\xi|<5\}$ at fast time $\tilde\tau$, an estimate of $\Pr(X_1=z)$ for $z=0$.
 The class of the profile and $\tr\Gamma$ are computed from $\Gamma(0)$. For the triangle and the
 simplex, $w_c=(1-m^2)/m^2$ is the threshold of Corollary~\ref{cor:spectral-threshold}
 ($1.160$ and $4.802$ at $B=2$). The rectangle and the box at $w=1$ are saddles with negative
