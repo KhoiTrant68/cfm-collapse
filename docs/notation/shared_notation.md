@@ -67,6 +67,19 @@ Bảng này là **spec** cho mọi chỉnh sửa sau; agent nào sửa tex cũng
 | B | §5.4, Prop B.2 | Heun `\theta_k` | `\bar\kappa_k` |
 | B | §3–4 | `w_j`, `w_i(Z_t,t)` | `q_j`, `q_i(Z_t,t)` |
 
+### 3.1 Điều chỉnh khi áp dụng ở giai đoạn 1 (đã chấp nhận)
+
+| Paper | Spec ghi | Thực tế dùng | Lý do |
+|---|---|---|---|
+| A | `\tilde w_i → \tilde q_i` | `q^\varphi_i` | Prop 5.2 đã dùng `\tilde q_i(y)` cho endpoint weight |
+| A | bán kính trong proof Thm 5.1 → `r` | `r_0` | Proof đó đã dùng `r` cho một điểm của simplex |
+| A | bỏ heat time `s` | `s` chỉ còn làm chỉ số của `\mu^p_s`; công thức viết `\varsigma^2/2`, `O(\sqrt s) → O(\varsigma)` | Tương đương |
+| A | `\varepsilon` làm bán kính (proof Lemma B.7) | **chưa xử lý**, đụng `\eps` | Sửa ở giai đoạn 3 (W5) |
+| B | `\theta=(1-r)/(2r)` (Prop B.2) | `\bar\kappa` | Chính là trọng số Heun `\bar\kappa_k` |
+| B | `q` cục bộ (Prop B.1(iii)) | `\varpi` | Để `q` dành cho posterior weight |
+| B | `r` | vẫn mang ba nghĩa: bán kính (Prop 4.3), `r_k` (Heun), `r(t)` (Thm A.1) | Không cùng display; xem lại ở giai đoạn 2 |
+| B | — | `g` có hai nghĩa ở App A và App B; `w(t)` trong Thm A.1 | Cục bộ, khác appendix; xem lại ở giai đoạn 2 |
+
 ## 4. Thuật ngữ
 
 | Khái niệm | Dùng | Bỏ |
