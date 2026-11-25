@@ -490,7 +490,7 @@ $\zeta_t=(1-w_i(Z_t,t))\max_k|x^k-a|$.
 Part~(b) does not ask for a small error. It asks that the error stay a fixed
 fraction below the distance to the example, with $\zeta_t\to0$ once the posterior concentrates on
 $a$. This holds on a ball around $a$ at late times (Proposition~\ref{prop:trap}, stated for
-uniform or within-class weights; with label-noise priors $\Omega$ carries an extra factor
+uniform or within-class weights; with label-noise priors $\bar\zeta$ carries an extra factor
 $\max_{k\ne i}p_k/p_i$). The quantity that decides landing is the radial ratio
 $\langle\hat e_t,\hat x_1-a\rangle/n_t$ of~(a). A relative error below one keeps it below one where
 $n_t$ is large compared with $\gamma_t+\zeta_t$, and (c) gives a partial converse. Part~(d) shows
@@ -1179,7 +1179,7 @@ $\eps=1-t$ & time to the end\\
 $\Delta$ & error of a learned field relative to the exact field\\
 $\hat x_1$, $D_\theta$ & data prediction of a learned field; EDM denoiser\\
 $e_t$, $n_t$, $\varrho_t=e_t/n_t$ & scaled error $|\hat x_1-m^\star|$, distance to the atom, relative error\\
-$\zeta_t$, $\Omega$ & off-atom posterior mass times the atom spread; its bound near an atom (Appendix~\ref{app:relerr})\\
+$\zeta_t$, $\bar\zeta$ & off-atom posterior mass times the atom spread; its bound near an atom (Appendix~\ref{app:relerr})\\
 $\sigma$, $r_k$, $\kappa_k$, $\theta_k$ & EDM noise level; Heun step ratio and weights\\
 $s$, $=$L, $=$E & swap level; agreement of the nearest training image with the learned, resp.\ exact, endpoint\\
 \bottomrule
@@ -1488,23 +1488,23 @@ land with $e_t=n_t$, so $\bar\varrho<1$ is sufficient, not necessary.
 In EDM coordinates the flow is $dx/d\sigma=(x-D(x,\sigma))/\sigma$, run from $\sigma_1$ down to $0$, and
 the posterior weights over the atoms are
 $w_j(x,\sigma)\propto\exp(-|x-x^j|^2/(2\sigma^2))$. For $0<R\le g/4$ let $\rho_R=R/(g-R)\le1/3$ and
-$\Omega(\sigma)=(N-1)\,\delta_i\exp(-(1-\rho_R^2)(g-R)^2/(2\sigma^2))$.
+$\bar\zeta(\sigma)=(N-1)\,\delta_i\exp(-(1-\rho_R^2)(g-R)^2/(2\sigma^2))$.
 
 \begin{proposition}[Trapping]
 \label{prop:trap}
 Let $D$ be continuous, $x$ a $C^1$ solution on $(0,\sigma_1]$, $n(\sigma)=|x(\sigma)-a|$ and
 $e(\sigma)=|D(x(\sigma),\sigma)-m^\star(x(\sigma),\sigma)|$.
 \begin{enumerate}[label=(\roman*),leftmargin=2em]
-\item If $|x-a|\le R$, then $(1-w_i(x,\sigma))\,\delta_i\le\Omega(\sigma)$.
+\item If $|x-a|\le R$, then $(1-w_i(x,\sigma))\,\delta_i\le\bar\zeta(\sigma)$.
 \item Suppose $e\le\bar\varrho\,n+\gamma$ whenever $n\le R$, with $\bar\varrho<1$ and continuous
-  $\gamma\ge0$; $n(\sigma_1)<R$; and $\gamma+\Omega<(1-\bar\varrho)R$ on $(0,\sigma_1]$. Then
+  $\gamma\ge0$; $n(\sigma_1)<R$; and $\gamma+\bar\zeta<(1-\bar\varrho)R$ on $(0,\sigma_1]$. Then
   $n<R$ on $(0,\sigma_1]$,
   \[
   n(\sigma)\le\Big(\frac{\sigma}{\sigma_1}\Big)^{1-\bar\varrho}n(\sigma_1)
-  +\int_\sigma^{\sigma_1}\frac{\gamma(s)+\Omega(s)}{s}\Big(\frac{\sigma}{s}\Big)^{1-\bar\varrho}ds,
+  +\int_\sigma^{\sigma_1}\frac{\gamma(s)+\bar\zeta(s)}{s}\Big(\frac{\sigma}{s}\Big)^{1-\bar\varrho}ds,
   \]
   and $x(\sigma)\to a$ as $\sigma\to0$ if $\gamma\to0$.
-\item $\Omega(\sigma)<(1-\bar\varrho)R/2$ for every
+\item $\bar\zeta(\sigma)<(1-\bar\varrho)R/2$ for every
   $\sigma\le\sigma_\star=\big((1-\rho_R^2)(g-R)^2/(4\log(1/q))\big)^{1/2}$, where
   $q=(1-\bar\varrho)R/(2(N-1)\delta_i)\le1/8$, for $N\ge2$.
 \end{enumerate}
@@ -1513,7 +1513,7 @@ $e(\sigma)=|D(x(\sigma),\sigma)-m^\star(x(\sigma),\sigma)|$.
 \begin{proof}
 (i) If $|x-a|\le R$ and $k\ne i$, then $|x-x^k|\ge g-R$ and
 $w_k\le w_k/w_i\le\exp((R^2-(g-R)^2)/(2\sigma^2))=\exp(-(1-\rho_R^2)(g-R)^2/(2\sigma^2))$; sum over
-$k\ne i$. (ii) Write $\nu=1-\bar\varrho$ and $\eta=\gamma+\Omega$. Where $0<n\le R$, the radial identity
+$k\ne i$. (ii) Write $\nu=1-\bar\varrho$ and $\eta=\gamma+\bar\zeta$. Where $0<n\le R$, the radial identity
 $\sigma\,dn/d\sigma=n-\langle\hat e,D-a\rangle$ with \eqref{eq:offmass} and (i) gives
 $\sigma\,dn/d\sigma\ge\nu n-\eta$. If $n\ge R$ somewhere, let $\bar\sigma$ be the largest such
 $\sigma$; then $\bar\sigma<\sigma_1$, $n(\bar\sigma)=R$ and $n<R$ above $\bar\sigma$, so
@@ -1521,11 +1521,11 @@ $dn/d\sigma(\bar\sigma)\le0$, while the inequality gives
 $dn/d\sigma(\bar\sigma)\ge(\nu R-\eta(\bar\sigma))/\bar\sigma>0$. Hence $n<R$ throughout. The bound
 follows by integrating $d(n\,s^{-\nu})/ds\ge-\eta\,s^{-\nu-1}$ (valid almost everywhere, as in
 Theorem~\ref{thm:relerr}(a)) from $\sigma$ to $\sigma_1$, and the limit as in
-Theorem~\ref{thm:relerr}(b). (iii) $\Omega$ increases with $\sigma$; for $\sigma\le\sigma_\star$ the
-exponent is at least $2\log(1/q)$, so $\Omega<(N-1)\delta_iq$.
+Theorem~\ref{thm:relerr}(b). (iii) $\bar\zeta$ increases with $\sigma$; for $\sigma\le\sigma_\star$ the
+exponent is at least $2\log(1/q)$, so $\bar\zeta<(N-1)\delta_iq$.
 \end{proof}
 
-Part~(iii) covers only $\Omega$; the requirement $\gamma<(1-\bar\varrho)R/2$ is separate.
+Part~(iii) covers only $\bar\zeta$; the requirement $\gamma<(1-\bar\varrho)R/2$ is separate.
 
 \subsection{The Heun sampler}
 \label{apx:pf-heun}
@@ -1566,13 +1566,13 @@ $\kappa=(1-r)(2r-1)/(2r)$ and $\theta=(1-r)/(2r)$.
   $c^\star=c$ if $r\ge1/2$ and $c^\star<c$ if $r<1/2$ and $\varrho>0$. For the linear field
   $D(y,\sigma)=a+\varrho(y-a)$, $x_{k+1}-a=p\,(x_k-a)$ with $p=r+\kappa\varrho+\theta\varrho(r+(1-r)\varrho)$,
   and $p<0$ for some $\varrho\in(0,1)$ exactly when $r<3-2\sqrt2$: the step overshoots the atom.
-\item Let $0<R\le g/4$ and $\Omega$ as in Appendix~\ref{apx:pf-trap}. If $n_0\le R$ and, for every
+\item Let $0<R\le g/4$ and $\bar\zeta$ as in Appendix~\ref{apx:pf-trap}. If $n_0\le R$ and, for every
   $k\le K-2$, the hypotheses of (b) hold with $\varrho=\varrho_k$ and
-  $\varrho_kR+\gamma_k+\Omega(\sigma_k)\le R$ and
-  $c_kR+(|\kappa_k|+\theta_k\varrho_k(1-r_k))(\gamma_k+\Omega(\sigma_k))+\theta_k(\tilde\gamma_k+\Omega(\sigma_{k+1}))\le R$,
+  $\varrho_kR+\gamma_k+\bar\zeta(\sigma_k)\le R$ and
+  $c_kR+(|\kappa_k|+\theta_k\varrho_k(1-r_k))(\gamma_k+\bar\zeta(\sigma_k))+\theta_k(\tilde\gamma_k+\bar\zeta(\sigma_{k+1}))\le R$,
   then $n_k\le R$ for all $k\le K-1$. If moreover
   $e(x_{K-1},\sigma_{K-1})\le\varrho_{K-1}n_{K-1}+\gamma_{K-1}$ for some $\varrho_{K-1},\gamma_{K-1}\ge0$
-  with $\varrho_{K-1}R+\gamma_{K-1}+\Omega(\sigma_{K-1})<g/4$, the output is on-atom:
+  with $\varrho_{K-1}R+\gamma_{K-1}+\bar\zeta(\sigma_{K-1})<g/4$, the output is on-atom:
   $|x_K-a|<\tfrac13\min_{k\ne i}|x_K-x^k|$.
 \end{enumerate}
 \end{proposition}
@@ -1600,10 +1600,10 @@ $s=\operatorname{sgn}\kappa$ and in the second only at $s=1$, so $c^\star=c$ whe
 $c^\star<c$ when $\kappa<0$ and $\varrho>0$. For the linear field the step is exact with factor $p$;
 $2rp=(1-r)^2\varrho^2+(1-r)(3r-1)\varrho+2r^2$ has discriminant $(1-r)^2(r^2-6r+1)$, positive
 exactly when $r<3-2\sqrt2$, and then both roots lie in $(0,1)$.
-(e) By Proposition~\ref{prop:trap}(i), $\zeta\le\Omega$ on the ball. If $n_k\le R$, the first
-condition and (b) give $\tilde n_k\le R$, so $\Omega$ also bounds $\zeta(\tilde x_k,\sigma_{k+1})$, and the
+(e) By Proposition~\ref{prop:trap}(i), $\zeta\le\bar\zeta$ on the ball. If $n_k\le R$, the first
+condition and (b) give $\tilde n_k\le R$, so $\bar\zeta$ also bounds $\zeta(\tilde x_k,\sigma_{k+1})$, and the
 second condition gives $n_{k+1}\le R$. Induction gives $n_{K-1}\le R$; the bound on $e(x_{K-1},\sigma_{K-1})$, the last-step bound of (b)
-and $\zeta(x_{K-1},\sigma_{K-1})\le\Omega(\sigma_{K-1})$ then give $n_K<g/4$, and for
+and $\zeta(x_{K-1},\sigma_{K-1})\le\bar\zeta(\sigma_{K-1})$ then give $n_K<g/4$, and for
 $k\ne i$, $|x_K-x^k|\ge g-n_K>3n_K$.
 \end{proof}
 
