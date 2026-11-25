@@ -2763,34 +2763,34 @@ $\{-1,0,1\}$ is $1$. By oddness every $x_0<0$ converges to $-1$.
 \paragraph{Size of the basin just above the threshold.}\label{apx:threshold-scaling} Take the
 symmetric configuration of Theorem~\ref{thm:composition} (atoms $\pm1$, priors with log-odds
 $\pm2B$ averaged with equal weights, uniform unconditional prior) with the source $\N(0,1)$, and
-write $w=(1+\delta)w_c$. The theorem gives $P_0>0$ for $\delta>0$ and $P_0=0$ for $\delta\le0$; a
-formal computation gives the rate. Since $\cosh^2\zeta-w\sinh^2B=\sinh^2\zeta-\delta$,
+write $w=(1+g)w_c$. The theorem gives $P_0>0$ for $g>0$ and $P_0=0$ for $g\le0$; a
+formal computation gives the rate. Since $\cosh^2\zeta-w\sinh^2B=\sinh^2\zeta-g$,
 \[
-F_w(\zeta)=\frac{2\tanh(\zeta)\,(\sinh^2\zeta-\delta)}{\cosh2\zeta+\cosh2B}
-=\frac{\zeta\,(\zeta^2-\delta)}{\cosh^2B}+O(|\zeta|^5+\delta|\zeta|^3).
+F_w(\zeta)=\frac{2\tanh(\zeta)\,(\sinh^2\zeta-g)}{\cosh2\zeta+\cosh2B}
+=\frac{\zeta\,(\zeta^2-g)}{\cosh^2B}+O(|\zeta|^5+g|\zeta|^3).
 \]
-While $\delta\beta\ll1$ the flow in $x$ is close to $\dot x=-x$, so $x\approx x_0e^{-\tau}$ and
-$\zeta\approx x_0e^\tau$. With $\sigma=\zeta/\sqrt\delta$ and $e^{2\theta}=\delta\beta/\cosh^2B$, the
-equation $\dot \zeta=\beta F_w(\zeta)+(1+\eps/t)\zeta$ tends formally, as $\delta\downarrow0$, to
+While $g\beta\ll1$ the flow in $x$ is close to $\dot x=-x$, so $x\approx x_0e^{-\tau}$ and
+$\zeta\approx x_0e^\tau$. With $\psi=\zeta/\sqrt g$ and $e^{2\varpi}=g\beta/\cosh^2B$, the
+equation $\dot \zeta=\beta F_w(\zeta)+(1+\eps/t)\zeta$ tends formally, as $g\downarrow0$, to
 \[
-\frac{d\sigma}{d\theta}=e^{2\theta}\sigma(\sigma^2-1)+\sigma,\qquad
-\sigma\sim Ce^\theta\ (\theta\to-\infty),\qquad C=\frac{x_0\cosh B}{\delta}.
+\frac{d\psi}{d\varpi}=e^{2\varpi}\psi(\psi^2-1)+\psi,\qquad
+\psi\sim Ce^\varpi\ (\varpi\to-\infty),\qquad C=\frac{x_0\cosh B}{g}.
 \]
-This is a Bernoulli equation: $z=\sigma^{-2}$ solves $dz/d\theta=2(e^{2\theta}-1)z-2e^{2\theta}$,
-and with $u=e^{2\theta}$ its solutions are $z=(Ke^u+u+1)/u$, where $C^{-2}=K+1$. For $K>0$,
-$z\to\infty$ and $\sigma\to0$; for $K<0$, $z$ vanishes at a finite $\theta$ and $\sigma$ escapes;
-$K=0$ is the separatrix, with $\sigma\to1$. The separatrix value is therefore $C^\ast=1$, the
-basin is formally $|x_0|<\delta/\cosh B$, and
+This is a Bernoulli equation: $z=\psi^{-2}$ solves $dz/d\varpi=2(e^{2\varpi}-1)z-2e^{2\varpi}$,
+and with $u=e^{2\varpi}$ its solutions are $z=(Ke^u+u+1)/u$, where $C^{-2}=K+1$. For $K>0$,
+$z\to\infty$ and $\psi\to0$; for $K<0$, $z$ vanishes at a finite $\varpi$ and $\psi$ escapes;
+$K=0$ is the separatrix, with $\psi\to1$. The separatrix value is therefore $C^\ast=1$, the
+basin is formally $|x_0|<g/\cosh B$, and
 \[
 P_0=\sqrt{2/\pi}\;\frac{w/w_c-1}{\cosh B}+o\bigl(w/w_c-1\bigr),\qquad w\downarrow w_c .
 \]
 We have not bounded the neglected terms, so this is a formal asymptotic law, not a theorem. The
 exact computation of Appendix~\ref{app:intervention-protocol}, run at
-$\delta\in\{0.3,0.1,0.03,0.01,0.003,0.001,0.0003\}$ by
+$g\in\{0.3,0.1,0.03,0.01,0.003,0.001,0.0003\}$ by
 \texttt{composition\_threshold\_scaling.py}, agrees with it: for $B=1,2,3$ the ratio of the
-exact $P_0$ to the prediction is $0.928$, $0.951$ and $0.955$ at $\delta=0.3$, $0.9975$,
-$0.9982$ and $0.9983$ at $\delta=0.01$, and $0.99992$, $0.99995$ and $0.99995$ at
-$\delta=3\times10^{-4}$, and the deficit decreases in proportion to $\delta$. Formally and
+exact $P_0$ to the prediction is $0.928$, $0.951$ and $0.955$ at $g=0.3$, $0.9975$,
+$0.9982$ and $0.9983$ at $g=0.01$, and $0.99992$, $0.99995$ and $0.99995$ at
+$g=3\times10^{-4}$, and the deficit decreases in proportion to $g$. Formally and
 numerically, then, the basin probability vanishes continuously, and linearly, at the threshold, so
 the endpoint law does not jump at $w_c$; Theorem~\ref{thm:composition} proves neither property.
 
