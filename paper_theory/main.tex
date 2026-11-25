@@ -108,7 +108,7 @@ record's probability. A label bottleneck averages these priors. A sampler can in
 conditional velocity fields. Suppose the priors are strictly positive on the same finite
 support. For Lebesgue-almost every initial point, positive mixtures of exact fields,
 any fixed affine combination of two fields, and guidance with a bounded nonnegative schedule of
-bounded variation all return a training example. Positivity is essential: with hard labels, a
+bounded variation all return a training example. Positivity is essential: under hard conditioning, a
 fixed average of two fields already sends every source to a weighted average of training examples.
 For two training examples, we average two conditional fields with prior log-odds $\pm2B$
 and equal weights, then apply guidance against the uniform prior. This three-field sampler
@@ -187,7 +187,7 @@ training example from Lebesgue-almost every initial point. Three fields can give
 probability. When exactly two examples tie for nearest to the blend, a point equally close to both
 and closer to them than to any other example, this requires subtracting a field whose prior
 log-odds for the pair lie strictly between the two extremes. Positivity is essential:
-at hard labels ($h=0$) a fixed average of two conditional fields already sends every source to a
+under hard conditioning ($h=0$) a fixed average of two conditional fields already sends every source to a
 weighted average of their training examples (Section~\ref{sec:posmix}).
 
 \paragraph{Contributions.}\nopagebreak[4]
@@ -282,14 +282,14 @@ Guidance $w\ge0$, fixed or a bounded schedule of bounded variation & atoms, a.s.
 Any two exact fields with priors positive on the same support, any fixed affine combination, e.g.\ negative prompt by substitution & atoms, a.s. & Cor.~\ref{cor:twofields}\\
 Guidance applied to an average of conditional fields (conjunction) & can add a circumcentre with positive probability & Thm.~\ref{thm:composition}, \ref{thm:spectral}\\
 Three or more fields at a two-atom tie & a blend only if an intermediate field is subtracted & Prop.~\ref{prop:twoatom}\\
-Averaging identifying hard-label fields ($h=0$), fixed weights & every endpoint at the weighted average of the atoms & Sec.~\ref{sec:posmix}\\
+Averaging hard-conditioning fields at identifying labels ($h=0$), fixed weights & every endpoint at the weighted average of the atoms & Sec.~\ref{sec:posmix}\\
 Endpoint noise $\rho>0$ & atoms convolved with $\N(0,\rho^2I_d)$ & Prop.~\ref{prop:tgtnoise}\\
 \bottomrule
 \end{tabular}
 \caption{Endpoints of the exact flow. The positive-prior rows use a common finite support.
 Almost-sure statements hold for every absolutely continuous source, including the Gaussian $\pi_0$.
 The exceptional set can be a hyperplane (Proposition~\ref{prop:hyperplane}).
-At an identifying hard label the stated endpoint holds for every initial point.}
+Under hard conditioning at an identifying label the stated endpoint holds for every initial point.}
 \label{tab:interventions}
 \end{table}
 
@@ -326,7 +326,7 @@ tie of two examples only when an intermediate field (prior log-odds strictly bet
 ones) is subtracted. For the conjunction this happens above a threshold that is exponentially
 small in the confidence $B$ with which each condition identifies its own example, so guidance
 strengths used in practice exceed it. Negative prompts against one of the two examples never
-produce it. At hard labels the boundary moves: a fixed average of two conditional fields already
+produce it. Under hard conditioning the boundary moves: a fixed average of two conditional fields already
 sends every source to a weighted average of their examples (Section~\ref{sec:posmix}). Whether
 trained compositional samplers produce such blends is open; our learned runs reproduce the blend
 basin only when the location of the tie is supplied (Section~\ref{sec:intervention-tests}).
@@ -681,12 +681,12 @@ $\sum_i\tilde q_i(y)\delta_{a_i}$ for some probability weights $\tilde q(y)$.
 
 No moment condition is imposed on $\varphi$, and the endpoint weights $\tilde q$ are not
 identified. Strict positivity of the priors is essential. By
-Proposition~\ref{prop:collapse}(a), the hard-label field at $y^i$ is $(a_i-x)/\eps$, so for any
+Proposition~\ref{prop:collapse}(a), the hard-conditioning field at $y^i$ is $(a_i-x)/\eps$, so for any
 fixed weights $\lambda_i\ge0$ summing to one the average $\sum_i\lambda_iv_{e_i}$ equals
 $(z-x)/\eps$ with $z=\sum_i\lambda_ia_i$. Its flow sends every source to $z$, in every geometry
-of the atoms, and $z$ is a training example only if a single $\lambda_i$ is nonzero. At hard labels,
+of the atoms, and $z$ is a training example only if a single $\lambda_i$ is nonzero. Under hard conditioning,
 an average of two fields therefore already blends. Our results on guidance and on three or more
-fields assume strictly positive priors and do not cover the hard-label conjunction. The null set
+fields assume strictly positive priors and do not cover the conjunction under hard conditioning. The null set
 in (b) cannot be removed, and it need not be small in dimension.
 
 \moveblock{hyperplane}{%
@@ -740,7 +740,7 @@ $|x_t-ta_i|^2\le\eps^2[C+2w\log N\log\tfrac1{\eps}]$.
 \end{proofsketch}
 }%
 
-At a hard label, guidance thus does not prevent collapse, and our bound exceeds the rate $\eps$ of
+Under hard conditioning, guidance thus does not prevent collapse, and our bound exceeds the rate $\eps$ of
 the unguided field only by a factor of order $\sqrt{\log(1/\eps)}$; for a fixed $w>0$,
 \citet[Theorem~2.5(ii) and Corollary~3.7]{liu2026geometric} give the rate $O\eps$ after the change
 of variables of Appendix~\ref{apx:comparison}, with a constant that depends on the initial point.
@@ -768,10 +768,10 @@ every trajectory converges to a point of $\mathcal C'$, and the initial points w
 not an atom form a Lebesgue-null set. In particular the endpoint is an atom almost surely under
 every absolutely continuous source. \proofin{apx:pf-schedule}
 \end{restatable}
-\ificlr At a hard label, schedules $w(t)=O(\eps^{-\gamma})$ with $\gamma<2$ still collapse
+\ificlr Under hard conditioning, schedules $w(t)=O(\eps^{-\gamma})$ with $\gamma<2$ still collapse
 (Appendix~\ref{apx:pf-cfgatom}).\else Proposition~\ref{prop:cfgatom}(a) is the constant case. The change of the energy with $w$ is
 controlled by the total variation of $w$ and by the relative entropy of a posterior to a fixed
-positive prior, at most $\log(1/\min_jp_j)$. At a hard label, schedules
+positive prior, at most $\log(1/\min_jp_j)$. Under hard conditioning, schedules
 $w(t)=O(\eps^{-\gamma})$ with $\gamma<2$ still collapse (Appendix~\ref{apx:pf-cfgatom}); this
 is sufficient, not sharp.\fi
 
@@ -790,7 +790,7 @@ Guidance is the case $q=p^{\mathrm{unc}}$. Guidance towards one condition with a
 base, and negative prompting implemented by substituting the negative-prompt field for the
 unconditional one, $v_{\mathrm{neg}}+s\,(v_{\mathrm{pos}}-v_{\mathrm{neg}})$ with a constant $s$, are combinations of two
 exact fields as well. With strictly positive priors (any $h>0$), none of them moves the endpoints
-off the training examples, except from a null set of initial points; at hard labels they can. Three
+off the training examples, except from a null set of initial points; under hard conditioning they can. Three
 fields can (Sections~\ref{sec:composition} and~\ref{sec:conjunction}).
 
 \subsection{Composing the two interventions can leave the atoms}
@@ -1149,7 +1149,7 @@ star: $w=2w_c$, the row of (a) with probability $0.406$.}
 Table~\ref{tab:interventions} summarises what each intervention does to the support of the exact
 endpoint law. Endpoint noise, $X_1=a_I+\rho\upsilon$, is the only one among them that leaves the
 atoms in every configuration: its endpoint law has a density (Proposition~\ref{prop:tgtnoise}).
-A fixed average of hard-label fields also moves every endpoint, in every geometry: it sends every
+A fixed average of hard-conditioning fields also moves every endpoint, in every geometry: it sends every
 source to the weighted average of the atoms (Section~\ref{sec:posmix}). This is why the positive
 statements of this section assume strictly positive priors.
 }%
@@ -1441,8 +1441,8 @@ set and do not say that a trained network implements them. Learned label average
 the exact ones (Appendix~\ref{app:intervention-protocol}). Whether a network reproduces the blend
 basin varied across parametrisations and seeds in our experiments. On the triangle, data predictors
 given the coordinate centred at the triangle centre left the edge midpoints empty in our runs. \emph{Hypotheses.} The positive-bandwidth results need strictly
-positive priors on a common support; at hard labels an average of two fields already blends
-(Section~\ref{sec:posmix}), and the hard-label conjunction is not analysed. Mixtures with different supports, schedules that are
+positive priors on a common support; under hard conditioning an average of two fields already blends
+(Section~\ref{sec:posmix}), and the conjunction under hard conditioning is not analysed. Mixtures with different supports, schedules that are
 unbounded or change sign, and, in the spectral classification, nonhyperbolic profiles and faces
 whose affine hull contains the projected candidate are not covered. For fixed coefficients and a freely varied positive prior with nonzero coefficient, nonhyperbolic profiles are
 exceptional (Remark~\ref{rem:generic}), and faces through the candidate do not occur
@@ -1470,7 +1470,7 @@ not identify a limiting support.
 For fields whose priors are positive on a common finite support, positive field mixtures,
 every fixed affine combination of two fields and guidance with bounded nonnegative schedules of
 bounded variation end on training examples for Lebesgue-almost every initial point. Every
-trajectory converges. Label noise gives explicit record probabilities. At hard labels an average
+trajectory converges. Label noise gives explicit record probabilities. Under hard conditioning an average
 of two fields already blends. In the symmetric two-atom
 conjunction a third field gives the midpoint positive mass exactly when $w>1/\sinh^2B$. More
 generally, subtracting an intermediate prior is necessary at a two-atom tie. At a hyperbolic
@@ -1984,7 +1984,7 @@ convergence of every trajectory and almost-everywhere atomicity for bounded nonn
 schedules of finite variation near the endpoint, including schedules with jumps and arbitrarily
 slow approach to their limiting strength. Theorem~\ref{thm:posmix} averages over any probability
 measure on positive priors. Different supports enter here only
-through hard labels: for guidance at a hard label with a fixed $w>0$, the convergence of every
+through hard conditioning: for guidance under hard conditioning with a fixed $w>0$, the convergence of every
 trajectory to the labelled atom in Proposition~\ref{prop:cfgatom}(b) also follows from their
 Theorem~2.5 and Corollary~3.7. General pairs of supports, compact supports that are not finite, and
 the stochastic sampler, which \citet{liu2026geometric} treat, are not considered here. For the
@@ -2602,7 +2602,7 @@ to be taken over conditional fields with weights independent of the current posi
 \begin{proof}
 (a) This is Theorem~\ref{thm:schedule} with the constant schedule $w(t)\equiv w$.
 
-(b) Here dots denote derivatives in the original time $t$. At the hard label the conditional
+(b) Here dots denote derivatives in the original time $t$. Under hard conditioning the conditional
 field is $(a_i-x)/\eps$, and the unconditional field is $(m-x)/\eps$ with $m=\sum_jq_ja_j$ and
 $q_j\propto\exp(-|x-ta_j|^2/2\eps^2)$. The guided field is therefore
 $\bigl((1+w)a_i-wm-x\bigr)/\eps$; it is smooth with linear growth on $[0,T]$ for $T<1$, so solutions
@@ -2646,7 +2646,7 @@ so by the Gibbs bound and $w\ge0$
 Integrating from $t_0$ to $t$ with $\int_{t_0}^t\frac{ds}{s(1-s)}=\log\frac{t(1-t_0)}{t_0\eps}$ and
 multiplying by $\eps^2$ gives \eqref{eq:guided-hard-rate}.
 
-\emph{Time-dependent guidance at a hard label.} For a measurable, locally bounded
+\emph{Time-dependent guidance under hard conditioning.} For a measurable, locally bounded
 $w:[0,1)\to[0,\infty)$ the same computation holds for almost every $t$ and gives
 \[
 |x_t-ta_i|^2\le\eps^2\Bigl[\frac{|x_{t_0}-t_0a_i|^2}{(1-t_0)^2}
@@ -3535,7 +3535,7 @@ $3.71\times10^{-6}$ across it, at the gaps $10^{-2}$, $10^{-4}$ and $10^{-6}$.
 
 \paragraph{Ties.} In one dimension the atoms and labels are $\{-1,1\}$, with initial sources
 $0,\pm10^{-12},\pm10^{-8},\pm10^{-4},\pm10^{-2}$ and $h\in\{0.05,0.2,1\}$. We compare the average of
-the two exact label fields, the uniform-prior field, and the hard-label average, whose field is
+the two exact label fields, the uniform-prior field, and the hard-conditioning average, whose field is
 $-x/\eps$ and whose endpoint is $0$. A follow-up to gap $10^{-18}$ shows departure toward the
 atoms for positive offsets under fixed-step refinement, but DOP853 (relative tolerance $10^{-11}$,
 absolute $10^{-30}$) fails in four of six selected cases at $h=0.05,0.2$ because the required
