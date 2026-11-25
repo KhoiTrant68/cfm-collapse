@@ -843,7 +843,7 @@ small slope $\operatorname{sech}^2B$, while the unconditional mean has slope $1$
 subtracts $w$ times this unconditional repulsion, and for $w>1/\sinh^2B$ the composite attracts:
 the guided covariance trace at the tie, $F_w'(0)=(1+w)\operatorname{sech}^2B-w$, turns negative,
 because averaging adds $-(1+w)$ times the variance of the component means. In (a) a barrier
-$|x|<\delta(1-t)^2/t$ then traps an open interval of sources around the tie; in (b) a lower
+$|x|<\varkappa(1-t)^2/t$ then traps an open interval of sources around the tie; in (b) a lower
 barrier keeps every positive source away from $0$.
 \end{proofsketch}
 \fi
@@ -2667,7 +2667,7 @@ only.
 \thmcomposition*
 \paragraph{Proof overview.} On the line the composite field reduces to the scalar
 function $F_w$ of \eqref{eq:composition-mean}. Lemma~\ref{lem:signedconv} gives convergence to
-$\{-1,0,1\}$, and flows on the line preserve order. For (a), a barrier $|x|<\delta(1-t)^2/t$ that
+$\{-1,0,1\}$, and flows on the line preserve order. For (a), a barrier $|x|<\varkappa(1-t)^2/t$ that
 moves inward faster than the boundary traps an open interval of sources. For (b),
 $F_w\ge\kappa\min\{\zeta^3,1\}$ on $\zeta\ge0$, and a lower barrier keeps every positive source away
 from~$0$.
@@ -2707,14 +2707,14 @@ $x\equiv0$ is a trajectory, trajectories from $x_0>0$ stay positive, and by oddn
 from $-x_0$ are reflections of those from $x_0$. In the time $\tau$, $\dot x=F_w(\beta x)-x$.
 
 For (a), let $w\sinh^2B>1$ and let $\zeta_u>0$ satisfy $\cosh \zeta_u=\sqrt w\sinh B$, so that $F_w<0$ on
-$(0,\zeta_u)$. Fix $\delta\in(0,\zeta_u)$, put $\gamma=-F_w(\delta)>0$ and $b(t)=\delta\eps^2/t$, so that
-$\zeta=\delta$ at $x=b(t)$. In the original time, $b'(t)=-\delta(2\eps/t+\eps^2/t^2)$ and
-$v_{\varphi,w}(b(t),t)=(F_w(\delta)-b(t))/\eps$, so
+$(0,\zeta_u)$. Fix $\varkappa\in(0,\zeta_u)$, put $\gamma=-F_w(\varkappa)>0$ and $b(t)=\varkappa\eps^2/t$, so that
+$\zeta=\varkappa$ at $x=b(t)$. In the original time, $b'(t)=-\varkappa(2\eps/t+\eps^2/t^2)$ and
+$v_{\varphi,w}(b(t),t)=(F_w(\varkappa)-b(t))/\eps$, so
 \begin{align*}
 v_{\varphi,w}(b(t),t)-b'(t)
-&=-\frac\gamma\eps-\frac{\delta\eps}{t}+\delta\Bigl(\frac{2\eps}t+\frac{\eps^2}{t^2}\Bigr)
-=-\frac\gamma\eps+\delta\Bigl(\frac{\eps}t+\frac{\eps^2}{t^2}\Bigr)\\
-&=\frac1\eps\Bigl[-\gamma+\delta\Bigl(\frac{\eps^2}t+\frac{\eps^3}{t^2}\Bigr)\Bigr].
+&=-\frac\gamma\eps-\frac{\varkappa\eps}{t}+\varkappa\Bigl(\frac{2\eps}t+\frac{\eps^2}{t^2}\Bigr)
+=-\frac\gamma\eps+\varkappa\Bigl(\frac{\eps}t+\frac{\eps^2}{t^2}\Bigr)\\
+&=\frac1\eps\Bigl[-\gamma+\varkappa\Bigl(\frac{\eps^2}t+\frac{\eps^3}{t^2}\Bigr)\Bigr].
 \end{align*}
 The bracket decreases to $-\gamma$ as $t\uparrow1$, so there is $t_1\in(0,1)$ with
 $v_{\varphi,w}(b(t),t)<b'(t)$ on $[t_1,1)$, and by oddness $v_{\varphi,w}(-b(t),t)>-b'(t)$ there.
@@ -2722,7 +2722,7 @@ Let $|x(t_1)|<b(t_1)$. If $|x|$ reached $b$ after $t_1$, then at the first such 
 $x(t_2)=b(t_2)$, the function $x-b$ would vanish after being negative on $[t_1,t_2)$, so
 $(x-b)'(t_2)\ge0$; this contradicts
 $(x-b)'(t_2)=v_{\varphi,w}(b(t_2),t_2)-b'(t_2)<0$, and the lower barrier is symmetric. Hence
-$|x(t)|<b(t)=\delta\eps^2/t\to0$. The set $U$ of initial points whose time-$t_1$ image lies in
+$|x(t)|<b(t)=\varkappa\eps^2/t\to0$. The set $U$ of initial points whose time-$t_1$ image lies in
 $(-b(t_1),b(t_1))$ is the preimage of an open interval containing $0$ under an increasing
 homeomorphism fixing $0$, so it is an open interval containing $0$ and $\pi_0(U)>0$. Every trajectory
 converges, so pointwise and dominated convergence, as at the end of the proof of
