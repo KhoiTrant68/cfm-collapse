@@ -1,0 +1,124 @@
+\documentclass[border=3pt]{standalone}
+% A-F3 (docs/review/presentation_2026-11-25/REVIEW.md, 3.2): the spectral classification of an
+% off-support endpoint z (Theorem thm:spectral). Each panel shows the profile plane L (the tie
+% span, horizontal) around a hyperbolic profile xi_star, and the normal direction (vertical), in
+% which x - z always decays. The profile flow d xi / d tau~ = M(xi) - z is drawn in L near xi_star
+% with Gamma(xi_star) diagonal; the vermillion set is the basin, the start points that converge
+% to z: its codimension is the number of positive eigenvalues of Gamma.
+%   (a) Gamma < 0: sink, the basin contains an open set, Pr(X_1 = z) > 0.
+%   (b) one positive eigenvalue: saddle, the basin meets L in a curve (a sheet, codim 1).
+%   (c) two positive eigenvalues: source, the basin meets L in the point xi_star (codim 2).
+% Colours as scripts/figstyle.py: grey = flow, vermillion = basin of the blend, green = null.
+% Standalone; main.tex can \input it through the standalone package. Needs amsmath, amssymb and
+% tikz with the libraries below in the host preamble (paper_theory/main.tex does not load
+% decorations.markings yet).
+\usepackage[T1]{fontenc}
+\usepackage{lmodern} % the body fonts of both papers (tmlr.sty), for the preview
+\usepackage{amsmath,amssymb}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, calc, decorations.markings}
+
+\begin{document}
+\definecolor{sbblue}{HTML}{0072B2}
+\definecolor{sbverm}{HTML}{D55E00}
+\definecolor{sborange}{HTML}{E69F00}
+\definecolor{sbgreen}{HTML}{009E73}
+\definecolor{sbgray}{HTML}{5A5A5A}
+
+\begin{tikzpicture}[
+    font=\sffamily\footnotesize,
+    >={Stealth[length=1.8mm,width=1.4mm]},
+    x={(1cm,0cm)}, y={(0.5cm,0.45cm)}, z={(0cm,0.85cm)},
+    plane/.style={draw=sbgray!55, fill=sbblue!6, line width=0.5pt},
+    flow/.style={draw=sbgray, line width=0.55pt,
+      postaction={decorate}, decoration={markings,
+        mark=at position 0.55 with {\arrow{Stealth[length=1.6mm,width=1.3mm]}}}},
+    normal/.style={->, draw=sbblue!80, line width=0.7pt},
+    basin/.style={draw=sbverm, line width=1.5pt},
+    prof/.style={circle, fill=black, inner sep=0pt, minimum size=1.6mm},
+    title/.style={anchor=north west, inner sep=0pt, font=\sffamily\footnotesize\bfseries},
+    sub/.style={anchor=north west, inner sep=0pt},
+    verdict/.style={anchor=north west, inner sep=0pt},
+  ]
+  \def\ax{1.55}  % half-extent of the plane along xi_1
+  \def\ay{1.35}  % half-extent of the plane along xi_2 (depth)
+  \def\dx{5.0}   % panel spacing
+
+  % plane L, the profile xi_star, and two normal arrows decaying onto L
+  \newcommand{\plane}{%
+    \draw[plane] (-\ax,-\ay,0) -- (\ax,-\ay,0) -- (\ax,\ay,0) -- (-\ax,\ay,0) -- cycle;
+    \draw[normal] (1.2,0.9,1.0) -- (1.2,0.9,0.12)
+      node[pos=0.35, anchor=west, inner sep=2pt, font=\sffamily\scriptsize, text=sbblue] {decays};
+  }
+  \newcommand{\clipplane}{\clip (-\ax,-\ay,0) -- (\ax,-\ay,0) -- (\ax,\ay,0) -- (-\ax,\ay,0) -- cycle;}
+
+  % ---- (a) sink: Gamma = diag(-1,-2) ----------------------------------------------------------
+  \begin{scope}
+    % open basin: a full neighbourhood in L and in the normal direction
+    \fill[sbverm, opacity=0.16] (0,0,0) ellipse (1.25cm and 0.9cm);
+    \draw[sbverm, line width=0.6pt, dashed] (0,0,0) ellipse (1.25cm and 0.9cm);
+    \plane
+    \fill[sbverm, opacity=0.18] (0,0,0) ellipse (1.25cm and 0.42cm);
+    \begin{scope}
+      \clipplane
+      \foreach \a/\b in {1.5/1.2, 1.5/-1.2, -1.5/1.2, -1.5/-1.2, 0.6/1.3, -0.6/-1.3, 1.5/0.4,
+                         -1.5/-0.4}
+        \draw[flow] plot[domain=0:3, samples=40, variable=\t]
+          ({\a*exp(-\t)}, {\b*exp(-2*\t)}, 0);
+    \end{scope}
+    \node[prof] at (0,0,0) {};
+    \node[anchor=north, inner sep=2pt] at (0.05,-0.05,0) {$\xi_\star$};
+    \node[text=sbverm, anchor=south, inner sep=1pt] at (0,0,1.05) {open basin};
+    % axes glyph: L horizontal, normal vertical
+    \draw[->, sbgray, line width=0.5pt] (-\ax-0.15,-\ay,0) -- (-\ax+0.45,-\ay,0)
+      node[anchor=west, inner sep=1pt, font=\sffamily\scriptsize] {$L$};
+    \draw[->, sbgray, line width=0.5pt] (-\ax-0.15,-\ay,0) -- (-\ax-0.15,-\ay,0.7)
+      node[anchor=south, inner sep=1pt, font=\sffamily\scriptsize] {$L^\perp$};
+    \node[title] at (-2.0cm,-1.15cm) {(a) $\Gamma(\xi_\star)\prec0$: sink};
+    \node[verdict, text=sbverm] at (-2.0cm,-1.6cm) {$\times$ blend: $\Pr(X_1=z)>0$};
+  \end{scope}
+
+  % ---- (b) saddle: Gamma = diag(-1,+1), stable direction xi_1 --------------------------------
+  \begin{scope}[shift={(\dx,0,0)}]
+    \plane
+    % the basin: the stable curve in L, times the normal direction (a sheet)
+    \fill[sbverm, opacity=0.13] (-\ax,0,-0.75) -- (\ax,0,-0.75) -- (\ax,0,0.75) -- (-\ax,0,0.75) -- cycle;
+    \begin{scope}
+      \clipplane
+      \foreach \a/\b in {1.5/0.12, 1.5/-0.12, -1.5/0.12, -1.5/-0.12, 1.5/0.4, -1.5/-0.4,
+                         1.5/-0.4, -1.5/0.4}
+        \draw[flow] plot[domain=0:2.6, samples=40, variable=\t]
+          ({\a*exp(-\t)}, {\b*exp(\t)}, 0);
+    \end{scope}
+    \draw[basin] (-\ax,0,0) -- (\ax,0,0);
+    \draw[basin, ->] (-\ax,0,0) -- (-0.55,0,0);
+    \draw[basin, ->] (\ax,0,0) -- (0.55,0,0);
+    \node[prof] at (0,0,0) {};
+    \node[anchor=south east, inner sep=2pt, fill=white, fill opacity=0.8, text opacity=1]
+      at (-0.05,0.05,0) {$\xi_\star$};
+    \node[text=sbverm, anchor=south, inner sep=1pt] at (0,0,1.05) {basin: a curve in $L$};
+    \node[title] at (-2.0cm,-1.15cm) {(b) one eigenvalue $>0$: saddle};
+    \node[verdict, text=sbgreen] at (-2.0cm,-1.6cm) {$\checkmark$ null basin};
+  \end{scope}
+
+  % ---- (c) source: Gamma = diag(+1,+2) --------------------------------------------------------
+  \begin{scope}[shift={(2*\dx,0,0)}]
+    \plane
+    \begin{scope}
+      \clipplane
+      \foreach \a/\b in {0.08/0.002, -0.08/-0.002, 0.07/0.006, -0.07/-0.006, 0.07/-0.006,
+                         -0.07/0.006, 0.05/0.012, -0.05/-0.012, 0.05/-0.012, -0.05/0.012,
+                         0.015/0.02, -0.015/-0.02, 0.015/-0.02, -0.015/0.02}
+        \draw[flow] plot[domain=0:3.4, samples=40, variable=\t]
+          ({\a*exp(\t)}, {\b*exp(2*\t)}, 0);
+    \end{scope}
+    % the basin: xi_star times the normal direction (a line, codim 2)
+    \draw[basin] (0,0,-0.75) -- (0,0,0.75);
+    \node[prof, fill=sbverm] at (0,0,0) {};
+    \node[anchor=north west, inner sep=2pt] at (0.08,-0.05,0) {$\xi_\star$};
+    \node[text=sbverm, anchor=south, inner sep=1pt] at (0,0,1.05) {basin: the point $\xi_\star$};
+    \node[title] at (-2.0cm,-1.15cm) {(c) two eigenvalues $>0$: source};
+    \node[verdict, text=sbgreen] at (-2.0cm,-1.6cm) {$\checkmark$ null basin};
+  \end{scope}
+\end{tikzpicture}
+\end{document}

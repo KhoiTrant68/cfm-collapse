@@ -1,0 +1,104 @@
+\documentclass[border=3pt]{standalone}
+% B-F1 (docs/review/presentation_2026-11-25/REVIEW.md, 3.3): the geometry of the landing condition
+% (Theorem thm:relerr). Atom a, learned state Z_t, exact posterior mean m^star (close to a late in
+% sampling), the network's prediction xhat_1 somewhere in the ball of radius e_t around m^star.
+%   n_t = |Z_t - a|,  e_t = |xhat_1 - m^star|,  rho_t = e_t / n_t,  ehat_t = (Z_t - a)/n_t,
+%   (1-t) dn_t/dt = <ehat_t, xhat_1 - a> - n_t   (Theorem thm:relerr(a)).
+% The radial component <ehat_t, xhat_1 - a> is the foot of the perpendicular from xhat_1 on the
+% ray from a through Z_t. (a) rho_t < 1: it stays below n_t, so n_t shrinks and Z_t lands on a.
+% (b) rho_t -> 1: the prediction can sit at distance n_t along the ray, and n_t stops shrinking.
+% Colours as scripts/figstyle.py: black = atom, blue = exact field, vermillion = network.
+% Natural width about 12 cm (NeurIPS \textwidth 13.97 cm). Standalone; main.tex can \input it
+% through the standalone package. Needs amsmath, amssymb and tikz with the libraries below;
+% paper_mechanism/main.tex loads neither \usepackage{standalone} nor these libraries yet.
+\usepackage[T1]{fontenc}
+\usepackage{lmodern} % the body fonts of both papers (tmlr.sty), for the preview
+\usepackage{amsmath,amssymb}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, calc, shapes.geometric}
+
+\begin{document}
+\definecolor{lgblue}{HTML}{0072B2}
+\definecolor{lgverm}{HTML}{D55E00}
+\definecolor{lgorange}{HTML}{E69F00}
+\definecolor{lggreen}{HTML}{009E73}
+\definecolor{lggray}{HTML}{5A5A5A}
+
+\begin{tikzpicture}[
+    font=\sffamily\footnotesize,
+    >={Stealth[length=2mm,width=1.5mm]},
+    atom/.style={regular polygon, regular polygon sides=3, fill=black, inner sep=0pt,
+      minimum size=2.8mm},
+    pt/.style={circle, inner sep=0pt, minimum size=1.9mm},
+    seg/.style={line width=0.8pt},
+    panel/.style={draw=lggray!45, fill=lggray!4, rounded corners=3pt, line width=0.5pt},
+    title/.style={anchor=north west, inner sep=0pt, font=\sffamily\footnotesize\bfseries},
+    verdict/.style={anchor=north west, inner sep=0pt},
+  ]
+  \def\n{2.6}        % n_t in cm
+  \def\ang{22.6}     % direction of Z_t - a
+
+  % one panel: #1 = x offset, #2 = e_t in cm, #3 = angle of xhat_1 - m^star relative to ehat_t
+  \newcommand{\landing}[3]{%
+    \begin{scope}[shift={(#1,0)}]
+      \coordinate (a) at (0,0);
+      \coordinate (Z) at (\ang:\n);
+      \coordinate (m) at (0.12,0.05);
+      \coordinate (xh) at ($(m)+(\ang+#3:#2)$);
+      \coordinate (P) at ($(a)!(xh)!(Z)$);
+      % error ball around m^star and the sphere |x - a| = n_t
+      \fill[lgverm!9] (m) circle (#2);
+      \draw[lgverm!45, line width=0.4pt] (m) circle (#2);
+      \draw[lggray!70, dashed, line width=0.5pt] (\ang-38:\n) arc (\ang-38:\ang+30:\n);
+      \node[text=lggray, font=\sffamily\scriptsize, anchor=west] at (\ang-36:\n) {$|x-a|=n_t$};
+      % the ray from a through Z_t and n_t
+      \draw[lggray, line width=0.4pt] (a) -- ($(a)!1.12!(Z)$);
+      \draw[seg, black] (a) -- (Z) node[pos=0.5, above=0pt, sloped] {$n_t$};
+      % e_t from m^star to the prediction
+      \draw[seg, lgverm] (m) -- (xh) node[pos=0.5, above=0pt, sloped, text=lgverm] {$e_t$};
+      % radial component: foot of the perpendicular, and its length as a bracket under the ray
+      \draw[lgorange, dashed, line width=0.6pt] (xh) -- (P);
+      \draw[lgorange, line width=1.6pt] ($(a)!0.18cm!-90:(Z)$) coordinate (r0)
+        -- ($(P)!0.18cm!90:(a)$) coordinate (r1);
+      \draw[lgorange, line width=0.6pt] ($(r0)!0.08cm!90:(r1)$) -- ($(r0)!0.08cm!-90:(r1)$);
+      \draw[lgorange, line width=0.6pt] ($(r1)!0.08cm!90:(r0)$) -- ($(r1)!0.08cm!-90:(r0)$);
+      \node[text=lgorange!80!black, anchor=north, rotate=\ang, inner sep=2pt]
+        at ($(r0)!0.5!(r1)$) {$\langle\hat e_t,\hat x_1-a\rangle$};
+      % the step of the flow: dZ/dt is proportional to xhat_1 - Z_t
+      \draw[->, lgverm, line width=0.7pt, shorten >=2.5pt] (Z) -- ($(Z)!0.42!(xh)$);
+      % points
+      \node[atom] at (a) {};
+      \node[anchor=east, inner sep=3pt] at (a) {$a$};
+      \node[pt, fill=lgblue] at (m) {};
+      \node[anchor=south east, text=lgblue, inner sep=1pt] at ($(m)+(-0.04,0.06)$) {$m^\star$};
+      \node[pt, fill=lgverm] at (Z) {};
+      \node[anchor=south west, text=lgverm, inner sep=1.5pt] at (Z) {$Z_t$};
+      \node[pt, fill=white, draw=lgverm, line width=0.9pt] at (xh) {};
+      \node[anchor=south, text=lgverm, inner sep=2.5pt] at (xh) {$\hat x_1$};
+      % unit vector ehat_t at a
+      \draw[->, black, line width=0.6pt] ($(a)+(\ang+90:0.8)+(\ang:0.25)$) -- ++(\ang:0.6)
+        node[anchor=south, inner sep=1pt, pos=0.6] {$\hat e_t$};
+    \end{scope}}
+
+  % ---- (a) rho_t < 1 --------------------------------------------------------------------------
+  \draw[panel] (-1.55,-2.75) rectangle (4.15,2.55);
+  \landing{0}{1.43}{28}
+  \node[title] at (-1.4,2.4) {(a) $\varrho_t=e_t/n_t<1$};
+  \node[verdict, align=left] at (-1.4,-1.6) {radial part $<n_t$: the prediction pulls\\
+    towards $a$, so $n_t$ shrinks};
+  \node[verdict, text=lggreen] at (-1.4,-2.3) {$\checkmark$ lands on the atom $a$};
+
+  % ---- (b) rho_t -> 1 -------------------------------------------------------------------------
+  \begin{scope}
+    \clip (4.45,-2.75) rectangle (10.15,2.55);
+    \draw[panel] (4.45,-2.75) rectangle (10.15,2.55);
+    \landing{6.0}{2.52}{22}
+  \end{scope}
+  \draw[lggray!45, rounded corners=3pt, line width=0.5pt] (4.45,-2.75) rectangle (10.15,2.55);
+  \node[title] at (4.6,2.4) {(b) $\varrho_t\to1$};
+  \node[verdict, align=left, fill=lggray!4, inner sep=1pt] at (4.6,-1.6)
+    {radial part $\approx n_t$: no pull\\towards $a$, $n_t$ stops shrinking};
+  \node[verdict, text=lgverm, fill=lggray!4, inner sep=1pt] at (4.6,-2.3)
+    {$\times$ can stay off the atom};
+\end{tikzpicture}
+\end{document}

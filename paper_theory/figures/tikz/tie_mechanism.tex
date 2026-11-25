@@ -1,0 +1,102 @@
+\documentclass[border=3pt]{standalone}
+% A-F2 (docs/review/presentation_2026-11-25/REVIEW.md, 3.2): why a blend needs a subtracted
+% intermediate field. Two atoms at -1 and +1, their tie (midpoint) at 0. At two probe points on
+% either side of the tie, the rows show the weighted contributions of the three fields of the
+% conjunction (1+w) 1/2 (v_+ + v_-) - w v_unc; the bottom line is their sum, the composite field.
+% The two conditional fields nearly cancel and leave a small push away from the tie; subtracting
+% the unconditional field, whose log-odds lie between theirs, pushes back towards it. Below w_c
+% the composite repels (endpoints on the atoms), above w_c it attracts (blend at 0).
+% Arrow lengths are schematic; in each column the composite is the sum of the three rows. Colours as scripts/figstyle.py: blue = exact
+% conditional fields, grey = unconditional field, vermillion = composite / blend.
+% Standalone; main.tex can \input it through the standalone package. Needs amsmath, amssymb and
+% tikz with the libraries below in the host preamble.
+\usepackage[T1]{fontenc}
+\usepackage{lmodern} % the body fonts of both papers (tmlr.sty), for the preview
+\usepackage{amsmath,amssymb}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, calc, shapes.geometric}
+
+\begin{document}
+\definecolor{tmblue}{HTML}{0072B2}
+\definecolor{tmverm}{HTML}{D55E00}
+\definecolor{tmorange}{HTML}{E69F00}
+\definecolor{tmgreen}{HTML}{009E73}
+\definecolor{tmgray}{HTML}{5A5A5A}
+
+\begin{tikzpicture}[
+    font=\sffamily\footnotesize,
+    >={Stealth[length=2mm,width=1.5mm]},
+    rail/.style={draw=tmgray!30, line width=0.4pt},
+    probe/.style={draw=tmgray!45, line width=0.4pt, dotted},
+    cond/.style={->, draw=tmblue, line width=1.1pt},
+    unc/.style={->, draw=tmgray, line width=1.1pt},
+    comp/.style={->, draw=tmverm, line width=1.6pt},
+    atom/.style={regular polygon, regular polygon sides=3, fill=black, inner sep=0pt,
+      minimum size=2.6mm},
+    tie/.style={circle, draw=tmgray, fill=white, line width=0.6pt, inner sep=0pt,
+      minimum size=2.2mm},
+    blendstar/.style={star, star points=5, star point ratio=2.3, fill=tmorange, draw=tmverm,
+      line width=0.5pt, inner sep=0pt, minimum size=4.4mm},
+    rowlab/.style={anchor=east, inner sep=2pt},
+    panel/.style={draw=tmgray!45, fill=tmgray!4, rounded corners=3pt, line width=0.5pt},
+    hipanel/.style={draw=tmverm, fill=tmverm!5, rounded corners=3pt, line width=1.3pt},
+  ]
+  \def\u{1.75}      % cm per unit on the line
+  \def\p{0.5}       % probe points at +-p
+  \def\yp{2.55}     % row of (1+w)/2 v_+
+  \def\ym{1.95}     % row of (1+w)/2 v_-
+  \def\yu{1.35}     % row of -w v_unc
+  \def\ya{0.45}     % the line itself: composite field, atoms, tie
+
+  % one panel: #1 = x offset, #2 = length of the -w v_unc arrow at +p (cm, negative = inwards),
+  % #3 = length of the composite arrow at +p; the -p side is the mirror image.
+  \newcommand{\tiepanel}[3]{%
+    \begin{scope}[shift={(#1,0)}]
+      \foreach \y in {\yp,\ym,\yu} \draw[rail] (-1.25*\u,\y) -- (1.25*\u,\y);
+      \draw[tmgray!70, line width=0.5pt] (-1.25*\u,\ya) -- (1.25*\u,\ya);
+      \foreach \s in {-1,1} \draw[probe] (\s*\p*\u,\ya) -- (\s*\p*\u,\yp+0.25);
+      % conditional fields: v_+ towards +1, v_- towards -1, stronger on its own side
+      \draw[cond] (\p*\u,\yp) -- ++(1.1,0);
+      \draw[cond] (-\p*\u,\yp) -- ++(0.6,0);
+      \draw[cond] (\p*\u,\ym) -- ++(-0.6,0);
+      \draw[cond] (-\p*\u,\ym) -- ++(-1.1,0);
+      % subtracted unconditional field: away from the tie, so -w v_unc points towards it
+      \draw[unc] (\p*\u,\yu) -- ++(#2,0);
+      \draw[unc] (-\p*\u,\yu) -- ++(-#2,0);
+      % composite on the line
+      \draw[comp] (\p*\u,\ya) -- ++(#3,0);
+      \draw[comp] (-\p*\u,\ya) -- ++(-#3,0);
+      \node[atom] at (-\u,\ya) {};
+      \node[atom] at (\u,\ya) {};
+      \node[anchor=north, inner sep=2pt] at (-\u,\ya-0.08) {$-1$};
+      \node[anchor=north, inner sep=2pt] at (\u,\ya-0.08) {$+1$};
+    \end{scope}}
+
+  % ---- (a) w < w_c: the tie repels ----------------------------------------------------------
+  \draw[panel] (-1.45*\u-2.0,-0.75) rectangle (1.4*\u,3.15);
+  \tiepanel{0}{-0.2}{0.3}
+  \node[tie] at (0,\ya) {};
+  \node[anchor=north, inner sep=2pt] at (0,\ya-0.08) {$0$};
+  \node[rowlab] at (-1.3*\u,\yp) {$\tfrac{1+w}{2}\,v_+$};
+  \node[rowlab] at (-1.3*\u,\ym) {$\tfrac{1+w}{2}\,v_-$};
+  \node[rowlab, align=right] at (-1.3*\u,\yu) {$-w\,v^\star_{\mathrm{unc}}$};
+  \node[rowlab, text=tmgray, font=\sffamily\scriptsize] at (-1.3*\u,\yu-0.3) {subtracted};
+  \node[rowlab, text=tmverm] at (-1.3*\u,\ya) {sum $v$};
+  \draw[tmgray!60, line width=0.5pt] (-1.25*\u,0.95) -- (1.25*\u,0.95);
+  \node[anchor=north west, font=\sffamily\footnotesize\bfseries, inner sep=0pt]
+    at (-1.45*\u-1.9,3.05) {(a) $w<w_c$};
+  \node[anchor=north, text=tmgreen, inner sep=0pt] at (0,-0.3)
+    {tie repels: $\checkmark$ ends on an atom};
+
+  % ---- (b) w > w_c: the tie attracts ---------------------------------------------------------
+  \def\xb{2*1.4*\u+0.35}
+  \draw[hipanel] (\xb-1.4*\u,-0.75) rectangle (\xb+1.4*\u,3.15);
+  \tiepanel{\xb}{-0.8}{-0.3}
+  \node[blendstar] at (\xb,\ya) {};
+  \node[anchor=north, inner sep=2pt] at (\xb,\ya-0.18) {$0$};
+  \node[anchor=north west, font=\sffamily\footnotesize\bfseries, text=tmverm, inner sep=0pt]
+    at (\xb-1.35*\u,3.05) {(b) $w>w_c$};
+  \node[anchor=north, text=tmverm, inner sep=0pt] at (\xb,-0.3)
+    {tie attracts: $\times$ blend at the midpoint};
+\end{tikzpicture}
+\end{document}
