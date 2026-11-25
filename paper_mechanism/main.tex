@@ -969,7 +969,7 @@ landing, not as a test for memorisation. The exact$\to$net swaps of Section~\ref
 change only the field below the switch, are what tie landing to the late field causally.
 
 \paragraph{A certificate for the sampler.} Each Heun step is an affine combination
-$x_{k+1}=r_kx_k+\kappa_kD_k+\theta_k\tilde D_k$ with $r_k=\sigma_{k+1}/\sigma_k$, where $D_k$ and
+$x_{k+1}=r_kx_k+\kappa_kD_k+\bar\kappa_k\tilde D_k$ with $r_k=\sigma_{k+1}/\sigma_k$, where $D_k$ and
 $\tilde D_k$ are the denoiser outputs at the point and at its Euler predictor, and
 $\kappa_k<0$ when $r_k<1/2$. Proposition~\ref{prop:heun} turns a relative error $\varrho$ at the
 step and at its Euler predictor into a one-step contraction factor $c_k$. This factor is below one
@@ -1180,7 +1180,7 @@ $\Delta$ & error of a learned field relative to the exact field\\
 $\hat x_1$, $D_\theta$ & data prediction of a learned field; EDM denoiser\\
 $e_t$, $n_t$, $\varrho_t=e_t/n_t$ & scaled error $|\hat x_1-m^\star|$, distance to the atom, relative error\\
 $\zeta_t$, $\bar\zeta$ & off-atom posterior mass times the atom spread; its bound near an atom (Appendix~\ref{app:relerr})\\
-$\sigma$, $r_k$, $\kappa_k$, $\theta_k$ & EDM noise level; Heun step ratio and weights\\
+$\sigma$, $r_k$, $\kappa_k$, $\bar\kappa_k$ & EDM noise level; Heun step ratio and weights\\
 $s$, $=$L, $=$E & swap level; agreement of the nearest training image with the learned, resp.\ exact, endpoint\\
 \bottomrule
 \end{tabular}
@@ -1541,16 +1541,16 @@ $\zeta(y,\sigma)=(1-w_i(y,\sigma))\delta_i$.
 \begin{proposition}[Heun steps]
 \label{prop:heun}
 Let $D$ be any function. Fix $k\le K-2$, write $r=r_k$, and let
-$\kappa=(1-r)(2r-1)/(2r)$ and $\theta=(1-r)/(2r)$.
+$\kappa=(1-r)(2r-1)/(2r)$ and $\bar\kappa=(1-r)/(2r)$.
 \begin{enumerate}[label=(\alph*),leftmargin=2em]
-\item $\tilde x_k=rx_k+(1-r)D_k$ and $x_{k+1}=rx_k+\kappa D_k+\theta\tilde D_k$, with
-  $r+\kappa+\theta=1$; the last step gives $x_K=D_{K-1}$.
+\item $\tilde x_k=rx_k+(1-r)D_k$ and $x_{k+1}=rx_k+\kappa D_k+\bar\kappa\tilde D_k$, with
+  $r+\kappa+\bar\kappa=1$; the last step gives $x_K=D_{K-1}$.
 \item If $e(x_k,\sigma_k)\le\varrho n_k+\gamma$ and $e(\tilde x_k,\sigma_{k+1})\le\varrho\tilde n_k+\tilde\gamma$
   with $\varrho\ge0$, then $\tilde n_k\le(r+(1-r)\varrho)n_k+(1-r)G$ and $n_{k+1}\le c\,n_k+b$, where
   $G=\gamma+\zeta(x_k,\sigma_k)$, $\tilde G=\tilde\gamma+\zeta(\tilde x_k,\sigma_{k+1})$,
   \[
-  c=r+|\kappa|\varrho+\theta\varrho\,(r+(1-r)\varrho),\qquad
-  b=(|\kappa|+\theta\varrho(1-r))\,G+\theta\tilde G .
+  c=r+|\kappa|\varrho+\bar\kappa\varrho\,(r+(1-r)\varrho),\qquad
+  b=(|\kappa|+\bar\kappa\varrho(1-r))\,G+\bar\kappa\tilde G .
   \]
   For the last step, if also $e(x_{K-1},\sigma_{K-1})\le\varrho n_{K-1}+\gamma$, then
   $n_K\le\varrho n_{K-1}+\gamma+\zeta(x_{K-1},\sigma_{K-1})$.
@@ -1561,15 +1561,15 @@ $\kappa=(1-r)(2r-1)/(2r)$ and $\theta=(1-r)/(2r)$.
   $e(y,\sigma)\le\varrho|y-a|$ everywhere and over $x_k\ne a$ is attained and equals
   \[
   c^\star=\max_{s\in[-1,1]}\Big[\sqrt{r^2+2r\kappa\varrho s+\kappa^2\varrho^2}
-  +\theta\varrho\sqrt{r^2+2r(1-r)\varrho s+(1-r)^2\varrho^2}\Big];
+  +\bar\kappa\varrho\sqrt{r^2+2r(1-r)\varrho s+(1-r)^2\varrho^2}\Big];
   \]
   $c^\star=c$ if $r\ge1/2$ and $c^\star<c$ if $r<1/2$ and $\varrho>0$. For the linear field
-  $D(y,\sigma)=a+\varrho(y-a)$, $x_{k+1}-a=p\,(x_k-a)$ with $p=r+\kappa\varrho+\theta\varrho(r+(1-r)\varrho)$,
+  $D(y,\sigma)=a+\varrho(y-a)$, $x_{k+1}-a=p\,(x_k-a)$ with $p=r+\kappa\varrho+\bar\kappa\varrho(r+(1-r)\varrho)$,
   and $p<0$ for some $\varrho\in(0,1)$ exactly when $r<3-2\sqrt2$: the step overshoots the atom.
 \item Let $0<R\le g/4$ and $\bar\zeta$ as in Appendix~\ref{apx:pf-trap}. If $n_0\le R$ and, for every
   $k\le K-2$, the hypotheses of (b) hold with $\varrho=\varrho_k$ and
   $\varrho_kR+\gamma_k+\bar\zeta(\sigma_k)\le R$ and
-  $c_kR+(|\kappa_k|+\theta_k\varrho_k(1-r_k))(\gamma_k+\bar\zeta(\sigma_k))+\theta_k(\tilde\gamma_k+\bar\zeta(\sigma_{k+1}))\le R$,
+  $c_kR+(|\kappa_k|+\bar\kappa_k\varrho_k(1-r_k))(\gamma_k+\bar\zeta(\sigma_k))+\bar\kappa_k(\tilde\gamma_k+\bar\zeta(\sigma_{k+1}))\le R$,
   then $n_k\le R$ for all $k\le K-1$. If moreover
   $e(x_{K-1},\sigma_{K-1})\le\varrho_{K-1}n_{K-1}+\gamma_{K-1}$ for some $\varrho_{K-1},\gamma_{K-1}\ge0$
   with $\varrho_{K-1}R+\gamma_{K-1}+\bar\zeta(\sigma_{K-1})<g/4$, the output is on-atom:
@@ -1580,19 +1580,19 @@ $\kappa=(1-r)(2r-1)/(2r)$ and $\theta=(1-r)/(2r)$.
 \begin{proof}
 (a) Use $(\sigma_{k+1}-\sigma_k)/\sigma_k=r-1$ and $(\sigma_{k+1}-\sigma_k)/\sigma_{k+1}=(r-1)/r$ and
 collect terms: the coefficient of $x_k$ is $r$, that of $D_k$ is
-$(1-r)/2-(1-r)^2/(2r)=\kappa$, and that of $\tilde D_k$ is $\theta$.
+$(1-r)/2-(1-r)^2/(2r)=\kappa$, and that of $\tilde D_k$ is $\bar\kappa$.
 (b) By \eqref{eq:offmass}, $|D(y,\sigma)-a|\le e(y,\sigma)+\zeta(y,\sigma)$. Since the coefficients sum
 to one, $\tilde x_k-a=r(x_k-a)+(1-r)(D_k-a)$ and
-$x_{k+1}-a=r(x_k-a)+\kappa(D_k-a)+\theta(\tilde D_k-a)$; take norms and substitute the bound on
-$\tilde n_k$, whose coefficient $\theta\varrho$ is nonnegative.
-(c) $c=r+(|\kappa|+\theta r)\varrho+\theta(1-r)\varrho^2$ has derivative at least $\theta r>0$. If
-$r\ge1/2$, then $|\kappa|=\kappa$ and $c(1)=r+\kappa+\theta=1$. If $r<1/2$, then
-$|\kappa|+\theta r=(1-r)^2/(2r)=\theta(1-r)$, so $c-1=-(1-r)+\theta(1-r)(\varrho+\varrho^2)$, which is
+$x_{k+1}-a=r(x_k-a)+\kappa(D_k-a)+\bar\kappa(\tilde D_k-a)$; take norms and substitute the bound on
+$\tilde n_k$, whose coefficient $\bar\kappa\varrho$ is nonnegative.
+(c) $c=r+(|\kappa|+\bar\kappa r)\varrho+\bar\kappa(1-r)\varrho^2$ has derivative at least $\bar\kappa r>0$. If
+$r\ge1/2$, then $|\kappa|=\kappa$ and $c(1)=r+\kappa+\bar\kappa=1$. If $r<1/2$, then
+$|\kappa|+\bar\kappa r=(1-r)^2/(2r)=\bar\kappa(1-r)$, so $c-1=-(1-r)+\bar\kappa(1-r)(\varrho+\varrho^2)$, which is
 negative if and only if $\varrho^2+\varrho<2r/(1-r)$.
 (d) Put $a=0$, $x_k=ne$ with $|e|=1$, $D_k=nu$ and $\tilde D_k=nv$, so that $|u|\le\varrho$,
-$|v|\le\varrho|re+(1-r)u|$ and $n_{k+1}/n=|re+\kappa u+\theta v|$. The two outputs are values of $D$
+$|v|\le\varrho|re+(1-r)u|$ and $n_{k+1}/n=|re+\kappa u+\bar\kappa v|$. The two outputs are values of $D$
 at different noise levels, so they can be chosen independently, with $D=0$ elsewhere. For fixed
-$u$ the maximum over $v$ is $F(u)=|re+\kappa u|+\theta\varrho|re+(1-r)u|$, attained with $v$
+$u$ the maximum over $v$ is $F(u)=|re+\kappa u|+\bar\kappa\varrho|re+(1-r)u|$, attained with $v$
 parallel to $re+\kappa u$. $F$ is convex, so its maximum over the ball is on $|u|=\varrho$, where it
 depends only on $s=\langle u,e\rangle/\varrho$, every $s\in[-1,1]$ occurring because $d\ge2$; this gives
 $c^\star$. By the triangle inequality $c^\star\le c$, with equality in the first norm only at
