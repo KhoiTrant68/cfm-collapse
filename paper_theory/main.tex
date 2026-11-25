@@ -1929,36 +1929,36 @@ Tweedie's formula gives $\nabla\log p_\varsigma(y)=(\E[X_1\mid X_t/t=y]-y)/\vars
 $\dot x=(\E[X_1\mid X_t=x]-x)/(1-t)$ becomes $dy/d\varsigma=-\varsigma\nabla\log p_\varsigma(y)$,
 the probability-flow ODE of the heat flow. This holds for every weighted empirical law, hence for each
 prior-indexed field, and combinations of fields with weights summing to one become the same
-combinations of scores. Heat time $s=\varsigma^2/2$ decreases to zero as $t$ increases to one,
-and $dy/ds$ equals minus the combined score. \citet{wan2025elucidating} instead analyse the
+combinations of scores. Heat time $\varsigma^2/2$ decreases to zero as $t$ increases to one,
+and $dy/d(\varsigma^2/2)$ equals minus the combined score. \citet{wan2025elucidating} instead analyse the
 flow-matching ODE directly.
 
 \paragraph{Fixed guidance on a common finite support.}
-Write $p_s,q_s$ for the heat densities of two priors with positive weights $p_j,q_j$ on $A$.
-For $\omega=1+w\ge1$, set $H_s=p_s^\omega q_s^{1-\omega}$ and $b_s=-\nabla\log H_s$.
+Write $\mu^p_s,\mu^q_s$ for the heat densities at heat time $s$ of two priors with positive weights $p_j,q_j$ on $A$.
+For $w_+=1+w\ge1$, set $H_s=(\mu^p_s)^{w_+} (\mu^q_s)^{1-w_+}$ and $b_s=-\nabla\log H_s$.
 Fix a finite heat time $T>0$. Start the guided flow at $T$ with density $H_T/Z_T$, where
-$Z_T=\int H_T$, and denote its density at $0<s<T$ by $\rho_s$.
+$Z_T=\int H_T$, and denote its density at $0<s<T$ by $\mu^w_s$.
 \citet[Theorem~4.2, Eq.~(16)]{jiang2026guidance} give a characteristic formula for this density.
 The Gaussian mixtures are smooth and positive on every cutoff interval $[s,T]$. Their scores have
 bounded spatial derivatives there, and their score difference is bounded, so the characteristics
 and integrals in that formula exist. To track its normalisation, use the heat equation
-$\partial_s p_s=\Delta p_s$ and the same equation for $q_s$. The unnormalised product satisfies
+$\partial_s \mu^p_s=\Delta \mu^p_s$ and the same equation for $\mu^q_s$. The unnormalised product satisfies
 \[
  \partial_s H_s+\nabla\!\cdot(H_s b_s)
- =-\omega(\omega-1)H_s\,|\nabla\log(p_s/q_s)|^2 .
+ =-w_+(w_+-1)H_s\,|\nabla\log(\mu^p_s/\mu^q_s)|^2 .
 \]
-The continuity equation for $\rho_s$ then gives, along $dY_u/du=b_u(Y_u)$,
+The continuity equation for $\mu^w_s$ then gives, along $dY_u/du=b_u(Y_u)$,
 \[
- \frac{\rho_s(Y_s)}{H_s(Y_s)}
- =\frac{1}{Z_T}\exp\!\left[-\omega(\omega-1)
- \int_s^T |\nabla\log(p_u/q_u)(Y_u)|^2\,du\right].
+ \frac{\mu^w_s(Y_s)}{H_s(Y_s)}
+ =\frac{1}{Z_T}\exp\!\left[-w_+(w_+-1)
+ \int_s^T |\nabla\log(\mu^p_u/\mu^q_u)(Y_u)|^2\,du\right].
 \]
-Since $p_s/q_s$ is a weighted average of $p_j/q_j$, it lies between the smallest and largest
+Since $\mu^p_s/\mu^q_s$ is a weighted average of $p_j/q_j$, it lies between the smallest and largest
 prior ratios, independently of $s$ and $y$. Writing $M=\max_j p_j/q_j$, Jensen's inequality
-gives $1\le Z_T\le M^\omega$. Thus $\rho_s\le M^\omega q_s$ uniformly down to zero heat time.
+gives $1\le Z_T\le M^{w_+}$. Thus $\mu^w_s\le M^{w_+} \mu^q_s$ uniformly down to zero heat time.
 
 For $f(y)=\min\{1,\operatorname{dist}(y,A)\}$ this implies
-$\int f\rho_s\le M^\omega\int f q_s\to0$, since $q_s$ tends weakly to its atomic prior.
+$\int f\mu^w_s\le M^{w_+}\int f \mu^q_s\to0$, since $\mu^q_s$ tends weakly to its atomic prior.
 \citet[Theorem~2.5]{liu2026geometric} give a limit $Y_0$ for every trajectory. Bounded
 convergence now gives $\E f(Y_0)=0$. The reference density $H_T/Z_T$ is everywhere positive,
 so the exceptional starting points at $T$ form a Lebesgue-null set. The finite-time flow from
@@ -1971,10 +1971,10 @@ Proposition~\ref{prop:cfgatom}(a). Exceptional paths can occur, as the midpoint 
 
 \paragraph{Other combinations and supports.}
 \citet[Theorem~4.3]{jiang2026guidance} also give a positive-cutoff density formula for
-absolutely continuous guidance schedules. For an absolutely continuous $\omega\ge1$, the
+absolutely continuous guidance schedules. For an absolutely continuous $w_+\ge1$, the
 logarithm of the density ratio above acquires the term
-$\int_s^T \log(p_u/q_u)(Y_u)\,\omega'(u)\,du$. The prior-ratio bounds control its absolute
-value by $\max_j|\log(p_j/q_j)|$ times the total variation of $\omega$. This still controls
+$\int_s^T \log(\mu^p_u/\mu^q_u)(Y_u)\,w_+'(u)\,du$. The prior-ratio bounds control its absolute
+value by $\max_j|\log(p_j/q_j)|$ times the total variation of $w_+$. This still controls
 the cutoff marginals when that variation is finite down to $s=0$. To infer an endpoint law
 one also needs convergence along trajectories. The perturbation estimate of
 \citet[Proposition~3.1 and Remark~3.2]{liu2026geometric} gives pathwise convergence when the
@@ -2017,10 +2017,10 @@ Source & Dynamics and assumptions & Conclusion\tabularnewline
 \cmpcell Almost every trajectory has a limit. Its law is the prescribed data law, including for finite data.\tabularnewline
 \cmpcell\citet[Thm.~3.7]{liu2025pde} &
 \cmpcell One heat score, compact data support &
-\cmpcell Almost every initial point gives a limit on the support. For finite data the error is $O(\sqrt{s})$ in heat time $s$.\tabularnewline
+\cmpcell Almost every initial point gives a limit on the support. For finite data the error is $O(\varsigma)$ in heat time $\varsigma^2/2$.\tabularnewline
 \cmpcell\citet[Thm.~2.5]{liu2026geometric} &
 \cmpcell Two finite atomic laws, possibly different supports, fixed weight &
-\cmpcell Every trajectory converges to a nearest-support equilibrium. A strict-cell limit has error $O(\sqrt{s})$. A tie can be an endpoint.\tabularnewline
+\cmpcell Every trajectory converges to a nearest-support equilibrium. A strict-cell limit has error $O(\varsigma)$. A tie can be an endpoint.\tabularnewline
 \cmpcell\citet[Thms.~4.2--4.3]{jiang2026guidance} &
 \cmpcell Two smooth positive noised densities, guided ODE, positive cutoff &
 \cmpcell Characteristic formulas give the cutoff density for fixed or absolutely continuous guidance strength.\tabularnewline
@@ -2035,8 +2035,8 @@ Source & Dynamics and assumptions & Conclusion\tabularnewline
 \cmpcell Arbitrary probability mixtures and nonnegative guidance of bounded variation near the endpoint give atomic limits almost everywhere. A signed combination of three fields can attract positive mass to a tie.\tabularnewline
 \bottomrule
 \end{tabular}
-\caption{Prior results and endpoint claims on finite data. Heat time $s=(1-t)^2/(2t^2)$ gives
-$\sqrt{s}=O(1-t)$ in flow-matching time.}
+\caption{Prior results and endpoint claims on finite data. Heat time $\varsigma^2/2=(1-t)^2/(2t^2)$ gives
+$\varsigma=O(1-t)$ in flow-matching time.}
 \label{tab:comparison}
 \end{table}
 
