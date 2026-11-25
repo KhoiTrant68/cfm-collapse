@@ -521,8 +521,8 @@ Nadaraya--Watson regression over the atoms~\citep{nadaraya1964estimating,watson1
 \label{prop:kernel-field}
 For $h>0$, $t<1$,
 \begin{equation}
-\vstar(x,t,y)=\sum_i w_i^{(h)}(x,t,y)\,\frac{x^i-x}{1-t},\quad
-w_i^{(h)}=\frac{\pi_0\!\big(\tfrac{x-tx^i}{1-t}\big)K_h(y-y^i)}
+\vstar(x,t,y)=\sum_i q^{(h)}_i(x,t,y)\,\frac{x^i-x}{1-t},\quad
+q^{(h)}_i=\frac{\pi_0\!\big(\tfrac{x-tx^i}{1-t}\big)K_h(y-y^i)}
 {\sum_j\pi_0\!\big(\tfrac{x-tx^j}{1-t}\big)K_h(y-y^j)}.
 \label{eq:kernel-field}
 \end{equation} \proofin{apx:pf-kernel-field}
@@ -597,7 +597,7 @@ q_{p,j}(x,t)=\frac{p_j\,\pi_0\big(\tfrac{x-tx^j}{1-t}\big)}
 {\sum_\ell p_\ell\,\pi_0\big(\tfrac{x-tx^\ell}{1-t}\big)}.
 \label{eq:prior-field}
 \end{equation}
-Then $\vstar(\cdot,\cdot,y)=v_{p^{(h)}(y)}$, the unconditional field is
+Then $\vstar(\cdot,\cdot,y)=v_{p^{(h)}(y)}$ with weights $q^{(h)}_i=q_{p^{(h)}(y),i}$, the unconditional field is
 $v_{\mathrm{unc}}^\star=v_{p^{\mathrm{unc}}}$ with $p^{\mathrm{unc}}$ uniform, and the hard field
 at $y^i$ is $v_{e_i}$. For $z\in\R^d$ let $\nn(z)=\{x^j:|z-x^j|=\min_\ell|z-x^\ell|\}$ be its
 nearest atoms. Each affine hull $\operatorname{aff}\nn(z)$ contains at most one point
@@ -1738,7 +1738,7 @@ Conditioning on $I$ therefore gives
 &=\sum_i\Pr(I=i\mid X_t=x,t)\,\frac{x^i-x}{1-t}.
 \end{align*}
 For $p=p^{(h)}(y)$ the normalisation $\sum_jK_h(y-y^j)$ of the label weights cancels in the
-posterior, which becomes $\src{i}\KK{i}/\sum_j\src{j}\KK{j}=w_i^{(h)}(x,t,y)$; the last display is
+posterior, which becomes $\src{i}\KK{i}/\sum_j\src{j}\KK{j}=q^{(h)}_i(x,t,y)$; the last display is
 then $\vstar(x,t,y)$ of \eqref{eq:kernel-field}.
 \end{proof}
 
@@ -1823,7 +1823,7 @@ respectively. Since $\Pr(I=i)=1/N$, Bayes' rule gives
 \[
 \Pr(I=i\mid X_t=x,t,\widetilde Y=y)
 =\frac{N^{-1}(1-t)^{-d}\src{i}\,\KK{i}}{\sum_jN^{-1}(1-t)^{-d}\src{j}\,\KK{j}}
-=w_i^{(h)}(x,t,y).
+=q^{(h)}_i(x,t,y).
 \]
 On $\{I=i,\ X_t=x\}$ we have $U=(x^i-x)/(1-t)$, as in the proof of
 Lemma~\ref{lem:mixture-coupling}, and conditioning additionally on $\widetilde Y$ does not change
@@ -1831,7 +1831,7 @@ this value. Therefore
 \[
 \E[U\mid X_t=x,t,\widetilde Y=y]
 =\sum_i\Pr(I=i\mid X_t=x,t,\widetilde Y=y)\,\frac{x^i-x}{1-t}
-=\sum_iw_i^{(h)}(x,t,y)\,\frac{x^i-x}{1-t},
+=\sum_iq^{(h)}_i(x,t,y)\,\frac{x^i-x}{1-t},
 \]
 and Proposition~\ref{prop:projection} identifies this conditional expectation with the minimiser,
 which is \eqref{eq:kernel-field}.
@@ -1842,7 +1842,7 @@ which is \eqref{eq:kernel-field}.
 \thmendpoint*
 \begin{proof}
 Let $\Phi_t$ be the flow of $\vstar(\cdot,\cdot,y)$, which is well posed by
-Lemma~\ref{lem:wellposed} since the weights $w_i^{(h)}$ are smooth, positive and sum to one.
+Lemma~\ref{lem:wellposed} since the weights $q^{(h)}_i$ are smooth, positive and sum to one.
 Consider the coupling of Lemma~\ref{lem:mixture-coupling} with $p=p^{(h)}(y)$, in which the time
 $t$ is deterministic, and let $p_t=\law(X_t)$. For $\varphi\in C_c^\infty$, the derivative
 $\frac{d}{dt}\varphi(X_t)=\langle\nabla\varphi(X_t),X_1-X_0\rangle$ is dominated by
@@ -2322,12 +2322,12 @@ Lemma~\ref{lem:volume} gives (b) and (c).
 \begin{proof}
 (a) By Proposition~\ref{prop:kernel-field} and Fubini's theorem for the finite sum,
 \[
-\iclrstart v_\varphi(x,t,y)=\int\sum_iw_i^{(h)}(x,t,y-u)\,\frac{x^i-x}{1-t}\,\varphi(du)
+\iclrstart v_\varphi(x,t,y)=\int\sum_iq^{(h)}_i(x,t,y-u)\,\frac{x^i-x}{1-t}\,\varphi(du)
 \iclrbrq=\sum_i\tilde w_i(x,t,y)\,\frac{x^i-x}{1-t},\iclrqbr
-\tilde w_i=\int w_i^{(h)}(x,t,y-u)\,\varphi(du),\iclrend
+\tilde w_i=\int q^{(h)}_i(x,t,y-u)\,\varphi(du),\iclrend
 \]
-and $\tilde w_i\ge0$, $\sum_i\tilde w_i=1$, because the same holds for $w_i^{(h)}$. At $t=0$ every
-spatial factor equals $\pi_0(x)$ and cancels, so $w_i^{(h)}(x,0,y')=p_i^{(h)}(y')$ and
+and $\tilde w_i\ge0$, $\sum_i\tilde w_i=1$, because the same holds for $q^{(h)}_i$. At $t=0$ every
+spatial factor equals $\pi_0(x)$ and cancels, so $q^{(h)}_i(x,0,y')=p_i^{(h)}(y')$ and
 $\tilde w_i(x,0,y)=\int p_i^{(h)}(y-u)\,\varphi(du)=q_i(y)$.
 
 (b) Merge atoms at a common location by adding their weights; this changes neither the field nor
