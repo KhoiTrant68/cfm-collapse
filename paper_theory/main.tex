@@ -334,7 +334,7 @@ Whether a blend counts as leakage depends on the criterion. Single-record criter
 $(\ell_2,\delta)$-extraction~\citep{carlini2023extracting} or the nearest-neighbour ratio test we
 use in Section~\ref{sec:intervention-tests}, classify the midpoint of two training images as new.
 Yet a blend is a linear constraint on the records it combines: an adversary who holds one image of
-a two-image tie recovers the other exactly, as $2z-x^i$ for the midpoint $z$. \emph{(iv) The
+a two-image tie recovers the other exactly, as $2z-a_i$ for the midpoint $z$. \emph{(iv) The
 statements concern support at fixed $N$.} The floor in~\eqref{eq:w2floor} is the mean squared distance from
 the posterior to the nearest training point, which typically decreases like
 $N^{-2/d}$~\citep{graf2000quantization}, so atomic support is compatible with a small distance to
@@ -442,8 +442,8 @@ For vectors, $|\cdot|$ is the Euclidean norm; for a random vector, $\Var$ is the
 variance $\tr\Cov$.
 
 \paragraph{Sampling law.} Fix a training set~$\D=\{(x^i,y^i)\}_{i=1}^N$ with $x^i\in\R^d$ and
-$y^i\in\R^k$, and write $\rhohat_X=N^{-1}\sum_i\delta_{x^i}$. Draw $I\sim\mathrm{Unif}\{1,\dots,N\}$,
-$X_0\sim\pi_0=\N(0,I_d)$ and $t\sim\mathrm{Unif}(0,1)$ independently, and put $X_1=x^I$, $Y=y^I$,
+$y^i\in\R^k$, call $a_i:=x^i$ the \emph{atoms}, and write $\rhohat_X=N^{-1}\sum_i\delta_{a_i}$. Draw $I\sim\mathrm{Unif}\{1,\dots,N\}$,
+$X_0\sim\pi_0=\N(0,I_d)$ and $t\sim\mathrm{Unif}(0,1)$ independently, and put $X_1=a_I$, $Y=y^I$,
 $X_t=(1-t)X_0+tX_1$ and $U=X_1-X_0$.
 
 \paragraph{Conditioning and objective.} At bandwidth~$h>0$, draw $\omega\sim\N(0,I_k)$
@@ -503,11 +503,11 @@ locally Lipschitz on $\R^d\times[0,1)$, so their flows are well posed (Lemma~\re
 \begin{restatable}[{Exact conditional collapse; $h=0$; cf.\ \citealp[Theorem~6.4]{baptista2025memorization}}]{proposition}{propcollapse}
 \label{prop:collapse}
 Let $h=0$. Then
-(a) $v_0^\star(x,t,y^i)=(x^i-x)/(1-t)$ for $t<1$ $(\star)$;
+(a) $v_0^\star(x,t,y^i)=(a_i-x)/(1-t)$ for $t<1$ $(\star)$;
 (b) $\inf_v L_0(v)=0$;
-(c) the ODE $\dot x_t=(x^i-x_t)/(1-t)$ has the explicit solution
-$x_t=(1-t)x_0+tx^i$, so $x_t\to x^i$ for every $x_0$; and
-(d) $p_1^{(0)}(\cdot\mid y^i)=\delta_{x^i}$, hence
+(c) the ODE $\dot x_t=(a_i-x_t)/(1-t)$ has the explicit solution
+$x_t=(1-t)x_0+ta_i$, so $x_t\to a_i$ for every $x_0$; and
+(d) $p_1^{(0)}(\cdot\mid y^i)=\delta_{a_i}$, hence
 $\Cov[p_1^{(0)}(\cdot\mid y^i)]=0$. \proofin{apx:pf-collapse}
 \end{restatable}
 The unconditional minimiser instead reaches the full empirical law $\rhohat_X$
@@ -521,23 +521,23 @@ Nadaraya--Watson regression over the atoms~\citep{nadaraya1964estimating,watson1
 \label{prop:kernel-field}
 For $h>0$, $t<1$,
 \begin{equation}
-\vstar(x,t,y)=\sum_i q^{(h)}_i(x,t,y)\,\frac{x^i-x}{1-t},\quad
-q^{(h)}_i=\frac{\pi_0\!\big(\tfrac{x-tx^i}{1-t}\big)K_h(y-y^i)}
-{\sum_j\pi_0\!\big(\tfrac{x-tx^j}{1-t}\big)K_h(y-y^j)}.
+\vstar(x,t,y)=\sum_i q^{(h)}_i(x,t,y)\,\frac{a_i-x}{1-t},\quad
+q^{(h)}_i=\frac{\pi_0\!\big(\tfrac{x-ta_i}{1-t}\big)K_h(y-y^i)}
+{\sum_j\pi_0\!\big(\tfrac{x-ta_j}{1-t}\big)K_h(y-y^j)}.
 \label{eq:kernel-field}
 \end{equation} \proofin{apx:pf-kernel-field}
 \end{restatable}
 \ificlr Write $p_i^{(h)}(y)=K_h(y-y^i)/\sum_jK_h(y-y^j)$ for the label weights.\fi
 \moveblock{coupling}{With the label weights $p_i^{(h)}(y)=K_h(y-y^i)/\sum_jK_h(y-y^j)$,
 Lemma~\ref{lem:mixture-coupling} identifies $\vstar$ with the conditional velocity of the
-coupling $I\sim p^{(h)}(y)$, $X_1=x^I$; its marginals solve the flow's continuity equation and
-tend to $\law(x^I)$.}
+coupling $I\sim p^{(h)}(y)$, $X_1=a_I$; its marginals solve the flow's continuity equation and
+tend to $\law(a_I)$.}
 
 \begin{restatable}[{Endpoint law under label smoothing; cf.\ \citealp[Theorem~5.3]{wan2025elucidating}}]{theorem}{thmendpoint}
 \label{thm:endpoint}
 For every $h>0$ and query $y$,
 \begin{equation}
-p_1^{(h)}(\cdot\mid y)=\sum_{i=1}^N p_i^{(h)}(y)\,\delta_{x^i}.
+p_1^{(h)}(\cdot\mid y)=\sum_{i=1}^N p_i^{(h)}(y)\,\delta_{a_i}.
 \label{eq:endpoint}
 \end{equation} \proofin{apx:pf-endpoint}
 \end{restatable}
@@ -546,21 +546,21 @@ p_1^{(h)}(\cdot\mid y)=\sum_{i=1}^N p_i^{(h)}(y)\,\delta_{x^i}.
 \label{cor:zerobw}
 As $h\to\infty$, $p_i^{(h)}(y)\to1/N$ and $p_1^{(h)}(\cdot\mid y)\Rightarrow p_1^{\mathrm{unc}}$. If
 $y$ has a unique nearest label $y^{i_\star}$, then as $h\to0$, $p_i^{(h)}(y)\to\ind\{i=i_\star\}$
-and $p_1^{(h)}(\cdot\mid y)\Rightarrow\delta_{x^{i_\star}}$. \proofin{apx:pf-zerobw}
+and $p_1^{(h)}(\cdot\mid y)\Rightarrow\delta_{a_{i_\star}}$. \proofin{apx:pf-zerobw}
 \end{restatable}
-The mean $\bar x_h(y)=\sum_ip_i^{(h)}(y)x^i$ and covariance
-$\Covh(y)=\sum_ip_i^{(h)}(y)(x^i-\bar x_h(y))(x^i-\bar x_h(y))^\top$ of \eqref{eq:endpoint} are
+The mean $\bar x_h(y)=\sum_ip_i^{(h)}(y)a_i$ and covariance
+$\Covh(y)=\sum_ip_i^{(h)}(y)(a_i-\bar x_h(y))(a_i-\bar x_h(y))^\top$ of \eqref{eq:endpoint} are
 computable from the training set and are the reference for generated moments. Matching them
 does not recover a posterior.
 
 \begin{restatable}[Label smoothing never leaves the training set]{proposition}{propatomicity}
 \label{prop:atomicity}
 For every $h>0$, and for $h=0$ at $y=y^i$, $\operatorname{supp}(p_1^{(h)}(\cdot\mid y))
-\subseteq\{x^1,\dots,x^N\}$. Consequently, if the true posterior $p(\cdot\mid y)$ puts no
-mass on $\{x^1,\dots,x^N\}$, then in $[0,\infty]$
+\subseteq\{a_1,\dots,a_N\}$. Consequently, if the true posterior $p(\cdot\mid y)$ puts no
+mass on $\{a_1,\dots,a_N\}$, then in $[0,\infty]$
 \begin{equation}
 W_2^2\big(p_1^{(h)}(\cdot\mid y),\,p(\cdot\mid y)\big)\ \ge\
-\int\operatorname{dist}\big(x,\{x^1,\dots,x^N\}\big)^2\,p(dx\mid y)\ >\ 0,
+\int\operatorname{dist}\big(x,\{a_1,\dots,a_N\}\big)^2\,p(dx\mid y)\ >\ 0,
 \label{eq:w2floor}
 \end{equation}
 and this lower bound does not depend on $h$. Both sides are finite exactly when
@@ -587,19 +587,19 @@ which modifications keep the endpoints on the training atoms. Positive mixtures
 (Section~\ref{sec:composition}). Section~\ref{sec:spectral} gives the criterion in any dimension,
 and Section~\ref{sec:conjunction} reads it as the composition of conditions.
 
-Assume the atoms $x^1,\dots,x^N$ are distinct (atoms at one location can be merged by adding
+Assume the atoms $a_1,\dots,a_N$ are distinct (atoms at one location can be merged by adding
 their weights), and let $\Ppos$ be the set of probability vectors on $\{1,\dots,N\}$ with all
 entries positive. For a probability vector $p$, let $v_p$ be the conditional velocity of the
-coupling $I\sim p$, $X_1=x^I$ of Lemma~\ref{lem:mixture-coupling}:
+coupling $I\sim p$, $X_1=a_I$ of Lemma~\ref{lem:mixture-coupling}:
 \begin{equation}
-v_p(x,t)=\sum_j q_{p,j}(x,t)\,\frac{x^j-x}{1-t},\qquad
-q_{p,j}(x,t)=\frac{p_j\,\pi_0\big(\tfrac{x-tx^j}{1-t}\big)}
-{\sum_\ell p_\ell\,\pi_0\big(\tfrac{x-tx^\ell}{1-t}\big)}.
+v_p(x,t)=\sum_j q_{p,j}(x,t)\,\frac{a_j-x}{1-t},\qquad
+q_{p,j}(x,t)=\frac{p_j\,\pi_0\big(\tfrac{x-ta_j}{1-t}\big)}
+{\sum_\ell p_\ell\,\pi_0\big(\tfrac{x-ta_\ell}{1-t}\big)}.
 \label{eq:prior-field}
 \end{equation}
 Then $\vstar(\cdot,\cdot,y)=v_{p^{(h)}(y)}$ with weights $q^{(h)}_i=q_{p^{(h)}(y),i}$, the unconditional field is
 $v_{\mathrm{unc}}^\star=v_{p^{\mathrm{unc}}}$ with $p^{\mathrm{unc}}$ uniform, and the hard field
-at $y^i$ is $v_{e_i}$. For $z\in\R^d$ let $\nn(z)=\{x^j:|z-x^j|=\min_\ell|z-x^\ell|\}$ be its
+at $y^i$ is $v_{e_i}$. For $z\in\R^d$ let $\nn(z)=\{a_j:|z-a_j|=\min_\ell|z-a_\ell|\}$ be its
 nearest atoms. Each affine hull $\operatorname{aff}\nn(z)$ contains at most one point
 equidistant from $\nn(z)$, so the candidate sets
 $\mathcal C=\{z:z\in\operatorname{conv}\nn(z)\}\subseteq\mathcal C'=\{z:z\in\operatorname{aff}\nn(z)\}$
@@ -644,7 +644,7 @@ flow of $v_\Pi$ is well posed on $[0,1)$, and:
 \item every trajectory converges to a point of $\mathcal C$;
 \item the initial points whose limit is not an atom form a Lebesgue-null set;
 \item under every absolutely continuous source law, in particular $\pi_0$, the endpoint is a
-  training atom almost surely, and the endpoint law is $\sum_j\tilde q_j\delta_{x^j}$ for
+  training atom almost surely, and the endpoint law is $\sum_j\tilde q_j\delta_{a_j}$ for
   some probability vector $\tilde q$.
 \end{enumerate}
 \proofin{apx:pf-posmix}
@@ -652,7 +652,7 @@ flow of $v_\Pi$ is well posed on $[0,1)$, and:
 
 \moveblock{sketchposmix}{%
 \begin{proofsketch}
-Here $\bar m=m_\Pi$ averages the posterior means $m_p=\sum_jq_{p,j}x^j$. For Step~1, the flow is
+Here $\bar m=m_\Pi$ averages the posterior means $m_p=\sum_jq_{p,j}a_j$. For Step~1, the flow is
 the gradient flow of $\tfrac12|x|^2$ minus an averaged log-partition function whose explicit time
 dependence only lowers the energy, so the kinetic energy is finite. For Step~2, $\Theta$ is an
 averaged posterior covariance trace, and near a non-atom limit positivity of the priors keeps $\Theta$
@@ -671,19 +671,19 @@ $U\sim\varphi$.
 \label{prop:filtered}
 Let $h>0$, $\varphi$ a probability measure on $\R^k$ and
 $v_\varphi(x,t,y)=\int\vstar(x,t,y-u)\,\varphi(du)$. (a) $v_\varphi=\sum_i
-q^\varphi_i(x,t,y)(x^i-x)/(1-t)$ with $q^\varphi_i\ge0$, $\sum_iq^\varphi_i=1$, and
+q^\varphi_i(x,t,y)(a_i-x)/(1-t)$ with $q^\varphi_i\ge0$, $\sum_iq^\varphi_i=1$, and
 $q^\varphi_i(x,0,y)=q_i(y):=\int p_i^{(h)}(y-u)\,\varphi(du)$. (b) Every trajectory converges to a
 point $z\in\operatorname{conv}\nn(z)$. For any absolutely continuous source, including
 $\pi_0$, the limit is a training atom almost surely. Thus the endpoint law is
-$\sum_i\tilde q_i(y)\delta_{x^i}$ for some probability weights $\tilde q(y)$.
+$\sum_i\tilde q_i(y)\delta_{a_i}$ for some probability weights $\tilde q(y)$.
 \proofin{apx:pf-filtered}
 \end{restatable}
 
 No moment condition is imposed on $\varphi$, and the endpoint weights $\tilde q$ are not
 identified. Strict positivity of the priors is essential. By
-Proposition~\ref{prop:collapse}(a), the hard-label field at $y^i$ is $(x^i-x)/(1-t)$, so for any
+Proposition~\ref{prop:collapse}(a), the hard-label field at $y^i$ is $(a_i-x)/(1-t)$, so for any
 fixed weights $\lambda_i\ge0$ summing to one the average $\sum_i\lambda_iv_{e_i}$ equals
-$(z-x)/(1-t)$ with $z=\sum_i\lambda_ix^i$. Its flow sends every source to $z$, in every geometry
+$(z-x)/(1-t)$ with $z=\sum_i\lambda_ia_i$. Its flow sends every source to $z$, in every geometry
 of the atoms, and $z$ is a training example only if a single $\lambda_i$ is nonzero. At hard labels,
 an average of two fields therefore already blends. Our results on guidance and on three or more
 fields assume strictly positive priors and do not cover the hard-label conjunction. The null set
@@ -692,9 +692,9 @@ in (b) cannot be removed, and it need not be small in dimension.
 \moveblock{hyperplane}{%
 \begin{restatable}[The exceptional set can be a hyperplane]{proposition}{prophyperplane}
 \label{prop:hyperplane}
-Let $N=2$, $\nu=(x^1-x^2)/2\neq0$, and $p=(\tfrac12,\tfrac12)$. The trajectory of $v_p$ from
-$x_0$ converges to $x^1$ if $\nu\cdot x_0>0$, to $x^2$ if $\nu\cdot x_0<0$, and to the midpoint
-$(x^1+x^2)/2$ if $\nu\cdot x_0=0$. The exceptional set of Theorem~\ref{thm:posmix}(b) is
+Let $N=2$, $\nu=(a_1-a_2)/2\neq0$, and $p=(\tfrac12,\tfrac12)$. The trajectory of $v_p$ from
+$x_0$ converges to $a_1$ if $\nu\cdot x_0>0$, to $a_2$ if $\nu\cdot x_0<0$, and to the midpoint
+$(a_1+a_2)/2$ if $\nu\cdot x_0=0$. The exceptional set of Theorem~\ref{thm:posmix}(b) is
 therefore the hyperplane $\{x_0:\nu\cdot x_0=0\}$, of Hausdorff dimension $d-1$.
 \proofin{apx:pf-hyperplane}
 \end{restatable}
@@ -715,14 +715,14 @@ $w>0$ its prior coefficients have opposite signs, so Theorem~\ref{thm:posmix} do
 
 \begin{restatable}[Guidance lands on a training atom]{proposition}{propcfgatom}
 \label{prop:cfgatom}
-Assume $x^1,\dots,x^N$ are distinct and fix a finite $w\ge0$.
+Assume $a_1,\dots,a_N$ are distinct and fix a finite $w\ge0$.
 The exact guided field has a unique trajectory on $[0,1)$ from every finite
 initial point. Then:
 \begin{enumerate}[label=(\alph*),leftmargin=2em]
 \item if $h>0$, every trajectory converges to a point
   $z\in\operatorname{aff}\nn(z)$, where $\nn(z)$ is its set of nearest atoms.
   For an absolutely continuous source, the endpoint is a training atom almost surely;
-\item if $h=0$ at an identifying label $y^i$, every trajectory converges to $x^i$,
+\item if $h=0$ at an identifying label $y^i$, every trajectory converges to $a_i$,
   without an exceptional set of initial points.
 \end{enumerate}
 \proofin{apx:pf-cfgatom}
@@ -736,7 +736,7 @@ nearest atoms the guided covariance trace is $\Theta=r^2-|m_w|^2+w(1+w)|m_c-m_u|
 where $m_c,m_u,m_w$ are the conditional, unconditional and guided posterior means relative
 to the limit; the third term is nonnegative for $w\ge0$, and $m_w$ is small in mean square, so
 the volume again expands. For (b), a Gibbs inequality gives
-$|x_t-tx^i|^2\le(1-t)^2[C+2w\log N\log\tfrac1{1-t}]$.
+$|x_t-ta_i|^2\le(1-t)^2[C+2w\log N\log\tfrac1{1-t}]$.
 \end{proofsketch}
 }%
 
@@ -1147,7 +1147,7 @@ star: $w=2w_c$, the row of (a) with probability $0.406$.}
 \label{sec:interventions}
 
 Table~\ref{tab:interventions} summarises what each intervention does to the support of the exact
-endpoint law. Endpoint noise, $X_1=x^I+\rho\upsilon$, is the only one among them that leaves the
+endpoint law. Endpoint noise, $X_1=a_I+\rho\upsilon$, is the only one among them that leaves the
 atoms in every configuration: its endpoint law has a density (Proposition~\ref{prop:tgtnoise}).
 A fixed average of hard-label fields also moves every endpoint, in every geometry: it sends every
 source to the weighted average of the atoms (Section~\ref{sec:posmix}). This is why the positive
@@ -1578,7 +1578,7 @@ notation and Table~\ref{tab:roadmap} shows where each result is proved and what 
 Symbol & Meaning\\
 \midrule
 $\D=\{(x^i,y^i)\}_{i=1}^N$, $d$, $k$ & training set, data dimension, label dimension\\
-$\rhohat_X=N^{-1}\sum_i\delta_{x^i}$ & empirical law of the training inputs (the atoms)\\
+$\rhohat_X=N^{-1}\sum_i\delta_{a_i}$ & empirical law of the training inputs (the atoms)\\
 $\pi_0=\N(0,I_d)$ & source law\\
 $X_t=(1-t)X_0+tX_1$, $U=X_1-X_0$ & linear interpolant and regression target\\
 $h$, $K_h$, $\widetilde Y=Y+h\omega$ & label bandwidth, Gaussian label kernel, noised label\\
@@ -1632,20 +1632,20 @@ and~\ref{lem:volume}; they differ in how the energy and the divergence are contr
 \section{Proofs for Section~\ref{sec:theory}}
 \label{app:proofs}
 
-Throughout, $\src{i}$ abbreviates $\pi_0\big(\frac{x-tx^i}{1-t}\big)$ and $t<1$.
+Throughout, $\src{i}$ abbreviates $\pi_0\big(\frac{x-ta_i}{1-t}\big)$ and $t<1$.
 
 \subsection{Three lemmas}
 \label{apx:lemmas}
 
 \begin{lemma}[Change of variables]
 \label{lem:cov}
-Given $I=i$, the map $X_0\mapsto X_t=(1-t)X_0+tx^i$ is an affine bijection of $\R^d$, and
+Given $I=i$, the map $X_0\mapsto X_t=(1-t)X_0+ta_i$ is an affine bijection of $\R^d$, and
 $X_t$ has the density $p(x\mid I=i,t)=(1-t)^{-d}\src{i}>0$. The factor $(1-t)^{-d}$ does not
 depend on $i$, so it cancels in every posterior over $I$.
 \end{lemma}
 \begin{proof}
-Conditionally on $I=i$ we have $X_t=T_{i,t}(X_0)$ with $T_{i,t}(x_0)=(1-t)x_0+tx^i$. This map is
-an affine bijection of $\R^d$ with inverse $T_{i,t}^{-1}(x)=(x-tx^i)/(1-t)$ and constant Jacobian
+Conditionally on $I=i$ we have $X_t=T_{i,t}(X_0)$ with $T_{i,t}(x_0)=(1-t)x_0+ta_i$. This map is
+an affine bijection of $\R^d$ with inverse $T_{i,t}^{-1}(x)=(x-ta_i)/(1-t)$ and constant Jacobian
 $DT_{i,t}^{-1}=(1-t)^{-1}I_d$. Since $X_0$ is independent of $I$ and has the density $\pi_0$, the
 change-of-variables formula gives
 \begin{align*}
@@ -1660,21 +1660,21 @@ which is positive because $\pi_0>0$. The factor $(1-t)^{-d}$ is the same for eve
 \begin{lemma}[Well-posedness]
 \label{lem:wellposed}
 Let $q_1,\dots,q_N:\R^d\times[0,1)\to[0,1]$ be $C^\infty$ with $\sum_iq_i\equiv1$, let
-$v(x,t)=\sum_iq_i(x,t)(x^i-x)/(1-t)$ and $M=\max_i|x^i|$. Then (a) $v$ is $C^\infty$; (b) for
+$v(x,t)=\sum_iq_i(x,t)(a_i-x)/(1-t)$ and $M=\max_i|a_i|$. Then (a) $v$ is $C^\infty$; (b) for
 every $x_0$ the equation $\dot x_t=v(x_t,t)$ has a unique solution on $[0,1)$, with
 $|x_t|+M\le(|x_0|+M)/(1-t)$; and (c) for every probability measure $\mu_0$, the curve
 $\mu_t=(\Phi_t)_\#\mu_0$ pushed forward by the flow $\Phi_t$ is the unique narrowly continuous
 solution of $\partial_t\mu_t+\nabla\!\cdot(v\mu_t)=0$ on $[0,1)$ with initial datum $\mu_0$.
 \end{lemma}
 \begin{proof}
-(a) The weights are $C^\infty$ by assumption and $(x,t)\mapsto(x^i-x)/(1-t)$ is $C^\infty$ on
+(a) The weights are $C^\infty$ by assumption and $(x,t)\mapsto(a_i-x)/(1-t)$ is $C^\infty$ on
 $\R^d\times[0,1)$, so $v$ is $C^\infty$.
 
 (b) By (a), $v$ is locally Lipschitz, so local solutions exist and are unique
 \citep[Ch.~II]{hartman2002ode}; it remains to exclude blow-up before $t=1$. Since the weights are
 nonnegative and sum to one,
 \[
-|v(x,t)|\le\sum_iq_i(x,t)\,\frac{|x^i|+|x|}{1-t}\le\frac{M+|x|}{1-t}.
+|v(x,t)|\le\sum_iq_i(x,t)\,\frac{|a_i|+|x|}{1-t}\le\frac{M+|x|}{1-t}.
 \]
 Hence $g(t)=|x_t|+M$ satisfies
 \[
@@ -1716,9 +1716,9 @@ arbitrary, $\mu_T=(\Phi_T)_\#\mu_0$.
 
 \begin{lemma}[Equivalent mixture coupling]
 \label{lem:mixture-coupling}
-Fix a probability vector $p$ and let $I\sim p$, $X_0\sim\pi_0$ independent, $X_1=x^I$ and
+Fix a probability vector $p$ and let $I\sim p$, $X_0\sim\pi_0$ independent, $X_1=a_I$ and
 $X_t=(1-t)X_0+tX_1$. Then $\Pr(I=i\mid X_t=x,t)\propto p_i\,\src{i}$, and
-$\E[X_1-X_0\mid X_t=x,t]=\sum_i\Pr(I=i\mid X_t=x,t)\,\frac{x^i-x}{1-t}$. For
+$\E[X_1-X_0\mid X_t=x,t]=\sum_i\Pr(I=i\mid X_t=x,t)\,\frac{a_i-x}{1-t}$. For
 $p=p^{(h)}(y)$ this is $\vstar(x,t,y)$ of \eqref{eq:kernel-field}.
 \end{lemma}
 \begin{proof}
@@ -1727,15 +1727,15 @@ By Bayes' rule and Lemma~\ref{lem:cov}, in which the factor $(1-t)^{-d}$ cancels
 \Pr(I=i\mid X_t=x,t)=\frac{p_i\,p(x\mid I=i,t)}{\sum_jp_j\,p(x\mid I=j,t)}
 =\frac{p_i\,\src{i}}{\sum_jp_j\,\src{j}} .
 \]
-On the event $\{I=i,\ X_t=x\}$ we have $X_0=(x-tx^i)/(1-t)$ and $X_1=x^i$, so
+On the event $\{I=i,\ X_t=x\}$ we have $X_0=(x-ta_i)/(1-t)$ and $X_1=a_i$, so
 \[
-X_1-X_0=x^i-\frac{x-tx^i}{1-t}=\frac{(1-t)x^i-x+tx^i}{1-t}=\frac{x^i-x}{1-t}.
+X_1-X_0=a_i-\frac{x-ta_i}{1-t}=\frac{(1-t)a_i-x+ta_i}{1-t}=\frac{a_i-x}{1-t}.
 \]
 Conditioning on $I$ therefore gives
 \begin{align*}
 \E[X_1-X_0\mid X_t=x,t]
 &=\sum_i\Pr(I=i\mid X_t=x,t)\,\E[X_1-X_0\mid I=i,X_t=x,t]\\
-&=\sum_i\Pr(I=i\mid X_t=x,t)\,\frac{x^i-x}{1-t}.
+&=\sum_i\Pr(I=i\mid X_t=x,t)\,\frac{a_i-x}{1-t}.
 \end{align*}
 For $p=p^{(h)}(y)$ the normalisation $\sum_jK_h(y-y^j)$ of the label weights cancels in the
 posterior, which becomes $\src{i}\KK{i}/\sum_j\src{j}\KK{j}=q^{(h)}_i(x,t,y)$; the last display is
@@ -1769,27 +1769,27 @@ $\E[\Var(U\mid\mathcal G)]$.
 \propcollapse*
 \begin{proof}
 By Assumption~\ref{as:standing}(iii) the event $\{Y=y^i\}$ equals $\{I=i\}$, and given $X_t=x$ on
-this event, Lemma~\ref{lem:cov} gives $X_0=(x-tx^i)/(1-t)$. Hence
+this event, Lemma~\ref{lem:cov} gives $X_0=(x-ta_i)/(1-t)$. Hence
 \[
-U=x^i-X_0=x^i-\frac{x-tx^i}{1-t}=\frac{x^i-x}{1-t}
+U=a_i-X_0=a_i-\frac{x-ta_i}{1-t}=\frac{a_i-x}{1-t}
 \]
 is a function of the conditioning variables $(X_t,t,Y)$, so
-$v_0^\star(x,t,y^i)=\E[U\mid X_t=x,t,Y=y^i]=(x^i-x)/(1-t)$, which is (a). Then
+$v_0^\star(x,t,y^i)=\E[U\mid X_t=x,t,Y=y^i]=(a_i-x)/(1-t)$, which is (a). Then
 $U=v_0^\star(X_t,t,Y)$ almost surely, so $L_0(v_0^\star)=0$; as $L_0\ge0$, this is (b). For (c), the
 field is Lipschitz in $x$ on $[0,T]$ for each $T<1$, so the solution is unique, and along it
 \[
-\frac{d}{dt}\,\frac{x_t-x^i}{1-t}=\frac{\dot x_t}{1-t}+\frac{x_t-x^i}{(1-t)^2}
-=\frac{x^i-x_t}{(1-t)^2}+\frac{x_t-x^i}{(1-t)^2}=0 .
+\frac{d}{dt}\,\frac{x_t-a_i}{1-t}=\frac{\dot x_t}{1-t}+\frac{x_t-a_i}{(1-t)^2}
+=\frac{a_i-x_t}{(1-t)^2}+\frac{x_t-a_i}{(1-t)^2}=0 .
 \]
-Hence $(x_t-x^i)/(1-t)=x_0-x^i$, that is $x_t=(1-t)x_0+tx^i$, and $|x_t-x^i|=(1-t)|x_0-x^i|\to0$ for
+Hence $(x_t-a_i)/(1-t)=x_0-a_i$, that is $x_t=(1-t)x_0+ta_i$, and $|x_t-a_i|=(1-t)|x_0-a_i|\to0$ for
 every $x_0$. For (d), the time-$t$ marginal of the flow from $\pi_0$ is the law of
-$(1-t)X_0+tx^i$, which converges weakly to $\delta_{x^i}$ as $t\uparrow1$; its covariance is
+$(1-t)X_0+ta_i$, which converges weakly to $\delta_{a_i}$ as $t\uparrow1$; its covariance is
 $0$.
 \end{proof}
 
 \begin{proposition}[Unconditional endpoint]
 \label{prop:uncond}
-The unconditional minimiser is $v_{\mathrm{unc}}^\star(x,t)=\sum_iq_i(x,t)(x^i-x)/(1-t)$ with
+The unconditional minimiser is $v_{\mathrm{unc}}^\star(x,t)=\sum_iq_i(x,t)(a_i-x)/(1-t)$ with
 $q_i\propto\src{i}$, and $p_1^{\mathrm{unc}}=\rhohat_X$. Its loss is positive whenever two atoms
 differ.
 \end{proposition}
@@ -1800,8 +1800,8 @@ Proposition~\ref{prop:projection} applies verbatim with $\mathcal G=\sigma(X_t,t
 $\E[U\mid X_t=x,t]$ is given by Lemma~\ref{lem:mixture-coupling} with $p$ uniform, which yields
 the weights $q_i\propto\src{i}$; the endpoint law follows as in the proof of
 Theorem~\ref{thm:endpoint} with $p^{(h)}(y)$ replaced by the uniform vector, so
-$p_1^{\mathrm{unc}}=N^{-1}\sum_i\delta_{x^i}=\rhohat_X$. Given $X_t=x$, $U$ takes the value
-$u_i=(x^i-x)/(1-t)$ with probability $q_i>0$, so with $\bar u=\sum_jq_ju_j$
+$p_1^{\mathrm{unc}}=N^{-1}\sum_i\delta_{a_i}=\rhohat_X$. Given $X_t=x$, $U$ takes the value
+$u_i=(a_i-x)/(1-t)$ with probability $q_i>0$, so with $\bar u=\sum_jq_ju_j$
 \[
 \Var(U\mid X_t=x,t)=\sum_iq_i\,|u_i-\bar u|^2 ,
 \]
@@ -1817,7 +1817,7 @@ $\E[\Var(U\mid X_t,t)]$.
 \phantomsection\label{apx:pf-kernel-field}
 \propkernelfield*
 \begin{proof}
-Given $I=i$, the variables $X_t=(1-t)X_0+tx^i$ and $\widetilde Y=y^i+h\omega$ are independent, with
+Given $I=i$, the variables $X_t=(1-t)X_0+ta_i$ and $\widetilde Y=y^i+h\omega$ are independent, with
 the density of Lemma~\ref{lem:cov} and the density $K_h(\cdot-y^i)$ of $\N(y^i,h^2I_k)$
 respectively. Since $\Pr(I=i)=1/N$, Bayes' rule gives
 \[
@@ -1825,13 +1825,13 @@ respectively. Since $\Pr(I=i)=1/N$, Bayes' rule gives
 =\frac{N^{-1}(1-t)^{-d}\src{i}\,\KK{i}}{\sum_jN^{-1}(1-t)^{-d}\src{j}\,\KK{j}}
 =q^{(h)}_i(x,t,y).
 \]
-On $\{I=i,\ X_t=x\}$ we have $U=(x^i-x)/(1-t)$, as in the proof of
+On $\{I=i,\ X_t=x\}$ we have $U=(a_i-x)/(1-t)$, as in the proof of
 Lemma~\ref{lem:mixture-coupling}, and conditioning additionally on $\widetilde Y$ does not change
 this value. Therefore
 \[
 \E[U\mid X_t=x,t,\widetilde Y=y]
-=\sum_i\Pr(I=i\mid X_t=x,t,\widetilde Y=y)\,\frac{x^i-x}{1-t}
-=\sum_iq^{(h)}_i(x,t,y)\,\frac{x^i-x}{1-t},
+=\sum_i\Pr(I=i\mid X_t=x,t,\widetilde Y=y)\,\frac{a_i-x}{1-t}
+=\sum_iq^{(h)}_i(x,t,y)\,\frac{a_i-x}{1-t},
 \]
 and Proposition~\ref{prop:projection} identifies this conditional expectation with the minimiser,
 which is \eqref{eq:kernel-field}.
@@ -1857,11 +1857,11 @@ where the second equality conditions on $X_t$ and the third is Lemma~\ref{lem:mi
 Thus $(p_t)$ is a weak solution of the continuity equation of $\vstar(\cdot,\cdot,y)$ with
 $p_0=\pi_0$, and it is narrowly continuous because $t\mapsto X_t$ is continuous. By
 Lemma~\ref{lem:wellposed}(c), $p_t=(\Phi_t)_\#\pi_0$ for every $t<1$. Finally,
-$X_t=(1-t)X_0+tx^I\to x^I$ almost surely as $t\uparrow1$, so for bounded continuous $\varphi$
+$X_t=(1-t)X_0+ta_I\to a_I$ almost surely as $t\uparrow1$, so for bounded continuous $\varphi$
 dominated convergence gives
 \[
-\int\varphi\,d(\Phi_t)_\#\pi_0=\E\varphi(X_t)\longrightarrow\E\varphi(x^I)
-=\sum_ip_i^{(h)}(y)\,\varphi(x^i),
+\int\varphi\,d(\Phi_t)_\#\pi_0=\E\varphi(X_t)\longrightarrow\E\varphi(a_I)
+=\sum_ip_i^{(h)}(y)\,\varphi(a_i),
 \]
 which is \eqref{eq:endpoint}.
 \end{proof}
@@ -1874,9 +1874,9 @@ The normalising constant $(2\pi h^2)^{-k/2}$ of $K_h$ cancels in the label weigh
 p_i^{(h)}(y)=\frac{\exp\bigl(-|y-y^i|^2/2h^2\bigr)}{\sum_j\exp\bigl(-|y-y^j|^2/2h^2\bigr)} .
 \]
 As $h\to\infty$ every exponential tends to $1$, so $p_i^{(h)}(y)\to1/N$. By
-Theorem~\ref{thm:endpoint}, $p_1^{(h)}(\cdot\mid y)=\sum_ip_i^{(h)}(y)\delta_{x^i}$ has fixed atoms
+Theorem~\ref{thm:endpoint}, $p_1^{(h)}(\cdot\mid y)=\sum_ip_i^{(h)}(y)\delta_{a_i}$ has fixed atoms
 and converging weights, so for bounded continuous $\varphi$,
-$\int\varphi\,dp_1^{(h)}(\cdot\mid y)=\sum_ip_i^{(h)}(y)\varphi(x^i)\to N^{-1}\sum_i\varphi(x^i)$,
+$\int\varphi\,dp_1^{(h)}(\cdot\mid y)=\sum_ip_i^{(h)}(y)\varphi(a_i)\to N^{-1}\sum_i\varphi(a_i)$,
 that is $p_1^{(h)}(\cdot\mid y)\Rightarrow\rhohat_X=p_1^{\mathrm{unc}}$ by
 Proposition~\ref{prop:uncond}. For $h\to0$, let $i\ne i_\star$ and
 $g_i=|y-y^i|^2-|y-y^{i_\star}|^2>0$, which is positive because $y^{i_\star}$ is the unique nearest
@@ -1886,13 +1886,13 @@ p_i^{(h)}(y)\le\frac{p_i^{(h)}(y)}{p_{i_\star}^{(h)}(y)}
 =\frac{K_h(y-y^i)}{K_h(y-y^{i_\star})}=\exp\Bigl(-\frac{g_i}{2h^2}\Bigr)\longrightarrow0,
 \]
 and $p_{i_\star}^{(h)}(y)=1-\sum_{i\ne i_\star}p_i^{(h)}(y)\to1$. As before,
-Theorem~\ref{thm:endpoint} gives $p_1^{(h)}(\cdot\mid y)\Rightarrow\delta_{x^{i_\star}}$.
+Theorem~\ref{thm:endpoint} gives $p_1^{(h)}(\cdot\mid y)\Rightarrow\delta_{a_{i_\star}}$.
 \end{proof}
 
 \phantomsection\label{apx:pf-atomicity}
 \propatomicity*
 \begin{proof}
-Write $\mathcal X=\{x^1,\dots,x^N\}$. By Theorem~\ref{thm:endpoint} for $h>0$ and
+Write $\mathcal X=\{a_1,\dots,a_N\}$. By Theorem~\ref{thm:endpoint} for $h>0$ and
 Proposition~\ref{prop:collapse}(d) at $h=0$, $\supp p_1^{(h)}(\cdot\mid y)\subseteq\mathcal X$. Let
 $(X,X')$ be any coupling of $p_1^{(h)}(\cdot\mid y)$ and $p(\cdot\mid y)$. Since $X\in\mathcal X$
 almost surely, $|X-X'|\ge\dist(X',\mathcal X)$, and therefore, with $+\infty$ allowed,
@@ -1902,8 +1902,8 @@ almost surely, $|X-X'|\ge\dist(X',\mathcal X)$, and therefore, with $+\infty$ al
 Taking the infimum over couplings gives \eqref{eq:w2floor}; the right side does not involve $h$.
 It is positive because $\dist(x,\mathcal X)>0$ for $x\notin\mathcal X$ and $\mathcal X$ is
 $p(\cdot\mid y)$-null, so the integrand is positive $p(\cdot\mid y)$-almost everywhere. For the
-finiteness claim, let $M=\max_i|x^i|$. The triangle inequality gives
-$|x|-M\le|x-x^i|\le|x|+M$ for every $i$, hence
+finiteness claim, let $M=\max_i|a_i|$. The triangle inequality gives
+$|x|-M\le|x-a_i|\le|x|+M$ for every $i$, hence
 \[
 \bigl((|x|-M)_+\bigr)^2\ \le\ \dist(x,\mathcal X)^2\ \le\ (|x|+M)^2 ,
 \]
@@ -2043,7 +2043,7 @@ $\varsigma=O(1-t)$ in flow-matching time.}
 \subsection{Notation and basic facts}
 \label{apx:intervention-notation}
 
-Write $a_j=x^j$, $A=\{a_1,\dots,a_N\}$ (distinct), $R=\max_j|a_j|$, $\eps=1-t$ and, for $t>0$,
+Write $A=\{a_1,\dots,a_N\}$ for the atoms (distinct), $R=\max_j|a_j|$, $\eps=1-t$ and, for $t>0$,
 \[
 \tau=-\log\eps,\qquad \alpha=\frac{\eps^2}{t},\qquad \beta=\frac1\alpha=\frac{t}{\eps^2},
 \qquad b_j(x,t)=x\cdot a_j-\frac t2|a_j|^2 .
@@ -2322,8 +2322,8 @@ Lemma~\ref{lem:volume} gives (b) and (c).
 \begin{proof}
 (a) By Proposition~\ref{prop:kernel-field} and Fubini's theorem for the finite sum,
 \[
-\iclrstart v_\varphi(x,t,y)=\int\sum_iq^{(h)}_i(x,t,y-u)\,\frac{x^i-x}{1-t}\,\varphi(du)
-\iclrbrq=\sum_iq^\varphi_i(x,t,y)\,\frac{x^i-x}{1-t},\iclrqbr
+\iclrstart v_\varphi(x,t,y)=\int\sum_iq^{(h)}_i(x,t,y-u)\,\frac{a_i-x}{1-t}\,\varphi(du)
+\iclrbrq=\sum_iq^\varphi_i(x,t,y)\,\frac{a_i-x}{1-t},\iclrqbr
 q^\varphi_i=\int q^{(h)}_i(x,t,y-u)\,\varphi(du),\iclrend
 \]
 and $q^\varphi_i\ge0$, $\sum_iq^\varphi_i=1$, because the same holds for $q^{(h)}_i$. At $t=0$ every
@@ -2344,7 +2344,7 @@ almost sure atomicity under absolutely continuous sources, and the form of the e
 \phantomsection\label{apx:pf-hyperplane}
 \ificlr\placeblock{hyperplane}\else\prophyperplane*\fi
 \begin{proof}
-Let $c=(x^1+x^2)/2$, so that $x^{1,2}=c\pm\nu$, and put $A_0=|\nu|^2>0$ and
+Let $c=(a_1+a_2)/2$, so that $a_{1,2}=c\pm\nu$, and put $A_0=|\nu|^2>0$ and
 $\zeta=\nu\cdot(x-tc)$. Since
 \[
 |x-t(c-\nu)|^2-|x-t(c+\nu)|^2=|x-tc+t\nu|^2-|x-tc-t\nu|^2=4t\,\nu\cdot(x-tc)=4t\zeta
@@ -2384,7 +2384,7 @@ By Theorem~\ref{thm:posmix}(a) the trajectory converges to some $z\in\mathcal C$
 $\mathcal C=\{c-\nu,c,c+\nu\}$: a point with one nearest atom lies in $\mathcal C$ only if it is that
 atom, and a point equidistant from both atoms lies on the segment between them only if it is $c$.
 Since $\zeta\to\nu\cdot(z-c)$ and $\nu\cdot(z-c)$ equals $-A_0$, $0$, $A_0$ at the three candidates,
-$\zeta\ge\underline\zeta>0$ forces $z=c+\nu=x^1$. The midpoint is not an atom, so the exceptional
+$\zeta\ge\underline\zeta>0$ forces $z=c+\nu=a_1$. The midpoint is not an atom, so the exceptional
 set is exactly the hyperplane $\{\nu\cdot x_0=0\}$, of Hausdorff dimension $d-1$.
 \end{proof}
 
@@ -2577,7 +2577,7 @@ $c\in\mathcal Q$ of $\Pr(Q(\widetilde Y)=c)$ times the conditional risk given
 $Q(\widetilde Y)=c$, and $u(\cdot,\cdot,c)$ enters only the $c$-th term, which is minimised by
 the conditional mean $\E[X_1-X_0\mid X_t=x,t,\,Q(\widetilde Y)=c]$; uniqueness up to null sets
 holds because $X_t$ has a positive density for $t<1$. Conditionally on $Q(\widetilde Y)=c$, $I$ has
-law $\bar p_c$, $X_1=x^I$, and $X_0\sim\pi_0$ is independent of $I$, since $X_0$ is independent of
+law $\bar p_c$, $X_1=a_I$, and $X_0\sim\pi_0$ is independent of $I$, since $X_0$ is independent of
 $(I,\widetilde Y)$. Lemma~\ref{lem:mixture-coupling} identifies the conditional mean with
 $v_{\bar p_c}$.
 
@@ -2591,7 +2591,7 @@ over the labels of the cell: writing
 $\bar p_c$ as the average of the label weights $p^{(h)}(y)$ under the law $\nu_c$ of
 $\widetilde Y$ given $Q(\widetilde Y)=c$, the field $v_{\bar p_c}$ averages the fields
 $v_{p^{(h)}(y)}$ under $\nu_c$ reweighted by
-$\sum_j p^{(h)}_j(y)\,\pi_0\bigl((x-tx^j)/(1-t)\bigr)$, a factor that depends on $(x,t)$. A bottleneck
+$\sum_j p^{(h)}_j(y)\,\pi_0\bigl((x-ta_j)/(1-t)\bigr)$, a factor that depends on $(x,t)$. A bottleneck
 therefore realises neither the hypothesis of Theorem~\ref{thm:composition} nor its conclusion: at
 a single coarse query, guidance ends on an atom almost surely. The composition needs the average
 to be taken over conditional fields with weights independent of the current position.
@@ -3333,13 +3333,13 @@ small noise the nearest atom recovers the source location with high probability.
 
 \begin{proposition}[Endpoint smoothing]
 \label{prop:tgtnoise}
-Fix $\rho\ge0$ and replace the endpoint by $X_1=x^I+\rho\,\upsilon$ with $\upsilon\sim\N(0,I_d)$ independent
+Fix $\rho\ge0$ and replace the endpoint by $X_1=a_I+\rho\,\upsilon$ with $\upsilon\sim\N(0,I_d)$ independent
 of $(I,X_0,\omega)$ and redrawn every step, keeping label bandwidth $h>0$. Write
 $s_t^2=(1-t)^2+t^2\rho^2$ and $\varphi_s$ for the $\N(0,s^2I_d)$ density. Then $\vstar$ is a
-weighted average of per-atom fields with spatial weights $\varphi_{s_t}(x-tx^i)$ in place of
+weighted average of per-atom fields with spatial weights $\varphi_{s_t}(x-ta_i)$ in place of
 $\src{i}$, given in \eqref{eq:tgtfield}, and the endpoint law is
 \begin{equation}
-p_1(\cdot\mid y)=\sum_i p_i^{(h)}(y)\,\N(x^i,\rho^2I_d),
+p_1(\cdot\mid y)=\sum_i p_i^{(h)}(y)\,\N(a_i,\rho^2I_d),
 \qquad
 \text{mean}=\bar x_h(y),\quad \Cov=\Covh(y)+\rho^2I_d.
 \label{eq:tgtendpoint}
@@ -3350,23 +3350,23 @@ and $\vstar$ extends continuously to $t=1$.
 
 \begin{proof}
 \label{apx:pf-tgtnoise}
-For $\rho=0$ this is Theorem~\ref{thm:endpoint}, with $\N(x^i,0)$ read as $\delta_{x^i}$; let
-$\rho>0$. Given $I=i$, $X_t=(1-t)X_0+t(x^i+\rho\upsilon)$, so
+For $\rho=0$ this is Theorem~\ref{thm:endpoint}, with $\N(a_i,0)$ read as $\delta_{a_i}$; let
+$\rho>0$. Given $I=i$, $X_t=(1-t)X_0+t(a_i+\rho\upsilon)$, so
 \[
-r:=X_t-tx^i=(1-t)X_0+t\rho\,\upsilon\sim\N(0,s_t^2I_d),\qquad p(x\mid I=i,t)=\varphi_{s_t}(x-tx^i).
+r:=X_t-ta_i=(1-t)X_0+t\rho\,\upsilon\sim\N(0,s_t^2I_d),\qquad p(x\mid I=i,t)=\varphi_{s_t}(x-ta_i).
 \]
 Since $\widetilde Y$ is conditionally independent of $(X_0,\upsilon)$ given $I$, Bayes' rule as in the
 proof of Proposition~\ref{prop:kernel-field} gives
-$q_i:=\Pr(I=i\mid X_t=x,t,\widetilde Y=y)\propto\varphi_{s_t}(x-tx^i)\KK{i}$. The vector
+$q_i:=\Pr(I=i\mid X_t=x,t,\widetilde Y=y)\propto\varphi_{s_t}(x-ta_i)\KK{i}$. The vector
 $(X_0,\upsilon,r)$ is jointly Gaussian with $\Cov(X_0,r)=(1-t)I_d$ and $\Cov(\upsilon,r)=t\rho\,I_d$, so
 \[
 \E[X_0\mid r]=\frac{1-t}{s_t^2}\,r,\qquad \E[\upsilon\mid r]=\frac{t\rho}{s_t^2}\,r .
 \]
-With $U=x^i+\rho\upsilon-X_0$ on $\{I=i\}$ and $r=x-tx^i$ on $\{X_t=x\}$, conditioning on $I$ and
+With $U=a_i+\rho\upsilon-X_0$ on $\{I=i\}$ and $r=x-ta_i$ on $\{X_t=x\}$, conditioning on $I$ and
 Proposition~\ref{prop:projection} give
 \begin{equation}
 \vstar(x,t,y)=\sum_iq_i\,\E[U\mid I=i,X_t=x,t]
-=\sum_iq_i\Big[x^i+\frac{t\rho^2-(1-t)}{s_t^2}\,(x-tx^i)\Big].
+=\sum_iq_i\Big[a_i+\frac{t\rho^2-(1-t)}{s_t^2}\,(x-ta_i)\Big].
 \label{eq:tgtfield}
 \end{equation}
 The minimum of $s_t^2=(1-t)^2+t^2\rho^2$ over $t\in[0,1]$ is attained at $t=1/(1+\rho^2)$, so
@@ -3374,14 +3374,14 @@ $s_t^2\ge\rho^2/(1+\rho^2)>0$. Hence the weights and the coefficient in \eqref{e
 smooth on $\R^d\times[0,1]$, the field has linear growth, and its flow is global; the uniqueness
 argument of Lemma~\ref{lem:wellposed}(c), which uses only local Lipschitz continuity and the absence
 of blow-up, applies up to $t=1$. For the coupling with $I\sim p^{(h)}(y)$, $X_0\sim\pi_0$ and
-$\upsilon\sim\N(0,I_d)$ independent and $X_1=x^I+\rho\upsilon$, the same computation, with prior weights
+$\upsilon\sim\N(0,I_d)$ independent and $X_1=a_I+\rho\upsilon$, the same computation, with prior weights
 $p^{(h)}_i(y)\propto\KK{i}$, shows that the conditional velocity is $\vstar$. As in the proof of
-Theorem~\ref{thm:endpoint}, the endpoint law is therefore $\law(x^I+\rho\upsilon)=\sum_ip_i^{(h)}(y)\,
-\N(x^i,\rho^2I_d)$, an absolutely continuous Gaussian mixture. Its mean is
-$\sum_ip_i^{(h)}(y)x^i=\bar x_h(y)$, and by the law of total covariance
+Theorem~\ref{thm:endpoint}, the endpoint law is therefore $\law(a_I+\rho\upsilon)=\sum_ip_i^{(h)}(y)\,
+\N(a_i,\rho^2I_d)$, an absolutely continuous Gaussian mixture. Its mean is
+$\sum_ip_i^{(h)}(y)a_i=\bar x_h(y)$, and by the law of total covariance
 \[
-\Cov(x^I+\rho\upsilon)=\E\bigl[\Cov(x^I+\rho\upsilon\mid I)\bigr]+\Cov\bigl(\E[x^I+\rho\upsilon\mid I]\bigr)
-=\rho^2I_d+\Cov(x^I)=\rho^2I_d+\Covh(y),
+\Cov(a_I+\rho\upsilon)=\E\bigl[\Cov(a_I+\rho\upsilon\mid I)\bigr]+\Cov\bigl(\E[a_I+\rho\upsilon\mid I]\bigr)
+=\rho^2I_d+\Cov(a_I)=\rho^2I_d+\Covh(y),
 \]
 which is \eqref{eq:tgtendpoint}.
 \end{proof}
@@ -3747,8 +3747,8 @@ of the learned field, whose exact endpoints are atoms almost surely.
 CIFAR-10 inpainting problem ($N=2000$ training images in $\R^{3072}$, labels their top
 halves, $k=1536$), averaging the exact conditional fields at the labels $y^i,y^j$ of a pair and guiding
 against the unconditional one. The label bandwidth is set to $h=|y^i-y^j|/2$, so that $B=1$ and
-$w_c=0.724$. We use eight pairs whose midpoint $z=(x^i+x^j)/2$ is farther than
-$\sqrt{5.2}\,r$, $r=|x^i-x^j|/2$, from every other training image, and $512$ Gaussian sources shared across all pairs and strengths. Of the $81$ mutual-nearest-neighbour pairs among the $2000$ images, all have no other
+$w_c=0.724$. We use eight pairs whose midpoint $z=(a_i+a_j)/2$ is farther than
+$\sqrt{5.2}\,r$, $r=|a_i-a_j|/2$, from every other training image, and $512$ Gaussian sources shared across all pairs and strengths. Of the $81$ mutual-nearest-neighbour pairs among the $2000$ images, all have no other
 image within $r$ of their midpoint, as Theorem~\ref{thm:spectral}(c) requires, and these eight
 are the ones with the largest margin. Their images lie at $0.54$ to $0.90$ times the median
 nearest-neighbour distance of the $2000$ images: similar but distinct images

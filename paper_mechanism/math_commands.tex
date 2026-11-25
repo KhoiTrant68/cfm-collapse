@@ -33,10 +33,10 @@
 \newcommand{\wih}[1]{w_{#1}^{(h)}}
 % label kernel K_h(y - y^i)
 \newcommand{\KK}[1]{K_h(y-y^{#1})}
-% per-atom collapsed field (x^i - x)/(1 - t)
-\newcommand{\fat}[1]{\frac{x^{#1}-x}{1-t}}
+% per-atom collapsed field (a_i - x)/(1 - t)
+\newcommand{\fat}[1]{\frac{a_{#1}-x}{1-t}}
 % source density at the point that reaches x from atom #1
-\newcommand{\src}[1]{\pi_0\!\Big(\frac{x-tx^{#1}}{1-t}\Big)}
+\newcommand{\src}[1]{\pi_0\!\Big(\frac{x-ta_{#1}}{1-t}\Big)}
 
 % --- pointer from a statement in the body to its proof --------------------
 % (main.tex sets \proofpointerfalse in the appendix, so restatements omit it)
