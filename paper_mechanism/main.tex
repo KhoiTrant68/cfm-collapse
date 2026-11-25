@@ -372,9 +372,9 @@ reference against which the learned fields of the later sections are measured. E
 written $|\cdot|$, and for a random vector $\Var$ denotes $\tr\Cov$.
 
 \paragraph{Training law and loss.} The training set is $\D=\{(x^i,y^i)\}_{i=1}^N$, with inputs
-$x^i\in\R^d$, labels $y^i\in\R^k$, and empirical input law $\rhohat_X=N^{-1}\sum_i\delta_{x^i}$. One
+$x^i\in\R^d$, labels $y^i\in\R^k$, atoms $a_i:=x^i$, and empirical input law $\rhohat_X=N^{-1}\sum_i\delta_{a_i}$. One
 training draw takes an index $I\sim\mathrm{Unif}\{1,\dots,N\}$, a source $X_0\sim\pi_0=\N(0,I_d)$
-and a time $t\sim\mathrm{Unif}(0,1)$, all independent. It sets $X_1=x^I$, $Y=y^I$, the linear
+and a time $t\sim\mathrm{Unif}(0,1)$, all independent. It sets $X_1=a_I$, $Y=y^I$, the linear
 interpolant $X_t=(1-t)X_0+tX_1$, and the regression target $U=X_1-X_0$. Label noise of bandwidth
 $h>0$ replaces $Y$ by $\widetilde Y=Y+h\omega$ with an independent $\omega\sim\N(0,I_k)$; its kernel
 is $K_h(u)=(2\pi h^2)^{-k/2}\exp(-|u|^2/2h^2)$. The flow-matching loss is
@@ -403,11 +403,11 @@ points straight at the training input of the label.
 \begin{proposition}[{Exact field at hard conditioning; cf.\ \citealp[Theorem~6.4]{baptista2025memorization}}]
 \label{prop:collapse}
 Let $h=0$ and fix a training label $y^i$. Then
-(a) for $t<1$ the exact field is $v_0^\star(x,t,y^i)=(x^i-x)/(1-t)$ $(\star)$;
+(a) for $t<1$ the exact field is $v_0^\star(x,t,y^i)=(a_i-x)/(1-t)$ $(\star)$;
 (b) the loss reaches $\inf_v L_0(v)=0$;
-(c) the flow $\dot x_t=(x^i-x_t)/(1-t)$ is solved by
-$x_t=(1-t)x_0+tx^i$, so $x_t\to x^i$ from every $x_0$; and
-(d) the endpoint law is $p_1^{(0)}(\cdot\mid y^i)=\delta_{x^i}$, with $\Cov[p_1^{(0)}(\cdot\mid y^i)]=0$.
+(c) the flow $\dot x_t=(a_i-x_t)/(1-t)$ is solved by
+$x_t=(1-t)x_0+ta_i$, so $x_t\to a_i$ from every $x_0$; and
+(d) the endpoint law is $p_1^{(0)}(\cdot\mid y^i)=\delta_{a_i}$, with $\Cov[p_1^{(0)}(\cdot\mid y^i)]=0$.
 \end{proposition}
 Without the label, the exact flow instead ends on the full empirical law $\rhohat_X$
 (cf.\ \citealp{wan2025elucidating}). Both flows return training inputs. The conditional one has
@@ -420,9 +420,9 @@ that combine how well each example explains the state and the label.
 \label{prop:kernel-field}
 For $h>0$, $t<1$,
 \begin{equation}
-\vstar(x,t,y)=\sum_i q_i^{(h)}(x,t,y)\,\frac{x^i-x}{1-t},\quad
-q_i^{(h)}=\frac{\pi_0\!\big(\tfrac{x-tx^i}{1-t}\big)K_h(y-y^i)}
-{\sum_j\pi_0\!\big(\tfrac{x-tx^j}{1-t}\big)K_h(y-y^j)}.
+\vstar(x,t,y)=\sum_i q_i^{(h)}(x,t,y)\,\frac{a_i-x}{1-t},\quad
+q_i^{(h)}=\frac{\pi_0\!\big(\tfrac{x-ta_i}{1-t}\big)K_h(y-y^i)}
+{\sum_j\pi_0\!\big(\tfrac{x-ta_j}{1-t}\big)K_h(y-y^j)}.
 \label{eq:kernel-field}
 \end{equation}
 \end{proposition}
@@ -433,7 +433,7 @@ posterior-mean form of the flow-matching field used by \citet{wan2025elucidating
 \label{thm:endpoint}
 For every $h>0$ and query $y$, with label weights $p_i^{(h)}(y)=K_h(y-y^i)/\sum_jK_h(y-y^j)$,
 \begin{equation}
-p_1^{(h)}(\cdot\mid y)=\sum_{i=1}^N p_i^{(h)}(y)\,\delta_{x^i}.
+p_1^{(h)}(\cdot\mid y)=\sum_{i=1}^N p_i^{(h)}(y)\,\delta_{a_i}.
 \label{eq:endpoint}
 \end{equation}
 \end{theorem}
@@ -442,7 +442,7 @@ weighted empirical law on the right of \eqref{eq:endpoint}; \citet[Theorem~5.3]{
 endpoint law follows from theirs.
 
 \paragraph{The posterior mean and the error of a learned field.} In all three cases the exact field
-has the form $\vstar=(m^\star-x)/(1-t)$, where $m^\star=\sum_jq_j^{(h)}x^j$ is the posterior mean
+has the form $\vstar=(m^\star-x)/(1-t)$, where $m^\star=\sum_jq_j^{(h)}a_j$ is the posterior mean
 over the training inputs. A learned field that predicts data, $v_\theta=(\hat x_1-x)/(1-t)$,
 therefore differs from the exact one by $\Delta$ with $(1-t)\Delta=\hat x_1-m^\star$. The exact
 field always returns training inputs. A learned field can end elsewhere only through $\Delta$, and
@@ -462,7 +462,7 @@ a late amplification (Proposition~\ref{prop:loss-no-certificate}). An explicit r
 condition restores a finite-time bound (Theorem~\ref{thm:risktransfer}). Both are in
 Appendix~\ref{app:teacher-risk}.
 
-\paragraph{The landing condition.} Write $m^\star=\sum_jq_jx^j$ for any posterior mean with
+\paragraph{The landing condition.} Write $m^\star=\sum_jq_ja_j$ for any posterior mean with
 continuous weights $q_j\ge0$, $\sum_jq_j=1$ (at an identifying label or a positive bandwidth, or the
 class posterior of Section~\ref{sec:edm}), so that $(1-t)\Delta=\hat x_1-m^\star$ for a field that
 predicts data.
@@ -470,9 +470,9 @@ predicts data.
 \begin{restatable}[Landing under relative field error]{theorem}{thmrelerr}
 \label{thm:relerr}
 Let $\hat x_1$ be continuous on $\R^d\times[t_1,1)$ and $Z$ a $C^1$ solution of
-$\dot Z_t=(\hat x_1(Z_t,t)-Z_t)/(1-t)$ on $[t_1,1)$. Fix an atom $a=x^i$ and write
+$\dot Z_t=(\hat x_1(Z_t,t)-Z_t)/(1-t)$ on $[t_1,1)$. Fix an atom $a=a_i$ and write
 $n_t=|Z_t-a|$, $e_t=|\hat x_1(Z_t,t)-m^\star(Z_t,t)|$ and
-$\zeta_t=(1-q_i(Z_t,t))\max_k|x^k-a|$.
+$\zeta_t=(1-q_i(Z_t,t))\max_k|a_k-a|$.
 \begin{enumerate}[label=(\alph*),leftmargin=2em]
 \item $n$ is locally Lipschitz; where $n_t>0$,
   $(1-t)\dot n_t=\langle\hat e_t,\hat x_1(Z_t,t)-a\rangle-n_t$ with $\hat e_t=(Z_t-a)/n_t$, and
@@ -525,7 +525,7 @@ from it the endpoint can end.
 % Demoted from theorem to lemma (split contract, sec. 2 and 5); statement unchanged.
 \begin{restatable}[Endpoint transfer at an identifying label]{lemma}{thmtransfer}
 \label{thm:transfer}
-Fix an identifying label with atom $a=x^i$. Let $Z$ be absolutely continuous on $[0,1)$ with
+Fix an identifying label with atom $a=a_i$. Let $Z$ be absolutely continuous on $[0,1)$ with
 $Z_0=x_0$ and
 \[
 \dot Z_t=\frac{a-Z_t}{1-t}+\Delta(Z_t,t)\quad\text{for almost every }t,
@@ -556,8 +556,8 @@ small scaled error there.
 
 \begin{restatable}[Local transfer at positive bandwidth]{proposition}{proplocaltransfer}
 \label{prop:localtransfer}
-Let $h>0$, fix $y$, write $v^\star=\vstar(\cdot,\cdot,y)$, and let $a=x^i$ be an atom with
-$\ell =\min_{j\ne i}|x^j-a|$ and $r\in(0,\ell /2)$. There is $t_\star<1$, depending only on the
+Let $h>0$, fix $y$, write $v^\star=\vstar(\cdot,\cdot,y)$, and let $a=a_i$ be an atom with
+$\ell =\min_{j\ne i}|a_j-a|$ and $r\in(0,\ell /2)$. There is $t_\star<1$, depending only on the
 atoms, $p^{(h)}(y)$ and $r$, with the following property. Let $v^\star+\Delta$ be locally
 Lipschitz on $\R^d\times[0,1)$, let $t_0\in[t_\star,1)$, and let $Z$ be the maximal solution of
 $\dot Z=v^\star(Z,t)+\Delta(Z,t)$ from a point $Z_{t_0}$. If $|Z_{t_0}-a|<r/4$ and
@@ -622,7 +622,7 @@ collapse: the variance falls toward zero at the cutoff. It is not an endpoint at
 velocity MLP lacks (Section~\ref{sec:transfer}). On EXP-1 the conditional variance tracks the
 posterior, $\tr\Sigmapost=1.018$, up to $\sim\!10^4$ iterations, then collapses: $0.396$
 $[0.220,0.573]$ at $2\times10^5$ and $0.120$ $[0.046,0.195]$ at $10^6$ with a cosine schedule. In
-the same period the velocity approaches $(\star)$ and the generated mean moves to $x^i$
+the same period the velocity approaches $(\star)$ and the generated mean moves to $a_i$
 (Figures~\ref{fig:collapse}a and~\ref{fig:collapse-details}, Table~\ref{tab:exp1}). On average the distances of the generated
 mean to the training atom and to the posterior mean cross between $10^5$ and $2\times10^5$
 iterations; their paired difference is $-0.28$ $[-0.57,0.01]$ at $2\times10^5$, where one seed of
@@ -1168,7 +1168,8 @@ result, where it is proved and which earlier results it relies on.
 Symbol & Meaning\\
 \midrule
 $\D=\{(x^i,y^i)\}_{i=1}^N$, $d$, $k$ & training set, data dimension, label dimension\\
-$\rhohat_X=N^{-1}\sum_i\delta_{x^i}$ & empirical law of the training inputs (the atoms)\\
+$a_i:=x^i$ & atom: the $i$-th training input\\
+$\rhohat_X=N^{-1}\sum_i\delta_{a_i}$ & empirical law of the training inputs (the atoms)\\
 $\pi_0=\N(0,I_d)$ & source law\\
 $X_t=(1-t)X_0+tX_1$, $U=X_1-X_0$ & linear interpolant and regression target\\
 $h$, $K_h$, $\widetilde Y=Y+h\omega$ & label bandwidth, Gaussian label kernel, noised label\\
@@ -1241,7 +1242,7 @@ where $C_{s_0}=\int_0^{s_0}|\Delta(Z_s,s)|(1-s)^{-1}ds<\infty$ by integrability.
 $(1-t)|x_0-a|\to0$, the identity gives $\limsup_t|Z_t-a|\le L+\eta$ for every $\eta>0$.
 
 For $\Delta(x,t)=c/(1-t)$ the equation becomes $\dot Z=(a+c-Z)/(1-t)$, whose solution is
-$Z_t=(1-t)x_0+t(a+c)$ as in Proposition~\ref{prop:collapse}(c) with $a+c$ in place of $x^i$, so
+$Z_t=(1-t)x_0+t(a+c)$ as in Proposition~\ref{prop:collapse}(c) with $a+c$ in place of $a_i$, so
 $|Z_t-a|\to|c|$, while $(1-t)|\Delta|\equiv|c|$. Finally, for a data-prediction field,
 \[
 \Delta(x,t)=v_\theta(x,t)-\frac{a-x}{1-t}=\frac{\hat x_1(x,t)-x}{1-t}-\frac{a-x}{1-t}
@@ -1256,22 +1257,22 @@ exponentially small error. Adding this error to $\Delta$, the identity of
 Lemma~\ref{thm:transfer} first traps the trajectory in the ball and then gives the limit.
 \begin{proof}
 Let $p=p^{(h)}(y)$, a probability vector with all entries positive. By
-Proposition~\ref{prop:kernel-field}, $v^\star=(m^\star-x)/(1-t)$ with $m^\star=\sum_jq_j^{(h)}x^j$ and
-$q_j^{(h)}\propto p_j\,\pi_0\big(\tfrac{x-tx^j}{1-t}\big)\propto p_j\exp\big(-|x-tx^j|^2/(2(1-t)^2)\big)$.
+Proposition~\ref{prop:kernel-field}, $v^\star=(m^\star-x)/(1-t)$ with $m^\star=\sum_jq_j^{(h)}a_j$ and
+$q_j^{(h)}\propto p_j\,\pi_0\big(\tfrac{x-ta_j}{1-t}\big)\propto p_j\exp\big(-|x-ta_j|^2/(2(1-t)^2)\big)$.
 
 We first compare the exact field with the hard field near $a$. For $|x-a|\le r$ and $j\ne i$,
-$|x-x^j|\ge|x^j-a|-|x-a|\ge \ell -r>0$, so
+$|x-a_j|\ge|a_j-a|-|x-a|\ge \ell -r>0$, so
 \[
-|x-x^j|^2-|x-a|^2\ge(\ell -r)^2-r^2=\ell (\ell -2r)>0 .
+|x-a_j|^2-|x-a|^2\ge(\ell -r)^2-r^2=\ell (\ell -2r)>0 .
 \]
-By uniform continuity of $(x,t)\mapsto|x-tx^j|^2-|x-ta|^2$ on $\overline{B_r(a)}\times[0,1]$,
+By uniform continuity of $(x,t)\mapsto|x-ta_j|^2-|x-ta|^2$ on $\overline{B_r(a)}\times[0,1]$,
 whose value at $t=1$ is the left side above, there is $t_1<1$ such that this difference is at least
 $g=\ell (\ell -2r)/2$ for all $j\ne i$, $|x-a|\le r$ and $t\in[t_1,1]$. Since
-$q_j^{(h)}/q_i^{(h)}=(p_j/p_i)\exp\big(-(|x-tx^j|^2-|x-ta|^2)/(2(1-t)^2)\big)\le(p_j/p_i)\,e^{-g/(2(1-t)^2)}$,
+$q_j^{(h)}/q_i^{(h)}=(p_j/p_i)\exp\big(-(|x-ta_j|^2-|x-ta|^2)/(2(1-t)^2)\big)\le(p_j/p_i)\,e^{-g/(2(1-t)^2)}$,
 for such $(x,t)$
 \[
-|m^\star(x,t)-a|=\Bigl|\sum_{j\ne i}q_j^{(h)}(x^j-a)\Bigr|\le\sum_{j\ne i}\frac{q_j^{(h)}}{q_i^{(h)}}|x^j-a|
-\le C_pe^{-g/(2(1-t)^2)}=:e_\star(t),\qquad C_p=\sum_{j\ne i}\frac{p_j}{p_i}|x^j-a|.
+|m^\star(x,t)-a|=\Bigl|\sum_{j\ne i}q_j^{(h)}(a_j-a)\Bigr|\le\sum_{j\ne i}\frac{q_j^{(h)}}{q_i^{(h)}}|a_j-a|
+\le C_pe^{-g/(2(1-t)^2)}=:e_\star(t),\qquad C_p=\sum_{j\ne i}\frac{p_j}{p_i}|a_j-a|.
 \]
 Choose $t_\star\ge t_1$ with $e_\star\le r/4$ on $[t_\star,1)$; it depends only on the atoms, $p$
 and $r$.
@@ -1310,7 +1311,7 @@ learned flow. Relating the two needs additional control, for example learned-fie
 
 \begin{theorem}[A finite-time certificate with risk transfer]
 \label{thm:risktransfer}
-Fix an identifying label with atom $a=x^i$, let $X_0\sim\N(0,I_d)$, and put
+Fix an identifying label with atom $a=a_i$, let $X_0\sim\N(0,I_d)$, and put
 $\eps_t=1-t$, $Y_t=ta+\eps_tX_0$, and $f(x,t)=(a-x)/\eps_t$.
 Let $Z_t$ solve $\dot Z_t=f(Z_t,t)+\Delta(Z_t,t)$ from the same $X_0$.
 Suppose the solution and its variation-of-constants formula exist through $T<1$.
@@ -1384,8 +1385,8 @@ holds over this class, and neither does a vanishing bound for endpoint variance.
 \end{proposition}
 
 \begin{proof}
-Let $0<\delta<1/2$, $A_\delta=\log(1/\delta)$, and $v_\delta(x,t,y^j)=x^j+k_\delta(t)(x-tx^j)$ at
-every observed label $y^j$; at the selected label, with $a=x^i$,
+Let $0<\delta<1/2$, $A_\delta=\log(1/\delta)$, and $v_\delta(x,t,y^j)=a_j+k_\delta(t)(x-ta_j)$ at
+every observed label $y^j$; at the selected label, with $a=a_i$,
 $v_\delta(x,t,y^i)=a+k_\delta(t)(x-ta)$, where
 \[
 k_\delta(t)=
@@ -1406,7 +1407,7 @@ U_t=
 \end{cases}
 \]
 so $Z_1=a+X_0$ and $\nu_1=\N(a,I_d)$. At each observed label the teacher point is
-$Y_t=tx^j+\eps_tX_0$ and the hard field is $f(Y_t,t)=x^j-X_0$, so the residual is
+$Y_t=ta_j+\eps_tX_0$ and the hard field is $f(Y_t,t)=a_j-X_0$, so the residual is
 \[
 \Delta(Y_t,t)=v_\delta(Y_t,t,y^j)-f(Y_t,t)=k_\delta(t)\,\eps_tX_0+X_0=\bigl(1+\eps_tk_\delta(t)\bigr)X_0,
 \]
@@ -1433,11 +1434,11 @@ equality: along each trajectory $(1-t)|\Delta(Z_t,t)|=|X_0|=|Z_1-a|$ on $[1-\del
 \section{Relative field error, trapping, and the Heun sampler}
 \label{app:relerr}
 
-Throughout, $x^1,\dots,x^N$ are distinct atoms, $a=x^i$ is fixed,
-$g=\min_{k\ne i}|x^k-a|$ ($g=\infty$ if $N=1$) and $\delta_i=\max_k|x^k-a|$. For any weights
+Throughout, $a_1,\dots,a_N$ are distinct atoms, $a=a_i$ is fixed,
+$g=\min_{k\ne i}|a_k-a|$ ($g=\infty$ if $N=1$) and $\delta_i=\max_k|a_k-a|$. For any weights
 $q_j\ge0$ with $\sum_jq_j=1$ the posterior mean satisfies
 \begin{equation}
-|m^\star-a|=\Big|\sum_{j\ne i}q_j(x^j-a)\Big|\le(1-q_i)\,\delta_i,
+|m^\star-a|=\Big|\sum_{j\ne i}q_j(a_j-a)\Big|\le(1-q_i)\,\delta_i,
 \label{eq:offmass}
 \end{equation}
 which is the only property of $m^\star$ used below.
@@ -1487,7 +1488,7 @@ land with $e_t=n_t$, so $\bar\varrho<1$ is sufficient, not necessary.
 
 In EDM coordinates the flow is $dx/d\sigma=(x-D(x,\sigma))/\sigma$, run from $\sigma_1$ down to $0$, and
 the posterior weights over the atoms are
-$q_j(x,\sigma)\propto\exp(-|x-x^j|^2/(2\sigma^2))$. For $0<R\le g/4$ let $c_R=R/(g-R)\le1/3$ and
+$q_j(x,\sigma)\propto\exp(-|x-a_j|^2/(2\sigma^2))$. For $0<R\le g/4$ let $c_R=R/(g-R)\le1/3$ and
 $\bar\zeta(\sigma)=(N-1)\,\delta_i\exp(-(1-c_R^2)(g-R)^2/(2\sigma^2))$.
 
 \begin{proposition}[Trapping]
@@ -1511,7 +1512,7 @@ $e(\sigma)=|D(x(\sigma),\sigma)-m^\star(x(\sigma),\sigma)|$.
 \end{proposition}
 
 \begin{proof}
-(i) If $|x-a|\le R$ and $k\ne i$, then $|x-x^k|\ge g-R$ and
+(i) If $|x-a|\le R$ and $k\ne i$, then $|x-a_k|\ge g-R$ and
 $q_k\le q_k/q_i\le\exp((R^2-(g-R)^2)/(2\sigma^2))=\exp(-(1-c_R^2)(g-R)^2/(2\sigma^2))$; sum over
 $k\ne i$. (ii) Write $\nu=1-\bar\varrho$ and $\eta=\gamma+\bar\zeta$. Where $0<n\le R$, the radial identity
 $\sigma\,dn/d\sigma=n-\langle\hat e,D-a\rangle$ with \eqref{eq:offmass} and (i) gives
@@ -1573,7 +1574,7 @@ $\kappa=(1-r)(2r-1)/(2r)$ and $\bar\kappa=(1-r)/(2r)$.
   then $n_k\le R$ for all $k\le K-1$. If moreover
   $e(x_{K-1},\sigma_{K-1})\le\varrho_{K-1}n_{K-1}+\gamma_{K-1}$ for some $\varrho_{K-1},\gamma_{K-1}\ge0$
   with $\varrho_{K-1}R+\gamma_{K-1}+\bar\zeta(\sigma_{K-1})<g/4$, the output is on-atom:
-  $|x_K-a|<\tfrac13\min_{k\ne i}|x_K-x^k|$.
+  $|x_K-a|<\tfrac13\min_{k\ne i}|x_K-a_k|$.
 \end{enumerate}
 \end{proposition}
 
@@ -1604,7 +1605,7 @@ exactly when $r<3-2\sqrt2$, and then both roots lie in $(0,1)$.
 condition and (b) give $\tilde n_k\le R$, so $\bar\zeta$ also bounds $\zeta(\tilde x_k,\sigma_{k+1})$, and the
 second condition gives $n_{k+1}\le R$. Induction gives $n_{K-1}\le R$; the bound on $e(x_{K-1},\sigma_{K-1})$, the last-step bound of (b)
 and $\zeta(x_{K-1},\sigma_{K-1})\le\bar\zeta(\sigma_{K-1})$ then give $n_K<g/4$, and for
-$k\ne i$, $|x_K-x^k|\ge g-n_K>3n_K$.
+$k\ne i$, $|x_K-a_k|\ge g-n_K>3n_K$.
 \end{proof}
 
 % ==========================================================================
@@ -1731,7 +1732,7 @@ $0.93$, $0.69$ and $0.45$. The median $d_1$ of net$\to$exact endpoints is below 
 three models at every $s$ (\texttt{swap\_summary.json}), and so is the largest, $7.1\times10^{-6}$.
 This holds by construction. The sampler's last step, from $\sigma=0.002$ to $0$, is an Euler step,
 which returns the denoiser output at $\sigma=0.002$; for the exact field this is $m^\star$, with
-weights $\propto\exp(-|x-x^j|^2/2\sigma^2)$ and $2\sigma^2=8\times10^{-6}$, and the endpoint is
+weights $\propto\exp(-|x-a_j|^2/2\sigma^2)$ and $2\sigma^2=8\times10^{-6}$, and the endpoint is
 off-atom only if the two smallest squared distances from the state to the training images of the
 class differ by at most $2\sigma^2\ln3\approx8.8\times10^{-6}$. The exact field used only for this
 last of the $35$ denoiser evaluations of the sampler would already end every such sample on a
@@ -1741,7 +1742,7 @@ between swap levels, with $95\%$ intervals from a bootstrap over samples ($4000$
 \texttt{paperB\_swap.py}).
 
 \paragraph{Choice and the exact posterior.} The exact field is the posterior mean of the training
-images $x^j$ of class $c$ under the weights $q_j(x,\sigma)\propto\exp(-|x-x^j|^2/(2\sigma^2))$.
+images $a_j$ of class $c$ under the weights $q_j(x,\sigma)\propto\exp(-|x-a_j|^2/(2\sigma^2))$.
 \texttt{paperB\_collapse\_sigma.py} evaluates these weights on the training set of each model,
 regenerated from its seed, at $81$ noise levels log-spaced from $80$ to $0.002$: at
 $x=x_{\mathrm{test}}+\sigma\varepsilon$, for each of the $1000$ CIFAR-10 test images
@@ -1999,7 +2000,7 @@ quantity & $10^2$ & $10^4$ & $10^5$ & $2\times10^5$ & $1\times10^6$ \\
 \midrule
 conditional $\tr\Cov$ & $1.08$\,[$1.04$, $1.11$] & $1.03$\,[$0.88$, $1.18$] & $0.58$\,[$0.33$, $0.83$] & $0.396$\,[$0.220$, $0.573$] & $0.120$\,[$0.046$, $0.195$]\\
 velocity rel.\ error vs.\ ($\star$) & $0.78$\,[$0.73$, $0.83$] & $0.75$\,[$0.65$, $0.85$] & $0.50$\,[$0.44$, $0.55$] & $0.40$\,[$0.33$, $0.47$] & $0.168$\,[$0.095$, $0.241$]\\
-$\|\text{mean}-x^i\|$ & $0.90$\,[$0.68$, $1.12$] & $0.87$\,[$0.59$, $1.16$] & $0.58$\,[$0.40$, $0.76$] & $0.38$\,[$0.24$, $0.52$] & $0.137$\,[$0.047$, $0.227$]\\
+$\|\text{mean}-a_i\|$ & $0.90$\,[$0.68$, $1.12$] & $0.87$\,[$0.59$, $1.16$] & $0.58$\,[$0.40$, $0.76$] & $0.38$\,[$0.24$, $0.52$] & $0.137$\,[$0.047$, $0.227$]\\
 $\|\text{mean}-\mu_{\mathrm{post}}\|$ & $0.15$\,[$0.06$, $0.24$] & $0.25$\,[$0.15$, $0.35$] & $0.52$\,[$0.38$, $0.66$] & $0.66$\,[$0.41$, $0.90$] & $0.816$\,[$0.577$, $1.055$]\\
 unconditional $\tr\Cov$ & $1.85$\,[$1.09$, $2.61$] & $1.93$\,[$1.72$, $2.15$] & $1.91$\,[$1.67$, $2.15$] & $1.926$\,[$1.690$, $2.163$] & ---\\
 \bottomrule
@@ -2024,7 +2025,7 @@ $\tr\Cov/\tr\Xhat$ is $0.997$ $[0.971,1.024]$.}
 \caption{Further diagnostics for Figure~\ref{fig:collapse}. (a,~b)~EXP-1 at $h=0$, five seeds
 (mean $\pm$ one population standard deviation; solid: constant learning rate, dashed: cosine
 schedule to $10^6$ iterations): the generated mean leaves the posterior mean (blue) for the
-training atom $x^i$ (black), and the learned velocity approaches the collapsed field $(\star)$ of
+training atom $a_i$ (black), and the learned velocity approaches the collapsed field $(\star)$ of
 Proposition~\ref{prop:collapse}; values as in Table~\ref{tab:exp1}. (c)~The CIFAR-10 U-Net at
 $h=0$: generated variance against iteration for the three independently redrawn instances
 (training-time estimator, $8$ conditions, $M=16$).}
@@ -2033,7 +2034,7 @@ $h=0$: generated variance against iteration for the three independently redrawn 
 
 \paragraph{EXP-2 and EXP-3.} EXP-2 replaces the Gaussian prior by a bimodal mixture; mode
 coverage is $1.0$ up to $\sim\!10^4$ iterations and then falls to $0.72$, while the share of samples
-nearest the mode containing $x^i$ rises from $\approx0.5$ to $1.000$. EXP-3 is MNIST inpainting with
+nearest the mode containing $a_i$ rises from $\approx0.5$ to $1.000$. EXP-3 is MNIST inpainting with
 $N=500$ and a small U-Net, three seeds: the inpainted-region variance falls from
 $0.137\pm0.021$ to $(1.17\pm0.12)\times10^{-3}$ by 15000 iterations, and the nearest-training-image
 distance to $(0.77\pm0.26)\times10^{-3}$.
