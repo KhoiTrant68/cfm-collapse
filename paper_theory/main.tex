@@ -2946,16 +2946,16 @@ $N\exp(\Lambda+D_A\max_K|\xi|)e^{-\beta\delta_{\min}/16}=O(e^{-c\beta})$ with $c
 $\eta$-gradients $\beta(a_j-a_i)$ and $\xi$-gradients $a_j-a_i$; each derivative of a softmax weight
 is that weight times a combination of logit gradients, so the first and second derivatives of the
 off-$S$ weights are $O(\beta e^{-c\beta})$ and $O(\beta^2e^{-c\beta})$. Write
-$\omega_k=\sum_{a_j\notin S}q_{p_k,j}$. Since the restricted means have $P_{L^\perp}$-component
+$\bar q_k=\sum_{a_j\notin S}q_{p_k,j}$. Since the restricted means have $P_{L^\perp}$-component
 $P_{L^\perp}z$ and $\sum_kc_k=1$,
 \begin{align*}
 \bar m-M(\xi)
 &=\sum_kc_k\Bigl(\sum_{a_j\in S}q_{p_k,j}a_j+\sum_{a_j\notin S}q_{p_k,j}a_j
 -\E_{\pi_k(\xi)}[a]\Bigr)
-\iclrbr=\sum_kc_k\Bigl(\sum_{a_j\notin S}q_{p_k,j}a_j-\omega_k\,\E_{\pi_k(\xi)}[a]\Bigr),\\
+\iclrbr=\sum_kc_k\Bigl(\sum_{a_j\notin S}q_{p_k,j}a_j-\bar q_k\,\E_{\pi_k(\xi)}[a]\Bigr),\\
 \mathcal E&=P_{L^\perp}\bigl(\bar m-M(\xi)\bigr),
 \end{align*}
-using $\sum_{a_j\in S}q_{p_k,j}a_j=(1-\omega_k)\E_{\pi_k(\xi)}[a]$ and $P_{L^\perp}M(\xi)=P_{L^\perp}z$.
+using $\sum_{a_j\in S}q_{p_k,j}a_j=(1-\bar q_k)\E_{\pi_k(\xi)}[a]$ and $P_{L^\perp}M(\xi)=P_{L^\perp}z$.
 Both $P_L(\bar m-M(\xi))$ and $\mathcal E$ thus consist only of off-$S$ contributions and are
 $O(e^{-c\beta})$ with first and second derivatives $O(\beta^2e^{-c\beta})$, while the remaining term
 $(\eps^2/t^2)\xi$ of $\mathcal R$ has derivative $(\eps^2/t^2)I\to0$. Hence $\mathcal R,\mathcal E\to0$
