@@ -144,7 +144,7 @@ exactly when $w>1/\sinh^2 B$ (Theorem~\ref{thm:composition}).}
 \includegraphics[width=\textwidth]{fig_unrolled_exact.pdf}
 \caption{Source locations and their endpoints. In (a)--(c), each pixel is an initial
 point $x_0$ coloured by where its trajectory ends. Blue, green and purple identify the three
-training points. Dark orange marks the centre and light orange an edge midpoint. The circles
+training atoms. Dark orange marks the centre and light orange an edge midpoint. The circles
 have radii one and two in standard Gaussian coordinates. The bars give endpoint fractions
 over $32768$ Gaussian sources. (a) A single conditional field favours $a_1$ ($B=2$).
 (b) Guidance at $2w_c$ ($w_c=1.160$, Corollary~\ref{cor:spectral-threshold})
@@ -336,7 +336,7 @@ use in Section~\ref{sec:intervention-tests}, classify the midpoint of two traini
 Yet a blend is a linear constraint on the records it combines: an adversary who holds one image of
 a two-image tie recovers the other exactly, as $2z-a_i$ for the midpoint $z$. \emph{(iv) The
 statements concern support at fixed $N$.} The floor in~\eqref{eq:w2floor} is the mean squared distance from
-the posterior to the nearest training point, which typically decreases like
+the posterior to the nearest training atom, which typically decreases like
 $N^{-2/d}$~\citep{graf2000quantization}, so atomic support is compatible with a small distance to
 the posterior at large $N$.
 
@@ -569,7 +569,7 @@ $p(\cdot\mid y)$ has a finite second moment. \proofin{apx:pf-atomicity}
 Label noise redistributes weight over the atoms and never ends off them, so
 matching $\tr\Covh$ to a posterior variance matches a second moment, not the posterior.\ificlr\else{}
 The floor in~\eqref{eq:w2floor} is a statement about the support: it is the mean squared distance
-from the posterior to the nearest training point, which for training points drawn from a law with a
+from the posterior to the nearest training atom, which for training atoms drawn from a law with a
 positive density decreases as $N$ grows, typically like $N^{-2/d}$ for a posterior with a positive
 density on a $d$-dimensional set~\citep{graf2000quantization}, and says nothing about how well
 the weights $p_i^{(h)}$ match the posterior.\fi{} Section~\ref{sec:intervention-tests} compares
@@ -816,7 +816,7 @@ $B=u_0\ell/h^2$. For $w\ge0$, every trajectory of
 $v_{\varphi,w}=(1+w)v_\varphi-wv_{\mathrm{unc}}^\star$ converges to $-1$, $0$ or $1$, and:
 \begin{enumerate}[label=(\alph*),leftmargin=2em]
 \item if $w>1/\sinh^2B$, the initial points converging to $0$ contain an open interval around
-  $0$, so the endpoint law from $\pi_0$ has an atom at the non-training point $0$;
+  $0$, so the endpoint law from $\pi_0$ has an atom at $0$, which is not a training atom;
 \item if $w\le1/\sinh^2B$, only the initial point $0$ converges to $0$, and the endpoint is a
   training atom almost surely.
 \end{enumerate}
@@ -885,7 +885,7 @@ in any dimension.
 \begin{figure}[t]
 \centering
 \includegraphics[width=\ificlr0.82\else0.98\fi\textwidth]{fig_composition.pdf}
-\caption{Guided label averaging on two training points (Theorem~\ref{thm:composition}). (a) The
+\caption{Guided label averaging on two training atoms (Theorem~\ref{thm:composition}). (a) The
 profiles, zeros of $F_w$ in \eqref{eq:composition-mean}, against $w/w_c$, $w_c=1/\sinh^2B$. The tie
 $\zeta=0$ repels below $w_c$ and attracts above it, as $F_w'(0)=\operatorname{sech}^2B\,(1-w/w_c)$. Above
 $w_c$ the repelling profiles $\pm \zeta_u$, $\cosh \zeta_u=\sqrt{w/w_c}$ (dashed), bound the basin of zero
@@ -943,7 +943,7 @@ Let $\xi_\star$ be a hyperbolic profile, and call its basin the set of initial p
 $x_t\to z$ and $\beta P_L(x_t-tz)\to\xi_\star$.
 \begin{enumerate}[label=(\alph*),leftmargin=2em]
 \item If $\Gamma(\xi_\star)\prec0$ on $L$, the basin contains a nonempty open set, so the endpoint
-  law from $\pi_0$ has an atom at the non-training point $z$.
+  law from $\pi_0$ has an atom at $z$, which is not a training atom.
 \item If $\Gamma(\xi_\star)$ has a positive eigenvalue, the basin is Lebesgue-null.
 \item If every profile is hyperbolic and $P_Lz\notin\operatorname{aff}F$ for every proper face $F$
   of $\operatorname{conv}P_LS$, every trajectory converging to $z$ has a profile converging to one
@@ -1121,7 +1121,7 @@ Section~\ref{sec:intervention-tests}\fi).
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.98\textwidth]{fig_signed_combinations.pdf}
-\caption{Which recipes can blend two training points $a,b$ at a tie. (a) Each row draws the fields of
+\caption{Which recipes can blend two training atoms $a,b$ at a tie. (a) Each row draws the fields of
 a recipe as bars at their restricted log-odds $B(p)$, up when the field is added and down when it is
 subtracted, with height proportional to the coefficient (per row); vermillion marks the sign
 pattern Proposition~\ref{prop:twoatom} requires for a blend, a subtracted intermediate field
@@ -1320,7 +1320,7 @@ its input is centred on: the exact composite ends a further $0.426$ of the first
 sources at the edge midpoints of the triangle at $2w_c$ and $0.306$ at $5w_c$, whereas the standard
 network, this network and the distillation control of Appendix~\ref{app:learned-composition} place
 at most $3$ of their $2048$ sources within $0.05$ of an edge midpoint at $\eps=10^{-5}$, in any seed
-and at any guidance strength. Nor do their other endpoints all lie at training points: at
+and at any guidance strength. Nor do their other endpoints all lie at training atoms: at
 $\eps=10^{-5}$ the standard network leaves $0.16$, $0.70$ and $0.79$ of its sources at $2$, $5$ and
 $10\,w_c$ farther than $0.1$ from every atom and from the centre, and the data-predicting network
 $0.16\pm0.16$ at $2w_c$. \moveblock{lossrisk}{The velocity
@@ -1369,7 +1369,7 @@ centre only, and on the triangle the centre is not the only blend: the edge midp
 two atoms that attract for $w>1.368\,w_c$ and have probability $0$ below this value
 (Section~\ref{sec:conjunction}). With $32768$ sources, each classified by the candidate it
 converges to (Appendix~\ref{app:intervention-protocol}), the exact flow ends $0.131$, $0.409$ and
-$0.460$ of the mass at the centre, the edge midpoints and the training points at $2w_c$
+$0.460$ of the mass at the centre, the edge midpoints and the training atoms at $2w_c$
 (Figure~\ref{fig:unrolled}c), $0.681$, $0.294$ and $0.025$ at $5w_c$, and $0.950$, $0.050$ and
 $0.0001$ at $10w_c$, with standard errors at most $0.003$; at $1.1\,w_c$ no source ends at an edge
 midpoint. The other configurations have further blends. On the simplex the centroid of a face with
