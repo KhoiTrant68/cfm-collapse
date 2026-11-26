@@ -313,7 +313,7 @@ decided in what \citet{liu2025navigation} call the refinement stage, by the cont
 condition Theorem~\ref{thm:relerr} states.
 
 \paragraph{Late landing.} \citet{li2026kinetic} trace memorisation in flow matching to the terminal
-singularity of the empirical optimum, whose velocity grows like $1/(1-t)$, and reduce copying by
+singularity of the exact field, whose velocity grows like $1/(1-t)$, and reduce copying by
 damping the velocity late in sampling, a ``soft landing''. In their ablation on $1024$ grayscale
 CelebA images, with copies counted by the same distance ratio as here, damping alone for $t\ge0.6$
 lowers the share of copies from $37.3\%$ to $30.2\%$ while FID rises from $16.7$ to $35.0$. An early
@@ -1173,7 +1173,7 @@ $\rhohat_X=N^{-1}\sum_i\delta_{a_i}$ & empirical law of the training inputs (the
 $\pi_0=\N(0,I_d)$ & source law\\
 $X_t=(1-t)X_0+tX_1$, $U=X_1-X_0$ & linear interpolant and regression target\\
 $h$, $K_h$, $\widetilde Y=Y+h\omega$ & label bandwidth, Gaussian label kernel, noised label\\
-$\vstar$ & exact conditional minimiser of \eqref{eq:objective}\\
+$\vstar$ & exact field: the conditional minimiser of \eqref{eq:objective}\\
 $p^{(h)}(y)$, $p_1^{(h)}(\cdot\mid y)$ & label weights $p_i^{(h)}(y)\propto K_h(y-y^i)$; endpoint law at query $y$\\
 $m^\star$, $q_j$ & posterior mean over the atoms and its weights\\
 $\eps=1-t$ & time to the end\\
@@ -1569,11 +1569,11 @@ $\kappa=(1-r)(2r-1)/(2r)$ and $\bar\kappa=(1-r)/(2r)$.
   and $p<0$ for some $\varrho\in(0,1)$ exactly when $r<3-2\sqrt2$: the step overshoots the atom.
 \item Let $0<R\le g/4$ and $\bar\zeta$ as in Appendix~\ref{apx:pf-trap}. If $n_0\le R$ and, for every
   $k\le K-2$, the hypotheses of (b) hold with $\varrho=\varrho_k$ and
-  $\varrho_kR+\gamma_k+\bar\zeta(\sigma_k)\le R$ and
-  $c_kR+(|\kappa_k|+\bar\kappa_k\varrho_k(1-r_k))(\gamma_k+\bar\zeta(\sigma_k))+\bar\kappa_k(\tilde\gamma_k+\bar\zeta(\sigma_{k+1}))\le R$,
+  $\varrho_k\,R+\gamma_k+\bar\zeta(\sigma_k)\le R$ and
+  $c_k\,R+(|\kappa_k|+\bar\kappa_k\varrho_k(1-r_k))(\gamma_k+\bar\zeta(\sigma_k))+\bar\kappa_k(\tilde\gamma_k+\bar\zeta(\sigma_{k+1}))\le R$,
   then $n_k\le R$ for all $k\le K-1$. If moreover
   $e(x_{K-1},\sigma_{K-1})\le\varrho_{K-1}n_{K-1}+\gamma_{K-1}$ for some $\varrho_{K-1},\gamma_{K-1}\ge0$
-  with $\varrho_{K-1}R+\gamma_{K-1}+\bar\zeta(\sigma_{K-1})<g/4$, the output is on-atom:
+  with $\varrho_{K-1}\,R+\gamma_{K-1}+\bar\zeta(\sigma_{K-1})<g/4$, the output is on-atom:
   $|x_K-a|<\tfrac13\min_{k\ne i}|x_K-a_k|$.
 \end{enumerate}
 \end{proposition}
@@ -1643,7 +1643,7 @@ slightly larger, so the off-atom samples are not near other dataset images. Two 
 do not establish convergence, so the fractions may combine learned-field, truncation and
 discretisation effects, and they do not identify a limiting support. They grow with $h$ while the
 exact field, integrated in the same way, has none. Two accounts of how trained
-image denoisers depart from the empirical optimum predict such samples. A convolutional network
+image denoisers depart from the exact field predict such samples. A convolutional network
 with a limited receptive field behaves like a locally optimal denoiser that assembles each patch
 from training patches at any position, and its samples are patch mosaics rather than training
 images \citep{kamb2024creativity,niedoba2024mechanistic}. Independently, the U-Net normalises its
@@ -1769,7 +1769,7 @@ posterior at a noised \emph{training} image puts weight at least $1/2$ on that i
 the points, against $79\%$ of noised test images with a largest weight of at least $1/2$, as
 expected of a sampler whose states stay near noised training images. This concentration is an
 operational counterpart of the collapse of \citet{biroli2024dynamical}, who define the collapse
-time through an excess entropy evaluated at noised training images; on the public model the
+time through an excess entropy evaluated at noised training points; on the public model the
 network's choice falls at or near the concentration at noised test images, and later than that at
 noised training images, where the weight on the image is at least $1/2$ for half of the points at
 $\sigma=5.1$ and for $90\%$ at $\sigma=3.4$.
