@@ -59,7 +59,7 @@
 \definecolor{otgray}{HTML}{5A5A5A}
 \definecolor{otverm}{HTML}{D55E00}
 % result numbers inside the TikZ figures: a live \ref here, a fallback when standalone
-\newcommand{\resref}[2]{\ref{#1}}
+\newcommand{\resref}[2]{\ifcsname r@#1\endcsname\ref{#1}\else#2\fi}
 
 \graphicspath{{figures/}}
 
@@ -70,8 +70,10 @@
 \newtheorem{proposition}[theorem]{Proposition}
 \newtheorem{lemma}[theorem]{Lemma}
 \newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{fact}[theorem]{Fact}
 \theoremstyle{definition}
 \newtheorem{assumption}{Assumption}
+\newtheorem{example}[theorem]{Example}
 \theoremstyle{remark}
 \newtheorem{remark}[theorem]{Remark}
 \newenvironment{proofsketch}{\begin{proof}[Proof sketch]}{\end{proof}}
@@ -79,7 +81,7 @@
 \newif\ifproofpointer \proofpointertrue
 % Unique hyperref anchors: restatements in the appendix get their own prefix.
 \makeatletter
-\@for\thm@env:=theorem,proposition,lemma,corollary,remark\do{%
+\@for\thm@env:=theorem,proposition,lemma,corollary,remark,fact,example\do{%
   \expandafter\def\csname theH\thm@env\endcsname{\ifproofpointer\else apx.\fi\thetheorem}}
 \makeatother
 
@@ -147,7 +149,7 @@ point $x_0$ coloured by where its trajectory ends. Blue, green and purple identi
 training atoms. Dark orange marks the centre and light orange an edge midpoint. The circles
 have radii one and two in standard Gaussian coordinates. The bars give endpoint fractions
 over $32768$ Gaussian sources. (a) A single conditional field favours $a_1$ ($B=2$).
-(b) Guidance at $2w_c$ ($w_c=1.160$, Corollary~\ref{cor:spectral-threshold})
+(b) Guidance at $2w_c$ ($w_c=1.160$, Theorem~\ref{thm:spectral}(d))
 sends almost all sources to $a_1$. (c) Averaging three conditional
 fields and guiding against a fourth, unconditional field at the same strength sends $13\%$
 to the centre and $41\%$ to edge midpoints (Section~\ref{sec:intervention-tests}).
@@ -205,15 +207,15 @@ weighted average of their training examples (Section~\ref{sec:posmix}).
   whose priors are strictly positive on the same finite support include sampler-side label averaging.
   These mixtures end on a training example from Lebesgue-almost every initial point, and every trajectory converges (Theorem~\ref{thm:posmix}). The same
   holds for nonnegative guidance with a fixed strength or a bounded schedule of bounded variation
-  (Proposition~\ref{prop:cfgatom}, Theorem~\ref{thm:schedule}), and for every fixed combination of
+  (Theorem~\ref{thm:twofields}(a),(b), Theorem~\ref{thm:twofields}(c)), and for every fixed combination of
   two such fields, including negative prompting by substitution
-  (Corollary~\ref{cor:twofields}). For fixed nonnegative guidance, we derive the almost-sure
+  (Theorem~\ref{thm:twofields}). For fixed nonnegative guidance, we derive the almost-sure
   endpoint statement from the cutoff density comparison of \citet{jiang2026guidance} and the
   trajectory convergence of \citet[Theorem~2.5]{liu2026geometric}
   (Appendix~\ref{apx:comparison}). Our pathwise argument extends to the schedules and positive mixtures above, including
   averages over arbitrary families of positive priors. The exceptional
   set can be a hyperplane, already
-  for one field (Proposition~\ref{prop:hyperplane}; the planar case is Example~4.4 of
+  for one field (Example~\ref{ex:hyperplane}; the planar case is Example~4.4 of
   \citealp{baptista2025memorization}).
 \item \emph{Three fields can blend them} (positive priors; Sections~\ref{sec:composition}
   and~\ref{sec:spectral}). Guidance applied to an average of conditional fields converges to a
@@ -221,7 +223,7 @@ weighted average of their training examples (Section~\ref{sec:posmix}).
   examples with prior log-odds $\pm2B$, equally weighted conditional fields and a uniform base,
   this occurs exactly when $w>1/\sinh^2B$. The open basin persists under
   perturbation of the priors, the mixture weights and the guidance strength
-  (Theorem~\ref{thm:composition}, Proposition~\ref{prop:composition-open}). In any dimension the
+  (Theorem~\ref{thm:composition}, Theorem~\ref{thm:composition}(c)). In any dimension the
   eigenvalue signs of a signed posterior covariance separate open basins from null ones
   (Theorem~\ref{thm:spectral}) under the hyperbolicity and proper-face assumptions stated there. For fixed coefficients,
   all profiles are hyperbolic for Lebesgue-almost every freely chosen positive prior with a nonzero coefficient (Remark~\ref{rem:generic}).
@@ -275,11 +277,11 @@ subtracted.
 \toprule
 Intervention on the exact field & Endpoint support & Result\\
 \midrule
-Hard conditioning, identifying label & one atom, every source & Prop.~\ref{prop:collapse}\\
+Hard conditioning, identifying label & one atom, every source & Fact~\ref{fact:exact}(b)\\
 Gaussian label noise, $h>0$ & atoms, reweighted & Thm.~\ref{thm:endpoint}\\
-Positive field mixtures, including label averaging and guidance $w\in[-1,0)$ at $h>0$ & atoms, a.s. & Thm.~\ref{thm:posmix}, Cor.~\ref{cor:negcfg}\\
-Guidance $w\ge0$, fixed or a bounded schedule of bounded variation & atoms, a.s.\ ($h>0$); the identified atom ($h=0$) & Prop.~\ref{prop:cfgatom}, Thm.~\ref{thm:schedule}\\
-Any two exact fields with priors positive on the same support, any fixed affine combination, e.g.\ negative prompt by substitution & atoms, a.s. & Cor.~\ref{cor:twofields}\\
+Positive field mixtures, including label averaging and guidance $w\in[-1,0)$ at $h>0$ & atoms, a.s. & Thm.~\ref{thm:posmix}, Thm.~\ref{thm:posmix}(e)\\
+Guidance $w\ge0$, fixed or a bounded schedule of bounded variation & atoms, a.s.\ ($h>0$); the identified atom ($h=0$) & Thm.~\ref{thm:twofields}(a),(b), Thm.~\ref{thm:twofields}(c)\\
+Any two exact fields with priors positive on the same support, any fixed affine combination, e.g.\ negative prompt by substitution & atoms, a.s. & Thm.~\ref{thm:twofields}\\
 Guidance applied to an average of conditional fields (conjunction) & can add a circumcentre with positive probability & Thm.~\ref{thm:composition}, \ref{thm:spectral}\\
 Three or more fields at a two-atom tie & a blend only if an intermediate field is subtracted & Prop.~\ref{prop:twoatom}\\
 Averaging hard-conditioning fields at identifying labels ($h=0$), fixed weights & every endpoint at the weighted average of the atoms & Sec.~\ref{sec:posmix}\\
@@ -288,7 +290,7 @@ Endpoint noise $\rho>0$ & atoms convolved with $\N(0,\rho^2I_d)$ & Prop.~\ref{pr
 \end{tabular}
 \caption{Endpoints of the exact flow. The positive-prior rows use a common finite support.
 Almost-sure statements hold for every absolutely continuous source, including the Gaussian $\pi_0$.
-The exceptional set can be a hyperplane (Proposition~\ref{prop:hyperplane}).
+The exceptional set can be a hyperplane (Example~\ref{ex:hyperplane}).
 Under hard conditioning at an identifying label the stated endpoint holds for every initial point.}
 \label{tab:interventions}
 \end{table}
@@ -386,7 +388,7 @@ general~\citep{chidambaram2024guidance,wu2024theoretical}. With exact denoisers 
 term~\citep{karras2024autoguidance}, and \citet{jain2025attraction} and \citet{kim2025how} link it
 to memorisation in trained models. \citet{chen2024memorizationfree} use a guidance term to steer
 trained samplers away from memorised images; for the exact field, guidance that combines two
-exact fields falls under Corollary~\ref{cor:twofields}.
+exact fields falls under Theorem~\ref{thm:twofields}.
 
 \paragraph{Convergence of the flow.} \citet[Theorem~3.7, version~3]{liu2025pde} prove that almost
 every trajectory of a single score flow converges to the compact data support.
@@ -482,15 +484,38 @@ facts are the reference against which Section~\ref{sec:intervention-atomicity} m
 intervention, and the variance of the label-noise law is the reference against which
 Section~\ref{sec:intervention-tests} measures trained networks. Everything concerns the exact
 field, the minimiser of \eqref{eq:objective} under Assumption~\ref{as:standing}; proofs are in
-Appendix~\ref{app:proofs}. The first statement is the standard $L^2$ decomposition behind
-flow-matching objectives \citep{lipman2023flow,albergo2023building,liu2023rectified}.
+Appendix~\ref{app:proofs}. Part~(a) of the first statement is the standard $L^2$ decomposition
+behind flow-matching objectives \citep{lipman2023flow,albergo2023building,liu2023rectified};
+part~(b) is known \citep[Theorem~6.4]{baptista2025memorization}, and part~(c) is a
+Nadaraya--Watson regression over the atoms~\citep{nadaraya1964estimating,watson1964smooth}.
+We collect them as a fact, not as a contribution.
 
-\begin{restatable}[$L^2$ projection]{proposition}{propprojection}
-\label{prop:projection}
-For every square-integrable $v$,
-$L_h(v)=\E[\Var(U\mid X_t,t,\widetilde Y)]+\E\,|v-\E[U\mid X_t,t,\widetilde Y]|^2$,
-so the a.e.-unique minimiser is $\vstar(x,t,y)=\E[U\mid X_t=x,t,\widetilde Y=y]$ with
-$\inf_v L_h=\E[\Var(U\mid X_t,t,\widetilde Y)]$. \proofin{apx:pf-projection}
+\begin{restatable}[{Exact field; (b) cf.\ \citealp[Theorem~6.4]{baptista2025memorization}}]{fact}{factexact}
+\label{fact:exact}
+\begin{enumerate}[label=(\alph*),leftmargin=2em]
+\item \emph{($L^2$ projection.)} For every square-integrable $v$,
+  \begin{equation}
+  L_h(v)=\E\bigl[\Var(U\mid X_t,t,\widetilde Y)\bigr]
+  +\E\,\bigl|v-\E[U\mid X_t,t,\widetilde Y]\bigr|^2 .
+  \label{eq:projection}
+  \end{equation}
+  So the a.e.-unique minimiser is $\vstar(x,t,y)=\E[U\mid X_t=x,t,\widetilde Y=y]$, with
+  $\inf_v L_h=\E[\Var(U\mid X_t,t,\widetilde Y)]$.
+\item \emph{(Hard conditioning, $h=0$.)}
+  (i) $v_0^\star(x,t,y^i)=(a_i-x)/\eps$ for $t<1$;
+  (ii) $\inf_v L_0(v)=0$;
+  (iii) the ODE $\dot x_t=(a_i-x_t)/\eps$ has the explicit solution $x_t=\eps x_0+ta_i$, so
+  $x_t\to a_i$ for every $x_0$;
+  (iv) $p_1^{(0)}(\cdot\mid y^i)=\delta_{a_i}$, hence $\Cov[p_1^{(0)}(\cdot\mid y^i)]=0$.
+\item \emph{(Label noise, $h>0$.)} For $t<1$,
+  \begin{equation}
+  \vstar(x,t,y)=\sum_i q^{(h)}_i(x,t,y)\,\frac{a_i-x}{\eps},\qquad
+  q^{(h)}_i=\frac{\pi_0\!\big(\tfrac{x-ta_i}{\eps}\big)K_h(y-y^i)}
+  {\sum_j\pi_0\!\big(\tfrac{x-ta_j}{\eps}\big)K_h(y-y^j)}.
+  \label{eq:kernel-field}
+  \end{equation}
+\end{enumerate}
+\proofin{app:proofs}
 \end{restatable}
 
 \moveblock{versionconvention}{%
@@ -499,73 +524,45 @@ positive density, and at $h=0$ the label takes only the values $y^i$, so we alwa
 continuous version. All the explicit fields below are
 locally Lipschitz on $\R^d\times[0,1)$, so their flows are well posed (Lemma~\ref{lem:wellposed}).
 }%
-
-\begin{restatable}[{Exact conditional collapse; $h=0$; cf.\ \citealp[Theorem~6.4]{baptista2025memorization}}]{proposition}{propcollapse}
-\label{prop:collapse}
-Let $h=0$. Then
-(a) $v_0^\star(x,t,y^i)=(a_i-x)/\eps$ for $t<1$ $(\star)$;
-(b) $\inf_v L_0(v)=0$;
-(c) the ODE $\dot x_t=(a_i-x_t)/\eps$ has the explicit solution
-$x_t=\eps x_0+ta_i$, so $x_t\to a_i$ for every $x_0$; and
-(d) $p_1^{(0)}(\cdot\mid y^i)=\delta_{a_i}$, hence
-$\Cov[p_1^{(0)}(\cdot\mid y^i)]=0$. \proofin{apx:pf-collapse}
-\end{restatable}
 The unconditional minimiser instead reaches the full empirical law $\rhohat_X$
 (Proposition~\ref{prop:uncond}). Both exact flows memorise; they differ in the conditional
 variance, $0$ against $\tr\Xhat$.
-
-Blurring the label, $\widetilde Y=y^i+h\omega$, turns the minimiser into the velocity of a
-Nadaraya--Watson regression over the atoms~\citep{nadaraya1964estimating,watson1964smooth}.
-
-\begin{restatable}[Kernel-weighted exact field]{proposition}{propkernelfield}
-\label{prop:kernel-field}
-For $h>0$, $t<1$,
-\begin{equation}
-\vstar(x,t,y)=\sum_i q^{(h)}_i(x,t,y)\,\frac{a_i-x}{\eps},\quad
-q^{(h)}_i=\frac{\pi_0\!\big(\tfrac{x-ta_i}{\eps}\big)K_h(y-y^i)}
-{\sum_j\pi_0\!\big(\tfrac{x-ta_j}{\eps}\big)K_h(y-y^j)}.
-\label{eq:kernel-field}
-\end{equation} \proofin{apx:pf-kernel-field}
-\end{restatable}
 \ificlr Write $p_i^{(h)}(y)=K_h(y-y^i)/\sum_jK_h(y-y^j)$ for the label weights.\fi
 \moveblock{coupling}{With the label weights $p_i^{(h)}(y)=K_h(y-y^i)/\sum_jK_h(y-y^j)$,
 Lemma~\ref{lem:mixture-coupling} identifies $\vstar$ with the conditional velocity of the
 coupling $I\sim p^{(h)}(y)$, $X_1=a_I$; its marginals solve the flow's continuity equation and
 tend to $\law(a_I)$.}
 
-\begin{restatable}[{Endpoint law under label noise; cf.\ \citealp[Theorem~5.3]{wan2025elucidating}}]{theorem}{thmendpoint}
+\begin{restatable}[{Label-noise endpoint law; (a) cf.\ \citealp[Theorem~5.3]{wan2025elucidating}}]{theorem}{thmendpoint}
 \label{thm:endpoint}
-For every $h>0$ and query $y$,
-\begin{equation}
-p_1^{(h)}(\cdot\mid y)=\sum_{i=1}^N p_i^{(h)}(y)\,\delta_{a_i}.
-\label{eq:endpoint}
-\end{equation} \proofin{apx:pf-endpoint}
-\end{restatable}
-
-\begin{restatable}[Bandwidth limits at fixed $N$]{corollary}{corzerobw}
-\label{cor:zerobw}
-As $h\to\infty$, $p_i^{(h)}(y)\to1/N$ and $p_1^{(h)}(\cdot\mid y)\Rightarrow p_1^{\mathrm{unc}}$. If
-$y$ has a unique nearest label $y^{i_\star}$, then as $h\to0$, $p_i^{(h)}(y)\to\ind\{i=i_\star\}$
-and $p_1^{(h)}(\cdot\mid y)\Rightarrow\delta_{a_{i_\star}}$. \proofin{apx:pf-zerobw}
+\emph{Setting.} Fix a query $y$.
+\begin{enumerate}[label=(\alph*),leftmargin=2em]
+\item \emph{(Law.)} For every $h>0$,
+  \begin{equation}
+  p_1^{(h)}(\cdot\mid y)=\sum_{i=1}^N p_i^{(h)}(y)\,\delta_{a_i}.
+  \label{eq:endpoint}
+  \end{equation}
+\item \emph{(Bandwidth limits at fixed $N$.)} As $h\to\infty$, $p_i^{(h)}(y)\to1/N$ and
+  $p_1^{(h)}(\cdot\mid y)\Rightarrow p_1^{\mathrm{unc}}$. If $y$ has a unique nearest label
+  $y^{i_\star}$, then as $h\to0$, $p_i^{(h)}(y)\to\ind\{i=i_\star\}$ and
+  $p_1^{(h)}(\cdot\mid y)\Rightarrow\delta_{a_{i_\star}}$.
+\item \emph{(Support and $W_2$ floor.)} For every $h>0$, and for $h=0$ at $y=y^i$,
+  $\operatorname{supp}(p_1^{(h)}(\cdot\mid y))\subseteq\{a_1,\dots,a_N\}$. Consequently, if the
+  true posterior $p(\cdot\mid y)$ puts no mass on $\{a_1,\dots,a_N\}$, then in $[0,\infty]$
+  \begin{equation}
+  W_2^2\big(p_1^{(h)}(\cdot\mid y),\,p(\cdot\mid y)\big)\ \ge\
+  \int\operatorname{dist}\big(x,\{a_1,\dots,a_N\}\big)^2\,p(dx\mid y)\ >\ 0,
+  \label{eq:w2floor}
+  \end{equation}
+  and this lower bound does not depend on $h$. Both sides are finite exactly when
+  $p(\cdot\mid y)$ has a finite second moment.
+\end{enumerate}
+\proofin{apx:pf-kernel}
 \end{restatable}
 The mean $\bar x_h(y)=\sum_ip_i^{(h)}(y)a_i$ and covariance
 $\Covh(y)=\sum_ip_i^{(h)}(y)(a_i-\bar x_h(y))(a_i-\bar x_h(y))^\top$ of \eqref{eq:endpoint} are
 computable from the training set and are the reference for generated moments. Matching them
 does not recover a posterior.
-
-\begin{restatable}[Label noise never leaves the training set]{proposition}{propatomicity}
-\label{prop:atomicity}
-For every $h>0$, and for $h=0$ at $y=y^i$, $\operatorname{supp}(p_1^{(h)}(\cdot\mid y))
-\subseteq\{a_1,\dots,a_N\}$. Consequently, if the true posterior $p(\cdot\mid y)$ puts no
-mass on $\{a_1,\dots,a_N\}$, then in $[0,\infty]$
-\begin{equation}
-W_2^2\big(p_1^{(h)}(\cdot\mid y),\,p(\cdot\mid y)\big)\ \ge\
-\int\operatorname{dist}\big(x,\{a_1,\dots,a_N\}\big)^2\,p(dx\mid y)\ >\ 0,
-\label{eq:w2floor}
-\end{equation}
-and this lower bound does not depend on $h$. Both sides are finite exactly when
-$p(\cdot\mid y)$ has a finite second moment. \proofin{apx:pf-atomicity}
-\end{restatable}
 Label noise redistributes weight over the atoms and never ends off them, so
 matching $\tr\Covh$ to a posterior variance matches a second moment, not the posterior.\ificlr\else{}
 The floor in~\eqref{eq:w2floor} is a statement about the support: it is the mean squared distance
@@ -636,16 +633,40 @@ Figure~\ref{fig:composition}).}
 \subsection{Positive field mixtures keep the atoms}
 \label{sec:posmix}
 
-\begin{restatable}[Positive field mixtures]{theorem}{thmposmix}
+\begin{restatable}[Positive mixtures keep the atoms]{theorem}{thmposmix}
 \label{thm:posmix}
-Let $\Pi$ be a probability measure on $\Ppos$ and $v_\Pi(x,t)=\int v_p(x,t)\,\Pi(dp)$. The
-flow of $v_\Pi$ is well posed on $[0,1)$, and:
+\emph{Setting.} Let $\Pi$ be a probability measure on $\Ppos$ and
+\begin{equation}
+v_\Pi(x,t)=\int v_p(x,t)\,\Pi(dp).
+\label{eq:mixture}
+\end{equation}
+\emph{Conclusion.} The flow of $v_\Pi$ is well posed on $[0,1)$, and:
 \begin{enumerate}[label=(\alph*),leftmargin=2em]
 \item every trajectory converges to a point of $\mathcal C$;
 \item the initial points whose limit is not an atom form a Lebesgue-null set;
 \item under every absolutely continuous source law, in particular $\pi_0$, the endpoint is a
   training atom almost surely, and the endpoint law is $\sum_j\tilde q_j\delta_{a_j}$ for
   some probability vector $\tilde q$.
+\end{enumerate}
+\emph{In particular:}
+\begin{enumerate}[label=(\alph*),leftmargin=2em,resume]
+\item \emph{(Label averaging.)} Let $h>0$, $\varphi$ a probability measure on $\R^k$ and
+  $v_\varphi(x,t,y)=\int\vstar(x,t,y-u)\,\varphi(du)$. Then
+  \begin{equation}
+  v_\varphi=\sum_iq^\varphi_i(x,t,y)\,\frac{a_i-x}{\eps},\qquad
+  q^\varphi_i\ge0,\quad \sum_iq^\varphi_i=1,\quad
+  q^\varphi_i(x,0,y)=q_i(y):=\int p_i^{(h)}(y-u)\,\varphi(du).
+  \label{eq:label-average}
+  \end{equation}
+  Every trajectory of $v_\varphi$ converges to a point $z\in\operatorname{conv}\nn(z)$. For any
+  absolutely continuous source, including $\pi_0$, the limit is a training atom almost surely.
+  Thus the endpoint law is $\sum_i\tilde q_i(y)\delta_{a_i}$ for some probability weights
+  $\tilde q(y)$.
+\item \emph{(Negative guidance.)} Let $h>0$ and $-1\le w<0$, and merge coincident atoms. Then the
+  guided field $v_w=(1+w)\vstar-wv_{\mathrm{unc}}^\star$ equals $v_\Pi$ with
+  $\Pi=(1+w)\delta_{p^{(h)}(y)}+|w|\delta_{p^{\mathrm{unc}}}$, so (a)--(c) hold for $v_w$. With
+  Theorem~\ref{thm:twofields}(a), every fixed $w\ge-1$ gives atomic endpoints almost surely when
+  $h>0$.
 \end{enumerate}
 \proofin{apx:pf-posmix}
 \end{restatable}
@@ -664,34 +685,19 @@ away from zero.
 The field $v_\Pi$ is a mixture of prior-indexed exact fields, not the field of a mixed prior: in
 general $\int v_p\,\Pi(dp)\neq v_{\int p\,\Pi(dp)}$, because the posterior weights $q_{p,j}$ are
 not linear in $p$, and Section~\ref{sec:intervention-tests} finds that the two give different
-atom assignments. Label averaging is the case where $\Pi$ is the law of $p^{(h)}(y-U)$ for
-$U\sim\varphi$.
-
-\begin{restatable}[Label resolution reweights the atoms and never moves them]{proposition}{propfiltered}
-\label{prop:filtered}
-Let $h>0$, $\varphi$ a probability measure on $\R^k$ and
-$v_\varphi(x,t,y)=\int\vstar(x,t,y-u)\,\varphi(du)$. (a) $v_\varphi=\sum_i
-q^\varphi_i(x,t,y)(a_i-x)/\eps$ with $q^\varphi_i\ge0$, $\sum_iq^\varphi_i=1$, and
-$q^\varphi_i(x,0,y)=q_i(y):=\int p_i^{(h)}(y-u)\,\varphi(du)$. (b) Every trajectory converges to a
-point $z\in\operatorname{conv}\nn(z)$. For any absolutely continuous source, including
-$\pi_0$, the limit is a training atom almost surely. Thus the endpoint law is
-$\sum_i\tilde q_i(y)\delta_{a_i}$ for some probability weights $\tilde q(y)$.
-\proofin{apx:pf-filtered}
-\end{restatable}
-
-No moment condition is imposed on $\varphi$, and the endpoint weights $\tilde q$ are not
-identified. Strict positivity of the priors is essential. By
-Proposition~\ref{prop:collapse}(a), the hard-conditioning field at $y^i$ is $(a_i-x)/\eps$, so for any
+atom assignments. Label averaging, part~(d), is the case where $\Pi$ is the law of $p^{(h)}(y-U)$
+for $U\sim\varphi$. No moment condition is imposed on $\varphi$, and the endpoint weights
+$\tilde q$ are not identified. Strict positivity of the priors is essential. By
+Fact~\ref{fact:exact}(b)(i), the hard-conditioning field at $y^i$ is $(a_i-x)/\eps$, so for any
 fixed weights $\lambda_i\ge0$ summing to one the average $\sum_i\lambda_iv_{e_i}$ equals
 $(z-x)/\eps$ with $z=\sum_i\lambda_ia_i$. Its flow sends every source to $z$, in every geometry
 of the atoms, and $z$ is a training example only if a single $\lambda_i$ is nonzero. Under hard conditioning,
 an average of two fields therefore already blends. Our results on guidance and on three or more
 fields assume strictly positive priors and do not cover the conjunction under hard conditioning. The null set
-in (b) cannot be removed, and it need not be small in dimension.
+in Theorem~\ref{thm:posmix}(b) cannot be removed, and it need not be small in dimension.
 
-\moveblock{hyperplane}{%
-\begin{restatable}[The exceptional set can be a hyperplane]{proposition}{prophyperplane}
-\label{prop:hyperplane}
+\begin{restatable}[The exceptional set can be a hyperplane]{example}{exhyperplane}
+\label{ex:hyperplane}
 Let $N=2$, $\nu=(a_1-a_2)/2\neq0$, and $p=(\tfrac12,\tfrac12)$. The trajectory of $v_p$ from
 $x_0$ converges to $a_1$ if $\nu\cdot x_0>0$, to $a_2$ if $\nu\cdot x_0<0$, and to the midpoint
 $(a_1+a_2)/2$ if $\nu\cdot x_0=0$. The exceptional set of Theorem~\ref{thm:posmix}(b) is
@@ -703,36 +709,59 @@ into the endpoint weights $\tfrac12$. \citet[Example~4.4]{baptista2025memorizati
 example for the variance-exploding probability-flow ODE with two points in the plane, and
 Remark~2.7 of \citet{liu2026geometric} gives it in one dimension; the change of variables of
 Appendix~\ref{apx:comparison} relates both flows to this one.
-}%
-\ificlr For two atoms with equal priors it is a hyperplane (Proposition~\ref{prop:hyperplane}).
-\fi
 
-\subsection{Guidance keeps the atoms}
+\subsection{Guidance and any two fields keep the atoms}
 \label{sec:guidance}
 
-For a guidance strength $w$ the guided field is $v_w=(1+w)\vstar-wv_{\mathrm{unc}}^\star$. For
-$w>0$ its prior coefficients have opposite signs, so Theorem~\ref{thm:posmix} does not apply.
+For a guidance strength $w$ the guided field is
+\begin{equation}
+v_w=(1+w)\vstar-wv_{\mathrm{unc}}^\star .
+\label{eq:guided}
+\end{equation}
+For $w>0$ its prior coefficients have opposite signs, so Theorem~\ref{thm:posmix} does not apply.
+Nothing in the argument depends on the unconditional field being unconditional, so we state the
+result for any two exact fields.
 
-\begin{restatable}[Guidance lands on a training atom]{proposition}{propcfgatom}
-\label{prop:cfgatom}
-Assume $a_1,\dots,a_N$ are distinct and fix a finite $w\ge0$.
-The exact guided field has a unique trajectory on $[0,1)$ from every finite
-initial point. Then:
+\begin{restatable}[Any two fields keep the atoms]{theorem}{thmtwofields}
+\label{thm:twofields}
+\emph{Setting.} The atoms $a_1,\dots,a_N$ are distinct. In (a) and (c), $p,q\in\Ppos$.
+
+\emph{Conclusion.}
 \begin{enumerate}[label=(\alph*),leftmargin=2em]
-\item if $h>0$, every trajectory converges to a point
-  $z\in\operatorname{aff}\nn(z)$, where $\nn(z)$ is its set of nearest atoms.
-  For an absolutely continuous source, the endpoint is a training atom almost surely;
-\item if $h=0$ at an identifying label $y^i$, every trajectory converges to $a_i$,
-  without an exceptional set of initial points.
+\item \emph{(Fixed combinations.)} For every $c\in\R$, the field $c\,v_p+(1-c)\,v_q$ has unique
+  Carath\'eodory trajectories on $[0,1)$, every trajectory converges to a point of $\mathcal C'$,
+  and the initial points whose limit is not an atom form a Lebesgue-null set.
+  In particular, let $h>0$ and fix a finite $w\ge0$. The guided field $v_w$ of
+  \eqref{eq:guided} has a unique trajectory on $[0,1)$ from every finite initial point, and every
+  trajectory converges to a point $z\in\operatorname{aff}\nn(z)$, where $\nn(z)$ is its set of
+  nearest atoms. For an absolutely continuous source, the endpoint is a training atom almost
+  surely.
+\item \emph{(Hard conditioning.)} Let $h=0$ at an identifying label $y^i$ and fix a finite
+  $w\ge0$. The guided field $v_w$ has a unique trajectory on $[0,1)$ from every finite initial
+  point, and every trajectory converges to $a_i$, without an exceptional set of initial points.
+\item \emph{(Schedules.)} Let $\bar w<\infty$, and let $w:[0,1)\to[0,\bar w]$ be measurable and
+  of bounded variation on $[t_0,1)$ for some $t_0\in(0,1)$. The field
+  $(1+w(t))\,v_p-w(t)\,v_q$ has unique Carath\'eodory trajectories on $[0,1)$, every trajectory
+  converges to a point of $\mathcal C'$, and the initial points whose limit is not an atom form a
+  Lebesgue-null set.
+  In particular, let $h>0$ and fix $y$. Then the field
+  $(1+w(t))\vstar-w(t)v_{\mathrm{unc}}^\star$ has unique Carath\'eodory trajectories on $[0,1)$,
+  every trajectory converges to a point of $\mathcal C'$, and the initial points whose limit is
+  not an atom form a Lebesgue-null set; the endpoint is an atom almost surely under every
+  absolutely continuous source.
 \end{enumerate}
-\proofin{apx:pf-cfgatom}
+\proofin{apx:pf-guidance}
 \end{restatable}
 
 \moveblock{sketchcfg}{%
 \begin{proofsketch}
-For (a), Step~1 survives the negative coefficient because the relative entropy of a posterior to
-a fixed positive prior is bounded. For Step~2, near an off-support limit at distance $r$ from its
-nearest atoms the guided covariance trace is $\Theta=r^2-|m_w|^2+w(1+w)|m_c-m_u|^2+o(1)$,
+For (a), (S1) survives the negative coefficient because the relative entropy of a posterior to
+a fixed positive prior is bounded. For (S2), near an off-support limit at distance $r$ from its
+nearest atoms the guided covariance trace is
+\begin{equation}
+\Theta=r^2-|m_w|^2+w(1+w)|m_c-m_u|^2+o(1),
+\label{eq:guided-trace}
+\end{equation}
 where $m_c,m_u,m_w$ are the conditional, unconditional and guided posterior means relative
 to the limit; the third term is nonnegative for $w\ge0$, and $m_w$ is small in mean square, so
 the volume again expands. For (b), a Gibbs inequality gives
@@ -740,59 +769,30 @@ $|x_t-ta_i|^2\le\eps^2[C+2w\log N\log\tfrac1{\eps}]$.
 \end{proofsketch}
 }%
 
-Under hard conditioning, guidance thus does not prevent collapse, and our bound exceeds the rate $\eps$ of
-the unguided field only by a factor of order $\sqrt{\log(1/\eps)}$; for a fixed $w>0$,
-\citet[Theorem~2.5(ii) and Corollary~3.7]{liu2026geometric} give the rate $O(\eps)$ after the change
-of variables of Appendix~\ref{apx:comparison}, with a constant that depends on the initial point.
-For $w\in[-1,0)$ both coefficients are nonnegative:
-
-\begin{corollary}[Negative guidance]
-\label{cor:negcfg}
-Let $h>0$ and $-1\le w<0$, and merge coincident atoms. Then $v_w=v_\Pi$ with
-$\Pi=(1+w)\delta_{p^{(h)}(y)}+|w|\delta_{p^{\mathrm{unc}}}$, so the conclusions of
-Theorem~\ref{thm:posmix} hold. With Proposition~\ref{prop:cfgatom}(a), every fixed
-$w\ge-1$ gives atomic endpoints almost surely when $h>0$.
-\end{corollary}
-
-\ificlr Samplers often vary guidance in time~\citep{kynkaanniemi2024interval,jain2025attraction};
-for exact fields, bounded nonnegative schedules of bounded variation near the endpoint preserve atomicity.\else Samplers often vary guidance in time: \citet{kynkaanniemi2024interval} apply it on an interval of
-noise levels, and \citet{jain2025attraction} withhold or reverse it early in sampling to reduce
-memorisation. For exact fields, bounded nonnegative schedules of bounded variation near the endpoint preserve atomicity.\fi
-
-\begin{restatable}[Guidance schedules of bounded variation]{theorem}{thmschedule}
-\label{thm:schedule}
-Let $h>0$, fix $y$ and $\bar w<\infty$, and let $w:[0,1)\to[0,\bar w]$ be measurable and of
-bounded variation on $[t_0,1)$ for some $t_0\in(0,1)$. The field
-$(1+w(t))\vstar-w(t)v_{\mathrm{unc}}^\star$ has unique Carath\'eodory trajectories on $[0,1)$,
-every trajectory converges to a point of $\mathcal C'$, and the initial points whose limit is
-not an atom form a Lebesgue-null set. In particular the endpoint is an atom almost surely under
-every absolutely continuous source. \proofin{apx:pf-schedule}
-\end{restatable}
-\ificlr Under hard conditioning, schedules $w(t)=O(\eps^{-\gamma})$ with $\gamma<2$ still collapse
-(Appendix~\ref{apx:pf-cfgatom}).\else Proposition~\ref{prop:cfgatom}(a) is the constant case. The change of the energy with $w$ is
-controlled by the total variation of $w$ and by the relative entropy of a posterior to a fixed
-positive prior, at most $\log(1/\min_jp_j)$. Under hard conditioning, schedules
-$w(t)=O(\eps^{-\gamma})$ with $\gamma<2$ still collapse (Appendix~\ref{apx:pf-cfgatom}); this
-is sufficient, not sharp.\fi
-
-Nothing in these results depends on the unconditional field being unconditional.
-
-\begin{restatable}[Any two exact fields]{corollary}{cortwofields}
-\label{cor:twofields}
-Let $p,q\in\Ppos$ and $c\in\R$. The field $c\,v_p+(1-c)\,v_q$ has unique Carath\'eodory trajectories on
-$[0,1)$, every trajectory converges to a point of $\mathcal C'$, and the initial points whose
-limit is not an atom form a Lebesgue-null set. The same holds for $(1+w(t))\,v_p-w(t)\,v_q$ with
-$w:[0,1)\to[0,\bar w]$ measurable and of bounded variation on $[t_0,1)$ for some $t_0\in(0,1)$.
-\proofin{apx:pf-twofields}
-\end{restatable}
-
-Guidance is the case $q=p^{\mathrm{unc}}$. Guidance towards one condition with another as the
-base, and negative prompting implemented by substituting the negative-prompt field for the
-unconditional one, $v_{\mathrm{neg}}+s\,(v_{\mathrm{pos}}-v_{\mathrm{neg}})$ with a constant $s$, are combinations of two
-exact fields as well. With strictly positive priors (any $h>0$), none of them moves the endpoints
-off the training examples, except from a null set of initial points; under hard conditioning they can. Three
+Guidance is the case $q=p^{\mathrm{unc}}$ of (a) and (c). Guidance towards one condition with
+another as the base is also a combination of two exact fields. So is negative prompting
+implemented by substituting the negative-prompt field for the unconditional one,
+$v_{\mathrm{neg}}+s\,(v_{\mathrm{pos}}-v_{\mathrm{neg}})$ with a constant $s$.
+With strictly positive priors (any $h>0$), none of them moves the endpoints off the training
+examples, except from a null set of initial points; under hard conditioning they can. Three
 fields can (Sections~\ref{sec:composition} and~\ref{sec:conjunction}).
 
+Under hard conditioning, part~(b) says that guidance does not prevent collapse. Our bound exceeds
+the rate $\eps$ of the unguided field only by a factor of order $\sqrt{\log(1/\eps)}$; for a
+fixed $w>0$, \citet[Theorem~2.5(ii) and Corollary~3.7]{liu2026geometric} give the rate $O(\eps)$
+after the change of variables of Appendix~\ref{apx:comparison}, with a constant that depends on
+the initial point.
+\ificlr Samplers often vary guidance in time~\citep{kynkaanniemi2024interval,jain2025attraction};
+part~(c) covers bounded nonnegative schedules of bounded variation near the endpoint. Under hard
+conditioning, schedules $w(t)=O(\eps^{-\gamma})$ with $\gamma<2$ still collapse
+(Appendix~\ref{apx:pf-cfgatom}).\else Samplers often vary guidance in time:
+\citet{kynkaanniemi2024interval} apply it on an interval of noise levels, and
+\citet{jain2025attraction} withhold or reverse it early in sampling to reduce memorisation. Part~(c)
+covers every bounded nonnegative schedule of bounded variation near the endpoint. The change of the
+energy with $w$ is controlled by the total variation of $w$ and by the relative entropy of a
+posterior to a fixed positive prior, at most $\log(1/\min_jp_j)$. Under hard conditioning,
+schedules $w(t)=O(\eps^{-\gamma})$ with $\gamma<2$ still collapse (Appendix~\ref{apx:pf-cfgatom});
+this is sufficient, not sharp.\fi
 \subsection{Composing the two interventions can leave the atoms}
 \label{sec:composition}
 
@@ -805,20 +805,38 @@ not depend on the position; it models a sampler that averages several label quer
 averages the priors: the optimum of a label bottleneck is a single exact field with a strictly
 positive prior, and guidance on it ends on an atom almost surely
 (Proposition~\ref{prop:bottleneck} in Appendix~\ref{apx:pf-bottleneck}).\fi{} Neither result above covers this composite:
-Theorem~\ref{thm:posmix} needs nonnegative coefficients, and Theorem~\ref{thm:schedule} has a
-single conditional prior. Two atoms suffice to show that it can leave the atoms.
+Theorem~\ref{thm:posmix} needs nonnegative coefficients, and Theorem~\ref{thm:twofields} combines
+only two fields. Two atoms suffice to show that the composite can leave the atoms.
 
-\begin{restatable}[Guided label averaging can create a blend]{theorem}{thmcomposition}
+\begin{restatable}[Three fields can blend: guided label averaging]{theorem}{thmcomposition}
 \label{thm:composition}
-Let $d=k=1$ and $\D=\{(-1,-\ell),(1,\ell)\}$ with $\ell>0$. Fix $h>0$, the query $y=0$, the
-averaging measure $\varphi=\tfrac12(\delta_{u_0}+\delta_{-u_0})$ with $u_0>0$, and put
-$B=u_0\ell/h^2$. For $w\ge0$, every trajectory of
-$v_{\varphi,w}=(1+w)v_\varphi-wv_{\mathrm{unc}}^\star$ converges to $-1$, $0$ or $1$, and:
+\emph{Setting of (a) and (b).} Let $d=k=1$ and $\D=\{(-1,-\ell),(1,\ell)\}$ with $\ell>0$. Fix
+$h>0$, the query $y=0$, the averaging measure $\varphi=\tfrac12(\delta_{u_0}+\delta_{-u_0})$ with
+$u_0>0$, and put $B=u_0\ell/h^2$ and
+\begin{equation}
+w_c=\frac1{\sinh^2B}.
+\label{eq:wc}
+\end{equation}
+For $w\ge0$ let $v_{\varphi,w}=(1+w)v_\varphi-wv_{\mathrm{unc}}^\star$.
+
+\emph{Conclusion.} Every trajectory of $v_{\varphi,w}$ converges to $-1$, $0$ or $1$, and:
 \begin{enumerate}[label=(\alph*),leftmargin=2em]
-\item if $w>1/\sinh^2B$, the initial points converging to $0$ contain an open interval around
+\item if $w>w_c$, the initial points converging to $0$ contain an open interval around
   $0$, so the endpoint law from $\pi_0$ has an atom at $0$, which is not a training atom;
-\item if $w\le1/\sinh^2B$, only the initial point $0$ converges to $0$, and the endpoint is a
-  training atom almost surely.
+\item if $w\le w_c$, only the initial point $0$ converges to $0$, and the endpoint is a
+  training atom almost surely;
+\item \emph{(Persistence.)} On the atoms $\{-1,1\}\subset\R$, average finitely many conditional
+  priors with log-odds $2B_k$ (atom $1$ against atom $-1$) with weights $\lambda_k>0$ summing to
+  one, let the unconditional prior have log-odds $2B_u$, and fix $w$. The composite field is
+  $(F(\zeta)-x)/\eps$ with $\zeta=tx/\eps^2$ and
+  \begin{equation}
+  F(\zeta)=(1+w)\sum_k\lambda_k\tanh(\zeta+B_k)-w\tanh(\zeta+B_u).
+  \label{eq:composition-general}
+  \end{equation}
+  If $F(\zeta_\star)=0$ and $F'(\zeta_\star)<0$ for some $\zeta_\star$, the initial points
+  converging to $0$ contain a nonempty open interval. With two conditional priors, this
+  hypothesis holds on an open set of parameters $(\lambda_1,B_1,B_2,B_u,w)$, with
+  $\lambda_2=1-\lambda_1$ and $\lambda_1\in(0,1)$, containing every configuration of~(a).
 \end{enumerate}
 \proofin{apx:pf-composition}
 \end{restatable}
@@ -848,25 +866,10 @@ barrier keeps every positive source away from $0$.
 \end{proofsketch}
 \fi
 For labels far apart relative to $h$, e.g.\ $u_0=\ell\gg h$, the threshold $1/\sinh^2(\ell^2/h^2)$
-is exponentially small (Figure~\ref{fig:composition}). The effect does not rely on symmetry\ificlr: it persists under perturbation of the priors, the mixture weights and the guidance strength, though not of the atom geometry (Proposition~\ref{prop:composition-open} in Appendix~\ref{apx:pf-composition-open}). We read the theorem as an existence result at the boundary of Theorems~\ref{thm:posmix} and~\ref{thm:schedule}, and Section~\ref{sec:conjunction} identifies it with the conjunction of compositional generation.\else:\fi
-
-\moveblock{compopenprop}{%
-\begin{restatable}[The blend basin persists under perturbation]{proposition}{propcompositionopen}
-\label{prop:composition-open}
-On the atoms $\{-1,1\}\subset\R$, average finitely many conditional priors with log-odds
-$2B_k$ (atom $1$ against atom $-1$) with weights $\lambda_k>0$ summing to one, let the
-unconditional prior have log-odds $2B_u$, and fix $w$. The composite field is $(F(\zeta)-x)/\eps$
-with $\zeta=tx/\eps^2$ and $F(\zeta)=(1+w)\sum_k\lambda_k\tanh(\zeta+B_k)-w\tanh(\zeta+B_u)$. If
-$F(\zeta_\star)=0$ and $F'(\zeta_\star)<0$ for some $\zeta_\star$, the initial points converging to $0$
-contain a nonempty open interval. With two conditional priors, this hypothesis holds on an open
-set of parameters $(\lambda_1,B_1,B_2,B_u,w)$, with $\lambda_2=1-\lambda_1$ and
-$\lambda_1\in(0,1)$, containing every configuration of Theorem~\ref{thm:composition}(a).
-\proofin{apx:pf-composition-open}
-\end{restatable}
-}%
+is exponentially small (Figure~\ref{fig:composition}). The effect does not rely on symmetry\ificlr: it persists under perturbation of the priors, the mixture weights and the guidance strength, though not of the atom geometry (Theorem~\ref{thm:composition}(c) in Appendix~\ref{apx:pf-composition-open}). We read the theorem as an existence result at the boundary of Theorems~\ref{thm:posmix} and~\ref{thm:twofields}(c), and Section~\ref{sec:conjunction} identifies it with the conjunction of compositional generation.\else:\fi
 
 \moveblock{compopen}{%
-Proposition~\ref{prop:composition-open} concerns a generalised family of reference fields: the
+Theorem~\ref{thm:composition}(c) concerns a generalised family of reference fields: the
 standard guidance of Section~\ref{sec:setup} has a uniform unconditional prior, $B_u=0$, and
 $B_u\neq0$ is a mathematical extension. The perturbations are of the priors, the mixture weights
 and the guidance strength; the atoms stay at $\{-1,1\}$, and perturbations of the atom geometry
@@ -906,7 +909,6 @@ Below the threshold only the source $x_0=0$ reaches the midpoint.}
 \subsection{A spectral criterion in any dimension}
 \label{sec:spectral}
 
-\moveblock{spectraldefs}{%
 On the line, the sign of $F'_w$ at a simple root distinguishes attraction from repulsion.
 In higher dimensions a negative trace can hide an expanding direction. For example, the
 rectangle in Table~\ref{tab:spectral} has a saddle with negative trace. To decide whether
@@ -917,30 +919,22 @@ $L=\operatorname{span}\{a-z:a\in S\}$. Consider a field $\sum_kc_kv_{p_k}$ with 
 $p_k\in\Ppos$ and constant coefficients summing to one; this covers guidance, label averaging
 over finitely many labels, and guided label averaging. For $\xi\in L$ let $\pi_k(\xi)$ be the
 prior $p_k$ restricted to $S$ and tilted by $e^{\langle\xi,a\rangle}$, and put
-\[
+\begin{equation}
 M(\xi)=\sum_kc_k\,\E_{\pi_k(\xi)}[a],\qquad
 \Gamma(\xi)=D_LM(\xi)=\sum_kc_k\Cov_{\pi_k(\xi)}(P_La).
-\]
-The rescaled position $\xi=\beta P_L(x-tz)$ generalises $\zeta$ of Section~\ref{sec:composition}; a
-\emph{profile} is a root of $M(\xi)=z$, \emph{hyperbolic} if $\Gamma$ is invertible there.
-}%
-\ificlr Beyond two atoms the local classification uses a matrix. If the hyperbolicity and face hypotheses of Theorem~\ref{thm:spectral}(c) hold at an off-support candidate $z$ with
-tied nearest atoms $S$, the rescaled position $\beta P_L(x_t-tz)$ of a trajectory converging to $z$
-tends to a \emph{profile}, a root of the restricted posterior mean of the field, and the signed
-posterior covariance $\Gamma$ at the profile plays the role of $F_w'(0)$.
-Theorem~\ref{thm:spectral} in Appendix~\ref{apx:pf-spectral} shows that $\Gamma\prec0$ gives an
-open basin, so the endpoint law has an atom at $z$, that a positive eigenvalue gives a null basin,
-and that these cases are exhaustive under a face condition; Corollary~\ref{cor:spectral-threshold}
-gives the matrix threshold, $1/\sinh^2B$ for two atoms. In $d\in\{2,8\}$, sources and saddles,
-including those the trace test misses, put no source at $z$; sinks keep a positive fraction,
-except for the simplex in $d=8$ at $w\le2w_c$, where it falls below the resolution $1/2048$
-(Table~\ref{tab:spectral}).
-\fi
-\moveblock{spectralthm}{%
-\begin{restatable}[Spectral classification of off-support endpoints]{theorem}{thmspectral}
+\label{eq:profile-mean}
+\end{equation}
+The rescaled position $\xi=\beta P_L(x-tz)$ generalises $\zeta$ of Section~\ref{sec:composition}. A
+\emph{profile} is a root of $M(\xi)=z$, and it is \emph{hyperbolic} if $\Gamma$ is invertible
+there.
+
+\begin{restatable}[Spectral criterion]{theorem}{thmspectral}
 \label{thm:spectral}
-Let $\xi_\star$ be a hyperbolic profile, and call its basin the set of initial points with
-$x_t\to z$ and $\beta P_L(x_t-tz)\to\xi_\star$.
+\emph{Setting.} $z$, $S$, $L$, the field $\sum_kc_kv_{p_k}$, $M$ and $\Gamma$ are as above. In (a)
+and (b), $\xi_\star$ is a hyperbolic profile, and its \emph{basin} is the set of initial points
+with $x_t\to z$ and $\beta P_L(x_t-tz)\to\xi_\star$.
+
+\emph{Conclusion.}
 \begin{enumerate}[label=(\alph*),leftmargin=2em]
 \item If $\Gamma(\xi_\star)\prec0$ on $L$, the basin contains a nonempty open set, so the endpoint
   law from $\pi_0$ has an atom at $z$, which is not a training atom.
@@ -949,10 +943,20 @@ $x_t\to z$ and $\beta P_L(x_t-tz)\to\xi_\star$.
   of $\operatorname{conv}P_LS$, every trajectory converging to $z$ has a profile converging to one
   of finitely many profiles. Then $\Pr(X_1=z)>0$ exactly when some profile has
   $\Gamma(\xi_\star)\prec0$ on $L$.
+\item \emph{(Matrix threshold for guided label averaging.)} Let $M_{\mathrm{av}}$ average the
+  restricted means of finitely many conditional priors in $\Ppos$ and $M_{\mathrm u}$ be that of
+  the unconditional prior, and suppose $M_{\mathrm{av}}(\xi_\star)=M_{\mathrm u}(\xi_\star)=z$ for
+  some $\xi_\star\in L$. Let $C_{\mathrm{av}}$, $C_{\mathrm u}$ be their derivatives on $L$ at
+  $\xi_\star$, and assume $D=C_{\mathrm u}-C_{\mathrm{av}}\succ0$ on $L$. For
+  \begin{equation}
+  w>w_c=\lambda_{\max}\big(D^{-1/2}C_{\mathrm{av}}D^{-1/2}\big),
+  \label{eq:wc-matrix}
+  \end{equation}
+  the guided label average puts positive probability on $z$. For the two atoms of
+  Theorem~\ref{thm:composition}, $w_c=1/\sinh^2B$, as in \eqref{eq:wc}.
 \end{enumerate}
 \proofin{apx:pf-spectral}
 \end{restatable}
-}%
 
 \moveblock{sketchspectral}{%
 \begin{proofsketch}
@@ -966,7 +970,6 @@ $\xi=o(\tilde\tau)$; so profiles cannot escape to infinity.
 \end{proofsketch}
 }%
 
-
 \moveblock{spectralafter}{%
 Lemma~\ref{lem:volume} uses only $\Theta=\tr\Gamma$: a profile with $\tr\Gamma>0$ already has a
 null basin. Theorem~\ref{thm:spectral}(b) also covers saddles with $\tr\Gamma\le0$, and (a) gives
@@ -974,57 +977,13 @@ the positive-measure counterpart in any dimension. In one dimension trace and ei
 coincide, and the roots $0$ and $\pm \zeta_u$ of $F_w$ recover Theorem~\ref{thm:composition}, except
 at the nonhyperbolic threshold $w=w_c$, which its proof treats separately.
 }%
-\moveblock{corspectral}{%
-\begin{restatable}[Matrix threshold for guided label averaging]{corollary}{corspectral}
-\label{cor:spectral-threshold}
-Let $M_{\mathrm{av}}$ average the restricted means of finitely many conditional priors in $\Ppos$
-and $M_{\mathrm u}$ be that of the unconditional prior, and suppose $M_{\mathrm{av}}(\xi_\star)=
-M_{\mathrm u}(\xi_\star)=z$ for some $\xi_\star\in L$. Let $C_{\mathrm{av}}$, $C_{\mathrm u}$ be their
-derivatives on $L$ at $\xi_\star$, and assume $D=C_{\mathrm u}-C_{\mathrm{av}}\succ0$ on $L$. For
-\[
-w>w_c=\lambda_{\max}\big(D^{-1/2}C_{\mathrm{av}}D^{-1/2}\big),
-\]
-the guided label average puts positive probability on $z$. For the two atoms of
-Theorem~\ref{thm:composition}, $w_c=1/\sinh^2B$. \proofin{apx:pf-spectral}
-\end{restatable}
-The common equilibrium holds in symmetric configurations, such as a regular simplex with one
+The common equilibrium of (d) holds in symmetric configurations, such as a regular simplex with one
 conditional prior favouring each vertex, where $w_c=(1-m^2)/m^2$ with
 $m=(e^B-1)/(e^B+N-1)$; Section~\ref{sec:intervention-tests} checks the classification
 numerically. Nonhyperbolic profiles and faces whose affine hull contains $P_Lz$ are not covered.
-Remark~\ref{rem:generic} shows that nonhyperbolic profiles are exceptional in the priors, and that
-the face condition holds when $|S|=2$ or when $z$ lies in the relative interior of
-$\operatorname{conv}S$, which covers all our configurations.
-}%
-
-\begin{remark}[How restrictive the hypotheses of Theorem~\ref{thm:spectral}(c) are]
-\label{rem:generic}
-The face condition involves only the atoms. Since $a-z\in L$ for $a\in S$, the set
-$P_LS=P_Lz+(S-z)$ is a translate of $S$, and the condition says that $z$ lies in the affine hull
-of no proper face of $\operatorname{conv}S$. It holds when $|S|=2$, and whenever $z$ lies in the
-relative interior of $\operatorname{conv}S$, because the affine hull of a proper face lies in a
-supporting hyperplane of $\operatorname{conv}S$ within $\operatorname{aff}S$; this covers every
-configuration of Section~\ref{sec:intervention-tests}. For fixed coefficients, hyperbolicity
-holds for almost every prior when at least one prior with a nonzero coefficient is allowed to vary
-freely on the open simplex. The measure here is Lebesgue measure in simplex coordinates.
-Write the field as $\sum_{k=1}^Kc_kv_{p_k}$, $K$ fields with fixed coefficients.
-Fix $a_0\in S$ and put $\lambda_{k,a}=\log\bigl(p_k(a)/p_k(a_0)\bigr)$ for $a\in S\setminus\{a_0\}$;
-the map $G(\xi;\lambda)=M(\xi)-z$ from $L\times\R^{K(|S|-1)}$ to $L$ depends on the priors only
-through $\lambda$, and $\partial G/\partial\lambda_{k,a}=c_k\,\pi_k(\xi)(a)\,\bigl(a-\E_{\pi_k(\xi)}[a]\bigr)$.
-For any $k$ with $c_k\neq0$ these vectors span $L$: together with the vector for $a_0$ they sum to
-zero, and their span contains every difference of two points of $S$, and these differences span
-$L$ because $z\in\operatorname{aff}S$. So $G$ is a submersion, and the parametric transversality
-theorem \citep[Ch.~2, \S3]{guillemin1974differential} shows that for almost every $\lambda$ zero is a
-regular value of $G(\cdot;\lambda)$: every profile is hyperbolic. Varying the block of one prior
-$p_{k_0}$ with $c_{k_0}\ne0$ already gives a submersion, and the log-ratio map from $\Ppos$ to that
-block is a submersion, so for fixed coefficients, any fixed $p_k$ ($k\ne k_0$) and almost every
-$p_{k_0}\in\Ppos$, every profile is hyperbolic; in particular $p^{\mathrm{unc}}$ may stay uniform.
-Since $\mathcal C'$ is finite, this holds at every off-support candidate at once. A prescribed
-family of symmetric or otherwise linked priors can be contained in an exceptional parameter set. Nonhyperbolic
-profiles are therefore exceptional in the priors (in Theorem~\ref{thm:composition} they occur only
-at $w=w_c$), although what happens at them, and at
-faces through $z$, remains open.
-\end{remark}
-
+Nonhyperbolic profiles are non-generic in the priors, and the face condition holds when $|S|=2$ or
+when $z$ lies in the relative interior of $\operatorname{conv}S$, which covers all our
+configurations (Remark~\ref{rem:generic} in Appendix~\ref{apx:pf-spectral}).
 
 \subsection{Composing conditions}
 \label{sec:conjunction}
@@ -1038,14 +997,13 @@ linearly. With equal weights $w_k=(1+w)/K$ this is
 \]
 guidance with strength $w$ applied to the average of the $K$ conditional fields. For exact fields
 with strictly positive priors this is the composite of Theorem~\ref{thm:composition} and
-Corollary~\ref{cor:spectral-threshold}, with the average over nearby labels replaced by the average
+Theorem~\ref{thm:spectral}(d), with the average over nearby labels replaced by the average
 over the conditions being combined. For a single condition, fixed $w\ge0$ and bounded
 nonnegative schedules of bounded variation near the endpoint give a training example almost surely
-from an absolutely continuous source (Proposition~\ref{prop:cfgatom},
-Theorem~\ref{thm:schedule}). A conjunction gives its circumcentre positive mass above
+from an absolutely continuous source (Theorem~\ref{thm:twofields}). A conjunction gives its circumcentre positive mass above
 $w_c$ if the circumcentre is a candidate, the averaged conditional and unconditional
 restricted means equal it at the same tilt and $C_{\mathrm u}-C_{\mathrm{av}}\succ0$ on the tie span
-(Corollary~\ref{cor:spectral-threshold}). Opposing preferences alone can leave the midpoint
+(Theorem~\ref{thm:spectral}(d)). Opposing preferences alone can leave the midpoint
 repelling for every $w\ge0$. For example, take two atoms, conditional odds $3$ and $4/5$ with
 equal weights and unconditional odds $1$. With $x=e^{2\zeta}$, the profile mean has positive
 denominator and numerator
@@ -1057,13 +1015,13 @@ infinity, there is one simple positive root, crossing upwards. Theorem~\ref{thm:
 therefore gives the midpoint probability zero for every strength.
 For the symmetric two-atom conjunction with log-odds $\pm2B$, $w_c=1/\sinh^2B\approx4e^{-2B}$: the more confidently
 each condition identifies its own example, the smaller the guidance at which their conjunction
-blends them. The regular simplex after Corollary~\ref{cor:spectral-threshold} is the conjunction of
+blends them. The regular simplex after Theorem~\ref{thm:spectral}(d) is the conjunction of
 $K=N$ conditions. Section~\ref{sec:regular-learned} asks what a learned field needs to reach these
 blends, and Section~\ref{sec:intervention-tests} answers it numerically for networks trained by
 flow matching.
 
 \paragraph{Which combinations blend two examples.} The conjunction is one signed combination of
-three fields, and Corollary~\ref{cor:twofields} rules out every combination of two fields with
+three fields, and Theorem~\ref{thm:twofields} rules out every combination of two fields with
 strictly positive priors on the same support. Which
 combinations of three or more exact fields put mass on a blend? At a tie of two atoms the answer
 is short. Let $z$ be the midpoint of atoms $a,b$ with $\nn(z)=\{a,b\}$, in any dimension, and for
@@ -1110,7 +1068,7 @@ $b$, $B(p_{\mathrm{neg}})=0$, is grouped with the unconditional field and change
 tie: a condition unrelated to the tied examples acts there as the unconditional field does,
 whatever the sign of its coefficient. Violating the hypotheses of (a) and (b) is necessary for a blend, not sufficient;
 Figure~\ref{fig:signed} shows how much of the allowed region actually blends. The conjunction on the
-regular simplex after Corollary~\ref{cor:spectral-threshold} therefore also blends pairs of
+regular simplex after Theorem~\ref{thm:spectral}(d) therefore also blends pairs of
 vertices: at the midpoint of an edge the other $N-2$ conditions have $B(p)=0$ and are grouped with
 the unconditional field, so~(c) applies with $B/2$ in place of $B$ and $2(1+w)/N-1$ in place of
 $w$. Theorem~\ref{thm:spectral} then gives the edge midpoints positive probability for
@@ -1237,7 +1195,7 @@ nearest-neighbour criterion (sample standard deviations $0.012$ and $0.008$ over
 These finite-cutoff fractions combine learned-field, truncation and discretisation effects
 and do not identify a limiting support. At either bandwidth, a Gaussian source transported
 by the exact field converges almost surely to a training image
-(Proposition~\ref{prop:atomicity}).
+(Theorem~\ref{thm:endpoint}(c)).
 % Group decision 2026-11-23: the s10 retrain (results/s10_cifar_transfer_20261108) and its
 % numbers belong to this paper; paper B describes it only qualitatively.
 
@@ -1291,7 +1249,7 @@ linearly\ificlr{}, as a formal law predicts (Appendix~\ref{apx:threshold-scaling
 law derived in Appendix~\ref{apx:threshold-scaling}.\fi{} \moveblock{compperturb}{The numerical unstable roots agree with the closed form $\cosh \zeta_u=\sqrt w\sinh B$.
 With $w=1$ and $B\approx2$, unequal mixture weights $(0.6,0.4)$, unequal $(B_1,B_2)=(2,-1.5)$, an
 unconditional log-odds $2B_u=0.6$, or a combination of all three keep basin probabilities between
-$0.71$ and $0.86$, as Proposition~\ref{prop:composition-open} predicts.}\ificlr Perturbed
+$0.71$ and $0.86$, as Theorem~\ref{thm:composition}(c) predicts.}\ificlr Perturbed
 configurations keep basin probabilities between $0.71$ and $0.86$
 (Appendix~\ref{app:intervention-protocol}).\fi{} \ificlr On eight selected and twelve randomly
 chosen CIFAR-10 pairs drawn from $2000$ images, the two-atom continuation from the full-field
@@ -1568,7 +1526,8 @@ with the spectral classification. Appendix~\ref{app:regular} proves
 Proposition~\ref{prop:regular}, Appendix~\ref{app:noise} treats endpoint noise, and
 Appendix~\ref{app:expdetails} gives the numerical protocols, including the label-noise
 comparison with trained networks (Appendix~\ref{app:kernel-protocol}). Each main-text result is restated,
-with its original number, immediately before its proof. Table~\ref{tab:notation} collects the
+with its original number, before the proof of its first part; the proofs of the other parts follow
+under headers that name the part. Table~\ref{tab:notation} collects the
 notation and Table~\ref{tab:roadmap} shows where each result is proved and what it uses.
 
 \begin{table}[h]
@@ -1592,7 +1551,7 @@ $a_j=x^j$, $A$, $R=\max_j|a_j|$ & atoms, atom set, atom radius (Section~\ref{sec
 $\eps=1-t$, $\tau=-\log\eps$ & time to the end; logarithmic time, in which $\dot x=\bar m-x$\\
 $\beta=t/\eps^2$, $\alpha=1/\beta$ & inverse temperature of the posterior over atoms, and its inverse\\
 $b_j$, $H_p$ & linear scores $x\cdot a_j-\tfrac t2|a_j|^2$; log-partition function of prior $p$\\
-$w$, $w_c$ & guidance strength; threshold of the configuration at hand: $1/\sinh^2B$ for two atoms (Theorem~\ref{thm:composition}), $w_c=(1-m^2)/m^2$ for the regular simplex and the triangle (Corollary~\ref{cor:spectral-threshold})\\
+$w$, $w_c$ & guidance strength; threshold of the configuration at hand: $1/\sinh^2B$ for two atoms (Theorem~\ref{thm:composition}), $w_c=(1-m^2)/m^2$ for the regular simplex and the triangle (Theorem~\ref{thm:spectral}(d))\\
 $M$, $\Gamma$, $\xi$ & restricted posterior mean, signed posterior covariance, blown-up position (Section~\ref{sec:spectral})\\
 $\tilde\tau$ & fast time, $d\tilde\tau=\beta\,d\tau$ (Appendix~\ref{apx:pf-spectral})\\
 \bottomrule
@@ -1607,17 +1566,17 @@ $\tilde\tau$ & fast time, $d\tilde\tau=\beta\,d\tau$ (Appendix~\ref{apx:pf-spect
 \toprule
 Result & Proof & Main ingredients\\
 \midrule
-Prop.~\ref{prop:projection}, \ref{prop:collapse} & \ref{apx:pf-hard} & $L^2$ decomposition; Lemma~\ref{lem:cov}\\
-Prop.~\ref{prop:kernel-field}, Thm.~\ref{thm:endpoint}, Cor.~\ref{cor:zerobw}, Prop.~\ref{prop:atomicity} & \ref{apx:pf-kernel} & Lemmas~\ref{lem:cov}--\ref{lem:mixture-coupling}: Bayes' rule, uniqueness for the continuity equation\\
+Fact~\ref{fact:exact}(a),(b) & \ref{apx:pf-hard} & $L^2$ decomposition; Lemma~\ref{lem:cov}\\
+Fact~\ref{fact:exact}(c), Thm.~\ref{thm:endpoint} & \ref{apx:pf-kernel} & Lemmas~\ref{lem:cov}--\ref{lem:mixture-coupling}: Bayes' rule, uniqueness for the continuity equation\\
 \addlinespace
 Lemmas~\ref{lem:conv}, \ref{lem:volume} & \ref{apx:general-steps} & the shared template: finite kinetic energy $\Rightarrow$ convergence; volume expansion $\Rightarrow$ null off-support basins\\
 Thm.~\ref{thm:posmix} & \ref{apx:pf-posmix} & Lemmas~\ref{lem:basic}--\ref{lem:volume}; averaged log-partition energy\\
-Prop.~\ref{prop:filtered}, \ref{prop:hyperplane}; Cor.~\ref{cor:negcfg} & \ref{apx:pf-posmix}, Sec.~\ref{sec:guidance} & special cases of Thm.~\ref{thm:posmix}; a scalar reduction for the hyperplane\\
-Thm.~\ref{thm:schedule}, Prop.~\ref{prop:cfgatom} & \ref{apx:pf-guidance} & Lemma~\ref{lem:signedconv} (integration by parts against $w$), Lemma~\ref{lem:volume}; a Gibbs inequality at $h=0$\\
-Cor.~\ref{cor:twofields} & \ref{apx:pf-twofields} & Thm.~\ref{thm:posmix}; the proof of Thm.~\ref{thm:schedule} with arbitrary priors in $\Ppos$\\
-Thm.~\ref{thm:composition}, Prop.~\ref{prop:composition-open} & \ref{apx:pf-composition} & Lemma~\ref{lem:signedconv}; moving barriers; implicit function theorem\\
-Thm.~\ref{thm:spectral}, Cor.~\ref{cor:spectral-threshold} & \ref{apx:pf-spectral} & Lemmas~\ref{lem:offtie}, \ref{lem:lp}: blow-up, Lyapunov--Perron graph; profile potential and face condition\\
-Rem.~\ref{rem:generic} & Sec.~\ref{sec:spectral} & parametric transversality\\
+Thm.~\ref{thm:posmix}(d),(e); Ex.~\ref{ex:hyperplane} & \ref{apx:pf-posmix}, Sec.~\ref{sec:guidance} & special cases of Thm.~\ref{thm:posmix}; a scalar reduction for the hyperplane\\
+Thm.~\ref{thm:twofields}(a)--(c), guidance & \ref{apx:pf-guidance} & Lemma~\ref{lem:signedconv} (integration by parts against $w$), Lemma~\ref{lem:volume}; a Gibbs inequality at $h=0$\\
+Thm.~\ref{thm:twofields}(a),(c), any $p,q$ & \ref{apx:pf-twofields} & Thm.~\ref{thm:posmix}; the proof of Thm.~\ref{thm:twofields}(c) with arbitrary priors in $\Ppos$\\
+Thm.~\ref{thm:composition} & \ref{apx:pf-composition} & Lemma~\ref{lem:signedconv}; moving barriers; implicit function theorem\\
+Thm.~\ref{thm:spectral} & \ref{apx:pf-spectral} & Lemmas~\ref{lem:offtie}, \ref{lem:lp}: blow-up, Lyapunov--Perron graph; profile potential and face condition\\
+Rem.~\ref{rem:generic} & \ref{apx:pf-spectral} & parametric transversality\\
 Prop.~\ref{prop:twoatom} & \ref{apx:pf-twoatom} & Thm.~\ref{thm:spectral} on a line; the identity $F'=1-\sum_kc_km_k^2$ and a quadratic vanishing at the extreme means\\
 \addlinespace
 Prop.~\ref{prop:regular} & \ref{apx:pf-regular} & Gr\"onwall in both time directions; crossing and trapping arguments in one dimension\\
@@ -1746,8 +1705,8 @@ then $\vstar(x,t,y)$ of \eqref{eq:kernel-field}.
 \label{apx:pf-hard}
 
 \phantomsection\label{apx:pf-projection}
-\propprojection*
-\begin{proof}
+\factexact*
+\begin{proof}[Proof of Fact~\ref{fact:exact}(a)]
 Let $\mathcal G=\sigma(X_t,t,\widetilde Y)$ and $m=\E[U\mid\mathcal G]$. Since $X_1$ is bounded and
 $X_0$ is Gaussian, $\E|U|^2<\infty$, so $m$ is square integrable, and $v=v(X_t,t,\widetilde Y)$ is
 $\mathcal G$-measurable and square integrable by assumption. Expanding the square,
@@ -1766,8 +1725,7 @@ $\E[\Var(U\mid\mathcal G)]$.
 \placeblock{versionconvention}
 
 \phantomsection\label{apx:pf-collapse}
-\propcollapse*
-\begin{proof}
+\begin{proof}[Proof of Fact~\ref{fact:exact}(b); here (a)--(d) are its items (i)--(iv)]
 By Assumption~\ref{as:standing}(iii) the event $\{Y=y^i\}$ equals $\{I=i\}$, and given $X_t=x$ on
 this event, Lemma~\ref{lem:cov} gives $X_0=(x-ta_i)/\eps$. Hence
 \[
@@ -1796,7 +1754,7 @@ differ.
 \begin{proof}
 \label{apx:pf-uncond}
 The unconditional objective is \eqref{eq:objective} without the label, and
-Proposition~\ref{prop:projection} applies verbatim with $\mathcal G=\sigma(X_t,t)$. Its minimiser
+Fact~\ref{fact:exact}(a) applies verbatim with $\mathcal G=\sigma(X_t,t)$. Its minimiser
 $\E[U\mid X_t=x,t]$ is given by Lemma~\ref{lem:mixture-coupling} with $p$ uniform, which yields
 the weights $q_i\propto\src{i}$; the endpoint law follows as in the proof of
 Theorem~\ref{thm:endpoint} with $p^{(h)}(y)$ replaced by the uniform vector, so
@@ -1807,7 +1765,7 @@ $u_i=(a_i-x)/\eps$ with probability $q_i>0$, so with $\bar u=\sum_jq_ju_j$
 \]
 which vanishes only if all $u_i$ coincide, that is, only if all atoms coincide. When two atoms
 differ the conditional variance is therefore positive for every $(x,t)$, and
-Proposition~\ref{prop:projection} gives the positive minimal loss
+Fact~\ref{fact:exact}(a) gives the positive minimal loss
 $\E[\Var(U\mid X_t,t)]$.
 \end{proof}
 
@@ -1815,8 +1773,7 @@ $\E[\Var(U\mid X_t,t)]$.
 \label{apx:pf-kernel}
 
 \phantomsection\label{apx:pf-kernel-field}
-\propkernelfield*
-\begin{proof}
+\begin{proof}[Proof of Fact~\ref{fact:exact}(c)]
 Given $I=i$, the variables $X_t=\eps X_0+ta_i$ and $\widetilde Y=y^i+h\omega$ are independent, with
 the density of Lemma~\ref{lem:cov} and the density $K_h(\cdot-y^i)$ of $\N(y^i,h^2I_k)$
 respectively. Since $\Pr(I=i)=1/N$, Bayes' rule gives
@@ -1833,14 +1790,14 @@ this value. Therefore
 =\sum_i\Pr(I=i\mid X_t=x,t,\widetilde Y=y)\,\frac{a_i-x}{\eps}
 =\sum_iq^{(h)}_i(x,t,y)\,\frac{a_i-x}{\eps},
 \]
-and Proposition~\ref{prop:projection} identifies this conditional expectation with the minimiser,
+and Fact~\ref{fact:exact}(a) identifies this conditional expectation with the minimiser,
 which is \eqref{eq:kernel-field}.
 \end{proof}
 \placeblock{coupling}
 
 \phantomsection\label{apx:pf-endpoint}
 \thmendpoint*
-\begin{proof}
+\begin{proof}[Proof of Theorem~\ref{thm:endpoint}(a)]
 Let $\Phi_t$ be the flow of $\vstar(\cdot,\cdot,y)$, which is well posed by
 Lemma~\ref{lem:wellposed} since the weights $q^{(h)}_i$ are smooth, positive and sum to one.
 Consider the coupling of Lemma~\ref{lem:mixture-coupling} with $p=p^{(h)}(y)$, in which the time
@@ -1867,8 +1824,7 @@ which is \eqref{eq:endpoint}.
 \end{proof}
 
 \phantomsection\label{apx:pf-zerobw}
-\corzerobw*
-\begin{proof}
+\begin{proof}[Proof of Theorem~\ref{thm:endpoint}(b)]
 The normalising constant $(2\pi h^2)^{-k/2}$ of $K_h$ cancels in the label weights, so
 \[
 p_i^{(h)}(y)=\frac{\exp\bigl(-|y-y^i|^2/2h^2\bigr)}{\sum_j\exp\bigl(-|y-y^j|^2/2h^2\bigr)} .
@@ -1890,10 +1846,9 @@ Theorem~\ref{thm:endpoint} gives $p_1^{(h)}(\cdot\mid y)\Rightarrow\delta_{a_{i_
 \end{proof}
 
 \phantomsection\label{apx:pf-atomicity}
-\propatomicity*
-\begin{proof}
+\begin{proof}[Proof of Theorem~\ref{thm:endpoint}(c)]
 Write $\mathcal X=\{a_1,\dots,a_N\}$. By Theorem~\ref{thm:endpoint} for $h>0$ and
-Proposition~\ref{prop:collapse}(d) at $h=0$, $\supp p_1^{(h)}(\cdot\mid y)\subseteq\mathcal X$. Let
+Fact~\ref{fact:exact}(b)(iv) at $h=0$, $\supp p_1^{(h)}(\cdot\mid y)\subseteq\mathcal X$. Let
 $(X,X')$ be any coupling of $p_1^{(h)}(\cdot\mid y)$ and $p(\cdot\mid y)$. Since $X\in\mathcal X$
 almost surely, $|X-X'|\ge\dist(X',\mathcal X)$, and therefore, with $+\infty$ allowed,
 \[
@@ -1966,7 +1921,7 @@ CFM time zero to $t_T=(1+\sqrt{2T})^{-1}$, followed by $x\mapsto x/t_T$, is a di
 Its inverse carries that null set back to a null set for every absolutely continuous source,
 including our Gaussian initialisation. Since $x=t y$, the two coordinates have the same
 endpoint. This deduction from the two papers recovers the fixed-strength atomicity claim in
-Proposition~\ref{prop:cfgatom}(a). Exceptional paths can occur, as the midpoint example of
+Theorem~\ref{thm:twofields}(a). Exceptional paths can occur, as the midpoint example of
 \citet[Remark~2.7]{liu2026geometric} shows.
 
 \paragraph{Other combinations and supports.}
@@ -1979,13 +1934,13 @@ the cutoff marginals when that variation is finite down to $s=0$. To infer an en
 one also needs convergence along trajectories. The perturbation estimate of
 \citet[Proposition~3.1 and Remark~3.2]{liu2026geometric} gives pathwise convergence when the
 deviation of the weight from its limit is square integrable in logarithmic time. This covers,
-for example, schedules that are constant near the endpoint. Theorem~\ref{thm:schedule} gives
+for example, schedules that are constant near the endpoint. Theorem~\ref{thm:twofields}(c) gives
 convergence of every trajectory and almost-everywhere atomicity for bounded nonnegative
 schedules of finite variation near the endpoint, including schedules with jumps and arbitrarily
 slow approach to their limiting strength. Theorem~\ref{thm:posmix} averages over any probability
 measure on positive priors. Different supports enter here only
 through hard conditioning: for guidance under hard conditioning with a fixed $w>0$, the convergence of every
-trajectory to the labelled atom in Proposition~\ref{prop:cfgatom}(b) also follows from their
+trajectory to the labelled atom in Theorem~\ref{thm:twofields}(b) also follows from their
 Theorem~2.5 and Corollary~3.7. General pairs of supports, compact supports that are not finite, and
 the stochastic sampler, which \citet{liu2026geometric} treat, are not considered here. For the
 stochastic sampler, \citet[Theorem~3]{azangulov2026adaptive} prove that bounded guidance whose
@@ -1993,13 +1948,13 @@ strength stays uniformly above $-1/2$ and may depend on time and state ends in t
 surely, for any compactly supported data law and any class of positive probability. Their proof
 bounds the relative entropy between the
 guided and the unguided path laws by Girsanov's theorem, which needs the Brownian noise;
-Proposition~\ref{prop:cfgatom}(a) and Theorem~\ref{thm:schedule} are the deterministic counterpart
+Theorem~\ref{thm:twofields}(a) and~(c) are the deterministic counterpart
 for finite data, with almost every initial point in place of almost every sample path. For the
 deterministic flow with a fixed $w\ge0$, \citet[Theorem~3.1]{cao2026robustness} prove that the
 trajectory from every initial point approaches the support of the target component when the
 components have disjoint convex supports with interior points and the target density is bounded
 below; finite data are excluded, and for them an exceptional set can exist
-(Proposition~\ref{prop:hyperplane}; Remark~2.7 of \citealp{liu2026geometric}).\placeblock{caiflow}
+(Example~\ref{ex:hyperplane}; Remark~2.7 of \citealp{liu2026geometric}).\placeblock{caiflow}
 
 \begin{table}[htb]
 \centering\footnotesize\setlength{\tabcolsep}{3pt}
@@ -2030,7 +1985,7 @@ Source & Dynamics and assumptions & Conclusion\tabularnewline
 \cmpcell\citet[Thm.~3]{azangulov2026adaptive} &
 \cmpcell Reverse SDE, compact support, class of positive probability &
 \cmpcell The endpoint belongs to the conditional support almost surely for bounded guidance uniformly above $-\tfrac12$, allowing state and time dependence.\tabularnewline
-\cmpcell This paper (Thms.~\ref{thm:posmix}, \ref{thm:schedule}, \ref{thm:composition}, \ref{thm:spectral}) &
+\cmpcell This paper (Thms.~\ref{thm:posmix}, \ref{thm:twofields}(c), \ref{thm:composition}, \ref{thm:spectral}) &
 \cmpcell Common finite support, positive priors, deterministic exact fields &
 \cmpcell Arbitrary probability mixtures and nonnegative guidance of bounded variation near the endpoint give atomic limits almost everywhere. A signed combination of three fields can attract positive mass to a tie.\tabularnewline
 \bottomrule
@@ -2241,7 +2196,7 @@ time dependence only lowers $W$, so the kinetic energy is finite, and the concen
 of Lemma~\ref{lem:conv} yields convergence. We then show $\operatorname{div}_xf=\beta V-d$, where
 the averaged covariance trace $V$ stays away from zero near an off-support limit because every prior is
 strictly positive, and Lemma~\ref{lem:volume} concludes.
-\begin{proof}
+\begin{proof}[Proof of Theorem~\ref{thm:posmix}(a)--(c)]
 Let $m_\Pi=\int m_p\,\Pi(dp)$, so that $v_\Pi=(m_\Pi-x)/\eps$ and $|m_\Pi|\le R$.
 
 The integrand $m_p(x,t)$ is continuous in $(p,x,t)$ and bounded by $R$, and by
@@ -2318,9 +2273,8 @@ Lemma~\ref{lem:volume} gives (b) and (c).
 \end{proof}
 
 \phantomsection\label{apx:pf-filtered}
-\propfiltered*
-\begin{proof}
-(a) By Proposition~\ref{prop:kernel-field} and Fubini's theorem for the finite sum,
+\begin{proof}[Proof of Theorem~\ref{thm:posmix}(d); (a) below proves \eqref{eq:label-average}, (b) the rest]
+(a) By Fact~\ref{fact:exact}(c) and Fubini's theorem for the finite sum,
 \[
 \iclrstart v_\varphi(x,t,y)=\int\sum_iq^{(h)}_i(x,t,y-u)\,\frac{a_i-x}{\eps}\,\varphi(du)
 \iclrbrq=\sum_iq^\varphi_i(x,t,y)\,\frac{a_i-x}{\eps},\iclrqbr
@@ -2342,8 +2296,8 @@ almost sure atomicity under absolutely continuous sources, and the form of the e
 \end{proof}
 
 \phantomsection\label{apx:pf-hyperplane}
-\ificlr\placeblock{hyperplane}\else\prophyperplane*\fi
-\begin{proof}
+\exhyperplane*
+\begin{proof}[Proof of Example~\ref{ex:hyperplane}]
 Let $c=(a_1+a_2)/2$, so that $a_{1,2}=c\pm\nu$, and put $A_0=|\nu|^2>0$ and
 $\zeta=\nu\cdot(x-tc)$. Since
 \[
@@ -2363,7 +2317,7 @@ with $\zeta(0)=\nu\cdot x_0$. The right side is odd in $\zeta$ and Lipschitz in 
 $A_0\beta(\tau)+1$, so solutions are unique forward and backward in time.
 
 If $\nu\cdot x_0=0$, uniqueness gives $\zeta\equiv0$, hence $m_p\equiv c$ and, by the computation in
-the proof of Proposition~\ref{prop:collapse}(c), $x_t=\eps x_0+tc\to c$.
+the proof of Fact~\ref{fact:exact}(b)(iii), $x_t=\eps x_0+tc\to c$.
 
 Let now $\nu\cdot x_0>0$; the other sign follows by oddness. By uniqueness $\zeta$ never reaches the
 solution $\zeta\equiv0$, so $\zeta>0$ throughout. Take $\tau_1$ with $A_0\beta(\tau)>2$ for
@@ -2463,7 +2417,7 @@ Lemma~\ref{lem:conv} gives convergence to a point of $\mathcal C'$.
 \end{proof}
 
 \phantomsection\label{apx:pf-schedule}
-\thmschedule*
+\thmtwofields*
 \paragraph{Proof overview.} With coefficients of both signs the energy of
 Theorem~\ref{thm:posmix} is no longer monotone. Lemma~\ref{lem:signedconv} replaces it: the
 log-partition function of each prior is integrated by parts against the coefficients, which costs
@@ -2471,7 +2425,7 @@ their total variation, and the time dependence costs at most $\log(1/\min_jp_j)$
 hypothesis, an exact identity writes the guided covariance trace as
 $r^2-|m_w|^2+w(1+w)|m_c-m_u|^2$ plus vanishing terms; the middle term is small in mean
 square along a converging trajectory, and the last is nonnegative for $w\ge0$.
-\begin{proof}
+\begin{proof}[Proof of the guidance case of Theorem~\ref{thm:twofields}(c): $p=p^{(h)}(y)$, $q=p^{\mathrm{unc}}$]
 Let $p_c=p^{(h)}(y)$ and $p_u=p^{\mathrm{unc}}$, both in $\Ppos$. The field is $v_c$ of
 Lemma~\ref{lem:signedconv} with $K=2$ and $c=(1+w,-w)$, which is bounded by $1+2\bar w$ and of
 bounded variation on $[t_0,1)$. Hence trajectories are unique, have finite kinetic energy, and
@@ -2532,13 +2486,12 @@ and Lemma~\ref{lem:volume} completes the proof.
 \end{proof}
 
 \phantomsection\label{apx:pf-twofields}
-\cortwofields*
-\begin{proof}
+\begin{proof}[Proof of Theorem~\ref{thm:twofields}(a), and of (c) for general $p,q$]
 If $0\le c\le1$, the field is $v_\Pi$ with $\Pi=c\,\delta_p+(1-c)\,\delta_q$, and
 Theorem~\ref{thm:posmix} applies; its candidate set $\mathcal C$ is contained in $\mathcal C'$. If
 $c>1$, the field is $(1+w)v_p-wv_q$ with the constant schedule $w=c-1>0$, and if $c<0$, it is
 $(1+w)v_q-wv_p$ with $w=-c>0$. It therefore suffices to treat $(1+w(t))v_p-w(t)v_q$ with $w$ as
-in Theorem~\ref{thm:schedule}. The proof of that theorem uses its two priors $p^{(h)}(y)$ and
+in Theorem~\ref{thm:twofields}(c). The proof of its guidance case above uses its two priors $p^{(h)}(y)$ and
 $p^{\mathrm{unc}}$ only through their membership in $\Ppos$: Lemma~\ref{lem:signedconv} needs
 $\min_{k,j}p_{k,j}>0$, and the identity for $\Theta$, the bound $e_p\ge0$ and the limit
 $e_p\to0$ (Lemma~\ref{lem:basic}(c)) hold for every prior in $\Ppos$. With $p$ and $q$ in their
@@ -2564,7 +2517,7 @@ $c\in\mathcal Q$. Put
 \item $\bar p_c\in\Ppos$ for every $c$, and among fields $u(x,t,c)$ the flow-matching risk
   $\E\,|u(X_t,t,Q(\widetilde Y))-(X_1-X_0)|^2$ is minimised by $u(\cdot,\cdot,c)=v_{\bar p_c}$,
   uniquely up to Lebesgue-null sets of $(x,t)$.
-\item For every $c$ and every schedule $w$ as in Theorem~\ref{thm:schedule}, the field
+\item For every $c$ and every schedule $w$ as in Theorem~\ref{thm:twofields}(c), the field
   $(1+w(t))v_{\bar p_c}-w(t)v_{\mathrm{unc}}^\star$ has unique trajectories, every trajectory
   converges, and the initial points whose limit is not an atom form a Lebesgue-null set.
 \end{enumerate}
@@ -2581,7 +2534,7 @@ law $\bar p_c$, $X_1=a_I$, and $X_0\sim\pi_0$ is independent of $I$, since $X_0$
 $(I,\widetilde Y)$. Lemma~\ref{lem:mixture-coupling} identifies the conditional mean with
 $v_{\bar p_c}$.
 
-(b) The proof of Theorem~\ref{thm:schedule} uses the conditional prior $p_c=p^{(h)}(y)$ only
+(b) The proof of the guidance case of Theorem~\ref{thm:twofields}(c) uses the conditional prior $p_c=p^{(h)}(y)$ only
 through $p_c\in\Ppos$. Replacing it by $\bar p_c$, which lies in $\Ppos$ by (a), gives the claim.
 \end{proof}
 
@@ -2597,10 +2550,9 @@ a single coarse query, guidance ends on an atom almost surely. The composition n
 to be taken over conditional fields with weights independent of the current position.
 
 \phantomsection\label{apx:pf-cfgatom}
-\propcfgatom*
 \placeblock{sketchcfg}
-\begin{proof}
-(a) This is Theorem~\ref{thm:schedule} with the constant schedule $w(t)\equiv w$.
+\begin{proof}[Proof of the guidance case of Theorem~\ref{thm:twofields}(a), and of (b)]
+(a) This is the guidance case of Theorem~\ref{thm:twofields}(c), proved above, with the constant schedule $w(t)\equiv w$.
 
 (b) Here dots denote derivatives in the original time $t$. Under hard conditioning the conditional
 field is $(a_i-x)/\eps$, and the unconditional field is $(m-x)/\eps$ with $m=\sum_jq_ja_j$ and
@@ -2671,7 +2623,7 @@ $\{-1,0,1\}$, and flows on the line preserve order. For (a), a barrier $|x|<\var
 moves inward faster than the boundary traps an open interval of sources. For (b),
 $F_w\ge\kappa\min\{\zeta^3,1\}$ on $\zeta\ge0$, and a lower barrier keeps every positive source away
 from~$0$.
-\begin{proof}
+\begin{proof}[Proof of Theorem~\ref{thm:composition}(a) and (b)]
 We first compute the field. With the Gaussian kernel $K_h$ of Section~\ref{sec:setup}, at a query
 $y'$ the label weights of the atoms $1$ and $-1$ have log-ratio
 \[
@@ -2795,8 +2747,7 @@ numerically, then, the basin probability vanishes continuously, and linearly, at
 the endpoint law does not jump at $w_c$; Theorem~\ref{thm:composition} proves neither property.
 
 \phantomsection\label{apx:pf-composition-open}
-\ificlr\placeblock{compopenprop}\else\propcompositionopen*\fi
-\begin{proof}
+\begin{proof}[Proof of Theorem~\ref{thm:composition}(c)]
 By the computation at the beginning of the proof of Theorem~\ref{thm:composition}, the prior with
 log-odds $2B_k$ has posterior mean $\tanh(\zeta+B_k)$, and the unconditional prior has posterior mean
 $\tanh(\zeta+B_u)$. The coefficients $(1+w)\lambda_k$ and $-w$ sum to one because
@@ -3034,10 +2985,10 @@ of $\varrho$. (The graph is in fact $C^1$ by the standard theory of invariant ma
 only the Lipschitz property is used below.)
 \end{proof}
 
-\ificlr\placeblock{spectralthm}\else\thmspectral*\fi
+\thmspectral*
 \placeblock{sketchspectral}
 \placeblock{spectralafter}
-\begin{proof}
+\begin{proof}[Proof of Theorem~\ref{thm:spectral}(a)--(c)]
 \emph{Parts (a) and (b).} Put $y=\xi-\xi_\star$ and write $G(\xi_\star+y)=\Gamma(\xi_\star)y+N(y)$
 with $N(0)=DN(0)=0$. Multiplying the first equation of \eqref{eq:pf:spec:blowup} by
 $d\tilde\tau/d\tau=\beta$ gives, in the time $\tau$,
@@ -3124,8 +3075,7 @@ endpoint basin of $z$ is the finite union of the profile basins, which is null i
 sink and contains an open set otherwise.
 \end{proof}
 
-\ificlr\placeblock{corspectral}\else\corspectral*\fi
-\begin{proof}
+\begin{proof}[Proof of Theorem~\ref{thm:spectral}(d)]
 The guided label average is $\sum_kc_kv_{p_k}$ with coefficients $(1+w)\lambda_k$ on the
 conditional priors and $-w$ on the uniform one, which sum to one, so Theorem~\ref{thm:spectral}
 applies with $M_w=(1+w)M_{\mathrm{av}}-wM_{\mathrm u}$. Then $M_w(\xi_\star)=(1+w)z-wz=z$, so
@@ -3165,6 +3115,38 @@ C_{\mathrm u}&=\frac1N\sum_ka_ka_k^\top=\frac1{N-1}\,I_L,\qquad D=\frac{m^2}{N-1
 \end{align*}
 For $B\ne0$, $m\ne0$ and $D\succ0$, and $w_c=(1-m^2)/m^2$.
 \end{proof}
+
+The next remark justifies the statement of Section~\ref{sec:spectral} that nonhyperbolic profiles
+are non-generic in the priors.
+
+\begin{remark}[How restrictive the hypotheses of Theorem~\ref{thm:spectral}(c) are]
+\label{rem:generic}
+The face condition involves only the atoms. Since $a-z\in L$ for $a\in S$, the set
+$P_LS=P_Lz+(S-z)$ is a translate of $S$, and the condition says that $z$ lies in the affine hull
+of no proper face of $\operatorname{conv}S$. It holds when $|S|=2$, and whenever $z$ lies in the
+relative interior of $\operatorname{conv}S$, because the affine hull of a proper face lies in a
+supporting hyperplane of $\operatorname{conv}S$ within $\operatorname{aff}S$; this covers every
+configuration of Section~\ref{sec:intervention-tests}. For fixed coefficients, hyperbolicity
+holds for almost every prior when at least one prior with a nonzero coefficient is allowed to vary
+freely on the open simplex. The measure here is Lebesgue measure in simplex coordinates.
+Write the field as $\sum_{k=1}^Kc_kv_{p_k}$, $K$ fields with fixed coefficients.
+Fix $a_0\in S$ and put $\lambda_{k,a}=\log\bigl(p_k(a)/p_k(a_0)\bigr)$ for $a\in S\setminus\{a_0\}$;
+the map $G(\xi;\lambda)=M(\xi)-z$ from $L\times\R^{K(|S|-1)}$ to $L$ depends on the priors only
+through $\lambda$, and $\partial G/\partial\lambda_{k,a}=c_k\,\pi_k(\xi)(a)\,\bigl(a-\E_{\pi_k(\xi)}[a]\bigr)$.
+For any $k$ with $c_k\neq0$ these vectors span $L$: together with the vector for $a_0$ they sum to
+zero, and their span contains every difference of two points of $S$, and these differences span
+$L$ because $z\in\operatorname{aff}S$. So $G$ is a submersion, and the parametric transversality
+theorem \citep[Ch.~2, \S3]{guillemin1974differential} shows that for almost every $\lambda$ zero is a
+regular value of $G(\cdot;\lambda)$: every profile is hyperbolic. Varying the block of one prior
+$p_{k_0}$ with $c_{k_0}\ne0$ already gives a submersion, and the log-ratio map from $\Ppos$ to that
+block is a submersion, so for fixed coefficients, any fixed $p_k$ ($k\ne k_0$) and almost every
+$p_{k_0}\in\Ppos$, every profile is hyperbolic; in particular $p^{\mathrm{unc}}$ may stay uniform.
+Since $\mathcal C'$ is finite, this holds at every off-support candidate at once. A prescribed
+family of symmetric or otherwise linked priors can be contained in an exceptional parameter set. Nonhyperbolic
+profiles are therefore exceptional in the priors (in Theorem~\ref{thm:composition} they occur only
+at $w=w_c$), although what happens at them, and at
+faces through $z$, remains open.
+\end{remark}
 
 \subsection{Two-atom ties}
 \label{apx:pf-twoatom}
@@ -3356,14 +3338,14 @@ $\rho>0$. Given $I=i$, $X_t=\eps X_0+t(a_i+\rho\upsilon)$, so
 r:=X_t-ta_i=\eps X_0+t\rho\,\upsilon\sim\N(0,s_t^2I_d),\qquad p(x\mid I=i,t)=\varphi_{s_t}(x-ta_i).
 \]
 Since $\widetilde Y$ is conditionally independent of $(X_0,\upsilon)$ given $I$, Bayes' rule as in the
-proof of Proposition~\ref{prop:kernel-field} gives
+proof of Fact~\ref{fact:exact}(c) gives
 $q_i:=\Pr(I=i\mid X_t=x,t,\widetilde Y=y)\propto\varphi_{s_t}(x-ta_i)\KK{i}$. The vector
 $(X_0,\upsilon,r)$ is jointly Gaussian with $\Cov(X_0,r)=\eps I_d$ and $\Cov(\upsilon,r)=t\rho\,I_d$, so
 \[
 \E[X_0\mid r]=\frac{\eps}{s_t^2}\,r,\qquad \E[\upsilon\mid r]=\frac{t\rho}{s_t^2}\,r .
 \]
 With $U=a_i+\rho\upsilon-X_0$ on $\{I=i\}$ and $r=x-ta_i$ on $\{X_t=x\}$, conditioning on $I$ and
-Proposition~\ref{prop:projection} give
+Fact~\ref{fact:exact}(a) give
 \begin{equation}
 \vstar(x,t,y)=\sum_iq_i\,\E[U\mid I=i,X_t=x,t]
 =\sum_iq_i\Big[a_i+\frac{t\rho^2-\eps}{s_t^2}\,(x-ta_i)\Big].
@@ -3609,7 +3591,7 @@ box & 8 & 256 & $5$ & sink & $-3.717$ & 512 & $0.0039$ & $0.0020$\\
 \caption{Numerical check of Theorem~\ref{thm:spectral}: fraction of Gaussian sources whose
 profile $\xi$ stays in $\{|\xi|<5\}$ at fast time $\tilde\tau$, an estimate of $\Pr(X_1=z)$ for $z=0$.
 The class of the profile and $\tr\Gamma$ are computed from $\Gamma(0)$. For the triangle and the
-simplex, $w_c=(1-m^2)/m^2$ is the threshold of Corollary~\ref{cor:spectral-threshold}
+simplex, $w_c=(1-m^2)/m^2$ is the threshold of Theorem~\ref{thm:spectral}(d)
 ($1.160$ and $4.802$ at $B=2$). The rectangle and the box at $w=1$ are saddles with negative
 trace. Other candidates are not counted: on the triangle the edge midpoints, ties of two atoms
 whose profile attracts for $w>1.368\,w_c$, take a further $0.41$ and $0.29$ of the mass at $2$ and
