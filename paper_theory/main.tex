@@ -47,6 +47,7 @@
 \usepackage{subcaption}
 \usepackage{xcolor}
 \usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+\usepackage{algorithm,algpseudocode} % Appendix E.2
 \usepackage{framed} % the proof template at the start of Section 5
 \usepackage{placeins} % \FloatBarrier keeps figures/tables from drifting past a subsection
 \usepackage{enumitem} % lettered sub-claims inside lemma statements
@@ -1115,10 +1116,10 @@ prior-average arms in $d\in\{2,8\}$, no sample exceeds the prespecified distance
 averages are distinct interventions (Table~\ref{tab:stress} in
 Appendix~\ref{app:intervention-protocol}). Fixed-step RK4 does not detect attracting ties, so
 every reported basin uses a stiff solver with stopping rules taken from the proofs
-(Appendix~\ref{app:intervention-protocol}).
+(Algorithm~\ref{alg:stiff} in Appendix~\ref{app:intervention-protocol}).
 
 \paragraph{Guided label averaging.} For the configuration of Theorem~\ref{thm:composition} the
-basin of the midpoint is an interval, located by bisection; its probability under $\pi_0$ is zero
+basin of the midpoint is an interval, located by bisection (Algorithm~\ref{alg:stiff}); its probability under $\pi_0$ is zero
 below $w_c$ and grows linearly just above it, as the law $\sqrt{2/\pi}\,(w/w_c-1)/\cosh B$ of
 Appendix~\ref{apx:threshold-scaling} predicts (Figure~\ref{fig:composition}(b),
 Table~\ref{tab:composition}). Perturbed priors, weights and unconditional log-odds keep an open
@@ -1189,7 +1190,8 @@ product priors. The classification agrees in all four configurations
 the trace test of Lemma~\ref{lem:volume} is silent, put no source at $z$, and sinks keep a
 positive fraction, except for the simplex at $1.1$ and $2\,w_c$, where it falls below the
 sampling resolution $1/2048$. Other blends, such as the edge midpoints of the triangle and centroids of other
-faces, take further mass (Appendix~\ref{app:intervention-protocol}).
+faces, take further mass when every endpoint is classified by the candidate it reaches
+(Algorithm~\ref{alg:classify} in Appendix~\ref{app:intervention-protocol}).
 
 \begin{table}[t]
 \centering\small
@@ -3463,11 +3465,40 @@ the probabilities shown in Figure~\ref{fig:composition}(b). Below the threshold 
 check; just above it the computed basin probability grows linearly, as $\sqrt{2/\pi}\,(w/w_c-1)/\cosh B$ to within $0.01\%$ at $w=1.0003w_c$, a formal
 law derived in Appendix~\ref{apx:threshold-scaling}.
 \placeblock{compfig}
+\begin{algorithm}[htb]
+\caption{Midpoint basin of guided label averaging (Theorem~\ref{thm:composition}): stiff
+integration with stopping rules from the proof, and bisection}
+\label{alg:stiff}
+\begin{algorithmic}[1]
+\Require $B$, $w$; tolerances and the switch time $\tau_{\mathrm{sw}}$, check spacing
+  $\Delta\tau$, root grid and bisection tolerance as in the text
+\State Bracket the roots of $F_w$ \eqref{eq:composition-mean} on a grid and refine them by Brent's
+  method; let $\zeta_{\min},\zeta_{\max}$ be the smallest and largest
+\Function{Limit}{$x_0$}
+  \State integrate $x$ with Radau up to $\tau_{\mathrm{sw}}$; then integrate
+    $\dot\zeta=\beta F_w(\zeta)+(1+\eps/t)\zeta$ in $\tau$
+  \Loop\ every $\Delta\tau$ units of $\tau$ \Comment{each rule is forward invariant}
+    \If{$\zeta>\max(0,\zeta_{\max})$} \Return $1$
+    \ElsIf{$\zeta<\min(0,\zeta_{\min})$} \Return $-1$
+    \ElsIf{$|\zeta-\zeta_\star|\le\delta$ for a root $\zeta_\star$ with
+      $F_w(\zeta_\star-\delta)>0>F_w(\zeta_\star+\delta)$ and
+      $\beta\min\{F_w(\zeta_\star-\delta),-F_w(\zeta_\star+\delta)\}>(1+\eps/t)(|\zeta_\star|+\delta)$}
+      \State \Return $0$
+    \EndIf
+  \EndLoop
+\EndFunction
+\State Flows on the line preserve order, so $\{x_0:\textsc{Limit}(x_0)=0\}$ is an interval
+  $[x_-,x_+]\ni0$
+\State Find $x_+$ by bisection between a point with limit $0$ and one with limit $1$, and $x_-$
+  likewise, to the bisection tolerance
+\State \Return $P_0=\Pr_{\N(0,1)}\bigl([x_-,x_+]\bigr)$
+\end{algorithmic}
+\end{algorithm}
 The numerical unstable roots agree with the closed form $\cosh \zeta_u=\sqrt w\sinh B$.
 With $w=1$ and $B\approx2$, unequal mixture weights $(0.6,0.4)$, unequal $(B_1,B_2)=(2,-1.5)$, an
 unconditional log-odds $2B_u=0.6$, or a combination of all three keep basin probabilities between
 $0.71$ and $0.86$, as Theorem~\ref{thm:composition}(c) predicts.
-The two-atom continuation of Appendix~\ref{app:cifar-composition} from the full-field handoff returns a positive midpoint fraction for every
+The two-atom continuation described under ``Guided label averaging on CIFAR-10'' below, from the full-field handoff, returns a positive midpoint fraction for every
 pair at $2w_c$: $917$ of $4096$ pair--source combinations ($0.224$) over the eight pairs selected
 for their margin and $309$ of $6144$ ($0.050$) over the twelve random ones.
 
@@ -3486,7 +3517,7 @@ $w=5$, and below the sampling resolution of $1/2048$ for the simplex at $1.1$ an
 centre only, and on the triangle the centre is not the only blend: the edge midpoints are ties of
 two atoms that attract for $w>1.368\,w_c$ and have probability $0$ below this value
 (Section~\ref{sec:conjunction}). With $32768$ sources, each classified by the candidate it
-converges to (Appendix~\ref{app:intervention-protocol}), the exact flow ends $0.131$, $0.409$ and
+converges to (Algorithm~\ref{alg:classify}), the exact flow ends $0.131$, $0.409$ and
 $0.460$ of the mass at the centre, the edge midpoints and the training atoms at $2w_c$
 (Figure~\ref{fig:unrolled}c), $0.681$, $0.294$ and $0.025$ at $5w_c$, and $0.950$, $0.050$ and
 $0.0001$ at $10w_c$, with standard errors at most $0.003$; at $1.1\,w_c$ no source ends at an edge
@@ -3522,7 +3553,7 @@ at $\tilde\tau=10,10^2,10^3,10^4$; the fractions are unchanged from $\tilde\tau=
 source near its basin boundary. Table~\ref{tab:spectral} gives the results.
 \texttt{theory\_basin\_map.py} integrates the triangle in the same two stages, with relative
 tolerance $10^{-9}$, from $32768$ sources (seed $20261121$), and classifies the endpoint of every
-source among all candidates at $\tilde\tau=10^4$: the centre when $|\xi|<5$, an edge midpoint when the
+source among all candidates (Algorithm~\ref{alg:classify}) at $\tilde\tau=10^4$: the centre when $|\xi|<5$, an edge midpoint when the
 trajectory lies within $0.2$ of it and its edge profile $\langle\xi,(a_i-a_j)/2\rangle$ is bounded
 by $5$, and an atom when the trajectory lies within $0.2$ of it and every posterior puts weight
 above $1-10^{-6}$ on it. At $1.1$, $2$, $5$ and $10\,w_c$ every source is classified, at $2$, $5$
@@ -3540,6 +3571,30 @@ classified, no class changes after $\tilde\tau=10^3$ at $2$ and $5\,w_c$ or for 
 box, and the centre fractions equal those of Table~\ref{tab:spectral} for the rectangle and the box
 and agree within sampling error for the triangle and the simplex, whose atoms come from a singular
 value decomposition that linear-algebra libraries may return rotated.
+
+\begin{algorithm}[htb]
+\caption{Endpoint classification by candidate (\texttt{theory\_basin\_map.py})}
+\label{alg:classify}
+\begin{algorithmic}[1]
+\Require atoms $a_1,\dots,a_N$, the field $\sum_kc_kv_{p_k}$, Gaussian sources $x_0$; radius
+  $r_{\mathrm{c}}$, profile bound $\xi_{\max}$, weight threshold $1-\eta$ and final fast time
+  $\tilde\tau_{\mathrm{end}}$ as in the text
+\For{each source $x_0$}
+  \State integrate $dx/d\tau=M(\beta x)-x$ up to $t=1/2$, then the profile equation in the fast
+    time $\tilde\tau$ up to $\tilde\tau_{\mathrm{end}}$ (adaptive Runge--Kutta)
+  \State $F\gets$ the atoms whose weight under the uniform prior is within a factor $e^{50}$ of
+    the largest; $z_F\gets$ the centroid of $F$, $L_F\gets$ the span of $F-z_F$
+  \If{$\nn(z_F)=F$ and $|x-tz_F|\le r_{\mathrm{c}}$ and \big($|F|\ge2$ and
+    $|\beta P_{L_F}(x-tz_F)|\le\xi_{\max}$, or $|F|=1$ and every posterior puts weight
+    $\ge1-\eta$ on $z_F$\big)}
+    \State class$(x_0)\gets F$ \Comment{triangle: centre, edge midpoint or atom}
+  \Else
+    \State class$(x_0)\gets$ unclassified
+  \EndIf
+\EndFor
+\State Accept the classes only if none changes after an earlier checkpoint of $\tilde\tau$
+\end{algorithmic}
+\end{algorithm}
 
 \begin{table}[htb]
 \centering\small
