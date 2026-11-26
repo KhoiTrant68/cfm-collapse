@@ -219,126 +219,70 @@ and~\ref{app:relerr}.
 
 \paragraph{The exact field memorises; trained networks depart from it.} The empirical minimiser
 of diffusion and flow-matching losses memorises
-\citep{pidstrigach2022manifolds,gu2023memorization,biroli2023diffusion,buchanan2025edge,gao2024flow,bertrand2025closed,li2026memory}.
-\citet[Theorem~5.3]{wan2025elucidating} show that the flow-matching ODE from a Gaussian source
-reproduces its data law exactly, finite training sets included.
-\citet[Theorem~6.4]{baptista2025memorization} show that the optimal conditional score only sees the
-training examples carrying the queried label. For the exact score of a finite training set,
-\citet[Theorem~3.7, version~3]{liu2025pde} prove that almost every deterministic trajectory ends on
-a training example. \citet[Theorem~2.5, version~2]{liu2026geometric} prove that when two exact scores
-are mixed or guided with a fixed weight, each trajectory converges to one of finitely many
-equilibria. Each equilibrium is fixed by its nearest points in the supports, and it need not be a
-training example. Companion work \citep{companionA} studies which changes of an exact conditional
-field, from label noise and label averaging to guidance and composition, keep its endpoints on the
-training set. Here the exact field is only the reference, and the object of study is the learned
-field.
-Trained denoisers generalise through inductive biases that depart from the exact field
-\citep{kadkhodaie2024generalization,kamb2024creativity,niedoba2024mechanistic}.
-\citet{bertrand2025closed} show that generalisation in flow matching does not come from the
-stochasticity of the regression target. They trace it to the network's failure to fit the
-closed-form velocity, which they find around $t\approx0.15$ and near $t=1$, and conclude from a
-hybrid sampler that generalisation arises early. Our swaps agree on when the image is chosen, but
-show that whether the endpoint is a copy is still open after that (Section~\ref{sec:swap}).
+\citep{pidstrigach2022manifolds,gu2023memorization,biroli2023diffusion,buchanan2025edge,gao2024flow,bertrand2025closed,li2026memory}:
+the flow-matching ODE reproduces any finite data law \citep[Theorem~5.3]{wan2025elucidating}, the
+optimal conditional score sees only the examples carrying the queried label
+\citep[Theorem~6.4]{baptista2025memorization}, almost every deterministic trajectory of the exact
+score ends on a training example \citep[Theorem~3.7, version~3]{liu2025pde}, and mixing or guiding
+two exact scores with a fixed weight leads to finitely many equilibria that need not be training
+examples \citep[Theorem~2.5, version~2]{liu2026geometric}. Companion work \citep{companionA} asks
+which changes of an exact conditional field (label noise, label averaging, guidance, composition)
+keep its endpoints on the training set; here the exact field is only the reference. Trained
+denoisers generalise through inductive biases that depart from it
+\citep{kadkhodaie2024generalization,kamb2024creativity,niedoba2024mechanistic}, and
+\citet{bertrand2025closed} trace generalisation in flow matching to the network's failure to fit
+the closed-form velocity, around $t\approx0.15$ and near $t=1$, not to the stochastic target.
 
 \paragraph{Two times.} For the exact empirical score, \citet{biroli2024dynamical} derive a
 speciation time, when the trajectory commits to a class, and a later collapse time, when it falls
-into the attractor of one training image, which it then reaches. \citet{raya2023ssb} describe the
-first transition as a spontaneous symmetry breaking and observe on trained models that two
-individual samples split significantly later than it. \citet{li2024critical} bound, under a perfect score
-and for mixtures of strongly log-concave densities, the windows of noise levels in which features
-of the sample are decided. Our EDM models are class-conditional, so the first of our two decisions,
-which training image the exact field would reach from the network's state, corresponds to the
-collapse and not to the speciation. On the public model it is made at or near the noise levels
-where the exact posterior over the training images of the class, evaluated at noised test images,
-concentrates on one image (Appendix~\ref{app:relerr-exp}, Figure~\ref{fig:posterior}).
-\citet{biroli2024dynamical} also measure both times on DDPM U-Nets: the speciation time with $2000$
-to $40000$ training images, and the collapse time with $200$ or $2000$, few enough that the networks
-reproduce them. In the exact-score picture, landing and
-collapse are the same event, because a trajectory that has collapsed reaches its training image.
-The public network does not follow this picture: its image is fixed at these noise levels, and it
-still does not reach it. \citet{bonnaire2025why} show that memorisation emerges during training on
-a time scale that grows with the size of the training set, after a generalisation time that does
-not. Our trained networks collapse onto the hard-conditioning endpoint late in training
-(Section~\ref{sec:exp1}), and our EDM models memorise at $500$ images and not at $50000$, in line
-with that picture. We do not vary the training time systematically
-(Section~\ref{sec:limitations}).
+into the attractor of one training image, which it then reaches
+\citep[see also][]{raya2023ssb,li2024critical}. Our models are class-conditional, so our first
+decision corresponds to the collapse; on the public model it falls at or near the levels where the
+exact posterior at noised test images concentrates on one image (Appendix~\ref{app:relerr-exp},
+Figure~\ref{fig:posterior}). In the exact-score picture a collapsed trajectory reaches its image;
+the public network fixes its image at these levels and still does not reach it. Memorisation
+emerges late in training, on a time scale that grows with the training set
+\citep{bonnaire2025why,favero2025bigger}, in line with our late collapse (Section~\ref{sec:exp1})
+and with EDM models that memorise at $500$ images and not at $50000$.
 
 \paragraph{Hybrid samplers.} \citet{bertrand2025closed} and \citet{liu2025navigation} run the exact
-field first and the trained network afterwards, our exact$\to$net direction. On flow-matching
-models of CIFAR-10 and CelebA, \citet{bertrand2025closed} find that a sampler that follows the
-closed-form velocity up to $t=\tau$ no longer generalises once $\tau\ge0.3$, by the LPIPS distance
-to the nearest training image, and returns almost the closed-form sample from $\tau\ge0.4$.
-\citet{liu2025navigation} compute the oracle velocity for latent ImageNet models. They split
-sampling into a navigation stage near the prior, where the target blends several training samples,
-and a refinement stage dominated by the nearest one. In their mixed sampling, a switch after
-$t=0.2$ of their latent-space schedule ($t=0$ at the prior) produces images that closely resemble
-training samples, and an earlier one gives novel outputs. They attribute generalisation to navigation and
-memorisation to refinement. \citet{dodson2026calm} exchange two trained EDM models of CIFAR-10, one
-that copies and one that does not. Exchanging them on $\sigma\in[0.14,8.4]$ moves the share of
-copies from $92.2\%$ to $0\%$ and back, and exchanging them above or below this range has little
-effect. These works record how close the output ends to a training image.
-\citet{cheng2026privacy} run a clipped empirical denoiser through the early steps and a public
-network afterwards, to bound the privacy loss of sampling. \citet{briq2026tracing} evaluate the
-closed-form velocity at the states of a learned trajectory to attribute samples to clusters of
-training images, without a hybrid sampler. Our swaps exchange the network and the exact field in
-both directions, at one level $s$ swept along the schedule. We record which training image the
-endpoint is nearest to, and whether it is on that image. On the public model the two come apart.
-For every swap at $s\le1$ ($t\ge0.5$), the endpoint's nearest training image is that of the field
-that ran first for at least $89.6\%$ of samples in either direction. This is close to the time at
-which \citet{bertrand2025closed} find the image determined. Yet handed the exact field's state at
-$s=1$, the network ends off the training set for $95.6\%$ of samples, and it lands half of them only
-when the swap comes at $s=0.5$ ($t=0.67$) (Section~\ref{sec:swap}). Whether a sample copies is thus
-decided in what \citet{liu2025navigation} call the refinement stage, by the contraction whose
-condition Theorem~\ref{thm:relerr} states.
+field first and the network afterwards, our exact$\to$net direction. A flow-matching sampler that
+follows the closed-form velocity up to $t=\tau$ no longer generalises once $\tau\ge0.3$
+\citep{bertrand2025closed}, and \citet{liu2025navigation} attribute generalisation to an early
+navigation stage and memorisation to a later refinement stage. \citet{dodson2026calm} exchange two
+trained EDM models of CIFAR-10: exchanging them on $\sigma\in[0.14,8.4]$ moves the share of copies
+from $92.2\%$ to $0\%$ and back. \citet{cheng2026privacy} combine a clipped empirical denoiser with a
+public network to bound privacy loss, and \citet{briq2026tracing} evaluate the closed-form velocity
+along learned trajectories without a hybrid sampler. To our knowledge, the direction with the
+network first has not been run before. Running both directions at one swept level separates which
+image is reached from whether it is reached (Section~\ref{sec:swap}): the first is fixed when
+\citet{bertrand2025closed} find the image determined, the second only in the refinement stage.
 
-\paragraph{Late landing.} \citet{li2026kinetic} trace memorisation in flow matching to the terminal
-singularity of the exact field, whose velocity grows like $1/(1-t)$, and reduce copying by
-damping the velocity late in sampling, a ``soft landing''. In their ablation on $1024$ grayscale
-CelebA images, with copies counted by the same distance ratio as here, damping alone for $t\ge0.6$
-lowers the share of copies from $37.3\%$ to $30.2\%$ while FID rises from $16.7$ to $35.0$. An early
-boost of the velocity alone leaves it at $36.8$--$37.4\%$, and the two together give $31.2\%$ at FID
-$14.4$. Theorem~\ref{thm:relerr} states a per-trajectory condition for such landing, and the swaps
-indicate where trained networks stop contracting. \citet{favero2025bigger} find that the training
-time at which memorisation appears grows in proportion to the size of the training set. They relate
-it to the time needed to fit the empirical score at low noise, where the backward process collapses
-onto training points.
-
-\paragraph{Where memorisation arises.} For trained diffusion models, other work locates the risk
-at medium noise levels \citep{dodson2026calm}, where the relative gap between the denoising errors
-on held-out and on training images, a measure of overfitting and not of copying, is also largest
-\citep{kaiser2026structural}. \citet{lopezamado2026modes} measure the largest scale at which the
-denoiser's fixed-scale dynamics retain an example. Others detect memorisation through basins in
-Jacobian spectra, score divergence or the magnitude of the text-conditional guidance term
-\citep{jaziri2026spectral,verma2026early,wen2024detecting}, and associative-memory readings
-describe the same basins \citep{pham2025memorization}. Changes at medium and high noise levels also
-reduce copying. Excluding $\sigma\in[1,5]$ from training lowers it from $78.8\%$ to $0.7\%$ on
-$2000$ CIFAR-10 car images \citep{dodson2026calm}. Training the noise levels above a switch level
-on noisy images reduces it on small datasets, with Pareto-optimal trade-offs between quality and
-copying on $300$ FFHQ images for switch levels $\sigma\in[0.4,4]$ \citep{shah2025ambient}. Under
-classifier-free guidance, the prompted prediction of the clean image can already be the training
-image at the first denoising step when the pair's training loss is low, for predictions assumed
-Bayes-optimal \citep{kim2025how}. Applying guidance only once the trajectory has left an
-attraction basin reduces memorisation \citep{jain2025attraction}. These works locate, reduce or
-detect memorisation. Theorem~\ref{thm:relerr} and Proposition~\ref{prop:heun} instead give
-per-trajectory conditions under which a sampler reaches a training example, and the swaps separate
-the choice of the image from the landing on it.
+\paragraph{Where memorisation arises, and late landing.} Memorisation risk has been located at medium
+noise levels \citep{dodson2026calm,kaiser2026structural} and at the largest scale at which the
+denoiser's dynamics retain an example \citep{lopezamado2026modes}, and detected through basins in
+Jacobian spectra, score divergence or the guidance term
+\citep{jaziri2026spectral,verma2026early,wen2024detecting,pham2025memorization}. Changes at medium
+and high noise reduce copying: excluding $\sigma\in[1,5]$ from training lowers it from $78.8\%$ to
+$0.7\%$ on $2000$ CIFAR-10 images \citep{dodson2026calm}, and so do training the levels above a
+switch on noisy images (on $300$ FFHQ images; \citealp{shah2025ambient}) and restricting classifier-free guidance
+\citep{kim2025how,jain2025attraction}. At the late end, \citet{li2026kinetic} trace memorisation to
+the terminal singularity of the exact field, whose velocity grows like $1/(1-t)$, and damping the
+velocity for $t\ge0.6$ lowers copies on $1024$ CelebA images from $37.3\%$ to $30.2\%$, while FID rises
+from $16.7$ to $35.0$ (an early boost alone leaves $36.8$--$37.4\%$; both together give $31.2\%$ at FID
+$14.4$). These works locate, reduce or detect memorisation; Theorem~\ref{thm:relerr} and
+Proposition~\ref{prop:heun} state per-trajectory conditions for landing.
 
 \paragraph{Error bounds.} Small regression error without stability control gives poor endpoint
-guarantees \citep[Sec.~3 and Theorem~1]{benton2024error}, and \citet[App.~D, Props.~D.1
-and~D.3]{beltran2026reward} construct velocity fields with small $L^2$ error under the interpolant
-law whose samples are poor. For interpolants on a finite training set,
-\citet[Theorems~4--5]{li2026memory} bound the distance from an Euler-discretised learned endpoint to
-the training set from above in terms of the training loss, when the law of the iterates has a
-bounded density with respect to the interpolant law. Under non-cancellation and comparability
-assumptions, they also
-bound its mean-square deviation from the selected training example from below in terms of the
-propagated error. Such a density bound implies the risk-transfer condition of
-Theorem~\ref{thm:risktransfer}, with $K$ equal to the bound. For the reverse SDE,
-\citet[Theorem~2]{pidstrigach2022manifolds} shows that a learned score whose difference from the
-empirical score stays bounded still returns only training examples. Lemma~\ref{thm:transfer} and
-Proposition~\ref{prop:loss-no-certificate} specialise these considerations to the singular
-hard-conditioning target, and Theorem~\ref{thm:relerr} replaces an absolute error bound by a
-relative one.
+guarantees \citep[Sec.~3 and Theorem~1]{benton2024error}
+\citep[App.~D, Props.~D.1 and~D.3]{beltran2026reward}. On a finite training set,
+\citet[Theorems~4--5]{li2026memory} bound the endpoint's distance to the training set by the
+training loss when the iterates have a bounded density with respect to the interpolant law, which
+implies the risk-transfer condition of Theorem~\ref{thm:risktransfer}; for the reverse SDE, a
+learned score at bounded distance from the empirical one returns only training examples
+\citep[Theorem~2]{pidstrigach2022manifolds}. Lemma~\ref{thm:transfer} and
+Proposition~\ref{prop:loss-no-certificate} specialise this to the singular hard-conditioning
+target, and Theorem~\ref{thm:relerr} replaces an absolute error bound by a relative one.
 
 % ==========================================================================
 \section{Setting: the exact field of a finite training set}
