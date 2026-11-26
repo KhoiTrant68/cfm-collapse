@@ -42,10 +42,12 @@
 \usepackage{thmtools,thm-restate} % main-text results restated verbatim before their proofs
 \usepackage{graphicx}
 \usepackage{booktabs}
+\usepackage{array} % ragged-right table columns
 \usepackage{caption}
 \usepackage{subcaption}
 \usepackage{xcolor}
 \usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+\usepackage{framed} % the proof template at the start of Section 5
 \usepackage{placeins} % \FloatBarrier keeps figures/tables from drifting past a subsection
 \usepackage{enumitem} % lettered sub-claims inside lemma statements
 \usepackage{standalone} % \input of the standalone TikZ figures in figures/tikz/
@@ -255,22 +257,6 @@ weighted average of their training examples (Section~\ref{sec:posmix}).
   the U-Net predictions do not track that variance across conditions.
 \end{enumerate}
 
-\paragraph{Technique.} All atomicity results follow one two-step template
-(Section~\ref{sec:intervention-atomicity}). A finite kinetic energy forces convergence to a finite
-set of candidates, and a divergence that grows like $(1-t)^{-2}$ makes the initial points ending at
-an off-support candidate null. For a single field the null set also follows from the known marginals of
-the flow \citep[cf.][Theorem~5.3]{wan2025elucidating}. For a mixture of fields or a guided field the
-marginals are not known, and the volume argument does not use them. Guidance has prior coefficients
-of opposite signs, for which the usual Lyapunov argument fails. For a fixed strength, a bound on the
-relative entropy of a posterior to its prior keeps the kinetic energy finite, as in
-\citet[Lemma~5.5]{liu2026geometric}. Integrating the log-partition function by parts against the
-guidance schedule (Lemma~\ref{lem:signedconv}) extends this to schedules of bounded variation and
-to any finite number of fields. For a composite, the divergence at an off-support candidate can change sign. We resolve the
-flow at scale $(1-t)^2$ and use a Lyapunov--Perron graph to obtain the spectral criterion. At a two-atom tie the criterion reduces to the sign of $1-\sum_kc_km_k^2$ for the
-restricted posterior means $m_k$, a signed second moment of a signed measure with unit mass and
-zero mean. A quadratic that vanishes at the extreme means bounds it whenever no inner prior is
-subtracted.
-
 \begin{table}[t]
 \centering\footnotesize
 \begin{tabular}{@{}p{0.40\textwidth}p{0.30\textwidth}p{0.22\textwidth}@{}}
@@ -344,7 +330,8 @@ the posterior at large $N$.
 
 \paragraph{Organisation.} Section~\ref{sec:related} places the results in the literature.
 Section~\ref{sec:setup} fixes notation, and Section~\ref{sec:theory} describes the exact field and
-its label-noise law. Section~\ref{sec:intervention-atomicity} treats the interventions, from
+its label-noise law. Section~\ref{sec:intervention-atomicity} opens with the two-step proof template
+that all intervention results share and then treats the interventions, from
 positive mixtures to the spectral criterion and the composition of conditions.
 Section~\ref{sec:regular-learned} says what a learned field needs to reach a blend, and
 Section~\ref{sec:intervention-tests} gives the numerical evidence. All proofs are in the
@@ -602,33 +589,49 @@ equidistant from $\nn(z)$, so the candidate sets
 $\mathcal C=\{z:z\in\operatorname{conv}\nn(z)\}\subseteq\mathcal C'=\{z:z\in\operatorname{aff}\nn(z)\}$
 are finite. They consist of the atoms and of circumcentres of equidistant nearest atoms.
 
-\paragraph{Proof strategy.} All results of this section follow one two-step template, stated once
-in Appendix~\ref{apx:general-steps}. In the time $\tau=-\log\eps$ each field we consider reads
+All results of this section follow one two-step template, stated below and proved once in
+Appendix~\ref{apx:general-steps}. In the time $\tau=-\log\eps$ each field we consider reads
 $\dot x=\bar m-x$, where $\bar m$ is a combination, possibly signed, of posterior means over the
-atoms. \emph{Step~1 (convergence):} if the kinetic energy $\int|\dot x|^2\,d\tau$ is finite, the
-trajectory converges to a point of $\mathcal C$ or $\mathcal C'$ (Lemma~\ref{lem:conv}).
-\emph{Step~2 (null basins):} the divergence of the field is $\beta\Theta-d$, with
-$\beta=t/\eps^2\to\infty$ and $\Theta$ the same combination of posterior covariance traces. If
-$\Theta$ stays above a positive constant along every trajectory with an off-support limit, the flow expands volume
-without bound there while bounded sets stay bounded, and Liouville's formula with Fatou's lemma
-makes these initial points null (Lemma~\ref{lem:volume}). The interventions differ only in how the
-two steps are verified, and composition is where Step~2 fails (Figure~\ref{fig:proof-template}).
+atoms. Its divergence is $\beta\Theta-d$, where $\beta=t/\eps^2\to\infty$ and $\Theta$ is the same
+combination of posterior covariance traces. Write $\mathcal A=\{a_1,\dots,a_N\}$.
 
-\moveblock{template}{%
-\begin{figure}[t]
-\centering
-\resizebox{\textwidth}{!}{\input{figures/tikz/proof_template.tex}}
-\caption{The proof template of Section~\ref{sec:intervention-atomicity}. In the time $\tau$
-every field considered has the form $\dot x=\bar m-x$. Step~1 bounds the kinetic energy, which
-forces convergence to a candidate. At a candidate that is not an atom, Step~2 asks whether the
-combined posterior covariance trace $\Theta$, which sets the divergence $\beta\Theta-d$, stays
-positive, away from zero. Positive mixtures and nonnegative guidance pass both steps; guided label averaging
-fails Step~2 at the tie once $w>w_c=1/\sinh^2B$ (Theorem~\ref{thm:composition},
-Figure~\ref{fig:composition}).}
-\label{fig:proof-template}
-\end{figure}
-}%
+\begin{framed}
+\noindent\textbf{Template.} Let $f=\bar m-x$ in the time $\tau$, with candidate set $\mathcal C'$
+and combined posterior covariance trace $\Theta$, so that $\operatorname{div}_xf=\beta\Theta-d$.
+\begin{align*}
+&\text{(S1)}\quad \textstyle\int^\infty|\dot x|^2\,d\tau<\infty
+  \;\Longrightarrow\; x(\tau)\to z\in\mathcal C'
+  \tag*{(Lemma~\ref{lem:conv})}\\
+&\text{(S2)}\quad z\notin\mathcal A,\ \liminf\Theta>0
+  \;\Longrightarrow\; \textstyle\int^\infty\operatorname{div}_xf\,d\tau=+\infty
+  \;\Longrightarrow\; \operatorname{Leb}\{x_0:x(\tau)\to z\}=0
+  \tag*{(Lemma~\ref{lem:volume})}\\
+&\text{(S1)}\wedge\text{(S2)}\;\Longrightarrow\;X_1\in\mathcal A\ \text{almost surely under every
+  absolutely continuous source.}
+\end{align*}
+\end{framed}
+\noindent The lemmas state the exact hypotheses; in (S2), $\liminf\Theta>0$ may hold on average
+over unit intervals of $\tau$. The interventions differ only in how (S1) and (S2) are verified
+(Table~\ref{tab:template}), and composition is where (S2) fails. For a single field the null set
+also follows from the known marginals of the flow \citep[cf.][Theorem~5.3]{wan2025elucidating}.
+For mixtures and guided fields the marginals are not known, and the volume argument does not use
+them. Table~\ref{tab:roadmap} in the appendix lists where each step is proved.
 
+\begin{table}[t]
+\centering\small
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.17\textwidth}>{\raggedright\arraybackslash}p{0.29\textwidth}>{\raggedright\arraybackslash}p{0.29\textwidth}>{\raggedright\arraybackslash}p{0.17\textwidth}@{}}
+\toprule
+Result & (S1) verified by & (S2) verified by & Outcome\\
+\midrule
+Thm.~\ref{thm:posmix} (positive mixtures) & averaged log-partition energy, lowered by its time dependence & $\Theta$ an averaged covariance trace, positive near off-support limits & atom a.s.\\
+Thm.~\ref{thm:twofields} (two fields) & integration by parts against $w$ (Lemma~\ref{lem:signedconv}); relative entropy to a positive prior, as in \citet[Lemma~5.5]{liu2026geometric} & $\Theta=r^2-|m_w|^2+w(1+w)|m_c-m_u|^2+o(1)$, last term $\ge0$ for $w\ge0$ \eqref{eq:guided-trace} & atom a.s.\\
+Thm.~\ref{thm:composition} (three fields) & Lemma~\ref{lem:signedconv} & fails: $\Theta=F_w'(0)<0$ at the tie when $w>w_c$ & blend with positive probability\\
+Thm.~\ref{thm:spectral} (spectral) & Lemma~\ref{lem:signedconv} & replaced by the signs of the eigenvalues of $\Gamma$ at a profile & open basin if $\Gamma\prec0$, null if an eigenvalue is $>0$\\
+\bottomrule
+\end{tabular}
+\caption{The interventions differ only in how the two steps of the template are verified.}
+\label{tab:template}
+\end{table}
 
 \subsection{Positive field mixtures keep the atoms}
 \label{sec:posmix}
@@ -673,9 +676,9 @@ v_\Pi(x,t)=\int v_p(x,t)\,\Pi(dp).
 
 \moveblock{sketchposmix}{%
 \begin{proofsketch}
-Here $\bar m=m_\Pi$ averages the posterior means $m_p=\sum_jq_{p,j}a_j$. For Step~1, the flow is
+Here $\bar m=m_\Pi$ averages the posterior means $m_p=\sum_jq_{p,j}a_j$. For (S1), the flow is
 the gradient flow of $\tfrac12|x|^2$ minus an averaged log-partition function whose explicit time
-dependence only lowers the energy, so the kinetic energy is finite. For Step~2, $\Theta$ is an
+dependence only lowers the energy, so the kinetic energy is finite. For (S2), $\Theta$ is an
 averaged posterior covariance trace, and near an off-support limit positivity of the priors keeps $\Theta$
 away from zero.
 \end{proofsketch}
@@ -878,7 +881,7 @@ $\mathcal C'$: composition
 changes the volume behaviour of the flow at a candidate, not the set of candidates. The
 one-dimensional statement isolates a mechanism that does not depend on dimension: in any
 dimension an off-support candidate can attract a set of sources of positive measure only if the
-combined covariance trace $\Theta$ of Step~2 fails to stay positive there
+combined covariance trace $\Theta$ of (S2) fails to stay positive there
 (Lemma~\ref{lem:volume}), and averaging lowers $\Theta$ by $(1+w)$ times the
 spread of the component posterior means. Section~\ref{sec:spectral} turns this into a criterion
 in any dimension.
