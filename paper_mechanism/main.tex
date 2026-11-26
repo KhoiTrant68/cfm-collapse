@@ -27,6 +27,7 @@
 \usepackage{thmtools,thm-restate} % main-text results restated verbatim before their proofs
 \usepackage{graphicx}
 \usepackage{booktabs}
+\usepackage{multirow} % rotated row groups in tab:window-main
 \usepackage{caption}
 \usepackage{subcaption}
 \usepackage{xcolor}
@@ -540,7 +541,8 @@ training image. Figure~\ref{fig:collapse-details} shows the other EXP-1 and CIFA
 \label{fig:collapse}
 \end{figure}
 
-\paragraph{Hard conditioning.} \emph{Collapse} of a trained network here means finite-cutoff
+\paragraph{Hard conditioning.} Trained networks collapse at hard conditioning, late in training.
+\emph{Collapse} of a trained network here means finite-cutoff
 collapse: the variance falls toward zero at the cutoff. It is not an endpoint atom, which a
 velocity MLP lacks (Section~\ref{sec:transfer}). On EXP-1 the conditional variance tracks the
 posterior, $\tr\Sigmapost=1.018$, up to $\sim\!10^4$ iterations, then collapses: $0.396$
@@ -584,28 +586,42 @@ $t\approx0.63$ on).
 \subsection{Landing in EDM image models}
 \label{sec:edm}
 
-This section and the next two measure the landing condition on class-conditional EDM denoisers
-of CIFAR-10 \citep{karras2022elucidating}. We use the public model trained on all $50000$ images,
-and three models with the same architecture trained here for $10$\,Mimg without augmentation on
-class-balanced subsets, two of $500$ images (different subsets and seeds) and one of $2000$. The
-exact field $m^\star$ is the posterior mean over the training images of the class $c$. The class
-label is not identifying, so Lemma~\ref{thm:transfer} does not apply, while the relative condition
-does. We measure it in EDM's own coordinates, that is, through Proposition~\ref{prop:trap}, the form
-that Theorem~\ref{thm:relerr} takes there. Along the EDM state $x$ we record three quantities: the
-distance $n=|x-a|$ to a training image $a$, the error $e=|D_\theta-m^\star|$, and the relative error
-$\varrho=e/n$. The radial identity reads $\sigma\,dn/d\sigma=n-\langle\hat e,D_\theta-a\rangle$, as in
-the proof of Proposition~\ref{prop:trap}. The contraction that $\varrho$ leaves over a range of
-levels is $\int(1-\varrho)\,d\log(1/\sigma)$. These are not the quantities of
-Theorem~\ref{thm:relerr} in the coordinates $t=1/(1+\sigma)$ and $Z=tx$, where $n_t=|tx-a|$; we did
-not record those. All samples use EDM's deterministic $18$-step Heun sampler. A sample is on-atom (a copy) when its
-distance to the nearest training image of its class is less than $1/3$ of that to the second
-nearest, and off-atom (a new image) otherwise, as in Appendix~\ref{app:measured-transfer}. The
-$500$-image models memorise: $41$ of $1000$ samples
-($4.1\%$) are off-atom, and $4.4\%$ for the second subset. The $2000$-image model is balanced, with
-$50.1\%$ off-atom, and the public model has only off-atom samples. The exact field has none. The
-swap experiments also use a model trained on a class-balanced subset of $1000$ images and stopped
-after $0.5$\,Mimg, which has only off-atom samples. Unless stated otherwise, numbers below are for
-the first $500$-image model; the second gives the same conclusions (Appendix~\ref{app:relerr-exp}).
+The models range from one that memorises to ones that do not, and on all of them the exact field
+can be evaluated. This section and the next two measure the landing condition on class-conditional
+EDM denoisers of CIFAR-10 \citep{karras2022elucidating}. We use the public model trained on all
+$50000$ images, and three models with the same architecture trained here for $10$\,Mimg without
+augmentation on class-balanced subsets, two of $500$ images (different subsets and seeds) and one of
+$2000$. The exact field $m^\star$ is the posterior mean over the training images of the class $c$.
+The class label is not identifying, so Lemma~\ref{thm:transfer} does not apply, while the relative
+condition does.
+
+\begin{center}
+\fbox{\begin{minipage}{0.96\textwidth}
+\textbf{Measurement protocol.}
+\begin{itemize}[leftmargin=1.5em,itemsep=1pt,topsep=2pt]
+\item \emph{Sampler.} EDM's deterministic $18$-step Heun sampler.
+\item \emph{Quantities.} Along the EDM state $x$, for a training image $a$:
+  the distance $n=|x-a|$, the error $e=|D_\theta-m^\star|$ and the relative error $\varrho=e/n$.
+\item \emph{Radial identity.} $\sigma\,dn/d\sigma=n-\langle\hat e,D_\theta-a\rangle$, as in the proof
+  of Proposition~\ref{prop:trap}.
+\item \emph{Contraction.} Over a range of levels, $\int(1-\varrho)\,d\log(1/\sigma)$.
+\item \emph{On-/off-atom.} A sample is on-atom (a copy) when its distance to the nearest training
+  image of its class is less than $1/3$ of that to the second nearest, and off-atom (a new image)
+  otherwise, as in Appendix~\ref{app:measured-transfer}.
+\item \emph{Coordinates.} We measure in EDM's own coordinates, that is, through
+  Proposition~\ref{prop:trap}, the form that Theorem~\ref{thm:relerr} takes there. These are not
+  the quantities of Theorem~\ref{thm:relerr} in the coordinates $t=1/(1+\sigma)$ and $Z=tx$, where
+  $n_t=|tx-a|$; we did not record those.
+\end{itemize}
+\end{minipage}}
+\end{center}
+
+The $500$-image models memorise: $41$ of $1000$ samples ($4.1\%$) are off-atom, and $4.4\%$ for the
+second subset. The $2000$-image model is balanced, with $50.1\%$ off-atom, and the public model has
+only off-atom samples. The exact field has none. The swap experiments also use a model trained on a
+class-balanced subset of $1000$ images and stopped after $0.5$\,Mimg, which has only off-atom
+samples. Unless stated otherwise, numbers below are for the first $500$-image model; the second
+gives the same conclusions (Appendix~\ref{app:relerr-exp}).
 
 \subsection{Choose early, land late: swapping the field mid-trajectory}
 \label{sec:swap}
@@ -678,7 +694,8 @@ and every endpoint lies within $10^{-5}$ of it.}
 \label{tab:swap}
 \end{table}
 
-\paragraph{The image is chosen early.} With the network running down to $s$ and the exact field
+\paragraph{The image is chosen early.} The network fixes which image its sample is headed for by
+$\sigma\approx1$, earlier on the memorising model. With the network running down to $s$ and the exact field
 below, every sample of every model ends on a training image, at every $s$. This holds by
 construction rather than as a finding. The sampler's last step is an Euler step from
 $\sigma=0.002$ to $0$, which returns the denoiser output at $\sigma=0.002$. For the exact field that
@@ -706,63 +723,60 @@ $93\%$ of its images by $\sigma=5$. The swaps of \citet{dodson2026calm} between 
 exchange the range $\sigma\in[0.14,8.4]$ as a whole (Section~\ref{sec:related}). That range contains
 both of the decisions that the swap level $s$ separates here.
 
-\paragraph{The reverse swap separates memorising from non-memorising models.} The exact field ends on
-a training image from whatever state it is handed, so evidence on landing has to come from this
-direction, where the network runs last. Only the memorising network lands from every
-swap level; the two networks that do not memorise land only from late levels. With the exact
-field down to $s$ and the network below, the public model ends off-atom for $100\%$ of samples at $s\ge2$, $95.6\%$ at
-$s=1$, $49.2\%$ at $s=0.5$, $7.0\%$ at $s=0.2$ and $0.2\%$ at $s=0.1$; the $1000$-image model for
-$97.4\%$ at $s=5$, $23.2\%$ at $s=1$ and none from $s\le0.1$. Interpolated in $\log s$, half of
-the samples land from $s=0.51$ ($95\%$ interval $[0.47,0.54]$) on the public model and from
-$s=1.33$ ($[1.29,1.37]$) on the $1000$-image model, later than half of the images are chosen
-($s=2.48$ and $4.74$). At $90\%$ the order is the same ($0.95$ against $0.21$, and $0.82$ against
-$0.56$). For $s\le1$ the samples that end off-atom miss the image that the exact field's state had
-fixed: their nearest image is still the exact one. When the switch is late enough to end on-atom,
-this is partly because little time is left. From $s=0.1$ to $0.02$ the median endpoint distance
-to the nearest image falls roughly in proportion to $s$: $2.57$, $1.37$ and $0.61$ on the public
-model ($2.63$, $1.47$, $0.68$ on the $1000$-image model; log--log slopes $0.90$ and $0.84$,
-against $0.47$ from $s=5$ to $0.5$ on the public model). The exact field would end at
-distance $0$. The network does contract, but weakly. Suppose the state at the last level $\sigma$ of
-the exact field lies at the distance $\sigma\sqrt d$ from the image that an exact trajectory has
-there (the hand-over distance was not recorded). Then the remaining steps of these late swaps on
-the public model shorten it by a factor of about $2$ to $3$, or of about $1.4$ to $2.2$ if the
-exact field is credited with its half of the mixed Heun step at the hand-over. This is close to
-the boundary case of Theorem~\ref{thm:relerr}(d), a relative error near one that neither contracts
-nor expands. This also matches the relative error of the public model along its own trajectories, $0.925$
-at $\sigma=0.14$ and $0.997$ at $\sigma=0.023$ (Table~\ref{tab:edm-rho}).
+\begin{table}[t]
+\centering\small\setlength{\tabcolsep}{4.5pt}
+\begin{tabular}{@{}lcc rrrr rr rr@{}}
+\toprule
+& & & \multicolumn{4}{c}{public ($50000$ images)} & \multicolumn{2}{c}{$1000$ images} & \multicolumn{2}{c}{$500$ images}\\
+\cmidrule(lr){4-7}\cmidrule(lr){8-9}\cmidrule(l){10-11}
+& $\sigma_{\rm lo}$ & $\sigma_{\rm hi}$ & off-atom (\%) & median $d_1$ & $d_1/\sigma_{\rm lo}$ & $=$L & off-atom (\%) & median $d_1$ & off-atom (\%) & median $d_1$\\
+\midrule
+\multirow{8}{*}{\rotatebox{90}{exact$\to$net}}
+& $5$    & $\infty$ & $100$  & $18.85$ & --     & $0.138$ & $97.4$ & $14.49$ & $0$ & $1.67$\\
+& $2$    & $\infty$ & $100$  & $16.20$ & --     & $0.138$ & $88.2$ & $10.73$ & $0$ & $1.63$\\
+& $1$    & $\infty$ & $95.6$ & $9.21$  & $9.2$  & $0.138$ & $23.2$ & $6.61$  & $0$ & $1.49$\\
+& $0.5$  & $\infty$ & $49.2$ & $6.45$  & $12.9$ & $0.138$ & $7.4$  & $5.25$  & $0$ & $1.32$\\
+& $0.2$  & $\infty$ & $7.0$  & $4.22$  & $21.1$ & $0.138$ & $1.0$  & $3.94$  & $0$ & $1.13$\\
+& $0.1$  & $\infty$ & $0.2$  & $2.57$  & $25.7$ & $0.138$ & $0$    & $2.63$  & $0$ & $0.93$\\
+& $0.05$ & $\infty$ & $0$    & $1.37$  & $27.5$ & $0.138$ & $0$    & $1.47$  & $0$ & $0.69$\\
+& $0.02$ & $\infty$ & $0$    & $0.61$  & $30.3$ & $0.138$ & $0$    & $0.68$  & $0$ & $0.45$\\
+\midrule
+\multirow{7}{*}{\rotatebox{90}{window}}
+& $0.02$ & $0.5$ & $0$    & $0.78$ & & $0.956$ & & & &\\
+& $0.05$ & $0.5$ & $0$    & $1.93$ & & $0.956$ & & & &\\
+& $0.05$ & $2$   & $0$    & $1.33$ & & $0.560$ & & & &\\
+& $0.05$ & $5$   & $0$    & $1.33$ & & $0.306$ & & & &\\
+& $0.1$  & $0.5$ & $21$ $[18,25]$ & $4.16$ & & $0.956$ & & & &\\
+& $0.1$  & $1$   & $2.4$  & $3.04$ & & $0.896$ & & & &\\
+& $0.1$  & $2$   & $0.4$  & $2.48$ & & $0.560$ & & & &\\
+\midrule
+\multicolumn{3}{@{}l}{half land from $s=$} & \multicolumn{4}{c}{$0.51$ $[0.47,0.54]$} & \multicolumn{2}{c}{$1.33$ $[1.29,1.37]$} & \multicolumn{2}{c}{every $s$}\\
+\multicolumn{3}{@{}l}{half chosen by $s=$} & \multicolumn{4}{c}{$2.48$} & \multicolumn{2}{c}{$4.74$} & \multicolumn{2}{c}{$93\%$ at $s=5$}\\
+\multicolumn{3}{@{}l}{$90\%$ land / chosen} & \multicolumn{4}{c}{$0.21$ / $0.95$} & \multicolumn{2}{c}{$0.56$ / $0.82$} & \multicolumn{2}{c}{}\\
+\bottomrule
+\end{tabular}
+\caption{Reverse and window swaps, $500$ latents per model. The exact field runs at the levels
+$\sigma\in(\sigma_{\rm lo},\sigma_{\rm hi}]$ of the $18$-step schedule and the network at the
+others, so $\sigma_{\rm hi}=\infty$ is exact$\to$net at $s=\sigma_{\rm lo}$. Off-atom: share of
+endpoints off the training set, with a $95\%$ Wilson interval where quoted; median $d_1$: median
+distance of the endpoint to its nearest training image (the exact field alone ends at $0$); $=$L:
+share whose nearest training image is that of the network's own endpoint. Bottom: swap levels,
+interpolated in $\log s$, at which half and $90\%$ of the exact$\to$net samples land, and half and
+$90\%$ of the net$\to$exact images are the network's own ($95\%$ bootstrap intervals in brackets).
+Windows ran only on the public model.}
+\label{tab:window-main}
+\end{table}
 
-The memorising $500$-image model behaves the other way. Handed the exact state at any $s$, its late
-field ends on-atom for every sample, on the exact field's image ($=$E at least $0.954$) rather than
-on its own ($=$L between $0.354$ and $0.374$, the agreement without a swap). Its late field thus
-contracts toward whichever training image the state is near, not toward the image it selected. Its
-median endpoint distance falls from $1.67$ at $s=5$ to $0.45$ at $s=0.02$, on-atom by the relative
-criterion but not at distance $0$. The $19$ samples that this model leaves off-atom when it runs
-alone all land under exact$\to$net at every swap level, even $s=5$. From the exact field's state
-the same late field lands them, so their failure to land is set by the state the network reaches
-above $\sigma=5$.
-
-\paragraph{A window of exact field.} On the public model we also used the exact field only on a
-window of levels $\sigma\in(\sigma_{\rm lo},\sigma_{\rm hi}]$, with the network above and below
-it, from the same $500$ latents (Table~\ref{tab:window}). Two predictions were written down before
-the run. The first was that with the exact field down to $\sigma_{\rm lo}$ the median endpoint
-distance $d_1$ is proportional to $\sigma_{\rm lo}$, with $d_1/\sigma_{\rm lo}$ between $20$ and
-$35$. This restated the exact$\to$net runs above, which the windows $(\sigma_{\rm lo},\infty)$ repeat
-on the same latents and reproduce sample by sample, so it is not an independent test. The ratio is
-in that range for $\sigma_{\rm lo}\le0.2$ ($30.3$, $27.5$, $25.7$ and $21.1$ at
-$\sigma_{\rm lo}=0.02$, $0.05$, $0.1$ and $0.2$) but not at $0.5$ and $1$ ($12.9$ and $9.2$), so
-by its own criterion it fails. The second, and the only new test, was that for
-$\sigma_{\rm hi}\ge0.5$ the median $d_1$ depends only on $\sigma_{\rm lo}$, where the network takes
-over again. It is refuted. With $\sigma_{\rm lo}=0.1$ the median is $4.16$ for the window $(0.1,0.5]$
-and $2.48$ for $(0.1,2]$, a ratio of $0.60$ ($[0.58,0.61]$), and $(0.1,0.5]$ leaves $21\%$ of the
-samples off-atom ($[18,25]\%$), against $0.2\%$ when the exact field runs from the start down to
-$0.1$. Which image is reached is set by the window's upper end: the share on the network's own
-image equals that of net$\to$exact at $s=\sigma_{\rm hi}$ ($0.956$, $0.896$, $0.560$ and $0.306$ for
-$\sigma_{\rm hi}=0.5$, $1$, $2$ and $5$), and the image itself agrees for at least $99.6\%$ of
-samples. A window that starts at $\sigma_{\rm hi}\le1$ ends farther from the image than the exact
-field run from the start down to the same $\sigma_{\rm lo}$. Only windows that start at
-$\sigma_{\rm hi}\ge2$ give a final distance that depends on $\sigma_{\rm lo}$ alone ($1.33$, $1.33$
-and $1.37$ for $(0.05,2]$, $(0.05,5]$ and $(0.05,\infty)$). With the same network below
-$\sigma_{\rm lo}$, landing thus depends on the state it is handed, not on the late field alone.
+\paragraph{The reverse and window swaps.} With the exact field first, only the memorising network
+lands from every swap level, while the public and the $1000$-image model land half of their
+samples only from $s=0.51$ and $s=1.33$, later than half of their images are chosen ($s=2.48$ and
+$4.74$; Table~\ref{tab:window-main}). \textbf{Two predictions were written down before the run, and
+the only one that did not restate earlier runs, that for $\sigma_{\rm hi}\ge0.5$ the median $d_1$
+depends only on $\sigma_{\rm lo}$, is refuted}: the window $(0.1,0.5]$ ends at a median $4.16$,
+against $2.48$ for $(0.1,2]$, and leaves $21\%$ of the samples off-atom. With the same network
+below $\sigma_{\rm lo}$, landing thus depends on the state it is handed and not on the late field
+alone, while the image reached is set by the window's upper end (details in
+Appendix~\ref{app:relerr-exp}).
 
 \paragraph{Reading.} The image is decided at medium noise, by the network for its own samples and
 by whichever field runs there in the swaps. Whether the endpoint is that image is decided by the
@@ -865,52 +879,83 @@ Jacobian, does not separate the groups late (AUC $0.47$--$0.52$ for $\sigma\le0.
 is the contraction toward the selected image, not in the worst direction
 (Appendix~\ref{app:relerr-exp}).
 
-\paragraph{Not a better detector.} As a detector, the field error is no better than the distance
-from $D_\theta$ to the nearest training image. Its absolute value $e_t$ is worse at
-$\sigma\in[3.3,19.4]$ (AUC difference $-0.074$, bootstrap $95\%$ interval $[-0.099,-0.049]$, at
-$\sigma=8.4$) and equal from $\sigma\le1.9$, where the two coincide up to the off-image posterior
-mass. The radial ratio is better only at the highest noise levels: $0.796$ against $0.689$ at
-$\sigma=19.4$ (difference $[0.056,0.159]$), and on the balanced model $0.605$ against $0.520$ at
-$\sigma=12.9$ (difference $[0.055,0.115]$), where both are weak. On the balanced model the late contraction is no better than the baseline at $\sigma=0.002$
-($0.983$ against $0.985$), but there the comparison is bookkeeping. The last step of the sampler
-returns the denoiser output at $\sigma=0.002$ (Proposition~\ref{prop:heun}(a)), so the baseline
-there is the endpoint's distance $d_1$ to its nearest training image, the numerator of the off-atom
-criterion. At $\sigma=0.585$, the start of the late noise levels, the baseline uses no later
-information and still separates the groups at least as well as the late contraction over the whole
-range ($0.990$ against $0.983$, paired difference $[0.004,0.010]$). It also predicts $\log d_1$
-better in a linear fit ($R^2$ $0.991$ against $0.976$, and $0.965$ against $0.883$ among on-atom
-samples). At off-atom thresholds $0.2$ and $0.5$ the baseline at $\sigma=0.585$ is better (AUC
-$0.987$ against $0.974$, paired difference $[0.008,0.018]$) or tied ($0.990$ against $0.990$,
-paired difference $[-0.003,0.003]$), and it still predicts $\log d_1$ better among on-atom samples
-($R^2$ $0.903$ against $0.716$, and $0.975$ against $0.934$). Which samples land is visible earlier
-still: the AUC of the baseline is $0.909$, $0.962$ and $0.988$ at $\sigma=3.26$, $1.92$ and $1.09$.
-In a cross-validated logistic regression on the balanced model, adding the relative error, with the
-predictive anchor, to the logarithm of the baseline at the same level changes the AUC by at most
-$0.002$ from $\sigma\le1.9$. Adding the late contraction accumulated from $\sigma=0.585$ down to
-that level raises it by at most $0.002$. We read Theorem~\ref{thm:relerr} as the mechanism of
-landing, not as a test for memorisation. The exact$\to$net swaps of Section~\ref{sec:swap}, which
-change only the field below the switch, are what tie landing to the late field causally.
+\begin{table}[t]
+\centering\footnotesize\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lr cccl@{}}
+\toprule
+model & $\sigma$ & radial ratio & baseline $\hat d$ & late contraction $C$ & difference of AUC [$95\%$]\\
+\midrule
+$500$ images & $19.4$ & $0.796$ & $0.689$ & & radial ratio $-$ $\hat d$: $[0.056,0.159]$\\
+& $8.4$ & & & & absolute error $e_t$ $-$ $\hat d$: $-0.074$ $[-0.099,-0.049]$\\
+\midrule
+$2000$ images & $12.9$ & $0.605$ & $0.520$ & & radial ratio $-$ $\hat d$: $[0.055,0.115]$\\
+& $3.26$ & & $0.909$ & &\\
+& $1.92$ & & $0.962$ & &\\
+& $1.09$ & & $0.988$ & &\\
+& $0.585$ & & $0.990$ & \multirow{2}{*}{$0.983$ (whole range)} & $\hat d-C$: $[0.004,0.010]$\\
+& $0.002$ & & $0.985$ & &\\
+\bottomrule
+\end{tabular}
 
-\paragraph{A certificate for the sampler.} Each Heun step is an affine combination
-$x_{k+1}=r_kx_k+\kappa_kD_k+\bar\kappa_k\tilde D_k$ with $r_k=\sigma_{k+1}/\sigma_k$, where $D_k$ and
-$\tilde D_k$ are the denoiser outputs at the point and at its Euler predictor, and
-$\kappa_k<0$ when $r_k<1/2$. Proposition~\ref{prop:heun} turns a relative error $\varrho$ at the
-step and at its Euler predictor into a one-step contraction factor $c_k$. This factor is below one
-for every $\varrho<1$ when $r_k\ge1/2$, but only for $\varrho<\varrho_{\rm crit}(r_k)<1$ otherwise.
-In the $18$-step schedule $r_k$ falls below $1/2$ for the last five Heun steps, to $0.27$. With
-$\varrho$ measured along the trajectory the bound holds by construction, so it is never violated
-along the $1500$ trajectories; this checks the implementation, not the model. What the measurement
-adds is where the certificate is informative. It certifies contraction for at least $99.7\%$ of
-on-atom samples at every step down to $\sigma=0.14$ and for none at the last two Heun steps, where
-the predictor's $\varrho$ exceeds $\varrho_{\rm crit}$. Since every $r_k\ge1/2$ makes $c_k<1$ for
-all $\varrho<1$, more steps make the certificate hold. The empirical question is whether the
-outcome changes with them. With $36$ and
-$64$ steps the certificate holds at every step for $99.5\%$ of on-atom samples, while the off-atom
-fraction ($4.1$, $4.0$, $3.9\%$ for $18$, $36$, $64$ steps) and the image reached ($99.4$ and
-$99.3\%$ the same as with $18$ steps) do not change (Figure~\ref{fig:heun}, Table~\ref{tab:edm-steps}).
-The failure at $18$ steps is therefore a looseness of the bound, not of the sampler. On the
-$2000$-image model and the second $500$-image model the certificate covers every on-atom sample
-down to $\sigma=0.30$.
+\vspace{4pt}
+\begin{tabular}{@{}l ccc@{}}
+\toprule
+$2000$ images, $\sigma=0.585$; off-atom threshold & $1/3$ & $0.2$ & $0.5$\\
+\midrule
+AUC, baseline / $C$ & $0.990$ / $0.983$ & $0.987$ / $0.974$ & $0.990$ / $0.990$\\
+\quad paired difference [$95\%$] & $[0.004,0.010]$ & $[0.008,0.018]$ & $[-0.003,0.003]$\\
+$R^2$ for $\log d_1$, baseline / $C$, all samples & $0.991$ / $0.976$ & & \\
+$R^2$ for $\log d_1$, baseline / $C$, on-atom samples & $0.965$ / $0.883$ & $0.903$ / $0.716$ & $0.975$ / $0.934$\\
+\bottomrule
+\end{tabular}
+\caption{Field error against the nearest-image baseline as detectors of off-atom samples. Baseline
+$\hat d$: distance from $D_\theta$ to its nearest training image (Appendix~\ref{app:relerr-exp}).
+Bootstrap intervals of the differences in brackets. The absolute error $e_t$ is worse than the
+baseline at $\sigma\in[3.3,19.4]$ and equal from $\sigma\le1.9$, where the two coincide up to the
+off-image posterior mass; the radial ratio is better only at the highest levels, where both are
+weak. At $\sigma=0.002$ the baseline is the endpoint distance $d_1$, the numerator of the off-atom
+criterion, because the last sampler step returns $D_\theta$ there (Proposition~\ref{prop:heun}(a)):
+that comparison is bookkeeping. $C$ is accumulated over $\sigma\in[0.002,0.585]$; the baseline at
+$\sigma=0.585$ uses no later information. In a cross-validated logistic regression on the
+$2000$-image model, adding the relative error (predictive anchor) to the logarithm of the baseline at
+the same level changes the AUC by at most $0.002$ from $\sigma\le1.9$, and adding the late
+contraction accumulated from $\sigma=0.585$ down to that level raises it by at most $0.002$.}
+\label{tab:auc}
+\end{table}
+
+\paragraph{Not a better detector.} Relative error is not a better detector than the distance from
+the denoiser output to its nearest training image (Table~\ref{tab:auc}).
+
+\paragraph{A certificate for the sampler.} Proposition~\ref{prop:heun} certifies contraction along
+the $18$-step sampler down to $\sigma=0.14$, and with more steps at every step, without changing which
+samples land. Each Heun step is an affine combination
+\begin{equation}
+x_{k+1}=r_kx_k+\kappa_kD_k+\bar\kappa_k\tilde D_k,\qquad r_k=\frac{\sigma_{k+1}}{\sigma_k},
+\label{eq:heun-step}
+\end{equation}
+where $D_k$ and $\tilde D_k$ are the denoiser outputs at the point and at its Euler predictor, and
+$\kappa_k<0$ when $r_k<1/2$. A relative error $\varrho$ at the step and at its Euler predictor gives
+$n_{k+1}\le c_kn_k+b_k$ with the one-step contraction factor
+\begin{equation}
+c_k=r_k+|\kappa_k|\varrho+\bar\kappa_k\varrho\,\bigl(r_k+(1-r_k)\varrho\bigr),\qquad
+\varrho_{\rm crit}(r)=\tfrac12\Bigl(\sqrt{1+8r/(1-r)}-1\Bigr)
+\label{eq:heun-factor}
+\end{equation}
+(Proposition~\ref{prop:heun}(b),~(c)). The factor is below one for every $\varrho<1$ when
+$r_k\ge1/2$, but only for $\varrho<\varrho_{\rm crit}(r_k)<1$ otherwise. In the $18$-step schedule
+$r_k$ falls below $1/2$ for the last five Heun steps, to $0.27$. With $\varrho$ measured along the
+trajectory the bound holds by construction, so it is never violated along the $1500$ trajectories;
+this checks the implementation, not the model. What the measurement adds is where the certificate
+is informative. It certifies contraction for at least $99.7\%$ of on-atom samples at every step
+down to $\sigma=0.14$ and for none at the last two Heun steps, where the predictor's $\varrho$
+exceeds $\varrho_{\rm crit}$. Since every $r_k\ge1/2$ makes $c_k<1$ for all $\varrho<1$, more steps
+make the certificate hold; the empirical question is whether the outcome changes with them. With
+$36$ and $64$ steps the certificate holds at every step for $99.5\%$ of on-atom samples, while the
+off-atom fraction ($4.1$, $4.0$, $3.9\%$ for $18$, $36$, $64$ steps) and the image reached ($99.4$
+and $99.3\%$ the same as with $18$ steps) do not change (Figure~\ref{fig:heun},
+Table~\ref{tab:edm-steps}). The failure at $18$ steps is therefore a looseness of the bound, not of
+the sampler. On the $2000$-image model and the second $500$-image model the certificate covers every
+on-atom sample down to $\sigma=0.30$.
 
 \FloatBarrier
 
@@ -1726,6 +1771,58 @@ $\sigma_{\rm lo}$; and that for a window $(\sigma_{\rm lo},\sigma_{\rm hi}]$ the
 changes by at most $20\%$ when $\sigma_{\rm hi}$ moves from $0.5$ to $2$. Intervals are Wilson
 intervals for shares and, for ratios of medians, a bootstrap over latents stratified by class
 ($4000$ resamples, \texttt{paperB\_window\_analysis.py}).
+
+\paragraph{Reverse and window swaps in detail.} This paragraph gives the reasoning behind the three
+conclusions of Section~\ref{sec:swap} drawn from Table~\ref{tab:window-main}.
+
+\emph{Exact$\to$net on the non-memorising models.} The exact field ends on a training image from
+whatever state it is handed, so evidence on landing has to come from this direction, where the
+network runs last. With the exact field down to $s$ and the network below, the public model ends
+off-atom for $100\%$ of samples at $s\ge2$, $95.6\%$ at $s=1$, $49.2\%$ at $s=0.5$, $7.0\%$ at
+$s=0.2$ and $0.2\%$ at $s=0.1$; the $1000$-image model for $97.4\%$ at $s=5$, $23.2\%$ at $s=1$ and
+none from $s\le0.1$. For $s\le1$ the samples that end off-atom miss the image that the exact field's
+state had fixed: their nearest image is still the exact one. When the switch is late enough to end
+on-atom, this is partly because little time is left. From $s=0.1$ to $0.02$ the median endpoint
+distance to the nearest image falls roughly in proportion to $s$: $2.57$, $1.37$ and $0.61$ on the
+public model ($2.63$, $1.47$, $0.68$ on the $1000$-image model; log--log slopes $0.90$ and $0.84$,
+against $0.47$ from $s=5$ to $0.5$ on the public model). The exact field would end at distance $0$.
+The network does contract, but weakly. Suppose the state at the last level $\sigma$ of the exact
+field lies at the distance $\sigma\sqrt d$ from the image that an exact trajectory has there (the
+hand-over distance was not recorded). Then the remaining steps of these late swaps on the public
+model shorten it by a factor of about $2$ to $3$, or of about $1.4$ to $2.2$ if the exact field is
+credited with its half of the mixed Heun step at the hand-over. This is close to the boundary case
+of Theorem~\ref{thm:relerr}(d), a relative error near one that neither contracts nor expands. This
+also matches the relative error of the public model along its own trajectories, $0.925$ at
+$\sigma=0.14$ and $0.997$ at $\sigma=0.023$ (Table~\ref{tab:edm-rho}).
+
+\emph{Exact$\to$net on the memorising model.} The memorising $500$-image model behaves the other way.
+Handed the exact state at any $s$, its late field ends on-atom for every sample, on the exact
+field's image ($=$E at least $0.954$) rather than on its own ($=$L between $0.354$ and $0.374$, the
+agreement without a swap). Its late field thus contracts toward whichever training image the state
+is near, not toward the image it selected. Its median endpoint distance falls from $1.67$ at $s=5$
+to $0.45$ at $s=0.02$, on-atom by the relative criterion but not at distance $0$. The $19$ samples
+that this model leaves off-atom when it runs alone all land under exact$\to$net at every swap
+level, even $s=5$. From the exact field's state the same late field lands them, so their failure to
+land is set by the state the network reaches above $\sigma=5$.
+
+\emph{The two predictions for the windows.} The first was that with the exact field down to
+$\sigma_{\rm lo}$ the median endpoint distance $d_1$ is proportional to $\sigma_{\rm lo}$, with
+$d_1/\sigma_{\rm lo}$ between $20$ and $35$. This restated the exact$\to$net runs above, which the
+windows $(\sigma_{\rm lo},\infty)$ repeat on the same latents and reproduce sample by sample, so it
+is not an independent test. The ratio is in that range for $\sigma_{\rm lo}\le0.2$ ($30.3$, $27.5$,
+$25.7$ and $21.1$ at $\sigma_{\rm lo}=0.02$, $0.05$, $0.1$ and $0.2$) but not at $0.5$ and $1$
+($12.9$ and $9.2$), so by its own criterion it fails. The second, and the only new test, was that
+for $\sigma_{\rm hi}\ge0.5$ the median $d_1$ depends only on $\sigma_{\rm lo}$, where the network
+takes over again. It is refuted. With $\sigma_{\rm lo}=0.1$ the median is $4.16$ for the window
+$(0.1,0.5]$ and $2.48$ for $(0.1,2]$, a ratio of $0.60$ ($[0.58,0.61]$), and $(0.1,0.5]$ leaves
+$21\%$ of the samples off-atom ($[18,25]\%$), against $0.2\%$ when the exact field runs from the
+start down to $0.1$. Which image is reached is set by the window's upper end: the share on the
+network's own image equals that of net$\to$exact at $s=\sigma_{\rm hi}$ ($0.956$, $0.896$, $0.560$
+and $0.306$ for $\sigma_{\rm hi}=0.5$, $1$, $2$ and $5$), and the image itself agrees for at least
+$99.6\%$ of samples. A window that starts at $\sigma_{\rm hi}\le1$ ends farther from the image than
+the exact field run from the start down to the same $\sigma_{\rm lo}$. Only windows that start at
+$\sigma_{\rm hi}\ge2$ give a final distance that depends on $\sigma_{\rm lo}$ alone ($1.33$, $1.33$
+and $1.37$ for $(0.05,2]$, $(0.05,5]$ and $(0.05,\infty)$).
 
 \begin{table}[h]
 \centering\small
