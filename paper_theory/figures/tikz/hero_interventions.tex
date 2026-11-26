@@ -1,0 +1,123 @@
+\documentclass[border=3pt]{standalone}
+% A-F1 (docs/review/presentation_2026-11-25/REVIEW.md, 3.2): the interventions of paper A on one
+% geometry. Gaussian source pi_0 on the left, three training atoms a_1, a_2, a_3 on the right; the
+% panels differ only in the field that moves the source sample, as in reference "figure sample 2".
+% (a)-(d) end on a training atom; (e), the conjunction of three fields, ends on the midpoint of
+% a_1 and a_2 and has the highlighted frame.
+% Colours as scripts/figstyle.py: sky = source, black = atom, blue = exact field, vermillion = blend.
+% Words sans, math Latin Modern (body font). Natural width about 16 cm (TMLR \textwidth 16.5 cm).
+% Standalone; main.tex can \input it through the standalone package (preamble dropped), so the
+% macros and colours below are defined inside the document body. Needs amsmath, amssymb, tikz with
+% the libraries below in the host preamble.
+\usepackage[T1]{fontenc}
+\usepackage{lmodern} % the body fonts of both papers (tmlr.sty), for the preview
+\usepackage{amsmath,amssymb}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, calc, shapes.geometric, decorations.markings}
+
+\begin{document}
+\definecolor{hiblue}{HTML}{0072B2}
+\definecolor{hisky}{HTML}{56B4E9}
+\definecolor{hiverm}{HTML}{D55E00}
+\definecolor{hiorange}{HTML}{E69F00}
+\definecolor{higreen}{HTML}{009E73}
+\definecolor{higray}{HTML}{5A5A5A}
+
+\begin{tikzpicture}[
+    font=\sffamily\footnotesize,
+    >={Stealth[length=2.2mm,width=1.6mm]},
+    panel/.style={draw=higray!45, fill=higray!5, rounded corners=3pt, line width=0.5pt},
+    hipanel/.style={draw=hiverm, fill=hiverm!6, rounded corners=3pt, line width=1.4pt},
+    atom/.style={regular polygon, regular polygon sides=3, fill=black, inner sep=0pt,
+      minimum size=2.6mm},
+    blendstar/.style={star, star points=5, star point ratio=2.3, fill=hiorange, draw=hiverm,
+      line width=0.5pt, inner sep=0pt, minimum size=4.2mm},
+    start/.style={circle, fill=black, inner sep=0pt, minimum size=1.5mm},
+    base/.style={->, draw=higray!60, line width=0.5pt, dashed},
+    field/.style={->, draw=hiblue, line width=1.1pt},
+    blend/.style={->, draw=hiverm, line width=1.1pt},
+    title/.style={anchor=north west, font=\sffamily\footnotesize\bfseries, inner sep=0pt},
+    formula/.style={anchor=north west, inner sep=0pt, text=black!85, font=\sffamily\scriptsize},
+    verdict/.style={anchor=north, inner sep=0pt, font=\sffamily\footnotesize},
+  ]
+  \def\pw{2.85}  % panel width
+  \def\ph{2.55}  % panel height
+  \def\gap{0.15} % gap between panels
+
+  % the shared geometry: source, atoms, start point, the exact path as a dashed reference
+  \newcommand{\scene}{%
+    \foreach \r/\o in {0.52/18, 0.36/32, 0.2/55}
+      \fill[hisky!\o] (0.72,1.28) ellipse ({\r} and {1.25*\r});
+    \node[text=higray, anchor=north] at (0.72,0.55) {$\pi_0$};
+    \node[atom] (a1) at (2.25,2.1) {};
+    \node[atom] (a2) at (2.25,0.5) {};
+    \node[atom] (a3) at (2.74,1.78) {};
+    \node[anchor=south, inner sep=1pt] at (a1.north) {$a_1$};
+    \node[anchor=north, inner sep=1.5pt] at (a2.south) {$a_2$};
+    \node[anchor=south, inner sep=1pt] at (a3.north) {$a_3$};
+    \node[start] (x0) at (0.78,1.42) {};
+  }
+
+  % ---- (a) exact field ---------------------------------------------------------------------
+  \begin{scope}[shift={(0,0)}]
+    \draw[panel] (0,0) rectangle (\pw,\ph);
+    \scene
+    \draw[field] (x0) to[out=20, in=200] ($(a1)+(-0.12,-0.06)$);
+    \node[title] at (0,-0.12) {(a) Exact field};
+    \node[formula] at (0,-0.47) {$v_p$};
+    \node[verdict, text=higreen] at (\pw/2,-0.86) {$\checkmark$ on training set};
+  \end{scope}
+
+  % ---- (b) label noise: one start, the atoms weighted by the label weights -------------------
+  \begin{scope}[shift={(\pw+\gap,0)}]
+    \draw[panel] (0,0) rectangle (\pw,\ph);
+    \scene
+    \draw[field, line width=1.6pt] (x0) to[out=20, in=200] ($(a1)+(-0.13,-0.06)$);
+    \draw[field, line width=0.8pt] (x0) to[out=0, in=180] ($(a3)+(-0.16,0)$);
+    \draw[field, line width=0.4pt] (x0) to[out=-20, in=160] ($(a2)+(-0.13,0.06)$);
+    \node[font=\sffamily\scriptsize, text=hiblue, anchor=north west] at (0.08,2.48) {width $\propto p^{(h)}_i$};
+    \node[title] at (0,-0.12) {(b) Label noise};
+    \node[formula] at (0,-0.47) {$v^\star_h,\ h>0$};
+    \node[verdict, text=higreen] at (\pw/2,-0.86) {$\checkmark$ on training set};
+  \end{scope}
+
+  % ---- (c) guidance ---------------------------------------------------------------------------
+  \begin{scope}[shift={(2*\pw+2*\gap,0)}]
+    \draw[panel] (0,0) rectangle (\pw,\ph);
+    \scene
+    \draw[base] (x0) to[out=20, in=200] ($(a1)+(-0.12,-0.06)$);
+    \draw[field] (x0) to[out=55, in=180] ($(a1)+(-0.14,0.02)$);
+    \node[title] at (0,-0.12) {(c) Guidance, $w\ge0$};
+    \node[formula] at (0,-0.47) {$(1+w)\,v_p-w\,v^\star_{\mathrm{unc}}$};
+    \node[verdict, text=higreen] at (\pw/2,-0.86) {$\checkmark$ on training set};
+  \end{scope}
+
+  % ---- (d) any fixed combination of two fields -----------------------------------------------
+  \begin{scope}[shift={(3*\pw+3*\gap,0)}]
+    \draw[panel] (0,0) rectangle (\pw,\ph);
+    \scene
+    \draw[base] (x0) to[out=20, in=200] ($(a1)+(-0.12,-0.06)$);
+    \draw[field] (x0) to[out=-35, in=170] ($(a2)+(-0.14,0.03)$);
+    \node[font=\sffamily\scriptsize, text=hiblue, anchor=north west] at (0.95,1.05) {any $c\in\mathbb{R}$};
+    \node[title] at (0,-0.12) {(d) Two fields};
+    \node[formula] at (0,-0.47) {$c\,v_p+(1-c)\,v_q$};
+    \node[verdict, text=higreen] at (\pw/2,-0.86) {$\checkmark$ on training set};
+  \end{scope}
+
+  % ---- (e) conjunction of three fields: the midpoint of a_1 and a_2 (highlighted) -------------
+  \begin{scope}[shift={(4*\pw+4*\gap,0)}]
+    \draw[hipanel] (0,0) rectangle (\pw,\ph);
+    \scene
+    \draw[base] (x0) to[out=20, in=200] ($(a1)+(-0.12,-0.06)$);
+    \draw[higray!70, line width=0.4pt, dotted] (a1) -- (a2);
+    \coordinate (mid) at ($(a1)!0.5!(a2)$);
+    \draw[blend] (x0) to[out=-5, in=175] ($(mid)+(-0.2,0)$);
+    \node[blendstar] (st) at (mid) {};
+    \node[font=\sffamily\scriptsize, text=hiverm, anchor=north east, inner sep=1pt]
+      at ($(mid)+(-0.12,-0.14)$) {midpoint};
+    \node[title, text=hiverm] at (0,-0.12) {(e) Three fields};
+    \node[formula] at (0,-0.47) {$(1+w)\,\tfrac12(v_1+v_2)-w\,v^\star_{\mathrm{unc}}$};
+    \node[verdict, text=hiverm] at (\pw/2,-0.86) {$\times$ blend for $w>w_c$};
+  \end{scope}
+\end{tikzpicture}
+\end{document}

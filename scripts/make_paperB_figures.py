@@ -398,7 +398,7 @@ def fig_exp1():
             it, m, sd = seed_mean(pat, "train", col)
             band(ax, it, m, sd, c, ls=ls, marker=mk, alpha=0.1)
     ax.set_xscale("log")
-    ax.text(150, 0.98, r"to the training atom $x^i$", fontsize=6.8, color=ATOM, va="bottom")
+    ax.text(150, 0.98, r"to the training atom $a_i$", fontsize=6.8, color=ATOM, va="bottom")
     ax.text(150, 0.28, "to the posterior mean", fontsize=6.8, color=EXACT, va="bottom")
     ax.set_ylim(0, 1.18)
     ax.set_ylabel("distance of generated mean")
@@ -634,12 +634,12 @@ def fig_heun():
     ax.axvspan(0.2, 0.5, color=LEARNED, alpha=0.07, lw=0)
     ax.axhline(0, color="k", lw=0.5)
     for y, c, lab in ((r, GREY, r"$r$ on $x_k$"), (kap, LEARNED, r"$\kappa$ on $D_k$"),
-                      (th, ATOM, r"$\theta$ on $\tilde D_k$")):
+                      (th, ATOM, r"$\bar\kappa$ on $\tilde D_k$")):
         ax.plot(r, y, color=c, lw=1.4)
     label(ax, 0.95, 0.95, r"$r$ on $x_k$", GREY, ha="right", dx=0, dy=6, va="bottom", fs=6.8)
     label(ax, 0.62, ((1 - 0.62) * (2 * 0.62 - 1) / 1.24), r"$\kappa$ on $D_k$", LEARNED, dx=0, dy=-4,
           va="top", fs=6.8)
-    label(ax, 0.29, (1 - 0.29) / 0.58, r"$\theta$ on $\tilde D_k$", ATOM, dx=4, dy=2, fs=6.8)
+    label(ax, 0.29, (1 - 0.29) / 0.58, r"$\bar\kappa$ on $\tilde D_k$", ATOM, dx=4, dy=2, fs=6.8)
     ax.text(0.35, -0.75, "extrapolates\n" + r"($\kappa<0$)", ha="center", va="center", fontsize=6.8,
             color=LEARNED, linespacing=1.0)
     ax.set_xlim(0.2, 0.95); ax.set_ylim(-1.0, 2.1)

@@ -32,7 +32,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.lines import Line2D
 
-from figstyle import COLORS, FULL_W, OI, use_paper_style
+from figstyle import COLORS, FULL_W, OI, lead_text, use_paper_style
 
 LC1, LC2 = Path("results/learned_composition_20261021"), Path("results/learned_composition_2d_20261021")
 AB1, AB2 = Path("results/composition_ablation_20261105"), Path("results/composition_ablation_2d_20261105")
@@ -117,8 +117,7 @@ def main() -> None:
             ax.set_ylabel("learned midpoint fraction")
         else:
             ax.set_yticklabels([])
-        ax.text(0.0, 1.035, rf"$\mathbf{{({'abcd'[k]})}}$  {name}", transform=ax.transAxes,
-                ha="left", va="bottom", fontsize=8.5)
+        lead_text(ax, 0.0, 1.035, "abcd"[k], name, transform=ax.transAxes, fontsize=8.5)
         if sub:
             ax.text(1.0, 1.035, sub, transform=ax.transAxes, ha="right", va="bottom", fontsize=6.5,
                     color=GREY)
@@ -141,7 +140,7 @@ def main() -> None:
         fig.add_artist(Line2D([xa, xb], [y, y], color=color, lw=0.8))
         fig.text((xa + xb) / 2, y + 0.012, text, ha="center", va="bottom", fontsize=7.5, color=color)
     header(0, 1, r"plain input $(x,t,y)$: midpoint nearly empty", COLORS["atom"])
-    header(2, 3, r"rescaled input $\operatorname{asinh}(tx/(1-t)^2)$: near the exact probability", LEARNED)
+    header(2, 3, r"rescaled input $\operatorname{asinh}(tx/\varepsilon^2)$: near the exact probability", LEARNED)
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(OUT, pad_inches=0.0)

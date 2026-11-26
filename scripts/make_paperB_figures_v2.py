@@ -329,7 +329,7 @@ def fig_mechanism():
     ax_e.set_yscale("log"); ax_e.set_ylim(3e-6, 6)
     ax_e.set_yticks([1e-5, 1e-3, 1e-1])
     ax_e.set_ylabel("distance to point", fontsize=7)
-    ax_e.set_xlabel(r"time left $1-t$", fontsize=7, labelpad=1)
+    ax_e.set_xlabel(r"time left $\varepsilon=1-t$", fontsize=7, labelpad=1)
     for a in (ax_d, ax_e):
         a.grid(False)
     title(ax_d, "d", r"relative error", fs=7.8, pad=2)
@@ -371,7 +371,7 @@ def fig_landing():
     W, H = FULL_W, 2.1
     fig = plt.figure(figsize=(W, H))
     yb, hh = 0.36, 1.45
-    ax = axes_in(fig, 0.4, yb, 2.22, hh)
+    ax = axes_in(fig, 0.4, yb, 2.1, hh)
     XL = (25, 0.0015)
     ax.axvspan(0.585, 0.002, ymax=1 / 1.22, color=FAINT, lw=0, zorder=0)
     ax.text(np.sqrt(0.585 * 0.002), 1.04, r"late window of $C$", ha="center", va="bottom", fontsize=6.4,
@@ -402,7 +402,7 @@ def fig_landing():
                 textcoords="offset points", color=NEW, fontsize=6.6, ha="right", va="bottom", linespacing=0.95)
 
     # (b) the late contraction per sample
-    axb = axes_in(fig, 3.28, yb, 1.5, hh)
+    axb = axes_in(fig, 3.13, yb, 1.45, hh)
     rows = [("500\nimages", late_contraction(zs), on_s), ("2000\nimages", late_contraction(z2), on_2),
             ("public", late_contraction(zp), np.zeros(len(zp["d1"]), bool))]
     rng = np.random.default_rng(1)
@@ -433,7 +433,7 @@ def fig_landing():
     title(axb, "b", "per sample")
 
     # (c) AUC at sigma >= 0.585 on the balanced model
-    axc = axes_in(fig, 5.3, yb, 1.17, hh)
+    axc = axes_in(fig, 5.1, yb, 1.13, hh)
     kk = np.arange(0, 12)
     curves = {}
     for key, c, ls in (("dD", GREY, (0, (4, 2))), ("rhoA", OI["purple"], "-"), ("radA", OI["green"], "-")):
@@ -554,7 +554,7 @@ def fig_collapse_details():
             it, m, sd = seed_mean(pat, "train", colname)
             band(ax, it, m, sd, c, ls=ls, marker=mk, ms=2.2, lw=1.1, alpha=0.1)
     ax.set_xscale("log"); ax.set_xticks([1e2, 1e3, 1e4, 1e5, 1e6]); ax.minorticks_off(); ax.set_ylim(0, 1.2); ax.set_xlim(60, 2.5e6)
-    ax.text(120, 1.0, r"to the atom $x^i$", fontsize=6.3, color=ATOM, va="bottom")
+    ax.text(120, 1.0, r"to the atom $a_i$", fontsize=6.3, color=ATOM, va="bottom")
     ax.text(120, 0.03, "to the posterior mean", fontsize=6.3, color=EXACT, va="bottom")
     ax.set_ylabel("distance of the\ngenerated mean", linespacing=0.95)
     title(ax, "a", "EXP-1: mean")

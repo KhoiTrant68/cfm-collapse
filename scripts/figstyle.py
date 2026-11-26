@@ -80,9 +80,10 @@ HALF_W = 3.2
 COLORS.update({"exact": OI["blue"], "learned": OI["vermillion"]})
 
 
-# TrueType copies of the URW Helvetica clone, written by scripts/make_tt_fonts.py on lab09.
+# TrueType copies of a URW Helvetica clone, written by scripts/make_tt_fonts.py: Nimbus Sans on lab09,
+# TeX Gyre Heros (the same outlines, shipped with MiKTeX/TeX Live) elsewhere. FIGFONTS=<dir> points here.
 # TrueType is needed for clean Type 42 embedding (the OpenType/CFF original is flagged by poppler).
-TT_FONT_DIR = Path("/mnt/data/khoitm8/cache/fonts")
+TT_FONT_DIR = Path(os.environ.get("FIGFONTS", "/mnt/data/khoitm8/cache/fonts"))
 
 
 def _register_tt_fonts() -> None:
@@ -92,19 +93,52 @@ def _register_tt_fonts() -> None:
             font_manager.fontManager.addfont(str(f))
 
 
+def _cm_star() -> None:
+    r"""Take \star from cmmi10 (slot 0x3F, as in TeX) instead of STIX.
+
+    matplotlib's cm set has no entry for \star and falls back to STIXGeneral, which would put a
+    second serif font into every figure that writes m^\star or v^\star.
+    """
+    from matplotlib import _mathtext_data
+    _mathtext_data.latex_to_bakoma.setdefault(r"\star", ("cmmi10", 0x3F))
+
+
+# No text below this size (points, at the drawn width, which is the printed width). Math sub- and
+# superscripts are scaled from their base size by mathtext and stay smaller, as they do in the body.
+MIN_FONT_PT = float(os.environ.get("FIG_MIN_PT", "7.0"))
+
+
+def _floor_font_size() -> None:
+    """Raise every font size below MIN_FONT_PT to it (labels, ticks, legends, annotations)."""
+    from matplotlib.font_manager import FontProperties
+    if getattr(FontProperties.set_size, "_floored", False):
+        return
+    orig = FontProperties.set_size
+
+    def set_size(self, size):
+        orig(self, size)
+        if self._size < MIN_FONT_PT:
+            self._size = MIN_FONT_PT
+
+    set_size._floored = True
+    FontProperties.set_size = set_size
+    FontProperties.set_fontsize = set_size
+
+
 def use_paper_style() -> None:
     """Apply the shared rcParams. Call once at the top of every figure script."""
     _register_tt_fonts()
+    _cm_star()
+    _floor_font_size()
     plt.rcParams.update({
         "figure.dpi": 150, "savefig.dpi": 300,
         "font.family": "sans-serif",
-        "font.sans-serif": ["Nimbus Sans TT", "Helvetica", "Arial", "Liberation Sans", "DejaVu Sans"],
-        # Math in the text font where it has the glyph ($\mathbf{(a)}$ panel letters, italic
-        # variables), STIX sans for the rest (Greek, arrows, operators).
-        **({"mathtext.fontset": "custom", "mathtext.rm": "Nimbus Sans TT",
-            "mathtext.it": "Nimbus Sans TT:italic", "mathtext.bf": "Nimbus Sans TT:bold",
-            "mathtext.sf": "Nimbus Sans TT", "mathtext.fallback": "stixsans"}
-           if TT_FONT_DIR.is_dir() else {"mathtext.fontset": "stixsans"}),
+        "font.sans-serif": ["Nimbus Sans TT", "TeX Gyre Heros TT", "Helvetica", "Arial",
+                            "Liberation Sans", "DejaVu Sans"],
+        # Words in the sans text font, math in Computer Modern, as in the body of the papers and in
+        # the TikZ figures. No STIX fallback: every math glyph comes from the cm set. Panel letters
+        # are bold sans text (lead_text below), not $\mathbf{...}$, which cm would set in bold serif.
+        "mathtext.fontset": "cm", "mathtext.fallback": "cm",
         "font.size": 8, "axes.titlesize": 8.5, "axes.titleweight": "normal",
         "axes.labelsize": 8, "xtick.labelsize": 7, "ytick.labelsize": 7,
         "legend.fontsize": 7, "legend.frameon": False, "legend.handlelength": 1.6,
@@ -123,9 +157,31 @@ def use_paper_style() -> None:
     })
 
 
+def lead_text(target, x: float, y: float, letter: str, text: str = "", **kw):
+    """'(a)  text' at (x, y): the letter in bold sans, the text in regular weight.
+
+    ``target`` is an axis or a figure, and ``kw`` goes to both parts (``transform``, ``fontsize``,
+    ``ha`` is ignored: the pair is left-aligned at x). Returns the letter's Text.
+    """
+    from matplotlib.text import Annotation
+    kw.pop("ha", None)
+    va = kw.pop("va", "bottom")
+    kw["clip_on"] = False
+    t1 = target.text(x, y, f"({letter})", fontweight="bold", ha="left", va=va, **kw)
+    if text:
+        kw.pop("transform", None)
+        ann = Annotation("  " + text, xy=(1, 0), xycoords=t1, ha="left", va="bottom", **kw)
+        target.add_artist(ann)
+    return t1
+
+
 def panel_title(ax, letter: str, text: str = "", **kw) -> None:
     """Left-aligned panel title with a bold letter: '(a)' bold, then plain text."""
-    ax.set_title(rf"$\mathbf{{({letter})}}$  {text}".rstrip(), loc="left", **kw)
+    fs = kw.pop("fontsize", plt.rcParams["axes.titlesize"])
+    pad = kw.pop("pad", plt.rcParams["axes.titlepad"])
+    from matplotlib.transforms import offset_copy
+    tr = offset_copy(ax.transAxes, fig=ax.figure, x=0, y=pad, units="points")
+    lead_text(ax, 0.0, 1.0, letter, text, transform=tr, fontsize=fs, **kw)
 
 
 def direct_label(ax, x, y, text: str, color: str, *, ha: str = "left", va: str = "center",

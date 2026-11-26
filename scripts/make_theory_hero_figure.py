@@ -34,7 +34,7 @@ import numpy as np
 from matplotlib.colors import to_rgb
 from PIL import Image
 
-from scripts.figstyle import COLORS, FULL_W, OI, use_paper_style
+from scripts.figstyle import COLORS, FULL_W, OI, lead_text, use_paper_style
 
 ROOT = Path("results/theory_basin_map_20261121")
 TILES = Path("results/cifar_composition_exact_20261105/figure_tiles")
@@ -43,8 +43,8 @@ GREY = "#555555"
 ATOM = [OI["blue"], OI["green"], OI["purple"]]          # a_1 (top), a_2 (lower left), a_3 (lower right)
 BLEND = OI["vermillion"]
 PANELS = (("one_r0", "Label noise", r"one exact field  $v_1$"),
-          ("cfg_r2", r"Guidance, $w=2w_c$", r"$(1+w)\,v_1-w\,v_{\mathrm{unc}}$"),
-          ("conj_r2", r"Conjunction, $w=2w_c$", r"$(1+w)\,\frac{1}{3}(v_1+v_2+v_3)-w\,v_{\mathrm{unc}}$"))
+          ("cfg_r2", r"Guidance, $w=2w_c$", r"$(1+w)\,v_1-w\,v^\star_{\mathrm{unc}}$"),
+          ("conj_r2", r"Conjunction, $w=2w_c$", r"$(1+w)\,\frac{1}{3}(v_1+v_2+v_3)-w\,v^\star_{\mathrm{unc}}$"))
 HALO = [__import__("matplotlib.patheffects", fromlist=["withStroke"]).withStroke(linewidth=1.8,
                                                                               foreground="white")]
 
@@ -96,16 +96,18 @@ def draw_law(ax, mc) -> None:
         if p <= 0:
             continue
         ax.barh(0, p, left=x, height=1.0, color=col, edgecolor="white", linewidth=0.5)
-        txt = (f"{100 * p:.1f}%" if p > 0.995 else f"{100 * p:.0f}%") if p >= 0.095 else None
+        # a label needs about 0.13 of the bar at 7 pt; narrower segments go to the footnote
+        txt = (f"{100 * p:.1f}%" if p > 0.995 else f"{100 * p:.0f}%") if p >= 0.13 else None
         if txt:
-            ax.text(x + p / 2, 0, txt, ha="center", va="center", fontsize=6.5,
+            ax.text(x + p / 2, 0, txt, ha="center", va="center", fontsize=7,
                     color="white" if kind == "c" else "#1a1a1a")
         else:
             small.append(p)
         x += p
     if small:
-        ax.text(1.0, -0.62, rf"$a_2$, $a_3$: {100 * small[0]:.1f}% each", ha="right", va="top",
-                fontsize=6.0, color=GREY)
+        pct = [f"{100 * q:.0f}%" if q >= 0.0095 else f"{100 * q:.1f}%" for q in small]
+        val = f"{pct[0]} each" if len(set(pct)) == 1 else ", ".join(pct)
+        ax.text(1.0, -0.62, rf"$a_2$, $a_3$: {val}", ha="right", va="top", fontsize=7, color=GREY)
     ax.set_xlim(0, 1); ax.set_ylim(-0.5, 0.5)
     ax.axis("off")
 
@@ -126,7 +128,7 @@ def main() -> None:
         xk = x0 + k * (side + gap)
         ax = inch(xk, y0, side, side)
         draw_map(ax, z[tag], g, A, show_blends=(tag.startswith("conj")))
-        text(xk, y_title, rf"$\mathbf{{({'abc'[k]})}}$  {name}", ha="left", va="bottom", fontsize=8.5)
+        lead_text(fig, xk / W, y_title / H, "abc"[k], name, fontsize=8.5)
         text(xk, y_formula, formula, ha="left", va="bottom", fontsize=7.0, color="#222222")
         if k < 2:                                                  # name the training points
             for j, (dx, dy, ha) in enumerate(((0.0, 0.19, "center"), (-0.13, -0.06, "right"),
@@ -154,9 +156,9 @@ def main() -> None:
 
     # (d) the same kind of endpoint on CIFAR-10
     xd = x0 + 3 * (side + gap) + 0.04
-    ts = 0.50
-    for i, (tile, lab, col) in enumerate(((6, r"$x^i$", "#999999"), (7, "blend", BLEND),
-                                          (8, r"$x^j$", "#999999"))):
+    ts = 0.46
+    for i, (tile, lab, col) in enumerate(((6, r"$a_i$", "#999999"), (7, "blend", BLEND),
+                                          (8, r"$a_j$", "#999999"))):
         ax = inch(xd, y0 + side - (i + 1) * ts - i * 0.10, ts, ts)
         ax.imshow(np.asarray(Image.open(TILES / f"tile-{tile:03d}.png").convert("RGB")),
                   interpolation="nearest")
@@ -166,11 +168,11 @@ def main() -> None:
         ax.text(1.08, 0.5, lab, transform=ax.transAxes, ha="left", va="center", fontsize=7,
                 color=BLEND if i == 1 else "#222222")
         if i == 0:
-            text(xd, y_title, r"$\mathbf{(d)}$  CIFAR-10", ha="left", va="bottom", fontsize=8.5)
+            lead_text(fig, xd / W, y_title / H, "d", "CIFAR-10", fontsize=8.5)
             text(xd, y_formula, r"$d=3072$", ha="left", va="bottom", fontsize=7.0, color="#222222")
         if i == 1:
-            ax.text(1.08, 0.18, r"$=\frac{1}{2}(x^i+x^j)$", transform=ax.transAxes, ha="left",
-                    va="center", fontsize=6.0, color=BLEND)
+            ax.text(1.08, 0.12, r"$\frac{1}{2}(a_i\!+\!a_j)$", transform=ax.transAxes, ha="left",
+                    va="center", fontsize=7, color=BLEND)
 
     # group headers: what the number of fields does to the endpoints
     def header(xa, xb, text, color):

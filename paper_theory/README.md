@@ -19,7 +19,11 @@ ssh lab09 'cd /mnt/data/khoitm8/cfm-collapse && bash scripts/build_papers.sh pap
 ```
 
 Figures are drawn on lab09 with `PYTHONPATH=.:scripts python scripts/<script>.py`; the style is
-`scripts/figstyle.py` (fonts from `scripts/make_tt_fonts.py`).
+`scripts/figstyle.py` (fonts from `scripts/make_tt_fonts.py`). Words are sans, math is Computer Modern
+(no STIX), and no text is below 7 pt at the printed width. Every figure the two papers include also
+renders on Windows from the archived results: `python scripts/make_tt_fonts.py <dir> --heros` (TeX Gyre
+Heros from MiKTeX), then run the scripts with `FIGFONTS=<dir>` and `PYTHONPATH=.;scripts`.
+The figures of 2026-11-26 were drawn that way.
 
 ## Replay the CIFAR-10 midpoint figure
 
