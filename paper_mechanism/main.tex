@@ -408,20 +408,39 @@ does not reach $a$ (Theorem~\ref{thm:relerr}(c)).}
 
 \begin{restatable}[Landing under relative field error]{theorem}{thmrelerr}
 \label{thm:relerr}
-Let $\hat x_1$ be continuous on $\R^d\times[t_1,1)$ and $Z$ a $C^1$ solution of
-$\dot Z_t=(\hat x_1(Z_t,t)-Z_t)/\eps_t$ on $[t_1,1)$. Fix an atom $a=a_i$ and write
-$n_t=|Z_t-a|$, $e_t=|\hat x_1(Z_t,t)-m^\star(Z_t,t)|$ and
-$\zeta_t=(1-q_i(Z_t,t))\max_k|a_k-a|$.
+\emph{Setting.} Let $\hat x_1$ be continuous on $\R^d\times[t_1,1)$, and let $Z\in C^1([t_1,1);\R^d)$
+solve
+\[
+\dot Z_t=\frac{\hat x_1(Z_t,t)-Z_t}{\eps_t}\qquad\text{on }[t_1,1).
+\]
+Fix an atom $a=a_i$ and write
+\begin{equation}
+n_t=|Z_t-a|,\qquad e_t=|\hat x_1(Z_t,t)-m^\star(Z_t,t)|,\qquad
+\zeta_t=\bigl(1-q_i(Z_t,t)\bigr)\max_k|a_k-a| .
+\label{eq:relerr-quantities}
+\end{equation}
 \begin{enumerate}[label=(\alph*),leftmargin=2em]
-\item $n$ is locally Lipschitz; where $n_t>0$,
-  $\eps_t\dot n_t=\langle\hat e_t,\hat x_1(Z_t,t)-a\rangle-n_t$ with $\hat e_t=(Z_t-a)/n_t$, and
-  $\eps_t\dot n_t\le e_t+\zeta_t-n_t$ for almost every $t$.
-\item If $e_t\le\bar\varrho\,n_t+\gamma_t$ for a constant $\bar\varrho<1$ and a continuous
-  $\gamma\ge0$, and $\gamma_t+\zeta_t\to0$ as $t\uparrow1$, then $Z_t\to a$.
-\item If $n_{t_1}>0$ and $\langle\hat e_t,\hat x_1(Z_t,t)-a\rangle\ge(1-\lambda_t)n_t$ whenever
-  $n_t>0$, for a continuous $\lambda$ with $\int_{t_1}^1\lambda_t^+/\eps_t\,dt<\infty$, then
-  $\inf_tn_t>0$: the trajectory does not reach $a$.
-\item The constant $\bar\varrho<1$ in (b) cannot be replaced by $1$.
+\item \emph{Radial identity.} $n$ is locally Lipschitz. Where $n_t>0$, put $\hat e_t=(Z_t-a)/n_t$;
+  then
+  \[
+  \eps_t\dot n_t=\langle\hat e_t,\hat x_1(Z_t,t)-a\rangle-n_t .
+  \]
+  For almost every $t$,
+  \[
+  \eps_t\dot n_t\le e_t+\zeta_t-n_t .
+  \]
+\item \emph{Landing.} Assume that, for a constant $\bar\varrho<1$ and a continuous $\gamma\ge0$,
+  \[
+  e_t\le\bar\varrho\,n_t+\gamma_t\qquad\text{and}\qquad\gamma_t+\zeta_t\to0\ \text{ as }t\uparrow1 .
+  \]
+  Then $Z_t\to a$.
+\item \emph{No landing.} Let $\lambda$ be continuous with $\int_{t_1}^1\lambda_t^+/\eps_t\,dt<\infty$.
+  Assume $n_{t_1}>0$ and
+  \[
+  \langle\hat e_t,\hat x_1(Z_t,t)-a\rangle\ge(1-\lambda_t)\,n_t\qquad\text{whenever }n_t>0 .
+  \]
+  Then $\inf_tn_t>0$: the trajectory does not reach $a$.
+\item \emph{Sharpness.} The constant $\bar\varrho<1$ in (b) cannot be replaced by $1$.
 \end{enumerate}
 \proofin{apx:pf-relerr}
 \end{restatable}
@@ -482,14 +501,23 @@ identifies the example (part~(a)), and near the example at positive bandwidth (p
   The bound is attained: for $\Delta(x,t)=c/\eps_t$ both sides equal $|c|$ from every $x_0$. If
   the field predicts data, $v_\theta(x,t)=(\hat x_1(x,t)-x)/\eps$, then
   $\limsup_{t\uparrow1}|Z_t-a|\le\limsup_{t\uparrow1}|\hat x_1(Z_t,t)-a|$.
-\item \emph{Positive bandwidth ($h>0$).} Let $h>0$, fix $y$, write $v^\star=\vstar(\cdot,\cdot,y)$,
-  and let $a=a_i$ be an atom with $\ell =\min_{j\ne i}|a_j-a|$ and $r\in(0,\ell /2)$. There is
-  $t_\star<1$, depending only on the atoms, $p^{(h)}(y)$ and $r$, with the following property. Let
-  $v^\star+\Delta$ be locally Lipschitz on $\R^d\times[0,1)$, let $t_0\in[t_\star,1)$, and let $Z$
-  be the maximal solution of $\dot Z=v^\star(Z,t)+\Delta(Z,t)$ from a point $Z_{t_0}$. If
-  $|Z_{t_0}-a|<r/4$ and $\eps_t|\Delta(x,t)|\le r/4$ whenever $|x-a|\le r$ and $t_0\le t<1$, then
-  $|Z_t-a|<r$ for all $t\in[t_0,1)$ and
-  $\limsup_{t\uparrow1}|Z_t-a|\le\limsup_{t\uparrow1}\eps_t|\Delta(Z_t,t)|$.
+\item \emph{Positive bandwidth ($h>0$).} Let $h>0$ and fix $y$; write $v^\star=\vstar(\cdot,\cdot,y)$.
+  Let $a=a_i$ be an atom, and let
+  \[
+  \ell =\min_{j\ne i}|a_j-a|,\qquad r\in(0,\ell /2).
+  \]
+  There is $t_\star<1$, depending only on the atoms, $p^{(h)}(y)$ and $r$, with the following
+  property. Let $v^\star+\Delta$ be locally Lipschitz on $\R^d\times[0,1)$, and let
+  $t_0\in[t_\star,1)$. Let $Z$ be the maximal solution of $\dot Z=v^\star(Z,t)+\Delta(Z,t)$ from a
+  point $Z_{t_0}$. If
+  \[
+  |Z_{t_0}-a|<r/4\qquad\text{and}\qquad\eps_t|\Delta(x,t)|\le r/4\ \text{ whenever }|x-a|\le r
+  \text{ and }t_0\le t<1,
+  \]
+  then $|Z_t-a|<r$ for all $t\in[t_0,1)$, and
+  \[
+  \limsup_{t\uparrow1}|Z_t-a|\le\limsup_{t\uparrow1}\eps_t|\Delta(Z_t,t)|.
+  \]
 \end{enumerate}
 \proofin{apx:pf-transfer-all}
 \end{restatable}
