@@ -189,40 +189,19 @@ and lands every sample from every swap level.}
 
 \paragraph{Contributions.}
 \begin{itemize}\itemsep1pt
-\item \emph{A landing condition for learned fields} (Section~\ref{sec:transfer}). A trajectory
-  reaches a training example when its error stays a fixed fraction below its distance to that
-  example, and does not when the radial ratio approaches one fast enough (Theorem~\ref{thm:relerr}).
-  The condition holds at any label and bandwidth, including the class posterior of a
-  class-conditional model, and the constant fraction cannot be replaced by one. A trapping
-  statement in EDM coordinates and a one-step bound for the deterministic Heun sampler make it
-  usable on a finite schedule (Propositions~\ref{prop:trap} and~\ref{prop:heun}).
-\item \emph{What the regression loss cannot certify} (Section~\ref{sec:transfer},
-  Appendix~\ref{app:transfer}). At an identifying label, a learned endpoint lies within
-  $\limsup_{t\uparrow1}(1-t)|\Delta|$ of its training example, where $\Delta$ is the field error
-  along the trajectory, and this bound is attained (Lemma~\ref{thm:transfer}). A small regression
-  loss does not control this quantity (Proposition~\ref{prop:loss-no-certificate}); an explicit
-  risk-transfer condition restores a finite-time bound (Theorem~\ref{thm:risktransfer}). On a
-  linear-Gaussian problem, the error met along trajectories exceeds the error on the training law by
-  a factor that grows roughly like $(1-t)^{-2}$ (Appendix~\ref{app:measured-transfer}).
-\item \emph{The image is chosen early} (Section~\ref{sec:swap}). With the network above the swap
-  level and the exact field below it, every endpoint is a training image by construction, so only
-  the image is informative. Once the swap is at $\sigma\le1$, that image is the one nearest to the
-  network's own sample for at least $88\%$ of samples on every model. Earlier hybrid samplers ran
-  the exact field first \citep{bertrand2025closed,liu2025navigation} or exchanged two trained
-  networks \citep{dodson2026calm}; to our knowledge, the direction with the network first has not been run before.
-\item \emph{Landing is decided late} (Sections~\ref{sec:swap} and~\ref{sec:contraction}). Along the
-  sampler's own trajectories, the samples a memorising model copies keep the relative error well
-  below one until the last steps, and the others approach one from $\sigma\approx0.14$. The
-  contraction that the relative error leaves (the total pull toward the image) over
-  $\sigma\in[0.002,0.585]$ has median $1.75$ for copies and $0.68$ for new samples of a
-  $2000$-image model; we report it as a description of landing, not as an independent test. The reverse swap, with the exact field first, separates
-  memorising from non-memorising models: the $500$-image model lands every sample from every swap
-  level, while the public and a $1000$-image model land half of their samples only from $s=0.51$ and
-  $s=1.33$. With $36$ or $64$ steps the Heun bound holds at every step for $99.5\%$ of the copies of
-  the $500$-image model, and the image reached does not change.
-\item \emph{Collapse in trained networks} (Section~\ref{sec:exp1}). Under hard conditioning, trained
-  networks from small MLPs to a $35.75$M-parameter U-Net approach the endpoint of the exact field at a
-  finite cutoff, late in training.
+\item \emph{A landing condition} (Theorem~\ref{thm:relerr}). A trajectory lands on a training image
+  if its error stays a fixed fraction below its distance to it, and not if the radial ratio tends
+  to one fast enough.
+\item \emph{What the loss cannot certify} (Theorem~\ref{thm:transfer},
+  Proposition~\ref{prop:loss-no-certificate}). The endpoint misses its image by at most the
+  limiting scaled field error, and a small regression loss does not control that error.
+\item \emph{The image is chosen early} (Section~\ref{sec:swap}). Run first, the network fixes by
+  $\sigma\approx1$ which image the exact field reaches, for at least $88\%$ of samples on every model.
+\item \emph{Landing is decided late} (Sections~\ref{sec:swap}--\ref{sec:contraction}). Copies keep
+  the relative error well below one until the last steps; only a memorising model lands from the
+  exact field's state at every swap level.
+\item \emph{Collapse in trained networks} (Section~\ref{sec:exp1}). Under hard conditioning, networks
+  from small MLPs to a $35.75$M-parameter U-Net approach the exact endpoint late in training.
 \end{itemize}
 We do not claim a better detector of memorisation. The distance from the denoiser output to the
 nearest training image already tells which samples copy at $\sigma\approx1$ (AUC $0.988$ on the
