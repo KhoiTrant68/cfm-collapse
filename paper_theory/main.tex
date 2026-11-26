@@ -742,7 +742,7 @@ $|x_t-ta_i|^2\le\eps^2[C+2w\log N\log\tfrac1{\eps}]$.
 
 Under hard conditioning, guidance thus does not prevent collapse, and our bound exceeds the rate $\eps$ of
 the unguided field only by a factor of order $\sqrt{\log(1/\eps)}$; for a fixed $w>0$,
-\citet[Theorem~2.5(ii) and Corollary~3.7]{liu2026geometric} give the rate $O\eps$ after the change
+\citet[Theorem~2.5(ii) and Corollary~3.7]{liu2026geometric} give the rate $O(\eps)$ after the change
 of variables of Appendix~\ref{apx:comparison}, with a constant that depends on the initial point.
 For $w\in[-1,0)$ both coefficients are nonnegative:
 
@@ -1588,7 +1588,7 @@ $\Ppos$ & probability vectors on $\{1,\dots,N\}$ with all entries positive\\
 $v_p$, $q_{p,j}$, $m_p$ & field of prior $p$ \eqref{eq:prior-field}, its posterior weights, posterior mean\\
 $v_\Pi$, $v_\varphi$, $v_w$, $v_{\varphi,w}$ & field mixture, label average, guided field, guided label average\\
 $\nn(z)$; $\mathcal C\subseteq\mathcal C'$ & nearest atoms of $z$; candidate limits $z\in\operatorname{conv}\nn(z)$, resp.\ $\operatorname{aff}\nn(z)$\\
-$a_j=x^j$, $A$, $R=\max_j|a_j|$ & atoms, atom set, atom radius (Appendix~\ref{app:intervention-proofs})\\
+$a_j=x^j$, $A$, $R=\max_j|a_j|$ & atoms, atom set, atom radius (Section~\ref{sec:setup})\\
 $\eps=1-t$, $\tau=-\log\eps$ & time to the end; logarithmic time, in which $\dot x=\bar m-x$\\
 $\beta=t/\eps^2$, $\alpha=1/\beta$ & inverse temperature of the posterior over atoms, and its inverse\\
 $b_j$, $H_p$ & linear scores $x\cdot a_j-\tfrac t2|a_j|^2$; log-partition function of prior $p$\\
@@ -1934,7 +1934,7 @@ and $dy/d(\varsigma^2/2)$ equals minus the combined score. \citet{wan2025elucida
 flow-matching ODE directly.
 
 \paragraph{Fixed guidance on a common finite support.}
-Write $\mu^p_s,\mu^q_s$ for the heat densities at heat time $s$ of two priors with positive weights $p_j,q_j$ on $A$.
+Write $\mu^p_s,\mu^q_s$ for the heat densities at heat time $s=\varsigma^2/2$ of two priors with positive weights $p_j,q_j$ on $A$.
 For $w_+=1+w\ge1$, set $H_s=(\mu^p_s)^{w_+} (\mu^q_s)^{1-w_+}$ and $b_s=-\nabla\log H_s$.
 Fix a finite heat time $T>0$. Start the guided flow at $T$ with density $H_T/Z_T$, where
 $Z_T=\int H_T$, and denote its density at $0<s<T$ by $\mu^w_s$.
@@ -2036,7 +2036,7 @@ Source & Dynamics and assumptions & Conclusion\tabularnewline
 \bottomrule
 \end{tabular}
 \caption{Prior results and endpoint claims on finite data. Heat time $\varsigma^2/2=\eps^2/(2t^2)$ gives
-$\varsigma=O\eps$ in flow-matching time.}
+$\varsigma=O(\eps)$ in flow-matching time.}
 \label{tab:comparison}
 \end{table}
 
@@ -2641,7 +2641,7 @@ so by the Gibbs bound and $w\ge0$
 \dot Y=2u\cdot\dot u&=-\frac{2Y}{\eps}+\frac{2w\,u\cdot(a_i-m)}{\eps}
 \le-\frac{2Y}{\eps}+\frac{2w\eps\log N}{t},\\
 \frac{d}{dt}\Bigl(\frac{Y}{\eps^2}\Bigr)&=\frac{\dot Y}{\eps^2}+\frac{2Y}{\eps^3}
-\le\frac{2w\log N}{t\eps}=\frac{2w\log N}{t\eps} .
+\le\frac{2w\log N}{t\eps} .
 \end{align*}
 Integrating from $t_0$ to $t$ with $\int_{t_0}^t\frac{ds}{s(1-s)}=\log\frac{t(1-t_0)}{t_0\eps}$ and
 multiplying by $\eps^2$ gives \eqref{eq:guided-hard-rate}.
@@ -2978,9 +2978,9 @@ $(0,0)\in L\times\R^n$
 \]
 with $f,g$ continuous, $C^1$ in $(y,\eta)$ with derivatives uniformly continuous uniformly in
 $\tau$, and $f(0,0,\tau),g(0,0,\tau)\to0$. Suppose that for every $\delta>0$ there are
-$\varepsilon_\delta>0$ and $T_\delta$ with $|D_{(y,\eta)}f|+|D_{(y,\eta)}g|\le\delta$ on
-$\{|y|,|\eta|\le\varepsilon_\delta\}\times[T_\delta,\infty)$. Then there are $\varepsilon>0$ and $T$
-such that, for every $T'\ge T$, the states at time $T'$ in the $\varepsilon$-ball whose trajectories
+$\varrho_\delta>0$ and $T_\delta$ with $|D_{(y,\eta)}f|+|D_{(y,\eta)}g|\le\delta$ on
+$\{|y|,|\eta|\le\varrho_\delta\}\times[T_\delta,\infty)$. Then there are $\varrho>0$ and $T$
+such that, for every $T'\ge T$, the states at time $T'$ in the $\varrho$-ball whose trajectories
 stay in it and converge to $(0,0)$ lie on a Lipschitz graph of codimension $n_+$ over the stable and
 normal coordinates, and every state on this graph close enough to $(0,0)$ has such a trajectory.
 In particular, if $n_+=0$, every state close enough to $(0,0)$ does.
@@ -2999,13 +2999,13 @@ and, as $\frac{d}{ds}e^{-a\int_s^r\beta}=a\beta(s)e^{-a\int_s^r\beta}$ and $\int
 \int_r^\infty e^{-a\int_r^s\beta}\beta(s)\,ds=a^{-1},\iclrqbr
 \int_T^re^{-(r-s)}\,ds\le1 .
 \end{align*}
-Fix $\delta$ with $\kappa=4\delta\max\{a^{-1},1\}<\tfrac12$, then $\varepsilon=\varepsilon_\delta$, and
-then $T\ge T_\delta$ with $\sup_{\tau\ge T}(|f(0,0,\tau)|+|g(0,0,\tau)|)\le\delta\varepsilon$.
-Multiply $f,g$ by a smooth cutoff $\chi(y/\varepsilon,\eta/\varepsilon)$ equal to $1$ on the
-$\varepsilon/2$-ball and supported in the $\varepsilon$-ball. On the $\varepsilon$-ball,
-$|f(y,\eta,\tau)|\le|f(0,0,\tau)|+\delta|(y,\eta)|\le2\delta\varepsilon$, and likewise for $g$, so
+Fix $\delta$ with $\kappa=4\delta\max\{a^{-1},1\}<\tfrac12$, then $\varrho=\varrho_\delta$, and
+then $T\ge T_\delta$ with $\sup_{\tau\ge T}(|f(0,0,\tau)|+|g(0,0,\tau)|)\le\delta\varrho$.
+Multiply $f,g$ by a smooth cutoff $\chi(y/\varrho,\eta/\varrho)$ equal to $1$ on the
+$\varrho/2$-ball and supported in the $\varrho$-ball. On the $\varrho$-ball,
+$|f(y,\eta,\tau)|\le|f(0,0,\tau)|+\delta|(y,\eta)|\le2\delta\varrho$, and likewise for $g$, so
 the cut-off nonlinearities are globally Lipschitz with constant at most
-$\delta+C\varepsilon^{-1}\cdot2\delta\varepsilon\le C\delta$, the second term coming from $D\chi$.
+$\delta+C\varrho^{-1}\cdot2\delta\varrho\le C\delta$, the second term coming from $D\chi$.
 These choices hold for every starting time $T'\ge T$. For $(s_0,\eta_0)$ in the stable and normal
 coordinates, consider the Lyapunov--Perron map
 \begin{align*}
@@ -3018,9 +3018,9 @@ continuous functions on $[T',\infty)$ tending to zero into themselves (split eac
 fixed initial piece, which the kernel sends to zero, and a tail where the forcing is small), and two
 inputs at sup-distance $\Delta$ are mapped to outputs at distance at most
 $C\delta\max\{a^{-1},1\}\Delta\le C\kappa\Delta$; after shrinking $\delta$ it is a contraction. Its
-fixed point has size at most $C(|s_0|+|\eta_0|+\delta\varepsilon)$, which is below $\varepsilon/2$
+fixed point has size at most $C(|s_0|+|\eta_0|+\delta\varrho)$, which is below $\varrho/2$
 for small data and small $\delta$, so the cutoff is inactive and it solves the original system.
-Conversely, a solution that stays in the $\varepsilon/2$-ball and tends to zero satisfies these
+Conversely, a solution that stays in the $\varrho/2$-ball and tends to zero satisfies these
 equations: variation of constants gives the stable and normal ones, and on $L^u$, writing
 $y_u(r)=e^{-\Gamma_u\int_r^{S}\beta}y_u(S)-\int_r^Se^{-\Gamma_u\int_r^s\beta}\beta P_uf\,ds$ and
 letting $S\to\infty$, boundedness forces the terminal term to vanish. The decaying set is
@@ -3029,8 +3029,8 @@ graph is Lipschitz: the data $(s_0,\eta_0)$ enter the map only through the terms
 $e^{\Gamma_s\int_{T'}^r\beta}s_0$ and $e^{-(r-T')}\eta_0$, of sup-norm at most $|s_0|$ and
 $|\eta_0|$, so two data at distance $\Delta_0$ give fixed points at distance at most
 $\Delta_0/(1-C\kappa)$, and in particular $|\Psi_{T'}(s_0,\eta_0)-\Psi_{T'}(s_0',\eta_0')|\le
-(1-C\kappa)^{-1}|(s_0,\eta_0)-(s_0',\eta_0')|$. This proves the lemma with $\varepsilon/2$ in place
-of $\varepsilon$. (The graph is in fact $C^1$ by the standard theory of invariant manifolds, but
+(1-C\kappa)^{-1}|(s_0,\eta_0)-(s_0',\eta_0')|$. This proves the lemma with $\varrho/2$ in place
+of $\varrho$. (The graph is in fact $C^1$ by the standard theory of invariant manifolds, but
 only the Lipschitz property is used below.)
 \end{proof}
 
@@ -3057,7 +3057,7 @@ initial points whose $(y,\eta)$ tend to $0$. If $\Gamma(\xi_\star)\prec0$, then 
 sufficiently small $(y,\eta)$ at time $T$ converges to $0$, and pulling this open set back by the
 flow from time $0$ to $T$ and the affine map $x\mapsto(\xi,\eta)$ gives a nonempty open set of
 initial points, of positive $\pi_0$-probability. If $n_+\ge1$, every trajectory of the basin lies
-in the $\varepsilon$-ball from some integer time $T'\ge T$ on, hence on the graph of
+in the $\varrho$-ball from some integer time $T'\ge T$ on, hence on the graph of
 Lemma~\ref{lem:lp} at that time. The basin is thus contained in a countable union of preimages of
 Lipschitz graphs of positive codimension; such graphs are null by Fubini, and the $C^1$ flow diffeomorphisms and
 the affine coordinate map preserve null sets.
@@ -3257,9 +3257,9 @@ $\Phi$.
 For surjectivity fix $z$ and $t_n\uparrow1$, and let $Y^n$ be the solution with $Y^n_{t_n}=z$.
 Backward Gr\"onwall bounds $|Y^n|$ by $a=(|z|+\kappa)e^\Lambda$ on its backward interval, so
 $Y^n$ reaches time~$0$; let $x_n=Y^n_0$. Forward, $|Y^n_t|\le R'=(a+\kappa)e^\Lambda$ uniformly in
-$n$, and $\varepsilon_n=\int_{t_n}^1(|v_\theta(0,\cdot)|+LR')\to0$. For $m>n$,
-$|x_n-x_m|\le e^\Lambda|Y^n_{t_m}-Y^m_{t_m}|=e^\Lambda|Y^n_{t_m}-Y^n_{t_n}|\le e^\Lambda\varepsilon_n$,
-so $x_n\to x^\ast$, and $|\Phi(x_n)-z|=|Y^n_1-Y^n_{t_n}|\le\varepsilon_n$ gives $\Phi(x^\ast)=z$ by
+$n$, and $\eta_n=\int_{t_n}^1(|v_\theta(0,\cdot)|+LR')\to0$. For $m>n$,
+$|x_n-x_m|\le e^\Lambda|Y^n_{t_m}-Y^m_{t_m}|=e^\Lambda|Y^n_{t_m}-Y^n_{t_n}|\le e^\Lambda\eta_n$,
+so $x_n\to x^\ast$, and $|\Phi(x_n)-z|=|Y^n_1-Y^n_{t_n}|\le\eta_n$ gives $\Phi(x^\ast)=z$ by
 continuity. Hence $\Phi$ is a bi-Lipschitz bijection.
 
 Finally $X_1=\Phi(X_0)$. If $N$ is a Lebesgue-null Borel set, $\Phi^{-1}(N)$ is Borel and, as the
@@ -3668,7 +3668,7 @@ classes of the composite differ between the two tolerances for at most $1.32\%$ 
 the two-atom runs ($B=1,2,3$) and $0.98\%$ on the triangle, and the occupancy changes by at most
 $0.005$ and $0.009$. The exception is the off-tie network of Appendix~\ref{apx:bottleneck-runs} at
 $w\ge2w_c$, whose classes differ for up to $53\%$ of the sources (one seed, $5w_c$) while its
-occupancy stays below $0.011$ at both tolerances. Between $\epsilon=10^{-3}$ and $10^{-5}$ the
+occupancy stays below $0.011$ at both tolerances. Between $\eps=10^{-3}$ and $10^{-5}$ the
 occupancy changes by at most $0.020$ in the two-atom runs, except at $B=3$, where the velocity
 networks fail anyway (up to $0.049$), and by at most $0.055$ on the triangle, where it is still
 rising in one data-predicting seed at $5w_c$ ($0.680$ to $0.735$). A fixed-step RK4
@@ -3860,7 +3860,7 @@ triangle & exact & $0.000$ & -- & $0.002$ & $0.133$ & $0.673$ & $0.952$\\
 \end{tabular}}
 \ificlr\resizebox{\textwidth}{!}{\lctable}\else\lctable\fi
 \caption{Midpoint occupancy of learned guided label averages, mean $\pm$ population standard
-deviation over seeds, at $\epsilon=10^{-5}$, $\delta=0.05$, from $2048$ shared sources; exact
+deviation over seeds, at $\eps=10^{-5}$, $\delta=0.05$, from $2048$ shared sources; exact
 rows give the exact probability of the midpoint (computed as for Table~\ref{tab:composition} by
 \texttt{learned\_composition\_exact.py}; triangle: fraction
 of the first $4096$ sources ending at the centre, $0.138$, $0.681$ and $0.951$ on the $2048$
