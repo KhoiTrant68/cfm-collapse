@@ -28,6 +28,7 @@
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{multirow} % rotated row groups in tab:window-main
+\usepackage{algorithm,algpseudocode} % Algorithms alg:swap and alg:measure
 \usepackage{caption}
 \usepackage{subcaption}
 \usepackage{xcolor}
@@ -597,7 +598,7 @@ condition does.
 
 \begin{center}
 \fbox{\begin{minipage}{0.96\textwidth}
-\textbf{Measurement protocol.}
+\textbf{Measurement protocol} (Algorithm~\ref{alg:measure}).
 \begin{itemize}[leftmargin=1.5em,itemsep=1pt,topsep=2pt]
 \item \emph{Sampler.} EDM's deterministic $18$-step Heun sampler.
 \item \emph{Quantities.} Along the EDM state $x$, for a training image $a$:
@@ -616,6 +617,56 @@ condition does.
 \end{minipage}}
 \end{center}
 
+\begin{algorithm}[t]
+\caption{Hybrid Heun sampler with the exact field on a window of noise levels}
+\label{alg:swap}
+\begin{algorithmic}[1]
+\Require schedule $\sigma_0>\dots>\sigma_{K-1}>\sigma_K=0$ (EDM, $K=18$); network $D_\theta$; class $c$
+  with training images $\{a_j\}$; window $(\sigma_{\rm lo},\sigma_{\rm hi}]$: net$\to$exact at $s$
+  is $(0,s]$, exact$\to$net at $s$ is $(s,\infty)$
+\Function{$D$}{$x,\sigma$}\Comment{each evaluation uses the rule of its own level}
+  \If{$\sigma_{\rm lo}<\sigma\le\sigma_{\rm hi}$}
+    \State $q_j\gets\exp(-|x-a_j|^2/(2\sigma^2))\big/\sum_l\exp(-|x-a_l|^2/(2\sigma^2))$
+    \State \Return $m^\star(x,\sigma)=\sum_jq_ja_j$\Comment{exact field, double precision}
+  \Else
+    \State \Return $D_\theta(x;\sigma,c)$
+  \EndIf
+\EndFunction
+\State $x_0\sim\N(0,\sigma_0^2I_d)$\Comment{the same latents for every denoiser}
+\For{$k=0,\dots,K-2$}
+  \State $D_k\gets D(x_k,\sigma_k)$, \quad $d_k\gets(x_k-D_k)/\sigma_k$
+  \State $\tilde x_k\gets x_k+(\sigma_{k+1}-\sigma_k)\,d_k$\Comment{Euler predictor}
+  \State $\tilde D_k\gets D(\tilde x_k,\sigma_{k+1})$
+  \State $x_{k+1}\gets x_k+\tfrac12(\sigma_{k+1}-\sigma_k)\big(d_k+(\tilde x_k-\tilde D_k)/\sigma_{k+1}\big)$
+\EndFor
+\State $x_K\gets D(x_{K-1},\sigma_{K-1})$\Comment{last step: Euler to $\sigma_K=0$}
+\State $d_1\le d_2\gets$ distances from $x_K$ to its two nearest training images of class $c$
+\State \Return $x_K$; off-atom $\gets[d_1/d_2\ge1/3]$; index of the nearest image (for $=$L, $=$E)
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[t]
+\caption{Relative error, radial ratio, late contraction and Heun certificate along one trajectory}
+\label{alg:measure}
+\begin{algorithmic}[1]
+\Require states $x_k$, Euler predictors $\tilde x_k$ and endpoint $x_K$ of Algorithm~\ref{alg:swap}
+  with the network at every level; training images $\{a_j\}$ of class $c$; anchor rule
+\For{$k=0,\dots,K-1$}
+  \State $a\gets$ nearest training image to $x_K$ (endpoint anchor) or to $D_\theta(x_k,\sigma_k)$
+    (predictive anchor)
+  \State $n_k\gets|x_k-a|$, \quad $e_k\gets|D_\theta(x_k,\sigma_k)-m^\star(x_k,\sigma_k)|$, \quad
+    $\varrho_k\gets e_k/n_k$
+  \State $\hat e_k\gets(x_k-a)/n_k$; \quad radial ratio $\gets\langle\hat e_k,D_\theta(x_k,\sigma_k)-a\rangle/n_k$
+  \State $\tilde\varrho_k\gets$ the same relative error at $(\tilde x_k,\sigma_{k+1})$ \Comment{$k\le K-2$}
+  \State $c_k\gets$ \eqref{eq:heun-factor} with $r_k=\sigma_{k+1}/\sigma_k$ and
+    $\varrho=\max(\varrho_k,\tilde\varrho_k)$; certified at step $k$ $\gets[c_k<1]$
+\EndFor
+\State $C\gets$ trapezoidal rule for $\int(1-\varrho)\,d\log(1/\sigma)$ over the levels
+  $\sigma_k\in[0.002,0.585]$ \Comment{late contraction}
+\State \Return $(n_k,e_k,\varrho_k)_k$, radial ratios, $(c_k)_k$, $C$, and on-/off-atom of $x_K$
+\end{algorithmic}
+\end{algorithm}
+
 The $500$-image models memorise: $41$ of $1000$ samples ($4.1\%$) are off-atom, and $4.4\%$ for the
 second subset. The $2000$-image model is balanced, with $50.1\%$ off-atom, and the public model has
 only off-atom samples. The exact field has none. The swap experiments also use a model trained on a
@@ -628,7 +679,7 @@ gives the same conclusions (Appendix~\ref{app:relerr-exp}).
 
 Because the exact field can be evaluated on these models, we can separate the choice of the image
 from the landing on it by intervention, not only by correlation. From the same Gaussian latents we
-run the Heun sampler with two hybrid denoisers. \emph{Net$\to$exact} uses $D_\theta$ at the noise
+run the Heun sampler with two hybrid denoisers (Algorithm~\ref{alg:swap}). \emph{Net$\to$exact} uses $D_\theta$ at the noise
 levels of the schedule above $s$ and the exact posterior mean $m^\star$ at those $\le s$.
 \emph{Exact$\to$net} does the reverse, the direction of the hybrid samplers of
 \citet{bertrand2025closed} and \citet{liu2025navigation}. The two directions answer different
