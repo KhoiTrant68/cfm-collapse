@@ -360,9 +360,13 @@ For vectors, $|\cdot|$ is the Euclidean norm; for a random vector, $\Var$ is the
 variance $\tr\Cov$.
 
 \paragraph{Sampling law.} Fix a training set~$\D=\{(x^i,y^i)\}_{i=1}^N$ with $x^i\in\R^d$ and
-$y^i\in\R^k$, call $a_i:=x^i$ the \emph{atoms}, and write $\rhohat_X=N^{-1}\sum_i\delta_{a_i}$. Draw $I\sim\mathrm{Unif}\{1,\dots,N\}$,
-$X_0\sim\pi_0=\N(0,I_d)$ and $t\sim\mathrm{Unif}(0,1)$ independently, and put $X_1=a_I$, $Y=y^I$,
-$X_t=(1-t)X_0+tX_1$ and $U=X_1-X_0$. We write $\eps:=1-t$ for the remaining time.
+$y^i\in\R^k$, call $a_i:=x^i$ the \emph{atoms}, and write $\rhohat_X=N^{-1}\sum_i\delta_{a_i}$. Draw independently
+\begin{equation}
+I\sim\mathrm{Unif}\{1,\dots,N\},\qquad X_0\sim\pi_0=\N(0,I_d),\qquad t\sim\mathrm{Unif}(0,1),
+\label{eq:sampling}
+\end{equation}
+and put $X_1=a_I$ and $Y=y^I$. The interpolant is $X_t=(1-t)X_0+tX_1$, with target $U=X_1-X_0$.
+We write $\eps:=1-t$ for the remaining time.
 
 \paragraph{Conditioning and objective.} At bandwidth~$h>0$, draw $\omega\sim\N(0,I_k)$
 independently and set $\widetilde Y=Y+h\omega$, with label kernel
@@ -475,9 +479,13 @@ tend to $\law(a_I)$.}
 \end{enumerate}
 \proofin{apx:pf-kernel}
 \end{restatable}
-The mean $\bar x_h(y)=\sum_ip_i^{(h)}(y)a_i$ and covariance
-$\Covh(y)=\sum_ip_i^{(h)}(y)(a_i-\bar x_h(y))(a_i-\bar x_h(y))^\top$ of \eqref{eq:endpoint} are
-computable from the training set and are the reference for generated moments. Matching them
+The mean and covariance of \eqref{eq:endpoint},
+\begin{equation}
+\bar x_h(y)=\sum_ip_i^{(h)}(y)\,a_i,\qquad
+\Covh(y)=\sum_ip_i^{(h)}(y)\,\bigl(a_i-\bar x_h(y)\bigr)\bigl(a_i-\bar x_h(y)\bigr)^\top,
+\label{eq:covh}
+\end{equation}
+are computable from the training set and are the reference for generated moments. Matching them
 does not recover a posterior.
 Label noise redistributes weight over the atoms and never ends off them, so
 matching $\tr\Covh$ to a posterior variance matches a second moment, not the posterior.\ificlr\else{}
@@ -510,12 +518,15 @@ q_{p,j}(x,t)=\frac{p_j\,\pi_0\big(\tfrac{x-ta_j}{\eps}\big)}
 {\sum_\ell p_\ell\,\pi_0\big(\tfrac{x-ta_\ell}{\eps}\big)}.
 \label{eq:prior-field}
 \end{equation}
-Then $\vstar(\cdot,\cdot,y)=v_{p^{(h)}(y)}$ with weights $q^{(h)}_i=q_{p^{(h)}(y),i}$, the unconditional field is
-$v_{\mathrm{unc}}^\star=v_{p^{\mathrm{unc}}}$ with $p^{\mathrm{unc}}$ uniform, and the hard field
-at $y^i$ is $v_{e_i}$. For $z\in\R^d$ let $\nn(z)=\{a_j:|z-a_j|=\min_\ell|z-a_\ell|\}$ be its
+Then $\vstar(\cdot,\cdot,y)=v_{p^{(h)}(y)}$, with weights $q^{(h)}_i=q_{p^{(h)}(y),i}$. The
+unconditional field is $v_{\mathrm{unc}}^\star=v_{p^{\mathrm{unc}}}$ with $p^{\mathrm{unc}}$ uniform,
+and the hard field at $y^i$ is $v_{e_i}$. For $z\in\R^d$ let $\nn(z)=\{a_j:|z-a_j|=\min_\ell|z-a_\ell|\}$ be its
 nearest atoms. Each affine hull $\operatorname{aff}\nn(z)$ contains at most one point
 equidistant from $\nn(z)$, so the candidate sets
-$\mathcal C=\{z:z\in\operatorname{conv}\nn(z)\}\subseteq\mathcal C'=\{z:z\in\operatorname{aff}\nn(z)\}$
+\begin{equation}
+\mathcal C=\{z:z\in\operatorname{conv}\nn(z)\}\ \subseteq\ \mathcal C'=\{z:z\in\operatorname{aff}\nn(z)\}
+\label{eq:candidates}
+\end{equation}
 are finite. They consist of the atoms and of circumcentres of equidistant nearest atoms.
 
 All results of this section follow one two-step template, stated below and proved once in
@@ -620,9 +631,13 @@ not linear in $p$, and Section~\ref{sec:intervention-tests} finds that the two g
 atom assignments. Label averaging, part~(d), is the case where $\Pi$ is the law of $p^{(h)}(y-U)$
 for $U\sim\varphi$. No moment condition is imposed on $\varphi$, and the endpoint weights
 $\tilde q$ are not identified. Strict positivity of the priors is essential. By
-Fact~\ref{fact:exact}(b)(i), the hard-conditioning field at $y^i$ is $(a_i-x)/\eps$, so for any
-fixed weights $\lambda_i\ge0$ summing to one the average $\sum_i\lambda_iv_{e_i}$ equals
-$(z-x)/\eps$ with $z=\sum_i\lambda_ia_i$. Its flow sends every source to $z$, in every geometry
+Fact~\ref{fact:exact}(b)(i), the hard-conditioning field at $y^i$ is $(a_i-x)/\eps$. Hence, for
+fixed weights $\lambda_i\ge0$ summing to one,
+\begin{equation}
+\sum_i\lambda_iv_{e_i}=\frac{z-x}{\eps},\qquad z=\sum_i\lambda_ia_i .
+\label{eq:hard-average}
+\end{equation}
+Its flow sends every source to $z$, in every geometry
 of the atoms, and $z$ is a training example only if a single $\lambda_i$ is nonzero. Under hard conditioning,
 an average of two fields therefore already blends. Our results on guidance and on three or more
 fields assume strictly positive priors and do not cover the conjunction under hard conditioning. The null set
@@ -790,7 +805,7 @@ is $\tanh \zeta$, so in the time $\tau$ the composite flow is $\dot x=F_w(\zeta)
 \compositioneq
 Near the tie each averaged component is confident in a different atom, so their average has the
 small slope $\operatorname{sech}^2B$, while the unconditional mean has slope $1$. Guidance
-subtracts $w$ times this unconditional repulsion, and for $w>1/\sinh^2B$ the composite attracts:
+subtracts $w$ times this unconditional repulsion, and for $w>w_c$ \eqref{eq:wc} the composite attracts:
 the guided covariance trace at the tie, $F_w'(0)=(1+w)\operatorname{sech}^2B-w$, turns negative,
 because averaging adds $-(1+w)$ times the variance of the component means. In (a) a barrier
 $|x|<\varkappa\eps^2/t$ then traps an open interval of sources around the tie; in (b) a lower
@@ -812,7 +827,7 @@ fixed. Section~\ref{sec:spectral} extends the mechanism to any dimension.
 \centering
 \includegraphics[width=\ificlr0.82\else0.98\fi\textwidth]{fig_composition.pdf}
 \caption{Guided label averaging on two training atoms (Theorem~\ref{thm:composition}). (a) The
-profiles, zeros of $F_w$ in \eqref{eq:composition-mean}, against $w/w_c$, $w_c=1/\sinh^2B$. The tie
+profiles, zeros of $F_w$ in \eqref{eq:composition-mean}, against $w/w_c$, with $w_c$ of \eqref{eq:wc}. The tie
 $\zeta=0$ repels below $w_c$ and attracts above it, as $F_w'(0)=\operatorname{sech}^2B\,(1-w/w_c)$. Above
 $w_c$ the repelling profiles $\pm \zeta_u$, $\cosh \zeta_u=\sqrt{w/w_c}$ (dashed), bound the basin of zero
 for the limiting profile equation (shaded). Arrows give the sign of $F_w$. The finite-time
@@ -911,33 +926,38 @@ configurations (Remark~\ref{rem:generic} in Appendix~\ref{apx:pf-spectral}).
 \subsection{Composing conditions}
 \label{sec:conjunction}
 
-Compositional generation combines several conditions $c_1,\dots,c_K$ by adding their guidance
-terms: the conjunction of \citet{liu2022composable} integrates
-$v_{\mathrm{unc}}+\sum_kw_k(v_{c_k}-v_{\mathrm{unc}})$, written here for velocities, which enter
-linearly. With equal weights $w_k=(1+w)/K$ this is
-\[
-(1+w)\,\frac1K\sum_{k=1}^Kv_{c_k}-w\,v_{\mathrm{unc}},
-\]
-guidance with strength $w$ applied to the average of the $K$ conditional fields. For exact fields
-with strictly positive priors this is the composite of Theorem~\ref{thm:composition} and
-Theorem~\ref{thm:spectral}(d), with the average over nearby labels replaced by the average
-over the conditions being combined. For a single condition, fixed $w\ge0$ and bounded
-nonnegative schedules of bounded variation near the endpoint give a training example almost surely
-from an absolutely continuous source (Theorem~\ref{thm:twofields}). A conjunction gives its circumcentre positive mass above
-$w_c$ if the circumcentre is a candidate, the averaged conditional and unconditional
-restricted means equal it at the same tilt and $C_{\mathrm u}-C_{\mathrm{av}}\succ0$ on the tie span
-(Theorem~\ref{thm:spectral}(d)). Opposing preferences alone can leave the midpoint
-repelling for every $w\ge0$. For example, take two atoms, conditional odds $3$ and $4/5$ with
-equal weights and unconditional odds $1$. With $x=e^{2\zeta}$, the profile mean has positive
-denominator and numerator
+The conjunction of compositional generation is guidance applied to an average of conditional
+fields, so the blends of Sections~\ref{sec:composition} and~\ref{sec:spectral} are blends of
+composed conditions. Compositional generation combines conditions $c_1,\dots,c_K$ by adding
+their guidance terms. Written for velocities, which enter linearly, the conjunction of
+\citet{liu2022composable} with equal weights $w_k=(1+w)/K$ integrates
+\begin{equation}
+v_{\mathrm{unc}}+\sum_{k=1}^Kw_k\,(v_{c_k}-v_{\mathrm{unc}})
+=(1+w)\,\frac1K\sum_{k=1}^Kv_{c_k}-w\,v_{\mathrm{unc}} .
+\label{eq:conjunction}
+\end{equation}
+For exact fields with strictly positive priors, \eqref{eq:conjunction} is the composite of
+Theorem~\ref{thm:composition} and Theorem~\ref{thm:spectral}(d), with the average over nearby
+labels replaced by the average over the conditions being combined. A single condition, with fixed
+$w\ge0$ or a bounded nonnegative schedule of bounded variation near the endpoint, gives a
+training example almost surely from an absolutely continuous source
+(Theorem~\ref{thm:twofields}). A conjunction gives its circumcentre positive mass above $w_c$ of
+\eqref{eq:wc-matrix} under three conditions: the circumcentre is a candidate; the averaged
+conditional and the unconditional restricted means equal it at the same tilt; and
+$C_{\mathrm u}-C_{\mathrm{av}}\succ0$ on the tie span (Theorem~\ref{thm:spectral}(d)).
+
+Opposing preferences alone can leave the midpoint repelling for every $w\ge0$. Take two atoms,
+conditional odds $3$ and $4/5$ with equal weights, and unconditional odds $1$. Set
+$x=e^{2\zeta}$. The profile mean then has a positive denominator and the numerator
 \[
 P(x)=\tfrac{12}{5}x^3+(\tfrac{12}{5}+w)x^2+(-1+\tfrac95 w)x-1 .
 \]
 For $w\ge0$ there is exactly one sign change. By Descartes' rule and the signs at $0$ and
-infinity, there is one simple positive root, crossing upwards. Theorem~\ref{thm:spectral}(c)
-therefore gives the midpoint probability zero for every strength.
-For the symmetric two-atom conjunction with log-odds $\pm2B$, $w_c=1/\sinh^2B\approx4e^{-2B}$: the more confidently
-each condition identifies its own example, the smaller the guidance at which their conjunction
+infinity, there is one simple positive root, crossing upwards. Hence
+Theorem~\ref{thm:spectral}(c) gives the midpoint probability zero for every strength.
+
+For the symmetric two-atom conjunction with log-odds $\pm2B$, the threshold \eqref{eq:wc}
+satisfies $w_c\approx4e^{-2B}$: the more confidently each condition identifies its own example, the smaller the guidance at which their conjunction
 blends them. The regular simplex after Theorem~\ref{thm:spectral}(d) is the conjunction of
 $K=N$ conditions. Section~\ref{sec:regular-learned} asks what a learned field needs to reach these
 blends, and Section~\ref{sec:intervention-tests} answers it numerically for networks trained by
@@ -963,9 +983,11 @@ and $\Gamma$ has the sign of $F'(\zeta)$.
 
 \begin{restatable}[Blending two examples needs a subtracted intermediate field]{proposition}{proptwoatom}
 \label{prop:twoatom}
-Consider $\sum_kc_kv_{p_k}$ with finitely many $p_k\in\Ppos$ and constant coefficients summing to
+\emph{Setting.} Consider $\sum_kc_kv_{p_k}$ with finitely many $p_k\in\Ppos$ and constant coefficients summing to
 one, at the midpoint $z$ of two atoms $a,b$ with $\nn(z)=\{a,b\}$, with priors of equal $B(p_k)$
-grouped.
+grouped; $B$ and $F$ are as in \eqref{eq:tie-logodds} and \eqref{eq:tie-profile}.
+
+\emph{Conclusion.}
 \begin{enumerate}[label=(\alph*),leftmargin=2em]
 \item At a profile $\zeta_\star$, $F'(\zeta_\star)=1-\sum_kc_k\tanh^2\bigl(\zeta_\star+B(p_k)\bigr)$.
   If every prior whose $B(p_k)$ lies strictly between $\min_kB(p_k)$ and $\max_kB(p_k)$ has a
@@ -990,7 +1012,7 @@ blend, not sufficient; Figure~\ref{fig:signed} shows how much of the allowed reg
 Recipe at the tie of $a$ and $b$ & Intermediate field & Blend of $a$ and $b$?\\
 \midrule
 Guidance on one condition; negative prompt by substitution, $v_{\mathrm{neg}}+s\,(v_{\mathrm{pos}}-v_{\mathrm{neg}})$ & none: two fields & no, probability $0$ (Thm.~\ref{thm:twofields})\\
-Conjunction $(1+w)\tfrac12(v_a+v_b)-w\,v_{\mathrm{unc}}$, $B(p)=B,0,-B$ & unconditional, $B=0$, subtracted & yes, exactly when $w>w_c=1/\sinh^2B$ (Thm.~\ref{thm:composition}, Prop.~\ref{prop:twoatom}(c))\\
+Conjunction $(1+w)\tfrac12(v_a+v_b)-w\,v_{\mathrm{unc}}$, $B(p)=B,0,-B$ & unconditional, $B=0$, subtracted & yes, exactly when $w>w_c$ \eqref{eq:wc} (Thm.~\ref{thm:composition}, Prop.~\ref{prop:twoatom}(c))\\
 Positive prompt for $a$, negative prompt for $b$, unconditional base, $v_{\mathrm{unc}}+s\,(v_{\mathrm{pos}}-v_{\mathrm{unc}})-s_{\mathrm{neg}}(v_{\mathrm{neg}}-v_{\mathrm{unc}})$ & subtracted field is the extreme one & no, probability $0$ (Prop.~\ref{prop:twoatom}(b))\\
 Negative prompt that favours $a$ less than the positive prompt, $0<B(p_{\mathrm{neg}})<B(p_{\mathrm{pos}})$ & negative prompt, subtracted & can blend (Section~\ref{sec:intervention-tests})\\
 Negative prompt that does not distinguish $a$ from $b$, $B(p_{\mathrm{neg}})=0$ & grouped with the unconditional field, whatever its sign & nothing changes at this tie\\
@@ -1023,7 +1045,7 @@ with negative slope (Theorem~\ref{thm:spectral}). At exterior points where all r
 the probability is $0$. The spectral test alone leaves degenerate boundary profiles unclassified. In the interior
 $18$ cells next to the boundary are left white, their probability being below $0.01$. No point of
 the region has $c_+\le0$ or $c_-\le0$, as Proposition~\ref{prop:twoatom}(b) requires. Dashed: the
-equal conjunction $c_+=c_-=(1+w)/2$, $w\ge0$, which enters the region at $w=w_c=1/\sinh^2B$ (dot);
+equal conjunction $c_+=c_-=(1+w)/2$, $w\ge0$, which enters the region at $w=w_c$ \eqref{eq:wc} (dot);
 star: $w=2w_c$, the row of (a) with probability $0.406$.}
 \label{fig:signed}
 \end{figure}
@@ -1063,8 +1085,8 @@ Let $v_\theta$ be continuous and locally Lipschitz in $x$ on $\R^d\times[0,1)$.
 A velocity MLP with Lipschitz activations and a smooth time embedding on $[0,1]$ satisfies
 (a): for an absolutely continuous source its endpoint law has a density, even when many samples
 lie near the same atom at a finite cutoff. Part (b) applies to a bounded one-dimensional data
-predictor, or a guided combination of predictors. For $g_w=(1+w)\bar g_\varphi-wg_{\mathrm{unc}}$
-with $g_w(0)=0$, the midpoint has an open basin when $g_w'(0)<1$ and attracts at most one initial
+predictor, or a guided combination of predictors. Consider $g_w=(1+w)\bar g_\varphi-wg_{\mathrm{unc}}$
+with $g_w(0)=0$. The midpoint has an open basin when $g_w'(0)<1$ and attracts at most one initial
 point when $g_w'(0)>1$; a predictor with bounded derivative can reproduce the threshold $w_c$
 (Appendix~\ref{app:regular}).
 }%
@@ -1084,29 +1106,25 @@ Proposition~\ref{prop:regular} leaves open: whether a network trained by flow ma
 label-noise reference of Theorem~\ref{thm:endpoint}, and whether it reproduces the blend basin of
 Theorem~\ref{thm:composition}. Protocols are in Appendix~\ref{app:expdetails}.
 
-\paragraph{The label-noise reference in trained networks.} Theorem~\ref{thm:endpoint} gives a
-reference without free parameters for a network trained with label noise: the variance
-$\tr\Covh(y)$ of the label-weighted training examples. We compare it with the variance of samples
-from trained networks on two problems (Appendix~\ref{app:kernel-protocol}). On a linear-Gaussian
-problem in $d=2$ with $N=200$ training pairs and five seeds, the ratio of the generated variance
-to $\tr\Covh$ is $1.002\pm0.050$, $0.994\pm0.039$ and $1.011\pm0.022$ at $h=0.05$, $0.1$ and $0.5$
-(Table~\ref{tab:p7kernel}, Figure~\ref{fig:kernel-tracking}a). At $h=0.01$ the reference is nearly degenerate, with an effective
-number of atoms $n_{\mathrm{eff}}=1/\sum_i(p_i^{(h)})^2\approx3.5$; the per-seed ratios range from
-$0.92$ to $1.96$, and the comparison does not decide. These networks match a second moment of an
-atomic law, which does not show that their samples lie on the atoms. On CIFAR-10 inpainting with a
-$35.75$M-parameter U-Net and $N=2000$ training images, the exact field puts the across-condition
-log--log slope of generated against reference variance at $1$. Networks retrained on three
-independently drawn training sets give $0.34$, $0.32$ and $0.43$ at $h=4$ (mean $0.36$, $95\%$
-$t$-interval $[0.22,0.51]$), so at image scale the generated variance does not follow the reference
-across conditions (Table~\ref{tab:cifar-kernel}, Figure~\ref{fig:kernel-tracking}b). At $h=6$ the reference spans less than two
-decades, and the slope, between $0.08$ and $0.60$ across the training sets, is not determined. In a
-further retraining with the same configuration, the networks leave $0.168$ of their samples at
-$h=4$ and $0.276$ at $h=6$ off the training images at the cutoff $\eps=10^{-4}$, by a
-nearest-neighbour criterion (sample standard deviations $0.012$ and $0.008$ over three seeds).
-These finite-cutoff fractions combine learned-field, truncation and discretisation effects
-and do not identify a limiting support. At either bandwidth, a Gaussian source transported
-by the exact field converges almost surely to a training image
-(Theorem~\ref{thm:endpoint}(c)).
+\paragraph{The label-noise reference in trained networks.} Networks trained with label noise
+follow the reference of Theorem~\ref{thm:endpoint} on a small problem but not at image scale. The
+reference has no free parameters: it is the variance $\tr\Covh(y)$ of \eqref{eq:covh}, which we
+compare with the variance of samples from trained networks (Appendix~\ref{app:kernel-protocol}).
+On a linear-Gaussian problem in $d=2$ with $N=200$ training pairs and five seeds, the ratio of the
+generated variance to $\tr\Covh$ lies between $0.994$ and $1.011$ for $h\ge0.05$
+(Table~\ref{tab:p7kernel}, Figure~\ref{fig:kernel-tracking}a). At $h=0.01$ the reference is nearly
+degenerate, with an effective number of atoms $n_{\mathrm{eff}}=1/\sum_i(p_i^{(h)})^2\approx3.5$,
+and the comparison does not decide. Matching a second moment of an atomic law does not show that
+the samples lie on the atoms. On CIFAR-10 inpainting with a $35.75$M-parameter U-Net and $N=2000$
+training images, the exact field puts the across-condition log--log slope of generated against
+reference variance at $1$. Networks retrained on three draws of the training set give slopes from
+$0.32$ to $0.43$ at $h=4$, so at image scale the generated variance does not follow the reference
+(Table~\ref{tab:cifar-kernel}, Figure~\ref{fig:kernel-tracking}b); at $h=6$ the slope is not
+determined. A further retraining leaves $0.168$ of the samples at $h=4$ and $0.276$ at $h=6$ off
+the training images at the cutoff $\eps=10^{-4}$ (Appendix~\ref{app:kernel-protocol}). These
+finite-cutoff fractions combine learned-field, truncation and discretisation effects and do not
+identify a limiting support. At either bandwidth, the exact field sends a Gaussian source almost
+surely to a training image (Theorem~\ref{thm:endpoint}(c)).
 % Group decision 2026-11-23: the s10 retrain (results/s10_cifar_transfer_20261108) and its
 % numbers belong to this paper; paper B describes it only qualitatively.
 
@@ -1282,7 +1300,7 @@ every fixed affine combination of two fields and guidance with bounded nonnegati
 bounded variation end on training examples for Lebesgue-almost every initial point. Every
 trajectory converges. Label noise gives explicit record probabilities. Under hard conditioning an average
 of two fields already blends. In the symmetric two-atom
-conjunction a third field gives the midpoint positive mass exactly when $w>1/\sinh^2B$. More
+conjunction a third field gives the midpoint positive mass exactly when $w>w_c$ \eqref{eq:wc}. More
 generally, subtracting an intermediate prior is necessary at a two-atom tie. At a hyperbolic
 profile, negative definiteness of the signed posterior covariance on the tie span gives an open
 basin, and a positive eigenvalue gives a null profile basin. When all profiles are hyperbolic and
@@ -3269,7 +3287,7 @@ integrated with RK4 to $\eps=10^{-4}$ from $16$ shared sources at each of the $4
 (\texttt{summarize\_s10\_cifar.py}). A sample is off-support unless its nearest training image is at
 most $\tfrac13$ as far as the second nearest, the criterion of \citet{yoon2023memorization}. Unlike
 the rest of this appendix, these fractions are reported with sample standard deviations over the
-three seeds; the population values are $0.010$ and $0.006$.
+three seeds, $0.012$ and $0.008$; the population values are $0.010$ and $0.006$.
 
 \begin{table}[htb]
 \centering\small
