@@ -36,6 +36,8 @@
 \usepackage{placeins} % \FloatBarrier keeps figures/tables from drifting past a subsection
 \usepackage{enumitem} % lettered sub-claims inside statements
 \usepackage{tikz} % overview schematic, figures/tikz/overview.tex (drawn by the figure session)
+\usetikzlibrary{arrows.meta,calc,shapes.geometric} % figures/tikz/landing_geometry.tex
+\usepackage{standalone} % \input of the standalone file figures/tikz/landing_geometry.tex
 
 \graphicspath{{figures/}}
 
@@ -179,13 +181,9 @@ prediction settles on the training image at $\sigma=1.9$ for the public model an
 $\sigma=5.3$ for the other: the image is chosen early. The public network's prediction never
 reaches it, and the output is a new image ($d_1/d_2=0.94$, with $d_1\le d_2$ the distances to the
 two nearest training images). The $500$-image model's prediction is that training image from
-$\sigma=5.3$ on, and the output copies it ($d_1/d_2=0.04$). Bottom: the two swaps at level $s$
-(Section~\ref{sec:swap}; $500$ latents; public model thick, $500$-image model thin). Choice
-(vermillion): share of net$\to$exact endpoints whose nearest training image is the network's own.
-Landing (blue): share of exact$\to$net endpoints that end on a training image. Half of the public
-model's images are chosen by $s=2.5$, and half of its samples land only from $s=0.51$ (dotted
-lines, interpolated in $\log s$). The $500$-image model has chosen $93\%$ of its images at $s=5$
-and lands every sample from every swap level.}
+$\sigma=5.3$ on, and the output copies it ($d_1/d_2=0.04$). Over $500$ latents, when the images
+are chosen and when the samples land is shown in Figure~\ref{fig:swap}(b) (public model) and
+Figure~\ref{fig:posterior}(c) ($500$-image model).}
 \label{fig:intuition}
 \end{figure}
 
@@ -390,7 +388,23 @@ Appendix~\ref{app:teacher-risk}.
 \paragraph{The landing condition.} Write $m^\star=\sum_jq_ja_j$ for any posterior mean with
 continuous weights $q_j\ge0$, $\sum_jq_j=1$ (at an identifying label or a positive bandwidth, or the
 class posterior of Section~\ref{sec:edm}), so that $\eps\Delta=\hat x_1-m^\star$ for a field that
-predicts data.
+predicts data. Figure~\ref{fig:landing-geometry} draws the quantities of the theorem.
+
+\begin{figure}[t]
+\centering
+\input{figures/tikz/landing_geometry.tex}
+\caption{The geometry of the landing condition (Theorem~\ref{thm:relerr}). The state $Z_t$ is at
+distance $n_t=|Z_t-a|$ from the atom $a$, and the prediction $\hat x_1$ is at distance
+$e_t=|\hat x_1-m^\star|$ from the exact posterior mean $m^\star$, which lies near $a$ late in
+sampling (shaded: the ball of radius $e_t$ around $m^\star$). The flow moves $Z_t$ toward $\hat x_1$
+(arrow), and $n_t$ changes at the rate set by the radial part $\langle\hat e_t,\hat x_1-a\rangle$ of
+the prediction along $\hat e_t=(Z_t-a)/n_t$ (orange; Theorem~\ref{thm:relerr}(a)). (a)~With
+$\varrho_t=e_t/n_t<1$ the radial part stays below $n_t$ up to the off-atom term $\zeta_t$, so the
+prediction pulls the state toward $a$ (Theorem~\ref{thm:relerr}(b)). (b)~As $\varrho_t\to1$ the
+radial part can reach $n_t$ and $n_t$ stops shrinking; if this happens fast enough, the trajectory
+does not reach $a$ (Theorem~\ref{thm:relerr}(c)).}
+\label{fig:landing-geometry}
+\end{figure}
 
 \begin{restatable}[Landing under relative field error]{theorem}{thmrelerr}
 \label{thm:relerr}

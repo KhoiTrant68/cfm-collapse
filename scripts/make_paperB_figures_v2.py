@@ -9,13 +9,8 @@ Writes into paper_mechanism/figures (names as in paper_mechanism/main.tex):
                        EDM model (never copies) and by a model trained on 500 images (copies). For each model, the
                        network's guess D_theta(x_k) and the exact field's guess m*(x_k) (the class posterior mean
                        over the training images, at the network's own state x_k) at the levels sigma_7..sigma_17
-                       of the 18-step Heun schedule, then the output and its nearest training image. Below, on the
-                       same column axis, the two clocks measured by the denoiser swaps at level s (500 latents,
-                       public model thick, 500-image model thin): the choice, the share of net->exact endpoints on
-                       the nearest training image of the network's own endpoint (=L; which image is reached, not
-                       landing, since net->exact always ends on a training image), and landing, the share of
-                       exact->net endpoints on a training image (1 - off). Dotted lines: where the public model's
-                       curves pass 1/2, interpolated in log s (s = 2.48 and 0.51, swap_clocks.json s_sel50, s_land).
+                       of the 18-step Heun schedule, then the output and its nearest training image. (The choice and
+                       landing curves of the swaps, formerly below the tiles, are drawn only in fig_swap.pdf (b).)
   fig_mechanism.pdf    Figure 2 (fig:mechanism; replaces fig_unrolled_learned.pdf and fig_landscape.pdf): 1-D flows
                        over the exact density p_t of four training points, for the exact field and two learned
                        fields x1hat = m* + rho_t (z - m*); the rho_t profiles; the distance to the training point.
@@ -112,18 +107,12 @@ def framed(ax, img, color, lw=1.0):
 
 # --------------------------------------------------------------------------- Figure 1
 def fig_teaser(i: int = 7, k0: int = 7):
-    """One latent, two clocks.
+    """One latent, two models.
 
     Tiles: rows D_theta(x_k) and m*(x_k) of results/n3_strips_20261118/{public,sub500}.npz for latent i at the
     levels k0..17 of the 18-step schedule, then the output and its nearest training image y1. Frames: vermillion
-    (network) or blue (exact field), black where the tile is y1 by on_image(). Plot: the two clocks of the
-    denoiser swaps (swap_summary.json; 500 latents per model; public model thick, 500-image model thin), drawn at
-    the swap level s on the same log-sigma scale as the columns (linear interpolation of log sigma between
-    neighbouring levels). Choice (vermillion): share of net->exact endpoints (network for sigma > s, exact field
-    below) whose nearest training image is that of the network's own endpoint (=L). Landing (blue): share of
-    exact->net endpoints (exact field for sigma > s, network below) on a training image (1 - off). Each clock is
-    the level at which the public model's curve passes 1/2, interpolated in log s between swap levels, as in
-    results/paperB_20261121/swap/swap_clocks.json (s_sel50 = 2.48, s_land = 0.51)."""
+    (network) or blue (exact field), black where the tile is y1 by on_image(). The swap curves that were drawn
+    below the tiles are in fig_swap.pdf (b) only."""
     zp = np.load(R / "n3_strips_20261118/public.npz")
     zs = np.load(R / "n3_strips_20261118/sub500.npz")
     sg = zp["sigma"]
@@ -131,7 +120,7 @@ def fig_teaser(i: int = 7, k0: int = 7):
     ks = list(range(k0, len(sg)))                      # columns: the sampler's levels sigma_k0 ... 0.002
     nc = len(ks)
 
-    W, H = FULL_W, 3.2
+    W, H = FULL_W, 2.08                                 # tiles only (was 3.2 with the swap curves)
     fig = plt.figure(figsize=(W, H))
     s, g = 0.36, 0.03                                   # tile and gap (inches)
     x0 = 0.86                                           # left edge of the first column
@@ -169,50 +158,8 @@ def fig_teaser(i: int = 7, k0: int = 7):
         fig.text((xe + s) / W, (ym - 0.03) / H, verdict, ha="right", va="top", fontsize=6.4,
                  color=COPY if q < 1 / 3 else NEW)
 
-    # ---- the two clocks of the swaps, on the same column axis
-    yp = 0.33
-    ph = yrows[3] - 0.17 - yp
-    ax = axes_in(fig, x0, yp, xs[-1] + s - x0, ph)
-    half = (s / 2) / (s + g)
-    ax.set_xlim(-half, nc - 1 + half)
-    lsg = np.log(sg[ks])
-
-    def col(sig):                                        # sigma -> fractional column (log-linear between levels)
-        return np.interp(-np.log(sig), -lsg, np.arange(nc))
-
-    def half_level(lv, p):                               # swap level at which p first reaches 1/2, log-s interp.
-        j = int(np.flatnonzero(p >= 0.5)[0])
-        f = (0.5 - p[j - 1]) / (p[j] - p[j - 1])
-        return float(np.exp(np.log(lv[j - 1]) + f * (np.log(lv[j]) - np.log(lv[j - 1]))))
-
-    s_pub, ch_pub, land_pub = swap_levels(R / "n3_followup_20261111/swap_summary.json", "swap_public")
-    s_mem, ch_mem, land_mem = swap_levels(R / "n3_followup_sub500_20261111/swap_summary.json", "swap_sub500")
-    assert np.allclose(s_pub, s_mem)
-    s_choice, s_land = half_level(s_pub, ch_pub), half_level(s_pub, land_pub)
-    # the same clocks as swap_clocks.json (s_sel50 = 2.483, s_land = 0.506), quoted in the caption
-    assert abs(s_choice - 2.483) < 0.005 and abs(s_land - 0.506) < 0.005, (s_choice, s_land)
-    for v, c in ((ch_mem, LEARNED), (land_mem, EXACT)):            # thin: the 500-image model
-        ax.plot(col(s_mem), v, color=c, lw=0.9, alpha=0.8, zorder=2)
-    for v, c, mk in ((ch_pub, LEARNED, "o"), (land_pub, EXACT, "s")):   # thick: the public model
-        ax.plot(col(s_pub), v, color=c, lw=1.6, marker=mk, ms=2.6, mec="white", mew=0.4, zorder=3)
-    ax.set_ylim(0, 1.32)
-    ax.set_yticks([0, 0.5, 1])
-    ax.spines["left"].set_bounds(0, 1)
-    ax.set_ylabel("share of samples", fontsize=6.6, labelpad=2)
-    ax.set_xticks(np.arange(nc), [f"{sg[k]:.2g}" for k in ks])
-    ax.tick_params(axis="x", labelsize=6.6)
-    ax.tick_params(axis="y", labelsize=6.6)
-    ax.set_xlabel(r"noise level $\sigma$ (one column per sampler step; a swap at level $s$ is drawn at $\sigma=s$)",
-                  fontsize=7, labelpad=1.5)
-    ax.grid(False)
-    # direct labels
-    ax.text(col(5.0) + 0.42, 0.50, "choice", color=LEARNED, fontsize=6.8, ha="left", va="bottom")
-    ax.text(col(0.5) + 0.62, 0.42, "landing", color=EXACT, fontsize=6.8, ha="left", va="center")
-    ax.text(col(5.0) + 0.05, 0.89, "500 images", color=GREY, fontsize=6.3, ha="left", va="top")
-    # the two clocks: where the public model's curves pass one half
-    for jj, txt in ((float(col(s_choice)), "half chosen"), (float(col(s_land)), "half landed")):
-        ax.plot([jj, jj], [0, 1.16], color=GREY, lw=0.6, ls=":", zorder=1)
-        ax.text(jj, 1.17, txt, ha="center", va="bottom", fontsize=6.8, fontweight="bold")
+    # The choice/landing curves of the swaps that used to sit below the tiles are drawn only in
+    # Figure fig:swap(b) (make_swap_figure.py), REVIEW.md 3.3 B-F2.
     save(fig, "fig_teaser.pdf", dpi=300)
 
 
