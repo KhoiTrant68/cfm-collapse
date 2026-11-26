@@ -329,7 +329,7 @@ def fig_mechanism():
     ax_e.set_yscale("log"); ax_e.set_ylim(3e-6, 6)
     ax_e.set_yticks([1e-5, 1e-3, 1e-1])
     ax_e.set_ylabel("distance to point", fontsize=7)
-    ax_e.set_xlabel(r"time left $1-t$", fontsize=7, labelpad=1)
+    ax_e.set_xlabel(r"time left $\varepsilon=1-t$", fontsize=7, labelpad=1)
     for a in (ax_d, ax_e):
         a.grid(False)
     title(ax_d, "d", r"relative error", fs=7.8, pad=2)
@@ -554,7 +554,7 @@ def fig_collapse_details():
             it, m, sd = seed_mean(pat, "train", colname)
             band(ax, it, m, sd, c, ls=ls, marker=mk, ms=2.2, lw=1.1, alpha=0.1)
     ax.set_xscale("log"); ax.set_xticks([1e2, 1e3, 1e4, 1e5, 1e6]); ax.minorticks_off(); ax.set_ylim(0, 1.2); ax.set_xlim(60, 2.5e6)
-    ax.text(120, 1.0, r"to the atom $x^i$", fontsize=6.3, color=ATOM, va="bottom")
+    ax.text(120, 1.0, r"to the atom $a_i$", fontsize=6.3, color=ATOM, va="bottom")
     ax.text(120, 0.03, "to the posterior mean", fontsize=6.3, color=EXACT, va="bottom")
     ax.set_ylabel("distance of the\ngenerated mean", linespacing=0.95)
     title(ax, "a", "EXP-1: mean")

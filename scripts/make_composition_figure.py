@@ -97,7 +97,7 @@ def main() -> None:
              linespacing=1.0)
     ax1.text(0.33, 2.3, "ends at atom $+1$", fontsize=6.5, color=GREY, ha="left", va="top")
     ax1.text(0.33, -2.3, "ends at atom $-1$", fontsize=6.5, color=GREY, ha="left", va="bottom")
-    ax1.annotate(r"$\cosh s_u=\sqrt{w/w_c}$", (8.0, math.acosh(math.sqrt(8.0))), xytext=(5.6, 2.25),
+    ax1.annotate(r"$\cosh \zeta_u=\sqrt{w/w_c}$", (8.0, math.acosh(math.sqrt(8.0))), xytext=(5.6, 2.25),
                  textcoords="data", fontsize=6.5, ha="center", va="top",
                  arrowprops=dict(arrowstyle="-", lw=0.5, color=COLORS["atom"], shrinkA=1, shrinkB=2))
     ax1.set_xscale("log")
@@ -105,7 +105,7 @@ def main() -> None:
     ax1.set_xticks([0.5, 1, 2, 5, 10]); ax1.set_xticklabels(["0.5", "1", "2", "5", "10"])
     ax1.xaxis.set_minor_formatter(plt.NullFormatter())
     ax1.set_xlabel(r"guidance relative to threshold, $w/w_c$")
-    ax1.set_ylabel(r"profile $s=tx/(1-t)^2$ at the tie")
+    ax1.set_ylabel(r"profile $\zeta=tx/\varepsilon^2$ at the tie")
     ax1.grid(False)
     panel_title(ax1, "a", r"At $w_c$ the tie turns attracting")
     style(ax1)

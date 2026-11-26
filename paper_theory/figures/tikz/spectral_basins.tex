@@ -6,8 +6,9 @@
 % with Gamma(xi_star) diagonal; the vermillion set is the basin, the start points that converge
 % to z: its codimension is the number of positive eigenvalues of Gamma.
 %   (a) Gamma < 0: sink, the basin contains an open set, Pr(X_1 = z) > 0.
-%   (b) one positive eigenvalue: saddle, the basin meets L in a curve (a sheet, codim 1).
-%   (c) two positive eigenvalues: source, the basin meets L in the point xi_star (codim 2).
+%   (b) one positive eigenvalue: saddle, the basin is a surface (codim 1): the stable curve in L
+%       times the normal direction.
+%   (c) two positive eigenvalues: source, the basin is a line (codim 2): xi_star times the normal.
 % Colours as scripts/figstyle.py: grey = flow, vermillion = basin of the blend, green = null.
 % Standalone; main.tex can \input it through the standalone package. Needs amsmath, amssymb and
 % tikz with the libraries below in the host preamble (paper_theory/main.tex does not load
@@ -68,7 +69,7 @@
     \end{scope}
     \node[prof] at (0,0,0) {};
     \node[anchor=north, inner sep=2pt] at (0.05,-0.05,0) {$\xi_\star$};
-    \node[text=sbverm, anchor=south, inner sep=1pt] at (0,0,1.05) {open basin};
+    \node[text=sbverm, anchor=south, inner sep=1pt] at (0,0,1.55) {open basin};
     % axes glyph: L horizontal, normal vertical
     \draw[->, sbgray, line width=0.5pt] (-\ax-0.15,-\ay,0) -- (-\ax+0.45,-\ay,0)
       node[anchor=west, inner sep=1pt, font=\sffamily\scriptsize] {$L$};
@@ -80,9 +81,15 @@
 
   % ---- (b) saddle: Gamma = diag(-1,+1), stable direction xi_1 --------------------------------
   \begin{scope}[shift={(\dx,0,0)}]
+    % the basin: the stable curve in L times the normal direction, a vertical surface through it.
+    % The part below L is drawn first, so the plane hides it where they overlap.
+    \fill[sbverm!18] (-1.25,0,-0.7) -- (1.25,0,-0.7) -- (1.25,0,0) -- (-1.25,0,0) -- cycle;
+    \draw[sbverm!70, line width=0.5pt] (-1.25,0,0) -- (-1.25,0,-0.7) -- (1.25,0,-0.7) -- (1.25,0,0);
     \plane
-    % the basin: the stable curve in L, times the normal direction (a sheet)
-    \fill[sbverm, opacity=0.13] (-\ax,0,-0.75) -- (\ax,0,-0.75) -- (\ax,0,0.75) -- (-\ax,0,0.75) -- cycle;
+    \fill[sbverm, opacity=0.2] (-1.25,0,0) -- (1.25,0,0) -- (1.25,0,0.9) -- (-1.25,0,0.9) -- cycle;
+    \foreach \q in {-0.9,-0.45,0.45,0.9}
+      \draw[sbverm!55, line width=0.4pt] (\q,0,0) -- (\q,0,0.9);
+    \draw[sbverm!80, line width=0.6pt] (-1.25,0,0) -- (-1.25,0,0.9) -- (1.25,0,0.9) -- (1.25,0,0);
     \begin{scope}
       \clipplane
       \foreach \a/\b in {1.5/0.12, 1.5/-0.12, -1.5/0.12, -1.5/-0.12, 1.5/0.4, -1.5/-0.4,
@@ -96,13 +103,14 @@
     \node[prof] at (0,0,0) {};
     \node[anchor=south east, inner sep=2pt, fill=white, fill opacity=0.8, text opacity=1]
       at (-0.05,0.05,0) {$\xi_\star$};
-    \node[text=sbverm, anchor=south, inner sep=1pt] at (0,0,1.05) {basin: a curve in $L$};
+    \node[text=sbverm, anchor=south, inner sep=1pt] at (0,0,1.55) {null basin: a surface (codim 1)};
     \node[title] at (-2.0cm,-1.15cm) {(b) one eigenvalue $>0$: saddle};
     \node[verdict, text=sbgreen] at (-2.0cm,-1.6cm) {$\checkmark$ null basin};
   \end{scope}
 
   % ---- (c) source: Gamma = diag(+1,+2) --------------------------------------------------------
   \begin{scope}[shift={(2*\dx,0,0)}]
+    \draw[basin, sbverm!60] (0,0,-0.75) -- (0,0,0);  % below L, behind the plane
     \plane
     \begin{scope}
       \clipplane
@@ -113,10 +121,10 @@
           ({\a*exp(\t)}, {\b*exp(2*\t)}, 0);
     \end{scope}
     % the basin: xi_star times the normal direction (a line, codim 2)
-    \draw[basin] (0,0,-0.75) -- (0,0,0.75);
+    \draw[basin] (0,0,0) -- (0,0,0.9);
     \node[prof, fill=sbverm] at (0,0,0) {};
     \node[anchor=north west, inner sep=2pt] at (0.08,-0.05,0) {$\xi_\star$};
-    \node[text=sbverm, anchor=south, inner sep=1pt] at (0,0,1.05) {basin: the point $\xi_\star$};
+    \node[text=sbverm, anchor=south, inner sep=1pt] at (0,0,1.55) {null basin: a line (codim 2)};
     \node[title] at (-2.0cm,-1.15cm) {(c) two eigenvalues $>0$: source};
     \node[verdict, text=sbgreen] at (-2.0cm,-1.6cm) {$\checkmark$ null basin};
   \end{scope}

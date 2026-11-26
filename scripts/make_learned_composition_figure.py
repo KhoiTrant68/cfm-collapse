@@ -140,7 +140,7 @@ def main() -> None:
         fig.add_artist(Line2D([xa, xb], [y, y], color=color, lw=0.8))
         fig.text((xa + xb) / 2, y + 0.012, text, ha="center", va="bottom", fontsize=7.5, color=color)
     header(0, 1, r"plain input $(x,t,y)$: midpoint nearly empty", COLORS["atom"])
-    header(2, 3, r"rescaled input $\operatorname{asinh}(tx/(1-t)^2)$: near the exact probability", LEARNED)
+    header(2, 3, r"rescaled input $\operatorname{asinh}(tx/\varepsilon^2)$: near the exact probability", LEARNED)
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(OUT, pad_inches=0.0)

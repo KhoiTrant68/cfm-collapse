@@ -43,8 +43,8 @@ GREY = "#555555"
 ATOM = [OI["blue"], OI["green"], OI["purple"]]          # a_1 (top), a_2 (lower left), a_3 (lower right)
 BLEND = OI["vermillion"]
 PANELS = (("one_r0", "Label noise", r"one exact field  $v_1$"),
-          ("cfg_r2", r"Guidance, $w=2w_c$", r"$(1+w)\,v_1-w\,v_{\mathrm{unc}}$"),
-          ("conj_r2", r"Conjunction, $w=2w_c$", r"$(1+w)\,\frac{1}{3}(v_1+v_2+v_3)-w\,v_{\mathrm{unc}}$"))
+          ("cfg_r2", r"Guidance, $w=2w_c$", r"$(1+w)\,v_1-w\,v^\star_{\mathrm{unc}}$"),
+          ("conj_r2", r"Conjunction, $w=2w_c$", r"$(1+w)\,\frac{1}{3}(v_1+v_2+v_3)-w\,v^\star_{\mathrm{unc}}$"))
 HALO = [__import__("matplotlib.patheffects", fromlist=["withStroke"]).withStroke(linewidth=1.8,
                                                                               foreground="white")]
 
@@ -157,8 +157,8 @@ def main() -> None:
     # (d) the same kind of endpoint on CIFAR-10
     xd = x0 + 3 * (side + gap) + 0.04
     ts = 0.46
-    for i, (tile, lab, col) in enumerate(((6, r"$x^i$", "#999999"), (7, "blend", BLEND),
-                                          (8, r"$x^j$", "#999999"))):
+    for i, (tile, lab, col) in enumerate(((6, r"$a_i$", "#999999"), (7, "blend", BLEND),
+                                          (8, r"$a_j$", "#999999"))):
         ax = inch(xd, y0 + side - (i + 1) * ts - i * 0.10, ts, ts)
         ax.imshow(np.asarray(Image.open(TILES / f"tile-{tile:03d}.png").convert("RGB")),
                   interpolation="nearest")
@@ -171,7 +171,7 @@ def main() -> None:
             lead_text(fig, xd / W, y_title / H, "d", "CIFAR-10", fontsize=8.5)
             text(xd, y_formula, r"$d=3072$", ha="left", va="bottom", fontsize=7.0, color="#222222")
         if i == 1:
-            ax.text(1.08, 0.12, r"$\frac{1}{2}(x^i\!+\!x^j)$", transform=ax.transAxes, ha="left",
+            ax.text(1.08, 0.12, r"$\frac{1}{2}(a_i\!+\!a_j)$", transform=ax.transAxes, ha="left",
                     va="center", fontsize=7, color=BLEND)
 
     # group headers: what the number of fields does to the endpoints

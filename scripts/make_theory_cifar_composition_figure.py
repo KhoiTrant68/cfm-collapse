@@ -43,7 +43,7 @@ def main() -> None:
                     spine.set_color(COLORS["generated"])
                     spine.set_linewidth(0.9)
                 if col == 0:
-                    label = (r"Image $x^i$", r"Midpoint $z$", r"Image $x^j$")[row]
+                    label = (r"Image $a_i$", r"Midpoint $z$", r"Image $a_j$")[row]
                     ax.text(-0.18, 0.5, label, transform=ax.transAxes, ha="right", va="center")
                 if row == 2:
                     ax.text(0.5, -0.16, f"{curves[pair]['10.0']:.1%}", transform=ax.transAxes,
