@@ -800,19 +800,10 @@ For labels far apart relative to $h$, e.g.\ $u_0=\ell\gg h$, the threshold $1/\s
 is exponentially small (Figure~\ref{fig:composition}). The effect does not rely on symmetry\ificlr: it persists under perturbation of the priors, the mixture weights and the guidance strength, though not of the atom geometry (Theorem~\ref{thm:composition}(c) in Appendix~\ref{apx:pf-composition-open}). We read the theorem as an existence result at the boundary of Theorems~\ref{thm:posmix} and~\ref{thm:twofields}(c), and Section~\ref{sec:conjunction} identifies it with the conjunction of compositional generation.\else:\fi
 
 \moveblock{compopen}{%
-Theorem~\ref{thm:composition}(c) concerns a generalised family of reference fields: the
-standard guidance of Section~\ref{sec:setup} has a uniform unconditional prior, $B_u=0$, and
-$B_u\neq0$ is a mathematical extension. The perturbations are of the priors, the mixture weights
-and the guidance strength; the atoms stay at $\{-1,1\}$, and perturbations of the atom geometry
-are not covered. The limit $0$ is the circumcentre of the atoms and already belongs to
-$\mathcal C'$: composition
-changes the volume behaviour of the flow at a candidate, not the set of candidates. The
-one-dimensional statement isolates a mechanism that does not depend on dimension: in any
-dimension an off-support candidate can attract a set of sources of positive measure only if the
-combined covariance trace $\Theta$ of (S2) fails to stay positive there
-(Lemma~\ref{lem:volume}), and averaging lowers $\Theta$ by $(1+w)$ times the
-spread of the component posterior means. Section~\ref{sec:spectral} turns this into a criterion
-in any dimension.
+Composition adds no candidate: the limit $0$ already lies in $\mathcal C'$, and averaging lowers
+$\Theta$ of (S2) there by $(1+w)$ times the spread of the component posterior means. Part~(c)
+perturbs only priors, weights and $w$ ($B_u\neq0$ extends standard guidance); the atom geometry is
+fixed. Section~\ref{sec:spectral} extends the mechanism to any dimension.
 }%
 
 \moveblock{compfig}{%
@@ -953,16 +944,20 @@ flow matching.
 
 \paragraph{Which combinations blend two examples.} The conjunction is one signed combination of
 three fields, and Theorem~\ref{thm:twofields} rules out every combination of two fields with
-strictly positive priors on the same support. Which
-combinations of three or more exact fields put mass on a blend? At a tie of two atoms the answer
-is short. Let $z$ be the midpoint of atoms $a,b$ with $\nn(z)=\{a,b\}$, in any dimension, and for
-$p\in\Ppos$ write $B(p)=\tfrac12\log\bigl(p(a)/p(b)\bigr)$ for its log-odds restricted to the tie.
-Only these restrictions enter $M$ and $\Gamma$ of Section~\ref{sec:spectral}, so priors with equal
+strictly positive priors on the same support. At a tie of two atoms the answer for three or more
+fields is short. Let $z$ be the midpoint of atoms $a,b$ with $\nn(z)=\{a,b\}$, in any dimension.
+For $p\in\Ppos$ define its log-odds restricted to the tie,
+\begin{equation}
+B(p)=\tfrac12\log\frac{p(a)}{p(b)} .
+\label{eq:tie-logodds}
+\end{equation}
+Only these restrictions enter $M$ and $\Gamma$ of \eqref{eq:profile-mean}, so priors with equal
 $B$ act identically at this tie, and we add their coefficients. In the coordinate
 $\zeta=\langle\xi,(a-b)/2\rangle$ the profile equation reads
-\[
+\begin{equation}
 F(\zeta)=\sum_kc_k\tanh\bigl(\zeta+B(p_k)\bigr)=0,
-\]
+\label{eq:tie-profile}
+\end{equation}
 and $\Gamma$ has the sign of $F'(\zeta)$.
 
 \begin{restatable}[Blending two examples needs a subtracted intermediate field]{proposition}{proptwoatom}
@@ -983,29 +978,30 @@ grouped.
 \end{restatable}
 
 A blend of two examples thus needs a subtracted intermediate field: its value of $B$ lies strictly
-between the smallest and the largest value among all the combined fields. Being intermediate is not
-the same as being less decided than every added field; with three fields at $B=3,2,1$ the
-subtracted field at $B=2$ is more decided than the added one at $B=1$, and a sink profile can still
-exist. In the conjunction the unconditional field, $B=0$, lies between two
-conditions favouring $a$ and $b$, and it is subtracted. Negative prompting with an unconditional
-base integrates
-$v_{\mathrm{unc}}+s\,(v_{\mathrm{pos}}-v_{\mathrm{unc}})-s_{\mathrm{neg}}(v_{\mathrm{neg}}-v_{\mathrm{unc}})$
-and subtracts the negative-prompt field. If the positive prompt favours $a$ and the negative
-prompt favours $b$, the subtracted field is the extreme one, and by~(b) a blend of $a$ and $b$ has
-probability zero. If the negative prompt favours $a$ less than the positive prompt does,
-$0<B(p_{\mathrm{neg}})<B(p_{\mathrm{pos}})$, the subtracted field is the middle one, and blends can
-occur (Section~\ref{sec:intervention-tests}). A negative prompt that does not distinguish $a$ from
-$b$, $B(p_{\mathrm{neg}})=0$, is grouped with the unconditional field and changes nothing at this
-tie: a condition unrelated to the tied examples acts there as the unconditional field does,
-whatever the sign of its coefficient. Violating the hypotheses of (a) and (b) is necessary for a blend, not sufficient;
-Figure~\ref{fig:signed} shows how much of the allowed region actually blends. The conjunction on the
-regular simplex after Theorem~\ref{thm:spectral}(d) therefore also blends pairs of
-vertices: at the midpoint of an edge the other $N-2$ conditions have $B(p)=0$ and are grouped with
-the unconditional field, so~(c) applies with $B/2$ in place of $B$ and $2(1+w)/N-1$ in place of
-$w$. Theorem~\ref{thm:spectral} then gives the edge midpoints positive probability for
-$w>N/(2\tanh^2(B/2))-1$ and probability $0$ for smaller $w$; for the triangle at $B=2$ this
-threshold is $1.368\,w_c$ (\ificlr Appendix~\ref{app:intervention-protocol}\else
-Section~\ref{sec:intervention-tests}\fi).
+between the smallest and the largest value among all the combined fields. Table~\ref{tab:signrule}
+reads this rule for the usual recipes. Violating the hypotheses of (a) and (b) is necessary for a
+blend, not sufficient; Figure~\ref{fig:signed} shows how much of the allowed region blends.
+
+\begin{table}[t]
+\centering\small
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.33\textwidth}>{\raggedright\arraybackslash}p{0.30\textwidth}>{\raggedright\arraybackslash}p{0.29\textwidth}@{}}
+\toprule
+Recipe at the tie of $a$ and $b$ & Intermediate field & Blend of $a$ and $b$?\\
+\midrule
+Guidance on one condition; negative prompt by substitution, $v_{\mathrm{neg}}+s\,(v_{\mathrm{pos}}-v_{\mathrm{neg}})$ & none: two fields & no, probability $0$ (Thm.~\ref{thm:twofields})\\
+Conjunction $(1+w)\tfrac12(v_a+v_b)-w\,v_{\mathrm{unc}}$, $B(p)=B,0,-B$ & unconditional, $B=0$, subtracted & yes, exactly when $w>w_c=1/\sinh^2B$ (Thm.~\ref{thm:composition}, Prop.~\ref{prop:twoatom}(c))\\
+Positive prompt for $a$, negative prompt for $b$, unconditional base, $v_{\mathrm{unc}}+s\,(v_{\mathrm{pos}}-v_{\mathrm{unc}})-s_{\mathrm{neg}}(v_{\mathrm{neg}}-v_{\mathrm{unc}})$ & subtracted field is the extreme one & no, probability $0$ (Prop.~\ref{prop:twoatom}(b))\\
+Negative prompt that favours $a$ less than the positive prompt, $0<B(p_{\mathrm{neg}})<B(p_{\mathrm{pos}})$ & negative prompt, subtracted & can blend (Section~\ref{sec:intervention-tests})\\
+Negative prompt that does not distinguish $a$ from $b$, $B(p_{\mathrm{neg}})=0$ & grouped with the unconditional field, whatever its sign & nothing changes at this tie\\
+Three fields at $B=3,2,1$, the middle one subtracted & $B=2$, more decided than the added field at $B=1$ & a sink profile can exist: intermediate is not the same as less decided\\
+Conjunction of $N$ conditions on the regular simplex, at an edge midpoint & the other $N-2$ conditions have $B(p)=0$ and join the unconditional field & (c) with $B/2$ for $B$ and $2(1+w)/N-1$ for $w$: positive probability for $w>N/(2\tanh^2(B/2))-1$, probability $0$ for smaller $w$; $1.368\,w_c$ for the triangle at $B=2$ (Thm.~\ref{thm:spectral})\\
+\bottomrule
+\end{tabular}
+\caption{The sign rule of Proposition~\ref{prop:twoatom} for common recipes. A blend of two
+examples needs a subtracted field whose restricted log-odds $B$ lie strictly between those of the
+other fields.}
+\label{tab:signrule}
+\end{table}
 
 \begin{figure}[t]
 \centering
@@ -1031,18 +1027,8 @@ star: $w=2w_c$, the row of (a) with probability $0.406$.}
 \label{fig:signed}
 \end{figure}
 
-\moveblock{whatleaves}{%
-\subsection{What leaves the support}
-\label{sec:interventions}
-
-Table~\ref{tab:interventions} summarises what each intervention does to the support of the exact
-endpoint law. Endpoint noise, $X_1=a_I+\rho\upsilon$, is the only one among them that leaves the
-atoms in every configuration: its endpoint law has a density (Proposition~\ref{prop:tgtnoise}).
-A fixed average of hard-conditioning fields also moves every endpoint, in every geometry: it sends every
-source to the weighted average of the atoms (Section~\ref{sec:posmix}). This is why the positive
-statements of this section assume strictly positive priors.
-}%
-
+With positive priors, an exact sampler leaves the training atoms only when it combines
+three or more fields, and at a two-atom tie only when it subtracts an intermediate one.
 
 % ==========================================================================
 \section{What a learned field needs to reach a blend}
@@ -1074,35 +1060,28 @@ Let $v_\theta$ be continuous and locally Lipschitz in $x$ on $\R^d\times[0,1)$.
 \end{restatable}
 
 A velocity MLP with Lipschitz activations and a smooth time embedding on $[0,1]$ satisfies
-(a). For an absolutely continuous source its endpoint law has a density, even when many samples
+(a): for an absolutely continuous source its endpoint law has a density, even when many samples
 lie near the same atom at a finite cutoff. Part (b) applies to a bounded one-dimensional data
-predictor, or a guided combination of predictors, when the spatial derivative extends continuously
-to $t=1$ and the terminal prediction has finitely many fixed points.
-For $g_w=(1+w)\bar g_\varphi-wg_{\mathrm{unc}}$ with $g_w(0)=0$, the midpoint has an open basin
-when $g_w'(0)<1$ and attracts at most one initial point when $g_w'(0)>1$.
-
-A bounded-derivative predictor can reproduce the same attraction threshold. Let
-$H(x)=\tanh x+2\tanh^3x$ and take $\bar g_\varphi=H+a\tanh$ and
-$g_{\mathrm{unc}}=H+(a+b)\tanh$, where $a,b>0$ and $a/b=w_c$.
-Then $g_w'(0)=1+a-bw$. For these time-independent predictors, the midpoint attracts above $w_c$
-and repels below it. At equality $g_w(x)-x=(5/3)x^3+O(x^5)$, so it also repels.
-The exact two-atom mean varies by a fixed amount across an interval of width $O(\eps^2)$
-near the tie. Matching this variation forces the spatial Lipschitz constant to grow at least as
-$\eps^{-2}$ by the mean value bound. The input $\operatorname{asinh}(tx/\eps^2)$ resolves
-this spatial scale.
+predictor, or a guided combination of predictors. For $g_w=(1+w)\bar g_\varphi-wg_{\mathrm{unc}}$
+with $g_w(0)=0$, the midpoint has an open basin when $g_w'(0)<1$ and attracts at most one initial
+point when $g_w'(0)>1$; a predictor with bounded derivative can reproduce the threshold $w_c$
+(Appendix~\ref{app:regular}).
 }%
+Matching the exact field at a tie requires a spatial Lipschitz constant of order at
+least $\eps^{-2}$, because the exact two-atom mean varies by a fixed amount across a layer of
+width $O(\eps^2)$; the input $\operatorname{asinh}(tx/\eps^2)$ resolves this scale.
 
 % ==========================================================================
 \section{Numerical evidence}
 \label{sec:intervention-tests}
 \label{sec:experiments}
 
-This section checks the theorems numerically and asks how trained networks relate to them. The
-exact-field computations are finite-time evaluations that should agree with the theorems; they do
-not prove them. The learned runs ask what Proposition~\ref{prop:regular} leaves open: whether a
-network trained by flow matching follows the label-noise reference of Theorem~\ref{thm:endpoint},
-and whether it reproduces the blend basin of Theorem~\ref{thm:composition}. Protocols are in
-Appendix~\ref{app:expdetails}.
+The exact-field computations agree with every theorem; trained networks follow the label-noise
+reference only on a small problem, and reproduce a blend basin only when told where the tie is.
+The exact-field computations are finite-time evaluations, not proofs. The learned runs ask what
+Proposition~\ref{prop:regular} leaves open: whether a network trained by flow matching follows the
+label-noise reference of Theorem~\ref{thm:endpoint}, and whether it reproduces the blend basin of
+Theorem~\ref{thm:composition}. Protocols are in Appendix~\ref{app:expdetails}.
 
 \paragraph{The label-noise reference in trained networks.} Theorem~\ref{thm:endpoint} gives a
 reference without free parameters for a network trained with label noise: the variance
@@ -1130,98 +1109,58 @@ by the exact field converges almost surely to a training image
 % Group decision 2026-11-23: the s10 retrain (results/s10_cifar_transfer_20261108) and its
 % numbers belong to this paper; paper B describes it only qualitatively.
 
-\paragraph{Exact fields.} Five geometry seeds, $d\in\{2,8\}$, $N=12$, random and near-duplicate
-atoms, and $h\in\{0.3,1\}$ give 200 paired cells across single-field, guidance ($w=3,12$),
-label-average and prior-average arms. With $128$ common sources and terminal gap $10^{-6}$, the
-largest cellwise 95th percentile of the nearest-atom distance is $6.11937\times10^{-6}$
-(Figure~\ref{fig:intervention-validation}(a), in Appendix~\ref{app:intervention-protocol}), and no sample exceeds the prespecified threshold of $1\%$ of the minimum atom separation. \moveblock{stressextra}{Doubling the
-log-time RK4 resolution leaves every atom assignment unchanged. Field and prior averages differ
-in paired assignments by up to $31.25\%$, so they are distinct interventions.}\ificlr\else{} These are
-finite-time consistency checks, not a numerical proof. \fi\moveblock{neartie}{Near the symmetric tie of two atoms,
-sources at small offsets stay close to the midpoint until very small gaps
-(Figure~\ref{fig:intervention-validation}(b)), and four of six
-adaptive near-tie integrations fail at small bandwidths; we report these failures
-(Appendix~\ref{app:intervention-protocol}).}\ificlr Near-tie failures are in Appendix~\ref{app:intervention-protocol}.\fi
+\paragraph{Exact fields.} Wherever the theorems exclude a blend, every computed endpoint lies on a
+training atom: in every paired cell of the single-field, guidance, label-average and
+prior-average arms in $d\in\{2,8\}$, no sample exceeds the prespecified distance threshold, and field and prior
+averages are distinct interventions (Table~\ref{tab:stress} in
+Appendix~\ref{app:intervention-protocol}). Fixed-step RK4 does not detect attracting ties, so
+every reported basin uses a stiff solver with stopping rules taken from the proofs
+(Appendix~\ref{app:intervention-protocol}).
 
-\paragraph{The stress test cannot see an attracting tie.} None of the arms above has an attracting
-off-support candidate, so a scheme biased towards the atoms would pass the test as well. We therefore
-gave the same fixed-step log-time RK4, with the same $256$ and $512$ steps per segment and the
-same terminal gaps, the guided average of two conditional fields on the atoms $(\pm1,0)$ in $d=2$,
-with $B=1$, $w/w_c\in\{0.9,1.1,2,10\}$ and $4096$ Gaussian sources. With the field coded through
-the logits $-|x-ta|^2/2\eps^2$, as in the stress test, it ends at the midpoint exactly the sources
-in the basin computed by the stiff integrator below: fractions $0$, $0.049$, $0.410$ and $0.988$,
-against basin probabilities $0$, $0.050$, $0.406$ and $0.991$ under $\pi_0$. This agreement is a
-rounding effect. In the last steps of the first segment the step exceeds the stability bound of
-RK4 for the linearisation at the tie by a factor of about $27$ at $w=2w_c$. The captured trajectories have
-already reached $|x_1|\approx10^{-17}$, where the logits no longer resolve $x_1$ and the computed
-field is exactly symmetric. With the same field coded in the blow-up coordinate $\zeta=tx_1/\eps^2$,
-the scheme ejects these trajectories: no source ends at the midpoint, except $0.049$ at
-$w=1.1\,w_c$ with $512$ steps and the gap $10^{-2}$ only, and the $1\%$ criterion flags nothing.
-Detection also depends on the coordinates. Translating both atoms by $c=(0.25,0)$ translates each
-exact path by $tc$ for the same source. Among the first $256$ sources, $108$ and $252$ belong to
-the midpoint basin at $2w_c$ and $10w_c$. In the logit coding, both RK4 resolutions recover all of
-them at the origin and none within $0.05$ of the translated midpoint at all three cutoffs. So the
-fixed-step stress test does not detect attracting ties. Its arms are consistency checks of
-theorems that exclude them; where an attracting tie exists, every number we report comes from the
-stiff integrator with stopping rules taken from the proofs, and the CIFAR-10 basins below are
-classified in profile coordinates (Appendix~\ref{app:intervention-protocol}).
-
-\paragraph{Guided label averaging.} For the configuration of Theorem~\ref{thm:composition} we
-integrate the exact composite flow \ificlr with stopping rules taken from the proof, and locate
-the basin of the midpoint, an interval, by bisection.\else with a stiff solver (Radau, relative tolerance $10^{-11}$)
-and stop at the first time a sufficient condition from the proof fixes the limit: $\zeta$ beyond the
-outer roots of $F_w$, or $\zeta$ inside the moving barrier around a root with $F_w'<0$. Flows on the
-line preserve order, so the basin of the midpoint is an interval, located by bisection.\fi{}
-\ificlr The horizontal coordinates in Figure~\ref{fig:learned-composition} give\else Figure~\ref{fig:composition}(b) gives\fi{} its $\pi_0$-probability, and Table~\ref{tab:composition}
-in Appendix~\ref{app:intervention-protocol} lists the values. Below the threshold $w_c=1/\sinh^2B$
-only the source $0$ reaches the midpoint (Theorem~\ref{thm:composition}(b); the stopping rule then
-labels every other source an atom at its first check); just above it the computed basin probability grows
-linearly\ificlr{}, as a formal law predicts (Appendix~\ref{apx:threshold-scaling}).\else, as $\sqrt{2/\pi}\,(w/w_c-1)/\cosh B$ to within $0.01\%$ at $w=1.0003w_c$, a formal
-law derived in Appendix~\ref{apx:threshold-scaling}.\fi{} \moveblock{compperturb}{The numerical unstable roots agree with the closed form $\cosh \zeta_u=\sqrt w\sinh B$.
-With $w=1$ and $B\approx2$, unequal mixture weights $(0.6,0.4)$, unequal $(B_1,B_2)=(2,-1.5)$, an
-unconditional log-odds $2B_u=0.6$, or a combination of all three keep basin probabilities between
-$0.71$ and $0.86$, as Theorem~\ref{thm:composition}(c) predicts.}\ificlr Perturbed
-configurations keep basin probabilities between $0.71$ and $0.86$
-(Appendix~\ref{app:intervention-protocol}).\fi{} \ificlr On eight selected and twelve randomly
-chosen CIFAR-10 pairs drawn from $2000$ images, the two-atom continuation from the full-field
-handoff returns a positive midpoint fraction for every pair at $2w_c$
-(Appendix~\ref{app:cifar-composition}).\else On eight selected and twelve randomly chosen CIFAR-10
-pairs drawn from $2000$ images, Theorem~\ref{thm:spectral}(c) predicts probability zero at the
-midpoint below $w_c$ and a positive one above it (the value $w=w_c$ itself is not covered). The
-two-atom continuation from the full-field handoff returns a positive midpoint fraction for every
-pair at $2w_c$: $917$ of $4096$ pair--source combinations ($0.224$) over the eight pairs selected
-for their margin and $309$ of $6144$ ($0.050$) over the twelve random ones
-(Appendix~\ref{app:cifar-composition}). Below the threshold the reduced classifier assigns every
-nonzero projected state to an atom by construction.\fi
+\paragraph{Guided label averaging.} For the configuration of Theorem~\ref{thm:composition} the
+basin of the midpoint is an interval, located by bisection; its probability under $\pi_0$ is zero
+below $w_c$ and grows linearly just above it, as the law $\sqrt{2/\pi}\,(w/w_c-1)/\cosh B$ of
+Appendix~\ref{apx:threshold-scaling} predicts (Figure~\ref{fig:composition}(b),
+Table~\ref{tab:composition}). Perturbed priors, weights and unconditional log-odds keep an open
+basin, as Theorem~\ref{thm:composition}(c) predicts. On eight selected and twelve random CIFAR-10
+pairs ($d=3072$), the exact field gives the midpoint a positive fraction for every pair at
+$2w_c$ (Appendix~\ref{app:cifar-composition}).
 
 \paragraph{Learned guided label averaging.} We train networks by flow matching on the two atoms
-of Theorem~\ref{thm:composition} ($\ell=h=1$) and on an equilateral triangle with one
-conditional prior favouring each vertex ($B=2$), five seeds each, and integrate the learned
-composite with an adaptive stiff solver (Appendix~\ref{app:learned-composition}). A standard \ificlr conditional flow matching (CFM)\else CFM\fi{} network, with velocity output and
-condition dropout, places at most $0.001$ of the sources at the midpoint at $B\in\{1,2\}$ and none
-at the centre of the triangle, at every guidance strength (Figure~\ref{fig:learned-composition})\ificlr.\else; at $B=1$,
-neither log-uniform sampling of $1-t$ nor a separate unconditional network changes this.\fi{} A
-network that predicts the data with the loss $|\hat m-X_1|^2$, which has the same minimiser, and
-receives the blow-up coordinate $\operatorname{asinh}(tx/\eps^2)$, centred at the known tie
-$z=0$ (centred elsewhere it leaves the midpoint empty, Appendix~\ref{apx:bottleneck-runs}), as an extra input follows the exact probabilities: $0.401\pm0.006$ against $0.406$ at $B=1$ and $w=2w_c$, and $0.143\pm0.004$
-against $0.133$ at the centre of the triangle at $2w_c$. It follows the exact flow only at the tie
-its input is centred on: the exact composite ends a further $0.426$ of the first $4096$ shared
-sources at the edge midpoints of the triangle at $2w_c$ and $0.306$ at $5w_c$, whereas the standard
-network, this network and the distillation control of Appendix~\ref{app:learned-composition} place
-at most $3$ of their $2048$ sources within $0.05$ of an edge midpoint at $\eps=10^{-5}$, in any seed
-and at any guidance strength. Nor do their other endpoints all lie at training atoms: at
-$\eps=10^{-5}$ the standard network leaves $0.16$, $0.70$ and $0.79$ of its sources at $2$, $5$ and
-$10\,w_c$ farther than $0.1$ from every atom and from the centre, and the data-predicting network
-$0.16\pm0.16$ at $2w_c$. \moveblock{lossrisk}{The velocity
-network has the smaller held-out excess risk for $t\ge0.999$ ($1.4\times10^{-7}$ against
-$9.4\times10^{-7}$), yet its posterior mean misses the boundary layer at the tie: at
-$\eps=10^{-5}$ its mean squared error over $|\zeta|\le3$ is $0.67$, against $0.0024$. Small loss does not
-decide the endpoint without control of the field's regularity
-\citep[Section~3, discussion of Assumption~3]{benton2024error}.} Of the changes the successful network
-makes, the input matters most in these runs: a velocity network with it matches the exact probabilities in most seeds
-($0.881\pm0.003$ against $0.878$ at $B=1$, $w=5w_c$), while a data-predicting network without it
-leaves the midpoint empty at $w\ge5w_c$, consistent with Proposition~\ref{prop:regular}(b)
-(Appendix~\ref{app:learned-composition}).
+of Theorem~\ref{thm:composition} ($\ell=h=1$) and on an equilateral triangle with one conditional
+prior favouring each vertex ($B=2$), five seeds each (Appendix~\ref{app:learned-composition};
+Table~\ref{tab:learned-main}). Standard velocity networks miss the blend: they place at most
+$0.001$ of the sources at the midpoint at $B\in\{1,2\}$ and none at the centre of the triangle, at
+every guidance strength; at $B=1$, neither log-uniform sampling of $1-t$ nor a separate
+unconditional network changes this. The input $\operatorname{asinh}(tx/\eps^2)$, centred at the
+known tie, is what matters (centred elsewhere, it leaves the midpoint empty;
+Appendix~\ref{apx:bottleneck-runs}): with it, data predictors follow the exact probabilities in
+every seed at $B\in\{1,2\}$ and on the triangle, and velocity networks in most seeds, whereas a data predictor without it leaves the midpoint empty at
+$w\ge5w_c$, consistent with Proposition~\ref{prop:regular}(b). The networks reproduce a blend only
+at the tie their input is centred on: they leave the edge midpoints of the triangle essentially
+empty, and small held-out loss does not decide the endpoint (Appendix~\ref{app:learned-composition}).
+
+\begin{table}[t]
+\centering\small\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}llccccc@{}}
+\toprule
+target & $w$ & exact & velocity & velocity, input & data & data, input\\
+\midrule
+two atoms, $B=1$: midpoint & $2w_c$ & $0.406$ & $0.000\pm0.000$ & $0.294\pm0.152$ & $0.083\pm0.166$ & $0.401\pm0.006$\\
+ & $5w_c$ & $0.878$ & $0.000\pm0.000$ & $0.881\pm0.003$ & $0.000\pm0.000$ & $0.878\pm0.001$\\
+triangle, $B=2$: centre & $2w_c$ & $0.133$ & $0.000\pm0.000$ & $0.146\pm0.077$ & $0.000\pm0.000$ & $0.143\pm0.004$\\
+triangle: edge midpoints & $2w_c$ & $0.426$ & $\le3/2048$ & -- & -- & $\le3/2048$\\
+ & $5w_c$ & $0.306$ & $\le3/2048$ & -- & -- & $\le3/2048$\\
+\bottomrule
+\end{tabular}
+\caption{Learned guided label averages reproduce a blend only with the input
+$\operatorname{asinh}(tx/\eps^2)$ centred at the tie. Fraction of $2048$ shared sources within
+$0.05$ of the target at $\eps=10^{-5}$, mean $\pm$ population standard deviation over five seeds;
+exact: probability under $\pi_0$ (edge midpoints: fraction of the first $4096$ sources).
+``Velocity'' is the standard CFM network, ``data'' predicts $X_1$, and ``input'' adds the
+rescaled coordinate; --: not measured. Table~\ref{tab:learned-composition} gives the full grid.}
+\label{tab:learned-main}
+\end{table}
 
 \begin{figure}[t]
 \centering
@@ -1241,116 +1180,96 @@ reports the edge midpoints separately.}
 \label{fig:learned-composition}
 \end{figure}
 
-\moveblock{spectralexp}{%
 \paragraph{The spectral criterion beyond the line.} We integrate the exact flow of
 Theorem~\ref{thm:spectral} in four configurations whose atoms all lie on the unit sphere around
-$z=0$, so that every atom is tied and the blown-up equation has no off-tie term. Two are a
-triangle in $d=2$ and a regular nine-vertex simplex in $d=8$, each with one conditional prior
-favouring each vertex ($B=2$). The other two are a rectangle in $d=2$ and a $256$-vertex box in
-$d=8$ with product priors; at $w=1$ the profile $\xi=0$ is a saddle with negative $\tr\Gamma$,
-where the trace test of Lemma~\ref{lem:volume} is silent. Every source or saddle profile ends
-with no source at $z$. Every sink profile in $d=2$ keeps a stable positive fraction of the sources
-($0.001$, $0.140$, $0.687$ for the triangle at $1.1,2,5\,w_c$). In $d=8$ the basins of $z$ are
-smaller: $0.019$ for the simplex at $5\,w_c$ and $0.002$ (one of $512$ sources) for the box at
-$w=5$, and below the sampling resolution of $1/2048$ for the simplex at $1.1$ and $2\,w_c$
-(Table~\ref{tab:spectral}). These fractions count the
-centre only, and on the triangle the centre is not the only blend: the edge midpoints are ties of
-two atoms that attract for $w>1.368\,w_c$ and have probability $0$ below this value
-(Section~\ref{sec:conjunction}). With $32768$ sources, each classified by the candidate it
-converges to (Appendix~\ref{app:intervention-protocol}), the exact flow ends $0.131$, $0.409$ and
-$0.460$ of the mass at the centre, the edge midpoints and the training atoms at $2w_c$
-(Figure~\ref{fig:unrolled}c), $0.681$, $0.294$ and $0.025$ at $5w_c$, and $0.950$, $0.050$ and
-$0.0001$ at $10w_c$, with standard errors at most $0.003$; at $1.1\,w_c$ no source ends at an edge
-midpoint. The other configurations have further blends. On the simplex the centroid of a face with
-$k$ vertices is a tie of $k$ atoms at which the other $9-k$ conditions act as the unconditional
-field, and its profile $\xi=0$ attracts for $w>9/(k\,m_k^2)-1$, $m_k=(e^B-1)/(e^B+k-1)$: for
-$w>1.407\,w_c$ at an edge and for $w$ above $0.97$ to $1.14\,w_c$ when $3\le k\le8$. With product
-priors the flows of the rectangle and the box separate by axis into one-dimensional composites as
-in Theorem~\ref{thm:composition}, with $B(p)=\pm2$ on the long axes and $\pm1/2$ on the short ones,
-so a long axis ends at $0$ with positive probability for $w>1/\sinh^22=0.076$, also at $w=1$, where
-$\xi=0$ is a saddle, and a short one for $w>1/\sinh^2(1/2)=3.68$; the centroids of the faces
-spanned by such axes are blends. When every endpoint is classified by the face whose centroid it
-reaches, with the integration and the numbers of sources of Table~\ref{tab:spectral}
-(Appendix~\ref{app:intervention-protocol}), these other blends take $0.953$ of the mass of the
-simplex at $2\,w_c$ and $0.981$ at $5\,w_c$ (and $0.001$ at $1.1\,w_c$), $0.895$ and $0.754$ of
-the rectangle at $w=1$ and $5$, all at the midpoints of its long edges, and all $512$ sources of
-the box at $w=1$ and $511$ of them at $w=5$. These are finite-time computations that agree with
-the theorem; they do not prove it.
-}%
+$z=0$: a triangle in $d=2$ and a regular nine-vertex simplex in $d=8$ with one conditional prior
+favouring each vertex ($B=2$), and a rectangle in $d=2$ and a $256$-vertex box in $d=8$ with
+product priors. The classification agrees in all four configurations
+(Table~\ref{tab:spectral-main}): sources and saddles, including saddles with negative trace where
+the trace test of Lemma~\ref{lem:volume} is silent, put no source at $z$, and sinks keep a
+positive fraction, except for the simplex at $1.1$ and $2\,w_c$, where it falls below the
+sampling resolution $1/2048$. Other blends, such as the edge midpoints of the triangle and centroids of other
+faces, take further mass (Appendix~\ref{app:intervention-protocol}).
 
-\paragraph{Signed combinations at a two-atom tie.} Proposition~\ref{prop:twoatom} gives
-necessary conditions, and we checked how far they are from sufficient. Among $3841$ random
-combinations of two to five priors with restricted log-odds in $[-4,4]$, $143$ have a profile
-with $F'<0$; every one of them subtracts an inner prior, and every three-prior case has the sign
-pattern of~(b). Figure~\ref{fig:signed} maps the three-prior family $B(p)\in\{B,0,-B\}$: a blend
-needs both conditions added, as (b) requires, and adding them is not enough below a boundary that
-meets the conjunction diagonal at $w=w_c$. With the stiff integrator and the proof-based stopping
-rules of the previous paragraph, the midpoint has probability $0.406$ for the equal conjunction at
-$B=1$, $w=2w_c$, and $0.742$ for the unequal conjunction $(c_+,c_-)=(1.2,0.8)$ at $B=2$. A positive
-prompt for $a$ and a negative prompt for $b$ ($B=\pm2$) give probability $0$, both with an
-unconditional base, coefficients $(3,-1,-1)$, and in the substituted form $3v_a-2v_b$. A positive
-prompt for $a$ with a negative prompt that favours $a$ less ($B=2$ and $0.25$, coefficients $0.91$
-and $-4$, unconditional coefficient $4.09$) gives $0.316$.
-
-\moveblock{learnedpilot}{%
-\paragraph{Learned label averages.} We reuse five $h=0.1$, 200k-step networks of the linear-Gaussian problem (Appendix~\ref{app:kernel-protocol}) and average
-their predictions at $y-r,y,y+r$, with $r$ scaled by the training-label standard deviation, at
-two training and two fresh queries per seed with 128 paired sources. Against the exact average of
-the same three fields at $T=0.999$ (Table~\ref{tab:learned-averages}), wider averaging increases
-the mean discrepancy, although not on every seed: exact atomicity does not transfer automatically
-to a network. The biased energy statistic has no null subtraction or equivalence threshold.
-}%
-
-
-\moveblock{learnedtab}{%
 \begin{table}[t]
 \centering\small
-\begin{tabular}{@{}rrrr@{}}
+\begin{tabular}{@{}lrrlcrr@{}}
 \toprule
-$r/\operatorname{sd}(y)$ & Training energy & Fresh energy & Fresh seed range\\
+configuration & $d$ & $N$ & $w$ & profile $\xi=0$ & $\tr\Gamma$ & $\tilde\tau=10^4$\\
 \midrule
-0 & 0.005627 & 0.007227 & 0.001876--0.009327\\
-0.5 & 0.011200 & 0.011054 & 0.001887--0.018859\\
-1.5 & 0.289771 & 0.143176 & 0.001758--0.544995\\
+triangle & 2 & 3 & $0.9\,w_c$ & source & $0.054$ & $0.0000$\\
+triangle & 2 & 3 & $2\,w_c$ & sink & $-0.537$ & $0.1396$\\
+simplex & 8 & 9 & $0.9\,w_c$ & source & $0.083$ & $0.0000$\\
+simplex & 8 & 9 & $5\,w_c$ & sink & $-3.311$ & $0.0186$\\
+rectangle & 2 & 4 & $1$ & saddle & $-0.572$ & $0.0000$\\
+rectangle & 2 & 4 & $5$ & sink & $-3.717$ & $0.2461$\\
+box & 8 & 256 & $1$ & saddle & $-0.572$ & $0.0000$\\
+box & 8 & 256 & $5$ & sink & $-3.717$ & $0.0020$\\
 \bottomrule
 \end{tabular}
-\caption{Learned versus exact label averages across five problem seeds. Energy is normalised by
-the square root of the analytic posterior trace; conditions and samples are nested within
-seeds, so these are descriptive values, not hypothesis tests.}
-\label{tab:learned-averages}
+\caption{The spectral classification agrees in all four configurations: sources and saddles,
+including saddles with $\tr\Gamma<0$, put no source at $z=0$; sinks keep a positive fraction.
+Last column: fraction of Gaussian sources whose profile stays in $\{|\xi|<5\}$ at fast time
+$\tilde\tau=10^4$, an estimate of $\Pr(X_1=z)$. Selected rows of Table~\ref{tab:spectral}, which
+gives all strengths and the source counts.}
+\label{tab:spectral-main}
 \end{table}
-}%
+
+\paragraph{Signed combinations at a two-atom tie.} Proposition~\ref{prop:twoatom} holds in every
+sampled combination, and it is not sufficient. Among $3841$ random combinations of two to five priors, the $143$ with a
+profile with $F'<0$ all subtract an inner prior, and every three-prior case has the sign pattern
+of~(b). Figure~\ref{fig:signed} maps the three-prior family and gives the midpoint probabilities
+of the recipes of Table~\ref{tab:signrule} (Appendix~\ref{app:intervention-protocol}).
+
+Every exact-field computation agrees with the theorems, while trained networks reach
+the blends of Section~\ref{sec:intervention-atomicity} only when the tie is supplied.
 
 % ==========================================================================
 \section{Limitations}
 \label{sec:limitations}
 
-\emph{Exact fields, not trained networks.} The theorems concern exact fields of a fixed training
-set and do not say that a trained network implements them. Learned label averages need not follow
-the exact ones (Appendix~\ref{app:intervention-protocol}). Whether a network reproduces the blend
-basin varied across parametrisations and seeds in our experiments. On the triangle, data predictors
-given the coordinate centred at the triangle centre left the edge midpoints empty in our runs. \emph{Hypotheses.} The positive-bandwidth results need strictly
-positive priors on a common support; under hard conditioning an average of two fields already blends
-(Section~\ref{sec:posmix}), and the conjunction under hard conditioning is not analysed. Mixtures with different supports, schedules that are
-unbounded or change sign, and, in the spectral classification, nonhyperbolic profiles and faces
-whose affine hull contains the projected candidate are not covered. For fixed coefficients and a freely varied positive prior with nonzero coefficient, nonhyperbolic profiles are
-exceptional (Remark~\ref{rem:generic}), and faces through the candidate do not occur
-in our configurations; neither case is shown to be harmless. The endpoint weights of averaged fields
-are not identified. Proposition~\ref{prop:twoatom} concerns ties of two atoms and gives necessary
-conditions only; for ties of three or more atoms, and for sufficiency, the spectral criterion has
-to be evaluated case by case. \emph{Scope of the composition results.} The conjunction and the
-negative prompts are analysed for exact conditional fields. Trained compositional samplers on
-images, where the conditions are text prompts rather than labels, are not tested. \emph{Numerics.}
-The exact-field computations are finite-time numerical evaluations, not interval arithmetic. The
-fixed-step scheme of the stress test does not detect an attracting tie: in our positive control its
-apparent detection is a rounding effect, and translating the control makes it miss the tie
-(Section~\ref{sec:intervention-tests}), so the stress test
-only checks configurations that the theorems already exclude. The learned composition experiments use three to five seeds and $d\le2$, and the
-image-scale composition check uses the exact field on CIFAR-10 pairs, not a trained network. The
-label-noise comparison uses one small synthetic problem and one image configuration with three
-draws of the training set. At image scale the generated variance does not follow the reference,
-and we do not identify why; the off-support CIFAR-10 samples are measured at a finite cutoff and do
-not identify a limiting support.
+\paragraph{Theory scope.}
+\begin{itemize}[leftmargin=1.5em,itemsep=1pt,topsep=2pt]
+\item The positive-bandwidth results need strictly positive priors on a common support. Under hard
+  conditioning an average of two fields already blends (Section~\ref{sec:posmix}), and the
+  conjunction under hard conditioning is not analysed.
+\item Mixtures with different supports and schedules that are unbounded or change sign are not
+  covered. The endpoint weights of averaged fields are not identified.
+\item The spectral classification leaves out nonhyperbolic profiles and faces whose affine hull
+  contains the projected candidate. For fixed coefficients and a freely varied positive prior with
+  nonzero coefficient, nonhyperbolic profiles are exceptional (Remark~\ref{rem:generic}), and faces
+  through the candidate do not occur in our configurations; neither case is shown to be harmless.
+\item Proposition~\ref{prop:twoatom} concerns ties of two atoms and gives necessary conditions
+  only; for ties of three or more atoms, and for sufficiency, the spectral criterion has to be
+  evaluated case by case.
+\end{itemize}
+
+\paragraph{Numerics.}
+\begin{itemize}[leftmargin=1.5em,itemsep=1pt,topsep=2pt]
+\item The exact-field computations are finite-time numerical evaluations, not interval arithmetic.
+\item The fixed-step scheme of the stress test does not detect an attracting tie: in our positive
+  control its apparent detection is a rounding effect, and translating the control makes it miss
+  the tie (Appendix~\ref{app:intervention-protocol}). The stress test therefore only checks
+  configurations that the theorems already exclude.
+\end{itemize}
+
+\paragraph{Learned networks.}
+\begin{itemize}[leftmargin=1.5em,itemsep=1pt,topsep=2pt]
+\item The theorems concern exact fields of a fixed training set and do not say that a trained
+  network implements them. Learned label averages need not follow the exact ones
+  (Appendix~\ref{app:intervention-protocol}).
+\item Whether a network reproduces the blend basin varied across parametrisations and seeds. On
+  the triangle, data predictors given the coordinate centred at the triangle centre left the edge
+  midpoints empty in our runs.
+\item The learned composition experiments use three to five seeds and $d\le2$, and the image-scale
+  composition check uses the exact field on CIFAR-10 pairs, not a trained network. Trained
+  compositional samplers on images, where the conditions are text prompts rather than labels, are
+  not tested.
+\item The label-noise comparison uses one small synthetic problem and one image configuration with
+  three draws of the training set. At image scale the generated variance does not follow the
+  reference, and we do not identify why; the off-support CIFAR-10 samples are measured at a finite
+  cutoff and do not identify a limiting support.
+\end{itemize}
 
 % ==========================================================================
 \section{Conclusion}
@@ -3235,6 +3154,16 @@ $X_t=x_0\eps/(1-t_0)\to0$, although $g'(0)=2$: an input at the scale $x/\eps$ de
 (b). The input $\operatorname{asinh}(tx/\eps^2)$ of Section~\ref{sec:intervention-tests} acts at
 the scale of the tie in the same way.
 
+\paragraph{A predictor with the exact threshold.} A bounded-derivative predictor can reproduce the same attraction threshold. Let
+$H(x)=\tanh x+2\tanh^3x$ and take $\bar g_\varphi=H+a\tanh$ and
+$g_{\mathrm{unc}}=H+(a+b)\tanh$, where $a,b>0$ and $a/b=w_c$.
+Then $g_w'(0)=1+a-bw$. For these time-independent predictors, the midpoint attracts above $w_c$
+and repels below it. At equality $g_w(x)-x=(5/3)x^3+O(x^5)$, so it also repels.
+The exact two-atom mean varies by a fixed amount across an interval of width $O(\eps^2)$
+near the tie. Matching this variation forces the spatial Lipschitz constant to grow at least as
+$\eps^{-2}$ by the mean value bound. The input $\operatorname{asinh}(tx/\eps^2)$ resolves
+this spatial scale.
+
 % ==========================================================================
 \section{Endpoint noise}
 \label{app:noise}
@@ -3319,7 +3248,7 @@ as the network's initialisation and data order. At $20$ training conditions per 
 samples with $100$ RK4 steps and compare their covariance trace with $\tr\Covh$ of
 Theorem~\ref{thm:endpoint}, computed from the training set (\texttt{analyze\_p7\_kernel.py};
 Table~\ref{tab:p7kernel}). The ratio is averaged over conditions within a seed and then over
-seeds. The label-averaging pilot of Section~\ref{sec:intervention-tests} uses five networks of the
+seeds. The label-averaging pilot of Appendix~\ref{app:intervention-protocol} uses five networks of the
 same architecture and training at $h=0.1$, with their own problem seeds
 (Appendix~\ref{app:intervention-protocol}).
 
@@ -3422,7 +3351,22 @@ each seed (grey)
 and their mean.}
 \label{fig:intervention-validation}
 \end{figure}
-\placeblock{learnedtab}
+\begin{table}[t]
+\centering\small
+\begin{tabular}{@{}rrrr@{}}
+\toprule
+$r/\operatorname{sd}(y)$ & Training energy & Fresh energy & Fresh seed range\\
+\midrule
+0 & 0.005627 & 0.007227 & 0.001876--0.009327\\
+0.5 & 0.011200 & 0.011054 & 0.001887--0.018859\\
+1.5 & 0.289771 & 0.143176 & 0.001758--0.544995\\
+\bottomrule
+\end{tabular}
+\caption{Learned versus exact label averages across five problem seeds. Energy is normalised by
+the square root of the analytic posterior trace; conditions and samples are nested within
+seeds, so these are descriptive values, not hypothesis tests.}
+\label{tab:learned-averages}
+\end{table}
 
 \paragraph{Exact-field stress test.} Geometry seeds 201--205 generate $N=12$ atoms in dimensions
 $2$ and $8$; the near-duplicate control moves the second atom to distance $0.02$ from the first.
@@ -3430,7 +3374,31 @@ For each $h\in\{0.3,1\}$ the arms are guidance at $w=0,3,12$, a uniform average 
 label offsets $\{-2,-1,0,1,2\}h$, and the field of the average of their normalised priors. Each
 cell uses 128 common Gaussian sources and double-precision log-time RK4 with 256 or 512 steps per
 segment through the gaps $10^{-2},10^{-4},10^{-6}$. The 200 cells are nested within five geometry
-seeds. \placeblock{stressextra}
+seeds. Doubling the
+log-time RK4 resolution leaves every atom assignment unchanged. Field and prior averages differ
+in paired assignments by up to $31.25\%$, so they are distinct interventions.
+Table~\ref{tab:stress} summarises the test.
+
+\begin{table}[htb]
+\centering\small
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.52\textwidth}>{\raggedright\arraybackslash}p{0.42\textwidth}@{}}
+\toprule
+setting or result & value\\
+\midrule
+geometry seeds; dimensions; atoms & five; $d\in\{2,8\}$; $N=12$, random and near-duplicate\\
+bandwidths; arms & $h\in\{0.3,1\}$; single field, guidance ($w=3,12$), label average, prior average\\
+paired cells; common sources per cell; terminal gap & $200$; $128$; $10^{-6}$\\
+\midrule
+largest cellwise 95th percentile of the nearest-atom distance & $6.11937\times10^{-6}$\\
+samples beyond the prespecified threshold of $1\%$ of the minimum atom separation & none\\
+\bottomrule
+\end{tabular}
+\caption{Exact-field stress test: wherever the theorems exclude a blend, every endpoint lies on a
+training atom, and field and prior averages are distinct interventions.
+Figure~\ref{fig:intervention-validation}(a) shows the finite-cutoff distances. These are
+finite-time consistency checks, not a numerical proof.}
+\label{tab:stress}
+\end{table}
 
 \paragraph{Positive control.} \texttt{stress\_positive\_control.py} transcribes the oracle field and
 the fixed-step RK4 of the stress test into double-precision NumPy and applies them to the guided
@@ -3446,6 +3414,29 @@ the midpoint along the line of the atoms, and within $0.0371$, $3.71\times10^{-4
 $3.71\times10^{-6}$ across it, at the gaps $10^{-2}$, $10^{-4}$ and $10^{-6}$.
 
 
+\paragraph{The stress test cannot see an attracting tie.} None of the arms above has an attracting
+off-support candidate, so a scheme biased towards the atoms would pass the test as well. We therefore
+gave the same fixed-step log-time RK4, with the same $256$ and $512$ steps per segment and the
+same terminal gaps, the guided average of two conditional fields on the atoms $(\pm1,0)$ in $d=2$,
+with $B=1$, $w/w_c\in\{0.9,1.1,2,10\}$ and $4096$ Gaussian sources. With the field coded through
+the logits $-|x-ta|^2/2\eps^2$, as in the stress test, it ends at the midpoint exactly the sources
+in the basin computed by the stiff integrator of the guided label averaging below: fractions $0$, $0.049$, $0.410$ and $0.988$,
+against basin probabilities $0$, $0.050$, $0.406$ and $0.991$ under $\pi_0$. This agreement is a
+rounding effect. In the last steps of the first segment the step exceeds the stability bound of
+RK4 for the linearisation at the tie by a factor of about $27$ at $w=2w_c$. The captured trajectories have
+already reached $|x_1|\approx10^{-17}$, where the logits no longer resolve $x_1$ and the computed
+field is exactly symmetric. With the same field coded in the blow-up coordinate $\zeta=tx_1/\eps^2$,
+the scheme ejects these trajectories: no source ends at the midpoint, except $0.049$ at
+$w=1.1\,w_c$ with $512$ steps and the gap $10^{-2}$ only, and the $1\%$ criterion flags nothing.
+Detection also depends on the coordinates. Translating both atoms by $c=(0.25,0)$ translates each
+exact path by $tc$ for the same source. Among the first $256$ sources, $108$ and $252$ belong to
+the midpoint basin at $2w_c$ and $10w_c$. In the logit coding, both RK4 resolutions recover all of
+them at the origin and none within $0.05$ of the translated midpoint at all three cutoffs. So the
+fixed-step stress test does not detect attracting ties. Its arms are consistency checks of
+theorems that exclude them; where an attracting tie exists, every number we report comes from the
+stiff integrator with stopping rules taken from the proofs, and the CIFAR-10 basins below are
+classified in profile coordinates (Appendix~\ref{app:intervention-protocol}).
+
 \paragraph{Ties.} In one dimension the atoms and labels are $\{-1,1\}$, with initial sources
 $0,\pm10^{-12},\pm10^{-8},\pm10^{-4},\pm10^{-2}$ and $h\in\{0.05,0.2,1\}$. We compare the average of
 the two exact label fields, the uniform-prior field, and the hard-conditioning average, whose field is
@@ -3453,7 +3444,11 @@ $-x/\eps$ and whose endpoint is $0$. A follow-up to gap $10^{-18}$ shows departu
 atoms for positive offsets under fixed-step refinement, but DOP853 (relative tolerance $10^{-11}$,
 absolute $10^{-30}$) fails in four of six selected cases at $h=0.05,0.2$ because the required
 step falls below floating-point spacing; we retain these failures.
-\placeblock{neartie}
+Near the symmetric tie of two atoms,
+sources at small offsets stay close to the midpoint until very small gaps
+(Figure~\ref{fig:intervention-validation}(b)), and four of six
+adaptive near-tie integrations fail at small bandwidths; we report these failures
+(Appendix~\ref{app:intervention-protocol}).
 
 \paragraph{Guided label averaging.} \texttt{composition\_counterexample.py} integrates $x$ with
 Radau (relative tolerance $10^{-11}$, absolute $10^{-13}$) up to $\tau=0.5$ and then
@@ -3464,11 +3459,60 @@ $F(\zeta_\star-\delta)>0>F(\zeta_\star+\delta)$ and $\beta\min\{F(\zeta_\star-\d
 (1+\eps/t)(|\zeta_\star|+\delta)$ (limit $0$). Roots are bracketed on a grid over $[-60,60]$ and refined
 by Brent's method. The basin of $0$ is an interval located by bisection to relative tolerance
 $10^{-12}$, and its probability is computed under $\N(0,1)$. Table~\ref{tab:composition} lists
-the probabilities shown in Figure~\ref{fig:composition}(b).
+the probabilities shown in Figure~\ref{fig:composition}(b). Below the threshold the stopping rule labels every source other than $0$ an atom at its first
+check; just above it the computed basin probability grows linearly, as $\sqrt{2/\pi}\,(w/w_c-1)/\cosh B$ to within $0.01\%$ at $w=1.0003w_c$, a formal
+law derived in Appendix~\ref{apx:threshold-scaling}.
 \placeblock{compfig}
-\placeblock{compperturb}
+The numerical unstable roots agree with the closed form $\cosh \zeta_u=\sqrt w\sinh B$.
+With $w=1$ and $B\approx2$, unequal mixture weights $(0.6,0.4)$, unequal $(B_1,B_2)=(2,-1.5)$, an
+unconditional log-odds $2B_u=0.6$, or a combination of all three keep basin probabilities between
+$0.71$ and $0.86$, as Theorem~\ref{thm:composition}(c) predicts.
+The two-atom continuation of Appendix~\ref{app:cifar-composition} from the full-field handoff returns a positive midpoint fraction for every
+pair at $2w_c$: $917$ of $4096$ pair--source combinations ($0.224$) over the eight pairs selected
+for their margin and $309$ of $6144$ ($0.050$) over the twelve random ones.
 
-\placeblock{spectralexp}
+\paragraph{All blends in the spectral configurations.} We integrate the exact flow of
+Theorem~\ref{thm:spectral} in four configurations whose atoms all lie on the unit sphere around
+$z=0$, so that every atom is tied and the blown-up equation has no off-tie term. Two are a
+triangle in $d=2$ and a regular nine-vertex simplex in $d=8$, each with one conditional prior
+favouring each vertex ($B=2$). The other two are a rectangle in $d=2$ and a $256$-vertex box in
+$d=8$ with product priors; at $w=1$ the profile $\xi=0$ is a saddle with negative $\tr\Gamma$,
+where the trace test of Lemma~\ref{lem:volume} is silent. Every source or saddle profile ends
+with no source at $z$. Every sink profile in $d=2$ keeps a stable positive fraction of the sources
+($0.001$, $0.140$, $0.687$ for the triangle at $1.1,2,5\,w_c$). In $d=8$ the basins of $z$ are
+smaller: $0.019$ for the simplex at $5\,w_c$ and $0.002$ (one of $512$ sources) for the box at
+$w=5$, and below the sampling resolution of $1/2048$ for the simplex at $1.1$ and $2\,w_c$
+(Table~\ref{tab:spectral}). These fractions count the
+centre only, and on the triangle the centre is not the only blend: the edge midpoints are ties of
+two atoms that attract for $w>1.368\,w_c$ and have probability $0$ below this value
+(Section~\ref{sec:conjunction}). With $32768$ sources, each classified by the candidate it
+converges to (Appendix~\ref{app:intervention-protocol}), the exact flow ends $0.131$, $0.409$ and
+$0.460$ of the mass at the centre, the edge midpoints and the training atoms at $2w_c$
+(Figure~\ref{fig:unrolled}c), $0.681$, $0.294$ and $0.025$ at $5w_c$, and $0.950$, $0.050$ and
+$0.0001$ at $10w_c$, with standard errors at most $0.003$; at $1.1\,w_c$ no source ends at an edge
+midpoint. The other configurations have further blends. On the simplex the centroid of a face with
+$k$ vertices is a tie of $k$ atoms at which the other $9-k$ conditions act as the unconditional
+field, and its profile $\xi=0$ attracts for $w>9/(k\,m_k^2)-1$, $m_k=(e^B-1)/(e^B+k-1)$: for
+$w>1.407\,w_c$ at an edge and for $w$ above $0.97$ to $1.14\,w_c$ when $3\le k\le8$. With product
+priors the flows of the rectangle and the box separate by axis into one-dimensional composites as
+in Theorem~\ref{thm:composition}, with $B(p)=\pm2$ on the long axes and $\pm1/2$ on the short ones,
+so a long axis ends at $0$ with positive probability for $w>1/\sinh^22=0.076$, also at $w=1$, where
+$\xi=0$ is a saddle, and a short one for $w>1/\sinh^2(1/2)=3.68$; the centroids of the faces
+spanned by such axes are blends. When every endpoint is classified by the face whose centroid it
+reaches, with the integration and the numbers of sources of Table~\ref{tab:spectral}
+(Appendix~\ref{app:intervention-protocol}), these other blends take $0.953$ of the mass of the
+simplex at $2\,w_c$ and $0.981$ at $5\,w_c$ (and $0.001$ at $1.1\,w_c$), $0.895$ and $0.754$ of
+the rectangle at $w=1$ and $5$, all at the midpoints of its long edges, and all $512$ sources of
+the box at $w=1$ and $511$ of them at $w=5$. These are finite-time computations that agree with
+the theorem; they do not prove it.
+
+\paragraph{Signed combinations.} With the stiff integrator and the proof-based stopping
+rules of the guided label averaging above, the midpoint has probability $0.406$ for the equal conjunction at
+$B=1$, $w=2w_c$, and $0.742$ for the unequal conjunction $(c_+,c_-)=(1.2,0.8)$ at $B=2$. A positive
+prompt for $a$ and a negative prompt for $b$ ($B=\pm2$) give probability $0$, both with an
+unconditional base, coefficients $(3,-1,-1)$, and in the substituted form $3v_a-2v_b$. A positive
+prompt for $a$ with a negative prompt that favours $a$ less ($B=2$ and $0.25$, coefficients $0.91$
+and $-4$, unconditional coefficient $4.09$) gives $0.316$.
 
 \paragraph{Spectral criterion.} \texttt{spectral\_criterion\_check.py} draws Gaussian sources,
 integrates $dx/d\tau=M(\beta x)-x$ with RK4 up to $t=1/2$, and then the exact profile equation
@@ -3527,8 +3571,7 @@ simplex, $w_c=(1-m^2)/m^2$ is the threshold of Theorem~\ref{thm:spectral}(d)
 trace. Other candidates are not counted: on the triangle the edge midpoints, ties of two atoms
 whose profile attracts for $w>1.368\,w_c$, take a further $0.41$ and $0.29$ of the mass at $2$ and
 $5\,w_c$; on the simplex at $2$ and $5\,w_c$ and on the rectangle and the box, centroids of other
-faces take most of the mass (\ificlr Appendix~\ref{app:intervention-protocol}\else
-Section~\ref{sec:intervention-tests}\fi).}
+faces take most of the mass (Appendix~\ref{app:intervention-protocol}).}
 \label{tab:spectral}
 \end{table}
 
@@ -3603,7 +3646,15 @@ exact endpoints are atoms almost surely, keep the learned two-atom midpoint occu
 $0.001$, except for the label average of the velocity networks at $B=3$ and of the velocity network
 with the rescaled input at $B=2$ ($0.009\pm0.018$, Table~\ref{tab:learned-composition}). The data-predicting network starts slightly
 early ($0.014\pm0.009$ at $w=w_c$, $B=1$): its fitted tie slope changes sign at about $0.87\,w_c$
-near $t=1$. \placeblock{lossrisk}
+near $t=1$. The velocity
+network has the smaller held-out excess risk for $t\ge0.999$ ($1.4\times10^{-7}$ against
+$9.4\times10^{-7}$), yet its posterior mean misses the boundary layer at the tie: at
+$\eps=10^{-5}$ its mean squared error over $|\zeta|\le3$ is $0.67$, against $0.0024$. Small loss does not
+decide the endpoint without control of the field's regularity
+\citep[Section~3, discussion of Assumption~3]{benton2024error}. Nor do their other endpoints all lie at training atoms: at
+$\eps=10^{-5}$ the standard network leaves $0.16$, $0.70$ and $0.79$ of its sources at $2$, $5$ and
+$10\,w_c$ farther than $0.1$ from every atom and from the centre, and the data-predicting network
+$0.16\pm0.16$ at $2w_c$.
 
 \paragraph{Which change matters.} Two ablations separate the changes, with five seeds each and
 the same training and integration. \texttt{cfm\_v\_s} keeps the velocity output and its loss and
@@ -3784,7 +3835,12 @@ do not count (Section~\ref{sec:intervention-tests}). The triangle grid has no $w
 \end{table}
 
 \FloatBarrier
-\placeblock{learnedpilot}
+\paragraph{Learned label averages.} We reuse five $h=0.1$, 200k-step networks of the linear-Gaussian problem (Appendix~\ref{app:kernel-protocol}) and average
+their predictions at $y-r,y,y+r$, with $r$ scaled by the training-label standard deviation, at
+two training and two fresh queries per seed with 128 paired sources. Against the exact average of
+the same three fields at $T=0.999$ (Table~\ref{tab:learned-averages}), wider averaging increases
+the mean discrepancy, although not on every seed: exact atomicity does not transfer automatically
+to a network. The biased energy statistic has no null subtraction or equivalence threshold.
 
 \paragraph{Learned label averages.} The five networks have problem seeds 1001--1005, $h=0.1$ and
 $2\times10^5$ training steps. For each, the first and last training labels and two fresh queries
