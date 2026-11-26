@@ -281,7 +281,7 @@ guarantees \citep[Sec.~3 and Theorem~1]{benton2024error}
 training loss when the iterates have a bounded density with respect to the interpolant law, which
 implies the risk-transfer condition of Theorem~\ref{thm:risktransfer}; for the reverse SDE, a
 learned score at bounded distance from the empirical one returns only training examples
-\citep[Theorem~2]{pidstrigach2022manifolds}. Lemma~\ref{thm:transfer} and
+\citep[Theorem~2]{pidstrigach2022manifolds}. Theorem~\ref{thm:transfer} and
 Proposition~\ref{prop:loss-no-certificate} specialise this to the singular hard-conditioning
 target, and Theorem~\ref{thm:relerr} replaces an absolute error bound by a relative one.
 
@@ -379,7 +379,7 @@ the next section states which property of $\Delta$ decides it.
 A trained network differs from the exact field by an error $\Delta$. This section states which
 property of $\Delta$ decides whether a trajectory reaches a training example. The main result,
 Theorem~\ref{thm:relerr}, is a relative condition that holds at any label and bandwidth. A
-supporting lemma then bounds how far the endpoint can end from its example at an identifying label.
+second theorem then bounds how far the endpoint can end from its example (Theorem~\ref{thm:transfer}).
 Both statements are about the error along the trajectory, not about the training loss. A field
 affine in space can have vanishing hard-conditioned loss and still end with law $\N(a,I_d)$, through
 a late amplification (Proposition~\ref{prop:loss-no-certificate}). An explicit risk-transfer
@@ -442,56 +442,56 @@ Theorem~\ref{thm:relerr}(b) and~(c).}
 \label{fig:mechanism}
 \end{figure}
 
-\paragraph{The size of the miss at an identifying label.} Theorem~\ref{thm:relerr} says whether a
-trajectory lands. When the label identifies one training example, the next lemma also bounds how far
-from it the endpoint can end.
+\paragraph{The size of the miss.} Theorem~\ref{thm:relerr} says whether a trajectory lands. The next
+theorem bounds how far from its training example the endpoint can end: globally when the label
+identifies the example (part~(a)), and near the example at positive bandwidth (part~(b)).
 
-% Demoted from theorem to lemma (split contract, sec. 2 and 5); statement unchanged.
-\begin{restatable}[Endpoint transfer at an identifying label]{lemma}{thmtransfer}
+% Lemma 4.2 (endpoint transfer at an identifying label) and Proposition 4.3 (local transfer at
+% positive bandwidth) merged as parts (a) and (b) (REVIEW.md 4.1); each part states the old
+% hypotheses and conclusions unchanged.
+\begin{restatable}[Endpoint transfer]{theorem}{thmtransfer}
 \label{thm:transfer}
-Fix an identifying label with atom $a=a_i$. Let $Z$ be absolutely continuous on $[0,1)$ with
-$Z_0=x_0$ and
-\[
-\dot Z_t=\frac{a-Z_t}{\eps_t}+\Delta(Z_t,t)\quad\text{for almost every }t,
-\]
-where $s\mapsto\Delta(Z_s,s)$ is integrable on every $[0,T]$ with $T<1$. Then for $t<1$
-\begin{equation}
-Z_t-a=\eps_t(x_0-a)+\eps_t\int_0^t\frac{\Delta(Z_s,s)}{\eps_s}\,ds,
-\qquad
-\limsup_{t\uparrow1}|Z_t-a|\le\limsup_{t\uparrow1}\,\eps_t|\Delta(Z_t,t)|.
-\label{eq:transfer}
-\end{equation}
-The bound is attained: for $\Delta(x,t)=c/\eps_t$ both sides equal $|c|$ from every $x_0$. If
-the field predicts data, $v_\theta(x,t)=(\hat x_1(x,t)-x)/\eps$, then
-$\limsup_{t\uparrow1}|Z_t-a|\le\limsup_{t\uparrow1}|\hat x_1(Z_t,t)-a|$.
-\proofin{apx:pf-transfer}
+\begin{enumerate}[label=(\alph*),leftmargin=2em]
+\item \emph{Identifying label ($h=0$).} Fix an identifying label with atom $a=a_i$. Let $Z$ be
+  absolutely continuous on $[0,1)$ with $Z_0=x_0$ and
+  \[
+  \dot Z_t=\frac{a-Z_t}{\eps_t}+\Delta(Z_t,t)\quad\text{for almost every }t,
+  \]
+  where $s\mapsto\Delta(Z_s,s)$ is integrable on every $[0,T]$ with $T<1$. Then for $t<1$
+  \begin{equation}
+  Z_t-a=\eps_t(x_0-a)+\eps_t\int_0^t\frac{\Delta(Z_s,s)}{\eps_s}\,ds,
+  \qquad
+  \limsup_{t\uparrow1}|Z_t-a|\le\limsup_{t\uparrow1}\,\eps_t|\Delta(Z_t,t)|.
+  \label{eq:transfer}
+  \end{equation}
+  The bound is attained: for $\Delta(x,t)=c/\eps_t$ both sides equal $|c|$ from every $x_0$. If
+  the field predicts data, $v_\theta(x,t)=(\hat x_1(x,t)-x)/\eps$, then
+  $\limsup_{t\uparrow1}|Z_t-a|\le\limsup_{t\uparrow1}|\hat x_1(Z_t,t)-a|$.
+\item \emph{Positive bandwidth ($h>0$).} Let $h>0$, fix $y$, write $v^\star=\vstar(\cdot,\cdot,y)$,
+  and let $a=a_i$ be an atom with $\ell =\min_{j\ne i}|a_j-a|$ and $r\in(0,\ell /2)$. There is
+  $t_\star<1$, depending only on the atoms, $p^{(h)}(y)$ and $r$, with the following property. Let
+  $v^\star+\Delta$ be locally Lipschitz on $\R^d\times[0,1)$, let $t_0\in[t_\star,1)$, and let $Z$
+  be the maximal solution of $\dot Z=v^\star(Z,t)+\Delta(Z,t)$ from a point $Z_{t_0}$. If
+  $|Z_{t_0}-a|<r/4$ and $\eps_t|\Delta(x,t)|\le r/4$ whenever $|x-a|\le r$ and $t_0\le t<1$, then
+  $|Z_t-a|<r$ for all $t\in[t_0,1)$ and
+  $\limsup_{t\uparrow1}|Z_t-a|\le\limsup_{t\uparrow1}\eps_t|\Delta(Z_t,t)|$.
+\end{enumerate}
+\proofin{apx:pf-transfer-all}
 \end{restatable}
 
-The argument is elementary. What it adds is the reading: a learned trajectory stays away from its
+Part~(a) is elementary. What it adds is the reading: a learned trajectory stays away from its
 atom only if the scaled error $\eps|\Delta|$, equivalently the error of the implied endpoint
 prediction, stays away from zero up to $t=1$. Errors of order $o(\eps^{-1})$ still collapse. The
 bound is informative when the scaled error is controlled independently of the endpoint, for
 instance by an estimate of the learned field. It is not a separate test of the endpoint. Since
 $\eps_t\Delta(Z_t,t)=\eps_tv_\theta(Z_t,t)+Z_t-a$, if $v_\theta$ stays bounded along a trajectory with
 $Z_t\to z$, then $\eps_t\Delta(Z_t,t)\to z-a$ and the bound holds with equality. A correlation
-between the two measured quantities would therefore carry little additional information. At
-positive bandwidth the same holds near an atom, once the trajectory enters a small ball with a
-small scaled error there.
+between the two measured quantities would therefore carry little additional information. Part~(b)
+says that at positive bandwidth the same holds near an atom, once the trajectory enters a small ball
+with a small scaled error there.
 
-\begin{restatable}[Local transfer at positive bandwidth]{proposition}{proplocaltransfer}
-\label{prop:localtransfer}
-Let $h>0$, fix $y$, write $v^\star=\vstar(\cdot,\cdot,y)$, and let $a=a_i$ be an atom with
-$\ell =\min_{j\ne i}|a_j-a|$ and $r\in(0,\ell /2)$. There is $t_\star<1$, depending only on the
-atoms, $p^{(h)}(y)$ and $r$, with the following property. Let $v^\star+\Delta$ be locally
-Lipschitz on $\R^d\times[0,1)$, let $t_0\in[t_\star,1)$, and let $Z$ be the maximal solution of
-$\dot Z=v^\star(Z,t)+\Delta(Z,t)$ from a point $Z_{t_0}$. If $|Z_{t_0}-a|<r/4$ and
-$\eps_t|\Delta(x,t)|\le r/4$ whenever $|x-a|\le r$ and $t_0\le t<1$, then $|Z_t-a|<r$ for
-all $t\in[t_0,1)$ and $\limsup_{t\uparrow1}|Z_t-a|\le\limsup_{t\uparrow1}\eps_t|\Delta(Z_t,t)|$.
-\proofin{apx:pf-localtransfer}
-\end{restatable}
-
-\paragraph{What the statements do and do not say.} Theorem~\ref{thm:relerr},
-Lemma~\ref{thm:transfer} and Proposition~\ref{prop:localtransfer} are conditional. They do not infer
+\paragraph{What the statements do and do not say.} Theorems~\ref{thm:relerr}
+and~\ref{thm:transfer} are conditional. They do not infer
 the error along trajectories from the training loss, and they do not assert that a trained network
 enters the ball. They name what a measurement would need to show.
 Appendix~\ref{app:measured-transfer} measures the trajectory error on the linear-Gaussian problem
@@ -592,7 +592,7 @@ EDM denoisers of CIFAR-10 \citep{karras2022elucidating}. We use the public model
 $50000$ images, and three models with the same architecture trained here for $10$\,Mimg without
 augmentation on class-balanced subsets, two of $500$ images (different subsets and seeds) and one of
 $2000$. The exact field $m^\star$ is the posterior mean over the training images of the class $c$.
-The class label is not identifying, so Lemma~\ref{thm:transfer} does not apply, while the relative
+The class label is not identifying, so Theorem~\ref{thm:transfer}(a) does not apply, while the relative
 condition does.
 
 \begin{center}
@@ -963,11 +963,11 @@ on-atom sample down to $\sigma=0.30$.
 \section{Limitations and planned experiments}
 \label{sec:limitations}
 
-\paragraph{Scope of the theory.} The landing condition and the transfer lemma are conditional on
+\paragraph{Scope of the theory.} The landing condition and the transfer theorem are conditional on
 the error along learned trajectories, which we do not infer from the loss. On EXP-1 this error
 exceeds the training-law error by orders of magnitude near $t=1$
 (Appendix~\ref{app:measured-transfer}). At positive bandwidth the transfer bound is only local
-(Proposition~\ref{prop:localtransfer}), so it does not explain the off-atom CIFAR-10 inpainting
+(Theorem~\ref{thm:transfer}(b)), so it does not explain the off-atom CIFAR-10 inpainting
 samples of Appendix~\ref{app:measured-transfer}. An off-atom endpoint whose scaled error against
 the exact field vanishes along its trajectory would contradict the attribution.
 Theorem~\ref{thm:relerr}(c) is an asymptotic condition that a finite schedule cannot check, and
@@ -1024,7 +1024,7 @@ the training set only through the error of its learned field. This paper states 
 that error decides the outcome. A trajectory lands on a training example when its error stays a
 fixed fraction below its distance to the example, and does not when the radial ratio approaches one
 fast enough (Theorem~\ref{thm:relerr}). At an identifying label the limiting scaled error also
-bounds how far the endpoint ends from the example (Lemma~\ref{thm:transfer}), and a small regression
+bounds how far the endpoint ends from the example (Theorem~\ref{thm:transfer}(a)), and a small regression
 loss controls neither quantity.
 
 On class-conditional EDM models of CIFAR-10, the choice of the image and the landing on it happen at
@@ -1163,7 +1163,7 @@ $s$, $=$L, $=$E & swap level; agreement of the nearest training image with the l
 \toprule
 Result & Proof & Main ingredients\\
 \midrule
-Lem.~\ref{thm:transfer}, Prop.~\ref{prop:localtransfer} & \ref{apx:pf-transfer-all} & variation of constants; concentration of the posterior near an atom\\
+Thm.~\ref{thm:transfer}(a), (b) & \ref{apx:pf-transfer-all} & variation of constants; concentration of the posterior near an atom\\
 Thm.~\ref{thm:risktransfer}, Prop.~\ref{prop:loss-no-certificate} & \ref{app:teacher-risk} & Minkowski's inequality; an explicit affine field\\
 Thm.~\ref{thm:relerr}, Prop.~\ref{prop:trap}, \ref{prop:heun} & \ref{app:relerr} & radial projection of the flow; Gr\"onwall; affine form of the Heun step\\
 \bottomrule
@@ -1182,6 +1182,7 @@ proved in the works cited there.}
 
 \phantomsection\label{apx:pf-transfer}
 \thmtransfer*
+\paragraph{Proof of part~(a).}
 \begin{proof}
 Let $Y_t=Z_t-a$, so that $\dot Y_t=-Y_t/\eps_t+\Delta(Z_t,t)$ for almost every $t$. On each $[0,T]$
 the function $Y_t/\eps_t$ is absolutely continuous, as the product of an absolutely continuous
@@ -1219,10 +1220,10 @@ $|Z_t-a|\to|c|$, while $\eps_t|\Delta|\equiv|c|$. Finally, for a data-prediction
 so $\eps_t|\Delta(Z_t,t)|=|\hat x_1(Z_t,t)-a|$, and the bound becomes the stated one.
 \end{proof}
 \phantomsection\label{apx:pf-localtransfer}
-\proplocaltransfer*
+\paragraph{Proof of part~(b).}
 \paragraph{Proof overview.} Near $a$ the exact field is the hard field $(a-x)/\eps$ plus an
 exponentially small error. Adding this error to $\Delta$, the identity of
-Lemma~\ref{thm:transfer} first traps the trajectory in the ball and then gives the limit.
+part~(a) first traps the trajectory in the ball and then gives the limit.
 \begin{proof}
 Let $p=p^{(h)}(y)$, a probability vector with all entries positive. By
 Proposition~\ref{prop:kernel-field}, $v^\star=(m^\star-x)/\eps$ with $m^\star=\sum_jq_j^{(h)}a_j$ and
@@ -1261,7 +1262,7 @@ compact subset $\overline{B_r(a)}\times[t_0,T_{\max}]$ of $\R^d\times[0,1)$, whi
 solution of a locally Lipschitz equation cannot do; so $T_{\max}=1$ and $|Z_t-a|<r$ on
 $[t_0,1)$.
 
-Finally, Lemma~\ref{thm:transfer} applied from $t_0$ with $\tilde\Delta$ gives
+Finally, part~(a) applied from $t_0$ with $\tilde\Delta$ gives
 \[
 \limsup_{t\uparrow1}|Z_t-a|\le\limsup_{t\uparrow1}\eps_t|\tilde\Delta(Z_t,t)|
 \le\limsup_{t\uparrow1}\bigl[e_\star(t)+\eps_t|\Delta(Z_t,t)|\bigr]
@@ -1305,7 +1306,7 @@ Without risk transfer, $W_2(\nu_T,\law(Y_T))\le\sqrt{T(1-T)\int_0^T m(t)\,dt}$.
 \begin{proof}
 Since $\dot Y_t=a-X_0=(a-Y_t)/\eps_t=f(Y_t,t)$, the difference $D_t=Z_t-Y_t$ solves
 $\dot D_t=-D_t/\eps_t+\Delta(Z_t,t)$ with $D_0=0$ under the shared initialisation. As in the proof
-of Lemma~\ref{thm:transfer}, $\frac{d}{dt}(D_t/\eps_t)=\Delta(Z_t,t)/\eps_t$, so
+of Theorem~\ref{thm:transfer}(a), $\frac{d}{dt}(D_t/\eps_t)=\Delta(Z_t,t)/\eps_t$, so
 \[
 Z_T-Y_T=\eps_T\int_0^T\frac{\Delta(Z_t,t)}{\eps_t}\,dt .
 \]
@@ -1395,7 +1396,7 @@ not bounded uniformly as $\delta\downarrow0$.
 \end{proof}
 
 The example identifies the missing distributional transfer in a loss-only argument; it is not
-evidence that trained networks realise this field. Lemma~\ref{thm:transfer} applies to it with
+evidence that trained networks realise this field. Theorem~\ref{thm:transfer}(a) applies to it with
 equality: along each trajectory $\eps_t|\Delta(Z_t,t)|=|X_0|=|Z_1-a|$ on $[1-\delta/2,1)$.
 
 % ==========================================================================
@@ -1594,7 +1595,7 @@ smaller than the error the sampler meets near $t=1$, growing like $\eps^{-2}$ ov
 resulting certificate $B_T=0.637\pm0.31$ at $1-T=10^{-3}$ equals the root-mean-square distance
 to the atom, $0.637\pm0.31$, and to the teacher path, $0.636\pm0.31$, while the same expression
 with $K\equiv1$, built from the training-law error alone, is $0.0065\pm0.0008$ and bounds neither. As remarked after
-Lemma~\ref{thm:transfer}, this agreement is the identity of the lemma, not an independent
+Theorem~\ref{thm:transfer}(a), this agreement is the identity of the theorem, not an independent
 prediction; what the measurement adds is that $r$ and $m$ differ by the factor $K$.
 
 \paragraph{Off-atom CIFAR-10 samples.} \texttt{exp\_c\_cifar\_transfer.py} reintegrates
@@ -1642,9 +1643,9 @@ $2.2$--$3.0$, and pooled over seeds the AUC is $0.970$ $[0.961,0.978]$ at $h=4$ 
 $[0.942,0.959]$ at $h=6$ by $t\approx0.53$ ($95\%$ intervals from resampling the $48$ conditions
 within each run), and stays between $0.977$ and $0.990$ from $t\approx0.71$ on. From $t\approx0.86$ on both
 medians stay nearly constant, while the network's error along the exact trajectories falls to
-$0.006$. The limit in Lemma~\ref{thm:transfer} is thus reached early, and what marks an
+$0.006$. The limit in Theorem~\ref{thm:transfer}(a) is thus reached early, and what marks an
 off-atom endpoint is error the network carries through the second half of sampling, not error that
-appears only at the end. At positive bandwidth Proposition~\ref{prop:localtransfer} is local, so
+appears only at the end. At positive bandwidth Theorem~\ref{thm:transfer}(b) is local, so
 this is a consistency check of the attribution, not a proof of it.
 
 The same network evaluated along the exact trajectory from the same source separates the groups
